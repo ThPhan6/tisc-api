@@ -1,8 +1,8 @@
 import { Database } from "arangojs";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 const db = new Database({
   url: process.env.DATABASE_HOSTNAME,
@@ -68,7 +68,6 @@ export default class Model<IModelData> {
       }
       return result._result;
     } catch (err) {
-      // console.error(err);
       return false;
     }
   };
@@ -109,7 +108,48 @@ export default class Model<IModelData> {
       });
       return result._result[0];
     } catch (error) {
-      console.log(error);
+      return false;
+    }
+  };
+
+  public findBy = async (params: any): Promise<IModelData | false> => {
+    try {
+      const result: any = await db.query({
+        query: `for data in @@model ${filterToAql(params, "data")} return data`,
+        bindVars: {
+          "@model": this.modelName,
+        },
+      });
+      return result._result[0];
+    } catch (error) {
+      return false;
+    }
+  };
+
+  public getBy = async (params: any): Promise<IModelData[] | false> => {
+    try {
+      const result: any = await db.query({
+        query: `for data in @@model ${filterToAql(params, "data")} return data`,
+        bindVars: {
+          "@model": this.modelName,
+        },
+      });
+      return result._result;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  public getAll = async (): Promise<IModelData[] | false> => {
+    try {
+      const result: any = await db.query({
+        query: `for data in @@model return data`,
+        bindVars: {
+          "@model": this.modelName,
+        },
+      });
+      return result._result;
+    } catch (error) {
       return false;
     }
   };
@@ -136,7 +176,6 @@ export default class Model<IModelData> {
       }
       return false;
     } catch (error) {
-      console.log(error);
       return false;
     }
   };
@@ -153,7 +192,18 @@ export default class Model<IModelData> {
       }
       return false;
     } catch (error) {
-      console.log(error);
+      return false;
+    }
+  };
+
+  public deleteMany = async (ids: string[]): Promise<boolean> => {
+    try {
+      await db.query({
+        query: `for data in @@model filter data.id in @ids remove data in @@model`,
+        bindVars: { "@model": this.modelName, ids },
+      });
+      return true;
+    } catch (error) {
       return false;
     }
   };
