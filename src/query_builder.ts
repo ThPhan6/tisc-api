@@ -164,9 +164,11 @@ export default class Builder {
 
   public paginate = (limit: number, offset?: number) => {
     if (!offset) {
-      this.query += ` limit ${limit} `;
+      this.bindObj = { ...this.bindObj, limit };
+      this.query += ` limit @limit `;
     } else {
-      this.query += ` limit ${offset},${limit} `;
+      this.bindObj = { ...this.bindObj, limit, offset };
+      this.query += ` limit @offset,@limit `;
     }
     return this;
   };
@@ -177,7 +179,8 @@ export default class Builder {
   };
 
   public orderBy = (key: string, direction: string = "asc") => {
-    this.query += ` sort ${this.prefix}.${key} ${direction}`;
+    this.bindObj = { ...this.bindObj, direction };
+    this.query += ` sort ${this.prefix}.${key} @direction`;
     return this;
   };
 
@@ -223,7 +226,7 @@ export default class Builder {
   public insert = async (params: object) => {
     try {
       const result: any = await db.query(
-        `insert ${JSON.stringify(params)} into ${this.modelName} return NEW`
+        `insert ${JSON.stringify(params)} into @@model return NEW`
       );
       return result._result;
     } catch (error) {
@@ -255,7 +258,7 @@ export default class Builder {
    */
   public delete = async () => {
     try {
-      this.query += ` remove ${this.prefix} in ${this.modelName} `;
+      this.query += ` remove ${this.prefix} in @@model `;
       const result: any = await db.query(this.query);
       this.query = this.temp;
       this.bindObj = this.tempBindObj;
