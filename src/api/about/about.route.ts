@@ -10,7 +10,7 @@ export default class AboutRoute {
           path: `/api/about`,
           options: {
             handler: async (req: Hapi.Request, res: Hapi.ResponseToolkit) => {
-              const a = await model.list(10, 0, {});
+              const a = await model.list(10, 0, { name: "Suu1", age: 24 });
               return res.response(a).code(200);
             },
             description: "Method that authenticate user",

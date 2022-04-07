@@ -15,16 +15,6 @@ const toObject = (keys: Array<string>, prefix: string) => {
   return JSON.stringify(obj).replace(/"/gi, "");
 };
 
-const filterToAqlString = (filter: any, prefix: string) => {
-  const keys = Object.keys(filter ? filter : {});
-  return keys.reduce((pre, cur) => {
-    if (typeof filter[cur] === "string") {
-      return pre + `filter ${prefix}.${cur} == "${filter[cur]}" `;
-    }
-    return pre + `filter ${prefix}.${cur} == ${filter[cur]} `;
-  }, "");
-};
-
 const removeUnnecessaryArangoFields = (obj: any) => {
   const { _id, _key, _rev, ...rest } = obj;
   return rest;
@@ -35,38 +25,87 @@ export default class Builder {
   private prefix: string;
   private query: string;
   private temp: string;
+  private bindObj: any;
+  private tempBindObj: any;
   constructor(modelName: string) {
     this.modelName = modelName;
     this.prefix = "data";
-    this.temp = ` for ${this.prefix} in ${this.modelName} `;
-    this.query = ` for ${this.prefix} in ${this.modelName} `;
+    this.temp = ` for ${this.prefix} in @@model `;
+    this.query = ` for ${this.prefix} in @@model `;
+    this.tempBindObj = { "@model": this.modelName };
+    this.bindObj = { "@model": this.modelName };
   }
+
+  private filterToAqlString = (
+    filter: any,
+    prefix: string,
+    positive = true,
+    exact = true
+  ) => {
+    const keys = Object.keys(filter ? filter : {});
+    return keys.reduce((pre, cur) => {
+      this.bindObj = {
+        ...this.bindObj,
+        [cur]: filter[cur].toString().toLowerCase(),
+      };
+      if (!exact) {
+        return (
+          pre +
+          `filter lower(${prefix}.${cur}) ${
+            positive ? "" : "not"
+          } like concat('%',@${cur}, '%') `
+        );
+      }
+      return (
+        pre + `filter lower(${prefix}.${cur}) ${positive ? "=" : "!"}= @${cur} `
+      );
+    }, "");
+  };
 
   /**
    * Where functions
    */
-  public where = (key: any, value?: string) => {
-    if (value && typeof key === "string") {
-      this.query += ` filter ${this.prefix}.${key} == "${value}" `;
+  public whereLike = (key: any, value?: string) => {
+    if (value) {
+      this.query += ` filter ${this.prefix}.${key} like @${key} `;
+      this.bindObj = { ...this.bindObj, [key]: value };
     }
     if (typeof key === "object") {
-      this.query += ` ${filterToAqlString(key, this.prefix)} `;
+      this.query += ` ${this.filterToAqlString(
+        key,
+        this.prefix,
+        true,
+        false
+      )} `;
     }
     return this;
   };
 
-  public whereNot = (key: string, value: string) => {
-    this.query += ` filter ${this.prefix}.${key} != '%${value}%' `;
+  public whereNotLike = (key: string, value?: string) => {
+    if (value) {
+      this.query += ` filter ${this.prefix}.${key} not like @${key} `;
+      this.bindObj = { ...this.bindObj, [key]: value };
+    }
+    if (typeof key === "object") {
+      this.query += ` ${this.filterToAqlString(
+        key,
+        this.prefix,
+        false,
+        false
+      )} `;
+    }
     return this;
   };
 
   public whereIn = (key: string, value: Array<string>) => {
-    this.query += ` filter ${this.prefix}.${key} in ${value} `;
+    this.bindObj = { ...this.bindObj, [key]: value };
+    this.query += ` filter ${this.prefix}.${key} in @${key} `;
     return this;
   };
 
   public whereNotIn = (key: string, value: Array<string>) => {
-    this.query += ` filter ${this.prefix}.${key} not in ${value} `;
+    this.bindObj = { ...this.bindObj, [key]: value };
+    this.query += ` filter ${this.prefix}.${key} not in @${key} `;
     return this;
   };
 
@@ -81,17 +120,41 @@ export default class Builder {
   };
 
   public whereBetween = (key: string, value: Array<string>) => {
-    this.query += ` filter ${this.prefix}.${key} > ${value[0]} and filter ${this.prefix}.${key} < ${value[1]} `;
+    this.bindObj = { ...this.bindObj, between0: value[0], between1: value[1] };
+    this.query += ` filter ${this.prefix}.${key} > @between0 and filter ${this.prefix}.${key} < @between1 `;
     return this;
   };
 
   public whereNotBetween = (key: string, value: Array<string>) => {
-    this.query += ` filter ${this.prefix}.${key} < ${value[0]} and filter ${this.prefix}.${key} > ${value[1]} `;
+    this.bindObj = { ...this.bindObj, between0: value[0], between1: value[1] };
+    this.query += ` filter ${this.prefix}.${key} < @between0 and filter ${this.prefix}.${key} > @between1 `;
     return this;
   };
 
-  public whereLike = (key: string, value: string) => {
-    this.query += ` filter ${this.prefix}.${key} like '%${value}%' `;
+  public where = (key: string, value?: string) => {
+    if (value) {
+      this.query += ` filter ${this.prefix}.${key} == @${key} `;
+      this.bindObj = { ...this.bindObj, [key]: value };
+    }
+    if (typeof key === "object") {
+      this.query += ` ${this.filterToAqlString(key, this.prefix, true, true)} `;
+    }
+    return this;
+  };
+
+  public whereNot = (key: string, value?: string) => {
+    if (value) {
+      this.query += ` filter ${this.prefix}.${key} != @${key} `;
+      this.bindObj = { ...this.bindObj, [key]: value };
+    }
+    if (typeof key === "object") {
+      this.query += ` ${this.filterToAqlString(
+        key,
+        this.prefix,
+        false,
+        true
+      )} `;
+    }
     return this;
   };
 
@@ -128,9 +191,13 @@ export default class Builder {
     } else {
       this.query += ` return ${this.prefix} `;
     }
-    const executedData: any = await db.query(this.query);
+    const executedData: any = await db.query({
+      query: this.query,
+      bindVars: this.bindObj,
+    });
     // reset query
     this.query = this.temp;
+    this.bindObj = this.tempBindObj;
     const result = executedData._result.map((item: any) => {
       return removeUnnecessaryArangoFields(item);
     });
@@ -146,6 +213,7 @@ export default class Builder {
     const result: any = await db.query(this.query);
     // reset query
     this.query = this.temp;
+    this.bindObj = this.tempBindObj;
     return removeUnnecessaryArangoFields(result._result[0]);
   };
 
@@ -174,6 +242,7 @@ export default class Builder {
       } return ${this.prefix}`;
       const isUpdated: any = await db.query(this.query);
       this.query = this.temp;
+      this.bindObj = this.tempBindObj;
       const { _id, _key, _rev, ...result } = isUpdated._result[0];
       return result;
     } catch (error) {
@@ -189,6 +258,7 @@ export default class Builder {
       this.query += ` remove ${this.prefix} in ${this.modelName} `;
       const result: any = await db.query(this.query);
       this.query = this.temp;
+      this.bindObj = this.tempBindObj;
       return true;
     } catch (error) {
       return false;
