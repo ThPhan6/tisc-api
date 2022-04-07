@@ -6,8 +6,8 @@ export const ROLES = {
 export const ADMIN_USER_ID = "69a24b5e-a2fd-4075-a0da-86829ce2e889";
 export const ADMIN_USER_PASSWORD =
   "$2a$12$n83se1f3q6G9jNYqC0IZEeSDLxzD44D/4nj.xr.UJuTz7NjbsHG/C";
-export const ADMIN_USER_EMAIL = "admin@onehub.com";
-export const ADMIN_USER_FULL_NAME = "Onehub";
+export const ADMIN_USER_EMAIL = "admin@tisc.com";
+export const ADMIN_USER_FULL_NAME = "admin";
 
 export const STATUSES = {
   ACTIVE: 1,

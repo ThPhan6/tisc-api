@@ -10,7 +10,7 @@ export default class AboutRoute {
           path: `/api/about`,
           options: {
             handler: async (req: Hapi.Request, res: Hapi.ResponseToolkit) => {
-              const a = await model.list(10, 0, {}, ["name", "desc"]);
+              const a = await model.list(10, 0, {});
               return res.response(a).code(200);
             },
             description: "Method that authenticate user",
@@ -37,7 +37,7 @@ export default class AboutRoute {
           path: `/api/about`,
           options: {
             handler: async (req: Hapi.Request, res: Hapi.ResponseToolkit) => {
-              const a: any = await model.create({ name: "Khanh", age: 50 });
+              const a: any = await model.create({ name: "Suu", age: 28 });
               return res.response(a).code(200);
             },
             description: "Method that authenticate user",
@@ -54,6 +54,7 @@ export default class AboutRoute {
               const a: any = await model.update(id, {
                 name: "Khanh1",
                 age: 52,
+                id: 1,
               });
               return res.response(a).code(200);
             },
