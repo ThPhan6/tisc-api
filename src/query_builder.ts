@@ -45,7 +45,7 @@ export default class Builder {
   /**
    * Where functions
    */
-  public where = (key: any, value?: string): any => {
+  public where = (key: any, value?: string) => {
     if (value && typeof key === "string") {
       this.query += ` filter ${this.prefix}.${key} == "${value}" `;
     }

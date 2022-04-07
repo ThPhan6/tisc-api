@@ -218,7 +218,7 @@ import Builder from "../query_builder";
 
 export default class Model<IModelData> {
   private modelName: string;
-  private builder: Builder;
+  public builder: Builder;
   public constructor(modelName: string) {
     this.modelName = modelName;
     this.builder = new Builder(this.modelName);
