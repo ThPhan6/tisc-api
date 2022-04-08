@@ -67,7 +67,7 @@ export default class Builder {
    */
   public whereLike = (key: any, value?: string) => {
     if (value) {
-      this.query += ` filter ${this.prefix}.${key} like @${key} `;
+      this.query += ` filter ${this.prefix}.${key} like concat('%',@${key}, '%') `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }
     if (typeof key === "object") {
@@ -83,7 +83,7 @@ export default class Builder {
 
   public whereNotLike = (key: string, value?: string) => {
     if (value) {
-      this.query += ` filter ${this.prefix}.${key} not like @${key} `;
+      this.query += ` filter ${this.prefix}.${key} not like concat('%',@${key}, '%') `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }
     if (typeof key === "object") {

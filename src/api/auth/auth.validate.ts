@@ -13,10 +13,6 @@ export default {
         "string.empty": "Password can not be empty",
         "any.required": "Password can not be empty",
       }),
-      captcha: Joi.string().required().messages({
-        "string.empty": "Captcha can not be empty",
-        "any.required": "Captcha can not be empty",
-      }),
     },
   },
   register: {
@@ -30,14 +26,10 @@ export default {
         "any.required": "Full name can not be empty",
       }),
       company_name: Joi.string().allow(null, ""),
-      password: Joi.string().required().regex(regexPassword).messages({
+      password: Joi.string().required().messages({
         "string.empty": "Password can not be empty",
         "any.required": "Password can not be empty",
         "string.pattern.base": "Password is not valid",
-      }),
-      captcha: Joi.string().required().messages({
-        "string.empty": "Captcha can not be empty",
-        "any.required": "Captcha can not be empty",
       }),
     },
   },
@@ -80,10 +72,6 @@ export default {
           "any.required": "Password confirmation can not be empty",
           "any.only": "Password confirmation does not match",
         }),
-      captcha: Joi.string().required().messages({
-        "string.empty": "Captcha can not be empty",
-        "any.required": "Captcha can not be empty",
-      }),
     },
   },
   forgotPassword: {
@@ -91,10 +79,6 @@ export default {
       email: Joi.string().email().required().messages({
         "string.empty": "Email can not be empty",
         "any.required": "Email can not be empty",
-      }),
-      captcha: Joi.string().required().messages({
-        "string.empty": "Captcha can not be empty",
-        "any.required": "Captcha can not be empty",
       }),
     },
   },

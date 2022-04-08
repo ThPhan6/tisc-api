@@ -27,11 +27,11 @@ export default class MailService {
       );
       const msg = {
         from: {
-          name: "Tracelium Team",
+          name: "Tisc Team",
           email: this.fromAddress,
         },
         to: user.email,
-        subject: "Tracelium - Registration",
+        subject: "Tisc - Registration",
         text: "and easy to do anywhere, even with Node.js",
         html,
       };
@@ -67,11 +67,11 @@ export default class MailService {
       );
       const msg = {
         from: {
-          name: "Tracelium Team",
+          name: "Tisc Team",
           email: this.fromAddress,
         },
         to: user.email,
-        subject: "Tracelium - Password Reset Request",
+        subject: "Tisc - Password Reset Request",
         text: "Click to reset your password",
         html,
       };
