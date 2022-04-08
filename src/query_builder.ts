@@ -213,7 +213,10 @@ export default class Builder {
     } else {
       this.query += ` return ${this.prefix} `;
     }
-    const result: any = await db.query(this.query);
+    const result: any = await db.query({
+      query: this.query,
+      bindVars: this.bindObj,
+    });
     // reset query
     this.query = this.temp;
     this.bindObj = this.tempBindObj;
@@ -225,9 +228,10 @@ export default class Builder {
    */
   public insert = async (params: object) => {
     try {
-      const result: any = await db.query(
-        `insert ${JSON.stringify(params)} into @@model return NEW`
-      );
+      const result: any = await db.query({
+        query: `insert ${JSON.stringify(params)} into @@model return NEW`,
+        bindVars: this.bindObj,
+      });
       return result._result;
     } catch (error) {
       return false;
@@ -243,7 +247,10 @@ export default class Builder {
       this.query += ` update ${this.prefix} with ${JSON.stringify(rest)} in ${
         this.modelName
       } return ${this.prefix}`;
-      const isUpdated: any = await db.query(this.query);
+      const isUpdated: any = await db.query({
+        query: this.query,
+        bindVars: this.bindObj,
+      });
       this.query = this.temp;
       this.bindObj = this.tempBindObj;
       const { _id, _key, _rev, ...result } = isUpdated._result[0];
@@ -259,7 +266,10 @@ export default class Builder {
   public delete = async () => {
     try {
       this.query += ` remove ${this.prefix} in @@model `;
-      const result: any = await db.query(this.query);
+      const result: any = await db.query({
+        query: this.query,
+        bindVars: this.bindObj,
+      });
       this.query = this.temp;
       this.bindObj = this.tempBindObj;
       return true;
