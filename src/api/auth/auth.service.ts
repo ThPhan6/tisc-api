@@ -12,11 +12,12 @@ import {
   comparePassword,
   createResetPasswordToken,
   createHash,
+  createHashWithSalt,
 } from "../../helper/password.helper";
 import { signAdminToken, signNormalToken } from "../../helper/jwt.helper";
-import { ROLES, STATUSES } from "../../constant/user.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
-import { EMAIL_TYPE } from "../../constant/common.constant";
+import { EMAIL_TYPE, SYSTEM_MODEL } from "../../constant/common.constant";
 
 class AuthService {
   private userModel: UserModel;
@@ -27,7 +28,7 @@ class AuthService {
   }
 
   public login = (
-    payload: IAdminLoginRequest,
+    payload: IAdminLoginRequest
   ): Promise<ILoginResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
@@ -51,7 +52,7 @@ class AuthService {
           statusCode: 400,
         });
       }
-      if (user.role_id === ROLES.ADMIN)
+      if (user.role_id === ROLES.TISC_ADMIN)
         return resolve({
           token: signAdminToken(user.id),
           message: "success",
@@ -164,9 +165,7 @@ class AuthService {
     });
   };
 
-  public register = (
-    payload: IRegisterRequest,
-  ): Promise<IMessageResponse> => {
+  public register = (payload: IRegisterRequest): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
         email: payload.email,
@@ -177,7 +176,9 @@ class AuthService {
           statusCode: 400,
         });
       }
-      const password = createHash(payload.password);
+
+      const saltHash = createHashWithSalt(payload.password);
+      const password = saltHash.hash;
       let verificationToken: string;
       let isDuplicated = true;
       do {
@@ -191,11 +192,12 @@ class AuthService {
         fullname: payload.fullname,
         password,
         email: payload.email,
-        company_name: payload.company_name,
-        role_id: ROLES.NORMAL,
+        role_id: ROLES.TISC_NORMAL,
         is_verified: false,
         verification_token: verificationToken,
-        status: STATUSES.ACTIVE,
+        status: USER_STATUSES.ACTIVE,
+        model: SYSTEM_MODEL.TISC,
+        relation_id: "abc",
       });
       if (!createdUser) {
         return resolve({

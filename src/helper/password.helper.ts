@@ -10,6 +10,12 @@ export const createHash = (password: string) => {
   return hash;
 };
 
+export const createHashWithSalt = (password: string) => {
+  const salt = bcrypt.genSaltSync(bcryptSalt);
+  const hash = bcrypt.hashSync(password, salt);
+  return { hash, salt };
+};
+
 export const comparePassword = (password: string, hash: string) => {
   return bcrypt.compareSync(password, hash);
 };
