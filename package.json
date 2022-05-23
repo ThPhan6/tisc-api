@@ -38,6 +38,6 @@
   "scripts": {
     "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"yarn run compile\"",
     "compile": "tsc && node ./dist/server.js",
-    "seed": "node seed/user.seed"
+    "seed": "node seed/index"
   }
 }
