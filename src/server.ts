@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import * as Inert from "@hapi/inert";
 import * as Vision from "@hapi/vision";
 import * as HapiSwagger from "hapi-swagger";
+import path from "path";
 
 dotenv.config();
 const swaggerOptions = {
@@ -36,27 +37,32 @@ const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
     options: swaggerOptions,
   },
 ];
-// Create a server to listen for `8000'goods on `localhost'.
+
 const server: hapi.Server = new hapi.Server({
   host: process.env.HOST,
   port: process.env.PORT,
+  routes: {
+    files: {
+      relativeTo: path.join(__dirname, "../public"),
+    },
+  },
 });
 
-// // Adding routing
-// server.route({
-//   method: "GET",
-//   path: "/hello",
-//   handler: function (request: any, h: any) {
-//     return "Hello! TypeScript!";
-//   },
-// });
-
-// Start up service
 async function start() {
   try {
-    await server.validator(require('@hapi/joi'))
+    await server.validator(require("@hapi/joi"));
     await server.register(plugins);
     await Router.loadRoutes(server);
+    server.route({
+      method: "GET",
+      path: "/public/{param*}",
+      options: {
+        auth: false,
+        handler(request, h) {
+          return h.file(request.path.slice(8));
+        },
+      },
+    });
     await server.start();
   } catch (err) {
     console.log(err);
@@ -65,5 +71,4 @@ async function start() {
   console.log("Server running at:", server.info.uri);
 }
 
-// Don't forget to start the service
 start();

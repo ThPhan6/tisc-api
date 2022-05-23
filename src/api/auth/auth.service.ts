@@ -192,7 +192,7 @@ class AuthService {
         fullname: payload.fullname,
         password,
         email: payload.email,
-        role_id: ROLES.TISC_NORMAL,
+        role_id: ROLES.TISC_CONSULTANT_TEAM,
         is_verified: false,
         verification_token: verificationToken,
         status: USER_STATUSES.ACTIVE,
