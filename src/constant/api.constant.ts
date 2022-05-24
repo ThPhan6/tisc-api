@@ -1,31 +1,4 @@
-const ROLES = {
-  TISC_ADMIN: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
-  TISC_CONSULTANT_TEAM: "248a21fc-42e0-48c6-9bc2-b95e11a81fb7",
-  BRAND_ADMIN: "62ad5077-6183-435e-97f8-81c35065504e",
-  BRAND_TEAM: "c93584c7-7987-4be0-aa7d-e48e20960630",
-  DESIGNER_ADMIN: "68fdf6d0-464e-404b-90e8-5d02a48ac498",
-  DESIGNER_TEAM: "1493b47a-1118-43e2-9bd8-1a3c3adc3f13",
-};
-const PERMISSION_TITLE = {
-  MY_WORKSPACE: "MY WORKSPACE",
-  USER_GROUP: "USER GROUP",
-  USER_GROUP_BRAND: "brands",
-  USER_GROUP_DESIGN: "design firms",
-  PROJECT: "PROJECTS",
-  PROJECT_LIST: "listing",
-  PRODUCT: "PRODUCTS",
-  PRODUCT_CATEGORY: "categories",
-  PRODUCT_BASIS: "basis",
-  PRODUCT_ATTRIBUTE: "attributes",
-  PRODUCT_CONFIGURATION: "configurations",
-  ADMINISTRATION: "ADMINISTRATION",
-  ADMINISTRATION_DOCUMENTATION: "documentations",
-  ADMINISTRATION_LOCATION: "locations",
-  ADMINISTRATION_TEAM_PROFILE: "team profiles",
-  ADMINISTRATION_MESSAGE: "messages",
-  ADMINISTRATION_REVENUE: "revenues",
-};
-const ROUTES = {
+export const ROUTES = {
   GET_LIST_WORKSPACE: "/api/work-space",
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_ONE_BRAND: "/api/brand/get-one/{id}",
@@ -82,10 +55,4 @@ const ROUTES = {
   CREATE_SERVICE: "/api/service/create",
   GET_LIST_SUBSCRIPTION: "/api/subscription/get-list",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one",
-};
-
-module.exports = {
-  ROLES,
-  PERMISSION_TITLE,
-  ROUTES,
 };
