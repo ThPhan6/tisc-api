@@ -17,7 +17,7 @@ import {
 import { signAdminToken, signNormalToken } from "../../helper/jwt.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
-import { EMAIL_TYPE, SYSTEM_MODEL } from "../../constant/common.constant";
+import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
 
 class AuthService {
   private userModel: UserModel;
@@ -46,7 +46,7 @@ class AuthService {
           statusCode: 404,
         });
       }
-      if (!comparePassword(payload.password, user.password)) {
+      if (!comparePassword(payload.password, user.password || "")) {
         return resolve({
           message: "Your password is not correct",
           statusCode: 400,
@@ -189,15 +189,15 @@ class AuthService {
         if (!duplicateVerificationTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
       const createdUser = await this.userModel.create({
-        fullname: payload.fullname,
+        firstname: payload.firstname,
+        lastname: payload.lastname,
         password,
         email: payload.email,
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         is_verified: false,
         verification_token: verificationToken,
         status: USER_STATUSES.ACTIVE,
-        model: SYSTEM_MODEL.TISC,
-        relation_id: "abc",
+        type: SYSTEM_TYPE.TISC,
       });
       if (!createdUser) {
         return resolve({
@@ -228,6 +228,39 @@ class AuthService {
       const updatedUser = await this.userModel.update(user.id, {
         verification_token: null,
         is_verified: true,
+      });
+      if (!updatedUser) {
+        return resolve({
+          message: "Something wrong, please try again!",
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: "Success",
+        statusCode: 200,
+      });
+    });
+  };
+
+  public createPasswordAndVerify = (
+    verification_token: string,
+    password: string
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        verification_token,
+      });
+      if (!user) {
+        return resolve({
+          message: "Verification link has expired",
+          statusCode: 400,
+        });
+      }
+      const saltHash = createHashWithSalt(password);
+      const updatedUser = await this.userModel.update(user.id, {
+        verification_token: null,
+        is_verified: true,
+        password: saltHash.hash,
       });
       if (!updatedUser) {
         return resolve({

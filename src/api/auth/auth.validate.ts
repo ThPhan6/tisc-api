@@ -41,6 +41,29 @@ export default {
       }),
     },
   },
+  createPasswordAndVerify: {
+    params: {
+      verification_token: Joi.string().required().messages({
+        "string.empty": "Verification token can not be empty",
+        "any.required": "Verification token can not be empty",
+      }),
+    },
+    payload: {
+      password: Joi.string().required().regex(regexPassword).messages({
+        "string.empty": "Password can not be empty",
+        "any.required": "Password can not be empty",
+        "string.pattern.base": "Password is not valid",
+      }),
+      confirmedPassword: Joi.any()
+        .valid(Joi.ref("password"))
+        .required()
+        .messages({
+          "string.empty": "Password confirmation can not be empty",
+          "any.required": "Password confirmation can not be empty",
+          "any.only": "Password confirmation does not match",
+        }),
+    },
+  },
   resenEmail: {
     params: {
       type: Joi.string().valid(

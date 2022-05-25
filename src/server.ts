@@ -42,6 +42,23 @@ const server: hapi.Server = new hapi.Server({
   host: process.env.HOST,
   port: process.env.PORT,
   routes: {
+    cors: {
+      origin: [`*`],
+      credentials: true,
+      exposedHeaders: ["content-type", "content-length"],
+      maxAge: 86400,
+      headers: ["Accept", "Content-Type", "Authorization"],
+    },
+    validate: {
+      options: {
+        modify: false,
+        abortEarly: false,
+        stripUnknown: true,
+      },
+      failAction: (_request, _h, err) => {
+        throw err;
+      },
+    },
     files: {
       relativeTo: path.join(__dirname, "../public"),
     },

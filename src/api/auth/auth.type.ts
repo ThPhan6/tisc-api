@@ -26,7 +26,8 @@ export interface ILoginResponse {
 }
 
 export interface IRegisterRequest {
-  fullname: string;
+  firstname: string;
+  lastname: string;
   email: string;
   company_name?: string;
   password: string;
