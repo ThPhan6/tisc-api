@@ -3,7 +3,7 @@ import UserModel from "../../model/user.model";
 import MailService from "../../service/mail.service";
 import { IUserRequest } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
-import { USER_STATUSES } from "../../constant/user.constant";
+import { USER_STATUSES, ROLES } from "../../constant/user.constant";
 
 export default class UserService {
   private userModel: UserModel;
@@ -13,7 +13,10 @@ export default class UserService {
     this.mailService = new MailService();
   }
 
-  public create = (payload: IUserRequest): Promise<IMessageResponse> => {
+  public create = (
+    user_id: string,
+    payload: IUserRequest
+  ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
         email: payload.email,
@@ -22,6 +25,13 @@ export default class UserService {
         return resolve({
           message: "Email is already used.",
           statusCode: 400,
+        });
+      }
+      const adminUser = await this.userModel.find(user_id);
+      if (!adminUser) {
+        return resolve({
+          message: "User not found",
+          statusCode: 404,
         });
       }
       let verificationToken: string;
@@ -48,7 +58,8 @@ export default class UserService {
         is_verified: false,
         verification_token: verificationToken,
         status: USER_STATUSES.PENDING,
-        type: payload.type,
+        type: adminUser.type,
+        relation_id: adminUser.relation_id,
       });
       if (!createdUser) {
         return resolve({

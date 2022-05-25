@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import * as Inert from "@hapi/inert";
 import * as Vision from "@hapi/vision";
 import * as HapiSwagger from "hapi-swagger";
+import AuthMiddleware from "./middleware/auth.middleware";
 import path from "path";
 
 dotenv.config();
@@ -69,6 +70,7 @@ async function start() {
   try {
     await server.validator(require("@hapi/joi"));
     await server.register(plugins);
+    AuthMiddleware.registerAll(server);
     await Router.loadRoutes(server);
     server.route({
       method: "GET",

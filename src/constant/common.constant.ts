@@ -6,5 +6,5 @@ export const EMAIL_TYPE = {
 export const SYSTEM_TYPE = {
   TISC: 1,
   BRAND: 2,
-  DESIGNER: 3,
+  DESIGN: 3,
 };

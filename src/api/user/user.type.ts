@@ -10,6 +10,4 @@ export interface IUserRequest {
   mobile: string;
   role_id: string;
   status: number;
-  type: number;
-  relation_id?: string;
 }

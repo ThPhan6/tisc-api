@@ -37,12 +37,12 @@ const seed = async () => {
         created_at: moment(),
       },
       {
-        id: ROLES.DESIGNER_ADMIN,
+        id: ROLES.DESIGN_ADMIN,
         name: "Design admin",
         created_at: moment(),
       },
       {
-        id: ROLES.DESIGNER_TEAM,
+        id: ROLES.DESIGN_TEAM,
         name: "Design team",
         created_at: moment(),
       },

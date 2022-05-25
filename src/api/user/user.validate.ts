@@ -1,5 +1,4 @@
 import * as Joi from "@hapi/joi";
-import { SYSTEM_TYPE } from "../../constant/common.constant";
 
 export default {
   create: {
@@ -43,10 +42,6 @@ export default {
         "any.required": "Role id can not be empty",
       }),
       status: Joi.number().required(),
-      type: Joi.number()
-        .required()
-        .valid(SYSTEM_TYPE.TISC, SYSTEM_TYPE.BRAND, SYSTEM_TYPE.DESIGNER),
-      relation_id: Joi.string(),
     },
   },
 };

@@ -12,7 +12,8 @@ export default class UserController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.create(payload);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.create(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
