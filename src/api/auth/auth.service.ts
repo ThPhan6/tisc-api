@@ -81,17 +81,17 @@ class AuthService {
           statusCode: 404,
         });
       }
-      let resetPasswordToken: string;
+      let reset_password_token: string;
       let isDuplicated = true;
       do {
-        resetPasswordToken = createResetPasswordToken();
+        reset_password_token = createResetPasswordToken();
         const duplicateResetPasswordTokenFromDb = await this.userModel.findBy({
-          reset_password_token: resetPasswordToken,
+          reset_password_token: reset_password_token,
         });
         if (!duplicateResetPasswordTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
       const result = await this.userModel.update(user.id, {
-        reset_password_token: resetPasswordToken,
+        reset_password_token: reset_password_token,
       });
       if (!result) {
         return resolve({
@@ -138,7 +138,7 @@ class AuthService {
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
-        reset_password_token: payload.resetPasswordToken,
+        reset_password_token: payload.reset_password_token,
         is_verified: true,
       });
       if (!user) {
@@ -261,6 +261,7 @@ class AuthService {
         verification_token: null,
         is_verified: true,
         password: saltHash.hash,
+        status: USER_STATUSES.ACTIVE,
       });
       if (!updatedUser) {
         return resolve({

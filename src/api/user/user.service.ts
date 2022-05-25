@@ -37,7 +37,13 @@ export default class UserService {
       const createdUser = await this.userModel.create({
         firstname: payload.firstname,
         lastname: payload.lastname,
+        gender: payload.gender,
+        location_id: payload.location_id,
+        department: payload.department,
+        position: payload.position,
         email: payload.email,
+        phone: payload.phone,
+        mobile: payload.mobile,
         role_id: payload.role_id,
         is_verified: false,
         verification_token: verificationToken,

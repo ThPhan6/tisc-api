@@ -1,3 +1,8 @@
+const SYSTEM_TYPE = {
+  TISC: 1,
+  BRAND: 2,
+  DESIGNER: 3,
+};
 const ROLES = {
   TISC_ADMIN: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
   TISC_CONSULTANT_TEAM: "248a21fc-42e0-48c6-9bc2-b95e11a81fb7",
@@ -83,9 +88,15 @@ const ROUTES = {
   GET_LIST_SUBSCRIPTION: "/api/subscription/get-list",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one",
 };
-
+const USER_STATUSES = {
+  ACTIVE: 1,
+  BLOCKED: 0,
+  PENDING: 2,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
   ROUTES,
+  SYSTEM_TYPE,
+  USER_STATUSES,
 };
