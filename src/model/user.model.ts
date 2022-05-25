@@ -4,6 +4,7 @@ export interface IUserAttributes {
   id: string;
   role_id: string;
   fullname: string;
+  location?: any;
   email: string;
   phone?: string;
   mobile?: string;
@@ -11,6 +12,7 @@ export interface IUserAttributes {
   avatar?: string;
   backup_email?: string;
   personal_mobile?: string;
+  linkedin?: string;
   is_verified: boolean;
   verification_token?: string;
   reset_password_token?: string;
