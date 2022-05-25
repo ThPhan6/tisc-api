@@ -3,12 +3,13 @@ import Model from "./index";
 export interface IUserAttributes {
   id: string;
   role_id: string;
-  fullname: string;
+  firstname: string;
+  lastname: string;
   location?: any;
   email: string;
   phone?: string;
   mobile?: string;
-  password: string;
+  password?: string;
   avatar?: string;
   backup_email?: string;
   personal_mobile?: string;
@@ -18,7 +19,7 @@ export interface IUserAttributes {
   reset_password_token?: string;
   status: number;
   created_at?: string;
-  model: string;
+  type: number;
   relation_id?: string;
 }
 

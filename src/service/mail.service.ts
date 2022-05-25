@@ -54,6 +54,46 @@ export default class MailService {
     });
   }
 
+  public async sendInviteEmail(
+    user: IUserAttributes | any
+  ): Promise<IMessageResponse | any> {
+    return new Promise(async (resolve) => {
+      const html = await ejs.renderFile(
+        `${process.cwd()}/src/templates/invite.ejs`,
+        {
+          fullname: user.fullname,
+          verify_link: `${this.frontpageURL}/create-password?verification_token=${user.verification_token}`,
+        }
+      );
+      const msg = {
+        from: {
+          name: "Tisc Team",
+          email: this.fromAddress,
+        },
+        to: user.email,
+        subject: "Tisc - Invitation",
+        text: "and easy to do anywhere, even with Node.js",
+        html,
+      };
+      sgMail.send(msg).then(
+        () => {
+          resolve({
+            message: "Success",
+            statusCode: 200,
+          });
+        },
+        (error: any) => {
+          if (error.response) {
+            resolve({
+              message: "An error occurred",
+              statusCode: 400,
+            });
+          }
+        }
+      );
+    });
+  }
+
   public async sendResetPasswordEmail(
     user: IUserAttributes
   ): Promise<IMessageResponse | any> {
@@ -61,7 +101,7 @@ export default class MailService {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/forgot-password.ejs`,
         {
-          fullname: user.fullname,
+          fullname: user.firstname + " " + user.lastname,
           reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}`,
         }
       );
