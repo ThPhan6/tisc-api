@@ -8,7 +8,7 @@ import {
 } from "../../helper/response.helper";
 import agreementPoliciesTermsResponse from "./agreement_policies_terms.response";
 import { ROUTE } from "../../constant/route.constant";
-
+import commonValidate from "../../validate/common.validate";
 export default class AgreementPoliciesTermsRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -27,6 +27,22 @@ export default class AgreementPoliciesTermsRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: agreementPoliciesTermsResponse.AgreementPoliciesTerms,
+              },
+            },
+          },
+        },
+        {
+          method: ROUTE.AGREEMENT_POLICIES_TERMS.GET_LIST.METHOD,
+          path: ROUTE.AGREEMENT_POLICIES_TERMS.GET_LIST.PATH,
+          options: {
+            handler: controller.getList,
+            // validate: commonValidate.getList,
+            description: "Method that get list agreement policies terms",
+            tags: ["api", "agreement policies terms"],
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: agreementPoliciesTermsResponse.ListAgreementPoliciesTerms,
               },
             },
           },

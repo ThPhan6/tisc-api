@@ -11,5 +11,9 @@ export const ROUTE = {
       PATH: "/api/argreement-policies-terms/create",
       METHOD: METHOD.POST,
     },
+    GET_LIST: {
+      PATH: "/api/argreement-policies-terms/list",
+      METHOD: METHOD.GET,
+    },
   },
 };

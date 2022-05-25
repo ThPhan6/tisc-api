@@ -19,4 +19,19 @@ export default {
       updated_at: Joi.any(),
     }),
   }) as any,
+  ListAgreementPoliciesTerms: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        logo: Joi.string(),
+        type: Joi.number(),
+        title: Joi.string(),
+        document: Joi.object(),
+        created_at: Joi.any(),
+        created_by: Joi.string(),
+        updated_at: Joi.any(),
+      })
+    ),
+  }) as any,
 };

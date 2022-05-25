@@ -19,4 +19,5 @@ export const MESSAGE = {
   FAILED_UPDATE: "Something wrong when update.",
   FAILED_DELETE: "Something wrong when delete.",
   NOT_FOUND: "Not found.",
+  SOMETHING_WRONG: "Something wrong !",
 };
