@@ -7,10 +7,10 @@ export interface IPermissionAttributes {
   relation_id?: string;
   logo?: string;
   name: string;
-  accessable: boolean;
+  accessable: boolean | null;
   url?: string;
   number: number;
-  parent_number: number;
+  parent_number: number | null;
   created_at?: string;
 }
 

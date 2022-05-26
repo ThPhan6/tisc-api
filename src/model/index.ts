@@ -71,7 +71,7 @@
 //       }
 //       return result._result;
 //     } catch (err) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -93,10 +93,10 @@
 //       if (result) {
 //         return record;
 //       }
-//       return false;
+//       return undefined;
 //     } catch (err) {
 //       console.log(err);
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -111,7 +111,7 @@
 //       });
 //       return result._result[0];
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -125,7 +125,7 @@
 //       });
 //       return result._result[0];
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -139,7 +139,7 @@
 //       });
 //       return result._result;
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -153,7 +153,7 @@
 //       });
 //       return result._result;
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -177,9 +177,9 @@
 //           };
 //         }
 //       }
-//       return false;
+//       return undefined;
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -193,9 +193,9 @@
 //         });
 //         return true;
 //       }
-//       return false;
+//       return undefined;
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 
@@ -207,7 +207,7 @@
 //       });
 //       return true;
 //     } catch (error) {
-//       return false;
+//       return undefined;
 //     }
 //   };
 // }
@@ -246,7 +246,7 @@ export default class Model<IModelData> {
       }
       return result;
     } catch (err) {
-      return false;
+      return undefined;
     }
   };
 
@@ -263,52 +263,52 @@ export default class Model<IModelData> {
       if (result) {
         return record;
       }
-      return false;
+      return undefined;
     } catch (err) {
-      return false;
+      return undefined;
     }
   };
 
-  public find = async (id: string): Promise<IModelData | false> => {
+  public find = async (id: string): Promise<IModelData | undefined> => {
     try {
       const result: any = await this.builder.where("id", id).first();
       return result;
     } catch (error) {
-      return false;
+      return undefined;
     }
   };
 
-  public findBy = async (params: any): Promise<IModelData | false> => {
+  public findBy = async (params: any): Promise<IModelData | undefined> => {
     try {
       const result: any = await this.builder.where(params).first();
       return result;
     } catch (error) {
-      return false;
+      return undefined;
     }
   };
 
-  public getBy = async (params: any): Promise<IModelData[] | false> => {
+  public getBy = async (params: any): Promise<IModelData[] | undefined> => {
     try {
       const result: any = await this.builder.where(params).select();
       return result;
     } catch (error) {
-      return false;
+      return undefined;
     }
   };
 
-  public getAll = async (): Promise<IModelData[] | false> => {
+  public getAll = async (): Promise<IModelData[] | undefined> => {
     try {
       const result: any = await this.builder.select();
       return result;
     } catch (error) {
-      return false;
+      return undefined;
     }
   };
 
   public update = async (
     id: string,
     params: object
-  ): Promise<IModelData | false> => {
+  ): Promise<IModelData | undefined> => {
     try {
       const record = await this.find(id);
       if (record) {
@@ -317,9 +317,9 @@ export default class Model<IModelData> {
           return isUpdated;
         }
       }
-      return false;
+      return undefined;
     } catch (error) {
-      return false;
+      return undefined;
     }
   };
 
