@@ -4,16 +4,3 @@ export const METHOD = {
   PUT: "PUT",
   DELETE: "DELETE",
 };
-
-export const ROUTE = {
-  AGREEMENT_POLICIES_TERMS: {
-    CREATE: {
-      PATH: "/api/argreement-policies-terms/create",
-      METHOD: METHOD.POST,
-    },
-    GET_LIST: {
-      PATH: "/api/argreement-policies-terms/list",
-      METHOD: METHOD.GET,
-    },
-  },
-};

@@ -57,7 +57,10 @@ export default class Builder {
         );
       }
       return (
-        pre + `filter lower(${prefix}.${cur}) ${positive ? "=" : "!"}= @${cur} `
+        pre +
+        `filter lower(${prefix}.${cur}) ${
+          positive ? "=" : "!"
+        }= lower(@${cur}) `
       );
     }, "");
   };
@@ -188,12 +191,18 @@ export default class Builder {
    * Get methods
    */
 
-  public select = async (keys?: Array<string>) => {
+  public select = async (keys?: Array<string>, isMerge?: boolean) => {
     if (keys) {
-      this.query += ` return ${toObject(keys, this.prefix)}`;
+      this.query += isMerge
+        ? ` return merge( ${toObject(keys, this.prefix)}, {@key: item })`
+        : ` return ${toObject(keys, this.prefix)}`;
     } else {
-      this.query += ` return ${this.prefix} `;
+      this.query += isMerge
+        ? ` return merge(  ${this.prefix}, {@key: item })`
+        : ` return  ${this.prefix}`;
     }
+
+    // console.log(this.bindObj, "[this.bindObj]");
     const executedData: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,
@@ -207,12 +216,17 @@ export default class Builder {
     return result;
   };
 
-  public first = async (keys?: Array<string>) => {
+  public first = async (keys?: Array<string>, isMerge?: boolean) => {
     if (keys) {
-      this.query += ` return ${toObject(keys, this.prefix)}`;
+      this.query += isMerge
+        ? ` return merge (${toObject(keys, this.prefix)}, {@key: item }))`
+        : ` return ${toObject(keys, this.prefix)}`;
     } else {
-      this.query += ` return ${this.prefix} `;
+      this.query += isMerge
+        ? ` return merge(${this.prefix}, {@key : item}) `
+        : ` return ${this.prefix} `;
     }
+
     const result: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,
@@ -246,7 +260,7 @@ export default class Builder {
       const { id, created_at, ...rest } = params;
       this.query += ` update ${this.prefix} with ${JSON.stringify(rest)} in ${
         this.modelName
-      } return ${this.prefix}`;
+      } return NEW`;
       const isUpdated: any = await db.query({
         query: this.query,
         bindVars: this.bindObj,
@@ -276,5 +290,17 @@ export default class Builder {
     } catch (error) {
       return false;
     }
+  };
+
+  public join = (key: string, collection: string) => {
+    this.query += `FOR item in @@collection
+        FILTER ${this.prefix}.${key} == item.id
+      `;
+    this.bindObj = {
+      ...this.bindObj,
+      key,
+      "@collection": collection,
+    };
+    return this;
   };
 }

@@ -6,30 +6,30 @@ const Joi = HapiJoi.defaults((schema) =>
 );
 
 export default {
-  AgreementPoliciesTerms: Joi.object({
+  documentation: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({
       id: Joi.string(),
-      logo: Joi.string(),
-      type: Joi.number(),
+      logo: Joi.string().allow(null),
+      type: Joi.number().allow(null),
       title: Joi.string(),
-      document: Joi.object(),
+      document: Joi.string(),
       created_at: Joi.any(),
-      created_by: Joi.string(),
+      created_by: Joi.any(),
       updated_at: Joi.any(),
     }),
   }) as any,
-  ListAgreementPoliciesTerms: Joi.object({
+  documentations: Joi.object({
     statusCode: Joi.number(),
     data: Joi.array().items(
       Joi.object({
         id: Joi.string(),
-        logo: Joi.string(),
-        type: Joi.number(),
+        logo: Joi.string().allow(null),
+        type: Joi.number().allow(null),
         title: Joi.string(),
-        document: Joi.object(),
+        document: Joi.string(),
         created_at: Joi.any(),
-        created_by: Joi.string(),
+        created_by: Joi.any(),
         updated_at: Joi.any(),
       })
     ),
