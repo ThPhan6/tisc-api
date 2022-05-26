@@ -3,8 +3,8 @@ const dotenv = require("dotenv");
 const moment = require("moment");
 const uuid = require("uuid").v4;
 const ROLES = require("./constant").ROLES;
-const PERMISSION_TITLE = require("./constant").PERMISSION_TITLE;
 const ROUTES = require("./constant").ROUTES;
+const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
 dotenv.config();
 
 const db = new Database({
@@ -21,22 +21,22 @@ const seed = async () => {
     let records = [];
 
     const tiscAdminPermissions = await db.query({
-      query: `FOR data IN @@model FILTER data.role_id == @role_id FILTER data.model == @model return data`,
+      query: `FOR data IN @@model FILTER data.role_id == @role_id FILTER data.type == @type return data`,
       bindVars: {
         "@model": "permissions",
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         role_id: ROLES.TISC_ADMIN,
       },
     });
     const tiscConsultantTeamPermissions = await db.query({
-      query: `FOR data IN @@model FILTER data.role_id == @role_id FILTER data.model == @model return data`,
+      query: `FOR data IN @@model FILTER data.role_id == @role_id FILTER data.type == @type return data`,
       bindVars: {
         "@model": "permissions",
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         role_id: ROLES.TISC_CONSULTANT_TEAM,
       },
     });
-    
+
     tiscAdminPermissions._result.forEach((permission) => {
       switch (permission.name.toLowerCase()) {
         case "my workspace":

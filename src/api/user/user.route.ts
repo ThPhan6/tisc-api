@@ -23,7 +23,7 @@ export default class UserRoutes implements IRoute {
             validate: validate.create,
             description: "Method that create an user",
             tags: ["api", "Team profile"],
-            auth: AUTH_NAMES.ADMIN,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
