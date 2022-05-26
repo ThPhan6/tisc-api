@@ -202,7 +202,6 @@ export default class Builder {
         : ` return  ${this.prefix}`;
     }
 
-    // console.log(this.bindObj, "[this.bindObj]");
     const executedData: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,

@@ -227,7 +227,7 @@ export default class Model<IModelData> {
   public list = async (
     limit: number,
     offset: number,
-    filter?: any,
+    filter: any,
     sort?: any,
     join?: {
       key: string;
