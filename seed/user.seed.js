@@ -2,25 +2,14 @@ const { Database } = require("arangojs");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const ROLES = {
-  TISC_ADMIN: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
-  TISC_CONSULTANT_TEAM: "248a21fc-42e0-48c6-9bc2-b95e11a81fb7",
-  BRAND_ADMIN: "62ad5077-6183-435e-97f8-81c35065504e",
-  BRAND_TEAM: "c93584c7-7987-4be0-aa7d-e48e20960630",
-  DESIGNER_ADMIN: "68fdf6d0-464e-404b-90e8-5d02a48ac498",
-  DESIGNER_TEAM: "1493b47a-1118-43e2-9bd8-1a3c3adc3f13",
-};
+const ROLES = require("./constant").ROLES;
+const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
+const USER_STATUSES = require("./constant").USER_STATUSES;
 
 const TISC_ADMIN_USER_ID = "1110813b-8422-4e94-8d2a-8fdef644480e";
 const TISC_ADMIN_USER_PASSWORD =
   "$2a$09$Uk42d5scAMr8MkxbzTTsceXpsouiX4aKFXL4NHQ6b.HHBI23rpIgS";
 const TISC_ADMIN_USER_EMAIL = "admin@tisc.com";
-const TISC_ADMIN_USER_FULL_NAME = "admin";
-
-const USER_STATUSES = {
-  ACTIVE: 1,
-  BLOCKED: 0,
-};
 
 const db = new Database({
   url: process.env.DATABASE_HOSTNAME,
@@ -36,8 +25,9 @@ const seed = async () => {
     const record = {
       id: TISC_ADMIN_USER_ID,
       role_id: ROLES.TISC_ADMIN,
-      fullname: TISC_ADMIN_USER_FULL_NAME,
-      location: {},
+      firstname: "Tisc",
+      lastname: "admin",
+      location_id: null,
       email: TISC_ADMIN_USER_EMAIL,
       phone: null,
       mobile: null,
@@ -50,7 +40,7 @@ const seed = async () => {
       reset_password_token: null,
       status: USER_STATUSES.ACTIVE,
       avatar: null,
-      model: "tisc",
+      type: SYSTEM_TYPE.TISC,
       relation_id: null,
     };
 

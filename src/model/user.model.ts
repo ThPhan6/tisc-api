@@ -5,7 +5,10 @@ export interface IUserAttributes {
   role_id: string;
   firstname: string;
   lastname: string;
-  location?: any;
+  gender?: boolean;
+  location_id?: string;
+  department?: string;
+  position?: string;
   email: string;
   phone?: string;
   mobile?: string;

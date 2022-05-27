@@ -42,8 +42,6 @@ export default {
         "any.required": "Role id can not be empty",
       }),
       status: Joi.number().required(),
-      type: Joi.number().required(),
-      relation_id: Joi.string(),
     },
   },
 };

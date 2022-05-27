@@ -8,13 +8,13 @@ export interface IForgotPasswordRequest {
 }
 
 export interface IResetPasswordRequest {
-  resetPasswordToken: string;
+  reset_password_token: string;
   password: string;
-  confirmedPassword: string;
+  confirmed_password: string;
 }
 
 export interface IForgotPasswordResponse {
-  resetPasswordToken: string;
+  reset_password_token: string;
   message: string;
   statusCode?: number;
 }
@@ -35,4 +35,9 @@ export interface IRegisterRequest {
 
 export interface IVerifyRequest {
   verification_token: string;
+}
+
+export interface ICreatePassword {
+  password: string;
+  confirmed_password: string;
 }

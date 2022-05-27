@@ -2,6 +2,7 @@ import AuthService from "./auth.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   IAdminLoginRequest,
+  ICreatePassword,
   IForgotPasswordRequest,
   IRegisterRequest,
   IResetPasswordRequest,
@@ -52,6 +53,19 @@ export default class AuthController {
   public verify = async (req: Request, toolkit: ResponseToolkit) => {
     const { verification_token } = req.params;
     const response = await this.authService.verify(verification_token);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public createPasswordAndVerify = async (
+    req: Request & { payload: ICreatePassword },
+    toolkit: ResponseToolkit
+  ) => {
+    const { verification_token } = req.params;
+    const password = req.payload.password;
+    const response = await this.authService.createPasswordAndVerify(
+      verification_token,
+      password
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

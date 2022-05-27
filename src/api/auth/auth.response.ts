@@ -10,7 +10,7 @@ export default {
         statusCode: Joi.number(),
     }) as any,
     forgotPassword: Joi.object({
-        resetPasswordToken: Joi.string(),
+        reset_password_token: Joi.string(),
         message: Joi.string(),
         statusCode: Joi.number(),
     }) as any,

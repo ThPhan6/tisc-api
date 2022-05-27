@@ -102,6 +102,23 @@ export default class AuthRoutes implements IRoute {
         },
         {
           method: "POST",
+          path: `${PREFIX}/create-password-verify/{verification_token}`,
+          options: {
+            handler: controller.createPasswordAndVerify,
+            validate: validate.createPasswordAndVerify,
+            description: "Method that create password and verify an user",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
           path: `${PREFIX}/resend-email/{type}/{email}`,
           options: {
             handler: controller.resendEmail,

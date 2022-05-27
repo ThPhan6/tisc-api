@@ -1,29 +1,34 @@
+const SYSTEM_TYPE = {
+  TISC: 1,
+  BRAND: 2,
+  DESIGN: 3,
+};
 const ROLES = {
   TISC_ADMIN: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
   TISC_CONSULTANT_TEAM: "248a21fc-42e0-48c6-9bc2-b95e11a81fb7",
   BRAND_ADMIN: "62ad5077-6183-435e-97f8-81c35065504e",
   BRAND_TEAM: "c93584c7-7987-4be0-aa7d-e48e20960630",
-  DESIGNER_ADMIN: "68fdf6d0-464e-404b-90e8-5d02a48ac498",
-  DESIGNER_TEAM: "1493b47a-1118-43e2-9bd8-1a3c3adc3f13",
+  DESIGN_ADMIN: "68fdf6d0-464e-404b-90e8-5d02a48ac498",
+  DESIGN_TEAM: "1493b47a-1118-43e2-9bd8-1a3c3adc3f13",
 };
 const PERMISSION_TITLE = {
   MY_WORKSPACE: "MY WORKSPACE",
   USER_GROUP: "USER GROUP",
-  USER_GROUP_BRAND: "brands",
-  USER_GROUP_DESIGN: "design firms",
+  USER_GROUP_BRAND: "Brands",
+  USER_GROUP_DESIGN: "Design Firms",
   PROJECT: "PROJECTS",
-  PROJECT_LIST: "listing",
+  PROJECT_LIST: "Listing",
   PRODUCT: "PRODUCTS",
-  PRODUCT_CATEGORY: "categories",
-  PRODUCT_BASIS: "basis",
-  PRODUCT_ATTRIBUTE: "attributes",
-  PRODUCT_CONFIGURATION: "configurations",
+  PRODUCT_CATEGORY: "Categories",
+  PRODUCT_BASIS: "Basis",
+  PRODUCT_ATTRIBUTE: "Attributes",
+  PRODUCT_CONFIGURATION: "Configurations",
   ADMINISTRATION: "ADMINISTRATION",
-  ADMINISTRATION_DOCUMENTATION: "documentations",
-  ADMINISTRATION_LOCATION: "locations",
-  ADMINISTRATION_TEAM_PROFILE: "team profiles",
-  ADMINISTRATION_MESSAGE: "messages",
-  ADMINISTRATION_REVENUE: "revenues",
+  ADMINISTRATION_DOCUMENTATION: "Documentations",
+  ADMINISTRATION_LOCATION: "Locations",
+  ADMINISTRATION_TEAM_PROFILE: "Team profiles",
+  ADMINISTRATION_MESSAGE: "Messages",
+  ADMINISTRATION_REVENUE: "Revenues",
 };
 const ROUTES = {
   GET_LIST_WORKSPACE: "/api/work-space",
@@ -83,9 +88,15 @@ const ROUTES = {
   GET_LIST_SUBSCRIPTION: "/api/subscription/get-list",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one",
 };
-
+const USER_STATUSES = {
+  ACTIVE: 1,
+  BLOCKED: 0,
+  PENDING: 2,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
   ROUTES,
+  SYSTEM_TYPE,
+  USER_STATUSES,
 };

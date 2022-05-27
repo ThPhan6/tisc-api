@@ -54,7 +54,7 @@ export default {
         "any.required": "Password can not be empty",
         "string.pattern.base": "Password is not valid",
       }),
-      confirmedPassword: Joi.any()
+      confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
         .messages({
@@ -78,7 +78,7 @@ export default {
   },
   resetPassword: {
     payload: {
-      resetPasswordToken: Joi.string().required().messages({
+      reset_password_token: Joi.string().required().messages({
         "string.empty": "Reset password token can not be empty",
         "any.required": "Reset password token can not be empty",
       }),
@@ -87,7 +87,7 @@ export default {
         "any.required": "Password can not be empty",
         "string.pattern.base": "Password is not valid",
       }),
-      confirmedPassword: Joi.any()
+      confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
         .messages({

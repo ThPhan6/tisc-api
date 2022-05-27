@@ -14,7 +14,14 @@ import {
   createHash,
   createHashWithSalt,
 } from "../../helper/password.helper";
-import { signAdminToken, signNormalToken } from "../../helper/jwt.helper";
+import {
+  signAdminToken,
+  signBrandAdminToken,
+  signBrandTeamToken,
+  signConsultantTeamToken,
+  signDesignAdminToken,
+  signDesignTeamToken,
+} from "../../helper/jwt.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
@@ -52,18 +59,52 @@ class AuthService {
           statusCode: 400,
         });
       }
-      if (user.role_id === ROLES.TISC_ADMIN)
+      if (user.role_id === ROLES.TISC_ADMIN) {
         return resolve({
           token: signAdminToken(user.id),
           message: "success",
           statusCode: 200,
         });
-      else
+      }
+      if (user.role_id === ROLES.TISC_CONSULTANT_TEAM) {
         return resolve({
-          token: signNormalToken(user.id),
+          token: signConsultantTeamToken(user.id),
           message: "success",
           statusCode: 200,
         });
+      }
+      if (user.role_id === ROLES.BRAND_ADMIN) {
+        return resolve({
+          token: signBrandAdminToken(user.id),
+          message: "success",
+          statusCode: 200,
+        });
+      }
+      if (user.role_id === ROLES.BRAND_TEAM) {
+        return resolve({
+          token: signBrandTeamToken(user.id),
+          message: "success",
+          statusCode: 200,
+        });
+      }
+      if (user.role_id === ROLES.DESIGN_ADMIN) {
+        return resolve({
+          token: signDesignAdminToken(user.id),
+          message: "success",
+          statusCode: 200,
+        });
+      }
+      if (user.role_id === ROLES.DESIGN_TEAM) {
+        return resolve({
+          token: signDesignTeamToken(user.id),
+          message: "success",
+          statusCode: 200,
+        });
+      }
+      return resolve({
+        message: "Not found user role",
+        statusCode: 404,
+      });
     });
   };
 
@@ -81,17 +122,17 @@ class AuthService {
           statusCode: 404,
         });
       }
-      let resetPasswordToken: string;
+      let reset_password_token: string;
       let isDuplicated = true;
       do {
-        resetPasswordToken = createResetPasswordToken();
+        reset_password_token = createResetPasswordToken();
         const duplicateResetPasswordTokenFromDb = await this.userModel.findBy({
-          reset_password_token: resetPasswordToken,
+          reset_password_token: reset_password_token,
         });
         if (!duplicateResetPasswordTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
       const result = await this.userModel.update(user.id, {
-        reset_password_token: resetPasswordToken,
+        reset_password_token: reset_password_token,
       });
       if (!result) {
         return resolve({
@@ -138,7 +179,7 @@ class AuthService {
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
-        reset_password_token: payload.resetPasswordToken,
+        reset_password_token: payload.reset_password_token,
         is_verified: true,
       });
       if (!user) {
@@ -261,6 +302,7 @@ class AuthService {
         verification_token: null,
         is_verified: true,
         password: saltHash.hash,
+        status: USER_STATUSES.ACTIVE,
       });
       if (!updatedUser) {
         return resolve({

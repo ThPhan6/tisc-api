@@ -2,11 +2,12 @@ import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
 import IRoute from "../../helper/route.helper";
-const PREFIX = "/api/team-profile";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
+import { ROUTES } from "../../constant/api.constant";
+import { AUTH_NAMES } from "../../constant/auth.constant";
 
 export default class UserRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -16,13 +17,13 @@ export default class UserRoutes implements IRoute {
       server.route([
         {
           method: "POST",
-          path: `${PREFIX}/create`,
+          path: ROUTES.CREATE_TEAM_PROFILE,
           options: {
             handler: controller.create,
             validate: validate.create,
             description: "Method that create an user",
             tags: ["api", "Team profile"],
-            auth: false,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

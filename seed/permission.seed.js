@@ -4,6 +4,7 @@ const moment = require("moment");
 const uuid = require("uuid").v4;
 const ROLES = require("./constant").ROLES;
 const PERMISSION_TITLE = require("./constant").PERMISSION_TITLE;
+const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
 dotenv.config();
 
 const db = new Database({
@@ -21,7 +22,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/my_workspace.png",
         name: PERMISSION_TITLE.MY_WORKSPACE,
@@ -34,7 +35,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/user_group.png",
         name: PERMISSION_TITLE.USER_GROUP,
@@ -47,7 +48,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/brand.png",
         name: PERMISSION_TITLE.USER_GROUP_BRAND,
@@ -60,7 +61,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/design.png",
         name: PERMISSION_TITLE.USER_GROUP_DESIGN,
@@ -73,7 +74,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/project.png",
         name: PERMISSION_TITLE.PROJECT,
@@ -86,7 +87,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/list.png",
         name: PERMISSION_TITLE.PROJECT_LIST,
@@ -99,7 +100,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/product.png",
         name: PERMISSION_TITLE.PRODUCT,
@@ -112,7 +113,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/category.png",
         name: PERMISSION_TITLE.PRODUCT_CATEGORY,
@@ -125,7 +126,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/basis.png",
         name: PERMISSION_TITLE.PRODUCT_BASIS,
@@ -138,7 +139,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/attribute.png",
         name: PERMISSION_TITLE.PRODUCT_ATTRIBUTE,
@@ -151,7 +152,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/configuration.png",
         name: PERMISSION_TITLE.PRODUCT_CONFIGURATION,
@@ -164,7 +165,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/administration.png",
         name: PERMISSION_TITLE.ADMINISTRATION,
@@ -177,7 +178,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/documentation.png",
         name: PERMISSION_TITLE.ADMINISTRATION_DOCUMENTATION,
@@ -190,7 +191,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/location.png",
         name: PERMISSION_TITLE.ADMINISTRATION_LOCATION,
@@ -203,7 +204,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/team_profile.png",
         name: PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
@@ -216,7 +217,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/message.png",
         name: PERMISSION_TITLE.ADMINISTRATION_MESSAGE,
@@ -229,7 +230,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_ADMIN,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/revenue.png",
         name: PERMISSION_TITLE.ADMINISTRATION_REVENUE,
@@ -243,7 +244,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/my_workspace.png",
         name: PERMISSION_TITLE.MY_WORKSPACE,
@@ -256,7 +257,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/user_group.png",
         name: PERMISSION_TITLE.USER_GROUP,
@@ -269,7 +270,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/brand.png",
         name: PERMISSION_TITLE.USER_GROUP_BRAND,
@@ -282,7 +283,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/design.png",
         name: PERMISSION_TITLE.USER_GROUP_DESIGN,
@@ -295,7 +296,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/project.png",
         name: PERMISSION_TITLE.PROJECT,
@@ -308,7 +309,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/list.png",
         name: PERMISSION_TITLE.PROJECT_LIST,
@@ -321,7 +322,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/product.png",
         name: PERMISSION_TITLE.PRODUCT,
@@ -334,7 +335,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/category.png",
         name: PERMISSION_TITLE.PRODUCT_CATEGORY,
@@ -347,7 +348,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/basis.png",
         name: PERMISSION_TITLE.PRODUCT_BASIS,
@@ -360,7 +361,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/attribute.png",
         name: PERMISSION_TITLE.PRODUCT_ATTRIBUTE,
@@ -373,7 +374,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/configuration.png",
         name: PERMISSION_TITLE.PRODUCT_CONFIGURATION,
@@ -386,7 +387,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/administration.png",
         name: PERMISSION_TITLE.ADMINISTRATION,
@@ -399,7 +400,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/documentation.png",
         name: PERMISSION_TITLE.ADMINISTRATION_DOCUMENTATION,
@@ -412,7 +413,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/location.png",
         name: PERMISSION_TITLE.ADMINISTRATION_LOCATION,
@@ -425,7 +426,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/team_profile.png",
         name: PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
@@ -438,7 +439,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/message.png",
         name: PERMISSION_TITLE.ADMINISTRATION_MESSAGE,
@@ -451,7 +452,7 @@ const seed = async () => {
       {
         id: uuid(),
         role_id: ROLES.TISC_CONSULTANT_TEAM,
-        model: "tisc",
+        type: SYSTEM_TYPE.TISC,
         relation_id: null,
         logo: "/public/logo/revenue.png",
         name: PERMISSION_TITLE.ADMINISTRATION_REVENUE,
