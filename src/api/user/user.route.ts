@@ -8,6 +8,7 @@ import {
 } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
+import UserResponse from "./user.response";
 
 export default class UserRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -28,6 +29,96 @@ export default class UserRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ME_TEAM_PROFILE,
+          options: {
+            handler: controller.getMe,
+            description: "Method that get current user",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: UserResponse.getUser,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_TEAM_PROFILE,
+          options: {
+            handler: controller.get,
+            validate: validate.getOne,
+            description: "Method that get one user",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: UserResponse.getUser,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.UPDATE_ME_TEAM_PROFILE,
+          options: {
+            handler: controller.updateMe,
+            validate: validate.updateMe,
+            description: "Method that update current user profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: UserResponse.getUser,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.EDIT_TEAM_PROFILE,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update user profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: UserResponse.getUser,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.UPDATE_AVATAR_TEAM_PROFILE,
+          options: {
+            handler: controller.updateAvatar,
+            validate: validate.updateAvatar,
+            description: "Method that update user avatar",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.GENERAL,
+            payload: {
+              maxBytes: 1024 * 1024 * 5,
+              multipart: {
+                output: "stream",
+              },
+              parse: true,
+            },
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

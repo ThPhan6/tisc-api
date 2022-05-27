@@ -124,7 +124,7 @@ export default class AuthMiddleware {
           const permissionDetail =
             await permissionDetailModel.getPermissionDetailByRoute(
               permissionIds,
-              request.path
+              request.route.path
             );
 
           if (!permissionDetail) {

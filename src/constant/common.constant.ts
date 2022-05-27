@@ -12,3 +12,4 @@ export const SYSTEM_TYPE = {
 export const MODEL_NAMES = {
   DOCUMENTTATIONS: "documentations",
 };
+export const VALID_AVATAR_TYPES = ["image/png", "image/jpg"];

@@ -1,4 +1,4 @@
-import * as Joi from "@hapi/joi";
+import * as Joi from "joi";
 
 export default {
   create: {
@@ -41,7 +41,53 @@ export default {
         "string.empty": "Role id can not be empty",
         "any.required": "Role id can not be empty",
       }),
-      status: Joi.number().required(),
+    },
+  },
+  updateMe: {
+    payload: {
+      firstname: Joi.string(),
+      lastname: Joi.string(),
+      location_id: Joi.string(),
+      department: Joi.string(),
+      position: Joi.string(),
+      email: Joi.string(),
+      phone: Joi.string(),
+      mobile: Joi.string(),
+      backup_email: Joi.string(),
+      personal_mobile: Joi.string(),
+      linkedin: Joi.string(),
+    },
+  },
+  updateAvatar: {
+    payload: {
+      avatar: Joi.any(),
+    },
+  },
+  update: {
+    params: {
+      id: Joi.string().required().messages({
+        "string.empty": "Id can not be empty",
+        "any.required": "Id can not be empty",
+      }),
+    },
+    payload: {
+      firstname: Joi.string(),
+      lastname: Joi.string(),
+      gender: Joi.boolean(),
+      location_id: Joi.string(),
+      department: Joi.string(),
+      position: Joi.string(),
+      email: Joi.string(),
+      phone: Joi.string(),
+      mobile: Joi.string(),
+    },
+  },
+  getOne: {
+    params: {
+      id: Joi.string().required().messages({
+        "string.empty": "Id can not be empty",
+        "any.required": "Id can not be empty",
+      }),
     },
   },
 };
