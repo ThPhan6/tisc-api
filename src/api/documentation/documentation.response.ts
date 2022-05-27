@@ -1,4 +1,4 @@
-import * as HapiJoi from "@hapi/joi";
+import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
