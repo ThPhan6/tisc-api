@@ -8,3 +8,5 @@ export const SYSTEM_TYPE = {
   BRAND: 2,
   DESIGN: 3,
 };
+
+export const VALID_AVATAR_TYPES = ["image/png", "image/jpg"];

@@ -314,7 +314,8 @@ export default class Model<IModelData> {
       if (record) {
         const isUpdated = await this.builder.where("id", id).update(params);
         if (isUpdated) {
-          return isUpdated;
+          const result = await this.find(id);
+          return result;
         }
       }
       return undefined;

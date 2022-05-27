@@ -9,5 +9,26 @@ export interface IUserRequest {
   phone: string;
   mobile: string;
   role_id: string;
-  status: number;
+  backup_email?: string;
+  personal_mobile?: string;
+  linkedin?: string;
+}
+
+export interface IUser {
+  firstname: string;
+  lastname: string;
+  location?: string;
+  position?: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  avatar?: string;
+  backup_email?: string;
+  personal_mobile?: string;
+  linkedin?: string;
+}
+
+export interface IUserResponse {
+  data: IUser;
+  statusCode: number;
 }
