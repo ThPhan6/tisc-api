@@ -68,7 +68,7 @@ const server: hapi.Server = new hapi.Server({
 
 async function start() {
   try {
-    await server.validator(require("@hapi/joi"));
+    await server.validator(require("joi"));
     await server.register(plugins);
     AuthMiddleware.registerAll(server);
     await Router.loadRoutes(server);
@@ -88,6 +88,7 @@ async function start() {
     process.exit(1);
   }
   console.log("Server running at:", server.info.uri);
+  console.log("API documents at:", server.info.uri+'/documentation');
 }
 
 start();
