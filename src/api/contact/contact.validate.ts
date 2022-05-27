@@ -16,4 +16,9 @@ export default {
       }),
     },
   },
+  getById: {
+    params: {
+      id: Joi.string().required(),
+    },
+  },
 };
