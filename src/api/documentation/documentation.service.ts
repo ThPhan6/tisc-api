@@ -127,7 +127,7 @@ class AgreementPoliciesTermsService {
           statusCode: 404,
         });
       }
-      const result = await this.documentation.delete(id);
+      const result = await this.documentation.update(id, {isDeleted: true})
       if (!result) {
         return resolve({
           message: "Something wrong when delete, please try again!",
