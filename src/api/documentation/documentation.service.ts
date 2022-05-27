@@ -30,7 +30,7 @@ class AgreementPoliciesTermsService {
         document: payload.document,
         created_by: user_id,
         logo: null,
-        type: null,
+        type: payload.type || null,
         updated_at,
       });
       if (!result) {

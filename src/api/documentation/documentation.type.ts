@@ -3,7 +3,7 @@ export interface IDocumentation {
   logo?: string | null;
   type?: number | null;
   title: string;
-  document: string;
+  document: object;
   created_at?: any;
   created_by: string;
   updated_at?: any;
@@ -11,7 +11,8 @@ export interface IDocumentation {
 
 export interface IDocumentationRequest {
   title: string;
-  document: string;
+  document: object;
+  type?: number | null;
 }
 
 export interface IDocumentationResponse {

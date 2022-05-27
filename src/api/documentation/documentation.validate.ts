@@ -5,9 +5,14 @@ export default {
       title: Joi.string().required().messages({
         "string.empty": "Title can not be empty",
       }),
-      document: Joi.string().required().messages({
-        "string.empty": "Document can not be empty",
-      }),
+      document: Joi.object({
+        document: Joi.string(),
+        question_and_answer: Joi.array().items({
+          question: Joi.string(),
+          answer: Joi.string(),
+        }),
+      }).required(),
+      type: Joi.number(),
     },
   },
   getById: {
@@ -23,9 +28,13 @@ export default {
       title: Joi.string().required().messages({
         "string.empty": "Title can not be empty",
       }),
-      document: Joi.string().required().messages({
-        "string.empty": "Document can not be empty",
-      }),
+      document: Joi.object({
+        document: Joi.string(),
+        question_and_answer: Joi.array().items({
+          question: Joi.string(),
+          answer: Joi.string(),
+        }),
+      }).required(),
     },
   },
 };

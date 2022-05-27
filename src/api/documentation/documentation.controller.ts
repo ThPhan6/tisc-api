@@ -23,7 +23,8 @@ export default class AgreementPoliciesTermsController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
+    const userId = "3bda6aa8-31d8-4053-b75e-0435e2914a46";
+    // const userId = req.auth.credentials.user_id as string;
     const response = await this.service.create(payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
