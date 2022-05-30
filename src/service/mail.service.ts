@@ -1,23 +1,28 @@
-import sgMail from "@sendgrid/mail";
 import * as DotEnv from "dotenv";
 import * as ejs from "ejs";
 import { IUserAttributes } from "../model/user.model";
 import { IMessageResponse } from "../type/common.type";
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 export default class MailService {
   private fromAddress: string;
   private frontpageURL: string;
+  private apiInstance: any;
+  private sendSmtpEmail: object;
   public constructor() {
     DotEnv.config({ path: `${process.cwd()}/.env` });
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     this.fromAddress = process.env.SENDGRID_FROM || "";
     this.frontpageURL = process.env.FE_URL || "";
+    SibApiV3Sdk.ApiClient.instance.authentications["api-key"].apiKey =
+      process.env.SENDINBLUE_API_KEY;
+    this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    this.sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
   }
-
   public async sendRegisterEmail(
     user: IUserAttributes | any
   ): Promise<IMessageResponse | any> {
     return new Promise(async (resolve) => {
+      console.log(typeof this.apiInstance, "[typeof this.apiInstance]");
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/register.ejs`,
         {
@@ -25,32 +30,33 @@ export default class MailService {
           verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}`,
         }
       );
-      const msg = {
-        from: {
-          name: "Tisc Team",
-          email: this.fromAddress,
-        },
-        to: user.email,
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
         subject: "Tisc - Registration",
-        text: "and easy to do anywhere, even with Node.js",
-        html,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
       };
-      sgMail.send(msg).then(
-        () => {
+      this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
+        return (
           resolve({
             message: "Success",
             statusCode: 200,
-          });
-        },
-        (error: any) => {
-          if (error.response) {
-            resolve({
-              message: "An error occurred",
-              statusCode: 400,
-            });
+          }),
+          (error: any) => {
+            if (error.response) {
+              return resolve({
+                message: "An error occurred",
+                statusCode: 400,
+              });
+            }
           }
-        }
-      );
+        );
+      });
     });
   }
 
@@ -65,32 +71,33 @@ export default class MailService {
           verify_link: `${this.frontpageURL}/create-password?verification_token=${user.verification_token}`,
         }
       );
-      const msg = {
-        from: {
-          name: "Tisc Team",
-          email: this.fromAddress,
-        },
-        to: user.email,
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
         subject: "Tisc - Invitation",
-        text: "and easy to do anywhere, even with Node.js",
-        html,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
       };
-      sgMail.send(msg).then(
-        () => {
+      this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
+        return (
           resolve({
             message: "Success",
             statusCode: 200,
-          });
-        },
-        (error: any) => {
-          if (error.response) {
-            resolve({
-              message: "An error occurred",
-              statusCode: 400,
-            });
+          }),
+          (error: any) => {
+            if (error.response) {
+              return resolve({
+                message: "An error occurred",
+                statusCode: 400,
+              });
+            }
           }
-        }
-      );
+        );
+      });
     });
   }
 
@@ -105,32 +112,33 @@ export default class MailService {
           reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}`,
         }
       );
-      const msg = {
-        from: {
-          name: "Tisc Team",
-          email: this.fromAddress,
-        },
-        to: user.email,
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
         subject: "Tisc - Password Reset Request",
-        text: "Click to reset your password",
-        html,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
       };
-      sgMail.send(msg).then(
-        () => {
+      this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
+        return (
           resolve({
             message: "Success",
             statusCode: 200,
-          });
-        },
-        (error: any) => {
-          if (error.response) {
-            resolve({
-              message: "An error occurred",
-              statusCode: 400,
-            });
+          }),
+          (error: any) => {
+            if (error.response) {
+              return resolve({
+                message: "An error occurred",
+                statusCode: 400,
+              });
+            }
           }
-        }
-      );
+        );
+      });
     });
   }
 }
