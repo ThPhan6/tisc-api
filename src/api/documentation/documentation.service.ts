@@ -1,13 +1,12 @@
 import moment from "moment";
+import { MESSAGES } from "../../constant/common.constant";
+import Documentation from "../../model/documentation.model";
 import { IMessageResponse } from "../../type/common.type";
 import {
   IDocumentationRequest,
   IDocumentationResponse,
   IDocumentationsResponse,
 } from "./documentation.type";
-import Documentation from "../../model/documentation.model";
-import { MESSAGES } from "../../constant/common.constant";
-
 class AgreementPoliciesTermsService {
   private documentation: Documentation;
   constructor() {
@@ -33,7 +32,7 @@ class AgreementPoliciesTermsService {
         logo: null,
         type: payload.type || null,
         updated_at,
-        isDeleted: false,
+        is_deleted: false,
       });
       if (!result) {
         return resolve({
@@ -59,19 +58,49 @@ class AgreementPoliciesTermsService {
         key: "created_by",
         collection: "users",
       };
-      const result = await this.documentation.list(
+      const documentations = await this.documentation.list(
         limit,
         offset,
         filter,
         sort,
         join
       );
-      if (!result) {
+      if (!documentations) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
+      const result = documentations.map((documentation: any) => {
+        const {
+          _key,
+          _id,
+          _rev,
+          id,
+          role_id,
+          location_id,
+          email,
+          phone,
+          mobile,
+          password,
+          backup_email,
+          personal_mobile,
+          linkedin,
+          is_verified,
+          verification_token,
+          reset_password_token,
+          status,
+          avatar,
+          type,
+          relation_id,
+          ...rest
+        } = documentation.created_by;
+        return {
+          ...documentation,
+          created_by: documentation.created_by.id,
+          author: rest,
+        };
+      });
       return resolve({
         data: result,
         statusCode: 200,

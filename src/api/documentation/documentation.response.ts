@@ -17,7 +17,7 @@ export default {
       created_at: Joi.any(),
       created_by: Joi.any(),
       updated_at: Joi.any(),
-      isDeleted: Joi.boolean(),
+      is_deleted: Joi.boolean(),
     }),
   }) as any,
   documentations: Joi.object({
@@ -32,7 +32,12 @@ export default {
         created_at: Joi.any(),
         created_by: Joi.any(),
         updated_at: Joi.any(),
-        isDeleted: Joi.boolean(),
+        is_deleted: Joi.boolean(),
+        author: Joi.object({
+          id: Joi.string(),
+          firstname: Joi.string(),
+          lastname: Joi.string(),
+        }),
       })
     ),
   }) as any,

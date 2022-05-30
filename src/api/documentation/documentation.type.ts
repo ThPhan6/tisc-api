@@ -7,7 +7,8 @@ export interface IDocumentation {
   created_at?: any;
   created_by: string;
   updated_at?: any;
-  isDeleted: boolean;
+  is_deleted: boolean;
+  author?: string;
 }
 
 export interface IDocumentationRequest {

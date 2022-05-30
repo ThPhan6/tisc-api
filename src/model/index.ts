@@ -239,15 +239,15 @@ export default class Model<IModelData> {
       if (sort) {
         if (join) {
           result = await this.builder
-            .where("isDeleted", false)
+            .where("is_deleted", false)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
-            .select();
+            .select(undefined, true);
         } else
           result = await this.builder
-            .where("isDeleted", false)
+            .where("is_deleted", false)
             .where(filter)
             .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
@@ -255,14 +255,14 @@ export default class Model<IModelData> {
       } else {
         if (join) {
           result = await this.builder
-            .where("isDeleted", false)
+            .where("is_deleted", false)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
             .select(undefined, true);
         } else {
           result = await this.builder
-            .where("isDeleted", false)
+            .where("is_deleted", false)
             .where(filter)
             .paginate(limit, offset)
             .select();
@@ -370,11 +370,15 @@ export default class Model<IModelData> {
     }
   };
 
-  public join = async (key: string, collection: string) => {
+  public join = async (
+    key: string,
+    collection: string,
+    custom_key: string[]
+  ) => {
     try {
       const result = await this.builder
         .join(key, collection)
-        .select(undefined, true);
+        .select(custom_key, true);
       return result;
     } catch (error) {
       return false;

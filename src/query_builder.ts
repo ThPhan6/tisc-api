@@ -191,7 +191,11 @@ export default class Builder {
    * Get methods
    */
 
-  public select = async (keys?: Array<string>, isMerge?: boolean) => {
+  public select = async (
+    keys?: Array<string>,
+    isMerge?: boolean,
+    custom_fields?: string[]
+  ) => {
     if (keys) {
       this.query += isMerge
         ? ` return merge( ${toObject(keys, this.prefix)}, {@key: item })`
