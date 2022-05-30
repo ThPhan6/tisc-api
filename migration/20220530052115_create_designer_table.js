@@ -24,5 +24,5 @@ const migrate = async () => {
 };
 migrate()
 module.exports = {
-  brandMigrate: migrate,
+  migrate,
 };
