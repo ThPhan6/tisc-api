@@ -28,6 +28,7 @@ export const ROUTES = {
   EDIT_DOCUMENTATION: "/api/documentation/update/{id}",
   DELETE_DOCUMENTATION: "/api/documentation/delete/{id}",
   CREATE_DOCUMENTATION: "/api/documentation/create",
+  GET_ONE_DOCUMENTATION: "/api/documentation/get-one/{id}",
   GET_LIST_LOCATION: "/api/location/get-list",
   GET_ONE_LOCATION: "/api/location/get-one/{id}",
   EDIT_LOCATION: "/api/location/update/{id}",
