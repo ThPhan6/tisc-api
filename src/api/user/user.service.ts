@@ -1,3 +1,4 @@
+import { MESSAGES } from "./../../constant/common.constant";
 import { IMessageResponse } from "../../type/common.type";
 import UserModel from "../../model/user.model";
 import MailService from "../../service/mail.service";
@@ -26,14 +27,14 @@ export default class UserService {
       });
       if (user) {
         return resolve({
-          message: "Email is already used.",
+          message: MESSAGES.EMAIL_USED,
           statusCode: 400,
         });
       }
       const adminUser = await this.userModel.find(user_id);
       if (!adminUser) {
         return resolve({
-          message: "User not found",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -66,14 +67,14 @@ export default class UserService {
       });
       if (!createdUser) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
       await this.mailService.sendInviteEmail(createdUser);
 
       return resolve({
-        message: "Success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -87,7 +88,7 @@ export default class UserService {
       const user = await this.userModel.find(user_id);
       if (!user) {
         return resolve({
-          message: "Not found user!",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -95,7 +96,7 @@ export default class UserService {
         const currentUser = await this.userModel.find(current_user_id);
         if (!currentUser) {
           return resolve({
-            message: "Not found current user!",
+            message: MESSAGES.CURRENT_USER_NOT_FOUND,
             statusCode: 404,
           });
         }
@@ -104,7 +105,7 @@ export default class UserService {
           currentUser.relation_id !== user.relation_id
         ) {
           return resolve({
-            message: "Not found user in your work space!",
+            message: MESSAGES.USER_IN_WORKSPACE_NOT_FOUND,
             statusCode: 400,
           });
         }
@@ -140,7 +141,7 @@ export default class UserService {
 
       if (!user) {
         return resolve({
-          message: "Not found user!",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -148,7 +149,7 @@ export default class UserService {
         const currentUser = await this.userModel.find(current_user_id);
         if (!currentUser) {
           return resolve({
-            message: "Not found current user!",
+            message: MESSAGES.CURRENT_USER_NOT_FOUND,
             statusCode: 404,
           });
         }
@@ -157,7 +158,7 @@ export default class UserService {
           currentUser.relation_id !== user.relation_id
         ) {
           return resolve({
-            message: "Not found user in your work space!",
+            message: MESSAGES.USER_IN_WORKSPACE_NOT_FOUND,
             statusCode: 400,
           });
         }
@@ -165,7 +166,7 @@ export default class UserService {
       const updatedUser = await this.userModel.update(user_id, payload);
       if (!updatedUser) {
         return resolve({
-          message: "Something wrong when update!",
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
@@ -198,14 +199,14 @@ export default class UserService {
 
       if (!user) {
         return resolve({
-          message: "Not found user!",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
       const currentUser = await this.userModel.find(current_user_id);
       if (!currentUser) {
         return resolve({
-          message: "Not found current user!",
+          message: MESSAGES.CURRENT_USER_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -214,7 +215,7 @@ export default class UserService {
         currentUser.relation_id !== user.relation_id
       ) {
         return resolve({
-          message: "Not found user in your work space!",
+          message: MESSAGES.USER_IN_WORKSPACE_NOT_FOUND,
           statusCode: 400,
         });
       }
@@ -223,12 +224,12 @@ export default class UserService {
       });
       if (!updatedUser) {
         return resolve({
-          message: "Something wrong when delete!",
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
           statusCode: 400,
         });
       }
       return resolve({
-        message: "Success!",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -242,14 +243,14 @@ export default class UserService {
 
       if (!user) {
         return resolve({
-          message: "Not found user!",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
 
       if (!avatar._data) {
         return resolve({
-          message: "Not valid avatar file!",
+          message: MESSAGES.AVATAR_NOT_VALID_FILE,
           statusCode: 400,
         });
       }
@@ -259,7 +260,7 @@ export default class UserService {
         )
       ) {
         return resolve({
-          message: "Not valid avatar file!",
+          message: MESSAGES.AVATAR_NOT_VALID_FILE,
           statusCode: 400,
         });
       }
@@ -275,7 +276,7 @@ export default class UserService {
         avatar: "/public/avatar/" + avatar.hapi.filename,
       });
       return resolve({
-        message: "Success!",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

@@ -1,3 +1,4 @@
+import { MESSAGES } from "./../../constant/common.constant";
 import UserModel from "../../model/user.model";
 import {
   IAdminLoginRequest,
@@ -43,66 +44,66 @@ class AuthService {
       });
       if (!user) {
         return resolve({
-          message: "Account does not exist",
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
           statusCode: 404,
         });
       }
       if (!user.is_verified) {
         return resolve({
-          message: "Please verify your account first",
+          message: MESSAGES.VERIFY_ACCOUNT_FIRST,
           statusCode: 404,
         });
       }
       if (!comparePassword(payload.password, user.password || "")) {
         return resolve({
-          message: "Your password is not correct",
+          message: MESSAGES.PASSWORD_NOT_CORRECT,
           statusCode: 400,
         });
       }
       if (user.role_id === ROLES.TISC_ADMIN) {
         return resolve({
           token: signAdminToken(user.id),
-          message: "success",
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       if (user.role_id === ROLES.TISC_CONSULTANT_TEAM) {
         return resolve({
           token: signConsultantTeamToken(user.id),
-          message: "success",
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       if (user.role_id === ROLES.BRAND_ADMIN) {
         return resolve({
           token: signBrandAdminToken(user.id),
-          message: "success",
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       if (user.role_id === ROLES.BRAND_TEAM) {
         return resolve({
           token: signBrandTeamToken(user.id),
-          message: "success",
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       if (user.role_id === ROLES.DESIGN_ADMIN) {
         return resolve({
           token: signDesignAdminToken(user.id),
-          message: "success",
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       if (user.role_id === ROLES.DESIGN_TEAM) {
         return resolve({
           token: signDesignTeamToken(user.id),
-          message: "success",
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       return resolve({
-        message: "Not found user role",
+        message: MESSAGES.USER_ROLE_NOT_FOUND,
         statusCode: 404,
       });
     });
@@ -118,7 +119,7 @@ class AuthService {
       });
       if (!user) {
         return resolve({
-          message: "Account does not exist",
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
           statusCode: 404,
         });
       }
@@ -136,13 +137,13 @@ class AuthService {
       });
       if (!result) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
       await this.mailService.sendResetPasswordEmail(result);
       return resolve({
-        message: "success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -156,7 +157,7 @@ class AuthService {
       if (!user) {
         return resolve({
           statusCode: 404,
-          message: "Account does not exist",
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
         });
       }
       let sentEmail;
@@ -169,7 +170,7 @@ class AuthService {
       }
       return resolve({
         statusCode: 400,
-        message: "Something wrong when send email, please try again.",
+        message: MESSAGES.SEND_EMAIL_WRONG,
       });
     });
   };
@@ -184,7 +185,7 @@ class AuthService {
       });
       if (!user) {
         return resolve({
-          message: "User not found",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -195,12 +196,12 @@ class AuthService {
       });
       if (!result) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
       return resolve({
-        message: "Success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -213,7 +214,7 @@ class AuthService {
       });
       if (user) {
         return resolve({
-          message: "Email is already used.",
+          message: MESSAGES.EMAIL_USED,
           statusCode: 400,
         });
       }
@@ -242,14 +243,14 @@ class AuthService {
       });
       if (!createdUser) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
       await this.mailService.sendRegisterEmail(createdUser);
 
       return resolve({
-        message: "Success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -262,7 +263,7 @@ class AuthService {
       });
       if (!user) {
         return resolve({
-          message: "Verification link has expired",
+          message: MESSAGES.VERIFICATION_LINK_HAS_EXPIRED,
           statusCode: 400,
         });
       }
@@ -272,12 +273,12 @@ class AuthService {
       });
       if (!updatedUser) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
       return resolve({
-        message: "Success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -293,7 +294,7 @@ class AuthService {
       });
       if (!user) {
         return resolve({
-          message: "Verification link has expired",
+          message: MESSAGES.VERIFICATION_LINK_HAS_EXPIRED,
           statusCode: 400,
         });
       }
@@ -306,12 +307,12 @@ class AuthService {
       });
       if (!updatedUser) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
       return resolve({
-        message: "Success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
