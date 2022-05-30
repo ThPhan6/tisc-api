@@ -22,7 +22,6 @@ export default class MailService {
     user: IUserAttributes | any
   ): Promise<IMessageResponse | any> {
     return new Promise(async (resolve) => {
-      console.log(typeof this.apiInstance, "[typeof this.apiInstance]");
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/register.ejs`,
         {
