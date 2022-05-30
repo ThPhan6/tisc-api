@@ -1,9 +1,12 @@
 import { IMessageResponse } from "../../type/common.type";
 import UserModel from "../../model/user.model";
 import MailService from "../../service/mail.service";
-import { IUserRequest } from "./user.type";
+import { IUserRequest, IUserResponse } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
-import { USER_STATUSES, ROLES } from "../../constant/user.constant";
+import { USER_STATUSES } from "../../constant/user.constant";
+import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
+import path from "path";
+import fs from "fs";
 
 export default class UserService {
   private userModel: UserModel;
@@ -71,6 +74,208 @@ export default class UserService {
 
       return resolve({
         message: "Success",
+        statusCode: 200,
+      });
+    });
+  };
+
+  public get = (
+    user_id: string,
+    current_user_id?: string
+  ): Promise<IUserResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: "Not found user!",
+          statusCode: 404,
+        });
+      }
+      if (current_user_id) {
+        const currentUser = await this.userModel.find(current_user_id);
+        if (!currentUser) {
+          return resolve({
+            message: "Not found current user!",
+            statusCode: 404,
+          });
+        }
+        if (
+          currentUser.type !== user.type ||
+          currentUser.relation_id !== user.relation_id
+        ) {
+          return resolve({
+            message: "Not found user in your work space!",
+            statusCode: 400,
+          });
+        }
+      }
+      const result = {
+        firstname: user.firstname,
+        lastname: user.lastname,
+        gender: user.gender,
+        location: user.location_id,
+        position: user.position,
+        email: user.email,
+        phone: user.phone,
+        mobile: user.mobile,
+        avatar: user.avatar,
+        backup_email: user.backup_email,
+        personal_mobile: user.personal_mobile,
+        linkedin: user.linkedin,
+      };
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public update = (
+    user_id: string,
+    payload: IUserRequest,
+    current_user_id?: string
+  ): Promise<IUserResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+
+      if (!user) {
+        return resolve({
+          message: "Not found user!",
+          statusCode: 404,
+        });
+      }
+      if (current_user_id) {
+        const currentUser = await this.userModel.find(current_user_id);
+        if (!currentUser) {
+          return resolve({
+            message: "Not found current user!",
+            statusCode: 404,
+          });
+        }
+        if (
+          currentUser.type !== user.type ||
+          currentUser.relation_id !== user.relation_id
+        ) {
+          return resolve({
+            message: "Not found user in your work space!",
+            statusCode: 400,
+          });
+        }
+      }
+      const updatedUser = await this.userModel.update(user_id, payload);
+      if (!updatedUser) {
+        return resolve({
+          message: "Something wrong when update!",
+          statusCode: 400,
+        });
+      }
+      const result = {
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
+        gender: updatedUser.gender,
+        location: updatedUser.location_id,
+        position: updatedUser.position,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        mobile: updatedUser.mobile,
+        avatar: updatedUser.avatar,
+        backup_email: updatedUser.backup_email,
+        personal_mobile: updatedUser.personal_mobile,
+        linkedin: updatedUser.linkedin,
+      };
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+  public delete = (
+    user_id: string,
+    current_user_id: string
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+
+      if (!user) {
+        return resolve({
+          message: "Not found user!",
+          statusCode: 404,
+        });
+      }
+      const currentUser = await this.userModel.find(current_user_id);
+      if (!currentUser) {
+        return resolve({
+          message: "Not found current user!",
+          statusCode: 404,
+        });
+      }
+      if (
+        currentUser.type !== user.type ||
+        currentUser.relation_id !== user.relation_id
+      ) {
+        return resolve({
+          message: "Not found user in your work space!",
+          statusCode: 400,
+        });
+      }
+      const updatedUser = await this.userModel.update(user_id, {
+        isDelete: true,
+      });
+      if (!updatedUser) {
+        return resolve({
+          message: "Something wrong when delete!",
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: "Success!",
+        statusCode: 200,
+      });
+    });
+  };
+  public updateAvatar = (
+    user_id: string,
+    avatar: any
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+
+      if (!user) {
+        return resolve({
+          message: "Not found user!",
+          statusCode: 404,
+        });
+      }
+
+      if (!avatar._data) {
+        return resolve({
+          message: "Not valid avatar file!",
+          statusCode: 400,
+        });
+      }
+      if (
+        !VALID_AVATAR_TYPES.find(
+          (item) => item === avatar.hapi.headers["content-type"]
+        )
+      ) {
+        return resolve({
+          message: "Not valid avatar file!",
+          statusCode: 400,
+        });
+      }
+      const dir = path.resolve("") + "/public/avatar/";
+
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      const fileBuffer = Buffer.from(avatar._data);
+      await fs.writeFileSync(dir + avatar.hapi.filename, fileBuffer);
+      await this.userModel.update(user_id, {
+        avatar: "/public/avatar/" + avatar.hapi.filename,
+      });
+      return resolve({
+        message: "Success!",
         statusCode: 200,
       });
     });

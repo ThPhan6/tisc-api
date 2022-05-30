@@ -64,6 +64,7 @@ const server: hapi.Server = new hapi.Server({
       relativeTo: path.join(__dirname, "../public"),
     },
   },
+  debug: { request: ["error"] },
 });
 
 async function start() {
@@ -88,7 +89,7 @@ async function start() {
     process.exit(1);
   }
   console.log("Server running at:", server.info.uri);
-  console.log("API documents at:", server.info.uri+'/documentation');
+  console.log("API documents at:", server.info.uri + "/documentation");
 }
 
 start();
