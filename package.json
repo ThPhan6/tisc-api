@@ -40,6 +40,7 @@
     "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"yarn run compile\"",
     "compile": "tsc && node ./dist/server.js",
     "seed": "node seed/index",
+    "migrate": "node migration/index",
     "test": "mocha"
   }
 }

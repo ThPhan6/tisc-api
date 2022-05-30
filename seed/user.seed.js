@@ -27,21 +27,11 @@ const seed = async () => {
       role_id: ROLES.TISC_ADMIN,
       firstname: "Tisc",
       lastname: "admin",
-      location_id: null,
       email: TISC_ADMIN_USER_EMAIL,
-      phone: null,
-      mobile: null,
       password: TISC_ADMIN_USER_PASSWORD,
-      backup_email: null,
-      personal_mobile: null,
-      linkedin: null,
       is_verified: true,
-      verification_token: null,
-      reset_password_token: null,
       status: USER_STATUSES.ACTIVE,
-      avatar: null,
       type: SYSTEM_TYPE.TISC,
-      relation_id: null,
     };
 
     const users = await db.query({
