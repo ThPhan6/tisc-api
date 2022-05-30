@@ -6,6 +6,7 @@ import {
   IDocumentationsResponse,
 } from "./documentation.type";
 import Documentation from "../../model/documentation.model";
+import { MESSAGES } from "../../constant/common.constant";
 
 class AgreementPoliciesTermsService {
   private documentation: Documentation;
@@ -20,7 +21,7 @@ class AgreementPoliciesTermsService {
     return new Promise(async (resolve) => {
       if (!user_id) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
@@ -36,7 +37,7 @@ class AgreementPoliciesTermsService {
       });
       if (!result) {
         return resolve({
-          message: "Something wrong when create, please try again!",
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
           statusCode: 400,
         });
       }
@@ -67,7 +68,7 @@ class AgreementPoliciesTermsService {
       );
       if (!result) {
         return resolve({
-          message: "Something wrong, please try again!",
+          message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
@@ -84,7 +85,7 @@ class AgreementPoliciesTermsService {
       const result = await this.documentation.find(id);
       if (!result) {
         return resolve({
-          message: "Not found documentation, please try again!",
+          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
@@ -102,14 +103,14 @@ class AgreementPoliciesTermsService {
       const documentation = await this.documentation.find(id);
       if (!documentation) {
         return resolve({
-          message: "Not found documentation, please try again!",
+          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
       const result = await this.documentation.update(id, payload);
       if (!result) {
         return resolve({
-          message: "Something wrong when update, please try again!",
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
@@ -124,19 +125,19 @@ class AgreementPoliciesTermsService {
       const documentation = await this.documentation.find(id);
       if (!documentation) {
         return resolve({
-          message: "Not found documentation, please try again!",
+          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
       const result = await this.documentation.update(id, { isDeleted: true });
       if (!result) {
         return resolve({
-          message: "Something wrong when delete, please try again!",
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
           statusCode: 400,
         });
       }
       return resolve({
-        message: "Success",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
