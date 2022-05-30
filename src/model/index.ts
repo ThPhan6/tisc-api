@@ -228,21 +228,45 @@ export default class Model<IModelData> {
     limit: number,
     offset: number,
     filter: any,
-    sort?: any
+    sort?: any,
+    join?: {
+      key: string;
+      collection: string;
+    }
   ): Promise<any> => {
     try {
       let result: any;
       if (sort) {
-        result = await this.builder
-          .where(filter)
-          .paginate(limit, offset)
-          .orderBy(sort[0], sort[1])
-          .select();
+        if (join) {
+          result = await this.builder
+            .where("is_deleted", false)
+            .where(filter)
+            .join(join.key, join.collection)
+            .paginate(limit, offset)
+            .orderBy(sort[0], sort[1])
+            .select(undefined, true);
+        } else
+          result = await this.builder
+            .where("is_deleted", false)
+            .where(filter)
+            .paginate(limit, offset)
+            .orderBy(sort[0], sort[1])
+            .select();
       } else {
-        result = await this.builder
-          .where(filter)
-          .paginate(limit, offset)
-          .select();
+        if (join) {
+          result = await this.builder
+            .where("is_deleted", false)
+            .where(filter)
+            .join(join.key, join.collection)
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else {
+          result = await this.builder
+            .where("is_deleted", false)
+            .where(filter)
+            .paginate(limit, offset)
+            .select();
+        }
       }
       return result;
     } catch (err) {
@@ -271,7 +295,7 @@ export default class Model<IModelData> {
 
   public find = async (id: string): Promise<IModelData | undefined> => {
     try {
-      const result: any = await this.builder.where("id", id).first();
+      const result = await this.builder.where("id", id).first();
       return result;
     } catch (error) {
       return undefined;
@@ -341,6 +365,21 @@ export default class Model<IModelData> {
     try {
       await this.builder.whereIn("id", ids).delete();
       return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  public join = async (
+    key: string,
+    collection: string,
+    custom_key: string[]
+  ) => {
+    try {
+      const result = await this.builder
+        .join(key, collection)
+        .select(custom_key, true);
+      return result;
     } catch (error) {
       return false;
     }
