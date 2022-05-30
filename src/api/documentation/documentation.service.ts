@@ -32,6 +32,7 @@ class AgreementPoliciesTermsService {
         logo: null,
         type: payload.type || null,
         updated_at,
+        isDeleted: false,
       });
       if (!result) {
         return resolve({
@@ -127,7 +128,7 @@ class AgreementPoliciesTermsService {
           statusCode: 404,
         });
       }
-      const result = await this.documentation.update(id, {isDeleted: true})
+      const result = await this.documentation.update(id, { isDeleted: true });
       if (!result) {
         return resolve({
           message: "Something wrong when delete, please try again!",

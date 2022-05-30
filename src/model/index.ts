@@ -239,6 +239,7 @@ export default class Model<IModelData> {
       if (sort) {
         if (join) {
           result = await this.builder
+            .where("isDeleted", false)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
@@ -246,6 +247,7 @@ export default class Model<IModelData> {
             .select();
         } else
           result = await this.builder
+            .where("isDeleted", false)
             .where(filter)
             .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
@@ -253,12 +255,14 @@ export default class Model<IModelData> {
       } else {
         if (join) {
           result = await this.builder
+            .where("isDeleted", false)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
             .select(undefined, true);
         } else {
           result = await this.builder
+            .where("isDeleted", false)
             .where(filter)
             .paginate(limit, offset)
             .select();

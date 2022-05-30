@@ -134,8 +134,8 @@ export default class Builder {
     return this;
   };
 
-  public where = (key: string, value?: string) => {
-    if (value) {
+  public where = (key: string, value?: any) => {
+    if (value || value == false) {
       this.query += ` filter ${this.prefix}.${key} == @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }

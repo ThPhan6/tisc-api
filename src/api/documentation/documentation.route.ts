@@ -9,6 +9,7 @@ import {
 import documentation from "./documentation.response";
 import { ROUTES } from "../../constant/api.constant";
 import commonValidate from "../../validate/common.validate";
+import { AUTH_NAMES } from "../../constant/auth.constant";
 export default class AgreementPoliciesTermsRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -23,7 +24,7 @@ export default class AgreementPoliciesTermsRoute implements IRoute {
             validate: validate.create,
             description: "Method that create documentation",
             tags: ["api", "documentation"],
-            auth: false,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -40,6 +41,7 @@ export default class AgreementPoliciesTermsRoute implements IRoute {
             validate: commonValidate.getList,
             description: "Method that get list documentation",
             tags: ["api", "documentation"],
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -73,6 +75,7 @@ export default class AgreementPoliciesTermsRoute implements IRoute {
             validate: validate.update,
             description: "Method that update documentation",
             tags: ["api", "documentation"],
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -89,6 +92,7 @@ export default class AgreementPoliciesTermsRoute implements IRoute {
             validate: validate.getById,
             description: "Method that delete documentation",
             tags: ["api", "documentation"],
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

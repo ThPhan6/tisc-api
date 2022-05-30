@@ -12,7 +12,7 @@ export default {
           answer: Joi.string(),
         }),
       }).required(),
-      type: Joi.number(),
+      type: Joi.number().allow(null),
     },
   },
   getById: {
