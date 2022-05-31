@@ -58,5 +58,8 @@ export const ROUTES = {
   GET_ONE_SERVICE: "/api/service/get-one/{id}",
   CREATE_SERVICE: "/api/service/create",
   GET_LIST_SUBSCRIPTION: "/api/subscription/get-list",
+  CREATE_CONTACT: "/api/contact/create",
+  GET_LIST_CONTACT: "/api/contact/list",
+  GET_ONE_CONTACT: "/api/contact/get-one/{id}",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
 };

@@ -1,5 +1,4 @@
 import * as Joi from "joi";
-
 export default {
   getList: {
     query: Joi.object({
@@ -9,18 +8,14 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .messages({ "any.invalid": "Page must be an integer" }),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .messages({ "any.invalid": "Page Size must be an integer" }),
       sort: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
@@ -34,9 +29,7 @@ export default {
             return helpers.error("any.invalid");
           }
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .messages({ "any.invalid": "Invalid filter" }),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
@@ -68,9 +61,7 @@ export default {
             return helpers.error("any.invalid");
           }
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .messages({ "any.invalid": "Invalid filter" }),
     },
   },
   getAll: {
@@ -89,9 +80,7 @@ export default {
             return helpers.error("any.invalid");
           }
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .messages({ "any.invalid": "Invalid filter" }),
     }).custom((value) => {
       return {
         filter: value.filter,

@@ -1,5 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import AuthRoute from "./api/auth/auth.route";
+import ContactRoute from "./api/contact/contact.route";
 import Documentation from "./api/documentation/documentation.route";
 import UserRoute from "./api/user/user.route";
 import BrandRoute from "./api/brand/brand.route";
@@ -9,6 +10,7 @@ export default class Router {
     await new AuthRoute().register(server);
     await new Documentation().register(server);
     await new UserRoute().register(server);
+    await new ContactRoute().register(server);
     await new BrandRoute().register(server);
     await new DesignerRoute().register(server);
   }

@@ -68,4 +68,5 @@ export const MESSAGES = {
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_IN_WORKSPACE_NOT_FOUND: "Not found user in your work space",
   AVATAR_NOT_VALID_FILE: "Not valid avatar file",
+  CONTACT_NOT_FOUND: "Not found contact",
 };
