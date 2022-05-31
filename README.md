@@ -18,4 +18,6 @@
 ### Available scripts
 
 - `dev`: Starts node in dev enviroment
+- `create_db`: Create database with name in dev enviroment
+- `migrate`: Migrate all tables
 - `seed`: Execute all seed file
