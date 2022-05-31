@@ -1,23 +1,23 @@
-export interface IContactAttribute {
+export interface IContactAttributes {
   id: string;
   name: string;
   email: string;
-  inquity: string | null;
+  inquiry: string | null;
   created_at: any;
 }
 
 export interface IContactRequest {
   name: string;
   email: string;
-  inquity?: string;
+  inquiry?: string;
 }
 
-export interface IContactsResponse {
-  data: IContactAttribute[];
-  statusCode: number;
-}
+// export interface IContactsResponse {
+//   data: IContactAttributess[];
+//   statusCode: number;
+// }
 
 export interface IContactResponse {
-  data: IContactAttribute;
+  data: IContactAttributes;
   statusCode: number;
 }

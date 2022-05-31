@@ -17,7 +17,7 @@ describe("Contact API", () => {
         .send({
           name: "Quang Tien",
           email: "quangtien@gmail.com",
-          inquity: "how to use?",
+          inquiry: "how to use?",
         })
         .end((err, res) => {
           res.should.have.status(200);
@@ -27,7 +27,7 @@ describe("Contact API", () => {
           res.body.should.have.property("statusCode", 200);
           res.body.data.should.have.property("name");
           res.body.data.should.have.property("email");
-          res.body.data.should.have.property("inquity");
+          res.body.data.should.have.property("inquiry");
           res.body.data.should.have.property("id");
           res.body.data.should.have.property("created_at");
           done();
@@ -39,7 +39,7 @@ describe("Contact API", () => {
         .post("/contact/create")
         .send({
           email: "quangtien@gmail.com",
-          inquity: "how to use?",
+          inquiry: "how to use?",
         })
         .end((err, res) => {
           res.should.have.status(400);
@@ -60,7 +60,7 @@ describe("Contact API", () => {
         .post("/contact/create")
         .send({
           name: "Quang Tien",
-          inquity: "how to use?",
+          inquiry: "how to use?",
         })
         .end((err, res) => {
           res.should.have.status(400);
@@ -75,7 +75,7 @@ describe("Contact API", () => {
           done();
         });
     });
-    it("Miss field inquity", (done) => {
+    it("Miss field inquiry", (done) => {
       chai
         .request(HOST_URL)
         .post("/contact/create")
@@ -91,7 +91,7 @@ describe("Contact API", () => {
           res.body.should.have.property("statusCode", 200);
           res.body.data.should.have.property("name");
           res.body.data.should.have.property("email");
-          res.body.data.should.have.property("inquity");
+          res.body.data.should.have.property("inquiry");
           res.body.data.should.have.property("id");
           res.body.data.should.have.property("created_at");
           done();
@@ -104,7 +104,7 @@ describe("Contact API", () => {
         .send({
           name: "Quang Tien",
           email: "quangtien@gmail.com",
-          inquity: "how to use?",
+          inquiry: "how to use?",
         })
         .end((err, res) => {
           res.should.have.status(404);
@@ -130,7 +130,7 @@ describe("Contact API", () => {
             element.should.be.a("object");
             element.should.have.property("name");
             element.should.have.property("email");
-            element.should.have.property("inquity");
+            element.should.have.property("inquiry");
             element.should.have.property("id");
             element.should.have.property("created_at");
           });
@@ -165,7 +165,7 @@ describe("Contact API", () => {
           res.body.should.have.property("statusCode", 200);
           res.body.data.should.have.property("name");
           res.body.data.should.have.property("email");
-          res.body.data.should.have.property("inquity");
+          res.body.data.should.have.property("inquiry");
           res.body.data.should.have.property("id");
           res.body.data.should.have.property("created_at");
           done();
