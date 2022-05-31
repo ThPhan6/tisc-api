@@ -1,8 +1,14 @@
-const documentationMigrate =
-  require("./1_create_documentation_table").documentationMigrate;
+const migrate_table = require("./migrate_template").migrate;
 
 const migrate = async () => {
-  await documentationMigrate();
+  await migrate_table("roles");
+  await migrate_table("users");
+  await migrate_table("permissions");
+  await migrate_table("permission_details");
+  await migrate_table("documentations");
+  await migrate_table("brands");
+  await migrate_table("designers");
+  await migrate_table("designer1s");
 };
 
 migrate();
