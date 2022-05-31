@@ -7,8 +7,8 @@ const db = new Database({
 });
 db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-const name = "roles";
-const migrate = async () => {
+
+const migrate = async (name) => {
   const collection = await db.collection(name);
   try {
     await collection.create();
@@ -22,7 +22,7 @@ const migrate = async () => {
     }
   }
 };
-migrate();
+
 module.exports = {
   migrate,
 };
