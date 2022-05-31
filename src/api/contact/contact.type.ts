@@ -12,10 +12,10 @@ export interface IContactRequest {
   inquiry?: string;
 }
 
-// export interface IContactsResponse {
-//   data: IContactAttributess[];
-//   statusCode: number;
-// }
+export interface IContactsResponse {
+  data: IContactAttributes[];
+  statusCode: number;
+}
 
 export interface IContactResponse {
   data: IContactAttributes;
