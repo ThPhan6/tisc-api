@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tisc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style media="screen"></style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+    <style>
+        body {
+            font-family: "Inter";
+        }
+
+        .pl-5 {
+            padding-left: 5px;
+        }
+
+        .pb-10 {
+            padding-bottom: 10px;
+        }
+
+        .pb-15 {
+            padding-bottom: 15px;
+        }
+
+        .pb-20 {
+            padding-bottom: 20px;
+        }
+
+        .pb-30 {
+            padding-bottom: 30px;
+        }
+
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .text-bold-black {
+            font-weight: bold;
+            color: #1f2329;
+        }
+
+        .button-account-password {
+            background-color: #fff;
+            border: 2px solid #e6e6e6;
+            color: #33363c;
+            padding: 15px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            margin: 4px 2px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .non-bullet {
+            list-style: none;
+        }
+
+        .text-blue-light {
+            color: #4f84ff;
+        }
+
+        .non-padding {
+            padding: 0;
+        }
+
+        .text-italic {
+            font-style: italic;
+        }
+
+        .content-email {
+            padding: 40px 40px;
+        }
+
+        .hr {
+            border: 1px solid #bbbfc4;
+        }
+
+        li::before {
+            content: ".";
+            color: #3370ff
+        }
+
+        .list-session-include {
+            padding-left: 10px;
+        }
+
+        .text-non-decoration {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content-email">
+            <div class="title-email">
+                <h1>Title: TISC live demo session is booked!</h1>
+            </div>
+            <div class="message-email">
+                <p>Hi <%= firstname %>,</p>
+                <p class="pb-30">Thanks for taking an interest in our service. We are excited to learn more about your
+                    brand and
+                    product line while introducing our platform.</p>
+                <p>This 60mins session includes:</p>
+                <ul class="non-bullet list-session-include pb-30">
+                    <li class="dot-blue-light pb-10"><span class="pl-5"> Introduce the TISC platform and its features
+                            (30
+                            mins) </span>s</li>
+                    <li class="dot-blue-light pb-10"><span class="pl-5"> Question and Answers (15 mins) </span>s</li>
+                    <li class="dot-blue-light pb-10"><span class="pl-5"> How can we assist your brand and the operation
+                            team
+                            (15 mins) </span>s</li>
+                </ul>
+                <p>The session is confirmed at:</p>
+                <p class="text-blue-light text-bold">{(11:00 on Tuesday, December 14, 2021)}</p>
+                <p class="pb-30">(Singapore Standard Time)</p>
+
+                <p>Location:</p>
+                <p class="text-bold-black pb-30">Online Virtual Meeting</p>
+                <p>You can join in with</p>
+                <p class="text-bold-black pb-30">Lark Meeting web conference.
+                    <a class="text-blue-light text-non-decoration " href=" #">(Join now)</a>
+                </p>
+                <div class="pb-30">
+                    <p>Need to reschedule? You can do so at:</p>
+                    <a class="text-blue-light text-non-decoration " href="#"><%= {(url)} %></a>
+                </div>
+                <p class="pb-30">Thank you and talk to you soon</p>
+
+                <p>TISC Team</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
+                <div class="pb-15">
+                    <div class="hr">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -25,7 +25,8 @@ export default class MailService {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/register.ejs`,
         {
-          fullname: user.fullname,
+          email: user.email,
+          firstname: user.firstname,
           verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}`,
         }
       );
