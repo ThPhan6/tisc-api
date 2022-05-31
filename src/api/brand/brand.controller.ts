@@ -16,4 +16,9 @@ export default class BrandController {
     const response = await this.service.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public invite = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.invite(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

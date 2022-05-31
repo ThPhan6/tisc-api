@@ -2,9 +2,7 @@ import * as Hapi from "@hapi/hapi";
 import BrandController from "./brand.controller";
 import validate from "./brand.validate";
 import IRoute from "../../helper/route.helper";
-import {
-  defaultRouteOptionResponseStatus,
-} from "../../helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import BrandResponse from "./brand.response";
@@ -45,6 +43,22 @@ export default class BrandRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: BrandResponse.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.SEND_EMAIL_INVITE_BRAND,
+          options: {
+            handler: controller.invite,
+            validate: validate.getOne,
+            description: "Method that invite brand",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },
