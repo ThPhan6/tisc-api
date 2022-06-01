@@ -1,7 +1,8 @@
 import PermissionModel from "../../model/permission.model";
 import PermissionDetailModel from "../../model/permission_detail.model";
+import UserModel from "../../model/user.model";
 import { ROLES } from "../../constant/user.constant";
-import { SYSTEM_TYPE } from "../../constant/common.constant";
+import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import {
   BRAND_PERMISSION_TITLE,
   DESIGN_PERMISSION_TITLE,
@@ -10,10 +11,75 @@ import {
 export default class PermissionService {
   private permissionModel: PermissionModel;
   private permissionDetailModel: PermissionDetailModel;
+  private userModel: UserModel;
   constructor() {
     this.permissionModel = new PermissionModel();
     this.permissionDetailModel = new PermissionDetailModel();
+    this.userModel = new UserModel();
   }
+  public getList = () => {};
+  public getMenu = (user_id: string): Promise<any> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      //get menu from permissions
+      const permissions = await this.permissionModel.getBy({
+        role_id: user.role_id,
+        type: user.type,
+        relation_id: user.relation_id,
+      });
+      if (!permissions) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+
+      const parents = permissions.filter(
+        (permission) => permission.parent_number === null
+      );
+      if (!parents) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const menu = parents.map((parent) => {
+        const subs = permissions.filter(
+          (permission) => permission.parent_number === parent.number
+        );
+        const newSubs = subs.map((sub) => {
+          const subs2 = permissions.filter(
+            (item) => item.parent_number === sub.number
+          );
+          if (subs2 && subs2[0]) {
+            return {
+              ...sub,
+              subs: subs2,
+            };
+          }
+          return sub;
+        });
+        if (newSubs && newSubs[0]) {
+          return {
+            ...parent,
+            subs: newSubs,
+          };
+        }
+        return parent;
+      });
+      return resolve({
+        data: menu,
+        statusCode: 200,
+      });
+    });
+  };
 
   public createBrandPermission = (brand_id: string): Promise<boolean> => {
     return new Promise(async (resolve) => {
@@ -32,7 +98,7 @@ export default class PermissionService {
           logo: "/public/logo/my_workspace.png",
           name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: "",
+          url: null,
           number: 1,
           parent_number: null,
         },
@@ -43,7 +109,7 @@ export default class PermissionService {
           logo: "/public/logo/product.png",
           name: BRAND_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 2,
           parent_number: null,
         },
@@ -54,7 +120,7 @@ export default class PermissionService {
           logo: "/public/logo/general_inquires.png",
           name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
           accessable: true,
-          url: "",
+          url: null,
           number: 3,
           parent_number: null,
         },
@@ -65,7 +131,7 @@ export default class PermissionService {
           logo: "/public/logo/project_tracking.png",
           name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
           accessable: true,
-          url: "",
+          url: null,
           number: 4,
           parent_number: null,
         },
@@ -76,7 +142,7 @@ export default class PermissionService {
           logo: "/public/logo/administration.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION,
           accessable: null,
-          url: "",
+          url: null,
           number: 5,
           parent_number: null,
         },
@@ -87,7 +153,7 @@ export default class PermissionService {
           logo: "/public/logo/brand.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE,
           accessable: true,
-          url: "",
+          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -98,7 +164,7 @@ export default class PermissionService {
           logo: "/public/logo/location.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: true,
-          url: "",
+          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -109,7 +175,7 @@ export default class PermissionService {
           logo: "/public/logo/team_profile.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: true,
-          url: "",
+          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -120,7 +186,7 @@ export default class PermissionService {
           logo: "/public/logo/distributor.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR,
           accessable: true,
-          url: "",
+          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -131,7 +197,7 @@ export default class PermissionService {
           logo: "/public/logo/market_availability.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY,
           accessable: true,
-          url: "",
+          url: null,
           number: 10,
           parent_number: 5,
         },
@@ -142,7 +208,7 @@ export default class PermissionService {
           logo: "/public/logo/subscription.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION,
           accessable: true,
-          url: "",
+          url: null,
           number: 11,
           parent_number: 5,
         },
@@ -154,7 +220,7 @@ export default class PermissionService {
           logo: "/public/logo/my_workspace.png",
           name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: "",
+          url: null,
           number: 1,
           parent_number: null,
         },
@@ -165,7 +231,7 @@ export default class PermissionService {
           logo: "/public/logo/product.png",
           name: BRAND_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 2,
           parent_number: null,
         },
@@ -176,7 +242,7 @@ export default class PermissionService {
           logo: "/public/logo/general_inquires.png",
           name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
           accessable: true,
-          url: "",
+          url: null,
           number: 3,
           parent_number: null,
         },
@@ -187,7 +253,7 @@ export default class PermissionService {
           logo: "/public/logo/project_tracking.png",
           name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
           accessable: true,
-          url: "",
+          url: null,
           number: 4,
           parent_number: null,
         },
@@ -198,7 +264,7 @@ export default class PermissionService {
           logo: "/public/logo/administration.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION,
           accessable: null,
-          url: "",
+          url: null,
           number: 5,
           parent_number: null,
         },
@@ -209,7 +275,7 @@ export default class PermissionService {
           logo: "/public/logo/brand.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE,
           accessable: false,
-          url: "",
+          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -220,7 +286,7 @@ export default class PermissionService {
           logo: "/public/logo/location.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: false,
-          url: "",
+          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -231,7 +297,7 @@ export default class PermissionService {
           logo: "/public/logo/team_profile.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: false,
-          url: "",
+          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -242,7 +308,7 @@ export default class PermissionService {
           logo: "/public/logo/distributor.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR,
           accessable: false,
-          url: "",
+          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -253,7 +319,7 @@ export default class PermissionService {
           logo: "/public/logo/market_availability.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY,
           accessable: false,
-          url: "",
+          url: null,
           number: 10,
           parent_number: 5,
         },
@@ -264,7 +330,7 @@ export default class PermissionService {
           logo: "/public/logo/subscription.png",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION,
           accessable: false,
-          url: "",
+          url: null,
           number: 11,
           parent_number: 5,
         },
@@ -363,7 +429,7 @@ export default class PermissionService {
           logo: "/public/logo/my_workspace.png",
           name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: "",
+          url: null,
           number: 1,
           parent_number: null,
         },
@@ -374,7 +440,7 @@ export default class PermissionService {
           logo: "/public/logo/favourite.png",
           name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
           accessable: true,
-          url: "",
+          url: null,
           number: 2,
           parent_number: null,
         },
@@ -385,7 +451,7 @@ export default class PermissionService {
           logo: "/public/logo/product.png",
           name: DESIGN_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 3,
           parent_number: null,
         },
@@ -396,7 +462,7 @@ export default class PermissionService {
           logo: "/public/logo/project.png",
           name: DESIGN_PERMISSION_TITLE.PROJECT,
           accessable: true,
-          url: "",
+          url: null,
           number: 4,
           parent_number: null,
         },
@@ -404,9 +470,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
           accessable: true,
-          url: "",
+          url: null,
           number: 5,
           parent_number: 4,
         },
@@ -414,9 +481,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
           accessable: true,
-          url: "",
+          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -424,9 +492,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
           accessable: true,
-          url: "",
+          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -434,9 +503,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -444,9 +514,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -457,7 +528,7 @@ export default class PermissionService {
           logo: "/public/logo/administration.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
           accessable: true,
-          url: "",
+          url: null,
           number: 10,
           parent_number: null,
         },
@@ -468,7 +539,7 @@ export default class PermissionService {
           logo: "/public/logo/office.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
           accessable: true,
-          url: "",
+          url: null,
           number: 11,
           parent_number: 10,
         },
@@ -479,7 +550,7 @@ export default class PermissionService {
           logo: "/public/logo/location.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: true,
-          url: "",
+          url: null,
           number: 12,
           parent_number: 10,
         },
@@ -490,7 +561,7 @@ export default class PermissionService {
           logo: "/public/logo/team_profile.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: true,
-          url: "",
+          url: null,
           number: 13,
           parent_number: 10,
         },
@@ -501,7 +572,7 @@ export default class PermissionService {
           logo: "/public/logo/material.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
           accessable: true,
-          url: "",
+          url: null,
           number: 14,
           parent_number: 10,
         },
@@ -513,7 +584,7 @@ export default class PermissionService {
           logo: "/public/logo/my_workspace.png",
           name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: "",
+          url: null,
           number: 1,
           parent_number: null,
         },
@@ -524,7 +595,7 @@ export default class PermissionService {
           logo: "/public/logo/favourite.png",
           name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
           accessable: true,
-          url: "",
+          url: null,
           number: 2,
           parent_number: null,
         },
@@ -535,7 +606,7 @@ export default class PermissionService {
           logo: "/public/logo/product.png",
           name: DESIGN_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 3,
           parent_number: null,
         },
@@ -546,7 +617,7 @@ export default class PermissionService {
           logo: "/public/logo/project.png",
           name: DESIGN_PERMISSION_TITLE.PROJECT,
           accessable: true,
-          url: "",
+          url: null,
           number: 4,
           parent_number: null,
         },
@@ -554,9 +625,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
           accessable: true,
-          url: "",
+          url: null,
           number: 5,
           parent_number: 4,
         },
@@ -564,9 +636,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
           accessable: true,
-          url: "",
+          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -574,9 +647,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
           accessable: true,
-          url: "",
+          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -584,9 +658,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -594,9 +669,10 @@ export default class PermissionService {
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
+          logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
           accessable: true,
-          url: "",
+          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -607,7 +683,7 @@ export default class PermissionService {
           logo: "/public/logo/administration.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
           accessable: true,
-          url: "",
+          url: null,
           number: 10,
           parent_number: null,
         },
@@ -618,7 +694,7 @@ export default class PermissionService {
           logo: "/public/logo/office.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
           accessable: true,
-          url: "",
+          url: null,
           number: 11,
           parent_number: 10,
         },
@@ -629,7 +705,7 @@ export default class PermissionService {
           logo: "/public/logo/location.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: true,
-          url: "",
+          url: null,
           number: 12,
           parent_number: 10,
         },
@@ -640,7 +716,7 @@ export default class PermissionService {
           logo: "/public/logo/team_profile.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: true,
-          url: "",
+          url: null,
           number: 13,
           parent_number: 10,
         },
@@ -651,7 +727,7 @@ export default class PermissionService {
           logo: "/public/logo/material.png",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
           accessable: true,
-          url: "",
+          url: null,
           number: 14,
           parent_number: 10,
         },
