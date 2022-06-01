@@ -21,9 +21,13 @@ export default {
         "string.empty": "Email can not be empty",
         "any.required": "Email can not be empty",
       }),
-      fullname: Joi.string().required().messages({
-        "string.empty": "Full name can not be empty",
-        "any.required": "Full name can not be empty",
+      firstname: Joi.string().required().messages({
+        "string.empty": "First name can not be empty",
+        "any.required": "First name can not be empty",
+      }),
+      lastname: Joi.string().required().messages({
+        "string.empty": "Last name can not be empty",
+        "any.required": "Last name can not be empty",
       }),
       company_name: Joi.string().allow(null, ""),
       password: Joi.string().required().messages({

@@ -1,95 +1,137 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8" />
-    <title>Tisc</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style media="screen"></style>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Inter"
-    />
-    <style></style>
-    <style>
-      body {
-        font-family: "Inter";
-      }
-      .logo {
-        color: #0f1012;
-        font-weight: 600;
-        font-size: 24px;
-        line-height: 30px;
-        margin: 0;
-        padding-bottom: 45px;
-      }
-      .title {
-        color: #191919;
-        font-weight: 700;
-        font-size: 26px;
-        line-height: 36px;
-        margin: 0;
-        padding-bottom: 24px;
-      }
-      .subtitle {
-        color: #8b8b8b;
-        font-weight: 400;
-        font-size: 17px;
-        line-height: 28px;
-        margin: 0;
-        padding-bottom: 29px;
-      }
-      .btn-container {
-        display: flex;
-        padding-bottom: 40px;
-      }
-      .verify-btn {
-        padding: 16px 184px;
-        color: #1d1d1d !important;
-        background-color: #f7ac1b;
-        text-decoration: none;
-        border-radius: 8px;
-        box-sizing: border-box;
-        font-weight: 700;
-        font-size: 16px;
-        line-height: 20px;
-      }
-      .note {
-        color: #8b8b8b;
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 26px;
-        margin: 0;
-        padding-bottom: 20px;
-      }
-      .end {
-        color: #0e0e0e;
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 26px;
-        margin: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrapper">
-      <div class="content">
-        <div class="message">
-          <h1 class="logo">Tisc</h1>
-          <h1 class="title">Thanks you for signing up, <%= fullname %></h1>
-          <p class="subtitle">
-            Please verify your email address to get access to Tisc. Thank you!
-          </p>
-          <div class="btn-container">
-            <a class="verify-btn" href="<%= verify_link%>">Verify Email</a>
-          </div>
-          <p class="note">
-            Need support? Our support team is always ready to help Contact us at
-            support@tisc.com.sg
-          </p>
-          <p class="end">Thank you</p>
-          <p class="end">The Tisc Team</p>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Tisc</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style media="screen"></style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+  <style>
+    body {
+      font-family: "Inter";
+    }
+
+    .pb-10 {
+      padding-bottom: 10px;
+    }
+
+    .pb-15 {
+      padding-bottom: 15px;
+    }
+
+    .pb-20 {
+      padding-bottom: 20px;
+    }
+
+    .pb-30 {
+      padding-bottom: 30px;
+    }
+
+    .text-bold-black {
+      font-weight: bold;
+      color: #1f2329;
+    }
+
+    .button-account-password {
+      background-color: #fff;
+      border: 2px solid #e6e6e6;
+      color: #33363c !important;
+      padding: 15px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 15px;
+      margin: 4px 2px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .non-bullet {
+      list-style: none;
+    }
+
+    .text-blue-light {
+      color: #4f84ff;
+    }
+
+    .non-padding {
+      padding: 0;
+    }
+
+    .text-italic {
+      font-style: italic;
+    }
+
+    .content-email {
+      padding: 40px 40px;
+    }
+
+    .hr {
+      border: 1px solid #bbbfc4;
+    }
+
+    .wrapper .content-email p,
+    li {
+      color: #1f2329
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="content-email">
+      <div class="title-email">
+        <h1>Title: Successfully signed-up!</h1>
+      </div>
+      <div class="message-email">
+        <p>Hi <%= firstname %>,</p>
+        <p>Thank you for signing up.</p>
+        <p class="pb-30">We built the TISC platform to manage your material library and resource room while
+          automating the manual work and eliminating human errors. So your team could save precious
+          time and re-focus on what they do best, creative design for the clients.</p>
+        <p class="text-bold-black">Your account name: <%= email %></p>
+        <p class="pb-15">Click the below button and be productive.</p>
+        <div class="button pb-30">
+          <a href="#" class="button-account-password">Log in</a>
         </div>
+        <p>As a <span class="text-bold-black"> Design Admin </span> user, it is essential to complete the
+          following after logging in for the first
+          time.</p>
+        <div class="pb-10">
+          <ul class="non-padding">
+            <li class="non-bullet pb-10"><span class="text-blue-light">1.</span> Office Profile: including
+              logo, website and firm capacity</li>
+            <li class="non-bullet pb-10"><span class="text-blue-light">2.</span> Locations: at least one
+              address is required</li>
+            <li class="non-bullet pb-10"><span class="text-blue-light">3.</span> Team Profiles: create team
+              profiles and invite them to join</li>
+            <li class="non-bullet pb-10"><span class="text-blue-light">4.</span> Material/product code: your
+              custom code system
+            </li>
+          </ul>
+        </div>
+        <p class="pb-20">That is it. Now you could create the first project, assign team members, and search,
+          select &
+          specify the products.</p>
+        <p class="pb-20">The <span class="text-italic">How-To</span> section at the top right corner will guide
+          you through
+          the features and
+          functions of
+          the platform. The information will update over time. Of course, you could always refer to
+          <span class="text-blue-light">Contact Support</span> if you have further questions.</p>
+        <p>TISC Team</p>
+        <p class="text-blue-light pb-15">tisc.global</p>
+        <div class="pb-15">
+          <div class="hr">
+          </div>
+        </div>
+        <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
+        </p>
+        <p> <%= verify_link %></p>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
