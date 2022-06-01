@@ -1,7 +1,17 @@
 import { MODEL_NAMES } from "../constant/common.constant";
-import { IDocumentation } from "../api/documentation/documentation.type";
 import Model from "./index";
 
+export interface IDocumentationAttributes {
+  id: string;
+  logo: string | null;
+  type: number | null;
+  title: string;
+  document: object;
+  created_at: string | null;
+  created_by: string;
+  updated_at: string | null;
+  is_deleted: boolean | null;
+}
 export const DOCUMENTATION_NULL_ATTRIBUTES = {
   id: null,
   logo: null,
@@ -13,7 +23,7 @@ export const DOCUMENTATION_NULL_ATTRIBUTES = {
   updated_at: null,
   is_deleted: null,
 };
-export default class DocumentationModel extends Model<IDocumentation> {
+export default class DocumentationModel extends Model<IDocumentationAttributes> {
   constructor() {
     super(MODEL_NAMES.DOCUMENTTATIONS);
   }

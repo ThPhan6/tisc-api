@@ -103,7 +103,6 @@ class AgreementPoliciesTermsService {
           author: rest,
         };
       });
-      console.log(result, "[result]");
       return resolve({
         data: result,
         statusCode: 200,
