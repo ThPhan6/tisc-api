@@ -12,7 +12,23 @@ export interface IBrandAttributes {
   location_ids: string[];
   status: number;
   created_at: string;
+  updated_at: string | null;
 }
+
+export const BRAND_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  parent_company: null,
+  logo: null,
+  slogan: null,
+  mission_n_vision: null,
+  offical_websites: null,
+  team_profile_ids: null,
+  location_ids: null,
+  status: null,
+  created_at: null,
+  updated_at: null,
+};
 
 export default class BrandModel extends Model<IBrandAttributes> {
   constructor() {

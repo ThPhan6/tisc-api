@@ -4,17 +4,18 @@ export interface IDocumentation {
   type: number | null;
   title: string;
   document: object;
-  created_at?: any;
+  created_at: string | null;
   created_by: string;
-  updated_at?: any;
-  is_deleted: boolean;
-  author?: string;
+  updated_at: string | null;
+  is_deleted: boolean | null;
+  author: null;
 }
 
 export interface IDocumentationRequest {
   title: string;
   document: object;
   type: number | null;
+  logo?: string;
 }
 
 export interface IDocumentationResponse {

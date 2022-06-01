@@ -1,6 +1,8 @@
 import moment from "moment";
 import { MESSAGES } from "../../constant/common.constant";
-import Documentation from "../../model/documentation.model";
+import Documentation, {
+  DOCUMENTATION_NULL_ATTRIBUTES,
+} from "../../model/documentation.model";
 import { IMessageResponse } from "../../type/common.type";
 import {
   IDocumentationRequest,
@@ -26,11 +28,11 @@ class AgreementPoliciesTermsService {
       }
       const updated_at = moment().toISOString();
       const result = await this.documentation.create({
+        ...DOCUMENTATION_NULL_ATTRIBUTES,
         title: payload.title,
         document: payload.document,
         created_by: user_id,
-        logo: null,
-        type: payload.type || null,
+        type: payload.type,
         updated_at,
         is_deleted: false,
       });
@@ -101,6 +103,7 @@ class AgreementPoliciesTermsService {
           author: rest,
         };
       });
+      console.log(result, "[result]");
       return resolve({
         data: result,
         statusCode: 200,
