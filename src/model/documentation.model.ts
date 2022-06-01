@@ -12,7 +12,6 @@ export const DOCUMENTATION_NULL_ATTRIBUTES = {
   created_by: null,
   updated_at: null,
   is_deleted: null,
-  author: null,
 };
 export default class DocumentationModel extends Model<IDocumentation> {
   constructor() {

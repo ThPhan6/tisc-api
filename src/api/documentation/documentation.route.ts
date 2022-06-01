@@ -41,7 +41,7 @@ export default class AgreementPoliciesTermsRoute implements IRoute {
             validate: commonValidate.getList,
             description: "Method that get list documentation",
             tags: ["api", "documentation"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
