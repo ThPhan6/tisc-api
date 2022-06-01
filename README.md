@@ -1,4 +1,4 @@
-# TISC api
+# TISC Backend API with HapiJS + ArangoDB
 
 ===========================
 
