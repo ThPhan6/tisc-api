@@ -11,4 +11,9 @@ export default class PermissionController {
     const response = await this.service.getMenu(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getList = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getList(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

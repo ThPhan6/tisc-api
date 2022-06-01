@@ -7,6 +7,8 @@ import {
   BRAND_PERMISSION_TITLE,
   DESIGN_PERMISSION_TITLE,
 } from "../../constant/permission.constant";
+import { IPermissionsResponse } from "./permission.type";
+import { IMessageResponse } from "../../type/common.type";
 
 export default class PermissionService {
   private permissionModel: PermissionModel;
@@ -17,8 +19,72 @@ export default class PermissionService {
     this.permissionDetailModel = new PermissionDetailModel();
     this.userModel = new UserModel();
   }
-  public getList = () => {};
-  public getMenu = (user_id: string): Promise<any> => {
+  public getList = (
+    user_id: string
+  ): Promise<IPermissionsResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      const permissions = await this.permissionModel.getBy({
+        role_id: user.role_id,
+        type: user.type,
+        relation_id: user.relation_id,
+      });
+      if (!permissions) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+
+      const parents = permissions.filter(
+        (permission) => permission.parent_number === null
+      );
+      if (!parents) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const menu = parents.map((parent) => {
+        const subs = permissions.filter(
+          (permission) => permission.parent_number === parent.number
+        );
+        const newSubs = subs.map((sub) => {
+          const subs2 = permissions.filter(
+            (item) => item.parent_number === sub.number
+          );
+          if (subs2 && subs2[0]) {
+            return {
+              ...sub,
+              subs: subs2,
+            };
+          }
+          return sub;
+        });
+        if (newSubs && newSubs[0]) {
+          return {
+            ...parent,
+            subs: newSubs,
+          };
+        }
+        return parent;
+      });
+      return resolve({
+        data: menu,
+        statusCode: 200,
+      });
+    });
+  };
+  public getMenu = (
+    user_id: string
+  ): Promise<IPermissionsResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       if (!user) {
@@ -51,6 +117,9 @@ export default class PermissionService {
         });
       }
       const menu = parents.map((parent) => {
+        if (parent.name.toLowerCase() === "projects") {
+          return parent;
+        }
         const subs = permissions.filter(
           (permission) => permission.parent_number === parent.number
         );
