@@ -5,7 +5,9 @@ import {
   IContactsResponse,
 } from "./contact.type";
 import { IMessageResponse } from "../../type/common.type";
-import ContactModel from "../../model/contact.model";
+import ContactModel, {
+  CONTACT_NULL_ATTRIBUTES,
+} from "../../model/contact.model";
 export default class ContactService {
   private contactModel: ContactModel;
   constructor() {
@@ -17,6 +19,7 @@ export default class ContactService {
   ): Promise<IContactResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const result = await this.contactModel.create({
+        ...CONTACT_NULL_ATTRIBUTES,
         name: payload.name,
         email: payload.email,
         inquiry: payload.inquiry || null,

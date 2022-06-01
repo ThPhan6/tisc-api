@@ -23,6 +23,7 @@ export default {
       status: Joi.number(),
       assign_team: Joi.any(),
       created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
     }),
     statusCode: Joi.number(),
   }) as any,
