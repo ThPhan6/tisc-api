@@ -93,10 +93,36 @@ const USER_STATUSES = {
   BLOCKED: 0,
   PENDING: 2,
 };
+const USER_NULL_ATTRIBUTES = {
+  id: null,
+  role_id: null,
+  firstname: null,
+  lastname: null,
+  gender: null,
+  location_id: null,
+  department: null,
+  position: null,
+  email: null,
+  phone: null,
+  mobile: null,
+  password: null,
+  avatar: null,
+  backup_email: null,
+  personal_mobile: null,
+  linkedin: null,
+  is_verified: null,
+  verification_token: null,
+  reset_password_token: null,
+  status: null,
+  created_at: null,
+  type: null,
+  relation_id: null,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
   ROUTES,
   SYSTEM_TYPE,
   USER_STATUSES,
+  USER_NULL_ATTRIBUTES
 };

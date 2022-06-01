@@ -6,26 +6,52 @@ export interface IUserAttributes {
   role_id: string;
   firstname: string;
   lastname: string;
-  gender?: boolean;
-  location_id?: string;
-  department?: string;
-  position?: string;
+  gender: boolean | null;
+  location_id: string | null;
+  department: string | null;
+  position: string | null;
   email: string;
-  phone?: string;
-  mobile?: string;
-  password?: string;
-  avatar?: string;
-  backup_email?: string;
-  personal_mobile?: string;
-  linkedin?: string;
+  phone: string | null;
+  mobile: string | null;
+  password: string | null;
+  avatar: string | null;
+  backup_email: string | null;
+  personal_mobile: string | null;
+  linkedin: string | null;
   is_verified: boolean;
-  verification_token?: string;
-  reset_password_token?: string;
+  verification_token: string | null;
+  reset_password_token: string | null;
   status: number;
-  created_at?: string;
+  created_at: string | null;
   type: number;
-  relation_id?: string;
+  relation_id: string | null;
 }
+
+export const USER_NULL_ATTRIBUTES = {
+  id: null,
+  role_id: null,
+  firstname: null,
+  lastname: null,
+  gender: null,
+  location_id: null,
+  department: null,
+  position: null,
+  email: null,
+  phone: null,
+  mobile: null,
+  password: null,
+  avatar: null,
+  backup_email: null,
+  personal_mobile: null,
+  linkedin: null,
+  is_verified: null,
+  verification_token: null,
+  reset_password_token: null,
+  status: null,
+  created_at: null,
+  type: null,
+  relation_id: null,
+};
 
 export default class UserModel extends Model<IUserAttributes> {
   constructor() {

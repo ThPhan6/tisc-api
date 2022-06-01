@@ -44,23 +44,36 @@ export default class Builder {
   ) => {
     const keys = Object.keys(filter ? filter : {});
     return keys.reduce((pre, cur) => {
+      if (filter[cur] === undefined) {
+        return pre;
+      }
       this.bindObj = {
         ...this.bindObj,
-        [cur]: filter[cur].toString().toLowerCase(),
+        [cur]:
+          typeof filter[cur] === "string"
+            ? filter[cur].toString().toLowerCase()
+            : filter[cur],
       };
       if (!exact) {
         return (
           pre +
-          `filter lower(${prefix}.${cur}) ${
-            positive ? "" : "not"
-          } like concat('%',@${cur}, '%') `
+          ` filter ` +
+          (typeof filter[cur] === "string"
+            ? `lower(${prefix}.${cur})`
+            : `(${prefix}.${cur})`) +
+          ` ${positive ? " " : " not"} like concat('%',` +
+          (typeof filter[cur] === "string" ? `lower(@${cur})` : `@${cur}`) +
+          `, '%') `
         );
       }
       return (
         pre +
-        `filter lower(${prefix}.${cur}) ${
-          positive ? "=" : "!"
-        }= lower(@${cur}) `
+        ` filter ` +
+        (typeof filter[cur] === "string"
+          ? `lower(${prefix}.${cur})`
+          : `(${prefix}.${cur})`) +
+        `${positive ? " =" : " !"}= ` +
+        (typeof filter[cur] === "string" ? `lower(@${cur})` : `@${cur}`)
       );
     }, "");
   };
@@ -84,7 +97,7 @@ export default class Builder {
     return this;
   };
 
-  public whereNotLike = (key: string, value?: string) => {
+  public whereNotLike = (key: any, value?: string) => {
     if (value) {
       this.query += ` filter ${this.prefix}.${key} not like concat('%',@${key}, '%') `;
       this.bindObj = { ...this.bindObj, [key]: value };
@@ -134,7 +147,7 @@ export default class Builder {
     return this;
   };
 
-  public where = (key: string, value?: any) => {
+  public where = (key: any, value?: any) => {
     if (value || value == false) {
       this.query += ` filter ${this.prefix}.${key} == @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
@@ -142,10 +155,11 @@ export default class Builder {
     if (typeof key === "object") {
       this.query += ` ${this.filterToAqlString(key, this.prefix, true, true)} `;
     }
+    // console.log(this);
     return this;
   };
 
-  public whereNot = (key: string, value?: string) => {
+  public whereNot = (key: any, value?: string) => {
     if (value) {
       this.query += ` filter ${this.prefix}.${key} != @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
@@ -191,11 +205,7 @@ export default class Builder {
    * Get methods
    */
 
-  public select = async (
-    keys?: Array<string>,
-    isMerge?: boolean,
-    custom_fields?: string[]
-  ) => {
+  public select = async (keys?: Array<string>, isMerge?: boolean) => {
     if (keys) {
       this.query += isMerge
         ? ` return merge( ${toObject(keys, this.prefix)}, {@key: item })`
@@ -210,6 +220,8 @@ export default class Builder {
       query: this.query,
       bindVars: this.bindObj,
     });
+    // console.log(this.query);
+    // console.log(this.bindObj);
     // reset query
     this.query = this.temp;
     this.bindObj = this.tempBindObj;

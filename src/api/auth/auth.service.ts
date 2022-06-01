@@ -1,5 +1,5 @@
 import { MESSAGES } from "./../../constant/common.constant";
-import UserModel from "../../model/user.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
   IAdminLoginRequest,
   IResetPasswordRequest,
@@ -231,6 +231,7 @@ class AuthService {
         if (!duplicateVerificationTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
       const createdUser = await this.userModel.create({
+        ...USER_NULL_ATTRIBUTES,
         firstname: payload.firstname,
         lastname: payload.lastname,
         password,

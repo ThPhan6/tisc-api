@@ -5,6 +5,7 @@ dotenv.config();
 const ROLES = require("./constant").ROLES;
 const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
 const USER_STATUSES = require("./constant").USER_STATUSES;
+const USER_NULL_ATTRIBUTES = require("./constant").USER_NULL_ATTRIBUTES;
 
 const TISC_ADMIN_USER_ID = "1110813b-8422-4e94-8d2a-8fdef644480e";
 const TISC_ADMIN_USER_PASSWORD =
@@ -23,6 +24,7 @@ const seed = async () => {
     await collection.create();
     await collection.get();
     const record = {
+      ...USER_NULL_ATTRIBUTES,
       id: TISC_ADMIN_USER_ID,
       role_id: ROLES.TISC_ADMIN,
       firstname: "Tisc",
@@ -32,6 +34,7 @@ const seed = async () => {
       is_verified: true,
       status: USER_STATUSES.ACTIVE,
       type: SYSTEM_TYPE.TISC,
+      relation_id: null,
     };
 
     const users = await db.query({

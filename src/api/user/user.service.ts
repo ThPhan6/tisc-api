@@ -1,6 +1,6 @@
 import { MESSAGES } from "./../../constant/common.constant";
 import { IMessageResponse } from "../../type/common.type";
-import UserModel from "../../model/user.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import MailService from "../../service/mail.service";
 import { IUserRequest, IUserResponse } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
@@ -49,6 +49,7 @@ export default class UserService {
       } while (isDuplicated);
 
       const createdUser = await this.userModel.create({
+        ...USER_NULL_ATTRIBUTES,
         firstname: payload.firstname,
         lastname: payload.lastname,
         gender: payload.gender,
