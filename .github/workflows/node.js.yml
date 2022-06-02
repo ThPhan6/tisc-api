@@ -32,3 +32,16 @@ jobs:
    # - run: npm ci
    # - run: npm run build --if-present
    # - run: npm test
+  deploy-dev-server:
+     runs-on: ubuntu-latest
+     steps:
+      # DigitalOcean Droplet already have deploy files
+      - name: Deploy TISC API to DigitalOcean Droplet
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_SERVER_IP }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEV_SERVER_PORT }}
+          script: /var/www/cdScript.sh dev
+      
