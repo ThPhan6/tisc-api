@@ -1,6 +1,7 @@
 const { Database } = require("arangojs");
 const dotenv = require("dotenv");
 dotenv.config();
+const uuid = require("uuid").v4;
 
 const ROLES = require("./constant").ROLES;
 const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
@@ -23,44 +24,52 @@ const seed = async () => {
   const createAndSeed = async (collection) => {
     await collection.create();
     await collection.get();
-    const record = {
-      ...USER_NULL_ATTRIBUTES,
-      id: TISC_ADMIN_USER_ID,
-      role_id: ROLES.TISC_ADMIN,
-      firstname: "Tisc",
-      lastname: "admin",
-      email: TISC_ADMIN_USER_EMAIL,
-      password: TISC_ADMIN_USER_PASSWORD,
-      is_verified: true,
-      status: USER_STATUSES.ACTIVE,
-      type: SYSTEM_TYPE.TISC,
-      relation_id: null,
-    };
-
-    const users = await db.query({
-      query: `for data in @@model filter data.id == @id return data`,
-      bindVars: {
-        "@model": "users",
+    const records = [
+      {
+        ...USER_NULL_ATTRIBUTES,
         id: TISC_ADMIN_USER_ID,
+        role_id: ROLES.TISC_ADMIN,
+        firstname: "Tisc",
+        lastname: "admin",
+        email: TISC_ADMIN_USER_EMAIL,
+        password: TISC_ADMIN_USER_PASSWORD,
+        is_verified: true,
+        status: USER_STATUSES.ACTIVE,
+        type: SYSTEM_TYPE.TISC,
+        relation_id: null,
       },
-    });
-    const admin = users._result[0];
-    if (!admin) {
+      {
+        ...USER_NULL_ATTRIBUTES,
+        id: uuid(),
+        role_id: ROLES.TISC_CONSULTANT_TEAM,
+        firstname: "Tisc",
+        lastname: "consultant",
+        email: "nguyenquanbm98@gmail.com",
+        password: TISC_ADMIN_USER_PASSWORD,
+        is_verified: true,
+        status: USER_STATUSES.ACTIVE,
+        type: SYSTEM_TYPE.TISC,
+        relation_id: null,
+      },
+    ];
+
+    records.forEach(async (record) => {
       await db.query({
         query: `insert ${JSON.stringify(record)} into @@model`,
         bindVars: {
           "@model": "users",
         },
       });
-    }
+    });
     console.log("success seed user data");
   };
   try {
     await createAndSeed(collection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await collection.drop();
-      await createAndSeed(collection);
+      console.log("seeded users");
+      // await collection.drop();
+      // await createAndSeed(collection);
     }
   }
 };
