@@ -223,7 +223,7 @@ export default class UserService {
         });
       }
       const updatedUser = await this.userModel.update(user_id, {
-        isDelete: true,
+        is_deleted: true,
       });
       if (!updatedUser) {
         return resolve({

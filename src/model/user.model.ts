@@ -25,7 +25,7 @@ export interface IUserAttributes {
   created_at: string | null;
   type: number;
   relation_id: string | null;
-  is_deleted: boolean
+  is_deleted: boolean;
 }
 
 export const USER_NULL_ATTRIBUTES = {
@@ -76,7 +76,7 @@ export default class UserModel extends Model<IUserAttributes> {
     try {
       const result: any = await this.builder
         .where("type", SYSTEM_TYPE.TISC)
-        .whereNot("isDeleted", true)
+        .whereNot("is_deleted", true)
         .orderBy("created_at")
         .select();
       return result;

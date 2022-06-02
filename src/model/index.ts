@@ -239,7 +239,7 @@ export default class Model<IModelData> {
       if (sort) {
         if (join) {
           result = await this.builder
-            .where("is_deleted", false)
+            .whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
@@ -247,7 +247,7 @@ export default class Model<IModelData> {
             .select(undefined, true);
         } else
           result = await this.builder
-            .where("is_deleted", false)
+            .whereNot("is_deleted", true)
             .where(filter)
             .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
@@ -255,14 +255,14 @@ export default class Model<IModelData> {
       } else {
         if (join) {
           result = await this.builder
-            .where("is_deleted", false)
+            .whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
             .select(undefined, true);
         } else {
           result = await this.builder
-            .where("is_deleted", false)
+            .whereNot("is_deleted", true)
             .where(filter)
             .paginate(limit, offset)
             .select();
@@ -295,7 +295,10 @@ export default class Model<IModelData> {
 
   public find = async (id: string): Promise<IModelData | undefined> => {
     try {
-      const result = await this.builder.where("id", id).first();
+      const result = await this.builder
+        .where("id", id)
+        .whereNot("is_deleted", true)
+        .first();
       return result;
     } catch (error) {
       return undefined;
@@ -304,7 +307,10 @@ export default class Model<IModelData> {
 
   public findBy = async (params: any): Promise<IModelData | undefined> => {
     try {
-      const result: any = await this.builder.where(params).first();
+      const result: any = await this.builder
+        .where(params)
+        .whereNot("is_deleted", true)
+        .first();
       return result;
     } catch (error) {
       return undefined;
@@ -313,7 +319,10 @@ export default class Model<IModelData> {
 
   public getBy = async (params: any): Promise<IModelData[] | undefined> => {
     try {
-      const result: any = await this.builder.where(params).select();
+      const result: any = await this.builder
+        .where(params)
+        .whereNot("is_deleted", true)
+        .select();
       return result;
     } catch (error) {
       return undefined;
@@ -322,7 +331,9 @@ export default class Model<IModelData> {
 
   public getAll = async (): Promise<IModelData[] | undefined> => {
     try {
-      const result: any = await this.builder.select();
+      const result: any = await this.builder
+        .whereNot("is_deleted", true)
+        .select();
       return result;
     } catch (error) {
       return undefined;
@@ -348,27 +359,27 @@ export default class Model<IModelData> {
     }
   };
 
-  public delete = async (id: string): Promise<boolean> => {
-    try {
-      const record = await this.find(id);
-      if (record) {
-        await this.builder.where("id", id).delete();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      return false;
-    }
-  };
+  // public delete = async (id: string): Promise<boolean> => {
+  //   try {
+  //     const record = await this.find(id);
+  //     if (record) {
+  //       await this.builder.where("id", id).delete();
+  //       return true;
+  //     }
+  //     return false;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // };
 
-  public deleteMany = async (ids: string[]): Promise<boolean> => {
-    try {
-      await this.builder.whereIn("id", ids).delete();
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
+  // public deleteMany = async (ids: string[]): Promise<boolean> => {
+  //   try {
+  //     await this.builder.whereIn("id", ids).delete();
+  //     return true;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // };
 
   public join = async (
     key: string,
