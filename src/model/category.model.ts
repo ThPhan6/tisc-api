@@ -14,4 +14,17 @@ export default class CategoryModel extends Model<ICategoryAttributes> {
   constructor() {
     super("categories");
   }
+  public getSubCategory = async (parent_id: any) => {
+    try {
+      let result;
+      if (parent_id) {
+        result = await this.builder.where("parent_id", parent_id).select();
+      } else {
+        result = [];
+      }
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

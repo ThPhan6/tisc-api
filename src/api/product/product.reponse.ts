@@ -22,6 +22,8 @@ export default {
         name: Joi.string(),
         parent_id: Joi.string().allow(null),
         created_at: Joi.string(),
+        is_deleted: Joi.boolean(),
+        type: Joi.number(),
       })
     ),
     statusCode: Joi.number(),

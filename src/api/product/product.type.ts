@@ -24,7 +24,7 @@ export interface ICategoryResponse {
   data: {
     id: string;
     name: string;
-    parent_id: string;
+    parent_id: string | null;
     created_at: string;
   };
   statusCode: number;

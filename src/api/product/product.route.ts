@@ -37,13 +37,13 @@ export default class ProductRoutes implements IRoute {
           options: {
             handler: controller.getListCategory,
             validate: commonValidate.getList,
-            description: "Method that create category",
+            description: "Method that get categories",
             tags: ["api", "Category"],
             // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: productResponse.categories,
+                // 200: productResponse.categories,
               },
             },
           },

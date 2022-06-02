@@ -17,11 +17,11 @@ export default class ProductController {
   };
 
   public getListCategory = async (req: Request, toolkit: ResponseToolkit) => {
-    const { filter, limit, offset, sort } = req.query;
+    const { limit, offset, filter, sort } = req.query;
     const response = await this.service.getCategories(
-      filter,
       limit,
       offset,
+      filter,
       sort
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
