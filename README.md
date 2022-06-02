@@ -1,4 +1,4 @@
-# TISC Backend API with HapiJS + ArangoDB
+# TISC Backend API with HapiJS + ArangoDB + Sendinblue + DO Spaces
 
 ===========================
 
