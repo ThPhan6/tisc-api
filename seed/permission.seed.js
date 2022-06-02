@@ -478,9 +478,8 @@ const seed = async () => {
     await createAndSeed(collection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      console.log("seeded permissions");
-      // await collection.drop();
-      // await createAndSeed(collection);
+      await collection.drop();
+      await createAndSeed(collection);
     }
   }
 };
