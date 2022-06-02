@@ -44,6 +44,7 @@ export const ROUTES = {
   CREATE_TEAM_PROFILE: "/api/team-profile/create",
   SEND_INVITE_TEAM_PROFILE: "/api/team-profile/invite/{id}",
   GET_LIST_PERMISSION: "/api/permission/get-list",
+  OPEN_CLOSE_PERMISSION: "/api/permission/open-close",
   GET_LIST_EMAIL_AUTO: "/api/email-auto/get-list",
   GET_ONE_EMAIL_AUTO: "/api/email-auto/get-one/{id}",
   EDIT_EMAIL_AUTO: "/api/email-auto/update/{id}",

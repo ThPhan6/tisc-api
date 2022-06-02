@@ -1,4 +1,6 @@
-import PermissionModel from "../../model/permission.model";
+import PermissionModel, {
+  IPermissionAttributes,
+} from "../../model/permission.model";
 import PermissionDetailModel from "../../model/permission_detail.model";
 import UserModel from "../../model/user.model";
 import { ROLES } from "../../constant/user.constant";
@@ -7,7 +9,7 @@ import {
   BRAND_PERMISSION_TITLE,
   DESIGN_PERMISSION_TITLE,
 } from "../../constant/permission.constant";
-import { IPermissionsResponse } from "./permission.type";
+import { IMenusResponse, IPermissionsResponse } from "./permission.type";
 import { IMessageResponse } from "../../type/common.type";
 
 export default class PermissionService {
@@ -19,6 +21,39 @@ export default class PermissionService {
     this.permissionDetailModel = new PermissionDetailModel();
     this.userModel = new UserModel();
   }
+  private makeList = (permissions: any[]) => {
+    const parents = permissions.filter(
+      (permission) => permission.parent_number === null
+    );
+    if (!parents) {
+      return [];
+    }
+    const menu = parents.map((parent) => {
+      const subs = permissions.filter(
+        (permission) => permission.parent_number === parent.number
+      );
+      const newSubs = subs.map((sub) => {
+        const subs2 = permissions.filter(
+          (item) => item.parent_number === sub.number
+        );
+        if (subs2 && subs2[0]) {
+          return {
+            ...sub,
+            subs: subs2,
+          };
+        }
+        return sub;
+      });
+      if (newSubs && newSubs[0]) {
+        return {
+          ...parent,
+          subs: newSubs,
+        };
+      }
+      return parent;
+    });
+    return menu;
+  };
   public getList = (
     user_id: string
   ): Promise<IPermissionsResponse | IMessageResponse> => {
@@ -30,61 +65,130 @@ export default class PermissionService {
           statusCode: 404,
         });
       }
+      let permissions;
+      if (user.role_id === ROLES.TISC_ADMIN) {
+        const adminPermissions = await this.permissionModel.getBy({
+          role_id: user.role_id,
+          type: user.type,
+          relation_id: null,
+        });
+        const consultantTeamPermissions = await this.permissionModel.getBy({
+          role_id: ROLES.TISC_CONSULTANT_TEAM,
+          type: user.type,
+          relation_id: null,
+        });
+        permissions = adminPermissions?.map((item) => {
+          const consultantTeamPermission = consultantTeamPermissions?.find(
+            (consultantItem) => consultantItem.name === item.name
+          );
+          return {
+            logo: item.logo,
+            name: item.name,
+            items: [
+              {
+                id: item.id,
+                name: "TISC Admin",
+                accessable: item.accessable,
+              },
+              {
+                id: consultantTeamPermission?.id,
+                name: "Consultant Team",
+                accessable: consultantTeamPermission?.accessable,
+              },
+            ],
+            number: item.number,
+            parent_number: item.parent_number,
+          };
+        });
+      }
+      if (user.role_id === ROLES.BRAND_ADMIN) {
+        const adminPermissions = await this.permissionModel.getBy({
+          role_id: user.role_id,
+          type: user.type,
+          relation_id: user.relation_id,
+        });
+        const brandTeamPermissions = await this.permissionModel.getBy({
+          role_id: ROLES.BRAND_TEAM,
+          type: user.type,
+          relation_id: user.relation_id,
+        });
+        permissions = adminPermissions?.map((item) => {
+          const brandTeamPermission = brandTeamPermissions?.find(
+            (consultantItem) => consultantItem.name === item.name
+          );
+          return {
+            logo: item.logo,
+            name: item.name,
+            items: [
+              {
+                id: item.id,
+                name: "Brand Admin",
+                accessable: item.accessable,
+              },
+              {
+                id: brandTeamPermission?.id,
+                name: "Brand Team",
+                accessable: brandTeamPermission?.accessable,
+              },
+            ],
+            number: item.number,
+            parent_number: item.parent_number,
+          };
+        });
+      }
+      if (user.role_id === ROLES.DESIGN_ADMIN) {
+        const adminPermissions = await this.permissionModel.getBy({
+          role_id: user.role_id,
+          type: user.type,
+          relation_id: user.relation_id,
+        });
+        const designTeamPermissions = await this.permissionModel.getBy({
+          role_id: ROLES.DESIGN_TEAM,
+          type: user.type,
+          relation_id: user.relation_id,
+        });
+        permissions = adminPermissions?.map((item) => {
+          const designTeamPermission = designTeamPermissions?.find(
+            (consultantItem) => consultantItem.name === item.name
+          );
+          return {
+            logo: item.logo,
+            name: item.name,
+            items: [
+              {
+                id: item.id,
+                name: "Design Admin",
+                accessable: item.accessable,
+              },
+              {
+                id: designTeamPermission?.id,
+                name: "Design Team",
+                accessable: designTeamPermission?.accessable,
+              },
+            ],
+            number: item.number,
+            parent_number: item.parent_number,
+          };
+        });
+      }
 
-      const permissions = await this.permissionModel.getBy({
-        role_id: user.role_id,
-        type: user.type,
-        relation_id: user.relation_id,
-      });
       if (!permissions) {
         return resolve({
           data: [],
           statusCode: 200,
         });
       }
+      const result = this.makeList(permissions);
 
-      const parents = permissions.filter(
-        (permission) => permission.parent_number === null
-      );
-      if (!parents) {
-        return resolve({
-          data: [],
-          statusCode: 200,
-        });
-      }
-      const menu = parents.map((parent) => {
-        const subs = permissions.filter(
-          (permission) => permission.parent_number === parent.number
-        );
-        const newSubs = subs.map((sub) => {
-          const subs2 = permissions.filter(
-            (item) => item.parent_number === sub.number
-          );
-          if (subs2 && subs2[0]) {
-            return {
-              ...sub,
-              subs: subs2,
-            };
-          }
-          return sub;
-        });
-        if (newSubs && newSubs[0]) {
-          return {
-            ...parent,
-            subs: newSubs,
-          };
-        }
-        return parent;
-      });
       return resolve({
-        data: menu,
+        data: result,
         statusCode: 200,
       });
     });
   };
   public getMenu = (
     user_id: string
-  ): Promise<IPermissionsResponse | IMessageResponse> => {
+  ): Promise<IMenusResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       if (!user) {
@@ -94,19 +198,28 @@ export default class PermissionService {
         });
       }
 
-      //get menu from permissions
-      const permissions = await this.permissionModel.getBy({
+      const rawPermissions = await this.permissionModel.getBy({
         role_id: user.role_id,
         type: user.type,
         relation_id: user.relation_id,
       });
-      if (!permissions) {
+      if (!rawPermissions) {
         return resolve({
           data: [],
           statusCode: 200,
         });
       }
-
+      const permissions = rawPermissions
+        .filter((item) => item.accessable !== false)
+        .map((item) => {
+          return {
+            logo: item.logo,
+            name: item.name,
+            url: item.url,
+            number: item.number,
+            parent_number: item.parent_number,
+          };
+        });
       const parents = permissions.filter(
         (permission) => permission.parent_number === null
       );

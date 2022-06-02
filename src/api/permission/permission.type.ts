@@ -1,16 +1,14 @@
 export interface IPermission {
-  id: string;
-  role_id: string;
-  type: number;
-  relation_id: string | null;
   logo: string | null;
   name: string;
-  accessable: boolean | null;
-  url: string | null;
-  created_at: string | null;
+  items: {
+    id: string;
+    name: string;
+    accessable: boolean | null;
+  }[];
   number: number;
   parent_number: number | null;
-  subs?: any;
+  subs?: any[];
 }
 
 export interface IPermissionResponse {
@@ -19,5 +17,23 @@ export interface IPermissionResponse {
 }
 export interface IPermissionsResponse {
   data: IPermission[];
+  statusCode: number;
+}
+
+export interface IMenu {
+  logo: string | null;
+  name: string;
+  url: string | null;
+  number: number;
+  parent_number: number | null;
+  subs?: any[];
+}
+
+export interface IMenuResponse {
+  data: IMenu;
+  statusCode: number;
+}
+export interface IMenusResponse {
+  data: IMenu[];
   statusCode: number;
 }

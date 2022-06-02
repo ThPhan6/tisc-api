@@ -23,7 +23,7 @@ export default class PermissionRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getList,
+                200: response.getMenu,
               },
             },
           },

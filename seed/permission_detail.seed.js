@@ -298,6 +298,18 @@ const seed = async () => {
               permission_id: permission.id,
               route: ROUTES.SEND_INVITE_TEAM_PROFILE,
               created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.GET_LIST_PERMISSION,
+              created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.OPEN_CLOSE_PERMISSION,
+              created_at: moment(),
             }
           );
           break;
@@ -664,6 +676,18 @@ const seed = async () => {
               permission_id: permission.id,
               route: ROUTES.SEND_INVITE_TEAM_PROFILE,
               created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.GET_LIST_PERMISSION,
+              created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.OPEN_CLOSE_PERMISSION,
+              created_at: moment(),
             }
           );
           break;
@@ -769,7 +793,7 @@ const seed = async () => {
           break;
       }
     });
-    
+
     records.forEach(async (record) => {
       await db.query({
         query: `insert ${JSON.stringify(record)} into @@model`,

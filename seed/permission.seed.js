@@ -352,7 +352,7 @@ const seed = async () => {
         relation_id: null,
         logo: "/public/logo/basis.png",
         name: PERMISSION_TITLE.PRODUCT_BASIS,
-        accessable: false,
+        accessable: true,
         url: null,
         created_at: moment(),
         number: 9,
