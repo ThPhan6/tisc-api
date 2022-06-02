@@ -1,6 +1,9 @@
-import { MESSAGES } from "./../../constant/common.constant";
+import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
 import { IMessageResponse } from "../../type/common.type";
-import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
+import UserModel, {
+  IUserAttributes,
+  USER_NULL_ATTRIBUTES,
+} from "../../model/user.model";
 import MailService from "../../service/mail.service";
 import { IUserRequest, IUserResponse } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
@@ -73,7 +76,6 @@ export default class UserService {
         });
       }
       await this.mailService.sendInviteEmail(createdUser);
-
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
@@ -278,6 +280,49 @@ export default class UserService {
       });
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+  public getList = (
+    user_id: string,
+    limit: number,
+    offset: number,
+    filter?: any,
+    sort?: any
+  ): Promise<any> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const users: IUserAttributes[] = await this.userModel.list(
+        limit,
+        offset,
+        { ...filter, type: SYSTEM_TYPE.TISC, relation_id: null },
+        sort
+      );
+      const result = users.map((user) => {
+        return {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          gender: user.gender,
+          location: user.location_id,
+          position: user.position,
+          email: user.email,
+          phone: user.phone,
+          mobile: user.mobile,
+          avatar: user.avatar,
+          backup_email: user.backup_email,
+          personal_mobile: user.personal_mobile,
+          linkedin: user.linkedin,
+        };
+      });
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

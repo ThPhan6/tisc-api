@@ -27,6 +27,19 @@ export default class UserController {
     const response = await this.service.get(userId, currentUserId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getList = async (req: Request, toolkit: ResponseToolkit) => {
+    const { limit, offset, filter, sort } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+
+    const response = await this.service.getList(
+      userId,
+      limit,
+      offset,
+      filter,
+      sort
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public updateMe = async (
     req: Request & { payload: IUserRequest },
     toolkit: ResponseToolkit

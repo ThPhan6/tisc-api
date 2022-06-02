@@ -14,6 +14,7 @@ export interface IDesignerAttributes {
   status: number;
   created_at: string;
   updated_at: string | null;
+  is_deleted: boolean;
 }
 
 export const DESIGN_NULL_ATTRIBUTES = {
@@ -30,6 +31,7 @@ export const DESIGN_NULL_ATTRIBUTES = {
   status: null,
   created_at: null,
   updated_at: null,
+  is_deleted: false,
 };
 
 export default class DesignerModel extends Model<IDesignerAttributes> {

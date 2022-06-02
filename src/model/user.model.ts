@@ -25,6 +25,7 @@ export interface IUserAttributes {
   created_at: string | null;
   type: number;
   relation_id: string | null;
+  is_deleted: boolean
 }
 
 export const USER_NULL_ATTRIBUTES = {
@@ -51,6 +52,7 @@ export const USER_NULL_ATTRIBUTES = {
   created_at: null,
   type: null,
   relation_id: null,
+  is_deleted: false,
 };
 
 export default class UserModel extends Model<IUserAttributes> {
@@ -61,14 +63,24 @@ export default class UserModel extends Model<IUserAttributes> {
   public getFirstBrandAdmin = async (brand_id: string) => {
     try {
       const result: any = await this.builder
-
         .where("type", SYSTEM_TYPE.BRAND)
         .where("relation_id", brand_id)
         .orderBy("created_at")
         .first();
       return result;
     } catch (error) {
-      // console.log(error);
+      return false;
+    }
+  };
+  public getTiscUsers = async () => {
+    try {
+      const result: any = await this.builder
+        .where("type", SYSTEM_TYPE.TISC)
+        .whereNot("isDeleted", true)
+        .orderBy("created_at")
+        .select();
+      return result;
+    } catch (error) {
       return false;
     }
   };

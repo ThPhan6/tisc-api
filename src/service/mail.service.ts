@@ -11,7 +11,7 @@ export default class MailService {
   private sendSmtpEmail: object;
   public constructor() {
     DotEnv.config({ path: `${process.cwd()}/.env` });
-    this.fromAddress = process.env.SENDGRID_FROM || "";
+    this.fromAddress = process.env.SENDINBLUE_FROM || "";
     this.frontpageURL = process.env.FE_URL || "";
     SibApiV3Sdk.ApiClient.instance.authentications["api-key"].apiKey =
       process.env.SENDINBLUE_API_KEY;
@@ -89,6 +89,7 @@ export default class MailService {
             statusCode: 200,
           }),
           (error: any) => {
+            console.log(error);
             if (error.response) {
               return resolve({
                 message: "An error occurred",

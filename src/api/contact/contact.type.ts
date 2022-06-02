@@ -1,4 +1,4 @@
-export interface IContactAttributes {
+export interface IContact {
   id: string;
   name: string;
   email: string;
@@ -13,11 +13,11 @@ export interface IContactRequest {
 }
 
 export interface IContactsResponse {
-  data: IContactAttributes[];
+  data: IContact[];
   statusCode: number;
 }
 
 export interface IContactResponse {
-  data: IContactAttributes;
+  data: IContact;
   statusCode: number;
 }

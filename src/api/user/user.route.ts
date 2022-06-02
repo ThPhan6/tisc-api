@@ -9,6 +9,7 @@ import {
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import UserResponse from "./user.response";
+import commonValidate from "../../validate/common.validate";
 
 export default class UserRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -44,7 +45,24 @@ export default class UserRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: UserResponse.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_TEAM_PROFILE,
+          options: {
+            handler: controller.getList,
+            validate: commonValidate.getList,
+            description: "Method that get list user",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: UserResponse.getList,
               },
             },
           },
@@ -57,11 +75,11 @@ export default class UserRoutes implements IRoute {
             validate: validate.getOne,
             description: "Method that get one user",
             tags: ["api", "Team profile"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: UserResponse.getOne,
               },
             },
           },
@@ -78,7 +96,7 @@ export default class UserRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: UserResponse.getOne,
               },
             },
           },
@@ -95,7 +113,7 @@ export default class UserRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: UserResponse.getOne,
               },
             },
           },

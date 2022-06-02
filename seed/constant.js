@@ -117,6 +117,7 @@ const USER_NULL_ATTRIBUTES = {
   created_at: null,
   type: null,
   relation_id: null,
+  is_deleted: false,
 };
 module.exports = {
   ROLES,
@@ -124,5 +125,5 @@ module.exports = {
   ROUTES,
   SYSTEM_TYPE,
   USER_STATUSES,
-  USER_NULL_ATTRIBUTES
+  USER_NULL_ATTRIBUTES,
 };

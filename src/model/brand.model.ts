@@ -28,6 +28,7 @@ export const BRAND_NULL_ATTRIBUTES = {
   status: null,
   created_at: null,
   updated_at: null,
+  is_deleted: false,
 };
 
 export default class BrandModel extends Model<IBrandAttributes> {
