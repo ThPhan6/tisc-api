@@ -159,7 +159,7 @@ export default class Builder {
     return this;
   };
 
-  public whereNot = (key: any, value?: string) => {
+  public whereNot = (key: any, value?: any) => {
     if (value) {
       this.query += ` filter ${this.prefix}.${key} != @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };

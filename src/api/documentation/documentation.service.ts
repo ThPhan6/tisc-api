@@ -160,7 +160,7 @@ class AgreementPoliciesTermsService {
           statusCode: 404,
         });
       }
-      const result = await this.documentation.update(id, { isDeleted: true });
+      const result = await this.documentation.update(id, { is_deleted: true });
       if (!result) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_DELETE,

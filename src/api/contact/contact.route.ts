@@ -19,7 +19,7 @@ export default class ContactRoute implements IRoute {
           options: {
             handler: controller.create,
             validate: validate.create,
-            description: "Method that create contact form",
+            description: "Method that create contact",
             tags: ["api", "Contact"],
             auth: false,
             response: {
