@@ -23,7 +23,7 @@ export default class PermissionRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getList,
+                200: response.getMenu,
               },
             },
           },
@@ -40,6 +40,21 @@ export default class PermissionRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.OPEN_CLOSE_PERMISSION,
+          options: {
+            handler: controller.openClose,
+            description: "Method that open or close permission",
+            tags: ["api", "Permission"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

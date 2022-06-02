@@ -298,6 +298,18 @@ const seed = async () => {
               permission_id: permission.id,
               route: ROUTES.SEND_INVITE_TEAM_PROFILE,
               created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.GET_LIST_PERMISSION,
+              created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.OPEN_CLOSE_PERMISSION,
+              created_at: moment(),
             }
           );
           break;
@@ -664,6 +676,18 @@ const seed = async () => {
               permission_id: permission.id,
               route: ROUTES.SEND_INVITE_TEAM_PROFILE,
               created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.GET_LIST_PERMISSION,
+              created_at: moment(),
+            },
+            {
+              id: uuid(),
+              permission_id: permission.id,
+              route: ROUTES.OPEN_CLOSE_PERMISSION,
+              created_at: moment(),
             }
           );
           break;
@@ -769,7 +793,7 @@ const seed = async () => {
           break;
       }
     });
-    
+
     records.forEach(async (record) => {
       await db.query({
         query: `insert ${JSON.stringify(record)} into @@model`,
@@ -784,8 +808,9 @@ const seed = async () => {
     await createAndSeed(collection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await collection.drop();
-      await createAndSeed(collection);
+      console.log("seeded permission details")
+      // await collection.drop();
+      // await createAndSeed(collection);
     }
   }
 };

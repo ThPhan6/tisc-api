@@ -56,7 +56,6 @@ export default class AuthMiddleware {
     server.auth.scheme(AUTH_NAMES.ADMIN, (_server: Server) => {
       return {
         authenticate: async (request, h) => {
-          console.log(request.path);
           const authorization = request.headers.authorization;
           if (!authorization) {
             throw Boom.unauthorized("Invalid token signature");

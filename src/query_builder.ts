@@ -155,7 +155,6 @@ export default class Builder {
     if (typeof key === "object") {
       this.query += ` ${this.filterToAqlString(key, this.prefix, true, true)} `;
     }
-    // console.log(this);
     return this;
   };
 
@@ -220,8 +219,6 @@ export default class Builder {
       query: this.query,
       bindVars: this.bindObj,
     });
-    // console.log(this.query);
-    // console.log(this.bindObj);
     // reset query
     this.query = this.temp;
     this.bindObj = this.tempBindObj;

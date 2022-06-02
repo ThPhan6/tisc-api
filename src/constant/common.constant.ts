@@ -51,7 +51,7 @@ export const DESIGN_STATUS_OPTIONS = [
   },
 ];
 export const MESSAGES = {
-  SUCCESS: "SUCCESS",
+  SUCCESS: "Success.",
   SOMETHING_WRONG: "Something wrong !",
   SOMETHING_WRONG_CREATE: "Something wrong when create !",
   SOMETHING_WRONG_UPDATE: "Something wrong when update !",
@@ -69,6 +69,7 @@ export const MESSAGES = {
   USER_IN_WORKSPACE_NOT_FOUND: "Not found user in your work space",
   AVATAR_NOT_VALID_FILE: "Not valid avatar file",
   CONTACT_NOT_FOUND: "Not found contact",
+  NOTFOUND_PERMISSION: "Not found permission",
 };
 
 export const PRODUCT_TYPES = {

@@ -23,7 +23,6 @@ export default class PermissionDetailModel extends Model<IPermissionDetailAttrib
         .first();
       return result;
     } catch (error) {
-      // console.log(error);
       return false;
     }
   };

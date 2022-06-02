@@ -352,7 +352,7 @@ const seed = async () => {
         relation_id: null,
         logo: "/public/logo/basis.png",
         name: PERMISSION_TITLE.PRODUCT_BASIS,
-        accessable: false,
+        accessable: true,
         url: null,
         created_at: moment(),
         number: 9,
@@ -478,8 +478,9 @@ const seed = async () => {
     await createAndSeed(collection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await collection.drop();
-      await createAndSeed(collection);
+      console.log("seeded permissions");
+      // await collection.drop();
+      // await createAndSeed(collection);
     }
   }
 };
