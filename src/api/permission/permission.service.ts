@@ -54,6 +54,26 @@ export default class PermissionService {
     });
     return menu;
   };
+  public openClose = (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const permission = await this.permissionModel.find(id);
+      if (!permission) {
+        return resolve({
+          message: MESSAGES.NOTFOUND_PERMISSION,
+          statusCode: 404,
+        });
+      }
+      if (permission.accessable) {
+        await this.permissionModel.update(id, {
+          accessable: !permission.accessable,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
   public getList = (
     user_id: string
   ): Promise<IPermissionsResponse | IMessageResponse> => {

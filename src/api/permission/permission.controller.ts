@@ -16,4 +16,9 @@ export default class PermissionController {
     const response = await this.service.getList(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public openClose = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.openClose(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

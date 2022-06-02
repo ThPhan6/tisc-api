@@ -44,6 +44,21 @@ export default class PermissionRoutes implements IRoute {
             },
           },
         },
+        {
+          method: "PUT",
+          path: ROUTES.OPEN_CLOSE_PERMISSION,
+          options: {
+            handler: controller.openClose,
+            description: "Method that open or close permission",
+            tags: ["api", "Permission"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
