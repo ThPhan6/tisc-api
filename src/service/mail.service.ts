@@ -110,7 +110,7 @@ export default class MailService {
         `${process.cwd()}/src/templates/forgot-password.ejs`,
         {
           fullname: user.firstname + " " + user.lastname,
-          reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}`,
+          reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}`,
         }
       );
       this.sendSmtpEmail = {
