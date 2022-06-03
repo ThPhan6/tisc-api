@@ -1,15 +1,14 @@
 export interface ICategoryAttributes {
   id: string;
-  type: number;
   name: string;
-  parent_id: string | null;
+  subs: string | null;
   created_at: string;
   is_deleted: boolean;
 }
 
 export interface ICategoryRequest {
   name: string;
-  parent_id: string;
+  subs: any;
 }
 
 export interface ICategory {
@@ -24,8 +23,32 @@ export interface ICategoryResponse {
   data: {
     id: string;
     name: string;
-    parent_id: string | null;
+    subs: any;
     created_at: string;
   };
   statusCode: number;
+}
+export interface ICategoriesResponse {
+  data: {
+    id: string;
+    name: string;
+    subs: [
+      {
+        id: string;
+        name: string;
+        subs: [
+          {
+            id: string;
+            name: string;
+          }
+        ];
+      }
+    ];
+  };
+  statusCode: number;
+}
+
+export interface IItemSubCategory {
+  name: string;
+  subs: [] | null;
 }

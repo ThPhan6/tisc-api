@@ -3,12 +3,16 @@ import { IMessageResponse } from "./../../type/common.type";
 import { PRODUCT_TYPES } from "../../constant/common.constant";
 import CategoryModel, {
   CATEGORY_NULL_ATTRIBUTES,
-} from "../../model/category.model";
+} from "../../model/product.model";
 import {
+  ICategoriesResponse,
   ICategoryAttributes,
   ICategoryRequest,
   ICategoryResponse,
+  IItemSubCategory,
 } from "./product.type";
+const uuid = require("uuid").v4;
+
 export default class ProductService {
   private productModel: CategoryModel;
   constructor() {
@@ -19,11 +23,31 @@ export default class ProductService {
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
+      let arrSub: any;
+      const bodySub = payload.subs.map((item: IItemSubCategory) => {
+        if (item.subs) {
+          arrSub = item.subs.map((el: IItemSubCategory) => {
+            return {
+              id: uuid(),
+              ...el,
+            };
+          });
+        } else {
+          return {
+            id: uuid(),
+            ...item,
+          };
+        }
+        return {
+          id: uuid(),
+          ...item,
+          subs: arrSub,
+        };
+      });
       const category = await this.productModel.create({
         ...CATEGORY_NULL_ATTRIBUTES,
-        type: PRODUCT_TYPES.CATEGORIES,
         name: payload.name,
-        parent_id: payload.parent_id || null,
+        subs: bodySub,
       });
       if (!category) {
         return resolve({
@@ -31,8 +55,7 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const { type, is_deleted, ...rest } = category;
-      console.log(rest, "[rest]");
+      const { is_deleted, ...rest } = category;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -45,60 +68,49 @@ export default class ProductService {
     offset: number,
     filter: any,
     sort: string
-  ): Promise<IMessageResponse | any> => {
+  ): Promise<IMessageResponse | ICategoriesResponse> => {
     return new Promise(async (resolve) => {
-      const categories = await this.productModel.list(
-        limit,
-        offset,
-        filter,
-        sort
-      );
-      if (!categories) {
+      let result = await this.productModel.list(limit, offset, filter, sort);
+      if (!result) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
-
-      const mainCategories = categories.filter(
-        (category: ICategoryAttributes) => category.parent_id == null
-      );
-      let listSub = categories.map((category: ICategoryAttributes) => {
-        for (let index = 0; index < mainCategories.length; index++) {
-          if (category.parent_id == mainCategories[index].id) {
-            return category;
-          }
-        }
+      result = result.map((el: any) => {
+        const { is_deleted, ...rest } = el;
+        return rest;
       });
-
-      listSub = categories
-        .map((category: ICategoryAttributes) => {
-          for (let index = 0; index < listSub.length; index++) {
-            if (listSub[index] && category.parent_id == listSub[index].id) {
-              return {
-                ...listSub[index],
-                categories: [category],
-              };
-            }
-          }
-          return undefined;
-        })
-        .filter((el: ICategoryAttributes) => el !== undefined);
-      const result = categories
-        .map((category: ICategoryAttributes) => {
-          if (!category.parent_id) {
-            return {
-              ...category,
-              sub_categories: listSub,
-            };
-          }
-          return undefined;
-        })
-        .filter((el: ICategoryAttributes) => el !== undefined);
       return resolve({
         data: result,
         statusCode: 200,
       });
     });
+  };
+
+  public getById = async (
+    id: string
+  ): Promise<IMessageResponse | ICategoryResponse> => {
+    return new Promise(async (resolve) => {
+      const result = await this.productModel.find(id);
+      if (!result) {
+        return resolve({
+          message: MESSAGES.CATEGORY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const { is_deleted, ...rest } = result;
+      return resolve({
+        data: rest,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public update = async (
+    id: string,
+    params: ICategoryRequest
+  ): Promise<IMessageResponse | ICategoryResponse> => {
+    return new Promise(async (resolve) => {});
   };
 }

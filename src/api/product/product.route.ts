@@ -43,7 +43,24 @@ export default class ProductRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: productResponse.categories,
+                200: productResponse.categories,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_CATEGORY,
+          options: {
+            handler: controller.getById,
+            validate: validate.getById,
+            description: "Method that get category",
+            tags: ["api", "Category"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: productResponse.category,
               },
             },
           },

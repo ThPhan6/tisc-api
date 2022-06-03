@@ -13,6 +13,7 @@ export const ROUTES = {
   GET_ONE_PROJECT: "/api/project/get-one/{id}",
   GET_LIST_CATEGORY: "/api/category/get-list",
   EDIT_CATEGORY: "/api/category/update/{id}",
+  GET_ONE_CATEGORY: "/api/category/get-one/{id}",
   DELETE_CATEGORY: "/api/category/delete/{id}",
   CREATE_CATEGORY: "/api/category/create",
   GET_LIST_BASIS: "/api/basis/get-list",

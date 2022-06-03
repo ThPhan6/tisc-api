@@ -70,6 +70,7 @@ export const MESSAGES = {
   AVATAR_NOT_VALID_FILE: "Not valid avatar file",
   CONTACT_NOT_FOUND: "Not found contact",
   NOTFOUND_PERMISSION: "Not found permission",
+  CATEGORY_NOT_FOUND: "Category not found",
 };
 
 export const PRODUCT_TYPES = {

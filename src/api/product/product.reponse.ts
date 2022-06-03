@@ -10,7 +10,18 @@ export default {
     data: Joi.object({
       id: Joi.string(),
       name: Joi.string(),
-      parent_id: Joi.string().allow(null),
+      subs: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          subs: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              name: Joi.string(),
+            })
+          ),
+        })
+      ),
       created_at: Joi.string(),
     }),
     statusCode: Joi.number(),
@@ -20,10 +31,19 @@ export default {
       Joi.object({
         id: Joi.string(),
         name: Joi.string(),
-        parent_id: Joi.string().allow(null),
+        subs: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            name: Joi.string(),
+            subs: Joi.array().items(
+              Joi.object({
+                id: Joi.string(),
+                name: Joi.string(),
+              })
+            ),
+          })
+        ),
         created_at: Joi.string(),
-        is_deleted: Joi.boolean(),
-        type: Joi.number(),
       })
     ),
     statusCode: Joi.number(),

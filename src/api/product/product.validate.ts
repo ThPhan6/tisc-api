@@ -4,10 +4,22 @@ export default {
   create: {
     payload: {
       name: Joi.string().required().messages({
-        "string.empty": "Name can not be empty",
-        "any.required": "Name can not be empty",
+        "string.empty": "Main category can not be empty",
+        "any.required": "Main category can not be empty",
       }),
-      parent_id: Joi.string().allow(null),
+      subs: Joi.array()
+        .items(
+          Joi.object({
+            name: Joi.string(),
+            subs: Joi.array().items({ name: Joi.string() }).allow(null),
+          })
+        )
+        .allow(null),
+    },
+  },
+  getById: {
+    params: {
+      id: Joi.string().required(),
     },
   },
 };
