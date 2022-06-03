@@ -11,7 +11,7 @@ const USER_NULL_ATTRIBUTES = require("./constant").USER_NULL_ATTRIBUTES;
 const TISC_ADMIN_USER_ID = "1110813b-8422-4e94-8d2a-8fdef644480e";
 const TISC_ADMIN_USER_PASSWORD =
   "$2a$09$Uk42d5scAMr8MkxbzTTsceXpsouiX4aKFXL4NHQ6b.HHBI23rpIgS";
-const TISC_ADMIN_USER_EMAIL = "admin@tisc.com";
+const TISC_ADMIN_USER_EMAIL = "liming@tisc.global";
 
 const db = new Database({
   url: process.env.DATABASE_HOSTNAME,
