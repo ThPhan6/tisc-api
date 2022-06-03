@@ -41,6 +41,15 @@ export default class AuthController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
+  public resetPasswordAndLogin = async (
+    req: Request & { payload: IResetPasswordRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.authService.resetPasswordAndLogin(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
   public register = async (
     req: Request & { payload: IRegisterRequest },
     toolkit: ResponseToolkit

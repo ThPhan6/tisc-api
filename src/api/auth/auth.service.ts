@@ -207,6 +207,40 @@ class AuthService {
     });
   };
 
+  public resetPasswordAndLogin = (
+    payload: IResetPasswordRequest
+  ): Promise<ILoginResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        reset_password_token: payload.reset_password_token,
+        is_verified: true,
+      });
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const newPassword = createHash(payload.password);
+      const updated = await this.userModel.update(user.id, {
+        reset_password_token: null,
+        password: newPassword,
+      });
+      if (!updated) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG,
+          statusCode: 400,
+        });
+      }
+      return resolve(
+        await this.login({
+          email: user.email,
+          password: payload.password,
+        })
+      );
+    });
+  };
+
   public register = (payload: IRegisterRequest): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({

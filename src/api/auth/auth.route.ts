@@ -68,6 +68,23 @@ export default class AuthRoutes implements IRoute {
         },
         {
           method: "POST",
+          path: `${PREFIX}/reset-password-and-login`,
+          options: {
+            handler: controller.resetPasswordAndLogin,
+            validate: validate.resetPassword,
+            description: "Method that reset password and login",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: authResponse.login,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
           path: `${PREFIX}/register`,
           options: {
             handler: controller.register,
