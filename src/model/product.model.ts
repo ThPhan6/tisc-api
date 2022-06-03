@@ -5,6 +5,7 @@ export const CATEGORY_NULL_ATTRIBUTES = {
   id: null,
   name: null,
   subs: null,
+  type: null,
   created_at: null,
   is_deleted: false,
 };

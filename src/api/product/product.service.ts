@@ -48,6 +48,7 @@ export default class ProductService {
         ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
         subs: bodySub,
+        type: PRODUCT_TYPES.CATEGORIES,
       });
       if (!category) {
         return resolve({
@@ -55,7 +56,7 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const { is_deleted, ...rest } = category;
+      const { type, is_deleted, ...rest } = category;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -99,7 +100,7 @@ export default class ProductService {
           statusCode: 404,
         });
       }
-      const { is_deleted, ...rest } = result;
+      const { type, is_deleted, ...rest } = result;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -109,8 +110,62 @@ export default class ProductService {
 
   public update = async (
     id: string,
-    params: ICategoryRequest
+    payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
-    return new Promise(async (resolve) => {});
+    return new Promise(async (resolve) => {
+      const category = await this.productModel.find(id);
+      if (!category) {
+        return resolve({
+          message: MESSAGES.CATEGORY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      let body;
+      if (payload.subs) {
+        let subs: any;
+        body = payload.subs.map((item: any) => {
+          if (item.subs) {
+            subs = item.subs.map((subItem: any) => {
+              if (!subItem.id) {
+                return {
+                  id: uuid(),
+                  ...subItem,
+                };
+              }
+              return {
+                ...subItem,
+              };
+            });
+          }
+          if (!item.id) {
+            return {
+              id: uuid(),
+              ...item,
+              subs: subs,
+            };
+          }
+          return {
+            ...item,
+            subs: subs,
+          };
+        });
+      }
+      const result = await this.productModel.update(id, {
+        id: payload.id,
+        name: payload.name,
+      });
+      if (!result) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+
+      const { is_deleted, ...rest } = result;
+      return resolve({
+        data: rest,
+        statusCode: 200,
+      });
+    });
   };
 }

@@ -2,6 +2,7 @@ export interface ICategoryAttributes {
   id: string;
   name: string;
   subs: string | null;
+  type: number;
   created_at: string;
   is_deleted: boolean;
 }

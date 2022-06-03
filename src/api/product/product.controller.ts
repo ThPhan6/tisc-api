@@ -31,4 +31,14 @@ export default class ProductController {
     const response = await this.service.getById(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public update = async (
+    req: Request & { payload: ICategoryRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await this.service.update(id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

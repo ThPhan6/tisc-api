@@ -65,6 +65,23 @@ export default class ProductRoutes implements IRoute {
             },
           },
         },
+        {
+          method: "PUT",
+          path: ROUTES.EDIT_CATEGORY,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update category",
+            tags: ["api", "Category"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: productResponse.category,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });
