@@ -79,7 +79,7 @@ export default class ProductService {
         });
       }
       result = result.map((el: any) => {
-        const { is_deleted, ...rest } = el;
+        const { type, is_deleted, ...rest } = el;
         return rest;
       });
       return resolve({
@@ -89,7 +89,7 @@ export default class ProductService {
     });
   };
 
-  public getById = async (
+  public getByIdCategory = async (
     id: string
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
@@ -108,7 +108,7 @@ export default class ProductService {
     });
   };
 
-  public update = async (
+  public updateCategory = async (
     id: string,
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
@@ -151,8 +151,9 @@ export default class ProductService {
         });
       }
       const result = await this.productModel.update(id, {
-        id: payload.id,
+        id,
         name: payload.name,
+        subs: body,
       });
       if (!result) {
         return resolve({
@@ -161,9 +162,26 @@ export default class ProductService {
         });
       }
 
-      const { is_deleted, ...rest } = result;
+      const { type, is_deleted, ...rest } = result;
       return resolve({
         data: rest,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public delete = async (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const record = await this.productModel.find(id);
+      if (!record) {
+        return resolve({
+          message: MESSAGES.CATEGORY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      await this.productModel.update(id, { is_deleted: true });
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

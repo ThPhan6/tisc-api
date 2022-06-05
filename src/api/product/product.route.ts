@@ -52,8 +52,8 @@ export default class ProductRoutes implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
-            handler: controller.getById,
-            validate: validate.getById,
+            handler: controller.getByIdCategory,
+            validate: validate.getId,
             description: "Method that get category",
             tags: ["api", "Category"],
             // auth: AUTH_NAMES.PERMISSION,
@@ -69,7 +69,7 @@ export default class ProductRoutes implements IRoute {
           method: "PUT",
           path: ROUTES.EDIT_CATEGORY,
           options: {
-            handler: controller.update,
+            handler: controller.updateCategory,
             validate: validate.update,
             description: "Method that update category",
             tags: ["api", "Category"],
@@ -78,6 +78,23 @@ export default class ProductRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: productResponse.category,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_CATEGORY,
+          options: {
+            handler: controller.delete,
+            validate: validate.getId,
+            description: "Method that delete category",
+            tags: ["api", "Category"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
               },
             },
           },

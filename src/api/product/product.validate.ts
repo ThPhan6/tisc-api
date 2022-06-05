@@ -17,7 +17,7 @@ export default {
         .allow(null),
     },
   },
-  getById: {
+  getId: {
     params: {
       id: Joi.string().required(),
     },

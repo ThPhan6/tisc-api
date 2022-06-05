@@ -26,19 +26,25 @@ export default class ProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getById = async (req: Request, toolkit: ResponseToolkit) => {
+  public getByIdCategory = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getById(id);
+    const response = await this.service.getByIdCategory(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public update = async (
+  public updateCategory = async (
     req: Request & { payload: ICategoryRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.update(id, payload);
+    const response = await this.service.updateCategory(id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
