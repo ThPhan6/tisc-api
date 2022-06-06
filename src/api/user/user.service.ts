@@ -11,6 +11,7 @@ import { USER_STATUSES } from "../../constant/user.constant";
 import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
 import path from "path";
 import fs from "fs";
+import { upload } from "../../service/aws.service";
 
 export default class UserService {
   private userModel: UserModel;
@@ -267,16 +268,20 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      const dir = path.resolve("") + "/public/avatar/";
-
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+      const uploadedData = await upload(
+        Buffer.from(avatar._data),
+        "avatar/" + avatar.hapi.filename,
+        avatar.hapi.headers["content-type"]
+      );
+      if (!uploadedData) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG,
+          statusCode: 400,
+        });
       }
 
-      const fileBuffer = Buffer.from(avatar._data);
-      await fs.writeFileSync(dir + avatar.hapi.filename, fileBuffer);
       await this.userModel.update(user_id, {
-        avatar: "/public/avatar/" + avatar.hapi.filename,
+        avatar: "/avatar/" + avatar.hapi.filename,
       });
       return resolve({
         message: MESSAGES.SUCCESS,
