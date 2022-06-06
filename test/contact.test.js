@@ -19,7 +19,7 @@ describe("Contact API", () => {
           email: "quangtien@gmail.com",
           inquiry: "how to use?",
         })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -41,7 +41,7 @@ describe("Contact API", () => {
           email: "quangtien@gmail.com",
           inquiry: "how to use?",
         })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -62,7 +62,7 @@ describe("Contact API", () => {
           name: "Quang Tien",
           inquiry: "how to use?",
         })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -83,7 +83,7 @@ describe("Contact API", () => {
           name: "Quang Tien",
           email: "quangtien@gmail.com",
         })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -106,7 +106,7 @@ describe("Contact API", () => {
           email: "quangtien@gmail.com",
           inquiry: "how to use?",
         })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -122,7 +122,7 @@ describe("Contact API", () => {
       chai
         .request(HOST_URL)
         .get("/contact/list")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.body.should.have.property("statusCode", 200);
           res.body.should.have.property("data");
@@ -141,7 +141,7 @@ describe("Contact API", () => {
       chai
         .request(HOST_URL)
         .get("/contact/list/abnc")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -157,7 +157,7 @@ describe("Contact API", () => {
       chai
         .request(HOST_URL)
         .get("/contact/get-one/2a3db1fd-5414-4635-adb0-2c6c3c9c5f74")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -175,7 +175,7 @@ describe("Contact API", () => {
       chai
         .request(HOST_URL)
         .get("/contact/get-one/2a3db1fd-5414-4635-adb0-2c6c3c9c5f7123124")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
@@ -187,7 +187,7 @@ describe("Contact API", () => {
       chai
         .request(HOST_URL)
         .get("/contact/list/abnc")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");

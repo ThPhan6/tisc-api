@@ -1,217 +1,3 @@
-// import { Database } from "arangojs";
-// import { v4 as uuidv4 } from "uuid";
-// import moment from "moment";
-// import dotenv from "dotenv";
-// import Builder from "./builder";
-// dotenv.config();
-
-// const db = new Database({
-//   url: process.env.DATABASE_HOSTNAME,
-// });
-// db.useDatabase(process.env.DATABASE_NAME || "");
-// db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-
-// const filterToAql = (filter: any, prefix: string) => {
-//   const keys = Object.keys(filter ? filter : {});
-//   return keys.reduce((pre, cur) => {
-//     if (typeof filter[cur] === "string") {
-//       return pre + `filter ${prefix}.${cur} == "${filter[cur]}" `;
-//     }
-//     return pre + `filter ${prefix}.${cur} == ${filter[cur]} `;
-//   }, "");
-// };
-
-// export default class Model<IModelData> {
-//   private modelName: string;
-//   private builder: Builder;
-//   public constructor(modelName: string) {
-//     this.modelName = modelName;
-//     this.builder = new Builder(this.modelName);
-//   }
-
-//   public list = async (
-//     limit: number,
-//     offset: number,
-//     filter: any,
-//     sort?: any
-//   ): Promise<any> => {
-//     try {
-//       let result: any;
-//       if (sort) {
-//         result = await db.query({
-//           query: `
-//           FOR data IN @@model
-//           ${filterToAql(filter, "data")}
-//           limit @offset,@limit
-//           sort data.${sort[0]} @direction
-//           RETURN data
-//         `,
-//           bindVars: {
-//             offset: offset,
-//             limit: limit,
-//             "@model": this.modelName,
-//             direction: sort[1],
-//           },
-//         });
-//       } else {
-//         result = await db.query({
-//           query: `
-//           FOR data IN @@model
-//           ${filterToAql(filter, "data")}
-//           limit @offset,@limit
-//           sort data._key asc
-//           RETURN data
-//         `,
-//           bindVars: {
-//             offset: offset,
-//             limit: limit,
-//             "@model": this.modelName,
-//           },
-//         });
-//       }
-//       return result._result;
-//     } catch (err) {
-//       return undefined;
-//     }
-//   };
-
-//   public create = async (params: Omit<IModelData, "id" | "created_at">) => {
-//     try {
-//       const id = uuidv4();
-//       const created_at = moment().toISOString();
-//       const record = {
-//         ...params,
-//         id,
-//         created_at,
-//       };
-//       const result = await db.query({
-//         query: `insert ${JSON.stringify(record)} into @@model`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       if (result) {
-//         return record;
-//       }
-//       return undefined;
-//     } catch (err) {
-//       console.log(err);
-//       return undefined;
-//     }
-//   };
-
-//   public find = async (id: string): Promise<IModelData | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model filter data.id == @id return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//           id,
-//         },
-//       });
-//       return result._result[0];
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public findBy = async (params: any): Promise<IModelData | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model ${filterToAql(params, "data")} return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       return result._result[0];
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public getBy = async (params: any): Promise<IModelData[] | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model ${filterToAql(params, "data")} return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       return result._result;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public getAll = async (): Promise<IModelData[] | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       return result._result;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public update = async (
-//     id: string,
-//     params: object
-//   ): Promise<IModelData | false> => {
-//     try {
-//       const record = await this.find(id);
-//       if (record) {
-//         const isUpdated = await db.query({
-//           query: `for data in @@model filter data.id == @id update data with ${JSON.stringify(
-//             params
-//           )} in @@model`,
-//           bindVars: { "@model": this.modelName, id },
-//         });
-//         if (isUpdated) {
-//           return {
-//             ...record,
-//             ...params,
-//           };
-//         }
-//       }
-//       return undefined;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public delete = async (id: string): Promise<boolean> => {
-//     try {
-//       const record = await this.find(id);
-//       if (record) {
-//         await db.query({
-//           query: `for data in @@model filter data.id == @id remove data in @@model`,
-//           bindVars: { "@model": this.modelName, id },
-//         });
-//         return true;
-//       }
-//       return undefined;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public deleteMany = async (ids: string[]): Promise<boolean> => {
-//     try {
-//       await db.query({
-//         query: `for data in @@model filter data.id in @ids remove data in @@model`,
-//         bindVars: { "@model": this.modelName, ids },
-//       });
-//       return true;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-// }
-
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import Builder from "../query_builder";
@@ -295,11 +81,10 @@ export default class Model<IModelData> {
 
   public find = async (id: string): Promise<IModelData | undefined> => {
     try {
-      const result = await this.builder
+      return await this.builder
         .where("id", id)
         .whereNot("is_deleted", true)
         .first();
-      return result;
     } catch (error) {
       return undefined;
     }
@@ -349,8 +134,7 @@ export default class Model<IModelData> {
       if (record) {
         const isUpdated = await this.builder.where("id", id).update(params);
         if (isUpdated) {
-          const result = await this.find(id);
-          return result;
+          return await this.find(id);
         }
       }
       return undefined;
@@ -387,10 +171,7 @@ export default class Model<IModelData> {
     custom_key: string[]
   ) => {
     try {
-      const result = await this.builder
-        .join(key, collection)
-        .select(custom_key, true);
-      return result;
+      return await this.builder.join(key, collection).select(custom_key, true);
     } catch (error) {
       return false;
     }

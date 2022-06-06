@@ -6,9 +6,9 @@ import {
   IForgotPasswordResponse,
   IRegisterRequest,
   IForgotPasswordRequest,
+  ILoginResponse,
 } from "./auth.type";
 import { IMessageResponse } from "../../type/common.type";
-import { ILoginResponse } from "./auth.type";
 import {
   comparePassword,
   createResetPasswordToken,
@@ -165,7 +165,7 @@ class AuthService {
         sentEmail = await this.mailService.sendResetPasswordEmail(user);
       else if (type === EMAIL_TYPE.VERIFICATION)
         sentEmail = await this.mailService.sendRegisterEmail(user);
-      if (sentEmail.statusCode === 200) {
+      if (sentEmail) {
         return resolve(sentEmail);
       }
       return resolve({

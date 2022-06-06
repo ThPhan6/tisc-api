@@ -14,7 +14,7 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  const collection = await db.collection("permissions");
+  const permissionCollection = await db.collection("permissions");
   const createAndSeed = async (collection) => {
     await collection.create();
     await collection.get();
@@ -475,11 +475,11 @@ const seed = async () => {
     console.log("success seed tisc permssion data");
   };
   try {
-    await createAndSeed(collection);
+    await createAndSeed(permissionCollection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await collection.drop();
-      await createAndSeed(collection);
+      await permissionCollection.drop();
+      await createAndSeed(permissionCollection);
     }
   }
 };

@@ -1,9 +1,7 @@
 import * as DotEnv from "dotenv";
 import * as ejs from "ejs";
 import { IUserAttributes } from "../model/user.model";
-import { IMessageResponse } from "../type/common.type";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
-
 export default class MailService {
   private fromAddress: string;
   private frontpageURL: string;
@@ -20,7 +18,7 @@ export default class MailService {
   }
   public async sendRegisterEmail(
     user: IUserAttributes | any
-  ): Promise<IMessageResponse | any> {
+  ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/register.ejs`,
@@ -43,16 +41,10 @@ export default class MailService {
       };
       this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
         return (
-          resolve({
-            message: "Success",
-            statusCode: 200,
-          }),
+          resolve(true),
           (error: any) => {
             if (error.response) {
-              return resolve({
-                message: "An error occurred",
-                statusCode: 400,
-              });
+              return resolve(false);
             }
           }
         );
@@ -60,9 +52,7 @@ export default class MailService {
     });
   }
 
-  public async sendInviteEmail(
-    user: IUserAttributes | any
-  ): Promise<IMessageResponse | any> {
+  public async sendInviteEmail(user: IUserAttributes | any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/invite.ejs`,
@@ -84,17 +74,11 @@ export default class MailService {
       };
       this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
         return (
-          resolve({
-            message: "Success",
-            statusCode: 200,
-          }),
+          resolve(true),
           (error: any) => {
             console.log(error);
             if (error.response) {
-              return resolve({
-                message: "An error occurred",
-                statusCode: 400,
-              });
+              return resolve(false);
             }
           }
         );
@@ -102,9 +86,7 @@ export default class MailService {
     });
   }
 
-  public async sendResetPasswordEmail(
-    user: IUserAttributes
-  ): Promise<IMessageResponse | any> {
+  public async sendResetPasswordEmail(user: IUserAttributes): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/forgot-password.ejs`,
@@ -126,16 +108,11 @@ export default class MailService {
       };
       this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
         return (
-          resolve({
-            message: "Success",
-            statusCode: 200,
-          }),
+          resolve(true),
           (error: any) => {
+            console.log(error);
             if (error.response) {
-              return resolve({
-                message: "An error occurred",
-                statusCode: 400,
-              });
+              return resolve(false);
             }
           }
         );

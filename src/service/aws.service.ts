@@ -32,7 +32,7 @@ export const upload = async (
   file_type: string
 ) => {
   try {
-    const data = await s3Client.send(
+    return await s3Client.send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: file_name,
@@ -41,7 +41,6 @@ export const upload = async (
         ContentType: file_type,
       })
     );
-    return data;
   } catch (err) {
     return false;
   }
@@ -49,10 +48,7 @@ export const upload = async (
 
 export const listFile = async () => {
   try {
-    const data = await s3Client.send(
-      new ListObjectsCommand({ Bucket: bucket })
-    );
-    return data;
+    return await s3Client.send(new ListObjectsCommand({ Bucket: bucket }));
   } catch (err) {
     console.log("Error", err);
   }
@@ -60,14 +56,12 @@ export const listFile = async () => {
 
 export const deleteFile = async (file_name: string) => {
   try {
-    const data = await s3Client.send(
+    return await s3Client.send(
       new DeleteObjectCommand({
         Bucket: bucket,
         Key: file_name,
       })
     );
-    console.log("Success", data);
-    return data;
   } catch (err) {
     console.log("Error", err);
   }

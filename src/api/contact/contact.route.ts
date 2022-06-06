@@ -1,11 +1,9 @@
-// import { generalMessageResponse } from "./../../helper/response.helper";
 import * as Hapi from "@hapi/hapi";
 import { ROUTES } from "../../constant/api.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import IRoute from "../../helper/route.helper";
 import ContactController from "./contact.controller";
 import validate from "./contact.validate";
-// import commonValidate from "../../validate/common.validate";
 import contactResponse from "./contact.response";
 
 export default class ContactRoute implements IRoute {

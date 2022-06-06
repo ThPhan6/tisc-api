@@ -148,7 +148,7 @@ export default class Builder {
   };
 
   public where = (key: any, value?: any) => {
-    if (value || value == false) {
+    if (value || value === false) {
       this.query += ` filter ${this.prefix}.${key} == @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }
@@ -222,10 +222,9 @@ export default class Builder {
     // reset query
     this.query = this.temp;
     this.bindObj = this.tempBindObj;
-    const result = executedData._result.map((item: any) => {
+    return executedData._result.map((item: any) => {
       return removeUnnecessaryArangoFields(item);
     });
-    return result;
   };
 
   public first = async (keys?: Array<string>, isMerge?: boolean) => {
@@ -292,7 +291,7 @@ export default class Builder {
   public delete = async () => {
     try {
       this.query += ` remove ${this.prefix} in @@model `;
-      const result: any = await db.query({
+      await db.query({
         query: this.query,
         bindVars: this.bindObj,
       });

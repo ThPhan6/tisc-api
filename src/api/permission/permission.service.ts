@@ -1,7 +1,4 @@
-import PermissionModel, {
-  IPermissionAttributes,
-} from "../../model/permission.model";
-import PermissionDetailModel from "../../model/permission_detail.model";
+import PermissionModel from "../../model/permission.model";
 import UserModel from "../../model/user.model";
 import { ROLES } from "../../constant/user.constant";
 import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
@@ -14,11 +11,9 @@ import { IMessageResponse } from "../../type/common.type";
 
 export default class PermissionService {
   private permissionModel: PermissionModel;
-  private permissionDetailModel: PermissionDetailModel;
   private userModel: UserModel;
   constructor() {
     this.permissionModel = new PermissionModel();
-    this.permissionDetailModel = new PermissionDetailModel();
     this.userModel = new UserModel();
   }
   private makeList = (permissions: any[]) => {
@@ -28,7 +23,7 @@ export default class PermissionService {
     if (!parents) {
       return [];
     }
-    const menu = parents.map((parent) => {
+    return parents.map((parent) => {
       const subs = permissions.filter(
         (permission) => permission.parent_number === parent.number
       );
@@ -52,7 +47,6 @@ export default class PermissionService {
       }
       return parent;
     });
-    return menu;
   };
   public openClose = (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
@@ -549,8 +543,8 @@ export default class PermissionService {
         type: SYSTEM_TYPE.BRAND,
         relation_id: brand_id,
       });
-      adminPermissions?.forEach((permission) => {
-        switch (permission.name.toLowerCase()) {
+      adminPermissions?.forEach((adminPermission) => {
+        switch (adminPermission.name.toLowerCase()) {
           case BRAND_PERMISSION_TITLE.MY_WORKSPACE:
             break;
           case BRAND_PERMISSION_TITLE.PRODUCT:
@@ -572,9 +566,6 @@ export default class PermissionService {
           case BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY:
             break;
           case BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION:
-            break;
-
-          default:
             break;
         }
       });
@@ -583,8 +574,8 @@ export default class PermissionService {
         type: SYSTEM_TYPE.BRAND,
         relation_id: brand_id,
       });
-      teamPermissions?.forEach((permission) => {
-        switch (permission.name.toLowerCase()) {
+      teamPermissions?.forEach((teamPermission) => {
+        switch (teamPermission.name.toLowerCase()) {
           case BRAND_PERMISSION_TITLE.MY_WORKSPACE:
             break;
           case BRAND_PERMISSION_TITLE.PRODUCT:
@@ -606,9 +597,6 @@ export default class PermissionService {
           case BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY:
             break;
           case BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION:
-            break;
-
-          default:
             break;
         }
       });
@@ -946,8 +934,8 @@ export default class PermissionService {
         type: SYSTEM_TYPE.DESIGN,
         relation_id: design_id,
       });
-      adminPermissions?.forEach((permission) => {
-        switch (permission.name.toLowerCase()) {
+      adminPermissions?.forEach((adminPermission) => {
+        switch (adminPermission.name.toLowerCase()) {
           case DESIGN_PERMISSION_TITLE.MY_WORKSPACE:
             break;
           case DESIGN_PERMISSION_TITLE.MY_FAVOURITE:
@@ -965,9 +953,6 @@ export default class PermissionService {
           case DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
             break;
           case DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL:
-            break;
-
-          default:
             break;
         }
       });
@@ -976,8 +961,8 @@ export default class PermissionService {
         type: SYSTEM_TYPE.DESIGN,
         relation_id: design_id,
       });
-      teamPermissions?.forEach((permission) => {
-        switch (permission.name.toLowerCase()) {
+      teamPermissions?.forEach((teamPermission) => {
+        switch (teamPermission.name.toLowerCase()) {
           case DESIGN_PERMISSION_TITLE.MY_WORKSPACE:
             break;
           case DESIGN_PERMISSION_TITLE.MY_FAVOURITE:
@@ -995,9 +980,6 @@ export default class PermissionService {
           case DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
             break;
           case DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL:
-            break;
-
-          default:
             break;
         }
       });

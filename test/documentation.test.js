@@ -14,7 +14,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .post("/documentation/create")
         .send({ title: "Privacy Policy test 1", document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -36,7 +36,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .post("/documentation/create")
         .send({ document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -54,7 +54,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .post("/documentation/create")
         .send({ title: "Privacy Policy test 1" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -72,7 +72,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .post("/documentation/create/abc")
         .send({ title: "Privacy Policy test 1", document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -88,7 +88,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .get("/documentation/get-list")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.body.should.have.property("statusCode", 200);
           res.body.data.forEach((element) => {
@@ -109,7 +109,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .get("/documentation/get-list/abc")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -125,7 +125,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .get("/documentation/get-one/6a84d381-c4c0-48e0-b95d-b9af024fba4e")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.body.should.have.property("statusCode", 200);
           res.body.data.should.be.a("object");
@@ -144,7 +144,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .get("/documentation/get-one/6a84d381-c4c0-48e0-b95d-b9af024fba4e123")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
@@ -156,7 +156,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .get("/documentation/get-list/abc")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -173,7 +173,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .put("/documentation/update/6a84d381-c4c0-48e0-b95d-b9af024fba4e")
         .send({ title: "Privacy Policy test 1", document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.body.should.have.property("statusCode", 200);
           res.body.data.should.be.a("object");
@@ -193,7 +193,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .put("/documentation/get-one/6a84d381-c4c0-48e0-b95d-b9af024fba4e123")
         .send({ title: "Privacy Policy test 1", document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
@@ -206,7 +206,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .put("/documentation/update/abc/123123")
         .send({ title: "Privacy Policy test 1", document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -221,7 +221,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .put("/documentation/update/6a84d381-c4c0-48e0-b95d-b9af024fba4e")
         .send({ document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -239,7 +239,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .put("/documentation/update/6a84d381-c4c0-48e0-b95d-b9af024fba4e")
         .send({ title: "Privacy Policy test 1" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
@@ -258,7 +258,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .delete("/documentation/delete/6a84d381-c4c0-48e0-b95d-b9af024fba4e")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(200);
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 200);
@@ -270,7 +270,7 @@ describe("Documentation API", () => {
       chai
         .request(HOST_URL)
         .delete("/documentation/delete/6a84d381-c4c0-48e0-b95d-b9af024fba4e123")
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
@@ -283,7 +283,7 @@ describe("Documentation API", () => {
         .request(HOST_URL)
         .delete("/documentation/delete/abc/123123")
         .send({ title: "Privacy Policy test 1", document: "tien nguyen" })
-        .end((err, res) => {
+        .end((_err, res) => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");

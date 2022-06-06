@@ -20,7 +20,7 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  const collection = await db.collection("users");
+  const userCollection = await db.collection("users");
   const createAndSeed = async (collection) => {
     await collection.create();
     await collection.get();
@@ -64,11 +64,11 @@ const seed = async () => {
     console.log("success seed user data");
   };
   try {
-    await createAndSeed(collection);
+    await createAndSeed(userCollection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await collection.drop();
-      await createAndSeed(collection);
+      await userCollection.drop();
+      await createAndSeed(userCollection);
     }
   }
 };
