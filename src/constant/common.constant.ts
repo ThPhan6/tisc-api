@@ -70,4 +70,5 @@ export const MESSAGES = {
   AVATAR_NOT_VALID_FILE: "Not valid avatar file",
   CONTACT_NOT_FOUND: "Not found contact",
   NOTFOUND_PERMISSION: "Not found permission",
+  COLLECTION_EXISTS: "Collection exists.",
 };

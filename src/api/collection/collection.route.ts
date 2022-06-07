@@ -1,48 +1,49 @@
 import * as Hapi from "@hapi/hapi";
-import DesignerController from "./designer.controller";
-import commonValidate from "../../validate/common.validate";
+import CollectionController from "./collection.controller";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-import DesignerResponse from "./designer.response";
+import CollectionResponse from "./collection.response";
+import commonValidate from "../../validate/common.validate";
+import validate from "./collection.validate";
 
-export default class DesignerRoutes implements IRoute {
+export default class CollectionRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
-      const controller = new DesignerController();
+      const controller = new CollectionController();
 
       server.route([
         {
           method: "GET",
-          path: ROUTES.GET_LIST_DESIGN_FIRM,
+          path: ROUTES.GET_LIST_COLLECTION,
           options: {
             handler: controller.getList,
             validate: commonValidate.getListJustWithLimitOffset,
-            description: "Method that get list design firm",
-            tags: ["api", "Designer"],
-            auth: AUTH_NAMES.PERMISSION,
+            description: "Method that get list collection",
+            tags: ["api", "Collection"],
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: DesignerResponse.getList,
+                200: CollectionResponse.getList,
               },
             },
           },
         },
         {
-          method: "GET",
-          path: ROUTES.GET_ONE_DESIGN_FIRM,
+          method: "POST",
+          path: ROUTES.CREATE_COLLECTION,
           options: {
-            handler: controller.getOne,
-            validate: commonValidate.getOne,
-            description: "Method that get one design firm",
-            tags: ["api", "Designer"],
-            auth: AUTH_NAMES.PERMISSION,
+            handler: controller.create,
+            validate: validate.create,
+            description: "Method that create one collection",
+            tags: ["api", "Collection"],
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: DesignerResponse.getOne,
+                200: CollectionResponse.getOne,
               },
             },
           },

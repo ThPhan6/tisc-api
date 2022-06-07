@@ -63,4 +63,6 @@ export const ROUTES = {
   GET_LIST_CONTACT: "/api/contact/list",
   GET_ONE_CONTACT: "/api/contact/get-one/{id}",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
+  GET_LIST_COLLECTION: "/api/collection/get-list",
+  CREATE_COLLECTION: "/api/collection/create",
 };

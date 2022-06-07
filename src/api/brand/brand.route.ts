@@ -1,6 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import BrandController from "./brand.controller";
-import validate from "./brand.validate";
+import commonValidate from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
@@ -18,7 +18,7 @@ export default class BrandRoutes implements IRoute {
           path: ROUTES.GET_LIST_BRAND,
           options: {
             handler: controller.getList,
-            validate: validate.getList,
+            validate: commonValidate.getListJustWithLimitOffset,
             description: "Method that get list brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
@@ -35,7 +35,7 @@ export default class BrandRoutes implements IRoute {
           path: ROUTES.GET_ONE_BRAND,
           options: {
             handler: controller.getOne,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that get one brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
@@ -52,7 +52,7 @@ export default class BrandRoutes implements IRoute {
           path: ROUTES.SEND_EMAIL_INVITE_BRAND,
           options: {
             handler: controller.invite,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that invite brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
