@@ -40,7 +40,7 @@ export default class UserRoutes implements IRoute {
           options: {
             handler: controller.getMe,
             description: "Method that get current user",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -91,7 +91,7 @@ export default class UserRoutes implements IRoute {
             handler: controller.updateMe,
             validate: validate.updateMe,
             description: "Method that update current user profile",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -125,7 +125,7 @@ export default class UserRoutes implements IRoute {
             handler: controller.updateAvatar,
             validate: validate.updateAvatar,
             description: "Method that update user avatar",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             payload: {
               maxBytes: 1024 * 1024 * 5,
