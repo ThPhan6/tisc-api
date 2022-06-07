@@ -98,7 +98,7 @@ export default class ProductService {
         });
       }
       result = result.map((el: any) => {
-        const { is_deleted, ...rest } = el;
+        const { type, is_deleted, ...rest } = el;
         return rest;
       });
       return resolve({
@@ -108,7 +108,7 @@ export default class ProductService {
     });
   };
 
-  public getById = async (
+  public getByIdCategory = async (
     id: string
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
@@ -127,7 +127,7 @@ export default class ProductService {
     });
   };
 
-  public update = async (
+  public updateCategory = async (
     id: string,
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
@@ -181,7 +181,7 @@ export default class ProductService {
         });
       }
 
-      const { is_deleted, ...rest } = result;
+      const { type, is_deleted, ...rest } = result;
       return resolve({
         data: rest,
         statusCode: 200,

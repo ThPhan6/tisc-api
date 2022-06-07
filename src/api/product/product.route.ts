@@ -22,7 +22,7 @@ export default class ProductRoutes implements IRoute {
             validate: validate.create,
             description: "Method that create category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -39,7 +39,7 @@ export default class ProductRoutes implements IRoute {
             validate: commonValidate.getList,
             description: "Method that get categories",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -52,11 +52,11 @@ export default class ProductRoutes implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
-            handler: controller.getById,
+            handler: controller.getByIdCategory,
             validate: validate.getById,
             description: "Method that get category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -69,11 +69,11 @@ export default class ProductRoutes implements IRoute {
           method: "PUT",
           path: ROUTES.EDIT_CATEGORY,
           options: {
-            handler: controller.update,
+            handler: controller.updateCategory,
             validate: validate.update,
             description: "Method that update category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -90,7 +90,7 @@ export default class ProductRoutes implements IRoute {
             validate: validate.getById,
             description: "Method that delete category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
