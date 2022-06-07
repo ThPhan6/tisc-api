@@ -1,6 +1,6 @@
 import UserService from "./user.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IUserRequest } from "./user.type";
+import { IUpdateMeRequest, IUserRequest } from "./user.type";
 
 export default class UserController {
   private service: UserService;
@@ -41,12 +41,12 @@ export default class UserController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public updateMe = async (
-    req: Request & { payload: IUserRequest },
+    req: Request & { payload: IUpdateMeRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.update(userId, payload);
+    const response = await this.service.updateMe(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public update = async (
