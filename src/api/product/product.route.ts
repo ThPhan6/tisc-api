@@ -1,5 +1,5 @@
 import * as Hapi from "@hapi/hapi";
-import ProductController from "./product.controller";
+import ProductSettingController from "./product.controller";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
@@ -11,7 +11,7 @@ import validate from "./product.validate";
 export default class ProductRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
-      const controller = new ProductController();
+      const controller = new ProductSettingController();
 
       server.route([
         {

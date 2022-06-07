@@ -15,7 +15,7 @@ import {
 } from "./product_setting.type";
 const uuid = require("uuid").v4;
 
-export default class ProductService {
+export default class ProductSettingService {
   private productModel: ProductSettingModel;
   constructor() {
     this.productModel = new ProductSettingModel();
@@ -204,34 +204,21 @@ export default class ProductService {
       const categories = await this.getListCategory();
       let listSub;
       if (payload.subs) {
-        let checkedID;
         let subs: any;
         listSub = payload.subs.map((item: any) => {
-          checkedID = subCategories?.find(
+          const foundSub = subCategories?.find(
             (subCategory) => subCategory.id === item.id
           );
-          if (!checkedID && checkedID !== undefined) {
-            return resolve({
-              message: MESSAGES.NOT_FOUND,
-              statusCode: 404,
-            });
-          }
+
           if (item.subs) {
             subs = item.subs.map((subItem: any) => {
-              checkedID = categories?.find(
-                (category) => category.id === item.id
+              const foundCategory = categories?.find(
+                (category) => category.id === subItem.id
               );
-
-              if (!checkedID && checkedID !== undefined) {
-                return resolve({
-                  message: MESSAGES.NOT_FOUND,
-                  statusCode: 404,
-                });
-              }
-              if (!subItem.id) {
+              if (!foundCategory || !subItem.id) {
                 return {
-                  id: uuid(),
                   ...subItem,
+                  id: uuid(),
                 };
               }
               return {
@@ -239,10 +226,10 @@ export default class ProductService {
               };
             });
           }
-          if (!item.id) {
+          if (!foundSub || !item.id) {
             return {
-              id: uuid(),
               ...item,
+              id: uuid(),
               subs: subs,
             };
           }

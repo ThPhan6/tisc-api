@@ -10,7 +10,7 @@ import {
   IProductsResponse,
 } from "./product.type";
 
-export default class ProductService {
+export default class ProductSettingService {
   private productModel: ProductModel;
   constructor() {
     this.productModel = new ProductModel();

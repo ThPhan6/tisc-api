@@ -1,10 +1,10 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import ProductService from "./product_setting.service";
+import ProductSettingService from "./product_setting.service";
 import { IProductSettingRequest } from "./product_setting.type";
-export default class ProductController {
-  private service: ProductService;
+export default class ProductSettingController {
+  private service: ProductSettingService;
   constructor() {
-    this.service = new ProductService();
+    this.service = new ProductSettingService();
   }
 
   public createCategory = async (
@@ -35,7 +35,7 @@ export default class ProductController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public updateCategory = async (
+  public updateProductSetting = async (
     req: Request & { payload: IProductSettingRequest },
     toolkit: ResponseToolkit
   ) => {
