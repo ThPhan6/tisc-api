@@ -1,12 +1,12 @@
-import { generalMessageResponse } from "./../../helper/response.helper";
-import { AUTH_NAMES } from "./../../constant/auth.constant";
+import { generalMessageResponse } from "../../helper/response.helper";
+import { AUTH_NAMES } from "../../constant/auth.constant";
 import * as Hapi from "@hapi/hapi";
 import { ROUTES } from "../../constant/api.constant";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import ProductController from "./product.controller";
-import productResponse from "./product.reponse";
-import validate from "./product.validate";
+import ProductController from "./product_setting.controller";
+import productResponse from "./product_setting.reponse";
+import validate from "./product_setting.validate";
 import commonValidate from "../../validate/common.validate";
 export default class ProductRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -52,7 +52,7 @@ export default class ProductRoutes implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
-            handler: controller.getByIdCategory,
+            handler: controller.getById,
             validate: validate.getById,
             description: "Method that get category",
             tags: ["api", "Category"],

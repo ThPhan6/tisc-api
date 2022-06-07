@@ -1,4 +1,4 @@
-import { ICategoryAttributes } from "../api/product/product.type";
+import { IProductSettingAttributes } from "../api/product-setting/product_setting.type";
 import Model from "./index";
 
 export const CATEGORY_NULL_ATTRIBUTES = {
@@ -10,7 +10,7 @@ export const CATEGORY_NULL_ATTRIBUTES = {
   is_deleted: false,
 };
 
-export default class CategoryModel extends Model<ICategoryAttributes> {
+export default class ProductSettingModel extends Model<IProductSettingAttributes> {
   constructor() {
     super("category_basis_attributes");
   }

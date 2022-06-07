@@ -1,26 +1,26 @@
-import { MESSAGES } from "./../../constant/common.constant";
-import { IMessageResponse } from "./../../type/common.type";
+import { MESSAGES } from "../../constant/common.constant";
+import { IMessageResponse } from "../../type/common.type";
 import { PRODUCT_TYPES } from "../../constant/common.constant";
-import CategoryModel, {
+import ProductSettingModel, {
   CATEGORY_NULL_ATTRIBUTES,
 } from "../../model/category_basis_attribute.model";
 import {
   ICategoriesResponse,
-  ICategoryAttributes,
-  ICategoryRequest,
-  ICategoryResponse,
+  IProductSettingResponse,
   IItemSubCategory,
-  IProductRequest,
-} from "./product.type";
+  IProductSettingRequest,
+  IProductSettingAttributes,
+  ICategoryResponse,
+} from "./product_setting.type";
 const uuid = require("uuid").v4;
 
 export default class ProductService {
-  private productModel: CategoryModel;
+  private productModel: ProductSettingModel;
   constructor() {
-    this.productModel = new CategoryModel();
+    this.productModel = new ProductSettingModel();
   }
 
-  private cleanData = async (payload: IProductRequest) => {
+  private cleanData = async (payload: IProductSettingRequest) => {
     let arrSub: any;
     const subs = payload.subs.map((item: IItemSubCategory) => {
       if (item.subs) {
@@ -46,8 +46,8 @@ export default class ProductService {
   };
 
   public createCateogry = async (
-    payload: ICategoryRequest
-  ): Promise<IMessageResponse | any> => {
+    payload: IProductSettingRequest
+  ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
       const categoryExisted = await this.productModel.findBy({
         name: payload.name.toLowerCase(),
@@ -97,18 +97,50 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      result = result.map((el: any) => {
-        const { type, is_deleted, ...rest } = el;
-        return rest;
+      const mainCategoryCount = result.length;
+      let subCategoryCount = 0;
+      let categoryCount = 0;
+      result = result.map((item: IProductSettingAttributes) => {
+        const { type, is_deleted, ...rest } = item;
+        if (item.subs) {
+          const result2 = item.subs.map((el: IProductSettingAttributes) => {
+            if (el.subs) {
+              categoryCount += el.subs.length;
+              return {
+                ...el,
+                count: el.subs.length,
+              };
+            }
+            return {
+              ...el,
+              count: 0,
+            };
+          });
+          subCategoryCount += item.subs.length;
+          return {
+            ...rest,
+            count: item.subs.length,
+            subs: result2,
+          };
+        }
+        return {
+          ...rest,
+          count: 0,
+        };
       });
       return resolve({
-        data: result,
+        data: {
+          categories: result,
+          mainCategoryCount,
+          subCategoryCount,
+          categoryCount,
+        },
         statusCode: 200,
       });
     });
   };
 
-  public getByIdCategory = async (
+  public getById = async (
     id: string
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
@@ -127,22 +159,22 @@ export default class ProductService {
     });
   };
 
-  public updateCategory = async (
+  public updateProductSetting = async (
     id: string,
-    payload: ICategoryRequest
+    payload: IProductSettingRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
       const category = await this.productModel.find(id);
       if (!category) {
         return resolve({
-          message: MESSAGES.CATEGORY_NOT_FOUND,
+          message: MESSAGES.NOT_FOUND,
           statusCode: 404,
         });
       }
-      let subs;
+      let body;
       if (payload.subs) {
         let subs: any;
-        subs = payload.subs.map((item: any) => {
+        body = payload.subs.map((item: any) => {
           if (item.subs) {
             subs = item.subs.map((subItem: any) => {
               if (!subItem.id) {
@@ -170,9 +202,9 @@ export default class ProductService {
         });
       }
       const result = await this.productModel.update(id, {
-        ...CATEGORY_NULL_ATTRIBUTES,
+        id,
         name: payload.name,
-        subs,
+        subs: body,
       });
       if (!result) {
         return resolve({
@@ -188,7 +220,6 @@ export default class ProductService {
       });
     });
   };
-
   public delete = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const record = await this.productModel.find(id);

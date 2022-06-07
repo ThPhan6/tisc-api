@@ -38,7 +38,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
-    "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"yarn run compile\"",
+    "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"npm run compile\"",
     "compile": "tsc && node ./dist/server.js",
     "create_db": "node migration/create_database",
     "seed": "node seed/index",

@@ -27,10 +27,6 @@ export default {
       id: Joi.string().required(),
     },
     payload: {
-      id: Joi.string().required().messages({
-        "string.empty": "ID can not be empty",
-        "any.required": "ID can not be empty",
-      }),
       name: Joi.string().required().messages({
         "string.empty": "Main category can not be empty",
         "any.required": "Main category can not be empty",
