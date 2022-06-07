@@ -71,4 +71,5 @@ export const MESSAGES = {
   CONTACT_NOT_FOUND: "Not found contact",
   NOTFOUND_PERMISSION: "Not found permission",
   COLLECTION_EXISTS: "Collection exists.",
+  PRODUCT_EXISTS: "Product exists.",
 };
