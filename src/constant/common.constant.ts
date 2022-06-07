@@ -77,7 +77,7 @@ export const MESSAGES = {
   PRODUCT_EXISTS: "Product exists.",
 };
 
-export const PRODUCT_TYPES = {
+export const PRODUCT_SETTING_TYPES = {
   CATEGORIES: 1,
   BASIS_CONVERSIONS: 2,
   BASIS_PRESETS: 3,

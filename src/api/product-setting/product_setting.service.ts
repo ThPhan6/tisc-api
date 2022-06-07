@@ -1,4 +1,7 @@
-import { MESSAGES, PRODUCT_TYPES } from "../../constant/common.constant";
+import {
+  MESSAGES,
+  PRODUCT_SETTING_TYPES,
+} from "../../constant/common.constant";
 import ProductSettingModel, {
   CATEGORY_NULL_ATTRIBUTES,
 } from "../../model/category_basis_attribute.model";
@@ -48,7 +51,7 @@ export default class ProductService {
     return new Promise(async (resolve) => {
       const categoryExisted = await this.productModel.findBy({
         name: payload.name.toLowerCase(),
-        type: PRODUCT_TYPES.CATEGORIES,
+        type: PRODUCT_SETTING_TYPES.CATEGORIES,
       });
       if (categoryExisted) {
         return resolve({
@@ -64,7 +67,7 @@ export default class ProductService {
         ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
         subs,
-        type: PRODUCT_TYPES.CATEGORIES,
+        type: PRODUCT_SETTING_TYPES.CATEGORIES,
       });
       if (!category) {
         return resolve({
