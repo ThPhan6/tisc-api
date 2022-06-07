@@ -9,8 +9,7 @@ import { IUserRequest, IUserResponse } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { USER_STATUSES } from "../../constant/user.constant";
 import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
-import path from "path";
-import fs from "fs";
+import { upload } from "../../service/aws.service";
 
 export default class UserService {
   private userModel: UserModel;
@@ -267,16 +266,20 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      const dir = path.resolve("") + "/public/avatar/";
-
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+      const uploadedData = await upload(
+        Buffer.from(avatar._data),
+        "avatar/" + avatar.hapi.filename,
+        avatar.hapi.headers["content-type"]
+      );
+      if (!uploadedData) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG,
+          statusCode: 400,
+        });
       }
 
-      const fileBuffer = Buffer.from(avatar._data);
-      await fs.writeFileSync(dir + avatar.hapi.filename, fileBuffer);
       await this.userModel.update(user_id, {
-        avatar: "/public/avatar/" + avatar.hapi.filename,
+        avatar: "/avatar/" + avatar.hapi.filename,
       });
       return resolve({
         message: MESSAGES.SUCCESS,
@@ -305,20 +308,20 @@ export default class UserService {
         { ...filter, type: SYSTEM_TYPE.TISC, relation_id: null },
         sort
       );
-      const result = users.map((user) => {
+      const result = users.map((userItem) => {
         return {
-          firstname: user.firstname,
-          lastname: user.lastname,
-          gender: user.gender,
-          location: user.location_id,
-          position: user.position,
-          email: user.email,
-          phone: user.phone,
-          mobile: user.mobile,
-          avatar: user.avatar,
-          backup_email: user.backup_email,
-          personal_mobile: user.personal_mobile,
-          linkedin: user.linkedin,
+          firstname: userItem.firstname,
+          lastname: userItem.lastname,
+          gender: userItem.gender,
+          location: userItem.location_id,
+          position: userItem.position,
+          email: userItem.email,
+          phone: userItem.phone,
+          mobile: userItem.mobile,
+          avatar: userItem.avatar,
+          backup_email: userItem.backup_email,
+          personal_mobile: userItem.personal_mobile,
+          linkedin: userItem.linkedin,
         };
       });
       return resolve({

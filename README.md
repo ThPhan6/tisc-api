@@ -1,4 +1,4 @@
-# TISC api
+# TISC Backend API with HapiJS + ArangoDB + Sendinblue + DO Spaces
 
 ===========================
 
@@ -11,7 +11,7 @@
 
 ### Dev Enviroment
 
-- copy `.env.example` to `.env`.
+- copy `.env_example` to `.env`.
 - Run `npm install`.
 - Run `npm run dev`.
 

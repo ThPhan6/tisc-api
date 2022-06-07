@@ -6,7 +6,6 @@ const db = new Database({
   url: process.env.DATABASE_HOSTNAME,
 });
 const database_name = process.env.DATABASE_NAME || "";
-// db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 db.listDatabases().then((names) => {
   const check = names.find((name) => name === database_name);

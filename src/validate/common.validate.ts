@@ -1,5 +1,15 @@
 import * as Joi from "joi";
-
+const customFilter = (value: any, helpers: any) => {
+  try {
+    const filter = JSON.parse(decodeURIComponent(value));
+    if (typeof filter === "object") {
+      return filter;
+    }
+    return helpers.error("any.invalid");
+  } catch (error) {
+    return helpers.error("any.invalid");
+  }
+};
 export default {
   getList: {
     query: Joi.object({
@@ -25,15 +35,7 @@ export default {
       order: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
-          try {
-            const filter = JSON.parse(decodeURIComponent(value));
-            if (typeof filter === "object") {
-              return filter;
-            }
-            return helpers.error("any.invalid");
-          } catch (error) {
-            return helpers.error("any.invalid");
-          }
+          return customFilter(value, helpers);
         }, "custom filter validation")
         .messages({
           "any.invalid": "Invalid filter",
@@ -80,15 +82,7 @@ export default {
       order: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
-          try {
-            const filter = JSON.parse(decodeURIComponent(value));
-            if (typeof filter === "object") {
-              return filter;
-            }
-            return helpers.error("any.invalid");
-          } catch (error) {
-            return helpers.error("any.invalid");
-          }
+          return customFilter(value, helpers);
         }, "custom filter validation")
         .messages({
           "any.invalid": "Invalid filter",

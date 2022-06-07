@@ -15,7 +15,6 @@ const migrate = async (name) => {
     await collection.get();
     console.log(`migrated ${name} table`);
   } catch (error) {
-    // console.log(error.message);
     if (error.message === "duplicate name") {
       await collection.get();
       console.log(`table ${name} is exists`);

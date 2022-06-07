@@ -1,7 +1,8 @@
 import * as Joi from "joi";
 import { EMAIL_TYPE } from "../../constant/common.constant";
 const regexPassword =
-  /(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
+
 export default {
   login: {
     payload: {

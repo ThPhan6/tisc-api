@@ -117,8 +117,8 @@ export default class AuthMiddleware {
           if (!permissions) {
             throw Boom.unauthorized("Not found permissions");
           }
-          const permissionIds = permissions.map((permission: any) => {
-            return permission.id;
+          const permissionIds = permissions.map((item: any) => {
+            return item.id;
           });
           const permissionDetail =
             await permissionDetailModel.getPermissionDetailByRoute(
