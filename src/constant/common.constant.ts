@@ -73,6 +73,8 @@ export const MESSAGES = {
   CATEGORY_NOT_FOUND: "Category not found",
   CATEGORY_EXISTED: "Category existed",
   NOT_FOUND: "Not found",
+  COLLECTION_EXISTS: "Collection exists.",
+  PRODUCT_EXISTS: "Product exists.",
 };
 
 export const PRODUCT_TYPES = {

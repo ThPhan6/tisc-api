@@ -25,6 +25,9 @@ export const ROUTES = {
   DELETE_ATTRIBUTE: "/api/attribute/delete/{id}",
   CREATE_ATTRIBUTE: "/api/attribute/create",
   CREATE_PRODUCT: "/api/product/create",
+  UPDATE_PRODUCT: "/api/product/update/{id}",
+  GET_LIST_PRODUCT: "/api/product/get-list",
+  GET_ONE_PRODUCT: "/api/product/get-one/{id}",
   GET_LIST_DOCUMENTATION: "/api/documentation/get-list",
   EDIT_DOCUMENTATION: "/api/documentation/update/{id}",
   DELETE_DOCUMENTATION: "/api/documentation/delete/{id}",
@@ -64,4 +67,6 @@ export const ROUTES = {
   GET_LIST_CONTACT: "/api/contact/list",
   GET_ONE_CONTACT: "/api/contact/get-one/{id}",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
+  GET_LIST_COLLECTION: "/api/collection/get-list",
+  CREATE_COLLECTION: "/api/collection/create",
 };
