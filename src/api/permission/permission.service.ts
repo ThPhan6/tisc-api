@@ -16,6 +16,18 @@ export default class PermissionService {
     this.permissionModel = new PermissionModel();
     this.userModel = new UserModel();
   }
+  private makeSubItem = (sub: any, permissions: any[]) => {
+    const subs2 = permissions.filter(
+      (item) => item.parent_number === sub.number
+    );
+    if (subs2 && subs2[0]) {
+      return {
+        ...sub,
+        subs: subs2,
+      };
+    }
+    return sub;
+  };
   private makeList = (permissions: any[]) => {
     const parents = permissions.filter(
       (permission) => permission.parent_number === null
@@ -27,18 +39,7 @@ export default class PermissionService {
       const subs = permissions.filter(
         (permission) => permission.parent_number === parent.number
       );
-      const newSubs = subs.map((sub) => {
-        const subs2 = permissions.filter(
-          (item) => item.parent_number === sub.number
-        );
-        if (subs2 && subs2[0]) {
-          return {
-            ...sub,
-            subs: subs2,
-          };
-        }
-        return sub;
-      });
+      const newSubs = subs.map((sub) => this.makeSubItem(sub, permissions));
       if (newSubs && newSubs[0]) {
         return {
           ...parent,
@@ -250,18 +251,7 @@ export default class PermissionService {
         const subs = permissions.filter(
           (permission) => permission.parent_number === parent.number
         );
-        const newSubs = subs.map((sub) => {
-          const subs2 = permissions.filter(
-            (item) => item.parent_number === sub.number
-          );
-          if (subs2 && subs2[0]) {
-            return {
-              ...sub,
-              subs: subs2,
-            };
-          }
-          return sub;
-        });
+        const newSubs = subs.map((sub) => this.makeSubItem(sub, permissions));
         if (newSubs && newSubs[0]) {
           return {
             ...parent,

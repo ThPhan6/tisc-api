@@ -16,6 +16,16 @@ export default class MailService {
     this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     this.sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
   }
+  private exeAfterSend = (resolve: any) => {
+    return (
+      resolve(true),
+      (error: any) => {
+        if (error.response) {
+          return resolve(false);
+        }
+      }
+    );
+  };
   public async sendRegisterEmail(
     user: IUserAttributes | any
   ): Promise<boolean> {
@@ -39,16 +49,9 @@ export default class MailService {
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };
-      this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
-        return (
-          resolve(true),
-          (error: any) => {
-            if (error.response) {
-              return resolve(false);
-            }
-          }
-        );
-      });
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
     });
   }
 
@@ -72,17 +75,9 @@ export default class MailService {
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };
-      this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
-        return (
-          resolve(true),
-          (error: any) => {
-            console.log(error);
-            if (error.response) {
-              return resolve(false);
-            }
-          }
-        );
-      });
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
     });
   }
 
@@ -106,17 +101,9 @@ export default class MailService {
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };
-      this.apiInstance.sendTransacEmail(this.sendSmtpEmail).then(() => {
-        return (
-          resolve(true),
-          (error: any) => {
-            console.log(error);
-            if (error.response) {
-              return resolve(false);
-            }
-          }
-        );
-      });
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
     });
   }
 }
