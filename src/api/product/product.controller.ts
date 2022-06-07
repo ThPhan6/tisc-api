@@ -1,11 +1,11 @@
-import ProductSettingService from "./product.service";
+import ProductService from "./product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IProductRequest } from "./product.type";
 
-export default class ProductSettingController {
-  private service: ProductSettingService;
+export default class ProductController {
+  private service: ProductService;
   constructor() {
-    this.service = new ProductSettingService();
+    this.service = new ProductService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset } = req.query;
