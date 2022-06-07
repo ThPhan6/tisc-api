@@ -7,17 +7,14 @@ export interface ICategoryAttributes {
   is_deleted: boolean;
 }
 
-export interface ICategoryRequest {
+export interface IProductRequest {
   name: string;
   subs: any;
 }
 
-export interface ICategory {
-  id: string;
-  type: number;
+export interface ICategoryRequest {
   name: string;
-  parent_id: string;
-  created_at: string;
+  subs: any;
 }
 
 export interface ICategoryResponse {
@@ -33,18 +30,22 @@ export interface ICategoriesResponse {
   data: {
     id: string;
     name: string;
-    subs: [
-      {
-        id: string;
-        name: string;
-        subs: [
+    subs:
+      | [
           {
             id: string;
             name: string;
+            subs:
+              | [
+                  {
+                    id: string;
+                    name: string;
+                  }
+                ]
+              | null;
           }
-        ];
-      }
-    ];
+        ]
+      | null;
   };
   statusCode: number;
 }

@@ -18,7 +18,7 @@ export default class ProductRoutes implements IRoute {
           method: "POST",
           path: ROUTES.CREATE_CATEGORY,
           options: {
-            handler: controller.create,
+            handler: controller.createCategory,
             validate: validate.create,
             description: "Method that create category",
             tags: ["api", "Category"],
@@ -78,6 +78,23 @@ export default class ProductRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: productResponse.category,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_CATEGORY,
+          options: {
+            handler: controller.delete,
+            validate: validate.getById,
+            description: "Method that delete category",
+            tags: ["api", "Category"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
               },
             },
           },

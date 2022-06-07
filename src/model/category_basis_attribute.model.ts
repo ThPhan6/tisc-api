@@ -12,6 +12,6 @@ export const CATEGORY_NULL_ATTRIBUTES = {
 
 export default class CategoryModel extends Model<ICategoryAttributes> {
   constructor() {
-    super("categories_basis_attributes");
+    super("category_basis_attributes");
   }
 }

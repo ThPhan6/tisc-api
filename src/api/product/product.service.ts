@@ -3,13 +3,14 @@ import { IMessageResponse } from "./../../type/common.type";
 import { PRODUCT_TYPES } from "../../constant/common.constant";
 import CategoryModel, {
   CATEGORY_NULL_ATTRIBUTES,
-} from "../../model/product.model";
+} from "../../model/category_basis_attribute.model";
 import {
   ICategoriesResponse,
   ICategoryAttributes,
   ICategoryRequest,
   ICategoryResponse,
   IItemSubCategory,
+  IProductRequest,
 } from "./product.type";
 const uuid = require("uuid").v4;
 
@@ -19,35 +20,53 @@ export default class ProductService {
     this.productModel = new CategoryModel();
   }
 
-  public createCateogry = async (
-    payload: ICategoryRequest
-  ): Promise<IMessageResponse | ICategoryResponse> => {
-    return new Promise(async (resolve) => {
-      let arrSub: any;
-      const bodySub = payload.subs.map((item: IItemSubCategory) => {
-        if (item.subs) {
-          arrSub = item.subs.map((el: IItemSubCategory) => {
-            return {
-              id: uuid(),
-              ...el,
-            };
-          });
-        } else {
+  private cleanData = async (payload: IProductRequest) => {
+    let arrSub: any;
+    const subs = payload.subs.map((item: IItemSubCategory) => {
+      if (item.subs) {
+        arrSub = item.subs.map((el: IItemSubCategory) => {
           return {
             id: uuid(),
-            ...item,
+            ...el,
           };
-        }
+        });
+      } else {
         return {
           id: uuid(),
           ...item,
-          subs: arrSub,
         };
+      }
+      return {
+        id: uuid(),
+        ...item,
+        subs: arrSub,
+      };
+    });
+    return subs;
+  };
+
+  public createCateogry = async (
+    payload: ICategoryRequest
+  ): Promise<IMessageResponse | any> => {
+    return new Promise(async (resolve) => {
+      const categoryExisted = await this.productModel.findBy({
+        name: payload.name.toLowerCase(),
+        type: PRODUCT_TYPES.CATEGORIES,
       });
+      if (categoryExisted) {
+        return resolve({
+          message: MESSAGES.CATEGORY_EXISTED,
+          statusCode: 400,
+        });
+      }
+      let subs;
+      if (payload.subs) {
+        subs = await this.cleanData(payload);
+      }
       const category = await this.productModel.create({
         ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
-        subs: bodySub,
+        subs,
         type: PRODUCT_TYPES.CATEGORIES,
       });
       if (!category) {
@@ -120,10 +139,10 @@ export default class ProductService {
           statusCode: 404,
         });
       }
-      let body;
+      let subs;
       if (payload.subs) {
         let subs: any;
-        body = payload.subs.map((item: any) => {
+        subs = payload.subs.map((item: any) => {
           if (item.subs) {
             subs = item.subs.map((subItem: any) => {
               if (!subItem.id) {
@@ -151,8 +170,9 @@ export default class ProductService {
         });
       }
       const result = await this.productModel.update(id, {
-        id: payload.id,
+        ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
+        subs,
       });
       if (!result) {
         return resolve({
@@ -164,6 +184,23 @@ export default class ProductService {
       const { is_deleted, ...rest } = result;
       return resolve({
         data: rest,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public delete = async (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const record = await this.productModel.find(id);
+      if (!record) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      await this.productModel.update(id, { is_deleted: true });
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
