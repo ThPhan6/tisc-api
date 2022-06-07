@@ -49,9 +49,9 @@ export default {
           created_at: Joi.string(),
         })
       ),
-      mainCategoryCount: Joi.number(),
-      subCategoryCount: Joi.number(),
-      categoryCount: Joi.number(),
+      main_category_count: Joi.number(),
+      sub_category_count: Joi.number(),
+      category_count: Joi.number(),
     }),
     statusCode: Joi.number(),
   }) as any,

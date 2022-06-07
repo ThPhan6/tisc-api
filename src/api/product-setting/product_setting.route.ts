@@ -5,10 +5,10 @@ import { ROUTES } from "../../constant/api.constant";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import ProductController from "./product_setting.controller";
-import productResponse from "./product_setting.reponse";
+import productSettingResponse from "./product_setting.reponse";
 import validate from "./product_setting.validate";
 import commonValidate from "../../validate/common.validate";
-export default class ProductRoutes implements IRoute {
+export default class ProductSettingRoutes implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new ProductController();
@@ -26,7 +26,7 @@ export default class ProductRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: productResponse.category,
+                200: productSettingResponse.category,
               },
             },
           },
@@ -43,7 +43,7 @@ export default class ProductRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: productResponse.categories,
+                200: productSettingResponse.categories,
               },
             },
           },
@@ -60,7 +60,7 @@ export default class ProductRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: productResponse.category,
+                200: productSettingResponse.category,
               },
             },
           },
@@ -77,7 +77,7 @@ export default class ProductRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: productResponse.category,
+                200: productSettingResponse.category,
               },
             },
           },

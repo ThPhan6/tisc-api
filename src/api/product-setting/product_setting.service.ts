@@ -1,16 +1,14 @@
-import { MESSAGES } from "../../constant/common.constant";
-import { IMessageResponse } from "../../type/common.type";
-import { PRODUCT_TYPES } from "../../constant/common.constant";
+import { MESSAGES, PRODUCT_TYPES } from "../../constant/common.constant";
 import ProductSettingModel, {
   CATEGORY_NULL_ATTRIBUTES,
 } from "../../model/category_basis_attribute.model";
+import { IMessageResponse } from "../../type/common.type";
 import {
   ICategoriesResponse,
-  IProductSettingResponse,
-  IItemSubCategory,
-  IProductSettingRequest,
-  IProductSettingAttributes,
   ICategoryResponse,
+  IProductSettingAttributes,
+  IProductSettingRequest,
+  ISubCategoryItem,
 } from "./product_setting.type";
 const uuid = require("uuid").v4;
 
@@ -20,11 +18,11 @@ export default class ProductService {
     this.productModel = new ProductSettingModel();
   }
 
-  private cleanData = async (payload: IProductSettingRequest) => {
-    let arrSub: any;
-    const subs = payload.subs.map((item: IItemSubCategory) => {
+  private addId = async (payload: IProductSettingRequest) => {
+    let listSub: any;
+    return payload.subs.map((item: ISubCategoryItem) => {
       if (item.subs) {
-        arrSub = item.subs.map((el: IItemSubCategory) => {
+        listSub = item.subs.map((el: ISubCategoryItem) => {
           return {
             id: uuid(),
             ...el,
@@ -39,10 +37,9 @@ export default class ProductService {
       return {
         id: uuid(),
         ...item,
-        subs: arrSub,
+        subs: listSub,
       };
     });
-    return subs;
   };
 
   public createCateogry = async (
@@ -61,7 +58,7 @@ export default class ProductService {
       }
       let subs;
       if (payload.subs) {
-        subs = await this.cleanData(payload);
+        subs = await this.addId(payload);
       }
       const category = await this.productModel.create({
         ...CATEGORY_NULL_ATTRIBUTES,
@@ -131,9 +128,9 @@ export default class ProductService {
       return resolve({
         data: {
           categories: result,
-          mainCategoryCount,
-          subCategoryCount,
-          categoryCount,
+          main_category_count: mainCategoryCount,
+          sub_category_count: subCategoryCount,
+          category_count: categoryCount,
         },
         statusCode: 200,
       });
@@ -171,10 +168,10 @@ export default class ProductService {
           statusCode: 404,
         });
       }
-      let body;
+      let listSub;
       if (payload.subs) {
         let subs: any;
-        body = payload.subs.map((item: any) => {
+        listSub = payload.subs.map((item: any) => {
           if (item.subs) {
             subs = item.subs.map((subItem: any) => {
               if (!subItem.id) {
@@ -204,7 +201,7 @@ export default class ProductService {
       const result = await this.productModel.update(id, {
         id,
         name: payload.name,
-        subs: body,
+        subs: listSub,
       });
       if (!result) {
         return resolve({

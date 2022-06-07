@@ -51,14 +51,14 @@ export interface ICategoriesResponse {
         }[];
       }[];
     }[];
-    mainCategoryCount: number;
-    subCategoryCount: number;
-    categoryCount: number;
+    main_category_count: number;
+    sub_category_count: number;
+    category_count: number;
   };
   statusCode: number;
 }
 
-export interface IItemSubCategory {
+export interface ISubCategoryItem {
   name: string;
   subs: [] | null;
 }
