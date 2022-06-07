@@ -52,7 +52,7 @@ export default class ProductSettingRoutes implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
-            handler: controller.getById,
+            handler: controller.getProductSettingById,
             validate: validate.getById,
             description: "Method that get category",
             tags: ["api", "Category"],

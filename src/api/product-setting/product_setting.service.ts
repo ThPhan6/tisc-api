@@ -21,6 +21,33 @@ export default class ProductService {
     this.productModel = new ProductSettingModel();
   }
 
+  private getSubCategories = async () => {
+    const categories = await this.productModel.getAll();
+    const listSub = categories
+      ?.map((subCategory: any) => {
+        if (subCategory.subs) {
+          return subCategory.subs;
+        }
+        return undefined;
+      })
+      .filter((el: any) => el !== undefined);
+
+    return listSub?.flat(1);
+  };
+
+  private getListCategory = async () => {
+    const categories = await this.getSubCategories();
+    const listCategory = categories
+      ?.map((category: any) => {
+        if (category.subs) {
+          return category.subs;
+        }
+        return undefined;
+      })
+      .filter((el: any) => el !== undefined);
+    return listCategory?.flat(1);
+  };
+
   private addId = async (payload: IProductSettingRequest) => {
     let listSub: any;
     return payload.subs.map((item: ISubCategoryItem) => {
@@ -86,8 +113,8 @@ export default class ProductService {
   public getCategories = async (
     limit: number,
     offset: number,
-    filter: any,
-    sort: string
+    filter?: any,
+    sort?: any
   ): Promise<IMessageResponse | ICategoriesResponse> => {
     return new Promise(async (resolve) => {
       let result = await this.productModel.list(limit, offset, filter, sort);
@@ -103,24 +130,26 @@ export default class ProductService {
       result = result.map((item: IProductSettingAttributes) => {
         const { type, is_deleted, ...rest } = item;
         if (item.subs) {
-          const result2 = item.subs.map((el: IProductSettingAttributes) => {
-            if (el.subs) {
-              categoryCount += el.subs.length;
+          const subCategories = item.subs.map(
+            (el: IProductSettingAttributes) => {
+              if (el.subs) {
+                categoryCount += el.subs.length;
+                return {
+                  ...el,
+                  count: el.subs.length,
+                };
+              }
               return {
                 ...el,
-                count: el.subs.length,
+                count: 0,
               };
             }
-            return {
-              ...el,
-              count: 0,
-            };
-          });
+          );
           subCategoryCount += item.subs.length;
           return {
             ...rest,
             count: item.subs.length,
-            subs: result2,
+            subs: subCategories,
           };
         }
         return {
@@ -140,7 +169,7 @@ export default class ProductService {
     });
   };
 
-  public getById = async (
+  public getProductSettingById = async (
     id: string
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
@@ -171,12 +200,34 @@ export default class ProductService {
           statusCode: 404,
         });
       }
+      const subCategories = await this.getSubCategories();
+      const categories = await this.getListCategory();
       let listSub;
       if (payload.subs) {
+        let checkedID;
         let subs: any;
         listSub = payload.subs.map((item: any) => {
+          checkedID = subCategories?.find(
+            (subCategory) => subCategory.id === item.id
+          );
+          if (!checkedID && checkedID !== undefined) {
+            return resolve({
+              message: MESSAGES.NOT_FOUND,
+              statusCode: 404,
+            });
+          }
           if (item.subs) {
             subs = item.subs.map((subItem: any) => {
+              checkedID = categories?.find(
+                (category) => category.id === item.id
+              );
+
+              if (!checkedID && checkedID !== undefined) {
+                return resolve({
+                  message: MESSAGES.NOT_FOUND,
+                  statusCode: 404,
+                });
+              }
               if (!subItem.id) {
                 return {
                   id: uuid(),

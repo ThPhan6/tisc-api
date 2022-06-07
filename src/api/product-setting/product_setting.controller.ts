@@ -26,9 +26,12 @@ export default class ProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getById = async (req: Request, toolkit: ResponseToolkit) => {
+  public getProductSettingById = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
     const { id } = req.params;
-    const response = await this.service.getById(id);
+    const response = await this.service.getProductSettingById(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
