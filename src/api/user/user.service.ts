@@ -5,7 +5,7 @@ import UserModel, {
   USER_NULL_ATTRIBUTES,
 } from "../../model/user.model";
 import MailService from "../../service/mail.service";
-import { IUserRequest, IUserResponse } from "./user.type";
+import { IUpdateMeRequest, IUserRequest, IUserResponse } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { USER_STATUSES } from "../../constant/user.constant";
 import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
@@ -164,6 +164,46 @@ export default class UserService {
             statusCode: 400,
           });
         }
+      }
+      const updatedUser = await this.userModel.update(user_id, payload);
+      if (!updatedUser) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      const result = {
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
+        gender: updatedUser.gender,
+        location: updatedUser.location_id,
+        position: updatedUser.position,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        mobile: updatedUser.mobile,
+        avatar: updatedUser.avatar,
+        backup_email: updatedUser.backup_email,
+        personal_mobile: updatedUser.personal_mobile,
+        linkedin: updatedUser.linkedin,
+      };
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+  public updateMe = (
+    user_id: string,
+    payload: IUpdateMeRequest
+  ): Promise<IUserResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
       }
       const updatedUser = await this.userModel.update(user_id, payload);
       if (!updatedUser) {

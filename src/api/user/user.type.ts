@@ -13,6 +13,11 @@ export interface IUserRequest {
   personal_mobile?: string;
   linkedin?: string;
 }
+export interface IUpdateMeRequest {
+  backup_email?: string;
+  personal_mobile?: string;
+  linkedin?: string;
+}
 
 export interface IUser {
   firstname: string;
