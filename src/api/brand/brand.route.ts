@@ -7,7 +7,7 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import BrandResponse from "./brand.response";
 
-export default class BrandRoutes implements IRoute {
+export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new BrandController();

@@ -1,8 +1,7 @@
 export const isDuplicatedString = (values: string[]) => {
-  const check = values.some(function (item, idx) {
+  return values.some(function (item, idx) {
     return values.indexOf(item) != idx;
   });
-  return check;
 };
 
 export const sortObjectArray = (
@@ -10,12 +9,24 @@ export const sortObjectArray = (
   field: string,
   order: "ASC" | "DESC"
 ) => {
-  if (order === "ASC") {
-    return values.sort((a, b) =>
-      a[field] > b[field] ? 1 : b[field] > a[field] ? -1 : 0
-    );
-  }
-  return values.sort((a, b) =>
-    a[field] > b[field] ? -1 : b[field] > a[field] ? 1 : 0
-  );
+  const compare = (a: any, b: any) => {
+    if (order === "ASC") {
+      if (a[field] < b[field]) {
+        return -1;
+      }
+      if (a[field] > b[field]) {
+        return 1;
+      }
+
+      return 0;
+    }
+    if (a[field] < b[field]) {
+      return 1;
+    }
+    if (a[field] > b[field]) {
+      return -1;
+    }
+    return 0;
+  };
+  return values.sort(compare);
 };

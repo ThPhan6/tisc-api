@@ -9,7 +9,7 @@ import {
 } from "../../helper/response.helper";
 import authResponse from "./auth.response";
 
-export default class AuthRoutes implements IRoute {
+export default class AuthRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new AuthController();

@@ -6,7 +6,7 @@ import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import response from "./permission.response";
 import { ROUTES } from "../../constant/api.constant";
 
-export default class PermissionRoutes implements IRoute {
+export default class PermissionRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new PermissionController();

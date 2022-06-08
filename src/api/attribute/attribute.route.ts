@@ -8,7 +8,7 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./attribute.response";
 
-export default class AttributeRoutes implements IRoute {
+export default class AttributeRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new AttributeController();

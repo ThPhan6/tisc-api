@@ -72,7 +72,7 @@ async function start() {
     await server.validator(require("joi"));
     await server.register(plugins);
     AuthMiddleware.registerAll(server);
-    await Router.loadRoutes(server);
+    await Router.loadRoute(server);
     server.route({
       method: "GET",
       path: "/public/{param*}",
