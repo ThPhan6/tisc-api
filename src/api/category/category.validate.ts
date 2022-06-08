@@ -15,15 +15,15 @@ export default {
               .items({ name: Joi.string() })
               .required()
               .messages({
-                "string.empty": "Subs category can not be empty",
-                "any.required": "Subs category can not be empty",
+                "string.empty": "Category can not be empty",
+                "any.required": "Category can not be empty",
               }),
           })
         )
         .required()
         .messages({
-          "string.empty": "Category can not be empty",
-          "any.required": "Category can not be empty",
+          "string.empty": "Subs category can not be empty",
+          "any.required": "Subs category can not be empty",
         }),
     },
   },
@@ -48,15 +48,15 @@ export default {
               })
               .required()
               .messages({
-                "string.empty": "Subs category can not be empty",
-                "any.required": "Subs category can not be empty",
+                "string.empty": "Category can not be empty",
+                "any.required": "Category can not be empty",
               }),
           })
         )
         .required()
         .messages({
-          "string.empty": "Category can not be empty",
-          "any.required": "Category can not be empty",
+          "string.empty": "Sub category can not be empty",
+          "any.required": "Sub category can not be empty",
         }),
     },
   },
