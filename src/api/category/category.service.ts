@@ -1,24 +1,21 @@
-import {
-  MESSAGES,
-  PRODUCT_SETTING_TYPES,
-} from "../../constant/common.constant";
-import ProductSettingModel, {
+import { MESSAGES } from "../../constant/common.constant";
+import CategoryModel, {
   CATEGORY_NULL_ATTRIBUTES,
-} from "../../model/category_basis_attribute.model";
+} from "../../model/category.model";
 import { IMessageResponse } from "../../type/common.type";
 import {
   ICategoriesResponse,
   ICategoryResponse,
-  IProductSettingAttributes,
-  IProductSettingRequest,
+  ICategoryAttributes,
+  ICategoryRequest,
   ISubCategoryItem,
-} from "./product_setting.type";
+} from "./category.type";
 const uuid = require("uuid").v4;
 
-export default class ProductSettingService {
-  private productModel: ProductSettingModel;
+export default class CategoryService {
+  private productModel: CategoryModel;
   constructor() {
-    this.productModel = new ProductSettingModel();
+    this.productModel = new CategoryModel();
   }
 
   private getSubCategories = async () => {
@@ -48,7 +45,7 @@ export default class ProductSettingService {
     return listCategory?.flat(1);
   };
 
-  private addId = async (payload: IProductSettingRequest) => {
+  private addId = async (payload: ICategoryRequest) => {
     let listSub: any;
     return payload.subs.map((item: ISubCategoryItem) => {
       if (item.subs) {
@@ -72,13 +69,12 @@ export default class ProductSettingService {
     });
   };
 
-  public createCateogry = async (
-    payload: IProductSettingRequest
+  public create = async (
+    payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
       const categoryExisted = await this.productModel.findBy({
         name: payload.name.toLowerCase(),
-        type: PRODUCT_SETTING_TYPES.CATEGORIES,
       });
       if (categoryExisted) {
         return resolve({
@@ -94,7 +90,6 @@ export default class ProductSettingService {
         ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
         subs,
-        type: PRODUCT_SETTING_TYPES.CATEGORIES,
       });
       if (!category) {
         return resolve({
@@ -102,7 +97,7 @@ export default class ProductSettingService {
           statusCode: 400,
         });
       }
-      const { type, is_deleted, ...rest } = category;
+      const { is_deleted, ...rest } = category;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -110,7 +105,7 @@ export default class ProductSettingService {
     });
   };
 
-  public getCategories = async (
+  public getList = async (
     limit: number,
     offset: number,
     filter?: any,
@@ -127,24 +122,22 @@ export default class ProductSettingService {
       const mainCategoryCount = result.length;
       let subCategoryCount = 0;
       let categoryCount = 0;
-      result = result.map((item: IProductSettingAttributes) => {
-        const { type, is_deleted, ...rest } = item;
+      result = result.map((item: ICategoryAttributes) => {
+        const { is_deleted, ...rest } = item;
         if (item.subs) {
-          const subCategories = item.subs.map(
-            (el: IProductSettingAttributes) => {
-              if (el.subs) {
-                categoryCount += el.subs.length;
-                return {
-                  ...el,
-                  count: el.subs.length,
-                };
-              }
+          const subCategories = item.subs.map((el: ICategoryAttributes) => {
+            if (el.subs) {
+              categoryCount += el.subs.length;
               return {
                 ...el,
-                count: 0,
+                count: el.subs.length,
               };
             }
-          );
+            return {
+              ...el,
+              count: 0,
+            };
+          });
           subCategoryCount += item.subs.length;
           return {
             ...rest,
@@ -169,7 +162,7 @@ export default class ProductSettingService {
     });
   };
 
-  public getProductSettingById = async (
+  public get = async (
     id: string
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
@@ -180,7 +173,7 @@ export default class ProductSettingService {
           statusCode: 404,
         });
       }
-      const { type, is_deleted, ...rest } = result;
+      const { is_deleted, ...rest } = result;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -188,9 +181,9 @@ export default class ProductSettingService {
     });
   };
 
-  public updateProductSetting = async (
+  public update = async (
     id: string,
-    payload: IProductSettingRequest
+    payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
       const category = await this.productModel.find(id);
@@ -251,7 +244,7 @@ export default class ProductSettingService {
         });
       }
 
-      const { type, is_deleted, ...rest } = result;
+      const { is_deleted, ...rest } = result;
       return resolve({
         data: rest,
         statusCode: 200,

@@ -1,18 +1,17 @@
-export interface IProductSettingAttributes {
+export interface ICategoryAttributes {
   id: string;
   name: string;
   subs: any;
-  type: number;
   created_at: string;
   is_deleted: boolean;
 }
 
-export interface IProductSettingRequest {
+export interface ICategoryRequest {
   name: string;
   subs: any;
 }
 
-export interface IProductSettingResponse {
+export interface ICategoryResponse {
   data: {
     id: string;
     name: string;
@@ -25,14 +24,7 @@ export interface ICategoryResponse {
   data: {
     id: string;
     name: string;
-    subs: {
-      id: string;
-      name: string;
-      subs: {
-        id: string;
-        name: string;
-      }[];
-    }[];
+    subs: any;
     created_at: string;
   };
   statusCode: number;

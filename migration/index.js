@@ -8,7 +8,7 @@ const migrate = async () => {
   await migrate_table("documentations");
   await migrate_table("brands");
   await migrate_table("designers");
-  await migrate_table("category_basis_attributes");
+  await migrate_table("categories");
   await migrate_table("collections");
   await migrate_table("products");
 };
