@@ -79,6 +79,8 @@ export const MESSAGES = {
   DUPLICATED_ATTRIBUTE: "Duplicated attributes.",
   DUPLICATED_GROUP_ATTRIBUTE: "Duplicated group attributes.",
   NOT_FOUND_ATTRIBUTE: "Not found attributes.",
+  BASIS_CONVERSION_EXISTS: "Basis conversion exists",
+  BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
 };
 
 export const BASIS_TYPES = {
