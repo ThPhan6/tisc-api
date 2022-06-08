@@ -8,7 +8,7 @@ import DesignerRoute from "./api/designer/designer.route";
 import PermissionRoute from "./api/permission/permission.route";
 import CollectionRoute from "./api/collection/collection.route";
 import ProductRoute from "./api/product/product.route";
-import CategoryRoutes from "./api/category/category.route";
+import CategoryRoute from "./api/category/category.route";
 export default class Router {
   public static async loadRoutes(server: Hapi.Server): Promise<any> {
     await new AuthRoute().register(server);
@@ -20,6 +20,6 @@ export default class Router {
     await new PermissionRoute().register(server);
     await new CollectionRoute().register(server);
     await new ProductRoute().register(server);
-    await new CategoryRoutes().register(server);
+    await new CategoryRoute().register(server);
   }
 }

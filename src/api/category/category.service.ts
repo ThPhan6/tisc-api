@@ -13,13 +13,45 @@ import {
 const uuid = require("uuid").v4;
 
 export default class CategoryService {
-  private productModel: CategoryModel;
+  private categoyModel: CategoryModel;
   constructor() {
-    this.productModel = new CategoryModel();
+    this.categoyModel = new CategoryModel();
   }
 
+  private checkDuplicateSub = async (payload: any) => {
+    let isChecked = false;
+    if (payload.subs) {
+      const subCategories = payload.subs.map((subCategory: any) => {
+        return subCategory.name;
+      });
+      isChecked = subCategories.some((subCategory: any, index: number) => {
+        return subCategories.indexOf(subCategory) != index;
+      });
+      if (isChecked) {
+        return true;
+      }
+
+      const categrories: any[] = [];
+      payload.subs.map((item: any) => {
+        if (item.subs) {
+          item.subs.forEach((element: any) => {
+            categrories.push(element.name);
+          });
+        }
+        return undefined;
+      });
+      isChecked = categrories.some((category: any, idx: number) => {
+        return categrories.indexOf(category) != idx;
+      });
+      if (isChecked) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   private getSubCategories = async () => {
-    const categories = await this.productModel.getAll();
+    const categories = await this.categoyModel.getAll();
     const listSub = categories
       ?.map((subCategory: any) => {
         if (subCategory.subs) {
@@ -73,20 +105,23 @@ export default class CategoryService {
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
-      const categoryExisted = await this.productModel.findBy({
+      const existedName = await this.categoyModel.findBy({
         name: payload.name.toLowerCase(),
       });
-      if (categoryExisted) {
+      const isDuplicateSub = await this.checkDuplicateSub(payload);
+      if (isDuplicateSub || existedName) {
         return resolve({
           message: MESSAGES.CATEGORY_EXISTED,
           statusCode: 400,
         });
       }
+
       let subs;
       if (payload.subs) {
+        const a = payload.subs.map((subItem: any) => {});
         subs = await this.addId(payload);
       }
-      const category = await this.productModel.create({
+      const category = await this.categoyModel.create({
         ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
         subs,
@@ -112,7 +147,7 @@ export default class CategoryService {
     sort?: any
   ): Promise<IMessageResponse | ICategoriesResponse> => {
     return new Promise(async (resolve) => {
-      let result = await this.productModel.list(limit, offset, filter, sort);
+      let result = await this.categoyModel.list(limit, offset, filter, sort);
       if (!result) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG,
@@ -166,7 +201,7 @@ export default class CategoryService {
     id: string
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
-      const result = await this.productModel.find(id);
+      const result = await this.categoyModel.find(id);
       if (!result) {
         return resolve({
           message: MESSAGES.CATEGORY_NOT_FOUND,
@@ -186,11 +221,22 @@ export default class CategoryService {
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
-      const category = await this.productModel.find(id);
+      const category = await this.categoyModel.find(id);
       if (!category) {
         return resolve({
           message: MESSAGES.NOT_FOUND,
           statusCode: 404,
+        });
+      }
+      const isExistedNameNotId = await this.categoyModel.foundNameNotId(
+        payload.name,
+        id
+      );
+      const isDuplicateSub = await this.checkDuplicateSub(payload);
+      if (isExistedNameNotId || isDuplicateSub) {
+        return resolve({
+          message: MESSAGES.CATEGORY_EXISTED,
+          statusCode: 400,
         });
       }
       const subCategories = await this.getSubCategories();
@@ -232,7 +278,7 @@ export default class CategoryService {
           };
         });
       }
-      const result = await this.productModel.update(id, {
+      const result = await this.categoyModel.update(id, {
         id,
         name: payload.name,
         subs: listSub,
@@ -253,14 +299,14 @@ export default class CategoryService {
   };
   public delete = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const record = await this.productModel.find(id);
+      const record = await this.categoyModel.find(id);
       if (!record) {
         return resolve({
           message: MESSAGES.NOT_FOUND,
           statusCode: 404,
         });
       }
-      await this.productModel.update(id, { is_deleted: true });
+      await this.categoyModel.update(id, { is_deleted: true });
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,

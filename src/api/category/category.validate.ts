@@ -11,10 +11,20 @@ export default {
         .items(
           Joi.object({
             name: Joi.string(),
-            subs: Joi.array().items({ name: Joi.string() }).allow(null),
+            subs: Joi.array()
+              .items({ name: Joi.string() })
+              .required()
+              .messages({
+                "string.empty": "Subs category can not be empty",
+                "any.required": "Subs category can not be empty",
+              }),
           })
         )
-        .allow(null),
+        .required()
+        .messages({
+          "string.empty": "Category can not be empty",
+          "any.required": "Category can not be empty",
+        }),
     },
   },
   update: {
@@ -36,10 +46,18 @@ export default {
                 id: Joi.string().allow(null),
                 name: Joi.string(),
               })
-              .allow(null),
+              .required()
+              .messages({
+                "string.empty": "Subs category can not be empty",
+                "any.required": "Subs category can not be empty",
+              }),
           })
         )
-        .allow(null),
+        .required()
+        .messages({
+          "string.empty": "Category can not be empty",
+          "any.required": "Category can not be empty",
+        }),
     },
   },
 };
