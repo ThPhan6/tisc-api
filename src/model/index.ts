@@ -28,15 +28,15 @@ export default class Model<IModelData> {
             .whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
-            .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
             .select(undefined, true);
         } else
           result = await this.builder
             .whereNot("is_deleted", true)
             .where(filter)
-            .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
             .select();
       } else {
         if (join) {

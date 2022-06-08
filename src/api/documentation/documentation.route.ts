@@ -1,5 +1,5 @@
 import * as Hapi from "@hapi/hapi";
-import agreementPoliciesTermsController from "./documentation.controller";
+import documentationController from "./documentation.controller";
 import validate from "./documentation.validate";
 import IRoute from "../../helper/route.helper";
 import {
@@ -10,10 +10,10 @@ import documentation from "./documentation.response";
 import { ROUTES } from "../../constant/api.constant";
 import commonValidate from "../../validate/common.validate";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-export default class AgreementPoliciesTermsRoute implements IRoute {
+export default class DocumentationRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
-      const controller = new agreementPoliciesTermsController();
+      const controller = new documentationController();
 
       server.route([
         {

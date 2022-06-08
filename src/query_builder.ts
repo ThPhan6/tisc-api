@@ -214,7 +214,6 @@ export default class Builder {
         ? ` return merge(  ${this.prefix}, {@key: item })`
         : ` return  ${this.prefix}`;
     }
-
     const executedData: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,

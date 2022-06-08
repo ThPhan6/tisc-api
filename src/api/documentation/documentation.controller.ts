@@ -1,10 +1,10 @@
 import { IDocumentationRequest } from "./documentation.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import AgreementPoliciesTermsService from "./documentation.service";
-export default class AgreementPoliciesTermsController {
-  private service: AgreementPoliciesTermsService;
+import DocumentationService from "./documentation.service";
+export default class DocumentationController {
+  private service: DocumentationService;
   constructor() {
-    this.service = new AgreementPoliciesTermsService();
+    this.service = new DocumentationService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { filter, limit, offset, sort } = req.query;

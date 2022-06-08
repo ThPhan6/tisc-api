@@ -1,0 +1,254 @@
+import { MESSAGES } from "../../constant/common.constant";
+import AttributeModel, {
+  ATTRIBUTE_NULL_ATTRIBUTES,
+  IAttributeAttributes,
+} from "../../model/attribute.model";
+import { IMessageResponse } from "../../type/common.type";
+import {
+  IAttributeRequest,
+  IAttributeResponse,
+  IAttributesResponse,
+  IUpdateAttributeRequest,
+} from "./attribute.type";
+import { v4 as uuid } from "uuid";
+import {
+  isDuplicatedString,
+  sortObjectArray,
+} from "../../helper/common.helper";
+
+export default class AttributeService {
+  private attributeModel: AttributeModel;
+  constructor() {
+    this.attributeModel = new AttributeModel();
+  }
+  private countAttribute = (attributes: IAttributeAttributes[]) => {
+    return attributes.reduce((pre, cur) => {
+      return pre + cur.subs.length;
+    }, 0);
+  };
+  public create = (
+    payload: IAttributeRequest
+  ): Promise<IMessageResponse | IAttributeResponse> => {
+    return new Promise(async (resolve) => {
+      const attribute = await this.attributeModel.findBy({
+        name: payload.name.toLowerCase(),
+      });
+      if (attribute) {
+        return resolve({
+          message: MESSAGES.ATTRIBUTE_EXISTS,
+          statusCode: 400,
+        });
+      }
+      if (
+        isDuplicatedString(
+          payload.subs.map((item) => {
+            return item.name;
+          })
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_ATTRIBUTE,
+          statusCode: 400,
+        });
+      }
+      const subData = payload.subs.map((item) => {
+        return {
+          id: uuid(),
+          name: item.name,
+          basis_id: item.basis_id,
+          description: item.description,
+        };
+      });
+      const createdAttribute = await this.attributeModel.create({
+        ...ATTRIBUTE_NULL_ATTRIBUTES,
+        name: payload.name,
+        type: payload.type,
+        subs: subData,
+      });
+      if (!createdAttribute) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      const subResponses = createdAttribute.subs.map((item) => {
+        return {
+          ...item,
+          //get basis and put here later
+          content_type: "",
+        };
+      });
+      const { type, is_deleted, ...rest } = createdAttribute;
+      return resolve({
+        data: {
+          ...rest,
+          count: payload.subs.length,
+          subs: subResponses,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public get = (id: string): Promise<IMessageResponse | IAttributeResponse> => {
+    return new Promise(async (resolve) => {
+      const attribute = await this.attributeModel.find(id);
+      if (!attribute) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const subResponses = attribute.subs.map((item) => {
+        return {
+          ...item,
+          //get basis and put here later
+          content_type: "",
+        };
+      });
+      const { type, is_deleted, ...rest } = attribute;
+      return resolve({
+        data: {
+          ...rest,
+          count: attribute.subs.length,
+          subs: subResponses,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public getList = (
+    limit: number,
+    offset: number,
+    filter: any,
+    group_order: string,
+    attribute_order: any,
+    content_type_order: any
+  ): Promise<IMessageResponse | IAttributesResponse> => {
+    return new Promise(async (resolve) => {
+      const attributes = await this.attributeModel.list(limit, offset, filter, [
+        "name",
+        group_order,
+      ]);
+
+      const returnedAttributes = attributes.map(
+        (item: IAttributeAttributes) => {
+          const newSub = item.subs.map((sub) => {
+            return {
+              ...sub,
+              content_type: "",
+            };
+          });
+          let sortedSubs;
+          if (attribute_order) {
+            sortedSubs = sortObjectArray(newSub, "name", attribute_order);
+          }
+          if (content_type_order) {
+            sortedSubs = sortObjectArray(
+              newSub,
+              "content_type",
+              content_type_order
+            );
+          }
+          const { type, is_deleted, ...rest } = {
+            ...item,
+            subs: sortedSubs,
+          };
+          return rest;
+        }
+      );
+      return resolve({
+        data: {
+          attributes: returnedAttributes,
+          group_count: attributes.length,
+          attribute_count: this.countAttribute(attributes),
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public update = (
+    id: string,
+    payload: IUpdateAttributeRequest
+  ): Promise<IMessageResponse | IAttributeResponse> => {
+    return new Promise(async (resolve) => {
+      const attribute = await this.attributeModel.find(id);
+      if (!attribute) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const duplicatedAttribute =
+        await this.attributeModel.getDuplicatedAttribute(id, payload.name);
+      if (duplicatedAttribute) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_GROUP_ATTRIBUTE,
+          statusCode: 400,
+        });
+      }
+      if (
+        isDuplicatedString(
+          payload.subs.map((item) => {
+            return item.name;
+          })
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_ATTRIBUTE,
+          statusCode: 400,
+        });
+      }
+      const subData = payload.subs.map((item) => {
+        let found = false;
+        if (item.id) {
+          const foundItem = attribute.subs.find((sub) => sub.id === item.id);
+          if (foundItem) {
+            found = true;
+          }
+        }
+        if (found) {
+          return item;
+        }
+        return {
+          ...item,
+          id: uuid(),
+        };
+      });
+      const updatedAttribute = await this.attributeModel.update(id, {
+        ...payload,
+        subs: subData,
+      });
+      if (!updatedAttribute) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(this.get(id));
+    });
+  };
+  public delete = (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const attribute = await this.attributeModel.find(id);
+      if (!attribute) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const updatedAttribute = await this.attributeModel.update(id, {
+        is_deleted: true,
+      });
+      if (!updatedAttribute) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+}

@@ -75,6 +75,10 @@ export const MESSAGES = {
   NOT_FOUND: "Not found",
   COLLECTION_EXISTS: "Collection exists.",
   PRODUCT_EXISTS: "Product exists.",
+  ATTRIBUTE_EXISTS: "Attribute exists.",
+  DUPLICATED_ATTRIBUTE: "Duplicated attributes.",
+  DUPLICATED_GROUP_ATTRIBUTE: "Duplicated group attributes.",
+  NOT_FOUND_ATTRIBUTE: "Not found attributes.",
 };
 
 export const BASIS_TYPES = {
