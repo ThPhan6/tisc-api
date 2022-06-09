@@ -117,3 +117,61 @@ export interface IUpdateBasisOptionRequest {
     }[];
   }[];
 }
+export interface IBasisPreset {
+  id: string;
+  name: string;
+  count: number;
+  subs: {
+    id: string;
+    name: string;
+    count: number;
+    subs: {
+      value_1: string;
+      value_2: string;
+      unit_1: string;
+      unit_2: string;
+    }[];
+  }[];
+
+  created_at: string;
+}
+
+export interface IBasisPresetResponse {
+  data: IBasisPreset;
+  statusCode: number;
+}
+export interface IBasisPresetsResponse {
+  data: {
+    basis_presets: IBasisPreset;
+    group_count: number;
+    preset_count: number;
+    value_count: number;
+  };
+  statusCode: number;
+}
+export interface IBasisPresetRequest {
+  name: string;
+  subs: {
+    name: string;
+    subs: {
+      value_1: string;
+      value_2: string;
+      unit_1: string;
+      unit_2: string;
+    }[];
+  }[];
+}
+export interface IUpdateBasisPresetRequest {
+  name: string;
+  subs: {
+    id: string;
+    name: string;
+    subs: {
+      id: string;
+      value_1: string;
+      value_2: string;
+      unit_1: string;
+      unit_2: string;
+    }[];
+  }[];
+}

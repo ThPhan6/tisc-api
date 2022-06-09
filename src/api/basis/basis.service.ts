@@ -11,6 +11,10 @@ import {
   IBasisOptionResponse,
   IBasisOptionsResponse,
   IUpdateBasisOptionRequest,
+  IBasisPresetRequest,
+  IBasisPresetResponse,
+  IBasisPresetsResponse,
+  IUpdateBasisPresetRequest,
 } from "./basis.type";
 import { v4 as uuid } from "uuid";
 import {
@@ -449,7 +453,7 @@ export default class BasisService {
   public updateBasisOption = (
     id: string,
     payload: IUpdateBasisOptionRequest
-  ): Promise<IMessageResponse | IBasisOptionResponse | any> => {
+  ): Promise<IMessageResponse | IBasisOptionResponse> => {
     return new Promise(async (resolve) => {
       const group = await this.basisModel.find(id);
       if (!group) {
@@ -458,9 +462,10 @@ export default class BasisService {
           statusCode: 404,
         });
       }
-      const existedGroup = await this.basisModel.getExistedBasisOption(
+      const existedGroup = await this.basisModel.getExistedBasis(
         id,
-        payload.name
+        payload.name,
+        BASIS_TYPES.OPTION
       );
       if (existedGroup) {
         return resolve({
@@ -529,6 +534,230 @@ export default class BasisService {
         });
       }
       return resolve(this.getBasisOption(id));
+    });
+  };
+  public createBasisPreset = (
+    payload: IBasisPresetRequest
+  ): Promise<IMessageResponse | IBasisPresetResponse> => {
+    return new Promise(async (resolve) => {
+      const group = await this.basisModel.findBy({
+        type: BASIS_TYPES.PRESET,
+        name: payload.name.toLowerCase(),
+      });
+      if (group) {
+        return resolve({
+          message: MESSAGES.BASIS_PRESET_EXISTS,
+          statusCode: 400,
+        });
+      }
+      if (
+        isDuplicatedString(
+          payload.subs.map((item) => {
+            return item.name;
+          })
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_PRESET,
+          statusCode: 400,
+        });
+      }
+      const presets = payload.subs.map((item) => {
+        const values = item.subs.map((value) => {
+          return {
+            id: uuid(),
+            value_1: value.value_1,
+            value_2: value.value_2,
+            unit_1: value.unit_1,
+            unit_2: value.unit_2,
+          };
+        });
+        return {
+          id: uuid(),
+          name: item.name,
+          subs: values,
+        };
+      });
+      const createdBasisPreset = await this.basisModel.create({
+        ...BASIS_NULL_ATTRIBUTES,
+        name: payload.name,
+        type: BASIS_TYPES.PRESET,
+        subs: presets,
+      });
+      if (!createdBasisPreset) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      const { type, is_deleted, ...rest } = createdBasisPreset;
+      const returnedPresets = createdBasisPreset.subs.map((preset: any) => {
+        return {
+          ...preset,
+          count: preset.subs.length,
+        };
+      });
+      return resolve({
+        data: {
+          ...rest,
+          count: payload.subs.length,
+          subs: returnedPresets,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public getBasisPreset = (
+    id: string
+  ): Promise<IMessageResponse | IBasisPresetResponse> => {
+    return new Promise(async (resolve) => {
+      const group = await this.basisModel.find(id);
+      if (!group) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const preset = group.subs.map((item: any) => {
+        return {
+          ...item,
+          count: item.subs.length,
+        };
+      });
+      const { type, is_deleted, ...rest } = group;
+      return resolve({
+        data: {
+          ...rest,
+          count: group.subs.length,
+          subs: preset,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public getListBasisPreset = (
+    limit: number,
+    offset: number,
+    filter: any,
+    group_order: "ASC" | "DESC",
+    preset_order: "ASC" | "DESC"
+  ): Promise<IMessageResponse | IBasisPresetsResponse> => {
+    return new Promise(async (resolve) => {
+      const groups = await this.basisModel.list(
+        limit,
+        offset,
+        { ...filter, type: BASIS_TYPES.PRESET },
+        ["name", group_order]
+      );
+
+      const returnedGroups = groups.map((item: IBasisAttributes) => {
+        const returnedPresets = item.subs.map((preset: any) => {
+          return {
+            ...preset,
+            count: preset.subs.length,
+          };
+        });
+        const { type, is_deleted, ...rest } = {
+          ...item,
+          subs: sortObjectArray(returnedPresets, "name", preset_order),
+        };
+        return rest;
+      });
+      return resolve({
+        data: {
+          basis_presets: returnedGroups,
+          group_count: groups.length,
+          preset_count: this.countOptions(groups),
+          value_count: this.countValues(groups),
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public updateBasisPreset = (
+    id: string,
+    payload: IUpdateBasisPresetRequest
+  ): Promise<IMessageResponse | IBasisPresetResponse> => {
+    return new Promise(async (resolve) => {
+      const group = await this.basisModel.find(id);
+      if (!group) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const existedGroup = await this.basisModel.getExistedBasis(
+        id,
+        payload.name,
+        BASIS_TYPES.PRESET
+      );
+      if (existedGroup) {
+        return resolve({
+          message: MESSAGES.BASIS_PRESET_EXISTS,
+          statusCode: 400,
+        });
+      }
+      if (
+        isDuplicatedString(
+          payload.subs.map((item) => {
+            return item.name;
+          })
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_PRESET,
+          statusCode: 400,
+        });
+      }
+      const presets = payload.subs.map((item) => {
+        let foundPreset = false;
+        if (item.id) {
+          const foundItem = group.subs.find((sub: any) => sub.id === item.id);
+          if (foundItem) {
+            foundPreset = true;
+          }
+        }
+        const values = item.subs.map((value) => {
+          let foundValue = false;
+          if (value.id) {
+            const foundItem = this.getAllValueInOneGroup(group).find(
+              (valueInGroup) => valueInGroup.id === value.id
+            );
+            if (foundItem) {
+              foundValue = true;
+            }
+          }
+          if (foundValue) {
+            return value;
+          }
+          return {
+            ...value,
+            id: uuid(),
+          };
+        });
+        if (foundPreset) {
+          return {
+            ...item,
+            subs: values,
+          };
+        }
+        return {
+          ...item,
+          subs: values,
+          id: uuid(),
+        };
+      });
+      const updatedAttribute = await this.basisModel.update(id, {
+        ...payload,
+        subs: presets,
+      });
+      if (!updatedAttribute) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(this.getBasisPreset(id));
     });
   };
 }

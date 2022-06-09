@@ -108,4 +108,51 @@ export default {
     },
     statusCode: Joi.number(),
   }) as any,
+  basisPreset: Joi.object({
+    data: {
+      id: Joi.string(),
+      name: Joi.string(),
+      count: Joi.number(),
+      subs: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string(),
+        count: Joi.number(),
+        subs: Joi.array().items({
+          id: Joi.string(),
+          value_1: Joi.string(),
+          value_2: Joi.string(),
+          unit_1: Joi.string(),
+          unit_2: Joi.string(),
+        }),
+      }),
+      created_at: Joi.string(),
+    },
+    statusCode: Joi.number(),
+  }) as any,
+  basisPresets: Joi.object({
+    data: {
+      basis_options: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string(),
+        count: Joi.number(),
+        subs: Joi.array().items({
+          id: Joi.string(),
+          name: Joi.string(),
+          count: Joi.number(),
+          subs: Joi.array().items({
+            id: Joi.string(),
+            value_1: Joi.string(),
+            value_2: Joi.string(),
+            unit_1: Joi.string(),
+            unit_2: Joi.string(),
+          }),
+        }),
+        created_at: Joi.string(),
+      }),
+      group_count: Joi.number(),
+      preset_count: Joi.number(),
+      value_count: Joi.number(),
+    },
+    statusCode: Joi.number(),
+  }) as any,
 };
