@@ -62,6 +62,11 @@ export default {
   },
   getListWithMultipleSort: {
     query: Joi.object({
+      type: Joi.number().valid(
+        ATTRIBUTE_TYPES.GENERAL,
+        ATTRIBUTE_TYPES.FEATURE,
+        ATTRIBUTE_TYPES.SPECIFICATION
+      ),
       page: Joi.number()
         .min(1)
         .custom((value, helpers) => {
@@ -92,6 +97,7 @@ export default {
       content_type_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
+        type: value.type,
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
         offset:
           !value.page || !value.pageSize

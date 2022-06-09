@@ -122,6 +122,7 @@ export default class AttributeService {
     });
   };
   public getList = (
+    type: number,
     limit: number,
     offset: number,
     filter: any,
@@ -130,10 +131,12 @@ export default class AttributeService {
     content_type_order: any
   ): Promise<IMessageResponse | IAttributesResponse> => {
     return new Promise(async (resolve) => {
-      const attributes = await this.attributeModel.list(limit, offset, filter, [
-        "name",
-        group_order,
-      ]);
+      const attributes = await this.attributeModel.list(
+        limit,
+        offset,
+        { ...filter, type },
+        ["name", group_order]
+      );
 
       const returnedAttributes = attributes.map(
         (item: IAttributeAttributes) => {

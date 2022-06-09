@@ -22,6 +22,7 @@ export default class AttributeController {
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const {
+      type,
       limit,
       offset,
       filter,
@@ -30,6 +31,7 @@ export default class AttributeController {
       content_type_order,
     } = req.query;
     const response = await this.service.getList(
+      type,
       limit,
       offset,
       filter,
