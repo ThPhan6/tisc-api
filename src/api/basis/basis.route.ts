@@ -143,7 +143,7 @@ export default class BasisRoute implements IRoute {
             validate: validate.getListBasisOption,
             description: "Method that get list basis option",
             tags: ["api", "Basis option"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
