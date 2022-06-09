@@ -22,7 +22,7 @@ export default class BasisRoutes implements IRoute {
             validate: validate.createBasisConverison,
             description: "Method that create basis conversion",
             tags: ["api", "Bases"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -39,7 +39,7 @@ export default class BasisRoutes implements IRoute {
             validate: commonValidate.getList,
             description: "Method that get bases conversion",
             tags: ["api", "Bases"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -56,7 +56,7 @@ export default class BasisRoutes implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that get basis conversion",
             tags: ["api", "Bases"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -73,7 +73,7 @@ export default class BasisRoutes implements IRoute {
             validate: validate.updateBasisConverison,
             description: "Method that update basis conversion",
             tags: ["api", "Bases"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -90,7 +90,7 @@ export default class BasisRoutes implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that delete basis conversion",
             tags: ["api", "Bases"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
