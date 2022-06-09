@@ -24,12 +24,19 @@ export default class BasisController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { limit, offset, filter, sort } = req.query;
+    const {
+      limit,
+      offset,
+      filter,
+      conversion_group_order,
+      conversion_between_order,
+    } = req.query;
     const response = await this.service.getBasisConversions(
       limit,
       offset,
       filter,
-      sort
+      conversion_group_order,
+      conversion_between_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -53,10 +60,7 @@ export default class BasisController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public deleteBasis = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
+  public deleteBasis = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const response = await this.service.deleteBasis(id);
     return toolkit.response(response).code(response.statusCode ?? 200);

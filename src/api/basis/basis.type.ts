@@ -33,7 +33,7 @@ export interface IBasisConversionResponse {
 
 export interface IBasisConversionsResponse {
   data: {
-    bases_conversion: {
+    basis_conversions: {
       id: string;
       name: string;
       count: number;

@@ -173,4 +173,48 @@ export default {
       };
     }),
   } as any,
+  getListBasisConversion: {
+    query: Joi.object({
+      page: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .messages({
+          "any.invalid": "Page must be an integer",
+        }),
+      pageSize: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .messages({
+          "any.invalid": "Page Size must be an integer",
+        }),
+      filter: Joi.string()
+        .custom((value, helpers) => {
+          return customFilter(value, helpers);
+        }, "custom filter validation")
+        .messages({
+          "any.invalid": "Invalid filter",
+        }),
+      conversion_group_order: Joi.string().valid("ASC", "DESC"),
+      conversion_between_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
+        offset:
+          !value.page || !value.pageSize
+            ? 0
+            : (value.page - 1) * value.pageSize,
+        filter: value.filter,
+        conversion_group_order: value.group_order ? value.group_order : "ASC",
+        conversion_between_order: value.option_order
+          ? value.option_order
+          : "ASC",
+      };
+    }),
+  } as any,
 };

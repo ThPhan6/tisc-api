@@ -57,7 +57,7 @@ export default class BasisService {
     };
   };
 
-  private makeSub = (subs: any) => {
+  private makeSubs = (subs: any) => {
     return subs.map((item: any) => {
       return {
         id: uuid(),
@@ -75,11 +75,11 @@ export default class BasisService {
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
     return new Promise(async (resolve) => {
-      const existedBasisConversion = await this.basisModel.findBy({
+      const basisConversion = await this.basisModel.findBy({
         name: payload.name.toLowerCase(),
       });
 
-      if (existedBasisConversion) {
+      if (basisConversion) {
         return resolve({
           message: MESSAGES.BASIS_CONVERSION_EXISTS,
           statusCode: 400,
@@ -99,7 +99,7 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      const subData = this.makeSub(payload.subs);
+      const subData = this.makeSubs(payload.subs);
       const result = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
@@ -123,58 +123,65 @@ export default class BasisService {
   public getBasisConversions = async (
     limit: number,
     offset: number,
-    filter?: any,
-    sort?: any
+    filter: any,
+    conversion_group_order: "ASC" | "DESC",
+    conversion_between_order: "ASC" | "DESC"
   ): Promise<IMessageResponse | IBasisConversionsResponse> => {
     return new Promise(async (resolve) => {
-      let basisConversions = await this.basisModel.list(
+      const conversionGroups = await this.basisModel.list(
         limit,
         offset,
-        filter,
-        sort
+        {
+          ...filter,
+          type: BASIS_TYPES.CONVERSION,
+        },
+        ["name", conversion_group_order]
       );
-      if (!basisConversions) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      basisConversions = basisConversions.map((item: IBasisAttributes) => {
-        const { type, is_deleted, ...rest } = item;
-        const subsBasisConversion = item.subs.map((element: any) => {
-          return {
-            ...element,
-            conversion_between: element.name_1 + " - " + element.name_2,
-            first_forumla:
-              element.forumla_1 +
-              " " +
-              element.unit_1 +
-              " = " +
-              1 +
-              " " +
-              element.unit_2,
-            second_forumla:
-              element.forumla_2 +
-              " " +
-              element.unit_2 +
-              " = " +
-              1 +
-              " " +
-              element.unit_2,
+      let returnedConverionGroups = conversionGroups.map(
+        (item: IBasisAttributes) => {
+          const { type, is_deleted, ...rest } = {
+            ...item,
+            subs: sortObjectArray(item.subs, "name", conversion_between_order),
           };
-        });
-
-        return {
-          ...rest,
-          subs: subsBasisConversion,
-        };
-      });
-      const result = this.addCount(basisConversions);
+          return { ...rest, count: item.subs.length };
+        }
+      );
+      returnedConverionGroups = returnedConverionGroups.map(
+        (item: IBasisAttributes) => {
+          const subsBasisConversion = item.subs.map((element: any) => {
+            return {
+              ...element,
+              conversion_between: element.name_1 + " - " + element.name_2,
+              first_forumla:
+                element.forumla_1 +
+                " " +
+                element.unit_1 +
+                " = " +
+                1 +
+                " " +
+                element.unit_2,
+              second_forumla:
+                element.forumla_2 +
+                " " +
+                element.unit_2 +
+                " = " +
+                1 +
+                " " +
+                element.unit_2,
+            };
+          });
+          return {
+            ...item,
+            subs: subsBasisConversion,
+          };
+        }
+      );
+      const getCount = this.addCount(returnedConverionGroups);
       return resolve({
         data: {
-          bases_conversion: result.data,
-          conversion_group_count: result.totalCount,
-          conversion_count: result.subCount,
+          basis_conversions: returnedConverionGroups,
+          conversion_group_count: getCount.totalCount,
+          conversion_count: getCount.subCount,
         },
         statusCode: 200,
       });
@@ -249,7 +256,7 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      const subData = this.makeSub(payload.subs);
+      const subData = this.makeSubs(payload.subs);
       const result = await this.basisModel.update(id, {
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
