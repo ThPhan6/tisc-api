@@ -38,7 +38,7 @@ export default class CategoryRoute implements IRoute {
           path: ROUTES.GET_LIST_CATEGORY,
           options: {
             handler: controller.getList,
-            validate: validate.getListWithMultipleSort,
+            validate: validate.getListCategory,
             description: "Method that get categories",
             tags: ["api", "Category"],
             auth: AUTH_NAMES.PERMISSION,

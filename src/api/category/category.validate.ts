@@ -70,7 +70,7 @@ export default {
         }),
     },
   },
-  getListWithMultipleSort: {
+  getListCategory: {
     query: Joi.object({
       page: Joi.number()
         .min(1)

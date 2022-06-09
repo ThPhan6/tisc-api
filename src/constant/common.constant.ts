@@ -83,9 +83,9 @@ export const MESSAGES = {
   BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
   DUPLICATED_GROUP_BASIS: "Duplicated group basis.",
   DUPLICATED_BASES: "Duplicated bases.",
-  CATEGORY_DUPLICATED: "Duplicated category",
-  CATEGORY_SUB_DUPLICATED: "Duplicated sub category",
-  MAIN_CATEGORY_DUPLICATED: "Duplicated main category",
+  DUPLICATED_CATEGORY: "Duplicated category",
+  DUPLICATED_SUB_CATEGORY: "Duplicated sub category",
+  DUPLICATED_MAIN_CATEGORY: "Duplicated main category",
 };
 
 export const BASIS_TYPES = {

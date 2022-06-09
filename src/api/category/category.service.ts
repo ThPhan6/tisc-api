@@ -64,10 +64,10 @@ export default class CategoryService {
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
-      const category = await this.categoryModel.findBy({
+      const mainCategory = await this.categoryModel.findBy({
         name: payload.name.toLowerCase(),
       });
-      if (category) {
+      if (mainCategory) {
         return resolve({
           message: MESSAGES.CATEGORY_EXISTED,
           statusCode: 400,
@@ -81,25 +81,25 @@ export default class CategoryService {
         )
       ) {
         return resolve({
-          message: MESSAGES.CATEGORY_SUB_DUPLICATED,
+          message: MESSAGES.DUPLICATED_SUB_CATEGORY,
           statusCode: 400,
         });
       }
 
-      const listNameCategory = payload.subs.map((item: any) => {
+      const categoryNames = payload.subs.map((item: any) => {
         return item.subs.map((element: any) => {
           return element.name;
         });
       });
-      if (isDuplicatedString(listNameCategory.flat(1))) {
+      if (isDuplicatedString(categoryNames.flat(1))) {
         return resolve({
-          message: MESSAGES.CATEGORY_DUPLICATED,
+          message: MESSAGES.DUPLICATED_CATEGORY,
           statusCode: 400,
         });
       }
 
-      const subData = payload.subs.map((item: any) => {
-        const categoryData = item.subs.map((element: any) => {
+      const subCategories = payload.subs.map((item: any) => {
+        const categories = item.subs.map((element: any) => {
           return {
             id: uuid(),
             name: element.name,
@@ -108,14 +108,14 @@ export default class CategoryService {
         return {
           id: uuid(),
           name: item.name,
-          subs: categoryData,
+          subs: categories,
         };
       });
 
       const createdCategory = await this.categoryModel.create({
         ...CATEGORY_NULL_ATTRIBUTES,
         name: payload.name,
-        subs: subData,
+        subs: subCategories,
       });
       if (!createdCategory) {
         return resolve({
@@ -195,8 +195,8 @@ export default class CategoryService {
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
-      const category = await this.categoryModel.find(id);
-      if (!category) {
+      const mainCategory = await this.categoryModel.find(id);
+      if (!mainCategory) {
         return resolve({
           message: MESSAGES.CATEGORY_NOT_FOUND,
           statusCode: 404,
@@ -209,7 +209,7 @@ export default class CategoryService {
       );
       if (duplicatedCategory) {
         return resolve({
-          message: MESSAGES.MAIN_CATEGORY_DUPLICATED,
+          message: MESSAGES.DUPLICATED_MAIN_CATEGORY,
           statusCode: 400,
         });
       }
@@ -222,22 +222,22 @@ export default class CategoryService {
         )
       ) {
         return resolve({
-          message: MESSAGES.CATEGORY_SUB_DUPLICATED,
+          message: MESSAGES.DUPLICATED_SUB_CATEGORY,
           statusCode: 400,
         });
       }
-      const listNameCategory = payload.subs.map((item: any) => {
+      const categoryNames = payload.subs.map((item: any) => {
         return item.subs.map((element: any) => {
           return element.name;
         });
       });
-      if (isDuplicatedString(listNameCategory.flat(1))) {
+      if (isDuplicatedString(categoryNames.flat(1))) {
         return resolve({
-          message: MESSAGES.CATEGORY_DUPLICATED,
+          message: MESSAGES.DUPLICATED_CATEGORY,
           statusCode: 400,
         });
       }
-      const subData = payload.subs.map((item: any) => {
+      const categories = payload.subs.map((item: any) => {
         const listCategory = item.subs.map((element: any) => {
           if (element.id) {
             return {
@@ -268,7 +268,7 @@ export default class CategoryService {
       const updatedCategory = await this.categoryModel.update(id, {
         id,
         name: payload.name,
-        subs: subData,
+        subs: categories,
       });
       if (!updatedCategory) {
         return resolve({
