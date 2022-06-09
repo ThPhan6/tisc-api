@@ -11,7 +11,7 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import UserResponse from "./user.response";
 import commonValidate from "../../validate/common.validate";
 
-export default class UserRoutes implements IRoute {
+export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new UserController();

@@ -75,6 +75,14 @@ export const MESSAGES = {
   NOT_FOUND: "Not found",
   COLLECTION_EXISTS: "Collection exists.",
   PRODUCT_EXISTS: "Product exists.",
+  ATTRIBUTE_EXISTS: "Attribute exists.",
+  DUPLICATED_ATTRIBUTE: "Duplicated attributes.",
+  DUPLICATED_GROUP_ATTRIBUTE: "Duplicated group attributes.",
+  NOT_FOUND_ATTRIBUTE: "Not found attributes.",
+  BASIS_CONVERSION_EXISTS: "Basis conversion exists",
+  BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
+  DUPLICATED_GROUP_BASIS: "Duplicated group basis.",
+  DUPLICATED_BASES: "Duplicated bases.",
 };
 
 export const BASIS_TYPES = {

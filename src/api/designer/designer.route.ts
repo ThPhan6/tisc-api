@@ -7,7 +7,7 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import DesignerResponse from "./designer.response";
 
-export default class DesignerRoutes implements IRoute {
+export default class DesignerRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new DesignerController();

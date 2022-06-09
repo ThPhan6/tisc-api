@@ -8,7 +8,7 @@ import ProductResponse from "./product.response";
 import commonValidate from "../../validate/common.validate";
 import validate from "./product.validate";
 
-export default class ProductRoutes implements IRoute {
+export default class ProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new ProductController();

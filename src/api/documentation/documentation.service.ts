@@ -9,7 +9,7 @@ import {
   IDocumentationResponse,
   IDocumentationsResponse,
 } from "./documentation.type";
-class AgreementPoliciesTermsService {
+class DocumentationService {
   private documentation: Documentation;
   constructor() {
     this.documentation = new Documentation();
@@ -175,4 +175,4 @@ class AgreementPoliciesTermsService {
   };
 }
 
-export default AgreementPoliciesTermsService;
+export default DocumentationService;

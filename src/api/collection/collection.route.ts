@@ -8,7 +8,7 @@ import CollectionResponse from "./collection.response";
 import commonValidate from "../../validate/common.validate";
 import validate from "./collection.validate";
 
-export default class CollectionRoutes implements IRoute {
+export default class CollectionRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new CollectionController();
