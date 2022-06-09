@@ -21,6 +21,7 @@ export const ROUTES = {
   DELETE_BASIS: "/api/basis/delete/{id}",
   CREATE_BASIS: "/api/basis/create",
   GET_LIST_ATTRIBUTE: "/api/attribute/get-list",
+  GET_LIST_CONTENT_TYPE: "/api/attribute/content-type/get-list",
   EDIT_ATTRIBUTE: "/api/attribute/update/{id}",
   DELETE_ATTRIBUTE: "/api/attribute/delete/{id}",
   CREATE_ATTRIBUTE: "/api/attribute/create",

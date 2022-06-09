@@ -66,6 +66,22 @@ export default class AttributeRoute implements IRoute {
           },
         },
         {
+          method: "GET",
+          path: ROUTES.GET_LIST_CONTENT_TYPE,
+          options: {
+            handler: controller.getListContentType,
+            description: "Method that get list content type",
+            tags: ["api", "Attribute"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListContentType,
+              },
+            },
+          },
+        },
+        {
           method: "DELETE",
           path: ROUTES.DELETE_ATTRIBUTE,
           options: {

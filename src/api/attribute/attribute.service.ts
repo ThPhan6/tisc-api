@@ -1,4 +1,8 @@
-import { MESSAGES } from "../../constant/common.constant";
+import {
+  LONG_TEXT_ID,
+  MESSAGES,
+  SHORT_TEXT_ID,
+} from "../../constant/common.constant";
 import AttributeModel, {
   ATTRIBUTE_NULL_ATTRIBUTES,
   IAttributeAttributes,
@@ -8,6 +12,7 @@ import {
   IAttributeRequest,
   IAttributeResponse,
   IAttributesResponse,
+  IContentTypesResponse,
   IUpdateAttributeRequest,
 } from "./attribute.type";
 import { v4 as uuid } from "uuid";
@@ -247,6 +252,30 @@ export default class AttributeService {
       }
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getListContentType = (): Promise<IContentTypesResponse> => {
+    return new Promise(async (resolve) => {
+      const data = {
+        texts: [
+          {
+            id: LONG_TEXT_ID,
+            name: "Long Format",
+          },
+          {
+            id: SHORT_TEXT_ID,
+            name: "Short Format",
+          },
+        ],
+        conversions: [],
+        presets: [],
+        options: [],
+      };
+      return resolve({
+        data,
         statusCode: 200,
       });
     });

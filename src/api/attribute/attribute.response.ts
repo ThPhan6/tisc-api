@@ -48,4 +48,13 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  getListContentType: Joi.object({
+    data: Joi.object({
+      texts: Joi.any(),
+      conversions: Joi.any(),
+      presets: Joi.any(),
+      options: Joi.any(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
 };

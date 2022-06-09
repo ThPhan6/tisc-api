@@ -43,3 +43,13 @@ export interface IUpdateAttributeRequest {
     description: string;
   }[];
 }
+
+export interface IContentTypesResponse {
+  data: {
+    texts: any;
+    conversions: any;
+    presets: any;
+    options: any;
+  };
+  statusCode: number;
+}

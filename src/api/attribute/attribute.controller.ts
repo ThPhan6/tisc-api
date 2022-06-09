@@ -53,4 +53,11 @@ export default class AttributeController {
     const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListContentType = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await this.service.getListContentType();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
