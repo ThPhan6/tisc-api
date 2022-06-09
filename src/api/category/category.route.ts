@@ -38,7 +38,7 @@ export default class CategoryRoute implements IRoute {
           path: ROUTES.GET_LIST_CATEGORY,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: validate.getListCategory,
             description: "Method that get categories",
             tags: ["api", "Category"],
             auth: AUTH_NAMES.PERMISSION,
@@ -54,7 +54,7 @@ export default class CategoryRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
-            handler: controller.get,
+            handler: controller.getById,
             validate: commonValidate.getOne,
             description: "Method that get category",
             tags: ["api", "Category"],
