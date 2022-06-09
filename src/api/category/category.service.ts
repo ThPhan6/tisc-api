@@ -135,7 +135,7 @@ export default class CategoryService {
     limit: number,
     offset: number,
     filter: any,
-    main_category_order: string,
+    main_category_order: "ASC" | "DESC",
     sub_category_order: "ASC" | "DESC",
     category_order: "ASC" | "DESC"
   ): Promise<IMessageResponse | ICategoriesResponse> => {
@@ -237,8 +237,8 @@ export default class CategoryService {
           statusCode: 400,
         });
       }
-      const categories = payload.subs.map((item: any) => {
-        const listCategory = item.subs.map((element: any) => {
+      const subCategories = payload.subs.map((item: any) => {
+        const categories = item.subs.map((element: any) => {
           if (element.id) {
             return {
               ...element,
@@ -255,20 +255,20 @@ export default class CategoryService {
           return {
             ...item,
             name: item.name,
-            subs: listCategory,
+            subs: categories,
           };
         }
         return {
           ...item,
           id: uuid(),
           name: item.name,
-          subs: listCategory,
+          subs: categories,
         };
       });
       const updatedCategory = await this.categoryModel.update(id, {
         id,
         name: payload.name,
-        subs: categories,
+        subs: subCategories,
       });
       if (!updatedCategory) {
         return resolve({
