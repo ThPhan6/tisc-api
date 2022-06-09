@@ -16,12 +16,12 @@ export default class BasisController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getBasesConversion = async (
+  public getBasisConversions = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { limit, offset, filter, sort } = req.query;
-    const response = await this.service.getBasesConversion(
+    const response = await this.service.getBasisConversions(
       limit,
       offset,
       filter,

@@ -31,7 +31,7 @@ export interface IBasisConversionResponse {
   statusCode: number;
 }
 
-export interface IBasesConversionResponse {
+export interface IBasisConversionsResponse {
   data: {
     bases_conversion: {
       id: string;

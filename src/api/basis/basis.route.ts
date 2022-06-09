@@ -8,7 +8,7 @@ import commonValidate from "../../validate/common.validate";
 import BasisController from "./basis.controller";
 import validate from "./basis.validate";
 import basisResponse from "./basis.response";
-export default class BasisRoutes implements IRoute {
+export default class BasisRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new BasisController();
@@ -21,7 +21,7 @@ export default class BasisRoutes implements IRoute {
             handler: controller.createBasisConversion,
             validate: validate.createBasisConverison,
             description: "Method that create basis conversion",
-            tags: ["api", "Bases"],
+            tags: ["api", "Basis"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -35,15 +35,15 @@ export default class BasisRoutes implements IRoute {
           method: "GET",
           path: ROUTES.GET_LIST_BASIS_CONVERSION,
           options: {
-            handler: controller.getBasesConversion,
+            handler: controller.getBasisConversions,
             validate: commonValidate.getList,
-            description: "Method that get bases conversion",
-            tags: ["api", "Bases"],
+            description: "Method that get basis conversions",
+            tags: ["api", "Basis"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: basisResponse.basesConversion,
+                200: basisResponse.basisConversions,
               },
             },
           },
@@ -55,7 +55,7 @@ export default class BasisRoutes implements IRoute {
             handler: controller.getBasisConversionById,
             validate: commonValidate.getOne,
             description: "Method that get basis conversion",
-            tags: ["api", "Bases"],
+            tags: ["api", "Basis"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -72,7 +72,7 @@ export default class BasisRoutes implements IRoute {
             handler: controller.updateBasisConversion,
             validate: validate.updateBasisConverison,
             description: "Method that update basis conversion",
-            tags: ["api", "Bases"],
+            tags: ["api", "Basis"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -89,7 +89,7 @@ export default class BasisRoutes implements IRoute {
             handler: controller.deleteBasisConversion,
             validate: commonValidate.getOne,
             description: "Method that delete basis conversion",
-            tags: ["api", "Bases"],
+            tags: ["api", "Basis"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

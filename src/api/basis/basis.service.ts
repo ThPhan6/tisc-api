@@ -4,7 +4,7 @@ import { BASIS_TYPES } from "./../../constant/common.constant";
 import { IBasisAttributes } from "./../../model/basis.model";
 import { IMessageResponse } from "./../../type/common.type";
 import {
-  IBasesConversionResponse,
+  IBasisConversionsResponse,
   IBasisConversionRequest,
   IBasisConversionResponse,
 } from "./basis.type";
@@ -16,7 +16,7 @@ export default class BasisService {
     this.basisModel = new BasisModel();
   }
 
-  private addCount = async (data: any) => {
+  private addCount = (data: any) => {
     const totalCount = data.length;
     let subCount = 0;
     let childSubCount = 0;
@@ -50,6 +50,20 @@ export default class BasisService {
     };
   };
 
+  private makeSub = (subs: any) => {
+    return subs.map((item: any) => {
+      return {
+        id: uuid(),
+        name_1: item.name_1,
+        name_2: item.name_2,
+        forumla_1: item.forumla_1,
+        forumla_2: item.forumla_2,
+        unit_1: item.unit_1,
+        unit_2: item.unit_2,
+      };
+    });
+  };
+
   public createBasisConversion = async (
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
@@ -81,17 +95,7 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      const subData = payload.subs.map((item: any) => {
-        return {
-          id: uuid(),
-          name_1: item.name_1,
-          name_2: item.name_2,
-          forumla_1: item.forumla_1,
-          forumla_2: item.forumla_2,
-          unit_1: item.unit_1,
-          unit_2: item.unit_2,
-        };
-      });
+      const subData = this.makeSub(payload.subs);
       const result = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
@@ -112,26 +116,26 @@ export default class BasisService {
     });
   };
 
-  public getBasesConversion = async (
+  public getBasisConversions = async (
     limit: number,
     offset: number,
     filter?: any,
     sort?: any
-  ): Promise<IMessageResponse | IBasesConversionResponse> => {
+  ): Promise<IMessageResponse | IBasisConversionsResponse> => {
     return new Promise(async (resolve) => {
-      let basesConversion = await this.basisModel.list(
+      let basisConversions = await this.basisModel.list(
         limit,
         offset,
         filter,
         sort
       );
-      if (!basesConversion) {
+      if (!basisConversions) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
       }
-      basesConversion = basesConversion.map((item: IBasisAttributes) => {
+      basisConversions = basisConversions.map((item: IBasisAttributes) => {
         const { type, is_deleted, ...rest } = item;
         const subsBasisConversion = item.subs.map((element: any) => {
           return {
@@ -161,7 +165,7 @@ export default class BasisService {
           subs: subsBasisConversion,
         };
       });
-      const result = await this.addCount(basesConversion);
+      const result = this.addCount(basisConversions);
       return resolve({
         data: {
           bases_conversion: result.data,
@@ -217,6 +221,17 @@ export default class BasisService {
           statusCode: 404,
         });
       }
+      const duplicatedBasis = await this.basisModel.getDuplicatedBasis(
+        id,
+        payload.name
+      );
+      if (duplicatedBasis) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_GROUP_BASIS,
+          statusCode: 400,
+        });
+      }
+
       let isCheckedSubsDuplicate = false;
       for (let index = 0; index < payload.subs.length; index++) {
         if (
@@ -229,21 +244,11 @@ export default class BasisService {
 
       if (isCheckedSubsDuplicate) {
         return resolve({
-          message: MESSAGES.BASIS_CONVERSION_EXISTS,
+          message: MESSAGES.DUPLICATED_BASES,
           statusCode: 400,
         });
       }
-      const subData = payload.subs.map((item: any) => {
-        return {
-          id: uuid(),
-          name_1: item.name_1,
-          name_2: item.name_2,
-          forumla_1: item.forumla_1,
-          forumla_2: item.forumla_2,
-          unit_1: item.unit_1,
-          unit_2: item.unit_2,
-        };
-      });
+      const subData = this.makeSub(payload.subs);
       const result = await this.basisModel.update(id, {
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
@@ -272,7 +277,7 @@ export default class BasisService {
       const basisConversion = await this.basisModel.find(id);
       if (!basisConversion) {
         return resolve({
-          message: MESSAGES.NOT_FOUND,
+          message: MESSAGES.BASIS_CONVERSION_NOT_FOUND,
           statusCode: 404,
         });
       }

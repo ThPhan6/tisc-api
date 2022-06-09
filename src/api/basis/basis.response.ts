@@ -29,9 +29,9 @@ export default {
     statusCode: Joi.number(),
   }) as any,
 
-  basesConversion: Joi.object({
+  basisConversions: Joi.object({
     data: {
-      bases_conversion: Joi.array().items(
+      basis_conversions: Joi.array().items(
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
