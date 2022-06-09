@@ -47,6 +47,7 @@ export default {
     payload: {
       backup_email: Joi.string().allow(""),
       personal_mobile: Joi.string().allow(""),
+      zone_code: Joi.string().allow(""),
       linkedin: Joi.string().allow(""),
     },
   },
