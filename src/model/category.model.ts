@@ -14,17 +14,13 @@ export default class CategoryModel extends Model<ICategoryAttributes> {
     super("categories");
   }
 
-  public foundNameNotId = async (name: string, id: string) => {
+  public getDuplicatedCategory = async (id: string, name: string) => {
     try {
-      const result = await this.builder
-        .where("name", name)
+      const result: any = await this.builder
         .whereNot("id", id)
-        .whereNot("is_deleted", true)
-        .select();
-      if (!result.length) {
-        return false;
-      }
-      return true;
+        .where("name", name.toLowerCase())
+        .first();
+      return result;
     } catch (error) {
       return false;
     }

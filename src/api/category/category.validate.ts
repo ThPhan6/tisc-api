@@ -113,8 +113,8 @@ export default {
           : "ASC",
         sub_category_order: value.sub_category_order
           ? value.sub_category_order
-          : undefined,
-        category_order: value.category_order ? value.category_order : undefined,
+          : "ASC",
+        category_order: value.category_order ? value.category_order : "ASC",
       };
     }),
   } as any,

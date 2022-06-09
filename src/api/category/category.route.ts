@@ -24,7 +24,7 @@ export default class CategoryRoute implements IRoute {
             validate: validate.create,
             description: "Method that create category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -41,7 +41,7 @@ export default class CategoryRoute implements IRoute {
             validate: validate.getListWithMultipleSort,
             description: "Method that get categories",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -54,11 +54,11 @@ export default class CategoryRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
-            handler: controller.get,
+            handler: controller.getById,
             validate: commonValidate.getOne,
             description: "Method that get category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -75,7 +75,7 @@ export default class CategoryRoute implements IRoute {
             validate: validate.update,
             description: "Method that update category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -92,7 +92,7 @@ export default class CategoryRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that delete category",
             tags: ["api", "Category"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
