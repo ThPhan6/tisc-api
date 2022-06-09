@@ -9,7 +9,7 @@ import IRoute from "../../helper/route.helper";
 import commonValidate from "../../validate/common.validate";
 import BasisController from "./basis.controller";
 import validate from "./basis.validate";
-import basisResponse from "./basis.response";
+import response from "./basis.response";
 export default class BasisRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -23,12 +23,12 @@ export default class BasisRoute implements IRoute {
             handler: controller.createBasisConversion,
             validate: validate.createBasisConverison,
             description: "Method that create basis conversion",
-            tags: ["api", "Basis"],
+            tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: basisResponse.basisConversion,
+                200: response.basisConversion,
               },
             },
           },
@@ -40,12 +40,12 @@ export default class BasisRoute implements IRoute {
             handler: controller.getBasisConversions,
             validate: commonValidate.getList,
             description: "Method that get basis conversions",
-            tags: ["api", "Basis"],
+            tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: basisResponse.basisConversions,
+                200: response.basisConversions,
               },
             },
           },
@@ -57,12 +57,12 @@ export default class BasisRoute implements IRoute {
             handler: controller.getBasisConversionById,
             validate: commonValidate.getOne,
             description: "Method that get basis conversion",
-            tags: ["api", "Basis"],
+            tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: basisResponse.basisConversion,
+                200: response.basisConversion,
               },
             },
           },
@@ -74,12 +74,12 @@ export default class BasisRoute implements IRoute {
             handler: controller.updateBasisConversion,
             validate: validate.updateBasisConverison,
             description: "Method that update basis conversion",
-            tags: ["api", "Basis"],
+            tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: basisResponse.basisConversion,
+                200: response.basisConversion,
               },
             },
           },
@@ -88,15 +88,99 @@ export default class BasisRoute implements IRoute {
           method: "DELETE",
           path: ROUTES.DELETE_BASIS_CONVERSION,
           options: {
-            handler: controller.deleteBasisConversion,
+            handler: controller.deleteBasis,
             validate: commonValidate.getOne,
             description: "Method that delete basis conversion",
-            tags: ["api", "Basis"],
+            tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.CREATE_BASIS_OPTION,
+          options: {
+            handler: controller.createBasisOption,
+            validate: validate.createBasisOption,
+            description: "Method that create basis option",
+            tags: ["api", "Basis option"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.basisOption,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_BASIS_OPTION,
+          options: {
+            handler: controller.getBasisOption,
+            validate: commonValidate.getOne,
+            description: "Method that get one basis option",
+            tags: ["api", "Basis option"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.basisOption,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_BASIS_OPTION,
+          options: {
+            handler: controller.getListBasisOption,
+            validate: validate.getListBasisOption,
+            description: "Method that get list basis option",
+            tags: ["api", "Basis option"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.basesOption,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.EDIT_BASIS_OPTION,
+          options: {
+            handler: controller.updateBasisOption,
+            validate: validate.updateBasisOption,
+            description: "Method that update basis option",
+            tags: ["api", "Basis option"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.basisOption,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_BASIS_OPTION,
+          options: {
+            handler: controller.deleteBasis,
+            validate: commonValidate.getOne,
+            description: "Method that delete basis option",
+            tags: ["api", "Basis option"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

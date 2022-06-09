@@ -7,15 +7,22 @@ import {
   IBasisConversionsResponse,
   IBasisConversionRequest,
   IBasisConversionResponse,
+  IBasisOptionRequest,
+  IBasisOptionResponse,
+  IBasisOptionsResponse,
+  IUpdateBasisOptionRequest,
 } from "./basis.type";
 import { v4 as uuid } from "uuid";
+import {
+  isDuplicatedString,
+  sortObjectArray,
+} from "../../helper/common.helper";
 
 export default class BasisService {
   private basisModel: BasisModel;
   constructor() {
     this.basisModel = new BasisModel();
   }
-
   private addCount = (data: any) => {
     const totalCount = data.length;
     let subCount = 0;
@@ -264,14 +271,12 @@ export default class BasisService {
     });
   };
 
-  public deleteBasisConversion = async (
-    id: string
-  ): Promise<IMessageResponse> => {
+  public deleteBasis = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const basisConversion = await this.basisModel.find(id);
       if (!basisConversion) {
         return resolve({
-          message: MESSAGES.BASIS_CONVERSION_NOT_FOUND,
+          message: MESSAGES.BASIS_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -280,6 +285,250 @@ export default class BasisService {
         message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
+    });
+  };
+  public createBasisOption = (
+    payload: IBasisOptionRequest
+  ): Promise<IMessageResponse | IBasisOptionResponse> => {
+    return new Promise(async (resolve) => {
+      const group = await this.basisModel.findBy({
+        type: BASIS_TYPES.OPTION,
+        name: payload.name.toLowerCase(),
+      });
+      if (group) {
+        return resolve({
+          message: MESSAGES.BASIS_OPTION_EXISTS,
+          statusCode: 400,
+        });
+      }
+      if (
+        isDuplicatedString(
+          payload.subs.map((item) => {
+            return item.name;
+          })
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_OPTION,
+          statusCode: 400,
+        });
+      }
+      const options = payload.subs.map((item) => {
+        const values = item.subs.map((value) => {
+          return {
+            id: uuid(),
+            value_1: value.value_1,
+            value_2: value.value_2,
+            unit_1: value.unit_1,
+            unit_2: value.unit_2,
+          };
+        });
+        return {
+          id: uuid(),
+          name: item.name,
+          subs: values,
+        };
+      });
+      const createdBasisOption = await this.basisModel.create({
+        ...BASIS_NULL_ATTRIBUTES,
+        name: payload.name,
+        type: BASIS_TYPES.OPTION,
+        subs: options,
+      });
+      if (!createdBasisOption) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      const { type, is_deleted, ...rest } = createdBasisOption;
+      const returnedOptions = createdBasisOption.subs.map((option: any) => {
+        return {
+          ...option,
+          count: option.subs.length,
+        };
+      });
+      return resolve({
+        data: {
+          ...rest,
+          count: payload.subs.length,
+          subs: returnedOptions,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public getBasisOption = (
+    id: string
+  ): Promise<IMessageResponse | IBasisOptionResponse> => {
+    return new Promise(async (resolve) => {
+      const group = await this.basisModel.find(id);
+      if (!group) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const option = group.subs.map((item: any) => {
+        return {
+          ...item,
+          count: item.subs.length,
+        };
+      });
+      const { type, is_deleted, ...rest } = group;
+      return resolve({
+        data: {
+          ...rest,
+          count: group.subs.length,
+          subs: option,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  private countOptions = (groups: any[]) => {
+    return groups.reduce((pre, cur) => {
+      return pre + cur.subs.length;
+    }, 0);
+  };
+  private countValues = (groups: any[]) => {
+    let result = 0;
+    groups.forEach((group) => {
+      result += group.subs.reduce((pre: any, cur: any) => {
+        return pre + cur.subs.length;
+      }, 0);
+    });
+    return result;
+  };
+  public getListBasisOption = (
+    limit: number,
+    offset: number,
+    filter: any,
+    group_order: "ASC" | "DESC",
+    option_order: "ASC" | "DESC"
+  ): Promise<IMessageResponse | IBasisOptionsResponse> => {
+    return new Promise(async (resolve) => {
+      const groups = await this.basisModel.list(
+        limit,
+        offset,
+        { ...filter, type: BASIS_TYPES.OPTION },
+        ["name", group_order]
+      );
+
+      const returnedGroups = groups.map((item: IBasisAttributes) => {
+        const returnedOptions = item.subs.map((option: any) => {
+          return {
+            ...option,
+            count: option.subs.length,
+          };
+        });
+        const { type, is_deleted, ...rest } = {
+          ...item,
+          subs: sortObjectArray(returnedOptions, "name", option_order),
+        };
+        return rest;
+      });
+      return resolve({
+        data: {
+          basis_options: returnedGroups,
+          group_count: groups.length,
+          option_count: this.countOptions(groups),
+          value_count: this.countValues(groups),
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  private getAllValueInOneGroup = (group: any) => {
+    let result: any[] = [];
+    group.subs.map((option: any) => {
+      result = result.concat(option.subs);
+    });
+    return result;
+  };
+  public updateBasisOption = (
+    id: string,
+    payload: IUpdateBasisOptionRequest
+  ): Promise<IMessageResponse | IBasisOptionResponse | any> => {
+    return new Promise(async (resolve) => {
+      const group = await this.basisModel.find(id);
+      if (!group) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          statusCode: 404,
+        });
+      }
+      const existedGroup = await this.basisModel.getExistedBasisOption(
+        id,
+        payload.name
+      );
+      if (existedGroup) {
+        return resolve({
+          message: MESSAGES.BASIS_OPTION_EXISTS,
+          statusCode: 400,
+        });
+      }
+      if (
+        isDuplicatedString(
+          payload.subs.map((item) => {
+            return item.name;
+          })
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_OPTION,
+          statusCode: 400,
+        });
+      }
+      const options = payload.subs.map((item) => {
+        let foundOption = false;
+        if (item.id) {
+          const foundItem = group.subs.find((sub: any) => sub.id === item.id);
+          if (foundItem) {
+            foundOption = true;
+          }
+        }
+        const values = item.subs.map((value) => {
+          let foundValue = false;
+          if (value.id) {
+            const foundItem = this.getAllValueInOneGroup(group).find(
+              (valueInGroup) => valueInGroup.id === value.id
+            );
+            if (foundItem) {
+              foundValue = true;
+            }
+          }
+          if (foundValue) {
+            return value;
+          }
+          return {
+            ...value,
+            id: uuid(),
+          };
+        });
+        if (foundOption) {
+          return {
+            ...item,
+            subs: values,
+          };
+        }
+        return {
+          ...item,
+          subs: values,
+          id: uuid(),
+        };
+      });
+      const updatedAttribute = await this.basisModel.update(id, {
+        ...payload,
+        subs: options,
+      });
+      if (!updatedAttribute) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(this.getBasisOption(id));
     });
   };
 }

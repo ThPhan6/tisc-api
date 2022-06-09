@@ -1,5 +1,15 @@
 import * as Joi from "joi";
-
+const customFilter = (value: any, helpers: any) => {
+  try {
+    const filter = JSON.parse(decodeURIComponent(value));
+    if (typeof filter === "object") {
+      return filter;
+    }
+    return helpers.error("any.invalid");
+  } catch (error) {
+    return helpers.error("any.invalid");
+  }
+};
 export default {
   createBasisConverison: {
     payload: {
@@ -53,4 +63,114 @@ export default {
         }),
     },
   },
+  createBasisOption: {
+    payload: {
+      name: Joi.string().required().messages({
+        "string.empty": "Group name can not be empty",
+        "any.required": "Group name can not be empty",
+      }),
+      subs: Joi.array()
+        .items({
+          name: Joi.string().required().messages({
+            "string.empty": "Option name can not be empty",
+            "any.required": "Option name can not be empty",
+          }),
+          subs: Joi.array()
+            .items({
+              image: Joi.any(),
+              value_1: Joi.string(),
+              value_2: Joi.string(),
+              unit_1: Joi.string(),
+              unit_2: Joi.string(),
+            })
+            .required()
+            .messages({
+              "string.empty": "Values can not be empty",
+              "any.required": "Values can not be empty",
+            }),
+        })
+        .required()
+        .messages({
+          "string.empty": "Options can not be empty",
+          "any.required": "Options can not be empty",
+        }),
+    },
+  },
+  updateBasisOption: {
+    payload: {
+      name: Joi.string().required().messages({
+        "string.empty": "Group name can not be empty",
+        "any.required": "Group name can not be empty",
+      }),
+      subs: Joi.array()
+        .items({
+          id: Joi.string(),
+          name: Joi.string().required().messages({
+            "string.empty": "Option name can not be empty",
+            "any.required": "Option name can not be empty",
+          }),
+          subs: Joi.array()
+            .items({
+              id: Joi.string(),
+              image: Joi.any(),
+              value_1: Joi.string(),
+              value_2: Joi.string(),
+              unit_1: Joi.string(),
+              unit_2: Joi.string(),
+            })
+            .required()
+            .messages({
+              "string.empty": "Values can not be empty",
+              "any.required": "Values can not be empty",
+            }),
+        })
+        .required()
+        .messages({
+          "string.empty": "Options can not be empty",
+          "any.required": "Options can not be empty",
+        }),
+    },
+  },
+  getListBasisOption: {
+    query: Joi.object({
+      page: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .messages({
+          "any.invalid": "Page must be an integer",
+        }),
+      pageSize: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .messages({
+          "any.invalid": "Page Size must be an integer",
+        }),
+      filter: Joi.string()
+        .custom((value, helpers) => {
+          return customFilter(value, helpers);
+        }, "custom filter validation")
+        .messages({
+          "any.invalid": "Invalid filter",
+        }),
+      group_order: Joi.string().valid("ASC", "DESC"),
+      option_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
+        offset:
+          !value.page || !value.pageSize
+            ? 0
+            : (value.page - 1) * value.pageSize,
+        filter: value.filter,
+        group_order: value.group_order ? value.group_order : "ASC",
+        option_order: value.option_order ? value.option_order : "ASC",
+      };
+    }),
+  } as any,
 };

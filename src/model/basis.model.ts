@@ -32,4 +32,17 @@ export default class BasisModel extends Model<IBasisAttributes> {
       return false;
     }
   };
+
+  public getExistedBasisOption = async (id: string, name: string) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("name", name.toLowerCase())
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

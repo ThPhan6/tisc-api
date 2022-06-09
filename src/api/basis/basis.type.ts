@@ -55,3 +55,65 @@ export interface IBasisConversionsResponse {
   };
   statusCode: number;
 }
+
+export interface IBasisOption {
+  id: string;
+  name: string;
+  count: number;
+  subs: {
+    id: string;
+    name: string;
+    count: number;
+    subs: {
+      image: string;
+      value_1: string;
+      value_2: string;
+      unit_1: string;
+      unit_2: string;
+    }[];
+  }[];
+
+  created_at: string;
+}
+
+export interface IBasisOptionResponse {
+  data: IBasisOption;
+  statusCode: number;
+}
+export interface IBasisOptionsResponse {
+  data: {
+    basis_options: IBasisOption;
+    group_count: number;
+    option_count: number;
+    value_count: number;
+  };
+  statusCode: number;
+}
+export interface IBasisOptionRequest {
+  name: string;
+  subs: {
+    name: string;
+    subs: {
+      image: any;
+      value_1: string;
+      value_2: string;
+      unit_1: string;
+      unit_2: string;
+    }[];
+  }[];
+}
+export interface IUpdateBasisOptionRequest {
+  name: string;
+  subs: {
+    id: string;
+    name: string;
+    subs: {
+      id: string;
+      image: any;
+      value_1: string;
+      value_2: string;
+      unit_1: string;
+      unit_2: string;
+    }[];
+  }[];
+}
