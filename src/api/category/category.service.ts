@@ -1,3 +1,4 @@
+import { sortObjectArray } from "./../../helper/common.helper";
 import { MESSAGES } from "../../constant/common.constant";
 import CategoryModel, {
   CATEGORY_NULL_ATTRIBUTES,
@@ -17,6 +18,45 @@ export default class CategoryService {
   constructor() {
     this.categoyModel = new CategoryModel();
   }
+
+  private addCount = (data: any) => {
+    const mainCategoryCount = data.length;
+    let subCategoryCount = 0;
+    let categoryCount = 0;
+    const result = data.map((item: ICategoryAttributes) => {
+      if (item.subs) {
+        const subCategories = item.subs.map((el: ICategoryAttributes) => {
+          if (el.subs) {
+            categoryCount += el.subs.length;
+            return {
+              ...el,
+              count: el.subs.length,
+            };
+          }
+          return {
+            ...el,
+            count: 0,
+          };
+        });
+        subCategoryCount += item.subs.length;
+        return {
+          ...item,
+          count: item.subs.length,
+          subs: subCategories,
+        };
+      }
+      return {
+        ...item,
+        count: 0,
+      };
+    });
+    return {
+      mainCategoryCount,
+      subCategoryCount,
+      categoryCount,
+      data: result,
+    };
+  };
 
   private checkDuplicateSub = async (payload: any) => {
     let isChecked = false;
@@ -118,7 +158,6 @@ export default class CategoryService {
 
       let subs;
       if (payload.subs) {
-        const a = payload.subs.map((subItem: any) => {});
         subs = await this.addId(payload);
       }
       const category = await this.categoyModel.create({
@@ -143,54 +182,45 @@ export default class CategoryService {
   public getList = async (
     limit: number,
     offset: number,
-    filter?: any,
-    sort?: any
-  ): Promise<IMessageResponse | ICategoriesResponse> => {
+    filter: any,
+    main_category_order: string,
+    sub_category_order: any,
+    category_order: any
+  ): Promise<IMessageResponse | ICategoriesResponse | any> => {
     return new Promise(async (resolve) => {
-      let result = await this.categoyModel.list(limit, offset, filter, sort);
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      const mainCategoryCount = result.length;
-      let subCategoryCount = 0;
-      let categoryCount = 0;
-      result = result.map((item: ICategoryAttributes) => {
-        const { is_deleted, ...rest } = item;
-        if (item.subs) {
-          const subCategories = item.subs.map((el: ICategoryAttributes) => {
-            if (el.subs) {
-              categoryCount += el.subs.length;
-              return {
-                ...el,
-                count: el.subs.length,
-              };
-            }
-            return {
-              ...el,
-              count: 0,
-            };
-          });
-          subCategoryCount += item.subs.length;
+      const categories = await this.categoyModel.list(limit, offset, filter, [
+        "name",
+        main_category_order,
+      ]);
+
+      let returnedCategory = categories.map((item: ICategoryAttributes) => {
+        const newSub = item.subs.map((sub: any) => {
           return {
-            ...rest,
-            count: item.subs.length,
-            subs: subCategories,
+            ...sub,
           };
+        });
+        let sortedSubs;
+        if (sub_category_order) {
+          sortedSubs = sortObjectArray(newSub, "name", sub_category_order);
         }
-        return {
-          ...rest,
-          count: 0,
+        if (category_order) {
+          sortedSubs = sortObjectArray(newSub, "name", category_order);
+        }
+        const { is_deleted, ...rest } = {
+          ...item,
+          subs: sortedSubs,
         };
+        return rest;
       });
+
+      const result = this.addCount(returnedCategory);
+
       return resolve({
         data: {
-          categories: result,
-          main_category_count: mainCategoryCount,
-          sub_category_count: subCategoryCount,
-          category_count: categoryCount,
+          categories: result.data,
+          main_category_count: result.mainCategoryCount,
+          sub_category_count: result.subCategoryCount,
+          category_count: result.categoryCount,
         },
         statusCode: 200,
       });

@@ -17,8 +17,22 @@ export default class CategoryController {
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort } = req.query;
-    const response = await this.service.getList(limit, offset, filter, sort);
+    const {
+      limit,
+      offset,
+      filter,
+      main_category_order,
+      sub_category_order,
+      category_order,
+    } = req.query;
+    const response = await this.service.getList(
+      limit,
+      offset,
+      filter,
+      main_category_order,
+      sub_category_order,
+      category_order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {

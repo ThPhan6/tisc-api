@@ -24,7 +24,7 @@ export default class CategoryRoute implements IRoute {
             validate: validate.create,
             description: "Method that create category",
             tags: ["api", "Category"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -38,10 +38,10 @@ export default class CategoryRoute implements IRoute {
           path: ROUTES.GET_LIST_CATEGORY,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: validate.getListWithMultipleSort,
             description: "Method that get categories",
             tags: ["api", "Category"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -58,7 +58,7 @@ export default class CategoryRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that get category",
             tags: ["api", "Category"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -75,7 +75,7 @@ export default class CategoryRoute implements IRoute {
             validate: validate.update,
             description: "Method that update category",
             tags: ["api", "Category"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -92,7 +92,7 @@ export default class CategoryRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that delete category",
             tags: ["api", "Category"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
