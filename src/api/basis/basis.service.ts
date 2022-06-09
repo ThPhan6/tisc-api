@@ -80,14 +80,11 @@ export default class BasisService {
       }
 
       let isCheckedSubsDuplicate = false;
-      for (let index = 0; index < payload.subs.length; index++) {
-        if (
-          payload.subs[index].name_1 === payload.subs[index].name_2 ||
-          payload.subs[index].unit_1 === payload.subs[index].unit_2
-        ) {
+      payload.subs.forEach((item) => {
+        if (item.name_1 === item.name_2 || item.unit_1 === item.unit_2) {
           isCheckedSubsDuplicate = true;
         }
-      }
+      });
 
       if (isCheckedSubsDuplicate) {
         return resolve({
@@ -233,14 +230,11 @@ export default class BasisService {
       }
 
       let isCheckedSubsDuplicate = false;
-      for (let index = 0; index < payload.subs.length; index++) {
-        if (
-          payload.subs[index].name_1 === payload.subs[index].name_2 ||
-          payload.subs[index].unit_1 === payload.subs[index].unit_2
-        ) {
+      payload.subs.forEach((item) => {
+        if (item.name_1 === item.name_2 || item.unit_1 === item.unit_2) {
           isCheckedSubsDuplicate = true;
         }
-      }
+      });
 
       if (isCheckedSubsDuplicate) {
         return resolve({
