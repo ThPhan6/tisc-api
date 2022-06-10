@@ -73,7 +73,7 @@ export default class BasisService {
 
       if (conversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_GROUP_CONVERSION,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
           statusCode: 400,
         });
       }
@@ -104,19 +104,19 @@ export default class BasisService {
         };
       });
 
-      const createdBasisConverion = await this.basisModel.create({
+      const createdBasisConversion = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
         type: BASIS_TYPES.CONVERSION,
         subs: conversions,
       });
-      if (!createdBasisConverion) {
+      if (!createdBasisConversion) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
           statusCode: 400,
         });
       }
-      const { type, is_deleted, ...rest } = createdBasisConverion;
+      const { type, is_deleted, ...rest } = createdBasisConversion;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -141,7 +141,7 @@ export default class BasisService {
         },
         ["name", conversion_group_order]
       );
-      let returnedConverionGroups = conversionGroups.map(
+      let returnedConversionGroups = conversionGroups.map(
         (item: IBasisAttributes) => {
           const { type, is_deleted, ...rest } = {
             ...item,
@@ -150,7 +150,7 @@ export default class BasisService {
           return { ...rest, count: item.subs.length };
         }
       );
-      returnedConverionGroups = returnedConverionGroups.map(
+      returnedConversionGroups = returnedConversionGroups.map(
         (item: IBasisAttributes) => {
           const subsBasisConversion = item.subs.map((element: any) => {
             return {
@@ -180,10 +180,10 @@ export default class BasisService {
           };
         }
       );
-      const addedCount = this.addCount(returnedConverionGroups);
+      const addedCount = this.addCount(returnedConversionGroups);
       return resolve({
         data: {
-          basis_conversions: returnedConverionGroups,
+          basis_conversions: returnedConversionGroups,
           conversion_group_count: addedCount.totalCount,
           conversion_count: addedCount.subCount,
         },
@@ -243,7 +243,7 @@ export default class BasisService {
       );
       if (duplicatedConversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_GROUP_CONVERSION,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
           statusCode: 400,
         });
       }
@@ -280,20 +280,20 @@ export default class BasisService {
           id: uuid(),
         };
       });
-      const updatedBasisConverison = await this.basisModel.update(id, {
+      const updatedBasisConversion = await this.basisModel.update(id, {
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
         type: BASIS_TYPES.CONVERSION,
         subs: conversions,
       });
 
-      if (!updatedBasisConverison) {
+      if (!updatedBasisConversion) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
-      const { type, is_deleted, ...rest } = updatedBasisConverison;
+      const { type, is_deleted, ...rest } = updatedBasisConversion;
       return resolve({
         data: rest,
         statusCode: 200,
