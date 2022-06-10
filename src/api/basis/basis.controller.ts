@@ -6,6 +6,7 @@ import {
   IUpdateBasisOptionRequest,
   IBasisPresetRequest,
   IUpdateBasisPresetRequest,
+  IBasisConversionUpdateRequest,
 } from "./basis.type";
 export default class BasisController {
   private service: BasisService;
@@ -26,12 +27,19 @@ export default class BasisController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { limit, offset, filter, sort } = req.query;
+    const {
+      limit,
+      offset,
+      filter,
+      conversion_group_order,
+      conversion_between_order,
+    } = req.query;
     const response = await this.service.getBasisConversions(
       limit,
       offset,
       filter,
-      sort
+      conversion_group_order,
+      conversion_between_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -46,7 +54,7 @@ export default class BasisController {
   };
 
   public updateBasisConversion = async (
-    req: Request & { payload: IBasisConversionRequest },
+    req: Request & { payload: IBasisConversionUpdateRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;

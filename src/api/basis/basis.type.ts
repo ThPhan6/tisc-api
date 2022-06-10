@@ -9,6 +9,18 @@ export interface IBasisConversionRequest {
     unit_2: string;
   }[];
 }
+export interface IBasisConversionUpdateRequest {
+  name: string;
+  subs: {
+    id?: string;
+    name_1: string;
+    name_2: string;
+    forumla_1: number;
+    forumla_2: number;
+    unit_1: string;
+    unit_2: string;
+  }[];
+}
 
 export interface IBasisConversionResponse {
   data: {
@@ -33,7 +45,7 @@ export interface IBasisConversionResponse {
 
 export interface IBasisConversionsResponse {
   data: {
-    bases_conversion: {
+    basis_conversions: {
       id: string;
       name: string;
       count: number;

@@ -15,6 +15,7 @@ import {
   IBasisPresetResponse,
   IBasisPresetsResponse,
   IUpdateBasisPresetRequest,
+  IBasisConversionUpdateRequest,
 } from "./basis.type";
 import { v4 as uuid } from "uuid";
 import {
@@ -61,31 +62,36 @@ export default class BasisService {
     };
   };
 
-  private makeSub = (subs: any) => {
-    return subs.map((item: any) => {
-      return {
-        id: uuid(),
-        name_1: item.name_1,
-        name_2: item.name_2,
-        forumla_1: item.forumla_1,
-        forumla_2: item.forumla_2,
-        unit_1: item.unit_1,
-        unit_2: item.unit_2,
-      };
+  private isDuplicatedConversion = (payload: any) => {
+    const conversionBetweenNames = payload.subs.map((item: any) => {
+      return item.name_1 + "-" + item.name_2;
     });
+    const conversionUnitNames = payload.subs.map((item: any) => {
+      return item.unit_1 + "-" + item.unit_2;
+    });
+    const isCheckedConversionBetween = isDuplicatedString(
+      conversionBetweenNames
+    );
+    const isCheckedConversionUnit = isDuplicatedString(conversionUnitNames);
+
+    if (isCheckedConversionBetween || isCheckedConversionUnit) {
+      return true;
+    }
+    return false;
   };
 
   public createBasisConversion = async (
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
     return new Promise(async (resolve) => {
-      const existedBasisConversion = await this.basisModel.findBy({
+      const conversionGroup = await this.basisModel.findBy({
         name: payload.name.toLowerCase(),
+        type: BASIS_TYPES.CONVERSION,
       });
 
-      if (existedBasisConversion) {
+      if (conversionGroup) {
         return resolve({
-          message: MESSAGES.BASIS_CONVERSION_EXISTS,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
           statusCode: 400,
         });
       }
@@ -99,24 +105,43 @@ export default class BasisService {
 
       if (isCheckedSubsDuplicate) {
         return resolve({
-          message: MESSAGES.BASIS_CONVERSION_EXISTS,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
         });
       }
-      const subData = this.makeSub(payload.subs);
-      const result = await this.basisModel.create({
+
+      const isCheckedConversion = this.isDuplicatedConversion(payload);
+      if (isCheckedConversion) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          statusCode: 400,
+        });
+      }
+      const conversions = payload.subs.map((item) => {
+        return {
+          id: uuid(),
+          name_1: item.name_1,
+          name_2: item.name_2,
+          forumla_1: item.forumla_1,
+          forumla_2: item.forumla_2,
+          unit_1: item.unit_1,
+          unit_2: item.unit_2,
+        };
+      });
+
+      const createdBasisConversion = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
         type: BASIS_TYPES.CONVERSION,
-        subs: subData,
+        subs: conversions,
       });
-      if (!result) {
+      if (!createdBasisConversion) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
           statusCode: 400,
         });
       }
-      const { type, is_deleted, ...rest } = result;
+      const { type, is_deleted, ...rest } = createdBasisConversion;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -127,58 +152,65 @@ export default class BasisService {
   public getBasisConversions = async (
     limit: number,
     offset: number,
-    filter?: any,
-    sort?: any
+    filter: any,
+    conversion_group_order: "ASC" | "DESC",
+    conversion_between_order: "ASC" | "DESC"
   ): Promise<IMessageResponse | IBasisConversionsResponse> => {
     return new Promise(async (resolve) => {
-      let basisConversions = await this.basisModel.list(
+      const conversionGroups = await this.basisModel.list(
         limit,
         offset,
-        filter,
-        sort
+        {
+          ...filter,
+          type: BASIS_TYPES.CONVERSION,
+        },
+        ["name", conversion_group_order]
       );
-      if (!basisConversions) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      basisConversions = basisConversions.map((item: IBasisAttributes) => {
-        const { type, is_deleted, ...rest } = item;
-        const subsBasisConversion = item.subs.map((element: any) => {
-          return {
-            ...element,
-            conversion_between: element.name_1 + " - " + element.name_2,
-            first_forumla:
-              element.forumla_1 +
-              " " +
-              element.unit_1 +
-              " = " +
-              1 +
-              " " +
-              element.unit_2,
-            second_forumla:
-              element.forumla_2 +
-              " " +
-              element.unit_2 +
-              " = " +
-              1 +
-              " " +
-              element.unit_2,
+      let returnedConversionGroups = conversionGroups.map(
+        (item: IBasisAttributes) => {
+          const { type, is_deleted, ...rest } = {
+            ...item,
+            subs: sortObjectArray(item.subs, "name", conversion_between_order),
           };
-        });
-
-        return {
-          ...rest,
-          subs: subsBasisConversion,
-        };
-      });
-      const result = this.addCount(basisConversions);
+          return { ...rest, count: item.subs.length };
+        }
+      );
+      returnedConversionGroups = returnedConversionGroups.map(
+        (item: IBasisAttributes) => {
+          const subsBasisConversion = item.subs.map((element: any) => {
+            return {
+              ...element,
+              conversion_between: element.name_1 + " - " + element.name_2,
+              first_forumla:
+                element.forumla_1 +
+                " " +
+                element.unit_1 +
+                " = " +
+                1 +
+                " " +
+                element.unit_2,
+              second_forumla:
+                element.forumla_2 +
+                " " +
+                element.unit_2 +
+                " = " +
+                1 +
+                " " +
+                element.unit_2,
+            };
+          });
+          return {
+            ...item,
+            subs: subsBasisConversion,
+          };
+        }
+      );
+      const addedCount = this.addCount(returnedConversionGroups);
       return resolve({
         data: {
-          bases_conversion: result.data,
-          conversion_group_count: result.totalCount,
-          conversion_count: result.subCount,
+          basis_conversions: returnedConversionGroups,
+          conversion_group_count: addedCount.totalCount,
+          conversion_count: addedCount.subCount,
         },
         statusCode: 200,
       });
@@ -219,7 +251,7 @@ export default class BasisService {
 
   public updateBasisConversion = async (
     id: string,
-    payload: IBasisConversionRequest
+    payload: IBasisConversionUpdateRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
     return new Promise(async (resolve) => {
       const basisConversion = await this.basisModel.find(id);
@@ -229,45 +261,72 @@ export default class BasisService {
           statusCode: 404,
         });
       }
-      const duplicatedBasis = await this.basisModel.getDuplicatedBasis(
+      const duplicatedConversionGroup = await this.basisModel.getExistedBasis(
         id,
-        payload.name
+        payload.name,
+        BASIS_TYPES.CONVERSION
       );
-      if (duplicatedBasis) {
+      if (duplicatedConversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_GROUP_BASIS,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
           statusCode: 400,
         });
       }
 
-      let isCheckedSubsDuplicate = false;
+      let duplicatedConversion = false;
       payload.subs.forEach((item) => {
         if (item.name_1 === item.name_2 || item.unit_1 === item.unit_2) {
-          isCheckedSubsDuplicate = true;
+          duplicatedConversion = true;
         }
       });
 
-      if (isCheckedSubsDuplicate) {
+      if (duplicatedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASES,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
         });
       }
-      const subData = this.makeSub(payload.subs);
-      const result = await this.basisModel.update(id, {
+
+      const isCheckedConversion = this.isDuplicatedConversion(payload);
+      if (isCheckedConversion) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          statusCode: 400,
+        });
+      }
+
+      const conversions = payload.subs.map((item) => {
+        let found = false;
+        if (item.id) {
+          const foundItem = basisConversion.subs.find(
+            (sub: any) => sub.id === item.id
+          );
+          if (foundItem) {
+            found = true;
+          }
+        }
+        if (found) {
+          return item;
+        }
+        return {
+          ...item,
+          id: uuid(),
+        };
+      });
+      const updatedBasisConversion = await this.basisModel.update(id, {
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
         type: BASIS_TYPES.CONVERSION,
-        subs: subData,
+        subs: conversions,
       });
 
-      if (!result) {
+      if (!updatedBasisConversion) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
-      const { type, is_deleted, ...rest } = result;
+      const { type, is_deleted, ...rest } = updatedBasisConversion;
       return resolve({
         data: rest,
         statusCode: 200,

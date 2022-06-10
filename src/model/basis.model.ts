@@ -22,18 +22,6 @@ export default class BasisModel extends Model<IBasisAttributes> {
   constructor() {
     super("bases");
   }
-  public getDuplicatedBasis = async (id: string, name: string) => {
-    try {
-      const result: any = await this.builder
-        .whereNot("id", id)
-        .where("name", name.toLowerCase())
-        .first();
-      return result;
-    } catch (error) {
-      return false;
-    }
-  };
-
   public getExistedBasis = async (id: string, name: string, type: number) => {
     try {
       const result: any = await this.builder

@@ -38,7 +38,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_LIST_BASIS_CONVERSION,
           options: {
             handler: controller.getBasisConversions,
-            validate: commonValidate.getList,
+            validate: validate.getListBasisConversion,
             description: "Method that get basis conversions",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
