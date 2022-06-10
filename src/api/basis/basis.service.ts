@@ -69,10 +69,12 @@ export default class BasisService {
     const conversionUnitNames = payload.subs.map((item: any) => {
       return item.unit_1 + "-" + item.unit_2;
     });
-    const isDuplicatedConversion = isDuplicatedString(conversionBetweenNames);
-    const isDuplicatedUnit = isDuplicatedString(conversionUnitNames);
+    const isCheckedConversionBetween = isDuplicatedString(
+      conversionBetweenNames
+    );
+    const isCheckedConversionUnit = isDuplicatedString(conversionUnitNames);
 
-    if (isDuplicatedConversion && isDuplicatedUnit) {
+    if (isCheckedConversionBetween || isCheckedConversionUnit) {
       return true;
     }
     return false;
@@ -108,8 +110,8 @@ export default class BasisService {
         });
       }
 
-      const isDuplicatedConversion = this.isDuplicatedConversion(payload);
-      if (isDuplicatedConversion) {
+      const isCheckedConversion = this.isDuplicatedConversion(payload);
+      if (isCheckedConversion) {
         return resolve({
           message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
@@ -285,8 +287,8 @@ export default class BasisService {
         });
       }
 
-      const isDuplicatedConversion = this.isDuplicatedConversion(payload);
-      if (isDuplicatedConversion) {
+      const isCheckedConversion = this.isDuplicatedConversion(payload);
+      if (isCheckedConversion) {
         return resolve({
           message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
