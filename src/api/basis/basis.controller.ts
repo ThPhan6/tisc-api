@@ -6,6 +6,7 @@ import {
   IUpdateBasisOptionRequest,
   IBasisPresetRequest,
   IUpdateBasisPresetRequest,
+  IBasisConversionUpdateRequest,
 } from "./basis.type";
 export default class BasisController {
   private service: BasisService;
@@ -53,7 +54,7 @@ export default class BasisController {
   };
 
   public updateBasisConversion = async (
-    req: Request & { payload: IBasisConversionRequest },
+    req: Request & { payload: IBasisConversionUpdateRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
@@ -62,12 +63,9 @@ export default class BasisController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public deleteBasisConversion = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
+  public deleteBasis = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.deleteBasisConversion(id);
+    const response = await this.service.deleteBasis(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

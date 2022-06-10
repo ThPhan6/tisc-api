@@ -1,4 +1,3 @@
-import { BASIS_TYPES } from "./../../constant/common.constant";
 import * as Joi from "joi";
 const customFilter = (value: any, helpers: any) => {
   try {

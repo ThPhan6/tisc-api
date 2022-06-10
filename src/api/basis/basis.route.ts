@@ -88,7 +88,7 @@ export default class BasisRoute implements IRoute {
           method: "DELETE",
           path: ROUTES.DELETE_BASIS_CONVERSION,
           options: {
-            handler: controller.deleteBasisConversion,
+            handler: controller.deleteBasis,
             validate: commonValidate.getOne,
             description: "Method that delete basis conversion",
             tags: ["api", "Basis conversion"],
@@ -173,7 +173,7 @@ export default class BasisRoute implements IRoute {
           method: "DELETE",
           path: ROUTES.DELETE_BASIS_OPTION,
           options: {
-            handler: controller.deleteBasisConversion,
+            handler: controller.deleteBasis,
             validate: commonValidate.getOne,
             description: "Method that delete basis option",
             tags: ["api", "Basis option"],

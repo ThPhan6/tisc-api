@@ -15,6 +15,7 @@ import {
   IBasisPresetResponse,
   IBasisPresetsResponse,
   IUpdateBasisPresetRequest,
+  IBasisConversionUpdateRequest,
 } from "./basis.type";
 import { v4 as uuid } from "uuid";
 import {
@@ -65,14 +66,14 @@ export default class BasisService {
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
     return new Promise(async (resolve) => {
-      const basisConversion = await this.basisModel.findBy({
+      const conversionGroup = await this.basisModel.findBy({
         name: payload.name.toLowerCase(),
         type: BASIS_TYPES.CONVERSION,
       });
 
-      if (basisConversion) {
+      if (conversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_GROUP_BASIS,
+          message: MESSAGES.DUPLICATED_BASIS_GROUP_CONVERSION,
           statusCode: 400,
         });
       }
@@ -86,7 +87,7 @@ export default class BasisService {
 
       if (isCheckedSubsDuplicate) {
         return resolve({
-          message: MESSAGES.DUPLICATED_CONVERSION,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
         });
       }
@@ -225,7 +226,7 @@ export default class BasisService {
 
   public updateBasisConversion = async (
     id: string,
-    payload: IBasisConversionRequest
+    payload: IBasisConversionUpdateRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
     return new Promise(async (resolve) => {
       const basisConversion = await this.basisModel.find(id);
@@ -235,11 +236,14 @@ export default class BasisService {
           statusCode: 404,
         });
       }
-      const duplicatedConversionGroup =
-        await this.basisModel.getDuplicatedBasis(id, payload.name);
+      const duplicatedConversionGroup = await this.basisModel.getExistedBasis(
+        id,
+        payload.name,
+        BASIS_TYPES.CONVERSION
+      );
       if (duplicatedConversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_GROUP_BASIS,
+          message: MESSAGES.DUPLICATED_BASIS_GROUP_CONVERSION,
           statusCode: 400,
         });
       }
@@ -253,7 +257,7 @@ export default class BasisService {
 
       if (duplicatedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_CONVERSION,
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
         });
       }
@@ -297,14 +301,12 @@ export default class BasisService {
     });
   };
 
-  public deleteBasisConversion = async (
-    id: string
-  ): Promise<IMessageResponse> => {
+  public deleteBasis = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const basisConversion = await this.basisModel.find(id);
       if (!basisConversion) {
         return resolve({
-          message: MESSAGES.BASIS_CONVERSION_NOT_FOUND,
+          message: MESSAGES.BASIS_NOT_FOUND,
           statusCode: 404,
         });
       }
