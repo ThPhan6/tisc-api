@@ -20,15 +20,6 @@ export interface ICategoryResponse {
   };
   statusCode: number;
 }
-export interface ICategoryResponse {
-  data: {
-    id: string;
-    name: string;
-    subs: any;
-    created_at: string;
-  };
-  statusCode: number;
-}
 export interface ICategoriesResponse {
   data: {
     categories: {

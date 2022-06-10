@@ -13,4 +13,16 @@ export default class CategoryModel extends Model<ICategoryAttributes> {
   constructor() {
     super("categories");
   }
+
+  public getDuplicatedCategory = async (id: string, name: string) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", id)
+        .where("name", name.toLowerCase())
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

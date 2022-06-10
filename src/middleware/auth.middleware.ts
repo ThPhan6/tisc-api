@@ -4,7 +4,6 @@ import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
 import UserModel from "../model/user.model";
 import PermissionModel from "../model/permission.model";
-import PermissionDetailModel from "../model/permission_detail.model";
 import {
   verifyAdminToken,
   verifyBrandAdminToken,
@@ -15,7 +14,6 @@ import {
 } from "../helper/jwt.helper";
 const userModel = new UserModel();
 const permissionModel = new PermissionModel();
-const permissionDetailModel = new PermissionDetailModel();
 export default class AuthMiddleware {
   public static registration = (server: Server) => {
     server.auth.scheme(AUTH_NAMES.GENERAL, (_server: Server) => {
@@ -117,26 +115,14 @@ export default class AuthMiddleware {
           if (!permissions) {
             throw Boom.unauthorized("Not found permissions");
           }
-          const permissionIds = permissions.map((item: any) => {
-            return item.id;
-          });
-          const permissionDetail =
-            await permissionDetailModel.getPermissionDetailByRoute(
-              permissionIds,
-              request.route.path
+          const permission = permissions.find((item: any) => {
+            const foundRoute = item.routes.find(
+              (route: string) => route === request.route.path
             );
-
-          if (!permissionDetail) {
-            throw Boom.unauthorized("Not found permission detail");
-          }
-          const permission = permissions.find(
-            (item: any) => item.id === permissionDetail.permission_id
-          );
-          if (
-            permission &&
-            permission.accessable === true &&
-            permissionDetail
-          ) {
+            if (foundRoute) return true;
+            return false;
+          });
+          if (permission && permission.accessable === true) {
             return h.authenticated({
               credentials: { user_id: decoded.user_id },
             });

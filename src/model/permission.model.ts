@@ -2,6 +2,7 @@ import Model from "./index";
 
 export interface IPermissionAttributes {
   id: string;
+  routes: string[]
   role_id: string;
   type: number;
   relation_id: string | null;
@@ -15,6 +16,7 @@ export interface IPermissionAttributes {
 }
 export const PERMISSION_NULL_ATTRIBUTES = {
   id: null,
+  routes: [],
   role_id: null,
   type: null,
   relation_id: null,

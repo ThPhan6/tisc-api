@@ -1,4 +1,5 @@
 import {
+  BASIS_TYPES,
   LONG_TEXT_ID,
   MESSAGES,
   SHORT_TEXT_ID,
@@ -20,11 +21,14 @@ import {
   isDuplicatedString,
   sortObjectArray,
 } from "../../helper/common.helper";
+import BasisModel, { IBasisAttributes } from "../../model/basis.model";
 
 export default class AttributeService {
   private attributeModel: AttributeModel;
+  private basisModel: BasisModel;
   constructor() {
     this.attributeModel = new AttributeModel();
+    this.basisModel = new BasisModel();
   }
   private countAttribute = (attributes: IAttributeAttributes[]) => {
     return attributes.reduce((pre, cur) => {
@@ -262,6 +266,66 @@ export default class AttributeService {
 
   public getListContentType = (): Promise<IContentTypesResponse> => {
     return new Promise(async (resolve) => {
+      const conversionGroups = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.CONVERSION
+      );
+      const returnedConversionGroups = conversionGroups.map(
+        (conversionGroup: IBasisAttributes) => {
+          const conversions = conversionGroup.subs.map((conversion: any) => {
+            return {
+              id: conversion.id,
+              name_1: conversion.name_1,
+              name_2: conversion.name_2,
+            };
+          });
+          return {
+            id: conversionGroup.id,
+            name: conversionGroup.name,
+            count: conversionGroup.subs.length,
+            subs: conversions,
+          };
+        }
+      );
+      const presetGroups = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.PRESET
+      );
+      const returnedPresetGroups = presetGroups.map(
+        (presetGroup: IBasisAttributes) => {
+          const presets = presetGroup.subs.map((preset: any) => {
+            return {
+              id: preset.id,
+              name: preset.name,
+              count: preset.subs.length,
+            };
+          });
+          return {
+            id: presetGroup.id,
+            name: presetGroup.name,
+            count: presets.length,
+            subs: presets,
+          };
+        }
+      );
+      const optionGroups = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.OPTION
+      );
+      const returnedOptionGroups = optionGroups.map(
+        (optionGroup: IBasisAttributes) => {
+          const options = optionGroup.subs.map((option: any) => {
+            return {
+              id: option.id,
+              name: option.name,
+              count: option.subs.length,
+            };
+          });
+          return {
+            id: optionGroup.id,
+            name: optionGroup.name,
+            count: options.length,
+            subs: options,
+          };
+        }
+      );
       const data = {
         texts: [
           {
@@ -273,9 +337,9 @@ export default class AttributeService {
             name: "Short Format",
           },
         ],
-        conversions: [],
-        presets: [],
-        options: [],
+        conversions: returnedConversionGroups,
+        presets: returnedPresetGroups,
+        options: returnedOptionGroups,
       };
       return resolve({
         data,

@@ -45,9 +45,10 @@ export default {
   },
   updateMe: {
     payload: {
-      backup_email: Joi.string(),
-      personal_mobile: Joi.string(),
-      linkedin: Joi.string(),
+      backup_email: Joi.string().allow(""),
+      personal_mobile: Joi.string().allow(""),
+      zone_code: Joi.string().allow(""),
+      linkedin: Joi.string().allow(""),
     },
   },
   updateAvatar: {

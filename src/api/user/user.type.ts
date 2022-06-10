@@ -16,6 +16,7 @@ export interface IUserRequest {
 export interface IUpdateMeRequest {
   backup_email?: string;
   personal_mobile?: string;
+  zone_code?: string;
   linkedin?: string;
 }
 

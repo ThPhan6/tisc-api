@@ -5,6 +5,7 @@ const uuid = require("uuid").v4;
 const ROLES = require("./constant").ROLES;
 const PERMISSION_TITLE = require("./constant").PERMISSION_TITLE;
 const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
+const ROUTES = require("./constant").ROUTES;
 dotenv.config();
 
 const db = new Database({
@@ -21,6 +22,7 @@ const seed = async () => {
     const records = [
       {
         id: uuid(),
+        routes: [ROUTES.GET_LIST_WORKSPACE],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -34,6 +36,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -47,6 +50,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_BRAND,
+          ROUTES.GET_ONE_BRAND,
+          ROUTES.GET_LIST_BRAND_BY_ALPHABET,
+          ROUTES.UPDATE_BRAND,
+          ROUTES.SEND_EMAIL_INVITE_BRAND,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -60,6 +70,11 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.UPDATE_DESIGN_FIRM,
+          ROUTES.GET_ONE_DESIGN_FIRM,
+          ROUTES.GET_LIST_DESIGN_FIRM,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -73,6 +88,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -86,6 +102,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [ROUTES.GET_LIST_PROJECT, ROUTES.GET_ONE_PROJECT],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -99,6 +116,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -112,6 +130,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_CATEGORY,
+          ROUTES.CREATE_CATEGORY,
+          ROUTES.EDIT_CATEGORY,
+          ROUTES.DELETE_CATEGORY,
+          ROUTES.GET_ONE_CATEGORY,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -125,6 +150,23 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_BASIS_CONVERSION,
+          ROUTES.EDIT_BASIS_CONVERSION,
+          ROUTES.CREATE_BASIS_CONVERSION,
+          ROUTES.DELETE_BASIS_CONVERSION,
+          ROUTES.GET_ONE_BASIS_CONVERSION,
+          ROUTES.GET_LIST_BASIS_PRESET,
+          ROUTES.EDIT_BASIS_PRESET,
+          ROUTES.CREATE_BASIS_PRESET,
+          ROUTES.DELETE_BASIS_PRESET,
+          ROUTES.GET_ONE_BASIS_PRESET,
+          ROUTES.GET_LIST_BASIS_OPTION,
+          ROUTES.EDIT_BASIS_OPTION,
+          ROUTES.CREATE_BASIS_OPTION,
+          ROUTES.DELETE_BASIS_OPTION,
+          ROUTES.GET_ONE_BASIS_OPTION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -138,6 +180,14 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_ATTRIBUTE,
+          ROUTES.CREATE_ATTRIBUTE,
+          ROUTES.DELETE_ATTRIBUTE,
+          ROUTES.GET_ONE_ATTRIBUTE,
+          ROUTES.GET_LIST_ATTRIBUTE,
+          ROUTES.GET_LIST_CONTENT_TYPE,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -151,6 +201,15 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_BRAND_BY_ALPHABET,
+          ROUTES.CREATE_PRODUCT,
+          ROUTES.UPDATE_PRODUCT,
+          ROUTES.GET_ONE_PRODUCT,
+          ROUTES.GET_LIST_PRODUCT,
+          ROUTES.CREATE_COLLECTION,
+          ROUTES.GET_LIST_COLLECTION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -164,6 +223,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -177,6 +237,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_DOCUMENTATION,
+          ROUTES.DELETE_DOCUMENTATION,
+          ROUTES.CREATE_DOCUMENTATION,
+          ROUTES.GET_ONE_DOCUMENTATION,
+          ROUTES.GET_LIST_DOCUMENTATION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -190,6 +257,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_LOCATION,
+          ROUTES.DELETE_LOCATION,
+          ROUTES.CREATE_LOCATION,
+          ROUTES.GET_ONE_LOCATION,
+          ROUTES.GET_LIST_LOCATION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -203,6 +277,16 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_TEAM_PROFILE,
+          ROUTES.CREATE_TEAM_PROFILE,
+          ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.GET_ONE_TEAM_PROFILE,
+          ROUTES.GET_LIST_TEAM_PROFILE,
+          ROUTES.SEND_INVITE_TEAM_PROFILE,
+          ROUTES.GET_LIST_PERMISSION,
+          ROUTES.OPEN_CLOSE_PERMISSION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -216,6 +300,18 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_EMAIL_AUTO,
+          ROUTES.GET_ONE_EMAIL_AUTO,
+          ROUTES.CREATE_EMAIL_AUTO,
+          ROUTES.EDIT_EMAIL_AUTO,
+          ROUTES.DELETE_EMAIL_AUTO,
+          ROUTES.GET_LIST_QUOTATION,
+          ROUTES.GET_ONE_QUOTATION,
+          ROUTES.CREATE_QUOTATION,
+          ROUTES.EDIT_QUOTATION,
+          ROUTES.DELETE_QUOTATION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -229,6 +325,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_SERVICE,
+          ROUTES.GET_ONE_SERVICE,
+          ROUTES.CREATE_SERVICE,
+          ROUTES.GET_LIST_SUBSCRIPTION,
+          ROUTES.GET_ONE_SUBSCRIPTION,
+        ],
         role_id: ROLES.TISC_ADMIN,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -243,6 +346,7 @@ const seed = async () => {
       //consultant team
       {
         id: uuid(),
+        routes: [ROUTES.GET_LIST_WORKSPACE],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -256,6 +360,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -269,6 +374,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_BRAND,
+          ROUTES.GET_ONE_BRAND,
+          ROUTES.GET_LIST_BRAND_BY_ALPHABET,
+          ROUTES.UPDATE_BRAND,
+          ROUTES.SEND_EMAIL_INVITE_BRAND,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -282,6 +394,11 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.UPDATE_DESIGN_FIRM,
+          ROUTES.GET_ONE_DESIGN_FIRM,
+          ROUTES.GET_LIST_DESIGN_FIRM,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -295,6 +412,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -308,6 +426,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [ROUTES.GET_LIST_PROJECT, ROUTES.GET_ONE_PROJECT],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -321,6 +440,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -334,6 +454,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_CATEGORY,
+          ROUTES.CREATE_CATEGORY,
+          ROUTES.EDIT_CATEGORY,
+          ROUTES.DELETE_CATEGORY,
+          ROUTES.GET_ONE_CATEGORY,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -347,6 +474,23 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_BASIS_CONVERSION,
+          ROUTES.EDIT_BASIS_CONVERSION,
+          ROUTES.CREATE_BASIS_CONVERSION,
+          ROUTES.DELETE_BASIS_CONVERSION,
+          ROUTES.GET_ONE_BASIS_CONVERSION,
+          ROUTES.GET_LIST_BASIS_PRESET,
+          ROUTES.EDIT_BASIS_PRESET,
+          ROUTES.CREATE_BASIS_PRESET,
+          ROUTES.DELETE_BASIS_PRESET,
+          ROUTES.GET_ONE_BASIS_PRESET,
+          ROUTES.GET_LIST_BASIS_OPTION,
+          ROUTES.EDIT_BASIS_OPTION,
+          ROUTES.CREATE_BASIS_OPTION,
+          ROUTES.DELETE_BASIS_OPTION,
+          ROUTES.GET_ONE_BASIS_OPTION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -360,6 +504,14 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_ATTRIBUTE,
+          ROUTES.CREATE_ATTRIBUTE,
+          ROUTES.DELETE_ATTRIBUTE,
+          ROUTES.GET_ONE_ATTRIBUTE,
+          ROUTES.GET_LIST_ATTRIBUTE,
+          ROUTES.GET_LIST_CONTENT_TYPE,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -373,6 +525,15 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_BRAND_BY_ALPHABET,
+          ROUTES.CREATE_PRODUCT,
+          ROUTES.UPDATE_PRODUCT,
+          ROUTES.GET_ONE_PRODUCT,
+          ROUTES.GET_LIST_PRODUCT,
+          ROUTES.CREATE_COLLECTION,
+          ROUTES.GET_LIST_COLLECTION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -386,6 +547,7 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -399,6 +561,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_DOCUMENTATION,
+          ROUTES.DELETE_DOCUMENTATION,
+          ROUTES.CREATE_DOCUMENTATION,
+          ROUTES.GET_ONE_DOCUMENTATION,
+          ROUTES.GET_LIST_DOCUMENTATION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -412,6 +581,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_LOCATION,
+          ROUTES.DELETE_LOCATION,
+          ROUTES.CREATE_LOCATION,
+          ROUTES.GET_ONE_LOCATION,
+          ROUTES.GET_LIST_LOCATION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -425,6 +601,16 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.EDIT_TEAM_PROFILE,
+          ROUTES.CREATE_TEAM_PROFILE,
+          ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.GET_ONE_TEAM_PROFILE,
+          ROUTES.GET_LIST_TEAM_PROFILE,
+          ROUTES.SEND_INVITE_TEAM_PROFILE,
+          ROUTES.GET_LIST_PERMISSION,
+          ROUTES.OPEN_CLOSE_PERMISSION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -438,6 +624,18 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_EMAIL_AUTO,
+          ROUTES.GET_ONE_EMAIL_AUTO,
+          ROUTES.CREATE_EMAIL_AUTO,
+          ROUTES.EDIT_EMAIL_AUTO,
+          ROUTES.DELETE_EMAIL_AUTO,
+          ROUTES.GET_LIST_QUOTATION,
+          ROUTES.GET_ONE_QUOTATION,
+          ROUTES.CREATE_QUOTATION,
+          ROUTES.EDIT_QUOTATION,
+          ROUTES.DELETE_QUOTATION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,
@@ -451,6 +649,13 @@ const seed = async () => {
       },
       {
         id: uuid(),
+        routes: [
+          ROUTES.GET_LIST_SERVICE,
+          ROUTES.GET_ONE_SERVICE,
+          ROUTES.CREATE_SERVICE,
+          ROUTES.GET_LIST_SUBSCRIPTION,
+          ROUTES.GET_ONE_SUBSCRIPTION,
+        ],
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         type: SYSTEM_TYPE.TISC,
         relation_id: null,

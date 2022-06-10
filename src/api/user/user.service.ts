@@ -205,7 +205,12 @@ export default class UserService {
           statusCode: 404,
         });
       }
-      const updatedUser = await this.userModel.update(user_id, payload);
+      const updatedUser = await this.userModel.update(user_id, {
+        backup_email: payload.backup_email,
+        personal_mobile:
+          (payload.zone_code || "") + " " + payload.personal_mobile,
+        linkedin: payload.linkedin,
+      });
       if (!updatedUser) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,

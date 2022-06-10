@@ -77,8 +77,10 @@ export const MESSAGES = {
   PRODUCT_EXISTS: "Product exists.",
   ATTRIBUTE_EXISTS: "Attribute exists.",
   BASIS_OPTION_EXISTS: "Basis option exists.",
+  BASIS_PRESET_EXISTS: "Basis preset exists.",
   DUPLICATED_ATTRIBUTE: "Duplicated attributes.",
   DUPLICATED_BASIS_OPTION: "Duplicated basis option names.",
+  DUPLICATED_BASIS_PRESET: "Duplicated basis preset names.",
   DUPLICATED_GROUP_ATTRIBUTE: "Duplicated group attributes.",
   NOT_FOUND_ATTRIBUTE: "Not found attributes.",
   BASIS_CONVERSION_EXISTS: "Basis conversion exists",
@@ -86,6 +88,10 @@ export const MESSAGES = {
   BASIS_NOT_FOUND: "Basis not found",
   DUPLICATED_GROUP_BASIS: "Duplicated group basis.",
   DUPLICATED_CONVERSION: "Duplicated conversion.",
+  DUPLICATED_BASES: "Duplicated bases.",
+  DUPLICATED_CATEGORY: "Duplicated category",
+  DUPLICATED_SUB_CATEGORY: "Duplicated sub category",
+  DUPLICATED_MAIN_CATEGORY: "Duplicated main category",
 };
 
 export const BASIS_TYPES = {

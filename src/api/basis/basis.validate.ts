@@ -1,3 +1,4 @@
+import { BASIS_TYPES } from "./../../constant/common.constant";
 import * as Joi from "joi";
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -170,6 +171,117 @@ export default {
         filter: value.filter,
         group_order: value.group_order ? value.group_order : "ASC",
         option_order: value.option_order ? value.option_order : "ASC",
+      };
+    }),
+  } as any,
+
+  createBasisPreset: {
+    payload: {
+      name: Joi.string().required().messages({
+        "string.empty": "Group name can not be empty",
+        "any.required": "Group name can not be empty",
+      }),
+      subs: Joi.array()
+        .items({
+          name: Joi.string().required().messages({
+            "string.empty": "Preset name can not be empty",
+            "any.required": "Preset name can not be empty",
+          }),
+          subs: Joi.array()
+            .items({
+              image: Joi.any(),
+              value_1: Joi.string(),
+              value_2: Joi.string(),
+              unit_1: Joi.string(),
+              unit_2: Joi.string(),
+            })
+            .required()
+            .messages({
+              "string.empty": "Values can not be empty",
+              "any.required": "Values can not be empty",
+            }),
+        })
+        .required()
+        .messages({
+          "string.empty": "Presets can not be empty",
+          "any.required": "Presets can not be empty",
+        }),
+    },
+  },
+  updateBasisPreset: {
+    payload: {
+      name: Joi.string().required().messages({
+        "string.empty": "Group name can not be empty",
+        "any.required": "Group name can not be empty",
+      }),
+      subs: Joi.array()
+        .items({
+          id: Joi.string(),
+          name: Joi.string().required().messages({
+            "string.empty": "Preset name can not be empty",
+            "any.required": "Preset name can not be empty",
+          }),
+          subs: Joi.array()
+            .items({
+              id: Joi.string(),
+              image: Joi.any(),
+              value_1: Joi.string(),
+              value_2: Joi.string(),
+              unit_1: Joi.string(),
+              unit_2: Joi.string(),
+            })
+            .required()
+            .messages({
+              "string.empty": "Values can not be empty",
+              "any.required": "Values can not be empty",
+            }),
+        })
+        .required()
+        .messages({
+          "string.empty": "Presets can not be empty",
+          "any.required": "Presets can not be empty",
+        }),
+    },
+  },
+  getListBasisPreset: {
+    query: Joi.object({
+      page: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .messages({
+          "any.invalid": "Page must be an integer",
+        }),
+      pageSize: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .messages({
+          "any.invalid": "Page Size must be an integer",
+        }),
+      filter: Joi.string()
+        .custom((value, helpers) => {
+          return customFilter(value, helpers);
+        }, "custom filter validation")
+        .messages({
+          "any.invalid": "Invalid filter",
+        }),
+      group_order: Joi.string().valid("ASC", "DESC"),
+      preset_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
+        offset:
+          !value.page || !value.pageSize
+            ? 0
+            : (value.page - 1) * value.pageSize,
+        filter: value.filter,
+        group_order: value.group_order ? value.group_order : "ASC",
+        preset_order: value.preset_order ? value.preset_order : "ASC",
       };
     }),
   } as any,

@@ -4,6 +4,8 @@ import {
   IBasisConversionRequest,
   IBasisOptionRequest,
   IUpdateBasisOptionRequest,
+  IBasisPresetRequest,
+  IUpdateBasisPresetRequest,
 } from "./basis.type";
 export default class BasisController {
   private service: BasisService;
@@ -103,6 +105,43 @@ export default class BasisController {
     const payload = req.payload;
     const { id } = req.params;
     const response = await this.service.updateBasisOption(id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public createBasisPreset = async (
+    req: Request & { payload: IBasisPresetRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.service.createBasisPreset(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getBasisPreset = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.getBasisPreset(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getListBasisPreset = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { limit, offset, filter, group_order, preset_order } = req.query;
+    const response = await this.service.getListBasisPreset(
+      limit,
+      offset,
+      filter,
+      group_order,
+      preset_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public updateBasisPreset = async (
+    req: Request & { payload: IUpdateBasisPresetRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const { id } = req.params;
+    const response = await this.service.updateBasisPreset(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

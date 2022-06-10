@@ -5,7 +5,7 @@ import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-import BrandResponse from "./brand.response";
+import response from "./brand.response";
 
 export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -25,7 +25,23 @@ export default class BrandRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: BrandResponse.getList,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_BRAND_BY_ALPHABET,
+          options: {
+            handler: controller.getAllByAlphabet,
+            description: "Method that get list brand by alphabet",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getAllByAlphabet,
               },
             },
           },
@@ -42,7 +58,7 @@ export default class BrandRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: BrandResponse.getOne,
+                200: response.getOne,
               },
             },
           },
