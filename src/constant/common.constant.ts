@@ -85,7 +85,7 @@ export const MESSAGES = {
   BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
   BASIS_NOT_FOUND: "Basis not found",
   DUPLICATED_GROUP_BASIS: "Duplicated group basis.",
-  DUPLICATED_BASES: "Duplicated bases.",
+  DUPLICATED_CONVERSION: "Duplicated conversion.",
 };
 
 export const BASIS_TYPES = {

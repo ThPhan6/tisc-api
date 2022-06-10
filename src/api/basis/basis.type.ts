@@ -1,6 +1,7 @@
 export interface IBasisConversionRequest {
   name: string;
   subs: {
+    id?: string;
     name_1: string;
     name_2: string;
     forumla_1: number;

@@ -60,9 +60,12 @@ export default class BasisController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public deleteBasis = async (req: Request, toolkit: ResponseToolkit) => {
+  public deleteBasisConversion = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
     const { id } = req.params;
-    const response = await this.service.deleteBasis(id);
+    const response = await this.service.deleteBasisConversion(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -210,9 +210,11 @@ export default {
             ? 0
             : (value.page - 1) * value.pageSize,
         filter: value.filter,
-        conversion_group_order: value.group_order ? value.group_order : "ASC",
-        conversion_between_order: value.option_order
-          ? value.option_order
+        conversion_group_order: value.conversion_group_order
+          ? value.conversion_group_order
+          : "ASC",
+        conversion_between_order: value.conversion_between_order
+          ? value.conversion_between_order
           : "ASC",
       };
     }),
