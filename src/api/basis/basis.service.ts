@@ -62,6 +62,22 @@ export default class BasisService {
     };
   };
 
+  private isDuplicatedConversion = (payload: any) => {
+    const conversionBetweenNames = payload.subs.map((item: any) => {
+      return item.name_1 + "-" + item.name_2;
+    });
+    const conversionUnitNames = payload.subs.map((item: any) => {
+      return item.unit_1 + "-" + item.unit_2;
+    });
+    const isDuplicatedConversion = isDuplicatedString(conversionBetweenNames);
+    const isDuplicatedUnit = isDuplicatedString(conversionUnitNames);
+
+    if (isDuplicatedConversion && isDuplicatedUnit) {
+      return true;
+    }
+    return false;
+  };
+
   public createBasisConversion = async (
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
@@ -92,6 +108,13 @@ export default class BasisService {
         });
       }
 
+      const isDuplicatedConversion = this.isDuplicatedConversion(payload);
+      if (isDuplicatedConversion) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          statusCode: 400,
+        });
+      }
       const conversions = payload.subs.map((item) => {
         return {
           id: uuid(),
@@ -256,6 +279,14 @@ export default class BasisService {
       });
 
       if (duplicatedConversion) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          statusCode: 400,
+        });
+      }
+
+      const isDuplicatedConversion = this.isDuplicatedConversion(payload);
+      if (isDuplicatedConversion) {
         return resolve({
           message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
           statusCode: 400,
