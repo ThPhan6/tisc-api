@@ -12,7 +12,7 @@ export interface IBasisConversionRequest {
 export interface IBasisConversionUpdateRequest {
   name: string;
   subs: {
-    id: string;
+    id?: string;
     name_1: string;
     name_2: string;
     forumla_1: number;
