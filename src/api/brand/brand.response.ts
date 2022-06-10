@@ -27,6 +27,19 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  getAllByAlphabet: Joi.object({
+    data: Joi.object({
+      abc: Joi.array().items(Joi.any()),
+      def: Joi.array().items(Joi.any()),
+      ghi: Joi.array().items(Joi.any()),
+      jkl: Joi.array().items(Joi.any()),
+      mno: Joi.array().items(Joi.any()),
+      pqr: Joi.array().items(Joi.any()),
+      stuv: Joi.array().items(Joi.any()),
+      wxyz: Joi.array().items(Joi.any()),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
   getOne: Joi.object({
     data: Joi.any(),
     statusCode: Joi.number(),

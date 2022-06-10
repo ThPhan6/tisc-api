@@ -35,4 +35,15 @@ export default class BrandModel extends Model<IBrandAttributes> {
   constructor() {
     super("brands");
   }
+  public getAllAndSortByName = async () => {
+    try {
+      const result: any = await this.builder
+        .whereNot("is_deleted", true)
+        .orderBy("name", "ASC")
+        .select();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

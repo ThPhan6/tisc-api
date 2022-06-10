@@ -21,4 +21,8 @@ export default class BrandController {
     const response = await this.service.invite(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getAllByAlphabet = async (req: Request, toolkit: ResponseToolkit) => {
+    const response = await this.service.getAllByAlphabet();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
