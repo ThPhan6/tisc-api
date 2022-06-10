@@ -1,4 +1,6 @@
-import PermissionModel from "../../model/permission.model";
+import PermissionModel, {
+  PERMISSION_NULL_ATTRIBUTES,
+} from "../../model/permission.model";
 import UserModel from "../../model/user.model";
 import { ROLES } from "../../constant/user.constant";
 import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
@@ -278,6 +280,7 @@ export default class PermissionService {
       }
       const records = [
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -289,6 +292,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -300,6 +304,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -311,6 +316,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -322,6 +328,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -333,6 +340,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -344,6 +352,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -355,6 +364,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -366,6 +376,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -377,6 +388,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -388,6 +400,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_ADMIN,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -400,6 +413,7 @@ export default class PermissionService {
         },
         //brand team
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -411,6 +425,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -422,6 +437,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -433,6 +449,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -444,6 +461,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -455,6 +473,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -466,6 +485,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -477,6 +497,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -488,6 +509,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -499,6 +521,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -510,6 +533,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.BRAND_TEAM,
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand_id,
@@ -526,70 +550,6 @@ export default class PermissionService {
           await this.permissionModel.create(record);
         })
       );
-      // create permission details
-      let details = [];
-      const adminPermissions = await this.permissionModel.getBy({
-        role_id: ROLES.BRAND_ADMIN,
-        type: SYSTEM_TYPE.BRAND,
-        relation_id: brand_id,
-      });
-      adminPermissions?.forEach((adminPermission) => {
-        switch (adminPermission.name.toLowerCase()) {
-          case BRAND_PERMISSION_TITLE.MY_WORKSPACE:
-            break;
-          case BRAND_PERMISSION_TITLE.PRODUCT:
-            break;
-          case BRAND_PERMISSION_TITLE.GENERAL_INQUIRES:
-            break;
-          case BRAND_PERMISSION_TITLE.PROJECT_TRACKING:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION:
-            break;
-        }
-      });
-      const teamPermissions = await this.permissionModel.getBy({
-        role_id: ROLES.BRAND_TEAM,
-        type: SYSTEM_TYPE.BRAND,
-        relation_id: brand_id,
-      });
-      teamPermissions?.forEach((teamPermission) => {
-        switch (teamPermission.name.toLowerCase()) {
-          case BRAND_PERMISSION_TITLE.MY_WORKSPACE:
-            break;
-          case BRAND_PERMISSION_TITLE.PRODUCT:
-            break;
-          case BRAND_PERMISSION_TITLE.GENERAL_INQUIRES:
-            break;
-          case BRAND_PERMISSION_TITLE.PROJECT_TRACKING:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY:
-            break;
-          case BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION:
-            break;
-        }
-      });
     });
   };
   public createDesignPermission = (design_id: string): Promise<boolean> => {
@@ -603,6 +563,7 @@ export default class PermissionService {
       }
       const records = [
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -614,6 +575,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -625,6 +587,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -636,6 +599,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -647,6 +611,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -658,6 +623,7 @@ export default class PermissionService {
           parent_number: 4,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -669,6 +635,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -680,6 +647,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -691,6 +659,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -702,6 +671,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -713,6 +683,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -724,6 +695,7 @@ export default class PermissionService {
           parent_number: 10,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -735,6 +707,7 @@ export default class PermissionService {
           parent_number: 10,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -746,6 +719,7 @@ export default class PermissionService {
           parent_number: 10,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_ADMIN,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -758,6 +732,7 @@ export default class PermissionService {
         },
         // design team
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -769,6 +744,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -780,6 +756,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -791,6 +768,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -802,6 +780,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -813,6 +792,7 @@ export default class PermissionService {
           parent_number: 4,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -824,6 +804,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -835,6 +816,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -846,6 +828,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -857,6 +840,7 @@ export default class PermissionService {
           parent_number: 5,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -868,6 +852,7 @@ export default class PermissionService {
           parent_number: null,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -879,6 +864,7 @@ export default class PermissionService {
           parent_number: 10,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -890,6 +876,7 @@ export default class PermissionService {
           parent_number: 10,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -901,6 +888,7 @@ export default class PermissionService {
           parent_number: 10,
         },
         {
+          ...PERMISSION_NULL_ATTRIBUTES,
           role_id: ROLES.DESIGN_TEAM,
           type: SYSTEM_TYPE.DESIGN,
           relation_id: design_id,
@@ -917,62 +905,6 @@ export default class PermissionService {
           await this.permissionModel.create(record);
         })
       );
-      // create permission details
-      let details = [];
-      const adminPermissions = await this.permissionModel.getBy({
-        role_id: ROLES.DESIGN_ADMIN,
-        type: SYSTEM_TYPE.DESIGN,
-        relation_id: design_id,
-      });
-      adminPermissions?.forEach((adminPermission) => {
-        switch (adminPermission.name.toLowerCase()) {
-          case DESIGN_PERMISSION_TITLE.MY_WORKSPACE:
-            break;
-          case DESIGN_PERMISSION_TITLE.MY_FAVOURITE:
-            break;
-          case DESIGN_PERMISSION_TITLE.PRODUCT:
-            break;
-          case DESIGN_PERMISSION_TITLE.PROJECT:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL:
-            break;
-        }
-      });
-      const teamPermissions = await this.permissionModel.getBy({
-        role_id: ROLES.DESIGN_TEAM,
-        type: SYSTEM_TYPE.DESIGN,
-        relation_id: design_id,
-      });
-      teamPermissions?.forEach((teamPermission) => {
-        switch (teamPermission.name.toLowerCase()) {
-          case DESIGN_PERMISSION_TITLE.MY_WORKSPACE:
-            break;
-          case DESIGN_PERMISSION_TITLE.MY_FAVOURITE:
-            break;
-          case DESIGN_PERMISSION_TITLE.PRODUCT:
-            break;
-          case DESIGN_PERMISSION_TITLE.PROJECT:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
-            break;
-          case DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL:
-            break;
-        }
-      });
     });
   };
 }
