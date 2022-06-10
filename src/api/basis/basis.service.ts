@@ -255,7 +255,16 @@ export default class BasisService {
       }
 
       const conversions = payload.subs.map((item) => {
+        let found = false;
         if (item.id) {
+          const foundItem = basisConversion.subs.find(
+            (sub: any) => sub.id === item.id
+          );
+          if (foundItem) {
+            found = true;
+          }
+        }
+        if (found) {
           return item;
         }
         return {
@@ -263,7 +272,6 @@ export default class BasisService {
           id: uuid(),
         };
       });
-
       const updatedBasisConverison = await this.basisModel.update(id, {
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
