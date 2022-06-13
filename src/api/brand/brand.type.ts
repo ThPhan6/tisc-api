@@ -36,5 +36,6 @@ export interface IBrand {
   products: number;
   assign_team: any;
   status: number;
+  status_key: any;
   created_at: string;
 }

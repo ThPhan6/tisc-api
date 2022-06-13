@@ -10,6 +10,11 @@ export default class Model<IModelData> {
     this.builder = new Builder(this.modelName);
   }
 
+  public getBuilder = () => {
+    this.builder = new Builder(this.modelName);
+    return this;
+  };
+
   public list = async (
     limit: number,
     offset: number,
@@ -24,31 +29,31 @@ export default class Model<IModelData> {
       let result: any;
       if (sort) {
         if (join) {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
             .orderBy(sort[0], sort[1])
             .paginate(limit, offset)
             .select(undefined, true);
         } else
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .orderBy(sort[0], sort[1])
             .paginate(limit, offset)
             .select();
       } else {
         if (join) {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
             .select(undefined, true);
         } else {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .paginate(limit, offset)
             .select();
@@ -69,7 +74,7 @@ export default class Model<IModelData> {
         id,
         created_at,
       };
-      const result = await this.builder.insert(record);
+      const result = await this.getBuilder().builder.insert(record);
       if (result) {
         return record;
       }
@@ -81,8 +86,8 @@ export default class Model<IModelData> {
 
   public find = async (id: string): Promise<IModelData | undefined> => {
     try {
-      return await this.builder
-        .where("id", id)
+      return await this.getBuilder()
+        .builder.where("id", id)
         .whereNot("is_deleted", true)
         .first();
     } catch (error) {
@@ -92,8 +97,8 @@ export default class Model<IModelData> {
 
   public findBy = async (params: any): Promise<IModelData | undefined> => {
     try {
-      const result: any = await this.builder
-        .where(params)
+      const result: any = await this.getBuilder()
+        .builder.where(params)
         .whereNot("is_deleted", true)
         .first();
       return result;
@@ -104,8 +109,8 @@ export default class Model<IModelData> {
 
   public getBy = async (params: any): Promise<IModelData[] | undefined> => {
     try {
-      const result: any = await this.builder
-        .where(params)
+      const result: any = await this.getBuilder()
+        .builder.where(params)
         .whereNot("is_deleted", true)
         .select();
       return result;
@@ -114,10 +119,25 @@ export default class Model<IModelData> {
     }
   };
 
+  public getMany = async (
+    ids: string[],
+    key?: string[]
+  ): Promise<IModelData[]> => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereIn("id", ids)
+        .whereNot("is_deleted", true)
+        .select(key);
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
+
   public getAll = async (): Promise<IModelData[] | undefined> => {
     try {
-      const result: any = await this.builder
-        .whereNot("is_deleted", true)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
         .select();
       return result;
     } catch (error) {
@@ -130,11 +150,13 @@ export default class Model<IModelData> {
     params: object
   ): Promise<IModelData | undefined> => {
     try {
-      const record = await this.find(id);
+      const record = await this.getBuilder().find(id);
       if (record) {
-        const isUpdated = await this.builder.where("id", id).update(params);
+        const isUpdated = await this.getBuilder()
+          .builder.where("id", id)
+          .update(params);
         if (isUpdated) {
-          return await this.find(id);
+          return await this.getBuilder().find(id);
         }
       }
       return undefined;
@@ -171,7 +193,9 @@ export default class Model<IModelData> {
     custom_key: string[]
   ) => {
     try {
-      return await this.builder.join(key, collection).select(custom_key, true);
+      return await this.getBuilder()
+        .builder.join(key, collection)
+        .select(custom_key, true);
     } catch (error) {
       return false;
     }

@@ -22,6 +22,7 @@ export default {
       products: Joi.number(),
       assign_team: Joi.any(),
       status: Joi.number(),
+      status_key: Joi.any(),
       created_at: Joi.string(),
       updated_at: Joi.string().allow(null),
     }),

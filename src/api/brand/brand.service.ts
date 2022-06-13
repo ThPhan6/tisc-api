@@ -1,4 +1,7 @@
-import { BRAND_STATUSES } from "../../constant/common.constant";
+import {
+  BRAND_STATUSES,
+  BRAND_STATUS_OPTIONS,
+} from "../../constant/common.constant";
 import BrandModel, { IBrandAttributes } from "../../model/brand.model";
 import { IMessageResponse } from "../../type/common.type";
 import {
@@ -33,25 +36,39 @@ export default class BrandService {
         filter,
         [sort_name, sort_order]
       );
-      const result = brands.map((brand) => {
-        return {
-          id: brand.id,
-          name: brand.name,
-          logo: brand.logo,
-          origin: "",
-          locations: 1,
-          teams: 1,
-          distributors: 1,
-          coverages: 1,
-          categories: 1,
-          collections: 1,
-          cards: 1,
-          products: 1,
-          assign_team: [],
-          status: brand.status,
-          created_at: brand.created_at,
-        };
-      });
+      const result = await Promise.all(
+        brands.map(async (brand) => {
+          const foundStatus = BRAND_STATUS_OPTIONS.find(
+            (item) => item.value === brand.status
+          );
+          const users = await this.userModel.getMany(brand.team_profile_ids, [
+            "id",
+            "firstname",
+            "lastname",
+            "role_id",
+            "email",
+            "avatar",
+          ]);
+          return {
+            id: brand.id,
+            name: brand.name,
+            logo: brand.logo,
+            origin: "",
+            locations: 1,
+            teams: 1,
+            distributors: 1,
+            coverages: 1,
+            categories: 1,
+            collections: 1,
+            cards: 1,
+            products: 1,
+            assign_team: users,
+            status: brand.status,
+            status_key: foundStatus?.key,
+            created_at: brand.created_at,
+          };
+        })
+      );
       return resolve({
         data: result,
         statusCode: 200,
