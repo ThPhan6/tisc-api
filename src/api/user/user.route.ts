@@ -8,7 +8,7 @@ import {
 } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-import UserResponse from "./user.response";
+import response from "./user.response";
 import commonValidate from "../../validate/common.validate";
 
 export default class UserRoute implements IRoute {
@@ -45,7 +45,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getOne,
+                200: response.getOne,
               },
             },
           },
@@ -62,7 +62,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getList,
+                200: response.getList,
               },
             },
           },
@@ -79,7 +79,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getOne,
+                200: response.getOne,
               },
             },
           },
@@ -96,7 +96,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getOne,
+                200: response.getOne,
               },
             },
           },
@@ -113,7 +113,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getOne,
+                200: response.getOne,
               },
             },
           },
@@ -137,6 +137,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                200: response.avatar,
               },
             },
           },

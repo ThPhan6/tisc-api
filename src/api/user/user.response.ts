@@ -40,4 +40,10 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  avatar: Joi.object({
+    data: Joi.object({
+      url: Joi.string(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
 };

@@ -5,11 +5,17 @@ import UserModel, {
   USER_NULL_ATTRIBUTES,
 } from "../../model/user.model";
 import MailService from "../../service/mail.service";
-import { IUpdateMeRequest, IUserRequest, IUserResponse } from "./user.type";
+import {
+  IAvatarResponse,
+  IUpdateMeRequest,
+  IUserRequest,
+  IUserResponse,
+} from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { USER_STATUSES } from "../../constant/user.constant";
 import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
-import { upload } from "../../service/aws.service";
+import { upload, deleteFile } from "../../service/aws.service";
+import moment from "moment";
 
 export default class UserService {
   private userModel: UserModel;
@@ -284,7 +290,7 @@ export default class UserService {
   public updateAvatar = (
     user_id: string,
     avatar: any
-  ): Promise<IMessageResponse> => {
+  ): Promise<IMessageResponse | IAvatarResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
 
@@ -311,9 +317,15 @@ export default class UserService {
           statusCode: 400,
         });
       }
+      const fileNameParts = avatar.hapi.filename.split(".");
+      const newFileName =
+        fileNameParts[0] + "_" + moment() + "." + fileNameParts[1];
+      if (user.avatar) {
+        await deleteFile(user.avatar.slice(1));
+      }
       const uploadedData = await upload(
         Buffer.from(avatar._data),
-        "avatar/" + avatar.hapi.filename,
+        "avatar/" + newFileName,
         avatar.hapi.headers["content-type"]
       );
       if (!uploadedData) {
@@ -324,10 +336,12 @@ export default class UserService {
       }
 
       await this.userModel.update(user_id, {
-        avatar: "/avatar/" + avatar.hapi.filename,
+        avatar: "/avatar/" + newFileName,
       });
       return resolve({
-        message: MESSAGES.SUCCESS,
+        data: {
+          url: "/avatar/" + newFileName,
+        },
         statusCode: 200,
       });
     });

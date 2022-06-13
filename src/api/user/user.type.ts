@@ -38,3 +38,10 @@ export interface IUserResponse {
   data: IUser;
   statusCode: number;
 }
+
+export interface IAvatarResponse {
+  data: {
+    url: string;
+  };
+  statusCode: number;
+}
