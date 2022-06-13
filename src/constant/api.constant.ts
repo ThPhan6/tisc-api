@@ -11,6 +11,7 @@ export const ROUTES = {
   GET_LIST_DESIGN_FIRM: "/api/design/get-list",
   GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
   UPDATE_DESIGN_FIRM: "/api/design/update/{id}",
+  GET_DESIGN_STATUSES: "/api/design/statuses",
   GET_LIST_PROJECT: "/api/project/get-list",
   GET_ONE_PROJECT: "/api/project/get-one/{id}",
   GET_LIST_CATEGORY: "/api/category/get-list",

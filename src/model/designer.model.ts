@@ -11,6 +11,8 @@ export interface IDesignerAttributes {
   design_capabilities: string;
   team_profile_ids: string[];
   location_ids: string[];
+  material_code_ids: string[];
+  project_ids: string[];
   status: number;
   created_at: string;
   updated_at: string | null;
@@ -28,6 +30,8 @@ export const DESIGN_NULL_ATTRIBUTES = {
   design_capabilities: null,
   team_profile_ids: null,
   location_ids: null,
+  material_code_ids: null,
+  project_ids: null,
   status: null,
   created_at: null,
   updated_at: null,

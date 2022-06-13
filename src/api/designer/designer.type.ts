@@ -13,6 +13,7 @@ export interface IDesignersResponse {
     on_hold: number;
     archived: number;
     status: number;
+    status_key: any;
     assign_team: any;
     created_at: string;
   }[];

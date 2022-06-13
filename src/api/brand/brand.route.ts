@@ -24,7 +24,7 @@ export default class BrandRoute implements IRoute {
             validate: validate.getList,
             description: "Method that get list brand",
             tags: ["api", "Brand"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

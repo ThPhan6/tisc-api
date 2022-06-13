@@ -36,8 +36,8 @@ export const BRAND_STATUS_OPTIONS = [
 ];
 
 export const DESIGN_STATUSES = {
-  ACTIVE: 1,
-  INACTIVE: 0,
+  ACTIVE: 0,
+  INACTIVE: 1,
 };
 
 export const DESIGN_STATUS_OPTIONS = [

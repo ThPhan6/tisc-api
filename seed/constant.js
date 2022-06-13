@@ -167,6 +167,28 @@ const BRAND_STATUSES = {
   INACTIVE: 1,
   PENDING: 2,
 };
+const DESIGN_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  parent_company: null,
+  logo: null,
+  slogan: null,
+  profile_n_philosophy: null,
+  offical_website: null,
+  design_capabilities: null,
+  team_profile_ids: null,
+  location_ids: null,
+  material_code_ids: null,
+  project_ids: null,
+  status: null,
+  created_at: null,
+  updated_at: null,
+  is_deleted: false,
+};
+const DESIGN_STATUSES = {
+  ACTIVE: 0,
+  INACTIVE: 1,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -176,4 +198,6 @@ module.exports = {
   USER_NULL_ATTRIBUTES,
   BRAND_NULL_ATTRIBUTES,
   BRAND_STATUSES,
+  DESIGN_NULL_ATTRIBUTES,
+  DESIGN_STATUSES,
 };
