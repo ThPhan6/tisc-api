@@ -21,14 +21,17 @@ export default class BrandService {
 
   public getList = (
     limit: number,
-    offset: number
+    offset: number,
+    filter: any,
+    sort_name: string,
+    sort_order: "ASC" | "DESC"
   ): Promise<IBrandsResponse> => {
     return new Promise(async (resolve) => {
       const brands: IBrandAttributes[] = await this.brandModel.list(
         limit,
         offset,
-        {},
-        ["created_at", "desc"]
+        filter,
+        [sort_name, sort_order]
       );
       const result = brands.map((brand) => {
         return {

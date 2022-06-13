@@ -1,5 +1,6 @@
 import BrandService from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { BRAND_STATUS_OPTIONS } from "../../constant/common.constant";
 
 export default class BrandController {
   private service: BrandService;
@@ -7,8 +8,14 @@ export default class BrandController {
     this.service = new BrandService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset } = req.query;
-    const response = await this.service.getList(limit, offset);
+    const { limit, offset, filter, sort_name, sort_order } = req.query;
+    const response = await this.service.getList(
+      limit,
+      offset,
+      filter,
+      sort_name,
+      sort_order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
@@ -24,5 +31,8 @@ export default class BrandController {
   public getAllByAlphabet = async (req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getAllByAlphabet();
     return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getBrandStatuses = async (req: Request, toolkit: ResponseToolkit) => {
+    return toolkit.response(BRAND_STATUS_OPTIONS).code(200);
   };
 }

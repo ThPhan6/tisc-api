@@ -163,8 +163,8 @@ const BRAND_NULL_ATTRIBUTES = {
   is_deleted: false,
 };
 const BRAND_STATUSES = {
-  ACTIVE: 1,
-  INACTIVE: 0,
+  ACTIVE: 0,
+  INACTIVE: 1,
   PENDING: 2,
 };
 module.exports = {

@@ -15,8 +15,8 @@ export const MODEL_NAMES = {
 export const VALID_AVATAR_TYPES = ["image/png", "image/jpg"];
 
 export const BRAND_STATUSES = {
-  ACTIVE: 1,
-  INACTIVE: 0,
+  ACTIVE: 0,
+  INACTIVE: 1,
   PENDING: 2,
 };
 
