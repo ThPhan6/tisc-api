@@ -11,7 +11,7 @@ export default {
       id: Joi.string(),
       name: Joi.string(),
       logo: Joi.string(),
-      origin: Joi.string(),
+      origin: Joi.string().allow("", null),
       locations: Joi.number(),
       teams: Joi.number(),
       distributors: Joi.number(),
