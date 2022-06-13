@@ -147,6 +147,26 @@ const USER_NULL_ATTRIBUTES = {
   relation_id: null,
   is_deleted: false,
 };
+const BRAND_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  parent_company: null,
+  logo: null,
+  slogan: null,
+  mission_n_vision: null,
+  offical_websites: null,
+  team_profile_ids: null,
+  location_ids: null,
+  status: null,
+  created_at: null,
+  updated_at: null,
+  is_deleted: false,
+};
+const BRAND_STATUSES = {
+  ACTIVE: 1,
+  INACTIVE: 0,
+  PENDING: 2,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -154,4 +174,6 @@ module.exports = {
   SYSTEM_TYPE,
   USER_STATUSES,
   USER_NULL_ATTRIBUTES,
+  BRAND_NULL_ATTRIBUTES,
+  BRAND_STATUSES,
 };
