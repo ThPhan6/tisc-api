@@ -12,7 +12,12 @@ export const SYSTEM_TYPE = {
 export const MODEL_NAMES = {
   DOCUMENTTATIONS: "documentations",
 };
-export const VALID_AVATAR_TYPES = ["image/png", "image/jpg"];
+export const VALID_AVATAR_TYPES = [
+  "image/png",
+  "image/jpg",
+  "image/webp",
+  "image/svg+xml",
+];
 
 export const BRAND_STATUSES = {
   ACTIVE: 0,

@@ -16,6 +16,7 @@ import { USER_STATUSES } from "../../constant/user.constant";
 import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
+import { toWebp } from "../../helper/image.helper";
 
 export default class UserService {
   private userModel: UserModel;
@@ -318,15 +319,49 @@ export default class UserService {
         });
       }
       const fileNameParts = avatar.hapi.filename.split(".");
-      const newFileName =
-        fileNameParts[0] + "_" + moment() + "." + fileNameParts[1];
+      const fileName = fileNameParts[0] + "_" + moment();
+      const newFileName = fileName + "." + fileNameParts[1];
       if (user.avatar) {
+        const urlParts = user.avatar.split("/");
+        const oldNameParts = urlParts[2].split(".");
         await deleteFile(user.avatar.slice(1));
+        await deleteFile("avatar/" + oldNameParts[0] + "_large.webp");
+        await deleteFile("avatar/" + oldNameParts[0] + "_medium.webp");
+        await deleteFile("avatar/" + oldNameParts[0] + "_small.webp");
+        await deleteFile("avatar/" + oldNameParts[0] + "_thumbnail.webp");
       }
       const uploadedData = await upload(
         Buffer.from(avatar._data),
         "avatar/" + newFileName,
         avatar.hapi.headers["content-type"]
+      );
+      //upload 4 size webp
+      const largeBuffer = await toWebp(Buffer.from(avatar._data), "large");
+      await upload(
+        largeBuffer,
+        "avatar/" + fileName + "_large.webp",
+        "image/webp"
+      );
+      const mediumBuffer = await toWebp(Buffer.from(avatar._data), "medium");
+      await upload(
+        mediumBuffer,
+        "avatar/" + fileName + "_medium.webp",
+        "image/webp"
+      );
+      const smallBuffer = await toWebp(Buffer.from(avatar._data), "small");
+      await upload(
+        smallBuffer,
+        "avatar/" + fileName + "_small.webp",
+        "image/webp"
+      );
+      const thumbnailBuffer = await toWebp(
+        Buffer.from(avatar._data),
+        "thumbnail"
+      );
+      await upload(
+        thumbnailBuffer,
+        "avatar/" + fileName + "_thumbnail.webp",
+        "image/webp"
       );
       if (!uploadedData) {
         return resolve({
