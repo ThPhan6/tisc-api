@@ -595,7 +595,9 @@ export default class BasisService {
       //delete old image on space
       group.subs.forEach((item: any) => {
         item.subs.forEach(async (value: any) => {
-          await deleteFile(value.image);
+          if (value.image) {
+            await deleteFile(value.image);
+          }
         });
       });
 
