@@ -189,6 +189,13 @@ const DESIGN_STATUSES = {
   ACTIVE: 0,
   INACTIVE: 1,
 };
+const CATEGORY_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  subs: null,
+  created_at: null,
+  is_deleted: false,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -200,4 +207,5 @@ module.exports = {
   BRAND_STATUSES,
   DESIGN_NULL_ATTRIBUTES,
   DESIGN_STATUSES,
+  CATEGORY_NULL_ATTRIBUTES,
 };
