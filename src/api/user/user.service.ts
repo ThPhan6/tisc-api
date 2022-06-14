@@ -13,7 +13,7 @@ import {
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { USER_STATUSES } from "../../constant/user.constant";
-import { VALID_AVATAR_TYPES } from "../../constant/common.constant";
+import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
 import { toWebp } from "../../helper/image.helper";
@@ -309,7 +309,7 @@ export default class UserService {
         });
       }
       if (
-        !VALID_AVATAR_TYPES.find(
+        !VALID_IMAGE_TYPES.find(
           (item) => item === avatar.hapi.headers["content-type"]
         )
       ) {

@@ -12,7 +12,7 @@ export const SYSTEM_TYPE = {
 export const MODEL_NAMES = {
   DOCUMENTTATIONS: "documentations",
 };
-export const VALID_AVATAR_TYPES = [
+export const VALID_IMAGE_TYPES = [
   "image/png",
   "image/jpg",
   "image/webp",
@@ -96,6 +96,10 @@ export const MESSAGES = {
   DUPLICATED_CATEGORY: "Duplicated category",
   DUPLICATED_SUB_CATEGORY: "Duplicated sub category",
   DUPLICATED_MAIN_CATEGORY: "Duplicated main category",
+  INVALID_BASIS_OPTION_IMAGE: "Invalid basis option image",
+  BASIS_OPTION_NOT_VALID_FILE: "Not valid basis option file",
+  BASIS_OPTION_NOT_VALID_FILE_TYPE: "Not valid basis option file type",
+  BASIS_OPTION_NOT_FOUND: "Basis option not found",
 };
 
 export const BASIS_TYPES = {

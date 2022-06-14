@@ -1,27 +1,30 @@
-import { MESSAGES } from "../../constant/common.constant";
+import { v4 as uuid } from "uuid";
+import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
+import {
+  getFileTypeFromBase64,
+  isDuplicatedString,
+  randomName,
+  sortObjectArray,
+} from "../../helper/common.helper";
 import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
+import { deleteFile, upload } from "../../service/aws.service";
 import { BASIS_TYPES } from "./../../constant/common.constant";
 import { IBasisAttributes } from "./../../model/basis.model";
 import { IMessageResponse } from "./../../type/common.type";
 import {
-  IBasisConversionsResponse,
   IBasisConversionRequest,
   IBasisConversionResponse,
+  IBasisConversionsResponse,
+  IBasisConversionUpdateRequest,
   IBasisOptionRequest,
   IBasisOptionResponse,
   IBasisOptionsResponse,
-  IUpdateBasisOptionRequest,
   IBasisPresetRequest,
   IBasisPresetResponse,
   IBasisPresetsResponse,
+  IUpdateBasisOptionRequest,
   IUpdateBasisPresetRequest,
-  IBasisConversionUpdateRequest,
 } from "./basis.type";
-import { v4 as uuid } from "uuid";
-import {
-  isDuplicatedString,
-  sortObjectArray,
-} from "../../helper/common.helper";
 
 export default class BasisService {
   private basisModel: BasisModel;
@@ -376,22 +379,64 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      const options = payload.subs.map((item) => {
-        const values = item.subs.map((value) => {
+
+      const options = await Promise.all(
+        payload.subs.map(async (item) => {
+          const values = await Promise.all(
+            item.subs.map(async (value) => {
+              if (value.image) {
+                const fileType = await getFileTypeFromBase64(value.image);
+                if (!fileType) {
+                  resolve({
+                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE_TYPE,
+                    statusCode: 400,
+                  });
+                  return;
+                }
+                if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
+                  return resolve({
+                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE,
+                    statusCode: 400,
+                  });
+                }
+                const fileName = randomName(8);
+                const uploadedData = await upload(
+                  Buffer.from(value.image, "base64"),
+                  `basis-option/${fileName}.${fileType.ext}`,
+                  fileType.mime
+                );
+                if (!uploadedData) {
+                  return resolve({
+                    message: MESSAGES.SOMETHING_WRONG,
+                    statusCode: 400,
+                  });
+                }
+                return {
+                  id: uuid(),
+                  image: `/basis-option/${fileName}.${fileType.ext}`,
+                  value_1: value.value_1,
+                  value_2: value.value_2,
+                  unit_1: value.unit_1,
+                  unit_2: value.unit_2,
+                };
+              }
+              return {
+                id: uuid(),
+                image: null,
+                value_1: value.value_1,
+                value_2: value.value_2,
+                unit_1: value.unit_1,
+                unit_2: value.unit_2,
+              };
+            })
+          );
           return {
             id: uuid(),
-            value_1: value.value_1,
-            value_2: value.value_2,
-            unit_1: value.unit_1,
-            unit_2: value.unit_2,
+            name: item.name,
+            subs: values,
           };
-        });
-        return {
-          id: uuid(),
-          name: item.name,
-          subs: values,
-        };
-      });
+        })
+      );
       const createdBasisOption = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
@@ -405,12 +450,14 @@ export default class BasisService {
         });
       }
       const { type, is_deleted, ...rest } = createdBasisOption;
-      const returnedOptions = createdBasisOption.subs.map((option: any) => {
-        return {
-          ...option,
-          count: option.subs.length,
-        };
-      });
+      const returnedOptions = await createdBasisOption.subs.map(
+        (option: any) => {
+          return {
+            ...option,
+            count: option.subs.length,
+          };
+        }
+      );
       return resolve({
         data: {
           ...rest,
@@ -517,7 +564,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_OPTION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -544,44 +591,108 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      const options = payload.subs.map((item) => {
-        let foundOption = false;
-        if (item.id) {
-          const foundItem = group.subs.find((sub: any) => sub.id === item.id);
-          if (foundItem) {
-            foundOption = true;
-          }
-        }
-        const values = item.subs.map((value) => {
-          let foundValue = false;
-          if (value.id) {
-            const foundItem = this.getAllValueInOneGroup(group).find(
-              (valueInGroup) => valueInGroup.id === value.id
-            );
+
+      //delete old image on space
+      group.subs.forEach((item: any) => {
+        item.subs.forEach(async (value: any) => {
+          await deleteFile(value.image);
+        });
+      });
+
+      let options = await Promise.all(
+        payload.subs.map(async (item) => {
+          let foundOption = false;
+          if (item.id) {
+            const foundItem = group.subs.find((sub: any) => sub.id === item.id);
             if (foundItem) {
-              foundValue = true;
+              foundOption = true;
             }
           }
-          if (foundValue) {
-            return value;
+          const values = await Promise.all(
+            item.subs.map(async (value) => {
+              let foundValue = false;
+              if (value.image) {
+                const fileType = await getFileTypeFromBase64(value.image);
+                if (!fileType) {
+                  resolve({
+                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE_TYPE,
+                    statusCode: 400,
+                  });
+                  return;
+                }
+                if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
+                  return resolve({
+                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE,
+                    statusCode: 400,
+                  });
+                }
+                const fileName = randomName(8);
+                const uploadedData = await upload(
+                  Buffer.from(value.image, "base64"),
+                  `basis-option/${fileName}.${fileType.ext}`,
+                  fileType.mime
+                );
+                if (!uploadedData) {
+                  return resolve({
+                    message: MESSAGES.SOMETHING_WRONG,
+                    statusCode: 400,
+                  });
+                }
+                if (value.id) {
+                  const foundItem = this.getAllValueInOneGroup(group).find(
+                    (valueInGroup) => valueInGroup.id === value.id
+                  );
+                  if (foundItem) {
+                    foundValue = true;
+                  }
+                }
+                if (foundValue) {
+                  return {
+                    ...value,
+                    image: `/basis-option/${fileName}.${fileType.ext}`,
+                  };
+                }
+                return {
+                  ...value,
+                  image: `/basis-option/${fileName}.${fileType.ext}`,
+                  id: uuid(),
+                };
+              }
+              if (value.id) {
+                const foundItem = this.getAllValueInOneGroup(group).find(
+                  (valueInGroup) => valueInGroup.id === value.id
+                );
+                if (foundItem) {
+                  foundValue = true;
+                }
+              }
+              if (foundValue) {
+                return {
+                  ...value,
+                  image: null,
+                };
+              }
+              return {
+                ...value,
+                image: null,
+                id: uuid(),
+              };
+            })
+          );
+          if (foundOption) {
+            return {
+              ...item,
+              subs: values,
+            };
           }
-          return {
-            ...value,
-            id: uuid(),
-          };
-        });
-        if (foundOption) {
           return {
             ...item,
             subs: values,
+            id: uuid(),
           };
-        }
-        return {
-          ...item,
-          subs: values,
-          id: uuid(),
-        };
-      });
+        })
+      );
+
       const updatedAttribute = await this.basisModel.update(id, {
         ...payload,
         subs: options,
