@@ -134,14 +134,26 @@ export default class Model<IModelData> {
     }
   };
 
-  public getAll = async (): Promise<IModelData[] | undefined> => {
+  public getAll = async (
+    keys?: string[],
+    sort_name?: string,
+    sort_order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
     try {
-      const result: any = await this.getBuilder()
+      let result: any;
+      if (sort_name && sort_order) {
+        result = await this.getBuilder()
+          .builder.whereNot("is_deleted", true)
+          .orderBy(sort_name, sort_order)
+          .select(keys);
+        return result;
+      }
+      result = await this.getBuilder()
         .builder.whereNot("is_deleted", true)
-        .select();
+        .select(keys);
       return result;
     } catch (error) {
-      return undefined;
+      return [];
     }
   };
 

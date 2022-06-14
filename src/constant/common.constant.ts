@@ -96,6 +96,7 @@ export const MESSAGES = {
   DUPLICATED_CATEGORY: "Duplicated category",
   DUPLICATED_SUB_CATEGORY: "Duplicated sub category",
   DUPLICATED_MAIN_CATEGORY: "Duplicated main category",
+  NOT_FOUND_LOCATION: "Not found location",
 };
 
 export const BASIS_TYPES = {

@@ -68,5 +68,5 @@ const seed = async () => {
 };
 
 module.exports = {
-  seedDesigner: seed,
+  seed,
 };
