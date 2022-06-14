@@ -401,7 +401,7 @@ export default class BasisService {
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
-                  Buffer.from(value.image, "base64"),
+                  Buffer.from(value.image),
                   `basis-option/${fileName}.${fileType.ext}`,
                   fileType.mime
                 );
@@ -628,7 +628,7 @@ export default class BasisService {
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
-                  Buffer.from(value.image, "base64"),
+                  Buffer.from(value.image),
                   `basis-option/${fileName}.${fileType.ext}`,
                   fileType.mime
                 );
