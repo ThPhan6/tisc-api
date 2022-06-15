@@ -91,25 +91,27 @@ export default {
   }) as any,
   basesOption: Joi.object({
     data: {
-      basis_options: Joi.array().items({
-        id: Joi.string(),
-        name: Joi.string(),
-        count: Joi.number(),
-        subs: Joi.array().items({
+      basis_options: Joi.array().items(
+        Joi.object({
           id: Joi.string(),
           name: Joi.string(),
           count: Joi.number(),
           subs: Joi.array().items({
             id: Joi.string(),
-            image: Joi.any(),
-            value_1: Joi.string(),
-            value_2: Joi.string(),
-            unit_1: Joi.string(),
-            unit_2: Joi.string(),
+            name: Joi.string(),
+            count: Joi.number(),
+            subs: Joi.array().items({
+              id: Joi.string(),
+              image: Joi.any(),
+              value_1: Joi.string(),
+              value_2: Joi.string(),
+              unit_1: Joi.string(),
+              unit_2: Joi.string(),
+            }),
           }),
-        }),
-        created_at: Joi.string(),
-      }),
+          created_at: Joi.string(),
+        })
+      ),
       count: {
         group_count: Joi.number(),
         option_count: Joi.number(),
