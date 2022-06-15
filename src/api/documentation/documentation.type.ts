@@ -23,6 +23,14 @@ export interface IDocumentationResponse {
   statusCode: number;
 }
 export interface IDocumentationsResponse {
-  data: IDocumentation[];
+  data: {
+    documentations: IDocumentation[];
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
+  };
   statusCode: number;
 }

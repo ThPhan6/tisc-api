@@ -14,7 +14,10 @@ import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
 import { deleteFile, upload } from "../../service/aws.service";
 import { BASIS_TYPES } from "./../../constant/common.constant";
 import { IBasisAttributes } from "./../../model/basis.model";
-import { IMessageResponse } from "./../../type/common.type";
+import {
+  IMessageResponse,
+  IPaginationResponse,
+} from "./../../type/common.type";
 import {
   IBasisConversionRequest,
   IBasisConversionResponse,
@@ -213,11 +216,17 @@ export default class BasisService {
         }
       );
       const addedCount = this.addCount(returnedConversionGroups);
+      const pagination: IPaginationResponse =
+        await this.basisModel.getPagination(limit, offset);
+
       return resolve({
         data: {
           basis_conversions: returnedConversionGroups,
-          conversion_group_count: addedCount.totalCount,
-          conversion_count: addedCount.subCount,
+          count: {
+            conversion_group_count: addedCount.totalCount,
+            conversion_count: addedCount.subCount,
+          },
+          pagination,
         },
         statusCode: 200,
       });
@@ -527,7 +536,6 @@ export default class BasisService {
         { ...filter, type: BASIS_TYPES.OPTION },
         ["name", group_order]
       );
-
       const returnedGroups = groups.map((item: IBasisAttributes) => {
         const returnedOptions = item.subs.map((option: any) => {
           return {
@@ -541,12 +549,18 @@ export default class BasisService {
         };
         return rest;
       });
+      const pagination: IPaginationResponse =
+        await this.basisModel.getPagination(limit, offset);
+
       return resolve({
         data: {
           basis_options: returnedGroups,
-          group_count: groups.length,
-          option_count: this.countOptions(groups),
-          value_count: this.countValues(groups),
+          count: {
+            group_count: groups.length,
+            option_count: this.countOptions(groups),
+            value_count: this.countValues(groups),
+          },
+          pagination,
         },
         statusCode: 200,
       });
@@ -838,12 +852,18 @@ export default class BasisService {
         };
         return rest;
       });
+      const pagination: IPaginationResponse =
+        await this.basisModel.getPagination(limit, offset);
+
       return resolve({
         data: {
           basis_presets: returnedGroups,
-          group_count: groups.length,
-          preset_count: this.countOptions(groups),
-          value_count: this.countValues(groups),
+          count: {
+            group_count: groups.length,
+            preset_count: this.countOptions(groups),
+            value_count: this.countValues(groups),
+          },
+          pagination,
         },
         statusCode: 200,
       });

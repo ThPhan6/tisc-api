@@ -18,6 +18,14 @@ export interface IProductResponse {
   statusCode: number;
 }
 export interface IProductsResponse {
-  data: IProduct[];
+  data: {
+    products: IProduct[];
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
+  };
   statusCode: number;
 }

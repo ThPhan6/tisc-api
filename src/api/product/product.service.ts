@@ -3,7 +3,7 @@ import ProductModel, {
   PRODUCT_NULL_ATTRIBUTES,
   IProductAttributes,
 } from "../../model/product.model";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
 import {
   IProductRequest,
   IProductResponse,
@@ -69,9 +69,14 @@ export default class ProductService {
         filter,
         sort
       );
+      const pagination: IPaginationResponse =
+        await this.productModel.getPagination(limit, offset);
       if (!products) {
         return resolve({
-          data: [],
+          data: {
+            products: [],
+            pagination,
+          },
           statusCode: 200,
         });
       }
@@ -79,8 +84,12 @@ export default class ProductService {
         const { is_deleted, ...item } = product;
         return item;
       });
+
       return resolve({
-        data: result,
+        data: {
+          products: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });

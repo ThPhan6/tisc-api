@@ -29,8 +29,8 @@ export interface IBasisConversionResponse {
     subs: {
       id: string;
       conversion_between: string;
-      first_formular: string;
-      second_formular: string;
+      first_formula: string;
+      second_formula: string;
       name_1: string;
       name_2: string;
       formula_1: number;
@@ -51,8 +51,8 @@ export interface IBasisConversionsResponse {
       count: number;
       subs: {
         conversion_between: string;
-        first_formular: string;
-        second_formular: string;
+        first_formula: string;
+        second_formula: string;
         name_1: string;
         name_2: string;
         formula_1: number;
@@ -62,8 +62,16 @@ export interface IBasisConversionsResponse {
       }[];
       created_at: string;
     }[];
-    conversion_group_count: number;
-    conversion_count: number;
+    count: {
+      conversion_group_count: number;
+      conversion_count: number;
+    };
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
   };
   statusCode: number;
 }
@@ -95,9 +103,17 @@ export interface IBasisOptionResponse {
 export interface IBasisOptionsResponse {
   data: {
     basis_options: IBasisOption;
-    group_count: number;
-    option_count: number;
-    value_count: number;
+    count: {
+      group_count: number;
+      option_count: number;
+      value_count: number;
+    };
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
   };
   statusCode: number;
 }
@@ -155,9 +171,17 @@ export interface IBasisPresetResponse {
 export interface IBasisPresetsResponse {
   data: {
     basis_presets: IBasisPreset;
-    group_count: number;
-    preset_count: number;
-    value_count: number;
+    count: {
+      group_count: number;
+      preset_count: number;
+      value_count: number;
+    };
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
   };
   statusCode: number;
 }

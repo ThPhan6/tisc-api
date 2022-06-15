@@ -3,7 +3,7 @@ import CollectionModel, {
   COLLECTION_NULL_ATTRIBUTES,
   ICollectionAttributes,
 } from "../../model/collection.model";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
 import {
   ICollectionRequest,
   ICollectionResponse,
@@ -52,9 +52,15 @@ export default class CollectionService {
     return new Promise(async (resolve) => {
       const collections: ICollectionAttributes[] =
         await this.collectionModel.list(limit, offset, {});
+      const pagination: IPaginationResponse =
+        await this.collectionModel.getPagination(limit, offset);
+
       if (!collections) {
         return resolve({
-          data: [],
+          data: {
+            collections: [],
+            pagination,
+          },
           statusCode: 200,
         });
       }
@@ -62,8 +68,12 @@ export default class CollectionService {
         const { is_deleted, ...item } = collection;
         return item;
       });
+
       return resolve({
-        data: result,
+        data: {
+          collections: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });

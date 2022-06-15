@@ -11,6 +11,14 @@ export interface ICollectionResponse {
   statusCode: number;
 }
 export interface ICollectionsResponse {
-  data: ICollection[];
+  data: {
+    collections: ICollection[];
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
+  };
   statusCode: number;
 }

@@ -49,9 +49,17 @@ export default {
           created_at: Joi.string(),
         })
       ),
-      main_category_count: Joi.number(),
-      sub_category_count: Joi.number(),
-      category_count: Joi.number(),
+      count: {
+        main_category_count: Joi.number(),
+        sub_category_count: Joi.number(),
+        category_count: Joi.number(),
+      },
+      pagination: Joi.object({
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      }),
     }),
     statusCode: Joi.number(),
   }) as any,

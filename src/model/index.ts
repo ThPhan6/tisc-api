@@ -1,3 +1,4 @@
+import { IPaginationResponse } from "./../type/common.type";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import Builder from "../query_builder";
@@ -211,5 +212,20 @@ export default class Model<IModelData> {
     } catch (error) {
       return false;
     }
+  };
+
+  public getPagination = async (
+    limit: number,
+    offset: number
+  ): Promise<IPaginationResponse> => {
+    const total = (await this.getAll()).length;
+    const page = offset / limit + 1;
+    const pageCount = Math.ceil(total / limit);
+    return {
+      page,
+      page_size: limit,
+      total,
+      page_count: pageCount,
+    };
   };
 }

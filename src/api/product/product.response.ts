@@ -7,7 +7,15 @@ const Joi = HapiJoi.defaults((schema) =>
 
 export default {
   getList: Joi.object({
-    data: Joi.array().items(Joi.any()),
+    data: Joi.object({
+      products: Joi.array().items(Joi.any()),
+      pagination: Joi.object({
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      }),
+    }),
     statusCode: Joi.number(),
   }) as any,
   getOne: Joi.object({

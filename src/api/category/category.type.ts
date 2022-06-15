@@ -34,9 +34,17 @@ export interface ICategoriesResponse {
         }[];
       }[];
     }[];
-    main_category_count: number;
-    sub_category_count: number;
-    category_count: number;
+    count: {
+      main_category_count: number;
+      sub_category_count: number;
+      category_count: number;
+    };
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
   };
   statusCode: number;
 }

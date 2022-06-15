@@ -1,5 +1,13 @@
 export interface IBrandsResponse {
-  data: IBrand[];
+  data: {
+    brands: IBrand[];
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
+  };
   statusCode: number;
 }
 

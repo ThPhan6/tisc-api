@@ -3,7 +3,7 @@ import {
   BRAND_STATUS_OPTIONS,
 } from "../../constant/common.constant";
 import BrandModel, { IBrandAttributes } from "../../model/brand.model";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
 import {
   IBrandByAlphabetResponse,
   IBrandResponse,
@@ -69,8 +69,14 @@ export default class BrandService {
           };
         })
       );
+      const pagination: IPaginationResponse =
+        await this.brandModel.getPagination(limit, offset);
+
       return resolve({
-        data: result,
+        data: {
+          brands: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });

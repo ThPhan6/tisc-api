@@ -19,8 +19,16 @@ export interface IAttributeResponse {
 export interface IAttributesResponse {
   data: {
     attributes: IAttribute[];
-    group_count: number;
-    attribute_count: number;
+    count: {
+      group_count: number;
+      attribute_count: number;
+    };
+    pagination: {
+      page: number;
+      page_size: number;
+      total: number;
+      page_count: number;
+    };
   };
   statusCode: number;
 }
