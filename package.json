@@ -31,6 +31,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^14.2.0",
     "ejs": "^3.1.6",
+    "file-type": "^16.5.3",
     "hapi-swagger": "^14.2.5",
     "joi": "^17.6.0",
     "jwt-decode": "^3.1.2",
