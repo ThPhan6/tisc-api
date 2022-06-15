@@ -1,5 +1,9 @@
 import { v4 as uuid } from "uuid";
-import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
+import {
+  BASIS_OPTION_STORE,
+  MESSAGES,
+  VALID_IMAGE_TYPES,
+} from "../../constant/common.constant";
 import {
   getFileTypeFromBase64,
   isDuplicatedString,
@@ -387,22 +391,21 @@ export default class BasisService {
               if (value.image) {
                 const fileType = await getFileTypeFromBase64(value.image);
                 if (!fileType) {
-                  resolve({
-                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE_TYPE,
+                  return resolve({
+                    message: MESSAGES.INVALID_IMAGE,
                     statusCode: 400,
                   });
-                  return;
                 }
                 if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
                   return resolve({
-                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE,
+                    message: MESSAGES.INVALID_IMAGE,
                     statusCode: 400,
                   });
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
                   Buffer.from(value.image),
-                  `basis-option/${fileName}.${fileType.ext}`,
+                  `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   fileType.mime
                 );
                 if (!uploadedData) {
@@ -413,7 +416,7 @@ export default class BasisService {
                 }
                 return {
                   id: uuid(),
-                  image: `/basis-option/${fileName}.${fileType.ext}`,
+                  image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   value_1: value.value_1,
                   value_2: value.value_2,
                   unit_1: value.unit_1,
@@ -596,7 +599,7 @@ export default class BasisService {
       group.subs.forEach((item: any) => {
         item.subs.forEach(async (value: any) => {
           if (value.image) {
-            await deleteFile(value.image);
+            await deleteFile(value.image.slice(1));
           }
         });
       });
@@ -617,21 +620,21 @@ export default class BasisService {
                 const fileType = await getFileTypeFromBase64(value.image);
                 if (!fileType) {
                   resolve({
-                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE_TYPE,
+                    message: MESSAGES.INVALID_IMAGE,
                     statusCode: 400,
                   });
                   return;
                 }
                 if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
                   return resolve({
-                    message: MESSAGES.BASIS_OPTION_NOT_VALID_FILE,
+                    message: MESSAGES.INVALID_IMAGE,
                     statusCode: 400,
                   });
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
                   Buffer.from(value.image),
-                  `basis-option/${fileName}.${fileType.ext}`,
+                  `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   fileType.mime
                 );
                 if (!uploadedData) {
@@ -651,12 +654,12 @@ export default class BasisService {
                 if (foundValue) {
                   return {
                     ...value,
-                    image: `/basis-option/${fileName}.${fileType.ext}`,
+                    image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   };
                 }
                 return {
                   ...value,
-                  image: `/basis-option/${fileName}.${fileType.ext}`,
+                  image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   id: uuid(),
                 };
               }
