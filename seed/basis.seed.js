@@ -98,6 +98,251 @@ const seed = async () => {
         ],
         created_at: moment(),
       },
+      {
+        ...BASIS_NULL_ATTRIBUTES,
+        id: uuid(),
+        type: BASIS_TYPES.PRESET,
+        name: "Material classification",
+        subs: [
+          {
+            id: uuid(),
+            name: "Natural stone",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "Basalt",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Granite",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Limestone",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Marble",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+            ],
+          },
+          {
+            id: uuid(),
+            name: "Metal alloy",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "Onyx",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Porphyry",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Quartzite",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Sandstone",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Slate",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+            ],
+          },
+        ],
+        created_at: moment(),
+      },
+      {
+        ...BASIS_NULL_ATTRIBUTES,
+        id: uuid(),
+        type: BASIS_TYPES.PRESET,
+        name: "Standard ratings",
+        subs: [
+          {
+            id: uuid(),
+            name: "Natural stone",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "Basalt",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Granite",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+            ],
+          },
+          {
+            id: uuid(),
+            name: "Metal alloy",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "Onyx",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Porphyry",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+              {
+                id: uuid(),
+                value_1: "Quartzite",
+                value_2: "",
+                unit_1: "",
+                unit_2: "",
+              },
+            ],
+          },
+        ],
+        created_at: moment(),
+      },
+      {
+        ...BASIS_NULL_ATTRIBUTES,
+        id: uuid(),
+        type: BASIS_TYPES.OPTION,
+        name: "Stone standard thickness",
+        subs: [
+          {
+            id: uuid(),
+            name: "Title format",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "6.4",
+                value_2: "1/4",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+              {
+                id: uuid(),
+                value_1: "9.5",
+                value_2: "3/8",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+              {
+                id: uuid(),
+                value_1: "12.7",
+                value_2: "1/2",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+              {
+                id: uuid(),
+                value_1: "15.9",
+                value_2: "5/8",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+            ],
+          },
+          {
+            id: uuid(),
+            name: "Slab format",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "9.5",
+                value_2: "3/8",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+              {
+                id: uuid(),
+                value_1: "12.7",
+                value_2: "1/2",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+            ],
+          },
+        ],
+        created_at: moment(),
+      },
+      {
+        ...BASIS_NULL_ATTRIBUTES,
+        id: uuid(),
+        type: BASIS_TYPES.OPTION,
+        name: "Stone edge profiles",
+        subs: [
+          {
+            id: uuid(),
+            name: "Title format",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "6.4",
+                value_2: "1/4",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+              {
+                id: uuid(),
+                value_1: "9.5",
+                value_2: "3/8",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+            ],
+          },
+          {
+            id: uuid(),
+            name: "Slab format",
+            subs: [
+              {
+                id: uuid(),
+                value_1: "9.5",
+                value_2: "3/8",
+                unit_1: "mm",
+                unit_2: "inch",
+              },
+            ],
+          },
+        ],
+        created_at: moment(),
+      },
     ];
 
     records.forEach(async (record) => {

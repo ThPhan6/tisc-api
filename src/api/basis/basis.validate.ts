@@ -188,7 +188,6 @@ export default {
           }),
           subs: Joi.array()
             .items({
-              image: Joi.any(),
               value_1: Joi.string(),
               value_2: Joi.string(),
               unit_1: Joi.string(),
@@ -223,7 +222,6 @@ export default {
           subs: Joi.array()
             .items({
               id: Joi.string(),
-              image: Joi.any(),
               value_1: Joi.string(),
               value_2: Joi.string(),
               unit_1: Joi.string(),
