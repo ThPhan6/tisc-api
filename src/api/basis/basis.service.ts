@@ -177,7 +177,11 @@ export default class BasisService {
         (item: IBasisAttributes) => {
           const { type, is_deleted, ...rest } = {
             ...item,
-            subs: sortObjectArray(item.subs, "name", conversion_between_order),
+            subs: sortObjectArray(
+              item.subs,
+              "name_1",
+              conversion_between_order
+            ),
           };
           return { ...rest, count: item.subs.length };
         }
