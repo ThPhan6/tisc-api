@@ -122,8 +122,8 @@ export default class BasisService {
           id: uuid(),
           name_1: item.name_1,
           name_2: item.name_2,
-          forumla_1: item.forumla_1,
-          forumla_2: item.forumla_2,
+          formula_1: item.formula_1,
+          formula_2: item.formula_2,
           unit_1: item.unit_1,
           unit_2: item.unit_2,
         };
@@ -181,16 +181,16 @@ export default class BasisService {
             return {
               ...element,
               conversion_between: element.name_1 + " - " + element.name_2,
-              first_forumla:
-                element.forumla_1 +
+              first_formula:
+                element.formula_1 +
                 " " +
                 element.unit_1 +
                 " = " +
                 1 +
                 " " +
                 element.unit_2,
-              second_forumla:
-                element.forumla_2 +
+              second_formula:
+                element.formula_2 +
                 " " +
                 element.unit_2 +
                 " = " +
@@ -232,10 +232,10 @@ export default class BasisService {
         return {
           ...item,
           conversion_between: item.name_1 + " - " + item.name_2,
-          first_forumla:
-            item.forumla_1 + " " + item.unit_1 + " = " + 1 + " " + item.unit_2,
-          second_forumla:
-            item.forumla_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_2,
+          first_formula:
+            item.formula_1 + " " + item.unit_1 + " = " + 1 + " " + item.unit_2,
+          second_formula:
+            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_2,
         };
       });
       const { type, is_deleted, ...rest } = basisConversion;
