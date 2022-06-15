@@ -45,12 +45,6 @@ export default {
       ),
       group_count: Joi.number(),
       attribute_count: Joi.number(),
-      pagination: Joi.object({
-        page: Joi.number(),
-        pageSize: Joi.number(),
-        total: Joi.number(),
-        count: Joi.number(),
-      }),
     }),
     statusCode: Joi.number(),
   }) as any,
