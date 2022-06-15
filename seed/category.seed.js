@@ -131,5 +131,5 @@ const seed = async () => {
 };
 
 module.exports = {
-  seedCategory: seed,
+  seed,
 };

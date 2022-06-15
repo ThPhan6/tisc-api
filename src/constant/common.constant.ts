@@ -96,10 +96,10 @@ export const MESSAGES = {
   DUPLICATED_CATEGORY: "Duplicated category",
   DUPLICATED_SUB_CATEGORY: "Duplicated sub category",
   DUPLICATED_MAIN_CATEGORY: "Duplicated main category",
-  INVALID_BASIS_OPTION_IMAGE: "Invalid basis option image",
   BASIS_OPTION_NOT_VALID_FILE: "Not valid basis option file",
   BASIS_OPTION_NOT_VALID_FILE_TYPE: "Not valid basis option file type",
   BASIS_OPTION_NOT_FOUND: "Basis option not found",
+  NOT_FOUND_LOCATION: "Not found location",
 };
 
 export const BASIS_TYPES = {
