@@ -3,7 +3,7 @@ import CollectionModel, {
   COLLECTION_NULL_ATTRIBUTES,
   ICollectionAttributes,
 } from "../../model/collection.model";
-import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   ICollectionRequest,
   ICollectionResponse,
@@ -52,8 +52,10 @@ export default class CollectionService {
     return new Promise(async (resolve) => {
       const collections: ICollectionAttributes[] =
         await this.collectionModel.list(limit, offset, {});
-      const pagination: IPaginationResponse =
-        await this.collectionModel.getPagination(limit, offset);
+      const pagination: IPagination = await this.collectionModel.getPagination(
+        limit,
+        offset
+      );
 
       if (!collections) {
         return resolve({

@@ -1,5 +1,5 @@
 import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
-import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import UserModel, {
   IUserAttributes,
   USER_NULL_ATTRIBUTES,
@@ -418,8 +418,10 @@ export default class UserService {
           linkedin: userItem.linkedin,
         };
       });
-      const pagination: IPaginationResponse =
-        await this.userModel.getPagination(limit, offset);
+      const pagination: IPagination = await this.userModel.getPagination(
+        limit,
+        offset
+      );
 
       return resolve({
         data: {

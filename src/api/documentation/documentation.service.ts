@@ -3,7 +3,7 @@ import { MESSAGES } from "../../constant/common.constant";
 import DocumentationModel, {
   DOCUMENTATION_NULL_ATTRIBUTES,
 } from "../../model/documentation.model";
-import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IDocumentationRequest,
   IDocumentationResponse,
@@ -103,7 +103,7 @@ class DocumentationService {
           author: rest,
         };
       });
-      const pagination: IPaginationResponse =
+      const pagination: IPagination =
         await this.documentationModel.getPagination(limit, offset);
 
       return resolve({

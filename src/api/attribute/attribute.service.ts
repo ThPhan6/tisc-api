@@ -1,4 +1,4 @@
-import { IPaginationResponse } from "./../../type/common.type";
+import { IPagination } from "./../../type/common.type";
 import {
   BASIS_TYPES,
   LONG_TEXT_ID,
@@ -170,8 +170,11 @@ export default class AttributeService {
           return rest;
         }
       );
-      const pagination: IPaginationResponse =
-        await this.attributeModel.getPagination(limit, offset, type);
+      const pagination: IPagination = await this.attributeModel.getPagination(
+        limit,
+        offset,
+        type
+      );
       return resolve({
         data: {
           attributes: returnedAttributes,

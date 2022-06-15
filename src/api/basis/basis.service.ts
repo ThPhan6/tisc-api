@@ -14,10 +14,7 @@ import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
 import { deleteFile, upload } from "../../service/aws.service";
 import { BASIS_TYPES } from "./../../constant/common.constant";
 import { IBasisAttributes } from "./../../model/basis.model";
-import {
-  IMessageResponse,
-  IPaginationResponse,
-} from "./../../type/common.type";
+import { IMessageResponse, IPagination } from "./../../type/common.type";
 import {
   IBasisConversionRequest,
   IBasisConversionResponse,
@@ -216,12 +213,11 @@ export default class BasisService {
         }
       );
       const addedCount = this.addCount(returnedConversionGroups);
-      const pagination: IPaginationResponse =
-        await this.basisModel.getPagination(
-          limit,
-          offset,
-          BASIS_TYPES.CONVERSION
-        );
+      const pagination: IPagination = await this.basisModel.getPagination(
+        limit,
+        offset,
+        BASIS_TYPES.CONVERSION
+      );
 
       return resolve({
         data: {
@@ -553,8 +549,11 @@ export default class BasisService {
         };
         return rest;
       });
-      const pagination: IPaginationResponse =
-        await this.basisModel.getPagination(limit, offset, BASIS_TYPES.OPTION);
+      const pagination: IPagination = await this.basisModel.getPagination(
+        limit,
+        offset,
+        BASIS_TYPES.OPTION
+      );
 
       return resolve({
         data: {
@@ -856,8 +855,11 @@ export default class BasisService {
         };
         return rest;
       });
-      const pagination: IPaginationResponse =
-        await this.basisModel.getPagination(limit, offset, BASIS_TYPES.PRESET);
+      const pagination: IPagination = await this.basisModel.getPagination(
+        limit,
+        offset,
+        BASIS_TYPES.PRESET
+      );
 
       return resolve({
         data: {

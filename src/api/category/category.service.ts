@@ -2,7 +2,7 @@ import { MESSAGES } from "../../constant/common.constant";
 import CategoryModel, {
   CATEGORY_NULL_ATTRIBUTES,
 } from "../../model/category.model";
-import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   isDuplicatedString,
   sortObjectArray,
@@ -163,8 +163,10 @@ export default class CategoryService {
           subs: returnedSubCategories,
         };
       });
-      const pagination: IPaginationResponse =
-        await this.categoryModel.getPagination(limit, offset);
+      const pagination: IPagination = await this.categoryModel.getPagination(
+        limit,
+        offset
+      );
       const result = this.addCount(returnedCategories);
       return resolve({
         data: {

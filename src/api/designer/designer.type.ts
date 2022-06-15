@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IDesignersResponse {
   data: {
     designers: {
@@ -18,12 +19,7 @@ export interface IDesignersResponse {
       assign_team: any;
       created_at: string;
     }[];
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }

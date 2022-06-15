@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IBasisConversionRequest {
   name: string;
   subs: {
@@ -66,12 +67,7 @@ export interface IBasisConversionsResponse {
       conversion_group_count: number;
       conversion_count: number;
     };
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }
@@ -108,12 +104,7 @@ export interface IBasisOptionsResponse {
       option_count: number;
       value_count: number;
     };
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }
@@ -176,12 +167,7 @@ export interface IBasisPresetsResponse {
       preset_count: number;
       value_count: number;
     };
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }

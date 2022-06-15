@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IDocumentation {
   id: string;
   logo: string | null;
@@ -25,12 +26,7 @@ export interface IDocumentationResponse {
 export interface IDocumentationsResponse {
   data: {
     documentations: IDocumentation[];
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }

@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface ICategoryAttributes {
   id: string;
   name: string;
@@ -39,12 +40,7 @@ export interface ICategoriesResponse {
       sub_category_count: number;
       category_count: number;
     };
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }

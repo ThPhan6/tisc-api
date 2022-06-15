@@ -3,7 +3,7 @@ export interface IMessageResponse {
   statusCode: number;
 }
 
-export interface IPaginationResponse {
+export interface IPagination {
   page: number;
   page_size: number;
   total: number;

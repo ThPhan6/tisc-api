@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IProduct {
   id: string;
   name: string;
@@ -20,12 +21,7 @@ export interface IProductResponse {
 export interface IProductsResponse {
   data: {
     products: IProduct[];
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }

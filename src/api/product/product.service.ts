@@ -3,7 +3,7 @@ import ProductModel, {
   PRODUCT_NULL_ATTRIBUTES,
   IProductAttributes,
 } from "../../model/product.model";
-import { IMessageResponse, IPaginationResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IProductRequest,
   IProductResponse,
@@ -69,8 +69,10 @@ export default class ProductService {
         filter,
         sort
       );
-      const pagination: IPaginationResponse =
-        await this.productModel.getPagination(limit, offset);
+      const pagination: IPagination = await this.productModel.getPagination(
+        limit,
+        offset
+      );
       if (!products) {
         return resolve({
           data: {

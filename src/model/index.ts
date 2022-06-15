@@ -1,4 +1,4 @@
-import { IPaginationResponse } from "./../type/common.type";
+import { IPagination } from "./../type/common.type";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import Builder from "../query_builder";
@@ -229,7 +229,7 @@ export default class Model<IModelData> {
     limit: number,
     offset: number,
     type?: number
-  ): Promise<IPaginationResponse> => {
+  ): Promise<IPagination> => {
     let total;
     if (type) {
       total = (await this.getAllByType(type)).length;

@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface ICollection {
   id: string;
   name: string;
@@ -13,12 +14,7 @@ export interface ICollectionResponse {
 export interface ICollectionsResponse {
   data: {
     collections: ICollection[];
-    pagination: {
-      page: number;
-      page_size: number;
-      total: number;
-      page_count: number;
-    };
+    pagination: IPagination;
   };
   statusCode: number;
 }
