@@ -202,6 +202,19 @@ const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
   created_at: null,
   is_deleted: false,
 };
+const BASIS_NULL_ATTRIBUTES = {
+  id: null,
+  type: null,
+  name: null,
+  subs: null,
+  created_at: null,
+  is_deleted: false,
+};
+const BASIS_TYPES = {
+  CONVERSION: 1,
+  PRESET: 2,
+  OPTION: 3,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -215,4 +228,6 @@ module.exports = {
   DESIGN_STATUSES,
   CATEGORY_NULL_ATTRIBUTES,
   FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
+  BASIS_NULL_ATTRIBUTES,
+  BASIS_TYPES,
 };

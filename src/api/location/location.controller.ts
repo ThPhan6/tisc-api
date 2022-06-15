@@ -1,10 +1,19 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import LocationService from "./location.service";
+import { ILocationRequest } from "./location.type";
 export default class LocationController {
   private service: LocationService;
   constructor() {
     this.service = new LocationService();
   }
+  public create = async (
+    req: Request & { payload: ILocationRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.service.create(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public get = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const response = await this.service.get(id);
