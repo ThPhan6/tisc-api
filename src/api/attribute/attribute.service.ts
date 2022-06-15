@@ -171,7 +171,7 @@ export default class AttributeService {
         }
       );
       const pagination: IPaginationResponse =
-        await this.attributeModel.getPagination(limit, offset);
+        await this.attributeModel.getPagination(limit, offset, type);
       return resolve({
         data: {
           attributes: returnedAttributes,

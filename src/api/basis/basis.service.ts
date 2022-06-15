@@ -217,7 +217,11 @@ export default class BasisService {
       );
       const addedCount = this.addCount(returnedConversionGroups);
       const pagination: IPaginationResponse =
-        await this.basisModel.getPagination(limit, offset);
+        await this.basisModel.getPagination(
+          limit,
+          offset,
+          BASIS_TYPES.CONVERSION
+        );
 
       return resolve({
         data: {
@@ -550,7 +554,7 @@ export default class BasisService {
         return rest;
       });
       const pagination: IPaginationResponse =
-        await this.basisModel.getPagination(limit, offset);
+        await this.basisModel.getPagination(limit, offset, BASIS_TYPES.OPTION);
 
       return resolve({
         data: {
@@ -853,7 +857,7 @@ export default class BasisService {
         return rest;
       });
       const pagination: IPaginationResponse =
-        await this.basisModel.getPagination(limit, offset);
+        await this.basisModel.getPagination(limit, offset, BASIS_TYPES.PRESET);
 
       return resolve({
         data: {
