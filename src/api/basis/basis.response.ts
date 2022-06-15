@@ -131,7 +131,7 @@ export default {
   }) as any,
   basisPresets: Joi.object({
     data: {
-      basis_options: Joi.array().items({
+      basis_presets: Joi.array().items({
         id: Joi.string(),
         name: Joi.string(),
         count: Joi.number(),
