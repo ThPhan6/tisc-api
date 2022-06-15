@@ -6,28 +6,6 @@ const Joi = HapiJoi.defaults((schema) =>
 );
 
 export default {
-  // getList: Joi.object({
-  //   data: Joi.array().items({
-  //     id: Joi.string(),
-  //     name: Joi.string(),
-  //     logo: Joi.string(),
-  //     origin: Joi.string().allow("", null),
-  //     locations: Joi.number(),
-  //     teams: Joi.number(),
-  //     distributors: Joi.number(),
-  //     coverages: Joi.number(),
-  //     categories: Joi.number(),
-  //     collections: Joi.number(),
-  //     cards: Joi.number(),
-  //     products: Joi.number(),
-  //     assign_team: Joi.any(),
-  //     status: Joi.number(),
-  //     status_key: Joi.any(),
-  //     created_at: Joi.string(),
-  //     updated_at: Joi.string().allow(null),
-  //   }),
-  //   statusCode: Joi.number(),
-  // }) as any,
   getList: Joi.object({
     data: Joi.object({
       brands: Joi.array().items(
