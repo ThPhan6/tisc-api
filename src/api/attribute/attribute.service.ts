@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 import {
   BASIS_TYPES,
   LONG_TEXT_ID,
@@ -125,6 +126,7 @@ export default class AttributeService {
       });
     });
   };
+
   public getList = (
     type: number,
     limit: number,
@@ -168,11 +170,19 @@ export default class AttributeService {
           return rest;
         }
       );
+      const pagination: IPagination = await this.attributeModel.getPagination(
+        limit,
+        offset,
+        type
+      );
       return resolve({
         data: {
           attributes: returnedAttributes,
-          group_count: attributes.length,
-          attribute_count: this.countAttribute(attributes),
+          count: {
+            group_count: attributes.length,
+            attribute_count: this.countAttribute(attributes),
+          },
+          pagination,
         },
         statusCode: 200,
       });

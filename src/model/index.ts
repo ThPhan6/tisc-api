@@ -1,3 +1,4 @@
+import { IPagination } from "./../type/common.type";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import Builder from "../query_builder";
@@ -211,5 +212,37 @@ export default class Model<IModelData> {
     } catch (error) {
       return false;
     }
+  };
+
+  private getAllByType = async (type: number): Promise<IModelData[]> => {
+    try {
+      return await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where("type", type)
+        .select();
+    } catch (error) {
+      return [];
+    }
+  };
+
+  public getPagination = async (
+    limit: number,
+    offset: number,
+    type?: number
+  ): Promise<IPagination> => {
+    let total;
+    if (type) {
+      total = (await this.getAllByType(type)).length;
+    } else {
+      total = (await this.getAll()).length;
+    }
+    const page = offset / limit + 1;
+    const pageCount = Math.ceil(total / limit);
+    return {
+      page,
+      page_size: limit,
+      total,
+      page_count: pageCount,
+    };
   };
 }

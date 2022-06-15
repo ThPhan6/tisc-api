@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IDocumentation {
   id: string;
   logo: string | null;
@@ -23,6 +24,9 @@ export interface IDocumentationResponse {
   statusCode: number;
 }
 export interface IDocumentationsResponse {
-  data: IDocumentation[];
+  data: {
+    documentations: IDocumentation[];
+    pagination: IPagination;
+  };
   statusCode: number;
 }

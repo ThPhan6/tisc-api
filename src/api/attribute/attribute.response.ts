@@ -43,8 +43,16 @@ export default {
           created_at: Joi.string(),
         })
       ),
-      group_count: Joi.number(),
-      attribute_count: Joi.number(),
+      count: {
+        group_count: Joi.number(),
+        attribute_count: Joi.number(),
+      },
+      pagination: Joi.object({
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      }),
     }),
     statusCode: Joi.number(),
   }) as any,

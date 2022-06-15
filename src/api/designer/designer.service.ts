@@ -1,6 +1,6 @@
 import { DESIGN_STATUS_OPTIONS } from "../../constant/common.constant";
 import DesignerModel, { IDesignerAttributes } from "../../model/designer.model";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import { IDesignerResponse, IDesignersResponse } from "./designer.type";
 import UserModel from "../../model/user.model";
 
@@ -55,8 +55,16 @@ export default class DesignerService {
           };
         })
       );
+      const pagination: IPagination = await this.designerModel.getPagination(
+        limit,
+        offset
+      );
+
       return resolve({
-        data: result,
+        data: {
+          designers: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });

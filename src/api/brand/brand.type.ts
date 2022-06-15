@@ -1,5 +1,9 @@
+import { IPagination } from "./../../type/common.type";
 export interface IBrandsResponse {
-  data: IBrand[];
+  data: {
+    brands: IBrand[];
+    pagination: IPagination;
+  };
   statusCode: number;
 }
 

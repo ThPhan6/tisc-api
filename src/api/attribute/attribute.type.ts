@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IAttribute {
   id: string;
   name: string;
@@ -19,8 +20,11 @@ export interface IAttributeResponse {
 export interface IAttributesResponse {
   data: {
     attributes: IAttribute[];
-    group_count: number;
-    attribute_count: number;
+    count: {
+      group_count: number;
+      attribute_count: number;
+    };
+    pagination: IPagination;
   };
   statusCode: number;
 }
