@@ -9,7 +9,7 @@ export default {
   getList: Joi.object({
     data: Joi.object({
       designers: Joi.array().items(
-        Joi.array().items({
+        Joi.object({
           id: Joi.string(),
           name: Joi.string(),
           logo: Joi.string(),
