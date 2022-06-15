@@ -12,7 +12,7 @@ export const SYSTEM_TYPE = {
 export const MODEL_NAMES = {
   DOCUMENTTATIONS: "documentations",
 };
-export const VALID_AVATAR_TYPES = [
+export const VALID_IMAGE_TYPES = [
   "image/png",
   "image/jpg",
   "image/webp",
@@ -96,6 +96,8 @@ export const MESSAGES = {
   DUPLICATED_CATEGORY: "Duplicated category",
   DUPLICATED_SUB_CATEGORY: "Duplicated sub category",
   DUPLICATED_MAIN_CATEGORY: "Duplicated main category",
+  INVALID_IMAGE: "Invalid image",
+  BASIS_OPTION_NOT_FOUND: "Basis option not found",
   NOT_FOUND_LOCATION: "Not found location",
 };
 
@@ -112,3 +114,5 @@ export const ATTRIBUTE_TYPES = {
 
 export const LONG_TEXT_ID = "aa4d21fe-c19b-40e3-aeaa-27423d794e27";
 export const SHORT_TEXT_ID = "66d7e3c1-1c8f-4743-99bf-f607d5379504";
+
+export const BASIS_OPTION_STORE = "basis-option";
