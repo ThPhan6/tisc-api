@@ -3,8 +3,8 @@ export interface IBasisConversionRequest {
   subs: {
     name_1: string;
     name_2: string;
-    forumla_1: number;
-    forumla_2: number;
+    formula_1: number;
+    formula_2: number;
     unit_1: string;
     unit_2: string;
   }[];
@@ -15,8 +15,8 @@ export interface IBasisConversionUpdateRequest {
     id?: string;
     name_1: string;
     name_2: string;
-    forumla_1: number;
-    forumla_2: number;
+    formula_1: number;
+    formula_2: number;
     unit_1: string;
     unit_2: string;
   }[];
@@ -29,12 +29,12 @@ export interface IBasisConversionResponse {
     subs: {
       id: string;
       conversion_between: string;
-      first_forumlar: string;
-      second_forumlar: string;
+      first_formular: string;
+      second_formular: string;
       name_1: string;
       name_2: string;
-      forumla_1: number;
-      forumla_2: number;
+      formula_1: number;
+      formula_2: number;
       unit_1: string;
       unit_2: string;
     }[];
@@ -51,12 +51,12 @@ export interface IBasisConversionsResponse {
       count: number;
       subs: {
         conversion_between: string;
-        first_forumlar: string;
-        second_forumlar: string;
+        first_formular: string;
+        second_formular: string;
         name_1: string;
         name_2: string;
-        forumla_1: number;
-        forumla_2: number;
+        formula_1: number;
+        formula_2: number;
         unit_1: string;
         unit_2: string;
       }[];

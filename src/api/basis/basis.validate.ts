@@ -22,8 +22,8 @@ export default {
           Joi.object({
             name_1: Joi.string(),
             name_2: Joi.string(),
-            forumla_1: Joi.number(),
-            forumla_2: Joi.number(),
+            formula_1: Joi.number(),
+            formula_2: Joi.number(),
             unit_1: Joi.string(),
             unit_2: Joi.string(),
           })
@@ -50,8 +50,8 @@ export default {
             id: Joi.string(),
             name_1: Joi.string(),
             name_2: Joi.string(),
-            forumla_1: Joi.number(),
-            forumla_2: Joi.number(),
+            formula_1: Joi.number(),
+            formula_2: Joi.number(),
             unit_1: Joi.string(),
             unit_2: Joi.string(),
           })
