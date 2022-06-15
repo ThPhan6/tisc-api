@@ -14,6 +14,23 @@ export default class LocationRoute implements IRoute {
 
       server.route([
         {
+          method: "POST",
+          path: ROUTES.CREATE_LOCATION,
+          options: {
+            handler: controller.create,
+            validate: validate.create,
+            description: "Method that create location",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_ONE_LOCATION,
           options: {
@@ -21,7 +38,13 @@ export default class LocationRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that get one location",
             tags: ["api", "Location"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
           },
         },
         {

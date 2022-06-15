@@ -78,7 +78,7 @@ export default class LocationService {
           statusCode: 400,
         });
       }
-      return this.get(createdLocation.id);
+      return resolve(await this.get(createdLocation.id));
     });
   };
   public get = (id: string): Promise<ILocationResponse | IMessageResponse> => {
