@@ -72,11 +72,27 @@ export default class LocationRoute implements IRoute {
             validate: validate.getList,
             description: "Method that get list location",
             tags: ["api", "Location"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_LOCATION_WITH_GROUP,
+          options: {
+            handler: controller.getListWithGroup,
+            description: "Method that get list location with group",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListWithGroup,
               },
             },
           },

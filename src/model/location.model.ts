@@ -7,8 +7,8 @@ export interface ILocationAttributes {
   functional_type_ids: string[];
   country_id: string;
   country_name: string;
-  state_id: string;
-  state_name: string;
+  state_id: string | null;
+  state_name: string | null;
   city_id: string;
   city_name: string;
   phone_code: string;
