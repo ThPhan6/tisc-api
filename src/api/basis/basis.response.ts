@@ -53,10 +53,12 @@ export default {
           created_at: Joi.string(),
         })
       ),
-      count: {
-        conversion_group_count: Joi.number(),
-        conversion_count: Joi.number(),
-      },
+      summary: Joi.array().items(
+        Joi.object({
+          name: Joi.string(),
+          value: Joi.number(),
+        })
+      ),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),
@@ -112,11 +114,12 @@ export default {
           created_at: Joi.string(),
         })
       ),
-      count: {
-        group_count: Joi.number(),
-        option_count: Joi.number(),
-        value_count: Joi.number(),
-      },
+      summary: Joi.array().items(
+        Joi.object({
+          name: Joi.string(),
+          value: Joi.number(),
+        })
+      ),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),
@@ -172,6 +175,12 @@ export default {
         preset_count: Joi.number(),
         value_count: Joi.number(),
       },
+      summary: Joi.array().items(
+        Joi.object({
+          name: Joi.string(),
+          value: Joi.number(),
+        })
+      ),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),

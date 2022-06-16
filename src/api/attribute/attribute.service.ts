@@ -1,3 +1,4 @@
+import { ATTRIBUTE_TYPES } from "./../../constant/common.constant";
 import { IPagination } from "./../../type/common.type";
 import {
   BASIS_TYPES,
@@ -175,13 +176,26 @@ export default class AttributeService {
         offset,
         type
       );
+      const summary = [
+        {
+          name:
+            type === ATTRIBUTE_TYPES.SPECIFICATION
+              ? "Specification Group"
+              : "Attribute Group",
+          value: attributes.length,
+        },
+        {
+          name:
+            type === ATTRIBUTE_TYPES.SPECIFICATION
+              ? "Specification"
+              : "Attribute",
+          value: this.countAttribute(attributes),
+        },
+      ];
       return resolve({
         data: {
           attributes: returnedAttributes,
-          count: {
-            group_count: attributes.length,
-            attribute_count: this.countAttribute(attributes),
-          },
+          summary,
           pagination,
         },
         statusCode: 200,
