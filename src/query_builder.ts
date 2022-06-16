@@ -189,9 +189,22 @@ export default class Builder {
     return this;
   };
 
-  public groupBy = (key: string) => {
-    this.query += ` collect group = ${this.prefix}.${key}`;
-    return this;
+  public groupBy = async (key: string, count_key?: string) => {
+    if (count_key) {
+      this.query += ` collect ${key} = ${this.prefix}.${key} with count into ${count_key} return {${key}, ${count_key}}`;
+    } else {
+      this.query += ` collect ${key} = ${this.prefix}.${key} return {${key}}`;
+    }
+    const executedData: any = await db.query({
+      query: this.query,
+      bindVars: this.bindObj,
+    });
+    // reset query
+    this.query = this.temp;
+    this.bindObj = this.tempBindObj;
+    return executedData._result.map((item: any) => {
+      return removeUnnecessaryArangoFields(item);
+    });
   };
 
   public orderBy = (key: string, direction: string = "asc") => {

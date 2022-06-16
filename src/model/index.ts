@@ -163,13 +163,13 @@ export default class Model<IModelData> {
     params: object
   ): Promise<IModelData | undefined> => {
     try {
-      const record = await this.getBuilder().find(id);
+      const record = await this.find(id);
       if (record) {
         const isUpdated = await this.getBuilder()
           .builder.where("id", id)
           .update(params);
         if (isUpdated) {
-          return await this.getBuilder().find(id);
+          return await this.find(id);
         }
       }
       return undefined;
@@ -244,5 +244,15 @@ export default class Model<IModelData> {
       total,
       page_count: pageCount,
     };
+  };
+
+  public getGroupBy = async (key: string, count_key?: string) => {
+    try {
+      return await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .groupBy(key, count_key);
+    } catch (error) {
+      return [];
+    }
   };
 }
