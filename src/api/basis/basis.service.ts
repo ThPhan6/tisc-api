@@ -62,10 +62,17 @@ export default class BasisService {
       };
     });
     return {
-      totalCount,
-      subCount,
-      childSubCount,
       data: result,
+      summary: [
+        {
+          name: "Conversion Group",
+          value: totalCount,
+        },
+        {
+          name: "Conversion",
+          value: subCount,
+        },
+      ],
     };
   };
 
@@ -226,10 +233,7 @@ export default class BasisService {
       return resolve({
         data: {
           basis_conversions: returnedConversionGroups,
-          count: {
-            conversion_group_count: addedCount.totalCount,
-            conversion_count: addedCount.subCount,
-          },
+          summary: addedCount.summary,
           pagination,
         },
         statusCode: 200,
@@ -558,15 +562,24 @@ export default class BasisService {
         offset,
         BASIS_TYPES.OPTION
       );
-
+      const summary = [
+        {
+          name: "Option Group",
+          value: groups.length,
+        },
+        {
+          name: "Option",
+          value: this.countOptions(groups),
+        },
+        {
+          name: "Value",
+          value: this.countValues(groups),
+        },
+      ];
       return resolve({
         data: {
           basis_options: returnedGroups,
-          count: {
-            group_count: groups.length,
-            option_count: this.countOptions(groups),
-            value_count: this.countValues(groups),
-          },
+          summary,
           pagination,
         },
         statusCode: 200,
@@ -864,15 +877,24 @@ export default class BasisService {
         offset,
         BASIS_TYPES.PRESET
       );
-
+      const summary = [
+        {
+          name: "Preset Group",
+          value: groups.length,
+        },
+        {
+          name: "Preset",
+          value: this.countOptions(groups),
+        },
+        {
+          name: "Value",
+          value: this.countValues(groups),
+        },
+      ];
       return resolve({
         data: {
           basis_presets: returnedGroups,
-          count: {
-            group_count: groups.length,
-            preset_count: this.countOptions(groups),
-            value_count: this.countValues(groups),
-          },
+          summary,
           pagination,
         },
         statusCode: 200,

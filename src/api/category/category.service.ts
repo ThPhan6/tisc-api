@@ -54,9 +54,20 @@ export default class CategoryService {
     });
     return {
       categories: result,
-      main_category_count: mainCategoryCount,
-      sub_category_count: subCategoryCount,
-      category_count: categoryCount,
+      summary: [
+        {
+          name: "Main Category",
+          value: mainCategoryCount,
+        },
+        {
+          name: "Subcategory",
+          value: subCategoryCount,
+        },
+        {
+          name: "Category",
+          value: categoryCount,
+        },
+      ],
     };
   };
 
@@ -171,11 +182,7 @@ export default class CategoryService {
       return resolve({
         data: {
           categories: result.categories,
-          count: {
-            main_category_count: result.main_category_count,
-            sub_category_count: result.sub_category_count,
-            category_count: result.category_count,
-          },
+          summary: result.summary,
           pagination,
         },
         statusCode: 200,

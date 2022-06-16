@@ -35,11 +35,10 @@ export interface ICategoriesResponse {
         }[];
       }[];
     }[];
-    count: {
-      main_category_count: number;
-      sub_category_count: number;
-      category_count: number;
-    };
+    summary: {
+      name: string;
+      value: number;
+    }[];
     pagination: IPagination;
   };
   statusCode: number;
