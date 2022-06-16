@@ -31,6 +31,23 @@ export default class LocationRoute implements IRoute {
           },
         },
         {
+          method: "PUT",
+          path: ROUTES.EDIT_LOCATION,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update location",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_ONE_LOCATION,
           options: {
@@ -43,6 +60,23 @@ export default class LocationRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_LOCATION,
+          options: {
+            handler: controller.getList,
+            validate: validate.getList,
+            description: "Method that get list location",
+            tags: ["api", "Location"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
               },
             },
           },

@@ -1,3 +1,5 @@
+import { IPagination } from "../../type/common.type";
+
 export interface IFunctionalTypesResponse {
   data: {
     id: string;
@@ -14,23 +16,17 @@ export interface ILocation {
     id: string;
     name: string;
   }[];
-  country: {
-    id: string;
-    name: string;
-  };
-  state: {
-    id: string;
-    name: string;
-  };
-  city: {
-    id: any;
-    name: any;
-  };
   address: string;
   postal_code: string;
   general_phone: string;
   general_email: string;
   created_at: string;
+  country_id: string;
+  state_id: string;
+  city_id: string;
+  country_name: string;
+  state_name: string;
+  city_name: string;
   phone_code: string;
 }
 
@@ -39,7 +35,10 @@ export interface ILocationResponse {
   statusCode: number;
 }
 export interface ILocationsResponse {
-  data: ILocation[];
+  data: {
+    locations: Array<ILocation>;
+    pagination: IPagination;
+  };
   statusCode: number;
 }
 
