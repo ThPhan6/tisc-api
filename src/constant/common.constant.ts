@@ -99,6 +99,9 @@ export const MESSAGES = {
   INVALID_IMAGE: "Invalid image",
   BASIS_OPTION_NOT_FOUND: "Basis option not found",
   NOT_FOUND_LOCATION: "Not found location",
+  PRODUCT_NOT_FOUND: "Product not found",
+  PRODUCT_TIP_NOT_FOUND: "Product tip not found",
+  PRODUCT_TIP_EXISTS: "Product tip exists",
 };
 
 export const BASIS_TYPES = {

@@ -22,7 +22,7 @@ export default class AttributeRoute implements IRoute {
             validate: validate.create,
             description: "Method that create attribute",
             tags: ["api", "Attribute"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -39,7 +39,7 @@ export default class AttributeRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that get one attribute",
             tags: ["api", "Attribute"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -56,7 +56,7 @@ export default class AttributeRoute implements IRoute {
             validate: validate.getListWithMultipleSort,
             description: "Method that get list attribute",
             tags: ["api", "Attribute"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -89,7 +89,7 @@ export default class AttributeRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that delete one attribute",
             tags: ["api", "Attribute"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -105,7 +105,7 @@ export default class AttributeRoute implements IRoute {
             validate: validate.update,
             description: "Method that update one attribute",
             tags: ["api", "Attribute"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

@@ -17,7 +17,8 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
+    // const userId = req.auth.credentials.user_id as string;
+    const userId = "1110813b-8422-4e94-8d2a-8fdef644480e";
     const response = await this.service.create(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
