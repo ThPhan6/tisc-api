@@ -43,10 +43,12 @@ export default {
           created_at: Joi.string(),
         })
       ),
-      count: {
-        group_count: Joi.number(),
-        attribute_count: Joi.number(),
-      },
+      summary: Joi.array().items(
+        Joi.object({
+          name: Joi.string(),
+          value: Joi.number(),
+        })
+      ),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),
