@@ -63,10 +63,10 @@ export interface IBasisConversionsResponse {
       }[];
       created_at: string;
     }[];
-    count: {
-      conversion_group_count: number;
-      conversion_count: number;
-    };
+    summary: {
+      name: string;
+      value: number;
+    }[];
     pagination: IPagination;
   };
   statusCode: number;
@@ -99,11 +99,10 @@ export interface IBasisOptionResponse {
 export interface IBasisOptionsResponse {
   data: {
     basis_options: IBasisOption;
-    count: {
-      group_count: number;
-      option_count: number;
-      value_count: number;
-    };
+    summary: {
+      name: string;
+      value: number;
+    }[];
     pagination: IPagination;
   };
   statusCode: number;
@@ -162,11 +161,10 @@ export interface IBasisPresetResponse {
 export interface IBasisPresetsResponse {
   data: {
     basis_presets: IBasisPreset;
-    count: {
-      group_count: number;
-      preset_count: number;
-      value_count: number;
-    };
+    summary: {
+      name: string;
+      value: number;
+    }[];
     pagination: IPagination;
   };
   statusCode: number;

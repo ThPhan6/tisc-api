@@ -20,10 +20,10 @@ export interface IAttributeResponse {
 export interface IAttributesResponse {
   data: {
     attributes: IAttribute[];
-    count: {
-      group_count: number;
-      attribute_count: number;
-    };
+    summary: {
+      name: string;
+      value: number;
+    }[];
     pagination: IPagination;
   };
   statusCode: number;
