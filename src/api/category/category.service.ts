@@ -102,12 +102,15 @@ export default class CategoryService {
           return element.name;
         });
       });
-      if (isDuplicatedString(categoryNames.flat(1))) {
-        return resolve({
-          message: MESSAGES.DUPLICATED_CATEGORY,
-          statusCode: 400,
-        });
-      }
+
+      categoryNames.forEach((item: any) => {
+        if (isDuplicatedString(item)) {
+          return resolve({
+            message: MESSAGES.DUPLICATED_CATEGORY,
+            statusCode: 400,
+          });
+        }
+      });
 
       const subCategories = payload.subs.map((item: any) => {
         const categories = item.subs.map((element: any) => {
@@ -250,12 +253,16 @@ export default class CategoryService {
           return element.name;
         });
       });
-      if (isDuplicatedString(categoryNames.flat(1))) {
-        return resolve({
-          message: MESSAGES.DUPLICATED_CATEGORY,
-          statusCode: 400,
-        });
-      }
+
+      categoryNames.forEach((item: any) => {
+        if (isDuplicatedString(item)) {
+          return resolve({
+            message: MESSAGES.DUPLICATED_CATEGORY,
+            statusCode: 400,
+          });
+        }
+      });
+
       const subCategories = payload.subs.map((item: any) => {
         const categories = item.subs.map((element: any) => {
           if (element.id) {
