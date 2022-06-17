@@ -1,5 +1,14 @@
 import Model from "./index";
-import { IProductTip } from "../api/product-tip/product_tip.type";
+
+export interface IProductTip {
+  id: string;
+  product_id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  is_deleted: boolean;
+}
+
 export const PRODUCT_TIP_NULL_ATTRIBUTES = {
   id: null,
   product_id: null,
