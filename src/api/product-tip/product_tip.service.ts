@@ -136,6 +136,17 @@ export default class ProductTipService {
         });
       }
 
+      const productTip = await this.productTipModel.getDuplicatedProductTip(
+        id,
+        payload.title
+      );
+      if (productTip) {
+        return resolve({
+          message: MESSAGES.PRODUCT_TIP_EXISTS,
+          statusCode: 400,
+        });
+      }
+
       const updatedProductTip = await this.productTipModel.update(id, payload);
       if (!updatedProductTip) {
         return resolve({
