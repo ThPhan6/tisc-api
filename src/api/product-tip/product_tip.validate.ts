@@ -26,10 +26,4 @@ export default {
       content: Joi.string(),
     },
   },
-
-  getTipsByProductId: {
-    params: {
-      product_id: Joi.string().required(),
-    },
-  },
 };

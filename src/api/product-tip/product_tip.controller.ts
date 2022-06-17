@@ -45,8 +45,8 @@ export default class ProductTipController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { product_id } = req.params;
-    const response = await this.service.getTipsByProductId(product_id);
+    const { id } = req.params;
+    const response = await this.service.getTipsByProductId(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

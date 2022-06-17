@@ -98,5 +98,5 @@ export const ROUTES = {
   EDIT_PRODUCT_TIP: "/api/product-tip/update/{id}",
   DELETE_PRODUCT_TIP: "/api/product-tip/delete/{id}",
   GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
-    "/api/product-tip/get-list-by-product/{product_id}",
+    "/api/product-tip/get-list-by-product/{id}",
 };

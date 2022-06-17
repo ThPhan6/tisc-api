@@ -35,7 +35,6 @@ export default class ProductTipRoute implements IRoute {
           path: ROUTES.GET_LIST_PRODUCT_TIP,
           options: {
             handler: controller.getList,
-            // validate: validate.getList,
             description: "Method that get list product tip",
             tags: ["api", "Product tip"],
             auth: AUTH_NAMES.PERMISSION,
@@ -103,7 +102,7 @@ export default class ProductTipRoute implements IRoute {
           path: ROUTES.GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID,
           options: {
             handler: controller.getTipsByProductId,
-            validate: validate.getTipsByProductId,
+            validate: commonValidate.getOne,
             description: "Method that get product tips by product id",
             tags: ["api", "Product tip"],
             auth: AUTH_NAMES.PERMISSION,
