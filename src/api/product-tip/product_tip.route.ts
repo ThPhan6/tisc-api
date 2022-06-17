@@ -35,7 +35,7 @@ export default class ProductTipRoute implements IRoute {
           path: ROUTES.GET_LIST_PRODUCT_TIP,
           options: {
             handler: controller.getList,
-            // validate: validate.create,
+            // validate: validate.getList,
             description: "Method that get list product tip",
             tags: ["api", "Product tip"],
             auth: AUTH_NAMES.PERMISSION,
