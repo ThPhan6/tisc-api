@@ -21,7 +21,7 @@ export default class ProductTipRoute implements IRoute {
             validate: validate.create,
             description: "Method that create product tip",
             tags: ["api", "Product tip"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -38,7 +38,7 @@ export default class ProductTipRoute implements IRoute {
             // validate: validate.create,
             description: "Method that get list product tip",
             tags: ["api", "Product tip"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -55,7 +55,7 @@ export default class ProductTipRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that get one product tip",
             tags: ["api", "Product tip"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -72,7 +72,7 @@ export default class ProductTipRoute implements IRoute {
             validate: validate.update,
             description: "Method that update product tip",
             tags: ["api", "Product tip"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -89,7 +89,7 @@ export default class ProductTipRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that delete product tip",
             tags: ["api", "Product tip"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -106,7 +106,7 @@ export default class ProductTipRoute implements IRoute {
             validate: validate.getTipsByProductId,
             description: "Method that get product tips by product id",
             tags: ["api", "Product tip"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
