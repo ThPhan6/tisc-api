@@ -104,7 +104,7 @@ export default class ProductDownloadRoute implements IRoute {
           options: {
             handler: controller.getDownloadsByProductId,
             validate: commonValidate.getOne,
-            description: "Method that get product download by product id",
+            description: "Method that get product downloads by product id",
             tags: ["api", "Product download"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
