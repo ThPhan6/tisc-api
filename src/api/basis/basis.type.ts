@@ -4,8 +4,8 @@ export interface IBasisConversionRequest {
   subs: {
     name_1: string;
     name_2: string;
-    formula_1: number;
-    formula_2: number;
+    formula_1: string;
+    formula_2: string;
     unit_1: string;
     unit_2: string;
   }[];
@@ -16,8 +16,8 @@ export interface IBasisConversionUpdateRequest {
     id?: string;
     name_1: string;
     name_2: string;
-    formula_1: number;
-    formula_2: number;
+    formula_1: string;
+    formula_2: string;
     unit_1: string;
     unit_2: string;
   }[];
@@ -34,8 +34,8 @@ export interface IBasisConversionResponse {
       second_formula: string;
       name_1: string;
       name_2: string;
-      formula_1: number;
-      formula_2: number;
+      formula_1: string;
+      formula_2: string;
       unit_1: string;
       unit_2: string;
     }[];
@@ -56,8 +56,8 @@ export interface IBasisConversionsResponse {
         second_formula: string;
         name_1: string;
         name_2: string;
-        formula_1: number;
-        formula_2: number;
+        formula_1: string;
+        formula_2: string;
         unit_1: string;
         unit_2: string;
       }[];
