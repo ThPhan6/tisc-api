@@ -13,6 +13,7 @@ import AttributeRoute from "./api/attribute/attribute.route";
 import BasisRoute from "./api/basis/basis.route";
 import LocationRoute from "./api/location/location.route";
 import ProductTipRoute from "./api/product-tip/product_tip.route";
+import ProductDownloadRoute from "./api/product_download/product_download.route";
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
     await new AuthRoute().register(server);
@@ -29,5 +30,6 @@ export default class Router {
     await new BasisRoute().register(server);
     await new LocationRoute().register(server);
     await new ProductTipRoute().register(server);
+    await new ProductDownloadRoute().register(server);
   }
 }
