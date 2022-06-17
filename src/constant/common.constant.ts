@@ -102,6 +102,7 @@ export const MESSAGES = {
   PRODUCT_NOT_FOUND: "Product not found",
   PRODUCT_TIP_NOT_FOUND: "Product tip not found",
   PRODUCT_TIP_EXISTS: "Product tip exists",
+  CONTENT_TIP_MAX_WORDS: "Content max 100 words",
 };
 
 export const BASIS_TYPES = {

@@ -35,4 +35,10 @@ export default {
       }),
     },
   },
+
+  getTipsByProductId: {
+    params: {
+      product_id: Joi.string().required(),
+    },
+  },
 };

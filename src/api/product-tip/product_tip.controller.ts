@@ -41,4 +41,12 @@ export default class ProductTipController {
     const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getTipsByProductId = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { product_id } = req.params;
+    const response = await this.service.getTipsByProductId(product_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

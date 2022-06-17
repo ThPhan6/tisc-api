@@ -1,3 +1,4 @@
+import { countWord } from "./../../helper/common.helper";
 import { PRODUCT_TIP_NULL_ATTRIBUTES } from "../../model/product_tip.model";
 import { MESSAGES } from "../../constant/common.constant";
 import ProductModel from "../../model/product.model";
@@ -20,6 +21,12 @@ export default class ProductTipService {
     payload: IProductTipRequest
   ): Promise<IProductTipResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
+      if (countWord(payload.content) >= 100) {
+        return resolve({
+          message: MESSAGES.CONTENT_TIP_MAX_WORDS,
+          statusCode: 400,
+        });
+      }
       const foundProduct = await this.productModel.find(payload.product_id);
       if (!foundProduct) {
         return resolve({
@@ -106,6 +113,12 @@ export default class ProductTipService {
     payload: IProductTipRequest
   ): Promise<IMessageResponse | IProductTipResponse> => {
     return new Promise(async (resolve) => {
+      if (countWord(payload.content) >= 100) {
+        return resolve({
+          message: MESSAGES.CONTENT_TIP_MAX_WORDS,
+          statusCode: 400,
+        });
+      }
       const foundProductTip = await this.productTipModel.find(id);
       if (!foundProductTip) {
         return resolve({
@@ -158,6 +171,32 @@ export default class ProductTipService {
       }
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getTipsByProductId = (
+    productId: string
+  ): Promise<IMessageResponse | IProductTipsResponse> => {
+    return new Promise(async (resolve) => {
+      const tipsOfProduct = await this.productTipModel.getBy({
+        product_id: productId,
+      });
+      if (!tipsOfProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_TIP_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      const result = tipsOfProduct.map((item) => {
+        const { is_deleted, ...rest } = item;
+        return rest;
+      });
+
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

@@ -22,7 +22,7 @@ export default class ProductRoute implements IRoute {
             validate: commonValidate.getList,
             description: "Method that get list product",
             tags: ["api", "Product"],
-            // auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -39,7 +39,7 @@ export default class ProductRoute implements IRoute {
             validate: validate.create,
             description: "Method that create one product",
             tags: ["api", "Product"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

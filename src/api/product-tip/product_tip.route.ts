@@ -98,6 +98,23 @@ export default class ProductTipRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID,
+          options: {
+            handler: controller.getTipsByProductId,
+            validate: validate.getTipsByProductId,
+            description: "Method that get product tips by product id",
+            tags: ["api", "Product tip"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.productTips,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });
