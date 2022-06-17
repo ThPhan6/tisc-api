@@ -57,8 +57,8 @@ export const ROUTES = {
   CREATE_LOCATION: "/api/location/create",
 
   GET_COUNTRIES: "/api/location/get-countries",
-  GET_STATES: "/api/location/get-states/{country_id}",
-  GET_CITIES: "/api/location/get-cities/{country_id}",
+  GET_STATES: "/api/location/get-states",
+  GET_CITIES: "/api/location/get-cities",
 
   GET_LIST_TEAM_PROFILE: "/api/team-profile/get-list",
   GET_ONE_TEAM_PROFILE: "/api/team-profile/get-one/{id}",

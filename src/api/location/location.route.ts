@@ -135,14 +135,30 @@ export default class LocationRoute implements IRoute {
           path: ROUTES.GET_CITIES,
           options: {
             handler: controller.getCities,
-            validate: validate.getStates,
-            description: "Method that get country cities",
+            validate: validate.getCities,
+            description: "Method that get cities",
             tags: ["api", "Location"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.states,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_LOCATION,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete location",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },
