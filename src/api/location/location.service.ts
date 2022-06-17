@@ -18,7 +18,9 @@ import {
 } from "./location.type";
 import { IMessageResponse } from "../../type/common.type";
 import { MESSAGES } from "../../constant/common.constant";
-import CountryStateCityService from "../../service/country_state_city.service";
+import CountryStateCityService, {
+  ICity,
+} from "../../service/country_state_city.service";
 
 export default class LocationService {
   private locationModel: LocationModel;
@@ -242,7 +244,7 @@ export default class LocationService {
             country.id.toString()
           );
           return {
-            id: country.id.toString(),
+            id: country.iso2,
             name: country.name,
             phone_code: detail.phonecode,
           };
@@ -259,7 +261,7 @@ export default class LocationService {
         country_id
       );
       const result = states.map((state) => ({
-        id: state.id.toString(),
+        id: state.iso2,
         name: state.name,
       }));
       return resolve({
@@ -267,20 +269,32 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public getCities = (country_id: string): Promise<IStatesResponse> =>
+  public getCities = (
+    country_id: string,
+    state_id?: string
+  ): Promise<IStatesResponse> =>
     new Promise(async (resolve) => {
-      const states = await this.countryStateCityService.getCitiesByCountry(
-        country_id
-      );
-      const result = states.map((state) => ({
-        id: state.id.toString(),
-        name: state.name,
+      let cities: ICity[] = [];
+      if (!state_id) {
+        cities = await this.countryStateCityService.getCitiesByCountry(
+          country_id
+        );
+      } else {
+        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
+          country_id,
+          state_id
+        );
+      }
+      const result = cities.map((city) => ({
+        id: city.id.toString(),
+        name: city.name,
       }));
       return resolve({
         data: result,
         statusCode: 200,
       });
     });
+
   public getList = (
     limit: number,
     offset: number,
@@ -368,6 +382,21 @@ export default class LocationService {
       });
       return resolve({
         data: result,
+        statusCode: 200,
+      });
+    });
+  public delete = async (id: string): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const location = await this.locationModel.find(id);
+      if (!location) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_LOCATION,
+          statusCode: 404,
+        });
+      }
+      await this.locationModel.update(id, { is_deleted: true });
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

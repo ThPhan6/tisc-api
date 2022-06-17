@@ -169,7 +169,7 @@ export default class Model<IModelData> {
           .builder.where("id", id)
           .update(params);
         if (isUpdated) {
-          return await this.find(id);
+          return isUpdated;
         }
       }
       return undefined;

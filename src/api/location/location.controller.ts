@@ -34,13 +34,13 @@ export default class LocationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getStates = async (req: Request, toolkit: ResponseToolkit) => {
-    const { country_id } = req.params;
+    const { country_id } = req.query;
     const response = await this.service.getStates(country_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getCities = async (req: Request, toolkit: ResponseToolkit) => {
-    const { country_id } = req.params;
-    const response = await this.service.getCities(country_id);
+    const { country_id, state_id } = req.query;
+    const response = await this.service.getCities(country_id, state_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -56,6 +56,11 @@ export default class LocationController {
   };
   public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getListWithGroup();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

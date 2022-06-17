@@ -1,12 +1,12 @@
 import axios from "axios";
 
-interface ICountry {
+export interface ICountry {
   id: number;
   name: string;
   iso2: string;
 }
 
-interface ICountryDetail {
+export interface ICountryDetail {
   id: number;
   name: string;
   iso3: string;
@@ -28,7 +28,7 @@ interface ICountryDetail {
   emoji: string;
   emojiU: string;
 }
-interface IStateDetail {
+export interface IStateDetail {
   id: number;
   name: string;
   country_id: string;
@@ -38,7 +38,7 @@ interface IStateDetail {
   latitude: string;
   longtitude: string;
 }
-interface ICity {
+export interface ICity {
   id: number;
   name: string;
 }

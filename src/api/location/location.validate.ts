@@ -12,8 +12,14 @@ const customFilter = (value: any, helpers: any) => {
 };
 export default {
   getStates: {
-    params: {
+    query: {
       country_id: Joi.string().required(),
+    },
+  },
+  getCities: {
+    query: {
+      country_id: Joi.string().required(),
+      state_id: Joi.string(),
     },
   },
   create: {
