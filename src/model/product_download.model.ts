@@ -21,4 +21,19 @@ export default class ProductDownloadModel extends Model<IProductDownload> {
   constructor() {
     super("product_downloads");
   }
+  public getDuplicatedProductDownload = async (
+    id: string,
+    fileName: string
+  ) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("file_name", fileName.toLowerCase())
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }
