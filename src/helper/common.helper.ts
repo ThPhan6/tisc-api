@@ -56,3 +56,8 @@ export const getFileTypeFromBase64 = async (
 export const randomName = (n: number) => {
   return randomBytes(n).toString("hex");
 };
+
+export const countWord = (str: string) => {
+  const arrStr = str.split(" ");
+  return arrStr.filter((word: any) => word !== "").length;
+};

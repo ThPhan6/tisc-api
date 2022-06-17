@@ -91,4 +91,12 @@ export const ROUTES = {
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
   GET_LIST_COLLECTION: "/api/collection/get-list",
   CREATE_COLLECTION: "/api/collection/create",
+
+  CREATE_PRODUCT_TIP: "/api/product-tip/create",
+  GET_LIST_PRODUCT_TIP: "/api/product-tip/get-list",
+  GET_ONE_PRODUCT_TIP: "/api/product-tip/get-one/{id}",
+  EDIT_PRODUCT_TIP: "/api/product-tip/update/{id}",
+  DELETE_PRODUCT_TIP: "/api/product-tip/delete/{id}",
+  GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
+    "/api/product-tip/get-list-by-product/{id}",
 };
