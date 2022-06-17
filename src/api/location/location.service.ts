@@ -14,6 +14,7 @@ import {
   ILocationResponse,
   ILocationsResponse,
   IStatesResponse,
+  LocationsWithGroupResponse,
 } from "./location.type";
 import { IMessageResponse } from "../../type/common.type";
 import { MESSAGES } from "../../constant/common.constant";
@@ -68,14 +69,23 @@ export default class LocationService {
       const country = await this.countryStateCityService.getCountryDetail(
         payload.country_id
       );
-      const state = await this.countryStateCityService.getStateDetail(
-        payload.country_id,
-        payload.state_id
-      );
-      const cities =
-        await this.countryStateCityService.getCitiesByStateAndCountry(
+      let state;
+      if (payload.state_id) {
+        state = await this.countryStateCityService.getStateDetail(
           payload.country_id,
           payload.state_id
+        );
+      }
+      let cities;
+      if (payload.state_id) {
+        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
+          payload.country_id,
+          payload.state_id
+        );
+      }
+      if (!cities || cities === [])
+        cities = await this.countryStateCityService.getCitiesByCountry(
+          payload.country_id
         );
       const city = cities.find(
         (item) => item.id.toString() === payload.city_id
@@ -88,8 +98,8 @@ export default class LocationService {
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
-        country_name: country.name,
-        state_name: state.name,
+        country_name: country?.name || "",
+        state_name: state?.name || "",
         city_name: city?.name || "",
         phone_code: country.phonecode,
         address: payload.address,
@@ -139,14 +149,23 @@ export default class LocationService {
       const country = await this.countryStateCityService.getCountryDetail(
         payload.country_id
       );
-      const state = await this.countryStateCityService.getStateDetail(
-        payload.country_id,
-        payload.state_id
-      );
-      const cities =
-        await this.countryStateCityService.getCitiesByStateAndCountry(
+      let state;
+      if (payload.state_id) {
+        state = await this.countryStateCityService.getStateDetail(
           payload.country_id,
           payload.state_id
+        );
+      }
+      let cities;
+      if (payload.state_id) {
+        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
+          payload.country_id,
+          payload.state_id
+        );
+      }
+      if (!cities || cities === [])
+        cities = await this.countryStateCityService.getCitiesByCountry(
+          payload.country_id
         );
       const city = cities.find(
         (item) => item.id.toString() === payload.city_id
@@ -158,8 +177,8 @@ export default class LocationService {
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
-        country_name: country.name,
-        state_name: state.name,
+        country_name: country?.name || "",
+        state_name: state?.name || "",
         city_name: city?.name || "",
         phone_code: country.phonecode,
         address: payload.address,
@@ -304,6 +323,51 @@ export default class LocationService {
           locations: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+  public getListWithGroup = (): Promise<LocationsWithGroupResponse> =>
+    new Promise(async (resolve) => {
+      const locations = await this.locationModel.getAll(
+        undefined,
+        "country_name",
+        "ASC"
+      );
+      const removedFields = await Promise.all(
+        locations.map(async (location: ILocationAttributes) => {
+          const functionalTypes = await this.functionalTypeModel.getMany(
+            location.functional_type_ids,
+            ["id", "name"]
+          );
+          const {
+            is_deleted,
+            functional_type_ids,
+            country_id,
+            state_id,
+            city_id,
+            business_number,
+            general_email,
+            general_phone,
+            ...rest
+          } = location;
+          return { ...rest, functional_types: functionalTypes };
+        })
+      );
+      const distintCountries = await this.locationModel.getGroupBy(
+        "country_name",
+        "count"
+      );
+      const result = distintCountries.map((distintCountry: any) => {
+        const groupLocations = removedFields.filter(
+          (item) => item.country_name === distintCountry.country_name
+        );
+        return {
+          ...distintCountry,
+          locations: groupLocations,
+        };
+      });
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

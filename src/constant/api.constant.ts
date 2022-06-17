@@ -50,6 +50,7 @@ export const ROUTES = {
   CREATE_DOCUMENTATION: "/api/documentation/create",
   GET_ONE_DOCUMENTATION: "/api/documentation/get-one/{id}",
   GET_LIST_LOCATION: "/api/location/get-list",
+  GET_LIST_LOCATION_WITH_GROUP: "/api/location/get-list-with-country-group",
   GET_ONE_LOCATION: "/api/location/get-one/{id}",
   EDIT_LOCATION: "/api/location/update/{id}",
   DELETE_LOCATION: "/api/location/delete/{id}",

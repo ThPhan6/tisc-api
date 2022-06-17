@@ -54,4 +54,8 @@ export default class LocationController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
+    const response = await this.service.getListWithGroup();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

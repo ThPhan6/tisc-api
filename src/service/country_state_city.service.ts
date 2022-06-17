@@ -54,55 +54,83 @@ const options = {
 export default class CountryStateCityService {
   public getAllCountry = (): Promise<ICountry[]> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(`${url}/countries`, options);
-      return resolve(result.data);
+      try {
+        const result = await axios.get(`${url}/countries`, options);
+        return resolve(result.data);
+      } catch (error) {
+        return resolve([]);
+      }
     });
-  public getCountryDetail = (id: string): Promise<ICountryDetail> =>
+  public getCountryDetail = (id: string): Promise<ICountryDetail | any> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(`${url}/countries/${id}`, options);
-      return resolve(result.data);
+      try {
+        const result = await axios.get(`${url}/countries/${id}`, options);
+        return resolve(result.data);
+      } catch (error) {
+        return resolve({});
+      }
     });
   public getAllState = (): Promise<IStateDetail[]> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(`${url}/states`, options);
-      return resolve(result.data);
+      try {
+        const result = await axios.get(`${url}/states`, options);
+        return resolve(result.data);
+      } catch (error) {
+        return resolve([]);
+      }
     });
   public getStatesByCountry = (country_id: string): Promise<ICountry[]> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(
-        `${url}/countries/${country_id}/states`,
-        options
-      );
-      return resolve(result.data);
+      try {
+        const result = await axios.get(
+          `${url}/countries/${country_id}/states`,
+          options
+        );
+        return resolve(result.data);
+      } catch (error) {
+        return resolve([]);
+      }
     });
   public getStateDetail = (
     country_id: string,
     id: string
-  ): Promise<IStateDetail> =>
+  ): Promise<IStateDetail | any> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(
-        `${url}/countries/${country_id}/states/${id}`,
-        options
-      );
-      return resolve(result.data);
+      try {
+        const result = await axios.get(
+          `${url}/countries/${country_id}/states/${id}`,
+          options
+        );
+        return resolve(result.data);
+      } catch (error) {
+        return resolve({});
+      }
     });
   public getCitiesByStateAndCountry = (
     country_id: string,
     state_id: string
   ): Promise<ICity[]> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(
-        `${url}/countries/${country_id}/states/${state_id}/cities`,
-        options
-      );
-      return resolve(result.data);
+      try {
+        const result = await axios.get(
+          `${url}/countries/${country_id}/states/${state_id}/cities`,
+          options
+        );
+        return resolve(result.data);
+      } catch (error) {
+        return resolve([]);
+      }
     });
   public getCitiesByCountry = (country_id: string): Promise<ICity[]> =>
     new Promise(async (resolve) => {
-      const result = await axios.get(
-        `${url}/countries/${country_id}/cities`,
-        options
-      );
-      return resolve(result.data);
+      try {
+        const result = await axios.get(
+          `${url}/countries/${country_id}/cities`,
+          options
+        );
+        return resolve(result.data);
+      } catch (error) {
+        return resolve([]);
+      }
     });
 }

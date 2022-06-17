@@ -102,7 +102,14 @@ export default class CategoryService {
           return element.name;
         });
       });
-      if (isDuplicatedString(categoryNames.flat(1))) {
+      let isDuplicatedCategory = false;
+      categoryNames.forEach((item: any) => {
+        if (isDuplicatedString(item)) {
+          isDuplicatedCategory = true;
+        }
+      });
+
+      if (isDuplicatedCategory) {
         return resolve({
           message: MESSAGES.DUPLICATED_CATEGORY,
           statusCode: 400,
@@ -250,12 +257,20 @@ export default class CategoryService {
           return element.name;
         });
       });
-      if (isDuplicatedString(categoryNames.flat(1))) {
+      let isDuplicatedCategory = false;
+      categoryNames.forEach((item: any) => {
+        if (isDuplicatedString(item)) {
+          isDuplicatedCategory = true;
+        }
+      });
+
+      if (isDuplicatedCategory) {
         return resolve({
           message: MESSAGES.DUPLICATED_CATEGORY,
           statusCode: 400,
         });
       }
+
       const subCategories = payload.subs.map((item: any) => {
         const categories = item.subs.map((element: any) => {
           if (element.id) {

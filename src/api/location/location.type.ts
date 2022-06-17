@@ -22,10 +22,10 @@ export interface ILocation {
   general_email: string;
   created_at: string;
   country_id: string;
-  state_id: string;
+  state_id: string | null;
   city_id: string;
   country_name: string;
-  state_name: string;
+  state_name: string | null;
   city_name: string;
   phone_code: string;
 }
@@ -67,6 +67,32 @@ export interface IStatesResponse {
   data: {
     id: string;
     name: string;
+  }[];
+  statusCode: number;
+}
+
+export interface LocationsWithGroupResponse {
+  data: {
+    country_name: string;
+    count: number;
+    locations: {
+      id: string;
+      business_name: string;
+      functional_types: {
+        id: string;
+        name: string;
+      }[];
+      address: string;
+      postal_code: string;
+      created_at: string;
+      country_id: string;
+      state_id: string | null;
+      city_id: string;
+      country_name: string;
+      state_name: string | null;
+      city_name: string;
+      phone_code: string;
+    }[];
   }[];
   statusCode: number;
 }
