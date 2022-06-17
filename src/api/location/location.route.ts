@@ -66,6 +66,22 @@ export default class LocationRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.GET_FUNCTIONAL_TYPES,
+          options: {
+            handler: controller.getFunctionalTypes,
+            description: "Method that get functional types",
+            tags: ["api", "Functional type"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getlistFunctionalType,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_LIST_LOCATION,
           options: {
             handler: controller.getList,

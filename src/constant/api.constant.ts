@@ -55,6 +55,8 @@ export const ROUTES = {
   EDIT_LOCATION: "/api/location/update/{id}",
   DELETE_LOCATION: "/api/location/delete/{id}",
   CREATE_LOCATION: "/api/location/create",
+  GET_FUNCTIONAL_TYPES: "/api/functional-type/get-list",
+  GET_DEPARTMENTS: "/api/department/get-list",
 
   GET_COUNTRIES: "/api/location/get-countries",
   GET_STATES: "/api/location/get-states",

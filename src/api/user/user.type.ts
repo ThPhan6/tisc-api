@@ -3,7 +3,7 @@ export interface IUserRequest {
   lastname: string;
   gender: boolean;
   location_id: string;
-  department: string;
+  department_id: string;
   position: string;
   email: string;
   phone: string;
@@ -23,7 +23,8 @@ export interface IUpdateMeRequest {
 export interface IUser {
   firstname: string;
   lastname: string;
-  location: string | null;
+  location_id: string | null;
+  department_id: string | null;
   position: string | null;
   email: string;
   phone: string | null;
@@ -43,5 +44,12 @@ export interface IAvatarResponse {
   data: {
     url: string;
   };
+  statusCode: number;
+}
+export interface IDepartmentsResponse {
+  data: {
+    id: string;
+    name: string;
+  }[];
   statusCode: number;
 }

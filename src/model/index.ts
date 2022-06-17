@@ -255,4 +255,11 @@ export default class Model<IModelData> {
       return [];
     }
   };
+  public raw = async (raw_string: string, bindObj: any) => {
+    try {
+      return await this.builder.raw(raw_string, bindObj);
+    } catch (error) {
+      return false;
+    }
+  };
 }

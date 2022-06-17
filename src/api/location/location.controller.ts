@@ -63,4 +63,11 @@ export default class LocationController {
     const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getFunctionalTypes = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await this.service.getFunctionalTypes();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

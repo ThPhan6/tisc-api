@@ -8,7 +8,7 @@ export interface IUserAttributes {
   lastname: string;
   gender: boolean | null;
   location_id: string | null;
-  department: string | null;
+  department_id: string | null;
   position: string | null;
   email: string;
   phone: string | null;
@@ -35,7 +35,7 @@ export const USER_NULL_ATTRIBUTES = {
   lastname: null,
   gender: null,
   location_id: null,
-  department: null,
+  department_id: null,
   position: null,
   email: null,
   phone: null,

@@ -142,6 +142,22 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_DEPARTMENTS,
+          options: {
+            handler: controller.getDepartments,
+            description: "Method that get departments",
+            tags: ["api", "Department"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListDepartment,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

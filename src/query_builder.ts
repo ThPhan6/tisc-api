@@ -326,4 +326,17 @@ export default class Builder {
     };
     return this;
   };
+
+  public raw = async (raw_string: string, bindObj: any) => {
+    try {
+      const result = await db.query({
+        query: raw_string,
+        bindVars: bindObj,
+      });
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
 }
