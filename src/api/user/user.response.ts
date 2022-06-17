@@ -12,6 +12,7 @@ export default {
       lastname: Joi.string(),
       gender: Joi.any(),
       location_id: Joi.string().allow(null),
+      department_id: Joi.string().allow(null),
       position: Joi.string().allow(null),
       email: Joi.string(),
       phone: Joi.any(),
