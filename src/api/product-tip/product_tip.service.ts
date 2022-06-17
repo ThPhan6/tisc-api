@@ -21,7 +21,7 @@ export default class ProductTipService {
     payload: IProductTipRequest
   ): Promise<IProductTipResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      if (countWord(payload.content) >= 100) {
+      if (countWord(payload.content) > 100) {
         return resolve({
           message: MESSAGES.CONTENT_TIP_MAX_WORDS,
           statusCode: 400,
@@ -37,6 +37,7 @@ export default class ProductTipService {
 
       const productTip = await this.productTipModel.findBy({
         title: payload.title.toLowerCase(),
+        product_id: payload.product_id,
       });
       if (productTip) {
         return resolve({
@@ -113,7 +114,7 @@ export default class ProductTipService {
     payload: IProductTipRequest
   ): Promise<IMessageResponse | IProductTipResponse> => {
     return new Promise(async (resolve) => {
-      if (countWord(payload.content) >= 100) {
+      if (countWord(payload.content) > 100) {
         return resolve({
           message: MESSAGES.CONTENT_TIP_MAX_WORDS,
           statusCode: 400,
