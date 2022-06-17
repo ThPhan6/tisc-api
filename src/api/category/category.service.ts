@@ -102,15 +102,19 @@ export default class CategoryService {
           return element.name;
         });
       });
-
+      let isDuplicatedCategory = false;
       categoryNames.forEach((item: any) => {
         if (isDuplicatedString(item)) {
-          return resolve({
-            message: MESSAGES.DUPLICATED_CATEGORY,
-            statusCode: 400,
-          });
+          isDuplicatedCategory = true;
         }
       });
+
+      if (isDuplicatedCategory) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_CATEGORY,
+          statusCode: 400,
+        });
+      }
 
       const subCategories = payload.subs.map((item: any) => {
         const categories = item.subs.map((element: any) => {
@@ -253,15 +257,19 @@ export default class CategoryService {
           return element.name;
         });
       });
-
+      let isDuplicatedCategory = false;
       categoryNames.forEach((item: any) => {
         if (isDuplicatedString(item)) {
-          return resolve({
-            message: MESSAGES.DUPLICATED_CATEGORY,
-            statusCode: 400,
-          });
+          isDuplicatedCategory = true;
         }
       });
+
+      if (isDuplicatedCategory) {
+        return resolve({
+          message: MESSAGES.DUPLICATED_CATEGORY,
+          statusCode: 400,
+        });
+      }
 
       const subCategories = payload.subs.map((item: any) => {
         const categories = item.subs.map((element: any) => {
