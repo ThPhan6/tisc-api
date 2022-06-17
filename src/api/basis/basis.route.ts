@@ -21,7 +21,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.CREATE_BASIS_CONVERSION,
           options: {
             handler: controller.createBasisConversion,
-            validate: validate.createBasisConverison,
+            validate: validate.createBasisConversion,
             description: "Method that create basis conversion",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
@@ -72,7 +72,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.EDIT_BASIS_CONVERSION,
           options: {
             handler: controller.updateBasisConversion,
-            validate: validate.updateBasisConverison,
+            validate: validate.updateBasisConversion,
             description: "Method that update basis conversion",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,

@@ -11,7 +11,7 @@ const customFilter = (value: any, helpers: any) => {
   }
 };
 export default {
-  createBasisConverison: {
+  createBasisConversion: {
     payload: {
       name: Joi.string().required().messages({
         "string.empty": "Conversion name can not be empty",
@@ -22,8 +22,8 @@ export default {
           Joi.object({
             name_1: Joi.string(),
             name_2: Joi.string(),
-            formula_1: Joi.number(),
-            formula_2: Joi.number(),
+            formula_1: Joi.string(),
+            formula_2: Joi.string(),
             unit_1: Joi.string(),
             unit_2: Joi.string(),
           })
@@ -35,7 +35,7 @@ export default {
         }),
     },
   },
-  updateBasisConverison: {
+  updateBasisConversion: {
     params: {
       id: Joi.string().required(),
     },
@@ -50,8 +50,8 @@ export default {
             id: Joi.string(),
             name_1: Joi.string(),
             name_2: Joi.string(),
-            formula_1: Joi.number(),
-            formula_2: Joi.number(),
+            formula_1: Joi.string(),
+            formula_2: Joi.string(),
             unit_1: Joi.string(),
             unit_2: Joi.string(),
           })
