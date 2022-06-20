@@ -9,6 +9,8 @@ export interface IAttribute {
     basis_id: string;
     content_type: string;
     description: string;
+    description_1?: string;
+    description_2?: string;
   }[];
   created_at: string;
 }

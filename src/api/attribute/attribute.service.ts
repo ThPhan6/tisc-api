@@ -134,41 +134,7 @@ export default class AttributeService {
           statusCode: 400,
         });
       }
-      const subResponses = await Promise.all(
-        createdAttribute.subs.map(async (item) => {
-          const foundContentype = contentTypes.find(
-            (contentType) => contentType.id === item.basis_id
-          );
-          if (foundContentype) {
-            if (foundContentype.type === "Conversion") {
-              return {
-                ...item,
-                content_type: foundContentype.type,
-                description: foundContentype.name_1 + foundContentype.name_2,
-              };
-            }
-            return {
-              ...item,
-              content_type: foundContentype.type,
-              description: foundContentype.name,
-            };
-          }
-          return {
-            ...item,
-            content_type: "",
-            description: "",
-          };
-        })
-      );
-      const { type, is_deleted, ...rest } = createdAttribute;
-      return resolve({
-        data: {
-          ...rest,
-          count: payload.subs.length,
-          subs: subResponses,
-        },
-        statusCode: 200,
-      });
+      return resolve(await this.get(createdAttribute.id));
     });
   };
   public get = (id: string): Promise<IMessageResponse | IAttributeResponse> => {
@@ -190,7 +156,9 @@ export default class AttributeService {
             return {
               ...item,
               content_type: foundContentype.type,
-              description: foundContentype.name_1 + foundContentype.name_2,
+              description: "",
+              description_1: foundContentype.name_1,
+              description_2: foundContentype.name_2,
             };
           }
           return {
