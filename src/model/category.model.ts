@@ -18,6 +18,7 @@ export default class CategoryModel extends Model<ICategoryAttributes> {
     try {
       const result: any = await this.builder
         .whereNot("id", id)
+        .whereNot("is_deleted", true)
         .where("name", name.toLowerCase())
         .first();
       return result;
