@@ -8,7 +8,6 @@ export interface IAttributeAttributes {
     id: string;
     name: string;
     basis_id: string;
-    description: string;
   }[];
   created_at: string;
   is_deleted: boolean;

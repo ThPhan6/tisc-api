@@ -16,7 +16,7 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           basis_id: Joi.string(),
-          description: Joi.string(),
+          description: Joi.string().allow(""),
           content_type: Joi.string().allow(""),
         })
       ),
@@ -36,7 +36,7 @@ export default {
               id: Joi.string(),
               name: Joi.string(),
               basis_id: Joi.string(),
-              description: Joi.string(),
+              description: Joi.string().allow(""),
               content_type: Joi.string().allow(""),
             })
           ),

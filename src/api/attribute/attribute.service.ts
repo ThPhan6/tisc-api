@@ -37,10 +37,63 @@ export default class AttributeService {
       return pre + cur.subs.length;
     }, 0);
   };
+  private getFlatListContentType = async (): Promise<any[]> => {
+    let data = [];
+    const conversionGroups = await this.basisModel.getAllBasisByType(
+      BASIS_TYPES.CONVERSION
+    );
+    conversionGroups.forEach((conversionGroup: IBasisAttributes) => {
+      conversionGroup.subs.forEach((conversion: any) => {
+        data.push({
+          id: conversion.id,
+          name_1: conversion.name_1,
+          name_2: conversion.name_2,
+          type: "Conversion",
+        });
+      });
+    });
+    const presetGroups = await this.basisModel.getAllBasisByType(
+      BASIS_TYPES.PRESET
+    );
+    presetGroups.forEach((presetGroup: IBasisAttributes) => {
+      presetGroup.subs.forEach((preset: any) => {
+        data.push({
+          id: preset.id,
+          name: preset.name,
+          type: "Preset",
+        });
+      });
+    });
+    const optionGroups = await this.basisModel.getAllBasisByType(
+      BASIS_TYPES.OPTION
+    );
+    optionGroups.forEach((optionGroup: IBasisAttributes) => {
+      optionGroup.subs.forEach((option: any) => {
+        data.push({
+          id: option.id,
+          name: option.name,
+          type: "Option",
+        });
+      });
+    });
+    data.push({
+      id: LONG_TEXT_ID,
+      name: "Long Format",
+      type: "Text",
+    });
+    data.push({
+      id: SHORT_TEXT_ID,
+      name: "Short Format",
+      type: "Text",
+    });
+
+    return data;
+  };
   public create = (
     payload: IAttributeRequest
   ): Promise<IMessageResponse | IAttributeResponse> => {
     return new Promise(async (resolve) => {
+      const contentTypes = await this.getFlatListContentType();
       const attribute = await this.attributeModel.findBy({
         name: payload.name.toLowerCase(),
       });
@@ -67,7 +120,6 @@ export default class AttributeService {
           id: uuid(),
           name: item.name,
           basis_id: item.basis_id,
-          description: item.description,
         };
       });
       const createdAttribute = await this.attributeModel.create({
@@ -82,13 +134,32 @@ export default class AttributeService {
           statusCode: 400,
         });
       }
-      const subResponses = createdAttribute.subs.map((item) => {
-        return {
-          ...item,
-          //get basis and put here later
-          content_type: "",
-        };
-      });
+      const subResponses = await Promise.all(
+        createdAttribute.subs.map(async (item) => {
+          const foundContentype = contentTypes.find(
+            (contentType) => contentType.id === item.basis_id
+          );
+          if (foundContentype) {
+            if (foundContentype.type === "Conversion") {
+              return {
+                ...item,
+                content_type: foundContentype.type,
+                description: foundContentype.name_1 + foundContentype.name_2,
+              };
+            }
+            return {
+              ...item,
+              content_type: foundContentype.type,
+              description: foundContentype.name,
+            };
+          }
+          return {
+            ...item,
+            content_type: "",
+            description: "",
+          };
+        })
+      );
       const { type, is_deleted, ...rest } = createdAttribute;
       return resolve({
         data: {
@@ -102,6 +173,7 @@ export default class AttributeService {
   };
   public get = (id: string): Promise<IMessageResponse | IAttributeResponse> => {
     return new Promise(async (resolve) => {
+      const contentTypes = await this.getFlatListContentType();
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
@@ -110,10 +182,27 @@ export default class AttributeService {
         });
       }
       const subResponses = attribute.subs.map((item) => {
+        const foundContentype = contentTypes.find(
+          (contentType) => contentType.id === item.basis_id
+        );
+        if (foundContentype) {
+          if (foundContentype.type === "Conversion") {
+            return {
+              ...item,
+              content_type: foundContentype.type,
+              description: foundContentype.name_1 + foundContentype.name_2,
+            };
+          }
+          return {
+            ...item,
+            content_type: foundContentype.type,
+            description: foundContentype.name,
+          };
+        }
         return {
           ...item,
-          //get basis and put here later
           content_type: "",
+          description: "",
         };
       });
       const { type, is_deleted, ...rest } = attribute;

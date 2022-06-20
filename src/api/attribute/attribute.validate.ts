@@ -30,7 +30,6 @@ export default {
           Joi.object({
             name: Joi.string(),
             basis_id: Joi.string(),
-            description: Joi.string(),
           }).required()
         )
         .required(),
@@ -54,7 +53,6 @@ export default {
             id: Joi.any(),
             name: Joi.string(),
             basis_id: Joi.string(),
-            description: Joi.string(),
           }).required()
         )
         .required(),
