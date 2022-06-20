@@ -21,4 +21,16 @@ export default class ProductTipModel extends Model<IProductTip> {
   constructor() {
     super("product_tips");
   }
+  public getDuplicatedProductTip = async (id: string, title: string) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("title", title.toLowerCase())
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }
