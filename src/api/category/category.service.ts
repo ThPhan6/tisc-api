@@ -6,6 +6,7 @@ import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   isDuplicatedString,
   sortObjectArray,
+  tosingleSpace,
 } from "./../../helper/common.helper";
 import {
   ICategoriesResponse,
@@ -76,7 +77,7 @@ export default class CategoryService {
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
       const mainCategory = await this.categoryModel.findBy({
-        name: payload.name.toLowerCase(),
+        name: tosingleSpace(payload.name.toLowerCase()),
       });
       if (mainCategory) {
         return resolve({
@@ -84,6 +85,7 @@ export default class CategoryService {
           statusCode: 400,
         });
       }
+      payload.name = tosingleSpace(payload.name);
       if (
         isDuplicatedString(
           payload.subs.map((item: any) => {
