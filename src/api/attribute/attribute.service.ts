@@ -93,7 +93,6 @@ export default class AttributeService {
     payload: IAttributeRequest
   ): Promise<IMessageResponse | IAttributeResponse> => {
     return new Promise(async (resolve) => {
-      const contentTypes = await this.getFlatListContentType();
       const attribute = await this.attributeModel.findBy({
         name: payload.name.toLowerCase(),
       });
