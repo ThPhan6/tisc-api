@@ -194,6 +194,7 @@ export default class AttributeService {
     content_type_order: any
   ): Promise<IMessageResponse | IAttributesResponse> => {
     return new Promise(async (resolve) => {
+      const contentTypes = await this.getFlatListContentType();
       const attributes = await this.attributeModel.list(
         limit,
         offset,
@@ -204,12 +205,32 @@ export default class AttributeService {
       const returnedAttributes = attributes.map(
         (item: IAttributeAttributes) => {
           const newSub = item.subs.map((sub) => {
+            const foundContentype = contentTypes.find(
+              (contentType) => contentType.id === sub.basis_id
+            );
+            if (foundContentype) {
+              if (foundContentype.type === "Conversion") {
+                return {
+                  ...sub,
+                  content_type: foundContentype.type,
+                  description: "",
+                  description_1: foundContentype.name_1,
+                  description_2: foundContentype.name_2,
+                };
+              }
+              return {
+                ...sub,
+                content_type: foundContentype.type,
+                description: foundContentype.name,
+              };
+            }
             return {
               ...sub,
               content_type: "",
+              description: "",
             };
           });
-          let sortedSubs = item.subs;
+          let sortedSubs = newSub;
           if (attribute_order) {
             sortedSubs = sortObjectArray(newSub, "name", attribute_order);
           }
