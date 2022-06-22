@@ -88,7 +88,6 @@ export interface IBasisOption {
       unit_2: string;
     }[];
   }[];
-
   created_at: string;
 }
 
@@ -98,7 +97,7 @@ export interface IBasisOptionResponse {
 }
 export interface IBasisOptionsResponse {
   data: {
-    basis_options: IBasisOption;
+    basis_options: IBasisOption[];
     summary: {
       name: string;
       value: number;

@@ -495,7 +495,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_OPTION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -544,19 +544,26 @@ export default class BasisService {
         { ...filter, type: BASIS_TYPES.OPTION },
         ["name", group_order]
       );
-      const returnedGroups = groups.map((item: IBasisAttributes) => {
-        const returnedOptions = item.subs.map((option: any) => {
-          return {
-            ...option,
-            count: option.subs.length,
+      const returnedGroups = await Promise.all(
+        groups.map(async (item: IBasisAttributes) => {
+          const returnedOptions = await Promise.all(
+            item.subs.map((option: any) => {
+              return {
+                ...option,
+                count: option.subs.length,
+              };
+            })
+          );
+          const { type, is_deleted, ...rest } = {
+            ...item,
+            subs: sortObjectArray(returnedOptions, "name", option_order),
           };
-        });
-        const { type, is_deleted, ...rest } = {
-          ...item,
-          subs: sortObjectArray(returnedOptions, "name", option_order),
-        };
-        return rest;
-      });
+          return {
+            ...rest,
+            count: item.subs.length,
+          };
+        })
+      );
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
@@ -823,7 +830,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -909,7 +916,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }
