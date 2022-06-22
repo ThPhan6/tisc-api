@@ -209,7 +209,7 @@ export default class AttributeService {
               content_type: "",
             };
           });
-          let sortedSubs;
+          let sortedSubs = item.subs;
           if (attribute_order) {
             sortedSubs = sortObjectArray(newSub, "name", attribute_order);
           }
