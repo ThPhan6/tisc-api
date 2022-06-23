@@ -78,14 +78,16 @@ export default {
         id: Joi.string(),
         name: Joi.string(),
         count: Joi.number(),
-        subs: Joi.array().items({
-          id: Joi.string(),
-          image: Joi.any(),
-          value_1: Joi.string(),
-          value_2: Joi.string(),
-          unit_1: Joi.string(),
-          unit_2: Joi.string(),
-        }),
+        subs: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            image: Joi.any(),
+            value_1: Joi.string(),
+            value_2: Joi.string(),
+            unit_1: Joi.string(),
+            unit_2: Joi.string(),
+          }).allow(null)
+        ),
       }),
       created_at: Joi.string(),
     },
@@ -102,14 +104,16 @@ export default {
             id: Joi.string(),
             name: Joi.string(),
             count: Joi.number(),
-            subs: Joi.array().items({
-              id: Joi.string(),
-              image: Joi.any(),
-              value_1: Joi.string(),
-              value_2: Joi.string(),
-              unit_1: Joi.string(),
-              unit_2: Joi.string(),
-            }),
+            subs: Joi.array().items(
+              Joi.object({
+                id: Joi.string(),
+                image: Joi.any(),
+                value_1: Joi.string(),
+                value_2: Joi.string(),
+                unit_1: Joi.string(),
+                unit_2: Joi.string(),
+              }).allow(null)
+            ),
           }),
           created_at: Joi.string(),
         })
