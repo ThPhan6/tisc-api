@@ -544,26 +544,19 @@ export default class BasisService {
         { ...filter, type: BASIS_TYPES.OPTION },
         ["name", group_order]
       );
-      const returnedGroups = await Promise.all(
-        groups.map(async (item: IBasisAttributes) => {
-          const returnedOptions = await Promise.all(
-            item.subs.map((option: any) => {
-              return {
-                ...option,
-                count: option.subs.length,
-              };
-            })
-          );
-          const { type, is_deleted, ...rest } = {
-            ...item,
-            subs: sortObjectArray(returnedOptions, "name", option_order),
-          };
+      const returnedGroups = groups.map((item: IBasisAttributes) => {
+        const returnedOptions = item.subs.map((option: any) => {
           return {
-            ...rest,
-            count: item.subs.length,
+            ...option,
+            count: option.subs.length,
           };
-        })
-      );
+        });
+        const { type, is_deleted, ...rest } = {
+          ...item,
+          subs: sortObjectArray(returnedOptions, "name", option_order),
+        };
+        return rest;
+      });
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,

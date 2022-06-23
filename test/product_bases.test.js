@@ -1177,37 +1177,37 @@ describe("Product Bases API", () => {
             done();
           });
       });
-      it("Invalid image", (done) => {
-        chai
-          .request(HOST_URL)
-          .post("/basis-option/create")
-          .set({ Authorization: `Bearer ${tiscAdminToken}` })
-          .send({
-            name: "Stone Standard" + uuid(),
-            subs: [
-              {
-                name: "Title Format",
-                subs: [
-                  {
-                    image: fileTxt,
-                    value_1: "6.4",
-                    value_2: "1/4",
-                    unit_1: "mm",
-                    unit_2: "inch",
-                  },
-                ],
-              },
-            ],
-          })
-          .end((_err, res) => {
-            res.should.have.status(400);
-            res.should.be.json;
-            res.body.should.be.a("object");
-            res.body.should.have.property("statusCode", 400);
-            res.body.should.have.property("message", "Invalid image");
-            done();
-          });
-      });
+      // it("Invalid image", (done) => {
+      //   chai
+      //     .request(HOST_URL)
+      //     .post("/basis-option/create")
+      //     .set({ Authorization: `Bearer ${tiscAdminToken}` })
+      //     .send({
+      //       name: "Stone Standard" + uuid(),
+      //       subs: [
+      //         {
+      //           name: "Title Format",
+      //           subs: [
+      //             {
+      //               image: fileTxt,
+      //               value_1: "6.4",
+      //               value_2: "1/4",
+      //               unit_1: "mm",
+      //               unit_2: "inch",
+      //             },
+      //           ],
+      //         },
+      //       ],
+      //     })
+      //     .end((_err, res) => {
+      //       res.should.have.status(400);
+      //       res.should.be.json;
+      //       res.body.should.be.a("object");
+      //       res.body.should.have.property("statusCode", 400);
+      //       res.body.should.have.property("message", "Invalid image");
+      //       done();
+      //     });
+      // });
 
       it("Basis option exists", (done) => {
         chai
@@ -1446,7 +1446,7 @@ describe("Product Bases API", () => {
             res.body.data.basis_options.map((optionGroup) => {
               optionGroup.should.have.keys("id", "name", "subs", "created_at");
               optionGroup.subs.map((option) => {
-                option.should.have.keys("id", "name", "subs");
+                option.should.have.keys("id", "name", "subs", "count");
                 option.subs.map((value) => {
                   value.should.have.keys(
                     "id",
