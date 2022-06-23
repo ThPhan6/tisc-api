@@ -495,7 +495,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_OPTION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -823,7 +823,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -909,7 +909,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }

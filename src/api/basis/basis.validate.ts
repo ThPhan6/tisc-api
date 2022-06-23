@@ -212,6 +212,9 @@ export default {
     },
   },
   updateBasisPreset: {
+    params: {
+      id: Joi.string().required(),
+    },
     payload: {
       name: Joi.string().required().messages({
         "string.empty": "Group name can not be empty",
