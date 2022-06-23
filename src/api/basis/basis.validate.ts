@@ -75,9 +75,13 @@ export default {
             "string.empty": "Option name can not be empty",
             "any.required": "Option name can not be empty",
           }),
+          is_have_image: Joi.valid(true, false),
           subs: Joi.array()
             .items({
-              image: Joi.any(),
+              image: Joi.string().when("....is_have_image", {
+                is: true,
+                then: Joi.required(),
+              }),
               value_1: Joi.string(),
               value_2: Joi.string(),
               unit_1: Joi.string(),
