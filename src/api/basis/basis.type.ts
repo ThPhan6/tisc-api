@@ -97,7 +97,7 @@ export interface IBasisOptionResponse {
 }
 export interface IBasisOptionsResponse {
   data: {
-    basis_options: IBasisOption[];
+    basis_options: IBasisOption;
     summary: {
       name: string;
       value: number;
