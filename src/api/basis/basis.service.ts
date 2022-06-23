@@ -421,7 +421,7 @@ export default class BasisService {
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
-                  Buffer.from(value.image),
+                  Buffer.from(value.image, "base64"),
                   `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   fileType.mime
                 );
