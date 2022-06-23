@@ -214,7 +214,7 @@ export default class BasisService {
                 " = " +
                 1 +
                 " " +
-                element.unit_2,
+                element.unit_1,
             };
           });
           return {
@@ -259,7 +259,7 @@ export default class BasisService {
           first_formula:
             item.formula_1 + " " + item.unit_1 + " = " + 1 + " " + item.unit_2,
           second_formula:
-            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_2,
+            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_1,
         };
       });
       const { type, is_deleted, ...rest } = basisConversion;
