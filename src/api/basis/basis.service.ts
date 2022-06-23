@@ -400,7 +400,7 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      let isValidImage = true;
+      let isValidImage = false;
       let isUploadedData = false;
       const options = await Promise.all(
         payload.subs.map(async (item) => {
@@ -413,6 +413,12 @@ export default class BasisService {
                 }
                 if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
                   isValidImage = false;
+                }
+                if (
+                  fileType &&
+                  VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
+                ) {
+                  isValidImage = true;
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
