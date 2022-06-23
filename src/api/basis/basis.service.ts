@@ -400,7 +400,8 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-
+      let isInvalidImage = false;
+      let isUploadedData = false;
       const options = await Promise.all(
         payload.subs.map(async (item) => {
           const values = await Promise.all(
@@ -408,16 +409,10 @@ export default class BasisService {
               if (value.image) {
                 const fileType = await getFileTypeFromBase64(value.image);
                 if (!fileType) {
-                  return resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
+                  isInvalidImage = true;
                 }
                 if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
-                  return resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
+                  isInvalidImage = true;
                 }
                 const fileName = randomName(8);
                 const uploadedData = await upload(
@@ -426,10 +421,7 @@ export default class BasisService {
                   fileType.mime
                 );
                 if (!uploadedData) {
-                  return resolve({
-                    message: MESSAGES.SOMETHING_WRONG,
-                    statusCode: 400,
-                  });
+                  isUploadedData = true;
                 }
                 return {
                   id: uuid(),
@@ -457,6 +449,18 @@ export default class BasisService {
           };
         })
       );
+      if (isInvalidImage) {
+        return resolve({
+          message: MESSAGES.INVALID_IMAGE,
+          statusCode: 400,
+        });
+      }
+      if (isUploadedData) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG,
+          statusCode: 400,
+        });
+      }
       const createdBasisOption = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
