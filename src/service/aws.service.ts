@@ -54,6 +54,30 @@ export const listFile = async () => {
   }
 };
 
+export const listFilePrefix = async (prefix: string) => {
+  try {
+    return await s3Client.send(
+      new ListObjectsCommand({ Bucket: bucket, Prefix: prefix })
+    );
+  } catch (err) {
+    console.log("Error", err);
+  }
+};
+
+export const isExists = async (prefix: string) => {
+  try {
+    const files = await s3Client.send(
+      new ListObjectsCommand({ Bucket: bucket, Prefix: prefix })
+    );
+    if (files && files.Contents && files.Contents[0]) {
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.log("Error", err);
+  }
+};
+
 export const deleteFile = async (file_name: string) => {
   try {
     return await s3Client.send(
