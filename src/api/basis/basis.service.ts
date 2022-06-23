@@ -214,7 +214,7 @@ export default class BasisService {
                 " = " +
                 1 +
                 " " +
-                element.unit_2,
+                element.unit_1,
             };
           });
           return {
@@ -259,7 +259,7 @@ export default class BasisService {
           first_formula:
             item.formula_1 + " " + item.unit_1 + " = " + 1 + " " + item.unit_2,
           second_formula:
-            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_2,
+            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_1,
         };
       });
       const { type, is_deleted, ...rest } = basisConversion;
@@ -499,7 +499,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_OPTION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -827,7 +827,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -913,7 +913,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }

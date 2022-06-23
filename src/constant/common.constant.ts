@@ -15,6 +15,7 @@ export const MODEL_NAMES = {
 export const VALID_IMAGE_TYPES = [
   "image/png",
   "image/jpg",
+  "image/jpeg",
   "image/webp",
   "image/svg+xml",
 ];
@@ -103,6 +104,7 @@ export const MESSAGES = {
   PRODUCT_TIP_NOT_FOUND: "Product tip not found",
   PRODUCT_TIP_EXISTS: "Product tip exists",
   CONTENT_TIP_MAX_WORDS: "Content max 100 words",
+  BASIS_PRESET_NOT_FOUND: "Basis preset not found",
 };
 
 export const BASIS_TYPES = {

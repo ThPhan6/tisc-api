@@ -88,7 +88,6 @@ export interface IBasisOption {
       unit_2: string;
     }[];
   }[];
-
   created_at: string;
 }
 

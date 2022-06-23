@@ -48,7 +48,7 @@ export default class AttributeService {
           id: conversion.id,
           name_1: conversion.name_1,
           name_2: conversion.name_2,
-          type: "Conversion",
+          type: "Conversions",
         });
       });
     });
@@ -60,7 +60,7 @@ export default class AttributeService {
         data.push({
           id: preset.id,
           name: preset.name,
-          type: "Preset",
+          type: "Presets",
         });
       });
     });
@@ -72,7 +72,7 @@ export default class AttributeService {
         data.push({
           id: option.id,
           name: option.name,
-          type: "Option",
+          type: "Options",
         });
       });
     });
@@ -151,7 +151,7 @@ export default class AttributeService {
           (contentType) => contentType.id === item.basis_id
         );
         if (foundContentype) {
-          if (foundContentype.type === "Conversion") {
+          if (foundContentype.type === "Conversions") {
             return {
               ...item,
               content_type: foundContentype.type,
@@ -209,7 +209,7 @@ export default class AttributeService {
               (contentType) => contentType.id === sub.basis_id
             );
             if (foundContentype) {
-              if (foundContentype.type === "Conversion") {
+              if (foundContentype.type === "Conversions") {
                 return {
                   ...sub,
                   content_type: foundContentype.type,
@@ -243,6 +243,7 @@ export default class AttributeService {
           }
           const { type, is_deleted, ...rest } = {
             ...item,
+            count: sortedSubs.length,
             subs: sortedSubs,
           };
           return rest;
