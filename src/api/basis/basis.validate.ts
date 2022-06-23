@@ -81,6 +81,7 @@ export default {
               image: Joi.string().when("....is_have_image", {
                 is: true,
                 then: Joi.required(),
+                otherwise: Joi.optional().allow(""),
               }),
               value_1: Joi.string(),
               value_2: Joi.string(),
