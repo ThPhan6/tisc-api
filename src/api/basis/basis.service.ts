@@ -408,12 +408,6 @@ export default class BasisService {
             item.subs.map(async (value) => {
               if (value.image) {
                 const fileType = await getFileTypeFromBase64(value.image);
-                if (!fileType) {
-                  isValidImage = false;
-                }
-                if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
-                  isValidImage = false;
-                }
                 if (
                   fileType &&
                   VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
