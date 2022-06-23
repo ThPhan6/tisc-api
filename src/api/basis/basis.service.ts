@@ -11,7 +11,7 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
-import { deleteFile, upload } from "../../service/aws.service";
+import { deleteFile, isExists, upload } from "../../service/aws.service";
 import { BASIS_TYPES } from "./../../constant/common.constant";
 import { IBasisAttributes } from "./../../model/basis.model";
 import { IMessageResponse, IPagination } from "./../../type/common.type";
@@ -400,29 +400,40 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      let isValidImage = false;
-      let isUploadedData = false;
+      let isValidImage = true;
+      const imagesValidUpload: {
+        buffer: Buffer;
+        path: string;
+        mime_type: string;
+      }[] = [];
       const options = await Promise.all(
         payload.subs.map(async (item) => {
           const values = await Promise.all(
             item.subs.map(async (value) => {
+              if (!item.is_have_image) {
+                return {
+                  id: uuid(),
+                  image: null,
+                  value_1: value.value_1,
+                  value_2: value.value_2,
+                  unit_1: value.unit_1,
+                  unit_2: value.unit_2,
+                };
+              }
               if (value.image) {
                 const fileType = await getFileTypeFromBase64(value.image);
-                if (
-                  fileType &&
-                  VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
-                ) {
-                  isValidImage = true;
-                }
                 const fileName = randomName(8);
-                const uploadedData = await upload(
-                  Buffer.from(value.image, "base64"),
-                  `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  fileType.mime
-                );
-                if (!uploadedData) {
-                  isUploadedData = true;
+                if (
+                  !fileType ||
+                  !VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
+                ) {
+                  isValidImage = false;
                 }
+                imagesValidUpload.push({
+                  buffer: Buffer.from(value.image, "base64"),
+                  path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+                  mime_type: fileType.mime,
+                });
                 return {
                   id: uuid(),
                   image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
@@ -455,12 +466,10 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      if (isUploadedData) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
+      imagesValidUpload.map(async (item) => {
+        await upload(item.buffer, item.path, item.mime_type);
+        return true;
+      });
       const createdBasisOption = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
@@ -633,17 +642,15 @@ export default class BasisService {
         });
       }
 
-      //delete old image on space
-      group.subs.forEach((item: any) => {
-        item.subs.forEach(async (value: any) => {
-          if (value.image) {
-            await deleteFile(value.image.slice(1));
-          }
-        });
-      });
-
+      let isValidImage = true;
+      const imagesValidUpload: {
+        buffer: Buffer;
+        path: string;
+        mime_type: string;
+      }[] = [];
       let options = await Promise.all(
         payload.subs.map(async (item) => {
+          const { is_have_image, ...rest } = item;
           let foundOption = false;
           if (item.id) {
             const foundItem = group.subs.find((sub: any) => sub.id === item.id);
@@ -654,53 +661,6 @@ export default class BasisService {
           const values = await Promise.all(
             item.subs.map(async (value) => {
               let foundValue = false;
-              if (value.image) {
-                const fileType = await getFileTypeFromBase64(value.image);
-                if (!fileType) {
-                  resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
-                  return;
-                }
-                if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
-                  return resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
-                }
-                const fileName = randomName(8);
-                const uploadedData = await upload(
-                  Buffer.from(value.image),
-                  `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  fileType.mime
-                );
-                if (!uploadedData) {
-                  return resolve({
-                    message: MESSAGES.SOMETHING_WRONG,
-                    statusCode: 400,
-                  });
-                }
-                if (value.id) {
-                  const foundItem = this.getAllValueInOneGroup(group).find(
-                    (valueInGroup) => valueInGroup.id === value.id
-                  );
-                  if (foundItem) {
-                    foundValue = true;
-                  }
-                }
-                if (foundValue) {
-                  return {
-                    ...value,
-                    image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  };
-                }
-                return {
-                  ...value,
-                  image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  id: uuid(),
-                };
-              }
               if (value.id) {
                 const foundItem = this.getAllValueInOneGroup(group).find(
                   (valueInGroup) => valueInGroup.id === value.id
@@ -709,32 +669,93 @@ export default class BasisService {
                   foundValue = true;
                 }
               }
-              if (foundValue) {
+              if (!item.is_have_image) {
+                if (foundValue) {
+                  return {
+                    ...value,
+                    image: null,
+                  };
+                }
                 return {
                   ...value,
                   image: null,
+                  id: uuid(),
                 };
               }
-              return {
-                ...value,
-                image: null,
-                id: uuid(),
-              };
+              if (value.image) {
+                if (await isExists(value.image.slice(1))) {
+                  if (foundValue) {
+                    return {
+                      ...value,
+                      image: value.image,
+                    };
+                  }
+                  return {
+                    ...value,
+                    image: value.image,
+                    id: uuid(),
+                  };
+                } else {
+                  group.subs.map((item: any) => {
+                    item.subs.map(async (element: any) => {
+                      if (element.id === value.id && element.image) {
+                        await deleteFile(element.image.slice(1));
+                      }
+                    });
+                  });
+
+                  const fileType = await getFileTypeFromBase64(value.image);
+                  if (
+                    !fileType ||
+                    !VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
+                  ) {
+                    isValidImage = false;
+                  }
+                  const fileName = randomName(8);
+                  imagesValidUpload.push({
+                    buffer: Buffer.from(value.image, "base64"),
+                    path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+                    mime_type: fileType.mime,
+                  });
+
+                  if (foundValue) {
+                    return {
+                      ...value,
+                      image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+                    };
+                  }
+                  return {
+                    ...value,
+                    image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+                    id: uuid(),
+                  };
+                }
+              }
             })
           );
           if (foundOption) {
             return {
-              ...item,
+              ...rest,
               subs: values,
             };
           }
           return {
-            ...item,
+            ...rest,
             subs: values,
             id: uuid(),
           };
         })
       );
+      if (!isValidImage) {
+        return resolve({
+          message: MESSAGES.INVALID_IMAGE,
+          statusCode: 400,
+        });
+      }
+      imagesValidUpload.map(async (item) => {
+        await upload(item.buffer, item.path, item.mime_type);
+        return true;
+      });
 
       const updatedAttribute = await this.basisModel.update(id, {
         ...payload,
