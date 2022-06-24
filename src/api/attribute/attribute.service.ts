@@ -198,7 +198,7 @@ export default class AttributeService {
       const attributes = await this.attributeModel.list(
         limit,
         offset,
-        { ...filter, attribute_type },
+        { ...filter, type: attribute_type },
         ["name", group_order]
       );
 
