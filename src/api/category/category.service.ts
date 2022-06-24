@@ -22,56 +22,6 @@ export default class CategoryService {
     this.categoryModel = new CategoryModel();
   }
 
-  private addCount = (data: any) => {
-    const mainCategoryCount = data.length;
-    let subCategoryCount = 0;
-    let categoryCount = 0;
-    const result = data.map((item: ICategoryAttributes) => {
-      if (item.subs) {
-        const subCategories = item.subs.map((el: ICategoryAttributes) => {
-          if (el.subs) {
-            categoryCount += el.subs.length;
-            return {
-              ...el,
-              count: el.subs.length,
-            };
-          }
-          return {
-            ...el,
-            count: 0,
-          };
-        });
-        subCategoryCount += item.subs.length;
-        return {
-          ...item,
-          count: item.subs.length,
-          subs: subCategories,
-        };
-      }
-      return {
-        ...item,
-        count: 0,
-      };
-    });
-    return {
-      categories: result,
-      summary: [
-        {
-          name: "Main Category",
-          value: mainCategoryCount,
-        },
-        {
-          name: "Subcategory",
-          value: subCategoryCount,
-        },
-        {
-          name: "Category",
-          value: categoryCount,
-        },
-      ],
-    };
-  };
-
   public create = async (
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
@@ -175,11 +125,13 @@ export default class CategoryService {
         const returnedSubCategories = sortedSubCategories.map((sub) => {
           return {
             ...sub,
+            count: sub.subs.length,
             subs: sortObjectArray(sub.subs, "name", category_order),
           };
         });
         return {
           ...rest,
+          count: item.subs.length,
           subs: returnedSubCategories,
         };
       });
@@ -187,11 +139,39 @@ export default class CategoryService {
         limit,
         offset
       );
-      const result = this.addCount(returnedCategories);
+
+      const allCategory = await this.categoryModel.getAll();
+      const mainCategoryCount = allCategory.length;
+      let subCategoryCount = 0;
+      let categoryCount = 0;
+
+      allCategory.forEach((item) => {
+        if (item.subs) {
+          item.subs.forEach((subCategory: any) => {
+            categoryCount += subCategory.subs.length;
+          });
+        }
+        subCategoryCount += item.subs.length;
+      });
+
+      const summary = [
+        {
+          name: "Main Category",
+          value: mainCategoryCount,
+        },
+        {
+          name: "Subcategory",
+          value: subCategoryCount,
+        },
+        {
+          name: "Category",
+          value: categoryCount,
+        },
+      ];
       return resolve({
         data: {
-          categories: result.categories,
-          summary: result.summary,
+          categories: returnedCategories,
+          summary,
           pagination,
         },
         statusCode: 200,

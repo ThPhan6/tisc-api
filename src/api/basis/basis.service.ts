@@ -35,46 +35,6 @@ export default class BasisService {
   constructor() {
     this.basisModel = new BasisModel();
   }
-  private addCount = (data: any) => {
-    const totalCount = data.length;
-    let subCount = 0;
-    let childSubCount = 0;
-    const result = data.map((item: any) => {
-      if (item.subs) {
-        item.subs.map((el: any) => {
-          if (el.subs) {
-            childSubCount += el.subs.length;
-            return {
-              ...el,
-              count: el.subs.length,
-            };
-          }
-        });
-        subCount += item.subs.length;
-        return {
-          ...item,
-          count: item.subs.length,
-        };
-      }
-      return {
-        ...item,
-        count: 0,
-      };
-    });
-    return {
-      data: result,
-      summary: [
-        {
-          name: "Conversion Group",
-          value: totalCount,
-        },
-        {
-          name: "Conversion",
-          value: subCount,
-        },
-      ],
-    };
-  };
 
   private isDuplicatedConversion = (payload: any) => {
     const conversionBetweenNames = payload.subs.map((item: any) => {
@@ -223,17 +183,35 @@ export default class BasisService {
           };
         }
       );
-      const addedCount = this.addCount(returnedConversionGroups);
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
         BASIS_TYPES.CONVERSION
       );
 
+      const allConversion = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.CONVERSION
+      );
+      const conversionGroupCount = allConversion.length;
+      let conversionCount = 0;
+      allConversion.forEach((item: any) => {
+        conversionCount += item.subs.length;
+      });
+      const summary = [
+        {
+          name: "Conversion Group",
+          value: conversionGroupCount,
+        },
+        {
+          name: "Conversion",
+          value: conversionCount,
+        },
+      ];
+
       return resolve({
         data: {
           basis_conversions: returnedConversionGroups,
-          summary: addedCount.summary,
+          summary,
           pagination,
         },
         statusCode: 200,
@@ -577,18 +555,22 @@ export default class BasisService {
         offset,
         BASIS_TYPES.OPTION
       );
+
+      const allBasisOption = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.OPTION
+      );
       const summary = [
         {
           name: "Option Group",
-          value: groups.length,
+          value: allBasisOption.length,
         },
         {
           name: "Option",
-          value: this.countOptions(groups),
+          value: this.countOptions(allBasisOption),
         },
         {
           name: "Value",
-          value: this.countValues(groups),
+          value: this.countValues(allBasisOption),
         },
       ];
       return resolve({
@@ -895,18 +877,22 @@ export default class BasisService {
         offset,
         BASIS_TYPES.PRESET
       );
+
+      const allBasisPreset = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.PRESET
+      );
       const summary = [
         {
           name: "Preset Group",
-          value: groups.length,
+          value: allBasisPreset.length,
         },
         {
           name: "Preset",
-          value: this.countOptions(groups),
+          value: this.countOptions(allBasisPreset),
         },
         {
           name: "Value",
-          value: this.countValues(groups),
+          value: this.countValues(allBasisPreset),
         },
       ];
       return resolve({
