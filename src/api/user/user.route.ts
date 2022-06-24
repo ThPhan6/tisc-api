@@ -133,6 +133,14 @@ export default class UserRoute implements IRoute {
                 output: "stream",
               },
               parse: true,
+              failAction: (_request, h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `Can not upload file size greater than 5MB`;
+                  }
+                }
+                throw err;
+              },
             },
             response: {
               status: {

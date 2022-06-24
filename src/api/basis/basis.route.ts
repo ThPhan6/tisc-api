@@ -121,7 +121,7 @@ export default class BasisRoute implements IRoute {
               failAction: (_request, h, err: any) => {
                 if (err.output) {
                   if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload option image sizes greater than 5MB`;
+                    err.output.payload.message = `Can not upload option image size greater than 5MB`;
                   }
                 }
                 throw err;
@@ -183,7 +183,7 @@ export default class BasisRoute implements IRoute {
               failAction: (_request, h, err: any) => {
                 if (err.output) {
                   if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload option image sizes greater than 5MB`;
+                    err.output.payload.message = `Can not upload option image size greater than 5MB`;
                   }
                 }
                 throw err;
