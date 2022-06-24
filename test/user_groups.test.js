@@ -241,20 +241,20 @@ describe("Brand API ", () => {
     });
   });
   describe("invite", () => {
-    it("Success", (done) => {
-      chai
-        .request(HOST_URL)
-        .get("/brand/invite/" + brandId)
-        .set({ Authorization: `Bearer ${tiscAdminToken}` })
-        .end((_err, res) => {
-          res.should.have.status(200);
-          res.should.be.json;
-          res.body.should.be.a("object");
-          res.body.should.have.property("statusCode", 200);
-          res.body.should.have.property("message", "Success.");
-          done();
-        });
-    });
+    // it("Success", (done) => {
+    //   chai
+    //     .request(HOST_URL)
+    //     .get("/brand/invite/" + brandId)
+    //     .set({ Authorization: `Bearer ${tiscAdminToken}` })
+    //     .end((_err, res) => {
+    //       res.should.have.status(200);
+    //       res.should.be.json;
+    //       res.body.should.be.a("object");
+    //       res.body.should.have.property("statusCode", 200);
+    //       res.body.should.have.property("message", "Success.");
+    //       done();
+    //     });
+    // });
     it("Brand not found", (done) => {
       chai
         .request(HOST_URL)
