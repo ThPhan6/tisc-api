@@ -10,6 +10,19 @@ import commonValidate from "../../validate/common.validate";
 import BasisController from "./basis.controller";
 import validate from "./basis.validate";
 import response from "./basis.response";
+const getFailActionPayloadFile = (
+  _request: any,
+  _h: any,
+  err: any,
+  fileSize: number
+) => {
+  if (err.output) {
+    if (err.output.statusCode === 413) {
+      err.output.payload.message = `Can not upload option image size greater than ${fileSize}MB`;
+    }
+  }
+  throw err;
+};
 export default class BasisRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -118,14 +131,8 @@ export default class BasisRoute implements IRoute {
             },
             payload: {
               maxBytes: 5 * 1024 * 1024,
-              failAction: (_request, h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload option image size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
+              failAction: (_request, _h, err: any) =>
+                getFailActionPayloadFile(_request, _h, err, 5),
             },
           },
         },
@@ -180,14 +187,8 @@ export default class BasisRoute implements IRoute {
             },
             payload: {
               maxBytes: 5 * 1024 * 1024,
-              failAction: (_request, h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload option image size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
+              failAction: (_request, _h, err: any) =>
+                getFailActionPayloadFile(_request, _h, err, 5),
             },
           },
         },
