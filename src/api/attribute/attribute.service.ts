@@ -254,20 +254,23 @@ export default class AttributeService {
         offset,
         attribute_type
       );
+
+      const allAttributeByType =
+        await this.attributeModel.getAllAttributeByType(attribute_type);
       const summary = [
         {
           name:
             attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
               ? "Specification Group"
               : "Attribute Group",
-          value: attributes.length,
+          value: allAttributeByType.length,
         },
         {
           name:
             attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
               ? "Specification"
               : "Attribute",
-          value: this.countAttribute(attributes),
+          value: this.countAttribute(allAttributeByType),
         },
       ];
       return resolve({
