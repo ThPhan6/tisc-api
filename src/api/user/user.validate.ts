@@ -3,44 +3,40 @@ import * as Joi from "joi";
 export default {
   create: {
     payload: {
-      firstname: Joi.string().required().messages({
-        "string.empty": "First name can not be empty",
-        "any.required": "First name can not be empty",
-      }),
-      lastname: Joi.string().required().messages({
-        "string.empty": "Last name can not be empty",
-        "any.required": "Last name can not be empty",
-      }),
-      gender: Joi.boolean().required(),
+      firstname: Joi.string()
+        .required()
+        .error(() => new Error("First name is required")),
+      lastname: Joi.string()
+        .required()
+        .error(() => new Error("Last name is required")),
+      gender: Joi.boolean()
+        .required()
+        .error(() => new Error("Gender is required")),
+      location_id: Joi.string()
+        .required()
+        .error(() => new Error("Location id is required")),
 
-      location_id: Joi.string().required().messages({
-        "string.empty": "Location id can not be empty",
-        "any.required": "Location id can not be empty",
-      }),
-      department: Joi.string().required().messages({
-        "string.empty": "Department can not be empty",
-        "any.required": "Department can not be empty",
-      }),
-      position: Joi.string().required().messages({
-        "string.empty": "Position can not be empty",
-        "any.required": "Position can not be empty",
-      }),
-      email: Joi.string().email().required().messages({
-        "string.empty": "Email can not be empty",
-        "any.required": "Email can not be empty",
-      }),
-      phone: Joi.string().required().messages({
-        "string.empty": "Phone can not be empty",
-        "any.required": "Phone can not be empty",
-      }),
-      mobile: Joi.string().required().messages({
-        "string.empty": "Mobile can not be empty",
-        "any.required": "Mobile can not be empty",
-      }),
-      role_id: Joi.string().required().messages({
-        "string.empty": "Role id can not be empty",
-        "any.required": "Role id can not be empty",
-      }),
+      department: Joi.string()
+        .required()
+        .error(() => new Error("Department is required")),
+      position: Joi.string()
+        .required()
+        .error(() => new Error("Position is required")),
+
+      email: Joi.string()
+        .email()
+        .required()
+        .error(() => new Error("Email is required")),
+      phone: Joi.string()
+        .required()
+        .error(() => new Error("Phone is required")),
+
+      mobile: Joi.string()
+        .required()
+        .error(() => new Error("Mobile is required")),
+      role_id: Joi.string()
+        .required()
+        .error(() => new Error("Role id is required")),
     },
   },
   updateMe: {
@@ -58,10 +54,9 @@ export default {
   },
   update: {
     params: {
-      id: Joi.string().required().messages({
-        "string.empty": "Id can not be empty",
-        "any.required": "Id can not be empty",
-      }),
+      id: Joi.string()
+        .required()
+        .error(() => new Error("Id is required")),
     },
     payload: {
       firstname: Joi.string(),
@@ -77,10 +72,9 @@ export default {
   },
   getOne: {
     params: {
-      id: Joi.string().required().messages({
-        "string.empty": "Id can not be empty",
-        "any.required": "Id can not be empty",
-      }),
+      id: Joi.string()
+        .required()
+        .error(() => new Error("Id is required")),
     },
   },
 };

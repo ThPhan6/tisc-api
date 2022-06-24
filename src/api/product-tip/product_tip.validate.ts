@@ -2,23 +2,24 @@ import Joi from "joi";
 export default {
   create: {
     payload: {
-      product_id: Joi.string().required().messages({
-        "string.empty": "Product id can not be empty",
-        "any.required": "Product id can not be empty",
-      }),
-      title: Joi.string().required().messages({
-        "string.empty": "Title can not be empty",
-        "any.required": "Title can not be empty",
-      }),
-      content: Joi.string().required().messages({
-        "string.empty": "Content can not be empty",
-        "any.required": "Content can not be empty",
-      }),
+      product_id: Joi.string()
+        .required()
+        .error(() => new Error("Product id is required")),
+
+      title: Joi.string()
+        .required()
+        .error(() => new Error("Product title is required")),
+
+      content: Joi.string()
+        .required()
+        .error(() => new Error("Product content is required")),
     },
   },
   update: {
     params: {
-      id: Joi.string().required(),
+      id: Joi.string()
+        .required()
+        .error(() => new Error("Product id is required")),
     },
     payload: {
       product_id: Joi.string(),

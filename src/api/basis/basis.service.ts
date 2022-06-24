@@ -362,7 +362,7 @@ export default class BasisService {
       });
       if (group) {
         return resolve({
-          message: MESSAGES.BASIS_OPTION_EXISTS,
+          message: MESSAGES.BASIS_OPTION_EXISTED,
           statusCode: 400,
         });
       }
@@ -550,7 +550,7 @@ export default class BasisService {
         };
         return {
           ...rest,
-          count: rest.subs.length
+          count: rest.subs.length,
         };
       });
       const pagination: IPagination = await this.basisModel.getPagination(
@@ -612,7 +612,7 @@ export default class BasisService {
       );
       if (existedGroup) {
         return resolve({
-          message: MESSAGES.BASIS_OPTION_EXISTS,
+          message: MESSAGES.BASIS_OPTION_EXISTED,
           statusCode: 400,
         });
       }
@@ -762,7 +762,7 @@ export default class BasisService {
       });
       if (group) {
         return resolve({
-          message: MESSAGES.BASIS_PRESET_EXISTS,
+          message: MESSAGES.BASIS_PRESET_EXISTED,
           statusCode: 400,
         });
       }
@@ -927,7 +927,7 @@ export default class BasisService {
       );
       if (existedGroup) {
         return resolve({
-          message: MESSAGES.BASIS_PRESET_EXISTS,
+          message: MESSAGES.BASIS_PRESET_EXISTED,
           statusCode: 400,
         });
       }

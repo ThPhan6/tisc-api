@@ -13,10 +13,9 @@ const customFilter = (value: any, helpers: any) => {
 export default {
   create: {
     payload: {
-      name: Joi.string().required().messages({
-        "string.empty": "Main category can not be empty",
-        "any.required": "Main category can not be empty",
-      }),
+      name: Joi.string()
+        .required()
+        .error(() => new Error("Main category is required")),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -24,28 +23,23 @@ export default {
             subs: Joi.array()
               .items({ name: Joi.string() })
               .required()
-              .messages({
-                "string.empty": "Category can not be empty",
-                "any.required": "Category can not be empty",
-              }),
+              .error(() => new Error("Category is required")),
           })
         )
         .required()
-        .messages({
-          "string.empty": "Subs category can not be empty",
-          "any.required": "Subs category can not be empty",
-        }),
+        .error(() => new Error("Subs category is required")),
     },
   },
   update: {
     params: {
-      id: Joi.string().required(),
+      id: Joi.string()
+        .required()
+        .error(() => new Error("Category id is required")),
     },
     payload: {
-      name: Joi.string().required().messages({
-        "string.empty": "Main category can not be empty",
-        "any.required": "Main category can not be empty",
-      }),
+      name: Joi.string()
+        .required()
+        .error(() => new Error("Main category is required")),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -57,17 +51,11 @@ export default {
                 name: Joi.string(),
               })
               .required()
-              .messages({
-                "string.empty": "Category can not be empty",
-                "any.required": "Category can not be empty",
-              }),
+              .error(() => new Error("Category is required")),
           })
         )
         .required()
-        .messages({
-          "string.empty": "Sub category can not be empty",
-          "any.required": "Sub category can not be empty",
-        }),
+        .error(() => new Error("Subs category is required")),
     },
   },
   getListCategory: {
@@ -78,25 +66,19 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(() => new Error("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .error(() => new Error("Page Size must be an integer")),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(() => new Error("Invalid filter")),
       main_category_order: Joi.string().valid("ASC", "DESC"),
       sub_category_order: Joi.string().valid("ASC", "DESC"),
       category_order: Joi.string().valid("ASC", "DESC"),

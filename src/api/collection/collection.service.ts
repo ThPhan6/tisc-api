@@ -24,7 +24,7 @@ export default class CollectionService {
       });
       if (collection) {
         return resolve({
-          message: MESSAGES.COLLECTION_EXISTS,
+          message: MESSAGES.COLLECTION_EXISTED,
           statusCode: 400,
         });
       }

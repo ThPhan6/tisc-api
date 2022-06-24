@@ -19,25 +19,19 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(() => new Error("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .error(() => new Error("Page Size must be an integer")),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(() => new Error("Invalid filter")),
       sort_name: Joi.string(),
       sort_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
