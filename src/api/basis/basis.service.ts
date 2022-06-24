@@ -401,7 +401,7 @@ export default class BasisService {
         });
       }
       let isValidImage = true;
-      const imagesValidUpload: {
+      const validUploadImages: {
         buffer: Buffer;
         path: string;
         mime_type: string;
@@ -429,7 +429,7 @@ export default class BasisService {
                 ) {
                   isValidImage = false;
                 }
-                imagesValidUpload.push({
+                validUploadImages.push({
                   buffer: Buffer.from(value.image, "base64"),
                   path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                   mime_type: fileType.mime,
@@ -466,10 +466,12 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      imagesValidUpload.map(async (item) => {
-        await upload(item.buffer, item.path, item.mime_type);
-        return true;
-      });
+      await Promise.all(
+        validUploadImages.map(async (item) => {
+          await upload(item.buffer, item.path, item.mime_type);
+          return true;
+        })
+      );
       const createdBasisOption = await this.basisModel.create({
         ...BASIS_NULL_ATTRIBUTES,
         name: payload.name,
@@ -643,7 +645,7 @@ export default class BasisService {
       }
 
       let isValidImage = true;
-      const imagesValidUpload: {
+      const validUploadImages: {
         buffer: Buffer;
         path: string;
         mime_type: string;
@@ -712,7 +714,7 @@ export default class BasisService {
                     isValidImage = false;
                   }
                   const fileName = randomName(8);
-                  imagesValidUpload.push({
+                  validUploadImages.push({
                     buffer: Buffer.from(value.image, "base64"),
                     path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                     mime_type: fileType.mime,
@@ -752,11 +754,12 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-      imagesValidUpload.map(async (item) => {
-        await upload(item.buffer, item.path, item.mime_type);
-        return true;
-      });
-
+      await Promise.all(
+        validUploadImages.map(async (item) => {
+          await upload(item.buffer, item.path, item.mime_type);
+          return true;
+        })
+      );
       const updatedAttribute = await this.basisModel.update(id, {
         ...payload,
         subs: options,
