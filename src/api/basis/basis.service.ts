@@ -655,8 +655,10 @@ export default class BasisService {
           const { is_have_image, ...rest } = item;
           let foundOption = false;
           if (item.id) {
-            const foundItem = group.subs.find((sub: any) => sub.id === item.id);
-            if (foundItem) {
+            const foundItemOption = group.subs.find(
+              (sub: any) => sub.id === item.id
+            );
+            if (foundItemOption) {
               foundOption = true;
             }
           }
@@ -664,39 +666,20 @@ export default class BasisService {
             item.subs.map(async (value) => {
               let foundValue = false;
               if (value.id) {
-                const foundItem = this.getAllValueInOneGroup(group).find(
+                const foundItemValue = this.getAllValueInOneGroup(group).find(
                   (valueInGroup) => valueInGroup.id === value.id
                 );
-                if (foundItem) {
+                if (foundItemValue) {
                   foundValue = true;
                 }
               }
+              let imagePath: string | null = "";
               if (!item.is_have_image) {
-                if (foundValue) {
-                  return {
-                    ...value,
-                    image: null,
-                  };
-                }
-                return {
-                  ...value,
-                  image: null,
-                  id: uuid(),
-                };
+                imagePath = null;
               }
               if (value.image) {
                 if (await isExists(value.image.slice(1))) {
-                  if (foundValue) {
-                    return {
-                      ...value,
-                      image: value.image,
-                    };
-                  }
-                  return {
-                    ...value,
-                    image: value.image,
-                    id: uuid(),
-                  };
+                  imagePath = value.image;
                 } else {
                   group.subs.map((sub: any) => {
                     sub.subs.map(async (element: any) => {
@@ -721,20 +704,20 @@ export default class BasisService {
                     path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
                     mime_type: fileType.mime,
                   });
-
-                  if (foundValue) {
-                    return {
-                      ...value,
-                      image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                    };
-                  }
-                  return {
-                    ...value,
-                    image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                    id: uuid(),
-                  };
+                  imagePath = `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`;
                 }
               }
+              if (foundValue) {
+                return {
+                  ...value,
+                  image: imagePath,
+                };
+              }
+              return {
+                ...value,
+                image: imagePath,
+                id: uuid(),
+              };
             })
           );
           if (foundOption) {
