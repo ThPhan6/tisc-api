@@ -22,17 +22,20 @@ export default {
         )
         .required(),
       name: Joi.string().required().messages({
-        "string.empty": "Main category can not be empty",
-        "any.required": "Main category can not be empty",
+        "string.empty": "Attribute group name can not be empty",
+        "any.required": "Attribute group name can not be empty",
       }),
       subs: Joi.array()
         .items(
           Joi.object({
             name: Joi.string(),
             basis_id: Joi.string(),
-          }).required()
+          })
+            .required()
+            .error(() => new Error("Attribute group item is required"))
         )
-        .required(),
+        .required()
+        .error(() => new Error("Attribute group items is required at least 1 valid data")),
     },
   },
   update: {
@@ -44,8 +47,8 @@ export default {
     },
     payload: {
       name: Joi.string().required().messages({
-        "string.empty": "Main category can not be empty",
-        "any.required": "Main category can not be empty",
+        "string.empty": "Attribute group name can not be empty",
+        "any.required": "Attribute group name can not be empty",
       }),
       subs: Joi.array()
         .items(
