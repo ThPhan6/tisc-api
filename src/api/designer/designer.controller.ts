@@ -23,7 +23,7 @@ export default class DesignerController {
     const response = await this.service.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getStatuses = async (req: Request, toolkit: ResponseToolkit) => {
+  public getStatuses = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(DESIGN_STATUS_OPTIONS).code(200);
   };
 }

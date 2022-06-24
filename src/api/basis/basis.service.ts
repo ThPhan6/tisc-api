@@ -425,7 +425,9 @@ export default class BasisService {
                 const fileName = randomName(8);
                 if (
                   !fileType ||
-                  !VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
+                  !VALID_IMAGE_TYPES.find(
+                    (validType) => validType === fileType.mime
+                  )
                 ) {
                   isValidImage = false;
                 }
@@ -560,12 +562,10 @@ export default class BasisService {
         ["name", group_order]
       );
       const returnedGroups = groups.map((item: IBasisAttributes) => {
-        const returnedOptions = item.subs.map((option: any) => {
-          return {
-            ...option,
-            count: option.subs.length,
-          };
-        });
+        const returnedOptions = item.subs.map((option: any) => ({
+          ...option,
+          count: option.subs.length,
+        }));
         const { type, is_deleted, ...rest } = {
           ...item,
           subs: sortObjectArray(returnedOptions, "name", option_order),
@@ -698,8 +698,8 @@ export default class BasisService {
                     id: uuid(),
                   };
                 } else {
-                  group.subs.map((item: any) => {
-                    item.subs.map(async (element: any) => {
+                  group.subs.map((sub: any) => {
+                    sub.subs.map(async (element: any) => {
                       if (element.id === value.id && element.image) {
                         await deleteFile(element.image.slice(1));
                       }
@@ -709,7 +709,9 @@ export default class BasisService {
                   const fileType = await getFileTypeFromBase64(value.image);
                   if (
                     !fileType ||
-                    !VALID_IMAGE_TYPES.find((item) => item === fileType.mime)
+                    !VALID_IMAGE_TYPES.find(
+                      (validType) => validType === fileType.mime
+                    )
                   ) {
                     isValidImage = false;
                   }
@@ -855,12 +857,10 @@ export default class BasisService {
           statusCode: 404,
         });
       }
-      const preset = group.subs.map((item: any) => {
-        return {
-          ...item,
-          count: item.subs.length,
-        };
-      });
+      const preset = group.subs.map((item: any) => ({
+        ...item,
+        count: item.subs.length,
+      }));
       const { type, is_deleted, ...rest } = group;
       return resolve({
         data: {
@@ -888,12 +888,10 @@ export default class BasisService {
       );
 
       const returnedGroups = groups.map((item: IBasisAttributes) => {
-        const returnedPresets = item.subs.map((preset: any) => {
-          return {
-            ...preset,
-            count: preset.subs.length,
-          };
-        });
+        const returnedPresets = item.subs.map((preset: any) => ({
+          ...preset,
+          count: preset.subs.length,
+        }));
         const { type, is_deleted, ...rest } = {
           ...item,
           subs: sortObjectArray(returnedPresets, "name", preset_order),

@@ -17,7 +17,7 @@ export default class ProductTipController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getList = async (req: Request, toolkit: ResponseToolkit) => {
+  public getList = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getList();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

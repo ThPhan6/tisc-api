@@ -1,4 +1,3 @@
-import { BASIS_TYPES } from "../constant/common.constant";
 import Model from "./index";
 
 export interface IBasisAttributes {

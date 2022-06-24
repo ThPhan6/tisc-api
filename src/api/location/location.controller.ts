@@ -29,7 +29,6 @@ export default class LocationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAllCountry = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
     const response = await this.service.getAllCountry();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -54,7 +53,7 @@ export default class LocationController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
+  public getListWithGroup = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getListWithGroup();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -64,7 +63,7 @@ export default class LocationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getFunctionalTypes = async (
-    req: Request,
+    _req: Request,
     toolkit: ResponseToolkit
   ) => {
     const response = await this.service.getFunctionalTypes();

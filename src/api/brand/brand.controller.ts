@@ -28,11 +28,11 @@ export default class BrandController {
     const response = await this.service.invite(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllByAlphabet = async (req: Request, toolkit: ResponseToolkit) => {
+  public getAllByAlphabet = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getAllByAlphabet();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getBrandStatuses = async (req: Request, toolkit: ResponseToolkit) => {
+  public getBrandStatuses = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(BRAND_STATUS_OPTIONS).code(200);
   };
 }

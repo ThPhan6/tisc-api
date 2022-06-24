@@ -68,7 +68,7 @@ export default class UserController {
     const response = await this.service.updateAvatar(userId, avatar);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getDepartments = async (req: Request, toolkit: ResponseToolkit) => {
+  public getDepartments = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getListDepartment();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

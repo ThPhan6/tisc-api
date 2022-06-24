@@ -185,7 +185,7 @@ export default class AttributeService {
   };
 
   public getList = (
-    type: number,
+    attribute_type: number,
     limit: number,
     offset: number,
     filter: any,
@@ -198,7 +198,7 @@ export default class AttributeService {
       const attributes = await this.attributeModel.list(
         limit,
         offset,
-        { ...filter, type },
+        { ...filter, attribute_type },
         ["name", group_order]
       );
 
@@ -252,19 +252,19 @@ export default class AttributeService {
       const pagination: IPagination = await this.attributeModel.getPagination(
         limit,
         offset,
-        type
+        attribute_type
       );
       const summary = [
         {
           name:
-            type === ATTRIBUTE_TYPES.SPECIFICATION
+            attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
               ? "Specification Group"
               : "Attribute Group",
           value: attributes.length,
         },
         {
           name:
-            type === ATTRIBUTE_TYPES.SPECIFICATION
+            attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
               ? "Specification"
               : "Attribute",
           value: this.countAttribute(attributes),

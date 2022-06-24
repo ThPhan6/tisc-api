@@ -1,15 +1,11 @@
-// const seedRole = require("./role.seed").seedRole;
-// const seedUser = require("./user.seed").seedUser;
-// const seedPermission = require("./permission.seed").seedPermission;
-const seedDepartment = require("./department.seed").seed;
-const seedBasis = require("./basis.seed").seed;
+const seedRole = require("./role.seed").seedRole;
+const seedUser = require("./user.seed").seedUser;
+const seedPermission = require("./permission.seed").seedPermission;
 
 const seed = async () => {
-  // await seedRole();
-  // await seedUser();
-  // await seedPermission();
-  await seedDepartment();
-  await seedBasis();
+  await seedRole();
+  await seedUser();
+  await seedPermission();
 };
 
 seed();
