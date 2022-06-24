@@ -570,7 +570,10 @@ export default class BasisService {
           ...item,
           subs: sortObjectArray(returnedOptions, "name", option_order),
         };
-        return rest;
+        return {
+          ...rest,
+          count: rest.subs.length
+        };
       });
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
