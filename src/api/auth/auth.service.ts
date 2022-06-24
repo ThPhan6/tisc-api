@@ -110,7 +110,8 @@ class AuthService {
   };
 
   public forgotPassword = (
-    payload: IForgotPasswordRequest
+    payload: IForgotPasswordRequest,
+    browserName: string
   ): Promise<IForgotPasswordResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
@@ -141,7 +142,7 @@ class AuthService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendResetPasswordEmail(result);
+      await this.mailService.sendResetPasswordEmail(result, browserName);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
@@ -149,7 +150,11 @@ class AuthService {
     });
   };
 
-  public resendEmail = (type: string, email: string): Promise<any> => {
+  public resendEmail = (
+    type: string,
+    email: string,
+    browserName: string
+  ): Promise<any> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
         email,
@@ -162,7 +167,10 @@ class AuthService {
       }
       let sentEmail;
       if (type === EMAIL_TYPE.FORGOT_PASSWORD)
-        sentEmail = await this.mailService.sendResetPasswordEmail(user);
+        sentEmail = await this.mailService.sendResetPasswordEmail(
+          user,
+          browserName
+        );
       else if (type === EMAIL_TYPE.VERIFICATION)
         sentEmail = await this.mailService.sendRegisterEmail(user);
       if (sentEmail) {
