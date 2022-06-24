@@ -110,6 +110,7 @@ export interface IBasisOptionRequest {
   name: string;
   subs: {
     name: string;
+    is_have_image: boolean;
     subs: {
       image: any;
       value_1: string;
@@ -124,6 +125,7 @@ export interface IUpdateBasisOptionRequest {
   subs: {
     id: string;
     name: string;
+    is_have_image: boolean;
     subs: {
       id: string;
       image: any;

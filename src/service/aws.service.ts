@@ -74,7 +74,7 @@ export const isExists = async (prefix: string) => {
     }
     return false;
   } catch (err) {
-    console.log("Error", err);
+    return false;
   }
 };
 
