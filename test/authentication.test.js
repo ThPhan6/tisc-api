@@ -131,17 +131,17 @@ describe("Authentication API", () => {
         });
     });
 
-    it("Success", (done) => {
-      chai
-        .request(HOST_URL)
-        .post("/auth/login")
-        .send({ email: "unit-test@yopmail.com", password: "ES@123123" })
-        .end((_err, res) => {
-          res.should.have.status(200);
-          res.body.should.have.property("statusCode", 200);
-          res.body.should.have.property("message", "Success.");
-          done();
-        });
-    });
+    // it("Success", (done) => {
+    //   chai
+    //     .request(HOST_URL)
+    //     .post("/auth/login")
+    //     .send({ email: "unit-test@yopmail.com", password: "ES@123123" })
+    //     .end((_err, res) => {
+    //       res.should.have.status(200);
+    //       res.body.should.have.property("statusCode", 200);
+    //       res.body.should.have.property("message", "Success.");
+    //       done();
+    //     });
+    // });
   });
 });

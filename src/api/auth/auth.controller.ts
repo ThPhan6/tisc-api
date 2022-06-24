@@ -92,4 +92,13 @@ export default class AuthController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public isValidResetPasswordToken = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { token } = req.params;
+    const response = await this.authService.isValidResetPasswordToken(token);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
