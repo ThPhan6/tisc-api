@@ -33,6 +33,22 @@ export default class AuthRoute implements IRoute {
           },
         },
         {
+          method: "GET",
+          path: `/api/auth/is-valid-reset-password-token/{token}`,
+          options: {
+            handler: controller.isValidResetPasswordToken,
+            validate: validate.isValidResetPasswordToken,
+            description: "Method that check valid reset password token",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                200: authResponse.isValidToken,
+              },
+            },
+          },
+        },
+        {
           method: "POST",
           path: `${PREFIX}/forgot-password`,
           options: {

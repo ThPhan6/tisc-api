@@ -149,6 +149,26 @@ class AuthService {
     });
   };
 
+  public isValidResetPasswordToken = (
+    token: string
+  ): Promise<{ data: boolean; statusCode: number }> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        reset_password_token: token,
+        is_verified: true,
+      });
+      if (!user) {
+        return resolve({
+          data: false,
+          statusCode: 200,
+        });
+      }
+      return resolve({
+        data: true,
+        statusCode: 200,
+      });
+    });
+
   public resendEmail = (type: string, email: string): Promise<any> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({

@@ -4,6 +4,14 @@ const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
 
 export default {
+  isValidResetPasswordToken: {
+    params: {
+      token: Joi.string().required().messages({
+        "string.empty": "Token can not be empty",
+        "any.required": "Token can not be empty",
+      }),
+    },
+  },
   login: {
     payload: {
       email: Joi.string().email().required().messages({
