@@ -1,6 +1,7 @@
 import * as DotEnv from "dotenv";
 import * as ejs from "ejs";
 import { IUserAttributes } from "../model/user.model";
+import os from "os";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 export default class MailService {
   private fromAddress: string;
@@ -81,11 +82,16 @@ export default class MailService {
     });
   }
 
-  public async sendResetPasswordEmail(user: IUserAttributes): Promise<boolean> {
+  public async sendResetPasswordEmail(
+    user: IUserAttributes,
+    browserName: string
+  ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/forgot-password.ejs`,
         {
+          operating_system: os.type(),
+          browser_name: browserName,
           fullname: user.firstname + " " + user.lastname,
           reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}`,
         }

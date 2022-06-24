@@ -27,8 +27,12 @@ export default class AuthController {
     req: Request & { payload: IForgotPasswordRequest },
     toolkit: ResponseToolkit
   ) => {
+    const currentBrowser = req.headers["user-agent"];
     const payload = req.payload;
-    const response = await this.authService.forgotPassword(payload);
+    const response = await this.authService.forgotPassword(
+      payload,
+      currentBrowser
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -79,8 +83,13 @@ export default class AuthController {
   };
 
   public resendEmail = async (req: Request, toolkit: ResponseToolkit) => {
+    const currentBrowser = req.headers["user-agent"];
     const { type, email } = req.params;
-    const response = await this.authService.resendEmail(type, email);
+    const response = await this.authService.resendEmail(
+      type,
+      email,
+      currentBrowser
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
