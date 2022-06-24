@@ -676,6 +676,16 @@ export default class BasisService {
               let imagePath: string | null = "";
               if (!item.is_have_image) {
                 imagePath = null;
+                return foundValue
+                  ? {
+                      ...value,
+                      image: imagePath,
+                    }
+                  : {
+                      ...value,
+                      image: imagePath,
+                      id: uuid(),
+                    };
               }
               if (value.image) {
                 if (await isExists(value.image.slice(1))) {
@@ -706,18 +716,17 @@ export default class BasisService {
                   });
                   imagePath = `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`;
                 }
+                return foundValue
+                  ? {
+                      ...value,
+                      image: imagePath,
+                    }
+                  : {
+                      ...value,
+                      image: imagePath,
+                      id: uuid(),
+                    };
               }
-              if (foundValue) {
-                return {
-                  ...value,
-                  image: imagePath,
-                };
-              }
-              return {
-                ...value,
-                image: imagePath,
-                id: uuid(),
-              };
             })
           );
           if (foundOption) {
