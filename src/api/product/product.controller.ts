@@ -40,4 +40,13 @@ export default class ProductController {
     const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getListRestCollectionProduct = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const response = await this.service.getListRestCollectionProduct(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

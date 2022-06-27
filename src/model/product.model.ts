@@ -76,4 +76,21 @@ export default class ProductModel extends Model<IProductAttributes> {
       return false;
     }
   };
+
+  public getListRestCollectionProduct = async (
+    collectionId: string,
+    productId: string
+  ) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", productId)
+        .whereNot("is_deleted", true)
+        .where("collection_id", collectionId)
+        .orderBy("created_at", "ASC")
+        .select();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

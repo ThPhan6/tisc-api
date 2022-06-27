@@ -1,7 +1,8 @@
 import { MESSAGES } from "../../constant/common.constant";
+import CollectionModel from "../../model/collection.model";
 import ProductModel, {
-  PRODUCT_NULL_ATTRIBUTES,
   IProductAttributes,
+  PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/product.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
@@ -9,10 +10,10 @@ import {
   IProductResponse,
   IProductsResponse,
   IUpdateProductRequest,
+  IRestCollectionProductsResponse,
 } from "./product.type";
 import { v4 as uuid } from "uuid";
 import BrandModel from "../../model/brand.model";
-import CollectionModel from "../../model/collection.model";
 import CategoryService from "../../api/category/category.service";
 
 export default class ProductService {
@@ -212,7 +213,6 @@ export default class ProductService {
       });
     });
   };
-
   public delete = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const product = await this.productModel.find(id);
@@ -225,6 +225,53 @@ export default class ProductService {
       await this.productModel.update(id, { is_deleted: true });
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+  public getListRestCollectionProduct = (
+    productId: string
+  ): Promise<IMessageResponse | IRestCollectionProductsResponse> => {
+    return new Promise(async (resolve) => {
+      const foundProduct = await this.productModel.find(productId);
+      if (!foundProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (!foundProduct.collection_id) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const foundCollection = await this.collectionModel.find(
+        foundProduct.collection_id
+      );
+      if (!foundCollection) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const restCollectionProducts =
+        await this.productModel.getListRestCollectionProduct(
+          foundProduct.collection_id,
+          productId
+        );
+
+      const result = restCollectionProducts.map((item: IProductAttributes) => {
+        return {
+          id: item.id,
+          collection_id: item.collection_id,
+          name: item.name,
+          images: item.images,
+          created_at: item.created_at,
+        };
+      });
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });
