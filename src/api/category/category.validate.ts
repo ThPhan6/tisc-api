@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { getMessage } from "../../validate/common.validate";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -68,19 +68,21 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page must be an integer")),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page Size must be an integer")),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .error(getMessage("Invalid filter")),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
       main_category_order: Joi.string().valid("ASC", "DESC"),
       sub_category_order: Joi.string().valid("ASC", "DESC"),
       category_order: Joi.string().valid("ASC", "DESC"),

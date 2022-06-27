@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { getMessage } from "../../validate/common.validate";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -17,7 +17,11 @@ export default {
     payload: {
       name: Joi.string()
         .required()
-        .error(getMessage("Basis conversion group name is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion group name is required"
+          )
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -30,19 +34,29 @@ export default {
           })
         )
         .required()
-        .error(getMessage("Basis conversion group item is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion group item is required"
+          )
+        ),
     },
   },
   updateBasisConversion: {
     params: {
       id: Joi.string()
         .required()
-        .error(getMessage("Basis conversion id is required")),
+        .error(
+          commonFailValidatedMessageFunction("Basis conversion id is required")
+        ),
     },
     payload: {
       name: Joi.string()
         .required()
-        .error(getMessage("Basis conversion group name is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion group name is required"
+          )
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -56,19 +70,31 @@ export default {
           })
         )
         .required()
-        .error(getMessage("Basis conversion group item is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion group item is required"
+          )
+        ),
     },
   },
   createBasisOption: {
     payload: {
       name: Joi.string()
         .required()
-        .error(getMessage("Basis option group name is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis option group name is required"
+          )
+        ),
       subs: Joi.array()
         .items({
           name: Joi.string()
             .required()
-            .error(getMessage("Basis option group item name is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis option group item name is required"
+              )
+            ),
           is_have_image: Joi.valid(true, false),
           subs: Joi.array()
             .items({
@@ -83,28 +109,46 @@ export default {
               unit_2: Joi.string(),
             })
             .required()
-            .error(getMessage("Basis option value is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis option value is required"
+              )
+            ),
         })
         .required()
-        .error(getMessage("Basis option group item is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis option group item is required"
+          )
+        ),
     },
   },
   updateBasisOption: {
     params: {
       id: Joi.string()
         .required()
-        .error(getMessage("Basis option id is required")),
+        .error(
+          commonFailValidatedMessageFunction("Basis option id is required")
+        ),
     },
     payload: {
       name: Joi.string()
         .required()
-        .error(getMessage("Basis option group name is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis option group name is required"
+          )
+        ),
       subs: Joi.array()
         .items({
           id: Joi.string(),
           name: Joi.string()
             .required()
-            .error(getMessage("Basis option group item name is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis option group item name is required"
+              )
+            ),
           is_have_image: Joi.valid(true, false),
           subs: Joi.array()
             .items({
@@ -120,10 +164,18 @@ export default {
               unit_2: Joi.string(),
             })
             .required()
-            .error(getMessage("Basis option value is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis option value is required"
+              )
+            ),
         })
         .required()
-        .error(getMessage("Basis option group item is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis option group item is required"
+          )
+        ),
     },
   },
   getListBasisOption: {
@@ -134,19 +186,21 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page must be an integer")),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page Size must be an integer")),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .error(getMessage("Invalid filter")),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
       group_order: Joi.string().valid("ASC", "DESC"),
       option_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
@@ -167,12 +221,20 @@ export default {
     payload: {
       name: Joi.string()
         .required()
-        .error(getMessage("Basis preset group name is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis preset group name is required"
+          )
+        ),
       subs: Joi.array()
         .items({
           name: Joi.string()
             .required()
-            .error(getMessage("Basis preset group item name is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis preset group item name is required"
+              )
+            ),
           subs: Joi.array()
             .items({
               value_1: Joi.string(),
@@ -181,28 +243,44 @@ export default {
               unit_2: Joi.string(),
             })
             .required()
-            .error(getMessage("Basis preset value is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis preset value is required"
+              )
+            ),
         })
         .required()
-        .error(getMessage("Basis preset group item is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis preset group item is required"
+          )
+        ),
     },
   },
   updateBasisPreset: {
     params: {
       id: Joi.string()
         .required()
-        .error(getMessage("Basis preset id is required")),
+        .error(
+          commonFailValidatedMessageFunction("Basis preset id is required")
+        ),
     },
     payload: {
       name: Joi.string()
         .required()
-        .error(getMessage("Basis group name is required")),
+        .error(
+          commonFailValidatedMessageFunction("Basis group name is required")
+        ),
       subs: Joi.array()
         .items({
           id: Joi.string(),
           name: Joi.string()
             .required()
-            .error(getMessage("Basis preset group item name is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis preset group item name is required"
+              )
+            ),
           subs: Joi.array()
             .items({
               id: Joi.string(),
@@ -212,10 +290,18 @@ export default {
               unit_2: Joi.string(),
             })
             .required()
-            .error(getMessage("Basis preset value is required")),
+            .error(
+              commonFailValidatedMessageFunction(
+                "Basis preset value is required"
+              )
+            ),
         })
         .required()
-        .error(getMessage("Basis preset group item is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis preset group item is required"
+          )
+        ),
     },
   },
   getListBasisPreset: {
@@ -226,19 +312,21 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page must be an integer")),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page Size must be an integer")),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .error(getMessage("Invalid filter")),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
       group_order: Joi.string().valid("ASC", "DESC"),
       preset_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
@@ -262,19 +350,21 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page must be an integer")),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(getMessage("Page Size must be an integer")),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .error(getMessage("Invalid filter")),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
       conversion_group_order: Joi.string().valid("ASC", "DESC"),
       conversion_between_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {

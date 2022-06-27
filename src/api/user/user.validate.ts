@@ -1,31 +1,39 @@
 import * as Joi from "joi";
-import { getMessage } from "../../validate/common.validate";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 export default {
   create: {
     payload: {
       firstname: Joi.string()
         .required()
-        .error(getMessage("First name is required")),
+        .error(commonFailValidatedMessageFunction("First name is required")),
       lastname: Joi.string()
         .required()
-        .error(getMessage("Last name is required")),
-      gender: Joi.boolean().required().error(getMessage("Gender is required")),
+        .error(commonFailValidatedMessageFunction("Last name is required")),
+      gender: Joi.boolean()
+        .required()
+        .error(commonFailValidatedMessageFunction("Gender is required")),
       location_id: Joi.string()
         .required()
-        .error(getMessage("Location id is required")),
+        .error(commonFailValidatedMessageFunction("Location id is required")),
       department: Joi.string()
         .required()
-        .error(getMessage("Department is required")),
+        .error(commonFailValidatedMessageFunction("Department is required")),
       position: Joi.string()
         .required()
-        .error(getMessage("Position is required")),
+        .error(commonFailValidatedMessageFunction("Position is required")),
       email: Joi.string()
         .email()
         .required()
-        .error(getMessage("Email is required")),
-      phone: Joi.string().required().error(getMessage("Phone is required")),
-      mobile: Joi.string().required().error(getMessage("Mobile is required")),
-      role_id: Joi.string().required().error(getMessage("Role id is required")),
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      phone: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Phone is required")),
+      mobile: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Mobile is required")),
+      role_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Role id is required")),
     },
   },
   updateMe: {
@@ -43,7 +51,9 @@ export default {
   },
   update: {
     params: {
-      id: Joi.string().required().error(getMessage("Id is required")),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
     },
     payload: {
       firstname: Joi.string(),
@@ -59,7 +69,9 @@ export default {
   },
   getOne: {
     params: {
-      id: Joi.string().required().error(getMessage("Id is required")),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
     },
   },
 };
