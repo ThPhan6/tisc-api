@@ -385,7 +385,7 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public delete = async (id: string): Promise<IMessageResponse> =>
+  public delete = (id: string): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
       const location = await this.locationModel.find(id);
       if (!location) {

@@ -61,3 +61,7 @@ export const countWord = (str: string) => {
   const arrStr = str.split(" ");
   return arrStr.filter((word: any) => word !== "").length;
 };
+
+export const tosingleSpace = (str: string) => {
+  return str.trim().replace(/ +/g, ' ')
+}

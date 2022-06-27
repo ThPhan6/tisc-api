@@ -133,11 +133,35 @@ export default class UserRoute implements IRoute {
                 output: "stream",
               },
               parse: true,
+              failAction: (_request, h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `Can not upload file size greater than 5MB`;
+                  }
+                }
+                throw err;
+              },
             },
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.avatar,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DEPARTMENTS,
+          options: {
+            handler: controller.getDepartments,
+            description: "Method that get departments",
+            tags: ["api", "Department"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListDepartment,
               },
             },
           },

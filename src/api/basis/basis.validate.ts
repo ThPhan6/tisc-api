@@ -29,10 +29,7 @@ export default {
           })
         )
         .required()
-        .messages({
-          "string.empty": "Subs conversion can not be empty",
-          "any.required": "Subs conversion can not be empty",
-        }),
+        .error(() => new Error("Basis conversion group item is required")),
     },
   },
   updateBasisConversion: {
@@ -57,10 +54,7 @@ export default {
           })
         )
         .required()
-        .messages({
-          "string.empty": "Subs conversion can not be empty",
-          "any.required": "Subs conversion can not be empty",
-        }),
+        .error(() => new Error("Basis conversion group item is required")),
     },
   },
   createBasisOption: {
@@ -75,25 +69,24 @@ export default {
             "string.empty": "Option name can not be empty",
             "any.required": "Option name can not be empty",
           }),
+          is_have_image: Joi.valid(true, false),
           subs: Joi.array()
             .items({
-              image: Joi.any(),
+              image: Joi.string().when("....is_have_image", {
+                is: true,
+                then: Joi.required(),
+                otherwise: Joi.optional().allow(""),
+              }),
               value_1: Joi.string(),
               value_2: Joi.string(),
               unit_1: Joi.string(),
               unit_2: Joi.string(),
             })
             .required()
-            .messages({
-              "string.empty": "Values can not be empty",
-              "any.required": "Values can not be empty",
-            }),
+            .error(() => new Error("Basis option value is required")),
         })
         .required()
-        .messages({
-          "string.empty": "Options can not be empty",
-          "any.required": "Options can not be empty",
-        }),
+        .error(() => new Error("Basis option group item is required")),
     },
   },
   updateBasisOption: {
@@ -109,26 +102,25 @@ export default {
             "string.empty": "Option name can not be empty",
             "any.required": "Option name can not be empty",
           }),
+          is_have_image: Joi.valid(true, false),
           subs: Joi.array()
             .items({
               id: Joi.string(),
-              image: Joi.any(),
+              image: Joi.string().when("....is_have_image", {
+                is: true,
+                then: Joi.required(),
+                otherwise: Joi.optional().allow(""),
+              }),
               value_1: Joi.string(),
               value_2: Joi.string(),
               unit_1: Joi.string(),
               unit_2: Joi.string(),
             })
             .required()
-            .messages({
-              "string.empty": "Values can not be empty",
-              "any.required": "Values can not be empty",
-            }),
+            .error(() => new Error("Basis option value is required")),
         })
         .required()
-        .messages({
-          "string.empty": "Options can not be empty",
-          "any.required": "Options can not be empty",
-        }),
+        .error(() => new Error("Basis option group item is required")),
     },
   },
   getListBasisOption: {
@@ -194,19 +186,16 @@ export default {
               unit_2: Joi.string(),
             })
             .required()
-            .messages({
-              "string.empty": "Values can not be empty",
-              "any.required": "Values can not be empty",
-            }),
+            .error(() => new Error("Basis preset value is required")),
         })
         .required()
-        .messages({
-          "string.empty": "Presets can not be empty",
-          "any.required": "Presets can not be empty",
-        }),
+        .error(() => new Error("Basis preset group item is required")),
     },
   },
   updateBasisPreset: {
+    params: {
+      id: Joi.string().required(),
+    },
     payload: {
       name: Joi.string().required().messages({
         "string.empty": "Group name can not be empty",
@@ -228,16 +217,10 @@ export default {
               unit_2: Joi.string(),
             })
             .required()
-            .messages({
-              "string.empty": "Values can not be empty",
-              "any.required": "Values can not be empty",
-            }),
+            .error(() => new Error("Basis preset value is required")),
         })
         .required()
-        .messages({
-          "string.empty": "Presets can not be empty",
-          "any.required": "Presets can not be empty",
-        }),
+        .error(() => new Error("Basis preset group item is required")),
     },
   },
   getListBasisPreset: {

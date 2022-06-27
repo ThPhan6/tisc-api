@@ -37,6 +37,7 @@
     "jwt-decode": "^3.1.2",
     "mocha": "^10.0.0",
     "moment": "^2.29.2",
+    "nyc": "^15.1.0",
     "sharp": "^0.30.6",
     "sib-api-v3-sdk": "^8.3.0",
     "uuid": "^8.3.2"
@@ -47,6 +48,6 @@
     "create_db": "node migration/create_database",
     "seed": "node seed/index",
     "migrate": "node migration/index",
-    "test": "mocha"
+    "test": "nyc -x \"**/tests/**\" --reporter=html mocha test"
   }
 }

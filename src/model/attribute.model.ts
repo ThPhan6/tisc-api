@@ -8,7 +8,6 @@ export interface IAttributeAttributes {
     id: string;
     name: string;
     basis_id: string;
-    description: string;
   }[];
   created_at: string;
   is_deleted: boolean;
@@ -33,6 +32,18 @@ export default class AttributeModel extends Model<IAttributeAttributes> {
         .whereNot("is_deleted", true)
         .where("name", name.toLowerCase())
         .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
+  public getAllAttributeByType = async (type: number) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("is_deleted", true)
+        .where("type", type)
+        .orderBy("created_at", "ASC")
+        .select();
       return result;
     } catch (error) {
       return false;

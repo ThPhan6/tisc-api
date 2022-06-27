@@ -16,7 +16,9 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           basis_id: Joi.string(),
-          description: Joi.string(),
+          description: Joi.any(),
+          description_1: Joi.any(),
+          description_2: Joi.any(),
           content_type: Joi.string().allow(""),
         })
       ),
@@ -36,7 +38,9 @@ export default {
               id: Joi.string(),
               name: Joi.string(),
               basis_id: Joi.string(),
-              description: Joi.string(),
+              description: Joi.any(),
+              description_1: Joi.any(),
+              description_2: Joi.any(),
               content_type: Joi.string().allow(""),
             })
           ),

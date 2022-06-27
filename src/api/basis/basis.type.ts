@@ -88,7 +88,6 @@ export interface IBasisOption {
       unit_2: string;
     }[];
   }[];
-
   created_at: string;
 }
 
@@ -111,6 +110,7 @@ export interface IBasisOptionRequest {
   name: string;
   subs: {
     name: string;
+    is_have_image: boolean;
     subs: {
       image: any;
       value_1: string;
@@ -125,6 +125,7 @@ export interface IUpdateBasisOptionRequest {
   subs: {
     id: string;
     name: string;
+    is_have_image: boolean;
     subs: {
       id: string;
       image: any;

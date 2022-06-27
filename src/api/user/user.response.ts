@@ -11,7 +11,8 @@ export default {
       firstname: Joi.string(),
       lastname: Joi.string(),
       gender: Joi.any(),
-      location: Joi.string().allow(null),
+      location_id: Joi.string().allow(null),
+      department_id: Joi.string().allow(null),
       position: Joi.string().allow(null),
       email: Joi.string(),
       phone: Joi.any(),
@@ -53,5 +54,12 @@ export default {
       url: Joi.string(),
     }),
     statusCode: Joi.number(),
+  }) as any,
+  getListDepartment: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+    }),
   }) as any,
 };

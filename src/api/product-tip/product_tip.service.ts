@@ -1,5 +1,7 @@
 import { countWord } from "./../../helper/common.helper";
-import { PRODUCT_TIP_NULL_ATTRIBUTES } from "../../model/product_tip.model";
+import ProductTipModel, {
+  PRODUCT_TIP_NULL_ATTRIBUTES,
+} from "../../model/product_tip.model";
 import { MESSAGES } from "../../constant/common.constant";
 import ProductModel from "../../model/product.model";
 import { IMessageResponse } from "../../type/common.type";
@@ -8,7 +10,6 @@ import {
   IProductTipResponse,
   IProductTipsResponse,
 } from "./product_tip.type";
-import ProductTipModel from "../../model/product_tip.model";
 export default class ProductTipService {
   private productTipModel: ProductTipModel;
   private productModel: ProductModel;
@@ -133,6 +134,17 @@ export default class ProductTipService {
         return resolve({
           message: MESSAGES.PRODUCT_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+
+      const productTip = await this.productTipModel.getDuplicatedProductTip(
+        id,
+        payload.title
+      );
+      if (productTip) {
+        return resolve({
+          message: MESSAGES.PRODUCT_TIP_EXISTS,
+          statusCode: 400,
         });
       }
 

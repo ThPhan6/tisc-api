@@ -11,7 +11,7 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
-import { deleteFile, upload } from "../../service/aws.service";
+import { deleteFile, isExists, upload } from "../../service/aws.service";
 import { BASIS_TYPES } from "./../../constant/common.constant";
 import { IBasisAttributes } from "./../../model/basis.model";
 import { IMessageResponse, IPagination } from "./../../type/common.type";
@@ -35,46 +35,6 @@ export default class BasisService {
   constructor() {
     this.basisModel = new BasisModel();
   }
-  private addCount = (data: any) => {
-    const totalCount = data.length;
-    let subCount = 0;
-    let childSubCount = 0;
-    const result = data.map((item: any) => {
-      if (item.subs) {
-        item.subs.map((el: any) => {
-          if (el.subs) {
-            childSubCount += el.subs.length;
-            return {
-              ...el,
-              count: el.subs.length,
-            };
-          }
-        });
-        subCount += item.subs.length;
-        return {
-          ...item,
-          count: item.subs.length,
-        };
-      }
-      return {
-        ...item,
-        count: 0,
-      };
-    });
-    return {
-      data: result,
-      summary: [
-        {
-          name: "Conversion Group",
-          value: totalCount,
-        },
-        {
-          name: "Conversion",
-          value: subCount,
-        },
-      ],
-    };
-  };
 
   private isDuplicatedConversion = (payload: any) => {
     const conversionBetweenNames = payload.subs.map((item: any) => {
@@ -214,7 +174,7 @@ export default class BasisService {
                 " = " +
                 1 +
                 " " +
-                element.unit_2,
+                element.unit_1,
             };
           });
           return {
@@ -223,17 +183,35 @@ export default class BasisService {
           };
         }
       );
-      const addedCount = this.addCount(returnedConversionGroups);
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
         BASIS_TYPES.CONVERSION
       );
 
+      const allConversion = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.CONVERSION
+      );
+      const conversionGroupCount = allConversion.length;
+      let conversionCount = 0;
+      allConversion.forEach((item: any) => {
+        conversionCount += item.subs.length;
+      });
+      const summary = [
+        {
+          name: "Conversion Group",
+          value: conversionGroupCount,
+        },
+        {
+          name: "Conversion",
+          value: conversionCount,
+        },
+      ];
+
       return resolve({
         data: {
           basis_conversions: returnedConversionGroups,
-          summary: addedCount.summary,
+          summary,
           pagination,
         },
         statusCode: 200,
@@ -259,7 +237,7 @@ export default class BasisService {
           first_formula:
             item.formula_1 + " " + item.unit_1 + " = " + 1 + " " + item.unit_2,
           second_formula:
-            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_2,
+            item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_1,
         };
       });
       const { type, is_deleted, ...rest } = basisConversion;
@@ -400,37 +378,42 @@ export default class BasisService {
           statusCode: 400,
         });
       }
-
+      let isValidImage = true;
+      const validUploadImages: {
+        buffer: Buffer;
+        path: string;
+        mime_type: string;
+      }[] = [];
       const options = await Promise.all(
         payload.subs.map(async (item) => {
           const values = await Promise.all(
             item.subs.map(async (value) => {
+              if (!item.is_have_image) {
+                return {
+                  id: uuid(),
+                  image: null,
+                  value_1: value.value_1,
+                  value_2: value.value_2,
+                  unit_1: value.unit_1,
+                  unit_2: value.unit_2,
+                };
+              }
               if (value.image) {
                 const fileType = await getFileTypeFromBase64(value.image);
-                if (!fileType) {
-                  return resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
-                }
-                if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
-                  return resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
-                }
                 const fileName = randomName(8);
-                const uploadedData = await upload(
-                  Buffer.from(value.image),
-                  `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  fileType.mime
-                );
-                if (!uploadedData) {
-                  return resolve({
-                    message: MESSAGES.SOMETHING_WRONG,
-                    statusCode: 400,
-                  });
+                if (
+                  !fileType ||
+                  !VALID_IMAGE_TYPES.find(
+                    (validType) => validType === fileType.mime
+                  )
+                ) {
+                  isValidImage = false;
                 }
+                validUploadImages.push({
+                  buffer: Buffer.from(value.image, "base64"),
+                  path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+                  mime_type: fileType.mime,
+                });
                 return {
                   id: uuid(),
                   image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
@@ -455,6 +438,18 @@ export default class BasisService {
             name: item.name,
             subs: values,
           };
+        })
+      );
+      if (!isValidImage) {
+        return resolve({
+          message: MESSAGES.INVALID_IMAGE,
+          statusCode: 400,
+        });
+      }
+      await Promise.all(
+        validUploadImages.map(async (item) => {
+          await upload(item.buffer, item.path, item.mime_type);
+          return true;
         })
       );
       const createdBasisOption = await this.basisModel.create({
@@ -495,7 +490,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_OPTION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -545,35 +540,40 @@ export default class BasisService {
         ["name", group_order]
       );
       const returnedGroups = groups.map((item: IBasisAttributes) => {
-        const returnedOptions = item.subs.map((option: any) => {
-          return {
-            ...option,
-            count: option.subs.length,
-          };
-        });
+        const returnedOptions = item.subs.map((option: any) => ({
+          ...option,
+          count: option.subs.length,
+        }));
         const { type, is_deleted, ...rest } = {
           ...item,
           subs: sortObjectArray(returnedOptions, "name", option_order),
         };
-        return rest;
+        return {
+          ...rest,
+          count: rest.subs.length
+        };
       });
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
         BASIS_TYPES.OPTION
       );
+
+      const allBasisOption = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.OPTION
+      );
       const summary = [
         {
           name: "Option Group",
-          value: groups.length,
+          value: allBasisOption.length,
         },
         {
           name: "Option",
-          value: this.countOptions(groups),
+          value: this.countOptions(allBasisOption),
         },
         {
           name: "Value",
-          value: this.countValues(groups),
+          value: this.countValues(allBasisOption),
         },
       ];
       return resolve({
@@ -629,109 +629,116 @@ export default class BasisService {
         });
       }
 
-      //delete old image on space
-      group.subs.forEach((item: any) => {
-        item.subs.forEach(async (value: any) => {
-          if (value.image) {
-            await deleteFile(value.image.slice(1));
-          }
-        });
-      });
-
+      let isValidImage = true;
+      const validUploadImages: {
+        buffer: Buffer;
+        path: string;
+        mime_type: string;
+      }[] = [];
       let options = await Promise.all(
         payload.subs.map(async (item) => {
+          const { is_have_image, ...rest } = item;
           let foundOption = false;
           if (item.id) {
-            const foundItem = group.subs.find((sub: any) => sub.id === item.id);
-            if (foundItem) {
+            const foundItemOption = group.subs.find(
+              (sub: any) => sub.id === item.id
+            );
+            if (foundItemOption) {
               foundOption = true;
             }
           }
           const values = await Promise.all(
             item.subs.map(async (value) => {
               let foundValue = false;
-              if (value.image) {
-                const fileType = await getFileTypeFromBase64(value.image);
-                if (!fileType) {
-                  resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
-                  return;
-                }
-                if (!VALID_IMAGE_TYPES.find((item) => item === fileType.mime)) {
-                  return resolve({
-                    message: MESSAGES.INVALID_IMAGE,
-                    statusCode: 400,
-                  });
-                }
-                const fileName = randomName(8);
-                const uploadedData = await upload(
-                  Buffer.from(value.image),
-                  `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  fileType.mime
-                );
-                if (!uploadedData) {
-                  return resolve({
-                    message: MESSAGES.SOMETHING_WRONG,
-                    statusCode: 400,
-                  });
-                }
-                if (value.id) {
-                  const foundItem = this.getAllValueInOneGroup(group).find(
-                    (valueInGroup) => valueInGroup.id === value.id
-                  );
-                  if (foundItem) {
-                    foundValue = true;
-                  }
-                }
-                if (foundValue) {
-                  return {
-                    ...value,
-                    image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  };
-                }
-                return {
-                  ...value,
-                  image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                  id: uuid(),
-                };
-              }
               if (value.id) {
-                const foundItem = this.getAllValueInOneGroup(group).find(
+                const foundItemValue = this.getAllValueInOneGroup(group).find(
                   (valueInGroup) => valueInGroup.id === value.id
                 );
-                if (foundItem) {
+                if (foundItemValue) {
                   foundValue = true;
                 }
               }
-              if (foundValue) {
-                return {
-                  ...value,
-                  image: null,
-                };
+              let imagePath: string | null = "";
+              if (!item.is_have_image) {
+                imagePath = null;
+                return foundValue
+                  ? {
+                      ...value,
+                      image: imagePath,
+                    }
+                  : {
+                      ...value,
+                      image: imagePath,
+                      id: uuid(),
+                    };
               }
-              return {
-                ...value,
-                image: null,
-                id: uuid(),
-              };
+              if (value.image) {
+                if (await isExists(value.image.slice(1))) {
+                  imagePath = value.image;
+                } else {
+                  group.subs.map((sub: any) => {
+                    sub.subs.map(async (element: any) => {
+                      if (element.id === value.id && element.image) {
+                        await deleteFile(element.image.slice(1));
+                      }
+                    });
+                  });
+
+                  const fileType = await getFileTypeFromBase64(value.image);
+                  if (
+                    !fileType ||
+                    !VALID_IMAGE_TYPES.find(
+                      (validType) => validType === fileType.mime
+                    )
+                  ) {
+                    isValidImage = false;
+                  }
+                  const fileName = randomName(8);
+                  validUploadImages.push({
+                    buffer: Buffer.from(value.image, "base64"),
+                    path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+                    mime_type: fileType.mime,
+                  });
+                  imagePath = `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`;
+                }
+                return foundValue
+                  ? {
+                      ...value,
+                      image: imagePath,
+                    }
+                  : {
+                      ...value,
+                      image: imagePath,
+                      id: uuid(),
+                    };
+              }
             })
           );
           if (foundOption) {
             return {
-              ...item,
+              ...rest,
               subs: values,
             };
           }
           return {
-            ...item,
+            ...rest,
             subs: values,
             id: uuid(),
           };
         })
       );
-
+      if (!isValidImage) {
+        return resolve({
+          message: MESSAGES.INVALID_IMAGE,
+          statusCode: 400,
+        });
+      }
+      await Promise.all(
+        validUploadImages.map(async (item) => {
+          await upload(item.buffer, item.path, item.mime_type);
+          return true;
+        })
+      );
       const updatedAttribute = await this.basisModel.update(id, {
         ...payload,
         subs: options,
@@ -823,16 +830,14 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }
-      const preset = group.subs.map((item: any) => {
-        return {
-          ...item,
-          count: item.subs.length,
-        };
-      });
+      const preset = group.subs.map((item: any) => ({
+        ...item,
+        count: item.subs.length,
+      }));
       const { type, is_deleted, ...rest } = group;
       return resolve({
         data: {
@@ -860,12 +865,10 @@ export default class BasisService {
       );
 
       const returnedGroups = groups.map((item: IBasisAttributes) => {
-        const returnedPresets = item.subs.map((preset: any) => {
-          return {
-            ...preset,
-            count: preset.subs.length,
-          };
-        });
+        const returnedPresets = item.subs.map((preset: any) => ({
+          ...preset,
+          count: preset.subs.length,
+        }));
         const { type, is_deleted, ...rest } = {
           ...item,
           subs: sortObjectArray(returnedPresets, "name", preset_order),
@@ -877,18 +880,22 @@ export default class BasisService {
         offset,
         BASIS_TYPES.PRESET
       );
+
+      const allBasisPreset = await this.basisModel.getAllBasisByType(
+        BASIS_TYPES.PRESET
+      );
       const summary = [
         {
           name: "Preset Group",
-          value: groups.length,
+          value: allBasisPreset.length,
         },
         {
           name: "Preset",
-          value: this.countOptions(groups),
+          value: this.countOptions(allBasisPreset),
         },
         {
           name: "Value",
-          value: this.countValues(groups),
+          value: this.countValues(allBasisPreset),
         },
       ];
       return resolve({
@@ -909,7 +916,7 @@ export default class BasisService {
       const group = await this.basisModel.find(id);
       if (!group) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.BASIS_PRESET_NOT_FOUND,
           statusCode: 404,
         });
       }

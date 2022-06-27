@@ -215,6 +215,12 @@ const BASIS_TYPES = {
   PRESET: 2,
   OPTION: 3,
 };
+const DEPARTMENT_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  created_at: null,
+  is_deleted: false,
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -230,4 +236,5 @@ module.exports = {
   FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
   BASIS_NULL_ATTRIBUTES,
   BASIS_TYPES,
+  DEPARTMENT_NULL_ATTRIBUTES,
 };

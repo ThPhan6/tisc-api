@@ -37,6 +37,58 @@ export default class AttributeService {
       return pre + cur.subs.length;
     }, 0);
   };
+  private getFlatListContentType = async (): Promise<any[]> => {
+    let data = [];
+    const conversionGroups = await this.basisModel.getAllBasisByType(
+      BASIS_TYPES.CONVERSION
+    );
+    conversionGroups.forEach((conversionGroup: IBasisAttributes) => {
+      conversionGroup.subs.forEach((conversion: any) => {
+        data.push({
+          id: conversion.id,
+          name_1: conversion.name_1,
+          name_2: conversion.name_2,
+          type: "Conversions",
+        });
+      });
+    });
+    const presetGroups = await this.basisModel.getAllBasisByType(
+      BASIS_TYPES.PRESET
+    );
+    presetGroups.forEach((presetGroup: IBasisAttributes) => {
+      presetGroup.subs.forEach((preset: any) => {
+        data.push({
+          id: preset.id,
+          name: preset.name,
+          type: "Presets",
+        });
+      });
+    });
+    const optionGroups = await this.basisModel.getAllBasisByType(
+      BASIS_TYPES.OPTION
+    );
+    optionGroups.forEach((optionGroup: IBasisAttributes) => {
+      optionGroup.subs.forEach((option: any) => {
+        data.push({
+          id: option.id,
+          name: option.name,
+          type: "Options",
+        });
+      });
+    });
+    data.push({
+      id: LONG_TEXT_ID,
+      name: "Long Format",
+      type: "Text",
+    });
+    data.push({
+      id: SHORT_TEXT_ID,
+      name: "Short Format",
+      type: "Text",
+    });
+
+    return data;
+  };
   public create = (
     payload: IAttributeRequest
   ): Promise<IMessageResponse | IAttributeResponse> => {
@@ -67,7 +119,6 @@ export default class AttributeService {
           id: uuid(),
           name: item.name,
           basis_id: item.basis_id,
-          description: item.description,
         };
       });
       const createdAttribute = await this.attributeModel.create({
@@ -82,26 +133,12 @@ export default class AttributeService {
           statusCode: 400,
         });
       }
-      const subResponses = createdAttribute.subs.map((item) => {
-        return {
-          ...item,
-          //get basis and put here later
-          content_type: "",
-        };
-      });
-      const { type, is_deleted, ...rest } = createdAttribute;
-      return resolve({
-        data: {
-          ...rest,
-          count: payload.subs.length,
-          subs: subResponses,
-        },
-        statusCode: 200,
-      });
+      return resolve(await this.get(createdAttribute.id));
     });
   };
   public get = (id: string): Promise<IMessageResponse | IAttributeResponse> => {
     return new Promise(async (resolve) => {
+      const contentTypes = await this.getFlatListContentType();
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
@@ -110,10 +147,29 @@ export default class AttributeService {
         });
       }
       const subResponses = attribute.subs.map((item) => {
+        const foundContentype = contentTypes.find(
+          (contentType) => contentType.id === item.basis_id
+        );
+        if (foundContentype) {
+          if (foundContentype.type === "Conversions") {
+            return {
+              ...item,
+              content_type: foundContentype.type,
+              description: "",
+              description_1: foundContentype.name_1,
+              description_2: foundContentype.name_2,
+            };
+          }
+          return {
+            ...item,
+            content_type: foundContentype.type,
+            description: foundContentype.name,
+          };
+        }
         return {
           ...item,
-          //get basis and put here later
           content_type: "",
+          description: "",
         };
       });
       const { type, is_deleted, ...rest } = attribute;
@@ -129,7 +185,7 @@ export default class AttributeService {
   };
 
   public getList = (
-    type: number,
+    attribute_type: number,
     limit: number,
     offset: number,
     filter: any,
@@ -138,22 +194,43 @@ export default class AttributeService {
     content_type_order: any
   ): Promise<IMessageResponse | IAttributesResponse> => {
     return new Promise(async (resolve) => {
+      const contentTypes = await this.getFlatListContentType();
       const attributes = await this.attributeModel.list(
         limit,
         offset,
-        { ...filter, type },
+        { ...filter, type: attribute_type },
         ["name", group_order]
       );
 
       const returnedAttributes = attributes.map(
         (item: IAttributeAttributes) => {
           const newSub = item.subs.map((sub) => {
+            const foundContentype = contentTypes.find(
+              (contentType) => contentType.id === sub.basis_id
+            );
+            if (foundContentype) {
+              if (foundContentype.type === "Conversions") {
+                return {
+                  ...sub,
+                  content_type: foundContentype.type,
+                  description: "",
+                  description_1: foundContentype.name_1,
+                  description_2: foundContentype.name_2,
+                };
+              }
+              return {
+                ...sub,
+                content_type: foundContentype.type,
+                description: foundContentype.name,
+              };
+            }
             return {
               ...sub,
               content_type: "",
+              description: "",
             };
           });
-          let sortedSubs;
+          let sortedSubs = newSub;
           if (attribute_order) {
             sortedSubs = sortObjectArray(newSub, "name", attribute_order);
           }
@@ -166,6 +243,7 @@ export default class AttributeService {
           }
           const { type, is_deleted, ...rest } = {
             ...item,
+            count: sortedSubs.length,
             subs: sortedSubs,
           };
           return rest;
@@ -174,22 +252,25 @@ export default class AttributeService {
       const pagination: IPagination = await this.attributeModel.getPagination(
         limit,
         offset,
-        type
+        attribute_type
       );
+
+      const allAttributeByType =
+        await this.attributeModel.getAllAttributeByType(attribute_type);
       const summary = [
         {
           name:
-            type === ATTRIBUTE_TYPES.SPECIFICATION
+            attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
               ? "Specification Group"
               : "Attribute Group",
-          value: attributes.length,
+          value: allAttributeByType.length,
         },
         {
           name:
-            type === ATTRIBUTE_TYPES.SPECIFICATION
+            attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
               ? "Specification"
               : "Attribute",
-          value: this.countAttribute(attributes),
+          value: this.countAttribute(allAttributeByType),
         },
       ];
       return resolve({

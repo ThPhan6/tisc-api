@@ -10,6 +10,7 @@ import {
   IUpdateMeRequest,
   IUserRequest,
   IUserResponse,
+  IDepartmentsResponse,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { USER_STATUSES } from "../../constant/user.constant";
@@ -17,13 +18,16 @@ import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
 import { toWebp } from "../../helper/image.helper";
+import DepartmentModel from "../../model/department.model";
 
 export default class UserService {
   private userModel: UserModel;
   private mailService: MailService;
+  private departmentModel: DepartmentModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
+    this.departmentModel = new DepartmentModel();
   }
 
   public create = (
@@ -63,7 +67,7 @@ export default class UserService {
         lastname: payload.lastname,
         gender: payload.gender,
         location_id: payload.location_id,
-        department: payload.department,
+        department_id: payload.department_id,
         position: payload.position,
         email: payload.email,
         phone: payload.phone,
@@ -123,7 +127,8 @@ export default class UserService {
         firstname: user.firstname,
         lastname: user.lastname,
         gender: user.gender,
-        location: user.location_id,
+        location_id: user.location_id,
+        department_id: user.department_id,
         position: user.position,
         email: user.email,
         phone: user.phone,
@@ -183,7 +188,8 @@ export default class UserService {
         firstname: updatedUser.firstname,
         lastname: updatedUser.lastname,
         gender: updatedUser.gender,
-        location: updatedUser.location_id,
+        location_id: updatedUser.location_id,
+        department_id: updatedUser.department_id,
         position: updatedUser.position,
         email: updatedUser.email,
         phone: updatedUser.phone,
@@ -228,7 +234,8 @@ export default class UserService {
         firstname: updatedUser.firstname,
         lastname: updatedUser.lastname,
         gender: updatedUser.gender,
-        location: updatedUser.location_id,
+        location_id: updatedUser.location_id,
+        department_id: updatedUser.department_id,
         position: updatedUser.position,
         email: updatedUser.email,
         phone: updatedUser.phone,
@@ -432,4 +439,16 @@ export default class UserService {
       });
     });
   };
+  public getListDepartment = (): Promise<IDepartmentsResponse> =>
+    new Promise(async (resolve) => {
+      const departments = await this.departmentModel.getAll(
+        ["id", "name"],
+        "created_at",
+        "ASC"
+      );
+      return resolve({
+        data: departments,
+        statusCode: 200,
+      });
+    });
 }

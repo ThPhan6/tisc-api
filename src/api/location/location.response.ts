@@ -99,4 +99,11 @@ export default {
       ),
     }),
   }) as any,
+  getlistFunctionalType: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+    }),
+  }) as any,
 };
