@@ -42,7 +42,7 @@ export default class ProductTipService {
       });
       if (productTip) {
         return resolve({
-          message: MESSAGES.PRODUCT_TIP_EXISTS,
+          message: MESSAGES.PRODUCT_TIP_EXISTED,
           statusCode: 400,
         });
       }
@@ -143,7 +143,7 @@ export default class ProductTipService {
       );
       if (productTip) {
         return resolve({
-          message: MESSAGES.PRODUCT_TIP_EXISTS,
+          message: MESSAGES.PRODUCT_TIP_EXISTED,
           statusCode: 400,
         });
       }

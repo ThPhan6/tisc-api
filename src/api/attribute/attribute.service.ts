@@ -98,7 +98,7 @@ export default class AttributeService {
       });
       if (attribute) {
         return resolve({
-          message: MESSAGES.ATTRIBUTE_EXISTS,
+          message: MESSAGES.ATTRIBUTE_EXISTED,
           statusCode: 400,
         });
       }

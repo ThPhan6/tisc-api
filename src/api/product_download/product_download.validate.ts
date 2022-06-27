@@ -6,27 +6,22 @@ export default {
       product_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Product id is required")),
-
-      title: Joi.string()
+      file_name: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Product title is required")),
-      content: Joi.string()
+        .error(commonFailValidatedMessageFunction("File name is required")),
+      url: Joi.string()
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Product content is required")
-        ),
+        .error(commonFailValidatedMessageFunction("Url is required")),
     },
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Product id is required")),
+      id: Joi.string().required(),
     },
     payload: {
       product_id: Joi.string(),
-      title: Joi.string(),
-      content: Joi.string(),
+      file_name: Joi.string(),
+      url: Joi.string(),
     },
   },
 };
