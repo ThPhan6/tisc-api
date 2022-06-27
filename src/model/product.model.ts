@@ -50,10 +50,10 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   name: null,
   code: null,
   description: null,
-  general_attribute_ids: null,
-  feature_attribute_ids: null,
-  specification_attribute_ids: null,
-  favorites: null,
+  general_attribute_groups: null,
+  feature_attribute_groups: null,
+  specification_attribute_groups: null,
+  favorites: [],
   images: null,
   created_at: null,
   created_by: null,
@@ -64,4 +64,16 @@ export default class ProductModel extends Model<IProductAttributes> {
   constructor() {
     super("products");
   }
+  public getDuplicatedProduct = async (id: string, name: string) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("name", name.toLowerCase())
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

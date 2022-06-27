@@ -42,6 +42,7 @@ export const ROUTES = {
   GET_ONE_ATTRIBUTE: "/api/attribute/get-one/{id}",
   CREATE_PRODUCT: "/api/product/create",
   UPDATE_PRODUCT: "/api/product/update/{id}",
+  DELETE_PRODUCT: "/api/product/delete/{id}",
   GET_LIST_PRODUCT: "/api/product/get-list",
   GET_ONE_PRODUCT: "/api/product/get-one/{id}",
   GET_LIST_DOCUMENTATION: "/api/documentation/get-list",
