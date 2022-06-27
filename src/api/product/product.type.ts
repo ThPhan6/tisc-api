@@ -27,6 +27,12 @@ export interface IProductsResponse {
 }
 
 export interface IProductsLeftInCollectionResponse {
-  data: IProduct[];
+  data: {
+    id: string;
+    collection_id: string;
+    name: string;
+    images: string[];
+    created_at: string;
+  }[];
   statusCode: number;
 }

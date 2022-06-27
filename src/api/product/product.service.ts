@@ -126,8 +126,12 @@ export default class ProductService {
           foundProduct.collection_id as string,
           productId
         );
+      const result = productLeftInCollection.map((item: any) => {
+        const { code, favorites, created_by, is_deleted, ...rest } = item;
+        return rest;
+      });
       return resolve({
-        data: productLeftInCollection,
+        data: result,
         statusCode: 200,
       });
     });
