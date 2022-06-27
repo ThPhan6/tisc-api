@@ -131,8 +131,13 @@ export default class ProductService {
           productId
         );
       const result = restCollectionProducts.map((item: any) => {
-        const { code, favorites, created_by, is_deleted, ...rest } = item;
-        return rest;
+        return {
+          id: item.id,
+          collection_id: item.collection_id,
+          name: item.name,
+          images: item.images,
+          created_at: item.created_at,
+        };
       });
       return resolve({
         data: result,
