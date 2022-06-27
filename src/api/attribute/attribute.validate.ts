@@ -1,5 +1,7 @@
 import * as Joi from "joi";
 import { ATTRIBUTE_TYPES } from "../../constant/common.constant";
+import { getMessage } from "../../validate/common.validate";
+
 const customFilter = (value: any, helpers: any) => {
   try {
     const filter = JSON.parse(decodeURIComponent(value));
@@ -21,10 +23,10 @@ export default {
           ATTRIBUTE_TYPES.SPECIFICATION
         )
         .required()
-        .error(() => new Error("Attribute type is required")),
+        .error(getMessage("Attribute type is required")),
       name: Joi.string()
         .required()
-        .error(() => new Error("Attribute group name is required")),
+        .error(getMessage("Attribute group name is required")),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -32,25 +34,22 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(() => new Error("Attribute group item is required"))
+            .error(getMessage("Attribute group item is required"))
         )
         .required()
         .error(
-          () =>
-            new Error("Attribute group items is required at least 1 valid data")
+          getMessage("Attribute group items is required at least 1 valid data")
         ),
     },
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(() => new Error("Attribute id is required")),
+      id: Joi.string().required().error(getMessage("Attribute id is required")),
     },
     payload: {
       name: Joi.string()
         .required()
-        .error(() => new Error("Attribute group name is required")),
+        .error(getMessage("Attribute group name is required")),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -59,12 +58,11 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(() => new Error("Attribute group item is required"))
+            .error(getMessage("Attribute group item is required"))
         )
         .required()
         .error(
-          () =>
-            new Error("Attribute group items is required at least 1 valid data")
+          getMessage("Attribute group items is required at least 1 valid data")
         ),
     },
   },
@@ -76,21 +74,22 @@ export default {
           ATTRIBUTE_TYPES.FEATURE,
           ATTRIBUTE_TYPES.SPECIFICATION
         )
-        .error(() => new Error("Attribute type is required")),
+        .error(getMessage("Attribute type is required")),
       page: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(() => new Error("Page must be an integer")),
+        .error(getMessage("Page must be an integer")),
+
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(() => new Error("Page Size must be an integer")),
+        .error(getMessage("Page Size must be an integer")),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);

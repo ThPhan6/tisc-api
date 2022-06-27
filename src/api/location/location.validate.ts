@@ -1,4 +1,6 @@
 import * as Joi from "joi";
+import { getMessage } from "../../validate/common.validate";
+
 const customFilter = (value: any, helpers: any) => {
   try {
     const filter = JSON.parse(decodeURIComponent(value));
@@ -15,14 +17,14 @@ export default {
     query: {
       country_id: Joi.string()
         .required()
-        .error(() => new Error("Country id is required")),
+        .error(getMessage("Country id is required")),
     },
   },
   getCities: {
     query: {
       country_id: Joi.string()
         .required()
-        .error(() => new Error("Country id is required")),
+        .error(getMessage("Country id is required")),
       state_id: Joi.string(),
     },
   },
@@ -30,71 +32,61 @@ export default {
     payload: {
       business_name: Joi.string()
         .required()
-        .error(() => new Error("Business name is required")),
+        .error(getMessage("Business name is required")),
       business_number: Joi.string()
         .required()
-        .error(() => new Error("Business number is required")),
+        .error(getMessage("Business number is required")),
       functional_type_ids: Joi.array()
         .items(Joi.string())
         .required()
-        .error(() => new Error("Functional type ids is required")),
+        .error(getMessage("Functional type ids is required")),
       country_id: Joi.string()
         .required()
-        .error(() => new Error("Country id is required")),
+        .error(getMessage("Country id is required")),
       state_id: Joi.string(),
-      city_id: Joi.string()
-        .required()
-        .error(() => new Error("City id is required")),
-      address: Joi.string()
-        .required()
-        .error(() => new Error("Address is required")),
+      city_id: Joi.string().required().error(getMessage("City id is required")),
+      address: Joi.string().required().error(getMessage("Address is required")),
       postal_code: Joi.string()
         .required()
-        .error(() => new Error("Postal code is required")),
+        .error(getMessage("Postal code is required")),
       general_phone: Joi.string()
         .required()
-        .error(() => new Error("General phone is required")),
+        .error(getMessage("General phone is required")),
       general_email: Joi.string()
         .required()
-        .error(() => new Error("General email is required")),
+        .error(getMessage("General email is required")),
     },
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(() => new Error("Location id is required")),
+      id: Joi.string().required().error(getMessage("Location id is required")),
     },
     payload: {
       business_name: Joi.string()
         .required()
-        .error(() => new Error("Business name is required")),
+        .error(getMessage("Business name is required")),
       business_number: Joi.string()
         .required()
-        .error(() => new Error("Business number is required")),
+        .error(getMessage("Business number is required")),
       functional_type_ids: Joi.array()
         .items(Joi.string())
         .required()
-        .error(() => new Error("Functional type ids is required")),
+        .error(getMessage("Functional type ids is required")),
       country_id: Joi.string()
         .required()
-        .error(() => new Error("Country id is required")),
+        .error(getMessage("Country id is required")),
       state_id: Joi.string(),
-      city_id: Joi.string()
-        .required()
-        .error(() => new Error("City id is required")),
-      address: Joi.string()
-        .required()
-        .error(() => new Error("Address is required")),
+      city_id: Joi.string().required().error(getMessage("City id is required")),
+      address: Joi.string().required().error(getMessage("Address is required")),
       postal_code: Joi.string()
         .required()
-        .error(() => new Error("Postal code is required")),
+        .error(getMessage("Postal code is required")),
       general_phone: Joi.string()
         .required()
-        .error(() => new Error("General phone is required")),
+        .error(getMessage("General phone is required")),
       general_email: Joi.string()
         .required()
-        .error(() => new Error("General email is required")),
+        .error(getMessage("General email is required")),
     },
   },
   getList: {
@@ -105,19 +97,19 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(() => new Error("Page must be an integer")),
+        .error(getMessage("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .error(() => new Error("Page Size must be an integer")),
+        .error(getMessage("Page Size must be an integer")),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .error(() => new Error("Invalid filter")),
+        .error(getMessage("Invalid filter")),
       sort_name: Joi.string(),
       sort_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {

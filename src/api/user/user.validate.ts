@@ -1,42 +1,31 @@
 import * as Joi from "joi";
-
+import { getMessage } from "../../validate/common.validate";
 export default {
   create: {
     payload: {
       firstname: Joi.string()
         .required()
-        .error(() => new Error("First name is required")),
+        .error(getMessage("First name is required")),
       lastname: Joi.string()
         .required()
-        .error(() => new Error("Last name is required")),
-      gender: Joi.boolean()
-        .required()
-        .error(() => new Error("Gender is required")),
+        .error(getMessage("Last name is required")),
+      gender: Joi.boolean().required().error(getMessage("Gender is required")),
       location_id: Joi.string()
         .required()
-        .error(() => new Error("Location id is required")),
-
+        .error(getMessage("Location id is required")),
       department: Joi.string()
         .required()
-        .error(() => new Error("Department is required")),
+        .error(getMessage("Department is required")),
       position: Joi.string()
         .required()
-        .error(() => new Error("Position is required")),
-
+        .error(getMessage("Position is required")),
       email: Joi.string()
         .email()
         .required()
-        .error(() => new Error("Email is required")),
-      phone: Joi.string()
-        .required()
-        .error(() => new Error("Phone is required")),
-
-      mobile: Joi.string()
-        .required()
-        .error(() => new Error("Mobile is required")),
-      role_id: Joi.string()
-        .required()
-        .error(() => new Error("Role id is required")),
+        .error(getMessage("Email is required")),
+      phone: Joi.string().required().error(getMessage("Phone is required")),
+      mobile: Joi.string().required().error(getMessage("Mobile is required")),
+      role_id: Joi.string().required().error(getMessage("Role id is required")),
     },
   },
   updateMe: {
@@ -54,9 +43,7 @@ export default {
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(() => new Error("Id is required")),
+      id: Joi.string().required().error(getMessage("Id is required")),
     },
     payload: {
       firstname: Joi.string(),
@@ -72,9 +59,7 @@ export default {
   },
   getOne: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(() => new Error("Id is required")),
+      id: Joi.string().required().error(getMessage("Id is required")),
     },
   },
 };
