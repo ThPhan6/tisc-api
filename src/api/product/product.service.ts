@@ -26,7 +26,7 @@ export default class ProductService {
       });
       if (product) {
         return resolve({
-          message: MESSAGES.PRODUCT_EXISTS,
+          message: MESSAGES.PRODUCT_EXISTED,
           statusCode: 400,
         });
       }
