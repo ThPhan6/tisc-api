@@ -8,8 +8,8 @@ import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IProductRequest,
   IProductResponse,
-  IProductsLeftInCollectionResponse,
   IProductsResponse,
+  IRestCollectionProductsResponse,
 } from "./product.type";
 export default class ProductService {
   private productModel: ProductModel;
@@ -99,9 +99,9 @@ export default class ProductService {
       });
     });
   };
-  public getProductLeftInCollection = (
+  public getListRestCollectionProduct = (
     productId: string
-  ): Promise<IMessageResponse | IProductsLeftInCollectionResponse> => {
+  ): Promise<IMessageResponse | IRestCollectionProductsResponse> => {
     return new Promise(async (resolve) => {
       const foundProduct = await this.productModel.find(productId);
       if (!foundProduct) {
@@ -110,23 +110,27 @@ export default class ProductService {
           statusCode: 404,
         });
       }
-      if (foundProduct.collection_id) {
-        const foundCollection = await this.collectionModel.find(
-          foundProduct.collection_id
-        );
-        if (!foundCollection) {
-          return resolve({
-            message: MESSAGES.COLLECTION_NOT_FOUND,
-            statusCode: 404,
-          });
-        }
+      if (!foundProduct.collection_id) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
       }
-      const productLeftInCollection =
-        await this.productModel.productLeftInCollection(
-          foundProduct.collection_id as string,
+      const foundCollection = await this.collectionModel.find(
+        foundProduct.collection_id
+      );
+      if (!foundCollection) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const restCollectionProducts =
+        await this.productModel.getListRestCollectionProduct(
+          foundProduct.collection_id,
           productId
         );
-      const result = productLeftInCollection.map((item: any) => {
+      const result = restCollectionProducts.map((item: any) => {
         const { code, favorites, created_by, is_deleted, ...rest } = item;
         return rest;
       });

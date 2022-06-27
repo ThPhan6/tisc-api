@@ -41,7 +41,7 @@ export default class ProductModel extends Model<IProductAttributes> {
     super("products");
   }
 
-  public productLeftInCollection = async (
+  public getListRestCollectionProduct = async (
     collectionId: string,
     productId: string
   ) => {

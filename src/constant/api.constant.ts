@@ -93,7 +93,8 @@ export const ROUTES = {
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
   GET_LIST_COLLECTION: "/api/collection/get-list",
   CREATE_COLLECTION: "/api/collection/create",
-  GET_LIST_PRODUCT_BY_PRODUCT_ID: "/api/product/get-list-by-product/{id}",
+  GET_LIST_REST_COLLECTION_PRODUCT:
+    "/api/product/get-list-rest-collection-product/{id}",
 
   CREATE_PRODUCT_TIP: "/api/product-tip/create",
   GET_LIST_PRODUCT_TIP: "/api/product-tip/get-list",

@@ -26,7 +26,7 @@ export interface IProductsResponse {
   statusCode: number;
 }
 
-export interface IProductsLeftInCollectionResponse {
+export interface IRestCollectionProductsResponse {
   data: {
     id: string;
     collection_id: string;

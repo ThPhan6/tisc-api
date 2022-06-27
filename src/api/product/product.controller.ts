@@ -21,12 +21,12 @@ export default class ProductController {
     const response = await this.service.create(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getProductLeftInCollection = async (
+  public getListRestCollectionProduct = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const response = await this.service.getProductLeftInCollection(id);
+    const response = await this.service.getListRestCollectionProduct(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -22,7 +22,7 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
-  getListProductLeftInCollection: Joi.object({
+  getListRestCollectionProduct: Joi.object({
     data: Joi.array().items(
       Joi.object({
         id: Joi.string(),
