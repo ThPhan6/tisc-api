@@ -105,6 +105,7 @@ export const MESSAGES = {
   PRODUCT_TIP_EXISTED: "Product tip existed",
   CONTENT_TIP_MAX_WORDS: "Content max 100 words",
   BASIS_PRESET_NOT_FOUND: "Basis preset not found",
+  COLLECTION_NOT_FOUND: "Collection not found",
   PRODUCT_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_DOWNLOAD_NOT_FOUND: "Product download not found",
 };

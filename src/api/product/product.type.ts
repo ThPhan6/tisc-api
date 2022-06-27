@@ -25,3 +25,14 @@ export interface IProductsResponse {
   };
   statusCode: number;
 }
+
+export interface IRestCollectionProductsResponse {
+  data: {
+    id: string;
+    collection_id: string;
+    name: string;
+    images: string[];
+    created_at: string;
+  }[];
+  statusCode: number;
+}

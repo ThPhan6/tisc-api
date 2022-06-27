@@ -48,6 +48,23 @@ export default class ProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_REST_COLLECTION_PRODUCT,
+          options: {
+            handler: controller.getListRestCollectionProduct,
+            validate: commonValidate.getOne,
+            description: "Method that get list rest collection product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getListRestCollectionProduct,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
