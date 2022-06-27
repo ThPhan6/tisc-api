@@ -1,5 +1,7 @@
 import * as Joi from "joi";
 import { ATTRIBUTE_TYPES } from "../../constant/common.constant";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+
 const customFilter = (value: any, helpers: any) => {
   try {
     const filter = JSON.parse(decodeURIComponent(value));
@@ -20,11 +22,15 @@ export default {
           ATTRIBUTE_TYPES.FEATURE,
           ATTRIBUTE_TYPES.SPECIFICATION
         )
-        .required(),
-      name: Joi.string().required().messages({
-        "string.empty": "Attribute group name can not be empty",
-        "any.required": "Attribute group name can not be empty",
-      }),
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Attribute type is required")
+        ),
+      name: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Attribute group name is required")
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -32,67 +38,87 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(() => new Error("Attribute group item is required"))
+            .error(
+              commonFailValidatedMessageFunction(
+                "Attribute group item is required"
+              )
+            )
         )
         .required()
-        .error(() => new Error("Attribute group items is required at least 1 valid data")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Attribute group items is required at least 1 valid data"
+          )
+        ),
     },
   },
   update: {
     params: {
-      id: Joi.string().required().messages({
-        "string.empty": "Id can not be empty",
-        "any.required": "Id can not be empty",
-      }),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Attribute id is required")),
     },
     payload: {
-      name: Joi.string().required().messages({
-        "string.empty": "Attribute group name can not be empty",
-        "any.required": "Attribute group name can not be empty",
-      }),
+      name: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Attribute group name is required")
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
             id: Joi.any(),
             name: Joi.string(),
             basis_id: Joi.string(),
-          }).required()
+          })
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Attribute group item is required"
+              )
+            )
         )
-        .required(),
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Attribute group items is required at least 1 valid data"
+          )
+        ),
     },
   },
   getListWithMultipleSort: {
     query: Joi.object({
-      type: Joi.number().valid(
-        ATTRIBUTE_TYPES.GENERAL,
-        ATTRIBUTE_TYPES.FEATURE,
-        ATTRIBUTE_TYPES.SPECIFICATION
-      ),
+      type: Joi.number()
+        .valid(
+          ATTRIBUTE_TYPES.GENERAL,
+          ATTRIBUTE_TYPES.FEATURE,
+          ATTRIBUTE_TYPES.SPECIFICATION
+        )
+        .error(
+          commonFailValidatedMessageFunction("Attribute type is required")
+        ),
       page: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
+
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(() => new Error("Invalid filter")),
       group_order: Joi.string().valid("ASC", "DESC"),
       attribute_order: Joi.string().valid("ASC", "DESC"),
       content_type_order: Joi.string().valid("ASC", "DESC"),

@@ -1,121 +1,126 @@
 import * as Joi from "joi";
 import { EMAIL_TYPE } from "../../constant/common.constant";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
 
 export default {
   isValidResetPasswordToken: {
     params: {
-      token: Joi.string().required().messages({
-        "string.empty": "Token can not be empty",
-        "any.required": "Token can not be empty",
-      }),
+      token: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Token is required")),
     },
   },
   login: {
     payload: {
-      email: Joi.string().email().required().messages({
-        "string.empty": "Email can not be empty",
-        "any.required": "Email can not be empty",
-      }),
-      password: Joi.string().required().messages({
-        "string.empty": "Password can not be empty",
-        "any.required": "Password can not be empty",
-      }),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      password: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Password is required")),
     },
   },
   register: {
     payload: {
-      email: Joi.string().email().required().messages({
-        "string.empty": "Email can not be empty",
-        "any.required": "Email can not be empty",
-      }),
-      firstname: Joi.string().required().messages({
-        "string.empty": "First name can not be empty",
-        "any.required": "First name can not be empty",
-      }),
-      lastname: Joi.string().required().messages({
-        "string.empty": "Last name can not be empty",
-        "any.required": "Last name can not be empty",
-      }),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      firstname: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("First name is required")),
+      lastname: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Last name is required")),
       company_name: Joi.string().allow(null, ""),
-      password: Joi.string().required().messages({
-        "string.empty": "Password can not be empty",
-        "any.required": "Password can not be empty",
-        "string.pattern.base": "Password is not valid",
-      }),
+      password: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Password is required and valid")
+        ),
     },
   },
   verify: {
     params: {
-      verification_token: Joi.string().required().messages({
-        "string.empty": "Verification token can not be empty",
-        "any.required": "Verification token can not be empty",
-      }),
+      verification_token: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Verification token is required")
+        ),
     },
   },
   createPasswordAndVerify: {
     params: {
-      verification_token: Joi.string().required().messages({
-        "string.empty": "Verification token can not be empty",
-        "any.required": "Verification token can not be empty",
-      }),
+      verification_token: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Verification token is required")
+        ),
     },
     payload: {
-      password: Joi.string().required().regex(regexPassword).messages({
-        "string.empty": "Password can not be empty",
-        "any.required": "Password can not be empty",
-        "string.pattern.base": "Password is not valid",
-      }),
+      password: Joi.string()
+        .required()
+        .regex(regexPassword)
+        .error(
+          commonFailValidatedMessageFunction("Password is required and valid")
+        ),
       confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
-        .messages({
-          "string.empty": "Password confirmation can not be empty",
-          "any.required": "Password confirmation can not be empty",
-          "any.only": "Password confirmation does not match",
-        }),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Password confirmation is required and match with password"
+          )
+        ),
     },
   },
-  resenEmail: {
+  resendEmail: {
     params: {
-      type: Joi.string().valid(
-        EMAIL_TYPE.FORGOT_PASSWORD,
-        EMAIL_TYPE.VERIFICATION
-      ),
-      email: Joi.string().email().required().messages({
-        "string.empty": "Email can not be empty",
-        "any.required": "Email can not be empty",
-      }),
+      type: Joi.string()
+        .valid(EMAIL_TYPE.FORGOT_PASSWORD, EMAIL_TYPE.VERIFICATION)
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Type email resend is required")
+        ),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
     },
   },
   resetPassword: {
     payload: {
-      reset_password_token: Joi.string().required().messages({
-        "string.empty": "Reset password token can not be empty",
-        "any.required": "Reset password token can not be empty",
-      }),
-      password: Joi.string().required().regex(regexPassword).messages({
-        "string.empty": "Password can not be empty",
-        "any.required": "Password can not be empty",
-        "string.pattern.base": "Password is not valid",
-      }),
+      reset_password_token: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Reset password is required")
+        ),
+      password: Joi.string()
+        .required()
+        .regex(regexPassword)
+        .error(
+          commonFailValidatedMessageFunction("Password is required and valid")
+        ),
       confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
-        .messages({
-          "string.empty": "Password confirmation can not be empty",
-          "any.required": "Password confirmation can not be empty",
-          "any.only": "Password confirmation does not match",
-        }),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Password confirmation is required and match with password"
+          )
+        ),
     },
   },
   forgotPassword: {
     payload: {
-      email: Joi.string().email().required().messages({
-        "string.empty": "Email can not be empty",
-        "any.required": "Email can not be empty",
-      }),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
     },
   },
 };

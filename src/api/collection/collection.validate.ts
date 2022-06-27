@@ -1,11 +1,14 @@
 import * as Joi from "joi";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+
 export default {
   create: {
     payload: {
-      name: Joi.string().required().messages({
-        "string.empty": "Name can not be empty",
-        "any.required": "Name can not be empty",
-      }),
+      name: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Collection name is required")
+        ),
     },
   },
 };

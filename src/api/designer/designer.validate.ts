@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 const customFilter = (value: any, helpers: any) => {
   try {
     const filter = JSON.parse(decodeURIComponent(value));
@@ -19,25 +20,21 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
       sort_name: Joi.string(),
       sort_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {

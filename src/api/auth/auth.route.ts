@@ -155,7 +155,7 @@ export default class AuthRoute implements IRoute {
           path: `${PREFIX}/resend-email/{type}/{email}`,
           options: {
             handler: controller.resendEmail,
-            validate: validate.resenEmail,
+            validate: validate.resendEmail,
             description: "Method that resend email",
             tags: ["api", "Authentication"],
             auth: false,

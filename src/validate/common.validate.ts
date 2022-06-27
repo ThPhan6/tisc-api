@@ -10,6 +10,10 @@ const customFilter = (value: any, helpers: any) => {
     return helpers.error("any.invalid");
   }
 };
+
+export const commonFailValidatedMessageFunction = (message: string) => {
+  return new Error(message);
+};
 export default {
   getList: {
     query: Joi.object({
@@ -19,27 +23,25 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
+
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
+
       sort: Joi.string(),
       order: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
@@ -71,9 +73,7 @@ export default {
             return helpers.error("any.invalid");
           }
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
     },
   },
   getAll: {
@@ -84,9 +84,7 @@ export default {
         .custom((value, helpers) => {
           return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
     }).custom((value) => {
       return {
         filter: value.filter,
@@ -96,10 +94,9 @@ export default {
   } as any,
   getOne: {
     params: {
-      id: Joi.string().required().messages({
-        "string.empty": "Id can not be empty",
-        "any.required": "Id can not be empty",
-      }),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id can not be empty")),
     },
   },
   getListJustWithLimitOffset: {
@@ -110,18 +107,16 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
