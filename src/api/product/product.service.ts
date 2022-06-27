@@ -9,6 +9,7 @@ import {
   IProductRequest,
   IProductResponse,
   IProductsResponse,
+  IRestCollectionProductItem,
   IRestCollectionProductsResponse,
 } from "./product.type";
 export default class ProductService {
@@ -130,15 +131,17 @@ export default class ProductService {
           foundProduct.collection_id,
           productId
         );
-      const result = restCollectionProducts.map((item: any) => {
-        return {
-          id: item.id,
-          collection_id: item.collection_id,
-          name: item.name,
-          images: item.images,
-          created_at: item.created_at,
-        };
-      });
+      const result = restCollectionProducts.map(
+        (item: IRestCollectionProductItem) => {
+          return {
+            id: item.id,
+            collection_id: item.collection_id,
+            name: item.name,
+            images: item.images,
+            created_at: item.created_at,
+          };
+        }
+      );
       return resolve({
         data: result,
         statusCode: 200,
