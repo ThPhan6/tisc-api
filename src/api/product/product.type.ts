@@ -25,3 +25,8 @@ export interface IProductsResponse {
   };
   statusCode: number;
 }
+
+export interface IProductsLeftInCollectionResponse {
+  data: IProduct[];
+  statusCode: number;
+}

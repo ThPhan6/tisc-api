@@ -22,4 +22,8 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getListProductLeftInCollection: Joi.object({
+    data: Joi.array().items(Joi.any()),
+    statusCode: Joi.number(),
+  }) as any,
 };

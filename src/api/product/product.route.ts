@@ -48,6 +48,23 @@ export default class ProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_PRODUCT_BY_PRODUCT_ID,
+          options: {
+            handler: controller.getProductLeftInCollection,
+            validate: commonValidate.getOne,
+            description: "Method that get list product left in collection",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getListProductLeftInCollection,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

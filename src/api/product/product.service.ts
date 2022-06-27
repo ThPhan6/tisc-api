@@ -1,19 +1,22 @@
 import { MESSAGES } from "../../constant/common.constant";
+import CollectionModel from "../../model/collection.model";
 import ProductModel, {
-  PRODUCT_NULL_ATTRIBUTES,
   IProductAttributes,
+  PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/product.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IProductRequest,
   IProductResponse,
+  IProductsLeftInCollectionResponse,
   IProductsResponse,
 } from "./product.type";
-
 export default class ProductService {
   private productModel: ProductModel;
+  private collectionModel: CollectionModel;
   constructor() {
     this.productModel = new ProductModel();
+    this.collectionModel = new CollectionModel();
   }
   public create = (
     user_id: string,
@@ -92,6 +95,39 @@ export default class ProductService {
           products: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+  };
+  public getProductLeftInCollection = (
+    productId: string
+  ): Promise<IMessageResponse | IProductsLeftInCollectionResponse> => {
+    return new Promise(async (resolve) => {
+      const foundProduct = await this.productModel.find(productId);
+      if (!foundProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (foundProduct.collection_id) {
+        const foundCollection = await this.collectionModel.find(
+          foundProduct.collection_id
+        );
+        if (!foundCollection) {
+          return resolve({
+            message: MESSAGES.COLLECTION_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+      }
+      const productLeftInCollection =
+        await this.productModel.productLeftInCollection(
+          foundProduct.collection_id as string,
+          productId
+        );
+      return resolve({
+        data: productLeftInCollection,
         statusCode: 200,
       });
     });

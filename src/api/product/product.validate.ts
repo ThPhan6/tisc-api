@@ -6,6 +6,7 @@ export default {
       name: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Product name is required")),
+      collection_id: Joi.string().allow(null),
     },
   },
 };
