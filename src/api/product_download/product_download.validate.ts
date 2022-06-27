@@ -1,19 +1,17 @@
 import Joi from "joi";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 export default {
   create: {
     payload: {
-      product_id: Joi.string().required().messages({
-        "string.empty": "Product id can not be empty",
-        "any.required": "Product id can not be empty",
-      }),
-      file_name: Joi.string().required().messages({
-        "string.empty": "File name can not be empty",
-        "any.required": "File name can not be empty",
-      }),
-      url: Joi.string().required().messages({
-        "string.empty": "Url can not be empty",
-        "any.required": "Url can not be empty",
-      }),
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+      file_name: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("File name is required")),
+      url: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Url is required")),
     },
   },
   update: {
