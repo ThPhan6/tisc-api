@@ -102,4 +102,12 @@ export const ROUTES = {
   DELETE_PRODUCT_TIP: "/api/product-tip/delete/{id}",
   GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
     "/api/product-tip/get-list-by-product/{id}",
+
+  CREATE_PRODUCT_DOWNLOAD: "/api/product-download/create",
+  GET_LIST_PRODUCT_DOWNLOAD: "/api/product-download/get-list",
+  GET_ONE_PRODUCT_DOWNLOAD: "/api/product-download/get-one/{id}",
+  EDIT_PRODUCT_DOWNLOAD: "/api/product-download/update/{id}",
+  DELETE_PRODUCT_DOWNLOAD: "/api/product-download/delete/{id}",
+  GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID:
+    "/api/product-download/get-list-by-product/{id}",
 };
