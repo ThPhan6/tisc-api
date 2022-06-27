@@ -35,7 +35,7 @@ export default class ProductDownloadService {
       });
       if (productDownload) {
         return resolve({
-          message: MESSAGES.PRODUCT_DOWNLOAD_EXISTS,
+          message: MESSAGES.PRODUCT_DOWNLOAD_EXISTED,
           statusCode: 400,
         });
       }
@@ -129,7 +129,7 @@ export default class ProductDownloadService {
         );
       if (productDownload) {
         return resolve({
-          message: MESSAGES.PRODUCT_DOWNLOAD_EXISTS,
+          message: MESSAGES.PRODUCT_DOWNLOAD_EXISTED,
           statusCode: 400,
         });
       }
