@@ -38,9 +38,9 @@ export default class ProductService {
         name: payload.name,
         code: "random",
         description: payload.description,
-        general_attribute_ids: payload.general_attribute_ids,
-        feature_attribute_ids: payload.feature_attribute_ids,
-        specification_attribute_ids: payload.specification_attribute_ids,
+        general_attribute_groups: payload.general_attribute_groups,
+        feature_attribute_groups: payload.feature_attribute_groups,
+        specification_attribute_groups: payload.specification_attribute_groups,
         created_by: user_id,
       });
       if (!createdProduct) {

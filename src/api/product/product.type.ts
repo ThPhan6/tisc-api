@@ -10,9 +10,33 @@ export interface IProductRequest {
   category_ids: string[];
   name: string;
   description: string;
-  general_attribute_ids: string[];
-  feature_attribute_ids: string[];
-  specification_attribute_ids: string[];
+  general_attribute_groups: {
+    id: string;
+    name: string;
+    attributes: {
+      id: string;
+      basis_id: string;
+    }[];
+  }[];
+  feature_attribute_groups: {
+    id: string;
+    name: string;
+    attributes: {
+      id: string;
+      basis_id: string;
+    }[];
+  }[];
+  specification_attribute_groups: {
+    id: string;
+    name: string;
+    attributes: {
+      id: string;
+      bases: {
+        id: string;
+        option_code: string;
+      }[];
+    }[];
+  }[];
 }
 export interface IProductResponse {
   data: IProduct;
