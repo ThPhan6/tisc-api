@@ -1,13 +1,17 @@
 import * as Hapi from "@hapi/hapi";
 import DesignerController from "./designer.controller";
-import validate from "./designer.validate";
+import commonValidate from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
+import {
+  defaultRouteOptionResponseStatus,
+  statuses,
+} from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-import DesignerResponse from "./designer.response";
+import response from "./designer.response";
+import validate from "./designer.validate";
 
-export default class DesignerRoutes implements IRoute {
+export default class DesignerRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new DesignerController();
@@ -25,7 +29,7 @@ export default class DesignerRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: DesignerResponse.getList,
+                200: response.getList,
               },
             },
           },
@@ -35,14 +39,28 @@ export default class DesignerRoutes implements IRoute {
           path: ROUTES.GET_ONE_DESIGN_FIRM,
           options: {
             handler: controller.getOne,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that get one design firm",
             tags: ["api", "Designer"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: DesignerResponse.getOne,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DESIGN_STATUSES,
+          options: {
+            handler: controller.getStatuses,
+            description: "Method that get designer statuses",
+            tags: ["api", "Designer"],
+            response: {
+              status: {
+                200: statuses,
               },
             },
           },

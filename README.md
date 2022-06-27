@@ -18,4 +18,12 @@
 ### Available scripts
 
 - `dev`: Starts node in dev enviroment
+- `create_db`: Create database with name in dev enviroment
+- `migrate`: Migrate all tables
 - `seed`: Execute all seed file
+- `test`: Run unit test
+
+### Run unit test
+- Edit env DATABASE_HOSTNAME, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD.
+- If database is not exist, run script `create_db`, `migrate` and `seed`. If not, ignore this step.
+- Run script `test`.

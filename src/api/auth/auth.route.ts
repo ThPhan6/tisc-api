@@ -9,7 +9,7 @@ import {
 } from "../../helper/response.helper";
 import authResponse from "./auth.response";
 
-export default class AuthRoutes implements IRoute {
+export default class AuthRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new AuthController();
@@ -28,6 +28,22 @@ export default class AuthRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: authResponse.login,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: `/api/auth/is-valid-reset-password-token/{token}`,
+          options: {
+            handler: controller.isValidResetPasswordToken,
+            validate: validate.isValidResetPasswordToken,
+            description: "Method that check valid reset password token",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                200: authResponse.isValidToken,
               },
             },
           },
@@ -62,6 +78,23 @@ export default class AuthRoutes implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: `${PREFIX}/reset-password-and-login`,
+          options: {
+            handler: controller.resetPasswordAndLogin,
+            validate: validate.resetPassword,
+            description: "Method that reset password and login",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: authResponse.login,
               },
             },
           },
@@ -122,7 +155,7 @@ export default class AuthRoutes implements IRoute {
           path: `${PREFIX}/resend-email/{type}/{email}`,
           options: {
             handler: controller.resendEmail,
-            validate: validate.resenEmail,
+            validate: validate.resendEmail,
             description: "Method that resend email",
             tags: ["api", "Authentication"],
             auth: false,

@@ -1,16 +1,18 @@
 import moment from "moment";
 import { MESSAGES } from "../../constant/common.constant";
-import Documentation from "../../model/documentation.model";
-import { IMessageResponse } from "../../type/common.type";
+import DocumentationModel, {
+  DOCUMENTATION_NULL_ATTRIBUTES,
+} from "../../model/documentation.model";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IDocumentationRequest,
   IDocumentationResponse,
   IDocumentationsResponse,
 } from "./documentation.type";
-class AgreementPoliciesTermsService {
-  private documentation: Documentation;
+class DocumentationService {
+  private documentationModel: DocumentationModel;
   constructor() {
-    this.documentation = new Documentation();
+    this.documentationModel = new DocumentationModel();
   }
 
   public create = (
@@ -25,12 +27,12 @@ class AgreementPoliciesTermsService {
         });
       }
       const updated_at = moment().toISOString();
-      const result = await this.documentation.create({
+      const result = await this.documentationModel.create({
+        ...DOCUMENTATION_NULL_ATTRIBUTES,
         title: payload.title,
         document: payload.document,
         created_by: user_id,
-        logo: null,
-        type: payload.type || null,
+        type: payload.type,
         updated_at,
         is_deleted: false,
       });
@@ -58,7 +60,7 @@ class AgreementPoliciesTermsService {
         key: "created_by",
         collection: "users",
       };
-      const documentations = await this.documentation.list(
+      const documentations = await this.documentationModel.list(
         limit,
         offset,
         filter,
@@ -101,8 +103,14 @@ class AgreementPoliciesTermsService {
           author: rest,
         };
       });
+      const pagination: IPagination =
+        await this.documentationModel.getPagination(limit, offset);
+
       return resolve({
-        data: result,
+        data: {
+          documentations: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });
@@ -111,7 +119,7 @@ class AgreementPoliciesTermsService {
     id: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const result = await this.documentation.find(id);
+      const result = await this.documentationModel.find(id);
       if (!result) {
         return resolve({
           message: MESSAGES.NOT_FOUND_DOCUMENTATION,
@@ -129,14 +137,14 @@ class AgreementPoliciesTermsService {
     payload: IDocumentationRequest
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const documentation = await this.documentation.find(id);
+      const documentation = await this.documentationModel.find(id);
       if (!documentation) {
         return resolve({
           message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
-      const result = await this.documentation.update(id, payload);
+      const result = await this.documentationModel.update(id, payload);
       if (!result) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
@@ -151,14 +159,16 @@ class AgreementPoliciesTermsService {
   };
   public delete = (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const documentation = await this.documentation.find(id);
+      const documentation = await this.documentationModel.find(id);
       if (!documentation) {
         return resolve({
           message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
-      const result = await this.documentation.update(id, { isDeleted: true });
+      const result = await this.documentationModel.update(id, {
+        is_deleted: true,
+      });
       if (!result) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_DELETE,
@@ -173,4 +183,4 @@ class AgreementPoliciesTermsService {
   };
 }
 
-export default AgreementPoliciesTermsService;
+export default DocumentationService;

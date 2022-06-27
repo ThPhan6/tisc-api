@@ -44,23 +44,36 @@ export default class Builder {
   ) => {
     const keys = Object.keys(filter ? filter : {});
     return keys.reduce((pre, cur) => {
+      if (filter[cur] === undefined) {
+        return pre;
+      }
       this.bindObj = {
         ...this.bindObj,
-        [cur]: filter[cur].toString().toLowerCase(),
+        [cur]:
+          typeof filter[cur] === "string"
+            ? filter[cur].toString().toLowerCase()
+            : filter[cur],
       };
       if (!exact) {
         return (
           pre +
-          `filter lower(${prefix}.${cur}) ${
-            positive ? "" : "not"
-          } like concat('%',@${cur}, '%') `
+          ` filter ` +
+          (typeof filter[cur] === "string"
+            ? `lower(${prefix}.${cur})`
+            : `(${prefix}.${cur})`) +
+          ` ${positive ? " " : " not"} like concat('%',` +
+          (typeof filter[cur] === "string" ? `lower(@${cur})` : `@${cur}`) +
+          `, '%') `
         );
       }
       return (
         pre +
-        `filter lower(${prefix}.${cur}) ${
-          positive ? "=" : "!"
-        }= lower(@${cur}) `
+        ` filter ` +
+        (typeof filter[cur] === "string"
+          ? `lower(${prefix}.${cur})`
+          : `(${prefix}.${cur})`) +
+        `${positive ? " =" : " !"}= ` +
+        (typeof filter[cur] === "string" ? `lower(@${cur})` : `@${cur}`)
       );
     }, "");
   };
@@ -84,7 +97,7 @@ export default class Builder {
     return this;
   };
 
-  public whereNotLike = (key: string, value?: string) => {
+  public whereNotLike = (key: any, value?: string) => {
     if (value) {
       this.query += ` filter ${this.prefix}.${key} not like concat('%',@${key}, '%') `;
       this.bindObj = { ...this.bindObj, [key]: value };
@@ -134,8 +147,8 @@ export default class Builder {
     return this;
   };
 
-  public where = (key: string, value?: any) => {
-    if (value || value == false) {
+  public where = (key: any, value?: any) => {
+    if (value || value === false) {
       this.query += ` filter ${this.prefix}.${key} == @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }
@@ -145,7 +158,7 @@ export default class Builder {
     return this;
   };
 
-  public whereNot = (key: string, value?: string) => {
+  public whereNot = (key: any, value?: any) => {
     if (value) {
       this.query += ` filter ${this.prefix}.${key} != @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
@@ -176,9 +189,22 @@ export default class Builder {
     return this;
   };
 
-  public groupBy = (key: string) => {
-    this.query += ` collect group = ${this.prefix}.${key}`;
-    return this;
+  public groupBy = async (key: string, count_key?: string) => {
+    if (count_key) {
+      this.query += ` collect ${key} = ${this.prefix}.${key} with count into ${count_key} return {${key}, ${count_key}}`;
+    } else {
+      this.query += ` collect ${key} = ${this.prefix}.${key} return {${key}}`;
+    }
+    const executedData: any = await db.query({
+      query: this.query,
+      bindVars: this.bindObj,
+    });
+    // reset query
+    this.query = this.temp;
+    this.bindObj = this.tempBindObj;
+    return executedData._result.map((item: any) => {
+      return removeUnnecessaryArangoFields(item);
+    });
   };
 
   public orderBy = (key: string, direction: string = "asc") => {
@@ -191,11 +217,7 @@ export default class Builder {
    * Get methods
    */
 
-  public select = async (
-    keys?: Array<string>,
-    isMerge?: boolean,
-    custom_fields?: string[]
-  ) => {
+  public select = async (keys?: Array<string>, isMerge?: boolean) => {
     if (keys) {
       this.query += isMerge
         ? ` return merge( ${toObject(keys, this.prefix)}, {@key: item })`
@@ -205,7 +227,6 @@ export default class Builder {
         ? ` return merge(  ${this.prefix}, {@key: item })`
         : ` return  ${this.prefix}`;
     }
-
     const executedData: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,
@@ -213,10 +234,9 @@ export default class Builder {
     // reset query
     this.query = this.temp;
     this.bindObj = this.tempBindObj;
-    const result = executedData._result.map((item: any) => {
+    return executedData._result.map((item: any) => {
       return removeUnnecessaryArangoFields(item);
     });
-    return result;
   };
 
   public first = async (keys?: Array<string>, isMerge?: boolean) => {
@@ -283,7 +303,7 @@ export default class Builder {
   public delete = async () => {
     try {
       this.query += ` remove ${this.prefix} in @@model `;
-      const result: any = await db.query({
+      await db.query({
         query: this.query,
         bindVars: this.bindObj,
       });
@@ -305,5 +325,17 @@ export default class Builder {
       "@collection": collection,
     };
     return this;
+  };
+
+  public raw = async (raw_string: string, bindObj: any) => {
+    try {
+      return await db.query({
+        query: raw_string,
+        bindVars: bindObj,
+      });
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   };
 }

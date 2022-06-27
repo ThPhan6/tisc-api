@@ -1,14 +1,14 @@
 import { MESSAGES } from "./../../constant/common.constant";
-import UserModel from "../../model/user.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
   IAdminLoginRequest,
   IResetPasswordRequest,
   IForgotPasswordResponse,
   IRegisterRequest,
   IForgotPasswordRequest,
+  ILoginResponse,
 } from "./auth.type";
 import { IMessageResponse } from "../../type/common.type";
-import { ILoginResponse } from "./auth.type";
 import {
   comparePassword,
   createResetPasswordToken,
@@ -110,7 +110,8 @@ class AuthService {
   };
 
   public forgotPassword = (
-    payload: IForgotPasswordRequest
+    payload: IForgotPasswordRequest,
+    browserName: string
   ): Promise<IForgotPasswordResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
@@ -141,15 +142,38 @@ class AuthService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendResetPasswordEmail(result);
+      await this.mailService.sendResetPasswordEmail(result, browserName);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
   };
+  public isValidResetPasswordToken = (
+    token: string
+  ): Promise<{ data: boolean; statusCode: number }> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        reset_password_token: token,
+        is_verified: true,
+      });
+      if (!user) {
+        return resolve({
+          data: false,
+          statusCode: 200,
+        });
+      }
+      return resolve({
+        data: true,
+        statusCode: 200,
+      });
+    });
 
-  public resendEmail = (type: string, email: string): Promise<any> => {
+  public resendEmail = (
+    type: string,
+    email: string,
+    browserName: string
+  ): Promise<any> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
         email,
@@ -162,10 +186,13 @@ class AuthService {
       }
       let sentEmail;
       if (type === EMAIL_TYPE.FORGOT_PASSWORD)
-        sentEmail = await this.mailService.sendResetPasswordEmail(user);
+        sentEmail = await this.mailService.sendResetPasswordEmail(
+          user,
+          browserName
+        );
       else if (type === EMAIL_TYPE.VERIFICATION)
         sentEmail = await this.mailService.sendRegisterEmail(user);
-      if (sentEmail.statusCode === 200) {
+      if (sentEmail) {
         return resolve(sentEmail);
       }
       return resolve({
@@ -207,6 +234,40 @@ class AuthService {
     });
   };
 
+  public resetPasswordAndLogin = (
+    payload: IResetPasswordRequest
+  ): Promise<ILoginResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        reset_password_token: payload.reset_password_token,
+        is_verified: true,
+      });
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const newPassword = createHash(payload.password);
+      const updated = await this.userModel.update(user.id, {
+        reset_password_token: null,
+        password: newPassword,
+      });
+      if (!updated) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG,
+          statusCode: 400,
+        });
+      }
+      return resolve(
+        await this.login({
+          email: user.email,
+          password: payload.password,
+        })
+      );
+    });
+  };
+
   public register = (payload: IRegisterRequest): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
@@ -231,6 +292,7 @@ class AuthService {
         if (!duplicateVerificationTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
       const createdUser = await this.userModel.create({
+        ...USER_NULL_ATTRIBUTES,
         firstname: payload.firstname,
         lastname: payload.lastname,
         password,

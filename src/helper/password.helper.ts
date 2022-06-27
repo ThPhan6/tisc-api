@@ -6,14 +6,13 @@ const bcryptSalt = 10;
 const salt = bcrypt.genSaltSync(bcryptSalt);
 
 export const createHash = (password: string) => {
-  const hash = bcrypt.hashSync(password, salt);
-  return hash;
+  return bcrypt.hashSync(password, salt);
 };
 
 export const createHashWithSalt = (password: string) => {
-  const salt = bcrypt.genSaltSync(bcryptSalt);
-  const hash = bcrypt.hashSync(password, salt);
-  return { hash, salt };
+  const randomSalt = bcrypt.genSaltSync(bcryptSalt);
+  const hash = bcrypt.hashSync(password, randomSalt);
+  return { hash, randomSalt };
 };
 
 export const comparePassword = (password: string, hash: string) => {
@@ -21,11 +20,9 @@ export const comparePassword = (password: string, hash: string) => {
 };
 
 export const createResetPasswordToken = () => {
-  const str = crypto.randomBytes(64).toString("hex");
-  return str;
+  return crypto.randomBytes(64).toString("hex");
 };
 
 export const createRandomString = (n: number) => {
-  const str = crypto.randomBytes(n).toString("hex");
-  return str;
+  return crypto.randomBytes(n).toString("hex");
 };
