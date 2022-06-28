@@ -1,4 +1,3 @@
-import moment from "moment";
 import { MESSAGES } from "../../constant/common.constant";
 import DocumentationModel, {
   DOCUMENTATION_NULL_ATTRIBUTES,
@@ -26,46 +25,39 @@ class DocumentationService {
           statusCode: 400,
         });
       }
-      const updated_at = moment().toISOString();
-      const result = await this.documentationModel.create({
+      const createdDocumentation = await this.documentationModel.create({
         ...DOCUMENTATION_NULL_ATTRIBUTES,
         title: payload.title,
         document: payload.document,
         created_by: user_id,
         type: payload.type,
-        updated_at,
-        is_deleted: false,
       });
-      if (!result) {
+      if (!createdDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
           statusCode: 400,
         });
       }
+      const { is_deleted, ...rest } = createdDocumentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
   };
 
   public getList = (
+    type: number,
     limit: number,
     offset: number,
-    filter: any,
     sort: any
   ): Promise<IDocumentationsResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const join = {
-        key: "created_by",
-        collection: "users",
-      };
-      const documentations = await this.documentationModel.list(
+      const documentations = await this.documentationModel.getListWithoutFilter(
+        type,
         limit,
         offset,
-        filter,
-        sort,
-        join
+        sort
       );
       if (!documentations) {
         return resolve({
@@ -74,33 +66,20 @@ class DocumentationService {
         });
       }
       const result = documentations.map((documentation: any) => {
-        const {
-          _key,
-          _id,
-          _rev,
-          id,
-          role_id,
-          location_id,
-          email,
-          phone,
-          mobile,
-          password,
-          backup_email,
-          personal_mobile,
-          linkedin,
-          is_verified,
-          verification_token,
-          reset_password_token,
-          status,
-          avatar,
-          type,
-          relation_id,
-          ...rest
-        } = documentation.created_by;
         return {
-          ...documentation,
-          created_by: documentation.created_by.id,
-          author: rest,
+          created_at: documentation.created_at,
+          created_by: documentation.created_by,
+          document: documentation.document,
+          id: documentation.id,
+          logo: documentation.logo,
+          title: documentation.title,
+          type: documentation.type,
+          updated_at: documentation.updated_at,
+          author: {
+            id: documentation.author.id,
+            firstname: documentation.author.firstname,
+            lastname: documentation.author.lastname,
+          },
         };
       });
       const pagination: IPagination =
@@ -119,15 +98,16 @@ class DocumentationService {
     id: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const result = await this.documentationModel.find(id);
-      if (!result) {
+      const documentation = await this.documentationModel.find(id);
+      if (!documentation) {
         return resolve({
           message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
+      const { is_deleted, ...rest } = documentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
@@ -144,15 +124,19 @@ class DocumentationService {
           statusCode: 404,
         });
       }
-      const result = await this.documentationModel.update(id, payload);
-      if (!result) {
+      const updatedDocumentation = await this.documentationModel.update(
+        id,
+        payload
+      );
+      if (!updatedDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
+      const { is_deleted, ...rest } = updatedDocumentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
