@@ -8,7 +8,7 @@ export default class DocumentationController {
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { filter, limit, offset, sort } = req.query;
-    const response = await this.service.getList(limit, offset, filter, sort);
+    const response = await this.service.getList(limit, offset, sort);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

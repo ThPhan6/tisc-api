@@ -27,23 +27,23 @@ class DocumentationService {
         });
       }
       const updated_at = moment().toISOString();
-      const result = await this.documentationModel.create({
+      const createdDocumentation = await this.documentationModel.create({
         ...DOCUMENTATION_NULL_ATTRIBUTES,
         title: payload.title,
         document: payload.document,
         created_by: user_id,
         type: payload.type,
         updated_at,
-        is_deleted: false,
       });
-      if (!result) {
+      if (!createdDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
           statusCode: 400,
         });
       }
+      const { is_deleted, ...rest } = createdDocumentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
@@ -52,20 +52,13 @@ class DocumentationService {
   public getList = (
     limit: number,
     offset: number,
-    filter: any,
-    sort: any
+    sort: string
   ): Promise<IDocumentationsResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const join = {
-        key: "created_by",
-        collection: "users",
-      };
-      const documentations = await this.documentationModel.list(
-        limit,
-        offset,
-        filter,
+      const documentations = await this.documentationModel.getListDocumentation(
         sort,
-        join
+        limit,
+        offset
       );
       if (!documentations) {
         return resolve({
@@ -74,33 +67,23 @@ class DocumentationService {
         });
       }
       const result = documentations.map((documentation: any) => {
-        const {
-          _key,
-          _id,
-          _rev,
-          id,
-          role_id,
-          location_id,
-          email,
-          phone,
-          mobile,
-          password,
-          backup_email,
-          personal_mobile,
-          linkedin,
-          is_verified,
-          verification_token,
-          reset_password_token,
-          status,
-          avatar,
-          type,
-          relation_id,
-          ...rest
-        } = documentation.created_by;
         return {
-          ...documentation,
-          created_by: documentation.created_by.id,
-          author: rest,
+          created_at: documentation.created_at,
+          created_by: documentation.author.id,
+          document: documentation.document,
+          id: documentation.id,
+          logo: documentation.logo,
+          title: documentation.title,
+          type: documentation.type,
+          updated_at: documentation.updated_at,
+          author: {
+            firstname: documentation.author.firstname,
+            lastname: documentation.author.lastname,
+            gender: documentation.author.gender,
+            department_id: documentation.author.department_id,
+            position: documentation.author.position,
+            created_at: documentation.author.created_at,
+          },
         };
       });
       const pagination: IPagination =

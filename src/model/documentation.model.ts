@@ -1,4 +1,3 @@
-import { MODEL_NAMES } from "../constant/common.constant";
 import Model from "./index";
 
 export interface IDocumentationAttributes {
@@ -25,6 +24,38 @@ export const DOCUMENTATION_NULL_ATTRIBUTES = {
 };
 export default class DocumentationModel extends Model<IDocumentationAttributes> {
   constructor() {
-    super(MODEL_NAMES.DOCUMENTTATIONS);
+    super("documentations");
   }
+
+  public getListDocumentation = async (
+    sort: any,
+    limit: number,
+    offset?: number
+  ) => {
+    try {
+      const bindObj = {
+        "@model": "documentations",
+        "@users": "users",
+      };
+      const prefix = sort[0] == "firstname" ? "user" : "documentation";
+      let queryString = `
+        For documentation in @@model
+        For user in @@users 
+        FILTER documentation.created_by == user.id
+        Sort ${prefix}.${sort[0]} ${sort[1]}
+      `;
+      if (!offset) {
+        queryString += `LIMIT ${limit} RETURN merge(documentation, {author : user})`;
+      } else {
+        queryString += `LIMIT ${offset},${limit} RETURN merge(documentation, {author : user})`;
+      }
+      const result: any = await this.builder.raw(queryString, bindObj);
+      if (!result) {
+        return false;
+      }
+      return result._result;
+    } catch (error) {
+      return false;
+    }
+  };
 }
