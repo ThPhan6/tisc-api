@@ -26,7 +26,6 @@ class DocumentationService {
           statusCode: 400,
         });
       }
-      const updated_at = moment().toISOString();
       const createdDocumentation = await this.documentationModel.create({
         ...DOCUMENTATION_NULL_ATTRIBUTES,
         title: payload.title,
