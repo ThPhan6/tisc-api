@@ -18,7 +18,10 @@ export default class ProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getBrandProductSummary = async (req: Request, toolkit: ResponseToolkit) => {
+  public getBrandProductSummary = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
     const { brand_id } = req.params;
     const response = await this.service.getBrandProductSummary(brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -49,6 +52,12 @@ export default class ProductController {
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const response = await this.service.delete(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public likeOrUnlike = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.likeOrUnlike(id, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -35,7 +35,7 @@ export interface IProductAttributes {
       }[];
     }[];
   }[];
-  favorites: string[] | null;
+  favorites: string[];
   images: string[] | null;
   created_at: string;
   created_by: string;

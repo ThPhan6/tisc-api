@@ -32,6 +32,22 @@ export default class ProductRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.LIKE_OR_UNLIKE_PRODUCT,
+          options: {
+            handler: controller.likeOrUnlike,
+            validate: commonValidate.getOne,
+            description: "Method that like or unlike product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_BRAND_PRODUCT_SUMMARY,
           options: {

@@ -268,7 +268,10 @@ export default class ProductService {
       }
       const result = products.map((product: IProductAttributes) => {
         const { is_deleted, ...item } = product;
-        return item;
+        return {
+          ...item,
+          favorites: item.favorites.length,
+        };
       });
 
       return resolve({
@@ -343,4 +346,32 @@ export default class ProductService {
       });
     });
   };
+  public likeOrUnlike = (
+    id: string,
+    user_id: string
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_PRODUCT,
+          statusCode: 404,
+        });
+      }
+      const foundUserId = product.favorites.find((item) => item === user_id);
+      let newFavorites: string[] = [];
+      if (foundUserId) {
+        newFavorites = product.favorites.filter((item) => item !== foundUserId);
+      } else {
+        newFavorites = product.favorites;
+        newFavorites.push(user_id);
+      }
+      await this.productModel.update(id, {
+        favorites: newFavorites,
+      });
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
 }
