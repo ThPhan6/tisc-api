@@ -127,3 +127,10 @@ export const LONG_TEXT_ID = "aa4d21fe-c19b-40e3-aeaa-27423d794e27";
 export const SHORT_TEXT_ID = "66d7e3c1-1c8f-4743-99bf-f607d5379504";
 
 export const BASIS_OPTION_STORE = "basis-option";
+
+export const DOCUMENTATION_TYPES = {
+  GENERAL: 1,
+  TISC_HOW_TO: 2,
+  BRAND_HOW_TO: 3,
+  DESIGN_HOW_TO: 4,
+};
