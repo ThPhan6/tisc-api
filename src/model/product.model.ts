@@ -8,10 +8,34 @@ export interface IProductAttributes {
   name: string;
   code: string;
   description: string | null;
-  general_attribute_ids: string[];
-  feature_attribute_ids: string[];
-  specification_attribute_ids: string[];
-  favorites: string[] | null;
+  general_attribute_groups: {
+    id: string;
+    name: string;
+    attributes: {
+      id: string;
+      basis_id: string;
+    }[];
+  }[];
+  feature_attribute_groups: {
+    id: string;
+    name: string;
+    attributes: {
+      id: string;
+      basis_id: string;
+    }[];
+  }[];
+  specification_attribute_groups: {
+    id: string;
+    name: string;
+    attributes: {
+      id: string;
+      bases: {
+        id: string;
+        option_code: string;
+      }[];
+    }[];
+  }[];
+  favorites: string[];
   images: string[] | null;
   created_at: string;
   created_by: string;
@@ -26,10 +50,10 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   name: null,
   code: null,
   description: null,
-  general_attribute_ids: null,
-  feature_attribute_ids: null,
-  specification_attribute_ids: null,
-  favorites: null,
+  general_attribute_groups: null,
+  feature_attribute_groups: null,
+  specification_attribute_groups: null,
+  favorites: [],
   images: null,
   created_at: null,
   created_by: null,
@@ -40,6 +64,18 @@ export default class ProductModel extends Model<IProductAttributes> {
   constructor() {
     super("products");
   }
+  public getDuplicatedProduct = async (id: string, name: string) => {
+    try {
+      const result: any = await this.builder
+        .whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("name", name.toLowerCase())
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 
   public getListRestCollectionProduct = async (
     collectionId: string,
@@ -55,6 +91,68 @@ export default class ProductModel extends Model<IProductAttributes> {
       return result;
     } catch (error) {
       return false;
+    }
+  };
+  public getListByCategoryId = async (
+    category_id: string,
+    limit: number,
+    offset: number,
+    sort?: any,
+    brand_id?: string
+  ) => {
+    try {
+      let result: IProductAttributes[] = [];
+      if (brand_id) {
+        if (sort) {
+          result = await this.builder
+            .whereNot("is_deleted", true)
+            .where("brand_id", brand_id)
+            .whereInRevert("category_ids", category_id)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select();
+        } else {
+          result = await this.builder
+            .whereNot("is_deleted", true)
+            .where("brand_id", brand_id)
+            .whereInRevert("category_ids", category_id)
+            .orderBy("created_at", "ASC")
+            .paginate(limit, offset)
+            .select();
+        }
+      } else {
+        if (sort) {
+          result = await this.builder
+            .whereNot("is_deleted", true)
+            .whereInRevert("category_ids", category_id)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select();
+        } else {
+          result = await this.builder
+            .whereNot("is_deleted", true)
+            .whereInRevert("category_ids", category_id)
+            .orderBy("created_at", "ASC")
+            .paginate(limit, offset)
+            .select();
+        }
+      }
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
+  public getAllBrandProduct = async (
+    brand_id: string
+  ): Promise<IProductAttributes[]> => {
+    try {
+      const result = await this.getBuilder()
+        .builder.where("brand_id", brand_id)
+        .orderBy("created_at", "ASC")
+        .select();
+      return result;
+    } catch (error) {
+      return [];
     }
   };
 }

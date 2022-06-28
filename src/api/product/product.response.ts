@@ -18,8 +18,53 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  brandProductSummary: Joi.object({
+    data: Joi.object({
+      categories: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+        })
+      ),
+      collections: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+        })
+      ),
+      category_count: Joi.number(),
+      collection_count: Joi.number(),
+      card_count: Joi.number(),
+      product_count: Joi.number(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
   getOne: Joi.object({
-    data: Joi.any(),
+    data: Joi.object({
+      id: Joi.string(),
+      brand: {
+        id: Joi.string(),
+        name: Joi.string(),
+      },
+      collection: {
+        id: Joi.string(),
+        name: Joi.string(),
+      },
+      categories: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string(),
+      }),
+      name: Joi.string(),
+      code: Joi.string(),
+      description: Joi.any(),
+      general_attribute_groups: Joi.any(),
+      feature_attribute_groups: Joi.any(),
+      specification_attribute_groups: Joi.any(),
+      favorites: Joi.number(),
+      images: Joi.any(),
+      created_at: Joi.string(),
+      created_by: Joi.any(),
+    }),
     statusCode: Joi.number(),
   }) as any,
   getListRestCollectionProduct: Joi.object({

@@ -28,27 +28,41 @@ export default class DocumentationModel extends Model<IDocumentationAttributes> 
   }
 
   public getListWithoutFilter = async (
-    sort: string[],
+    type: number,
     limit: number,
-    offset: number
+    offset: number,
+    sort?: any
   ) => {
     try {
       const bindObj = {
         "@model": "documentations",
         "@users": "users",
       };
-      const prefix = sort[0] == "firstname" ? "user" : "documentation";
-      let queryString = `
+      let queryString = "";
+      if (sort) {
+        const prefix = sort[0] == "firstname" ? "user" : "documentation";
+        queryString = `
+          FOR documentation in @@model
+          FOR user in @@users 
+          FILTER documentation.created_by == user.id
+          FILTER documentation.type == ${type}
+          SORT ${prefix}.${sort[0]} ${sort[1]}
+          LIMIT ${offset},${limit} 
+          RETURN merge(documentation, {author : user})
+        `;
+      } else {
+        queryString = `
         FOR documentation in @@model
         FOR user in @@users 
         FILTER documentation.created_by == user.id
-        SORT ${prefix}.${sort[0]} ${sort[1]}
-        LIMIT ${offset},${limit} RETURN merge(documentation, {author : user})
+        FILTER documentation.type == ${type}
+        LIMIT ${offset},${limit} 
+        RETURN merge(documentation, {author : user})
       `;
-      const result: any = await this.builder.raw(queryString, bindObj);
-      if (!result) {
-        return false;
       }
+      console.log(bindObj, "[bindObj]");
+      console.log(queryString, "[queryString]");
+      const result: any = await this.builder.raw(queryString, bindObj);
       return result._result;
     } catch (error) {
       return false;

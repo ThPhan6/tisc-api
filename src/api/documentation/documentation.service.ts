@@ -1,4 +1,3 @@
-import moment from "moment";
 import { MESSAGES } from "../../constant/common.constant";
 import DocumentationModel, {
   DOCUMENTATION_NULL_ATTRIBUTES,
@@ -48,15 +47,17 @@ class DocumentationService {
   };
 
   public getList = (
+    type: number,
     limit: number,
     offset: number,
-    sort: string[]
+    sort: any
   ): Promise<IDocumentationsResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const documentations = await this.documentationModel.getListWithoutFilter(
-        sort,
+        type,
         limit,
-        offset
+        offset,
+        sort
       );
       if (!documentations) {
         return resolve({
@@ -97,15 +98,16 @@ class DocumentationService {
     id: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const result = await this.documentationModel.find(id);
-      if (!result) {
+      const documentation = await this.documentationModel.find(id);
+      if (!documentation) {
         return resolve({
           message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
         });
       }
+      const { is_deleted, ...rest } = documentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
@@ -122,15 +124,19 @@ class DocumentationService {
           statusCode: 404,
         });
       }
-      const result = await this.documentationModel.update(id, payload);
-      if (!result) {
+      const updatedDocumentation = await this.documentationModel.update(
+        id,
+        payload
+      );
+      if (!updatedDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
+      const { is_deleted, ...rest } = updatedDocumentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
