@@ -11,10 +11,12 @@ import {
   IProductsResponse,
   IUpdateProductRequest,
   IRestCollectionProductsResponse,
+  IBrandProductSummary,
 } from "./product.type";
 import { v4 as uuid } from "uuid";
 import BrandModel from "../../model/brand.model";
 import CategoryService from "../../api/category/category.service";
+import { getDistinctArray } from "../../helper/common.helper";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -173,19 +175,84 @@ export default class ProductService {
         statusCode: 200,
       });
     });
+  public getBrandProductSummary = (
+    brand_id: string
+  ): Promise<IBrandProductSummary> =>
+    new Promise(async (resolve) => {
+      const allProduct = await this.productModel.getAllBrandProduct(brand_id);
+      const rawCategoryIds = allProduct.reduce(
+        (pre: string[], cur: IProductAttributes) => {
+          return pre.concat(cur.category_ids || []);
+        },
+        []
+      );
+
+      const rawCollectionIds = allProduct.reduce(
+        (pre: string[], cur: IProductAttributes) => {
+          return pre.concat(cur.collection_id || "");
+        },
+        []
+      );
+
+      const variants = allProduct.reduce(
+        (pre: string[], cur: IProductAttributes) => {
+          let temp: any = [];
+          cur.specification_attribute_groups.forEach((group) => {
+            group.attributes.forEach((attribute) => {
+              attribute.bases.forEach((basis) => {
+                temp.push(basis);
+              });
+            });
+          });
+          return pre.concat(temp);
+        },
+        []
+      );
+      const categoryIds = getDistinctArray(rawCategoryIds);
+      const collectionIds = getDistinctArray(rawCollectionIds);
+      const categories = await this.categoryService.getCategoryValues(
+        categoryIds
+      );
+      const collections: { id: string; name: string }[] =
+        await this.collectionModel.getMany(collectionIds, ["id", "name"]);
+      return resolve({
+        data: {
+          categories,
+          collections,
+          category_count: categories.length,
+          collection_count: collections.length,
+          card_count: allProduct.length,
+          product_count: variants.length,
+        },
+        statusCode: 200,
+      });
+    });
+
   public getList = (
     limit: number,
     offset: number,
     filter?: any,
-    sort?: any
+    sort?: any,
+    brand_id?: string
   ): Promise<IMessageResponse | IProductsResponse> => {
     return new Promise(async (resolve) => {
-      const products: IProductAttributes[] = await this.productModel.list(
-        limit,
-        offset,
-        filter,
-        sort
-      );
+      let products: IProductAttributes[] = [];
+      if (filter && filter.category_id) {
+        products = await this.productModel.getListByCategoryId(
+          filter.category_id,
+          limit,
+          offset,
+          sort,
+          brand_id
+        );
+      } else {
+        products = await this.productModel.list(
+          limit,
+          offset,
+          brand_id ? { ...filter, brand_id } : filter,
+          sort
+        );
+      }
       const pagination: IPagination = await this.productModel.getPagination(
         limit,
         offset

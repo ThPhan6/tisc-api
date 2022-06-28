@@ -111,3 +111,21 @@ export interface IRestCollectionProductsResponse {
   }[];
   statusCode: number;
 }
+
+export interface IBrandProductSummary {
+  data: {
+    categories: {
+      id: string;
+      name: string;
+    }[];
+    collections: {
+      id: string;
+      name: string;
+    }[];
+    category_count: number;
+    collection_count: number;
+    card_count: number;
+    product_count: number;
+  };
+  statusCode: number;
+}

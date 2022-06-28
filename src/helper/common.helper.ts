@@ -63,5 +63,9 @@ export const countWord = (str: string) => {
 };
 
 export const tosingleSpace = (str: string) => {
-  return str.trim().replace(/ +/g, ' ')
-}
+  return str.trim().replace(/ +/g, " ");
+};
+
+export const getDistinctArray = (arr: Array<any>) => {
+  return arr.filter((value, index, self) => self.indexOf(value) === index);
+};

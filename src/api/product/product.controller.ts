@@ -8,8 +8,19 @@ export default class ProductController {
     this.service = new ProductService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset } = req.query;
-    const response = await this.service.getList(limit, offset);
+    const { limit, offset, filter, sort, brand_id } = req.query;
+    const response = await this.service.getList(
+      limit,
+      offset,
+      filter,
+      sort,
+      brand_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getBrandProductSummary = async (req: Request, toolkit: ResponseToolkit) => {
+    const { brand_id } = req.params;
+    const response = await this.service.getBrandProductSummary(brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {

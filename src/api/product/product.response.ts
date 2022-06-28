@@ -18,6 +18,27 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  brandProductSummary: Joi.object({
+    data: Joi.object({
+      categories: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+        })
+      ),
+      collections: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+        })
+      ),
+      category_count: Joi.number(),
+      collection_count: Joi.number(),
+      card_count: Joi.number(),
+      product_count: Joi.number(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
   getOne: Joi.object({
     data: Joi.object({
       id: Joi.string(),

@@ -19,7 +19,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.GET_LIST_PRODUCT,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: validate.getList,
             description: "Method that get list product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.GENERAL,
@@ -27,6 +27,23 @@ export default class ProductRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: ProductResponse.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_PRODUCT_SUMMARY,
+          options: {
+            handler: controller.getBrandProductSummary,
+            validate: validate.getBrandProductSummary,
+            description: "Method that get brand summary",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.brandProductSummary,
               },
             },
           },

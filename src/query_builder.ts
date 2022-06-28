@@ -119,6 +119,12 @@ export default class Builder {
     return this;
   };
 
+  public whereInRevert = (key: string, value: any) => {
+    this.bindObj = { ...this.bindObj, [key]: value };
+    this.query += ` filter @${key} in ${this.prefix}.${key} `;
+    return this;
+  };
+
   public whereNotIn = (key: string, value: Array<string>) => {
     this.bindObj = { ...this.bindObj, [key]: value };
     this.query += ` filter ${this.prefix}.${key} not in @${key} `;
