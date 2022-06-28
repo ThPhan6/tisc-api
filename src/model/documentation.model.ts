@@ -31,35 +31,23 @@ export default class DocumentationModel extends Model<IDocumentationAttributes> 
     type: number,
     limit: number,
     offset: number,
-    sort?: any
+    sort: any
   ) => {
     try {
       const bindObj = {
         "@model": "documentations",
         "@users": "users",
       };
-      let queryString = "";
-      if (sort) {
-        const prefix = sort[0] == "firstname" ? "user" : "documentation";
-        queryString = `
+      const prefix = sort && sort[0] == "firstname" ? "user" : "documentation";
+      const queryString = `
           FOR documentation in @@model
           FOR user in @@users 
           FILTER documentation.created_by == user.id
           FILTER documentation.type == ${type}
-          SORT ${prefix}.${sort[0]} ${sort[1]}
+          ${sort ? `SORT ${prefix}.${sort[0]} ${sort[1]}` : ""}
           LIMIT ${offset},${limit} 
           RETURN merge(documentation, {author : user})
         `;
-      } else {
-        queryString = `
-        FOR documentation in @@model
-        FOR user in @@users 
-        FILTER documentation.created_by == user.id
-        FILTER documentation.type == ${type}
-        LIMIT ${offset},${limit} 
-        RETURN merge(documentation, {author : user})
-      `;
-      }
       const result: any = await this.builder.raw(queryString, bindObj);
       return result._result;
     } catch (error) {
