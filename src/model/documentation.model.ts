@@ -60,8 +60,6 @@ export default class DocumentationModel extends Model<IDocumentationAttributes> 
         RETURN merge(documentation, {author : user})
       `;
       }
-      console.log(bindObj, "[bindObj]");
-      console.log(queryString, "[queryString]");
       const result: any = await this.builder.raw(queryString, bindObj);
       return result._result;
     } catch (error) {
