@@ -33,7 +33,6 @@ class DocumentationService {
         document: payload.document,
         created_by: user_id,
         type: payload.type,
-        updated_at,
       });
       if (!createdDocumentation) {
         return resolve({
@@ -52,10 +51,10 @@ class DocumentationService {
   public getList = (
     limit: number,
     offset: number,
-    sort: string
+    sort: string[]
   ): Promise<IDocumentationsResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const documentations = await this.documentationModel.getListDocumentation(
+      const documentations = await this.documentationModel.getListWithoutFilter(
         sort,
         limit,
         offset
@@ -69,7 +68,7 @@ class DocumentationService {
       const result = documentations.map((documentation: any) => {
         return {
           created_at: documentation.created_at,
-          created_by: documentation.author.id,
+          created_by: documentation.created_by,
           document: documentation.document,
           id: documentation.id,
           logo: documentation.logo,
@@ -77,12 +76,9 @@ class DocumentationService {
           type: documentation.type,
           updated_at: documentation.updated_at,
           author: {
+            id: documentation.author.id,
             firstname: documentation.author.firstname,
             lastname: documentation.author.lastname,
-            gender: documentation.author.gender,
-            department_id: documentation.author.department_id,
-            position: documentation.author.position,
-            created_at: documentation.author.created_at,
           },
         };
       });
