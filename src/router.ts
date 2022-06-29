@@ -14,6 +14,7 @@ import BasisRoute from "./api/basis/basis.route";
 import LocationRoute from "./api/location/location.route";
 import ProductTipRoute from "./api/product-tip/product_tip.route";
 import ProductDownloadRoute from "./api/product_download/product_download.route";
+import QuotationRoute from "./api/quotation/quotation.route";
 import AutoEmailRoute from "./api/auto_email/auto_email.route";
 
 export default class Router {
@@ -33,6 +34,7 @@ export default class Router {
     await new LocationRoute().register(server);
     await new ProductTipRoute().register(server);
     await new ProductDownloadRoute().register(server);
+    await new QuotationRoute().register(server);
     await new AutoEmailRoute().register(server);
   }
 }

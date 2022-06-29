@@ -108,6 +108,8 @@ export const MESSAGES = {
   COLLECTION_NOT_FOUND: "Collection not found",
   PRODUCT_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_DOWNLOAD_NOT_FOUND: "Product download not found",
+  QUOTATION_MAX_WORD: "Quotation max 120 words",
+  QUOTATION_NOT_FOUND: "Inspirational quotation not found",
   AUTO_EMAIL_NOT_FOUND: "Email autoresponders not found",
   BRAND_NOT_FOUND: "Brand not found",
 };
