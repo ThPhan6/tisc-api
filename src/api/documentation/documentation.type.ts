@@ -8,7 +8,6 @@ export interface IDocumentation {
   created_at: string | null;
   created_by: string;
   updated_at: string | null;
-  is_deleted: boolean | null;
   author?: any;
 }
 

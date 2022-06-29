@@ -9,9 +9,6 @@ export const SYSTEM_TYPE = {
   DESIGN: 3,
 };
 
-export const MODEL_NAMES = {
-  DOCUMENTTATIONS: "documentations",
-};
 export const VALID_IMAGE_TYPES = [
   "image/png",
   "image/jpg",
