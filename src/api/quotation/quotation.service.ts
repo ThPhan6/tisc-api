@@ -109,7 +109,7 @@ export default class QuotationService {
       if (!updatedQuotation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 404,
+          statusCode: 400,
         });
       }
       const { is_deleted, ...rest } = updatedQuotation;
