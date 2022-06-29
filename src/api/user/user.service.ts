@@ -137,6 +137,7 @@ export default class UserService {
         lastname: user.lastname,
         gender: user.gender,
         location_id: user.location_id,
+        work_location: location?.city_name + ", " + location?.country_name,
         department_id: user.department_id,
         position: user.position,
         email: user.email,
@@ -213,8 +214,7 @@ export default class UserService {
       }
       const updatedUser = await this.userModel.update(user_id, {
         backup_email: payload.backup_email,
-        personal_mobile:
-          (payload.zone_code || "") + " " + payload.personal_mobile,
+        personal_mobile: payload.personal_mobile,
         linkedin: payload.linkedin,
       });
       if (!updatedUser) {
@@ -223,25 +223,7 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      const result = {
-        firstname: updatedUser.firstname,
-        lastname: updatedUser.lastname,
-        gender: updatedUser.gender,
-        location_id: updatedUser.location_id,
-        department_id: updatedUser.department_id,
-        position: updatedUser.position,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        mobile: updatedUser.mobile,
-        avatar: updatedUser.avatar,
-        backup_email: updatedUser.backup_email,
-        personal_mobile: updatedUser.personal_mobile,
-        linkedin: updatedUser.linkedin,
-      };
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+      return resolve(await this.get(updatedUser.id, user_id));
     });
   };
   public delete = (
