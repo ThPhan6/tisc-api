@@ -221,6 +221,69 @@ const DEPARTMENT_NULL_ATTRIBUTES = {
   created_at: null,
   is_deleted: false,
 };
+
+const TOPIC_TYPES = {
+  MARKETING: 1,
+  MESSAGES: 2,
+  ONBOARD: 3,
+  OPERATION: 4,
+  OTHER: 5,
+};
+
+const TOPIC_OPTIONS = [
+  {
+    key: "Marketing",
+    value: TOPIC_TYPES.MARKETING,
+  },
+  {
+    key: "Messages",
+    value: TOPIC_TYPES.MESSAGES,
+  },
+  {
+    key: "Onboard",
+    value: TOPIC_TYPES.ONBOARD,
+  },
+  {
+    key: "Operation",
+    value: TOPIC_TYPES.OPERATION,
+  },
+  {
+    key: "Other",
+    value: TOPIC_TYPES.OTHER,
+  },
+];
+
+const TARGETED_FOR_TYPES = {
+  BRAND: 1,
+  DESIGN_FIRM: 2,
+  DISTRIBUTOR: 3,
+  GENERAL: 4,
+  TISC_TEAM: 5,
+};
+
+const TARGETED_FOR_OPTIONS = [
+  {
+    key: "Brand",
+    value: TARGETED_FOR_TYPES.BRAND,
+  },
+  {
+    key: "Design Firm",
+    value: TARGETED_FOR_TYPES.DESIGN_FIRM,
+  },
+  {
+    key: "Distributor",
+    value: TARGETED_FOR_TYPES.DISTRIBUTOR,
+  },
+  {
+    key: "General",
+    value: TARGETED_FOR_TYPES.GENERAL,
+  },
+  {
+    key: "TISC Team",
+    value: TARGETED_FOR_TYPES.TISC_TEAM,
+  },
+];
+
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -237,4 +300,6 @@ module.exports = {
   BASIS_NULL_ATTRIBUTES,
   BASIS_TYPES,
   DEPARTMENT_NULL_ATTRIBUTES,
+  TOPIC_TYPES,
+  TARGETED_FOR_TYPES,
 };
