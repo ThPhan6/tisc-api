@@ -11,29 +11,33 @@ import {
   IUserRequest,
   IUserResponse,
   IDepartmentsResponse,
+  IUsersResponse,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
-import { USER_STATUSES } from "../../constant/user.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
 import { toWebp } from "../../helper/image.helper";
 import DepartmentModel from "../../model/department.model";
+import LocationModel from "../../model/location.model";
 
 export default class UserService {
   private userModel: UserModel;
   private mailService: MailService;
   private departmentModel: DepartmentModel;
+  private locationModel: LocationModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
     this.departmentModel = new DepartmentModel();
+    this.locationModel = new LocationModel();
   }
 
   public create = (
     user_id: string,
     payload: IUserRequest
-  ): Promise<IMessageResponse> => {
+  ): Promise<IUserResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
         email: payload.email,
@@ -60,19 +64,24 @@ export default class UserService {
         });
         if (!duplicateVerificationTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
-
+      const location = await this.locationModel.find(payload.location_id);
       const createdUser = await this.userModel.create({
         ...USER_NULL_ATTRIBUTES,
         firstname: payload.firstname,
         lastname: payload.lastname,
         gender: payload.gender,
         location_id: payload.location_id,
+        work_location: location?.city_name + ", " + location?.country_name,
         department_id: payload.department_id,
         position: payload.position,
         email: payload.email,
         phone: payload.phone,
         mobile: payload.mobile,
         role_id: payload.role_id,
+        access_level:
+          payload.role_id === ROLES.TISC_ADMIN
+            ? "TISC Admin"
+            : "Consultant Team",
         is_verified: false,
         verification_token: verificationToken,
         status: USER_STATUSES.PENDING,
@@ -86,10 +95,7 @@ export default class UserService {
         });
       }
       await this.mailService.sendInviteEmail(createdUser);
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+      return resolve(await this.get(createdUser.id, user_id));
     });
   };
 
@@ -123,7 +129,10 @@ export default class UserService {
           });
         }
       }
+      const location = await this.locationModel.find(user.location_id || "");
       const result = {
+        id: user.id,
+        role_id: user.role_id,
         firstname: user.firstname,
         lastname: user.lastname,
         gender: user.gender,
@@ -137,6 +146,8 @@ export default class UserService {
         backup_email: user.backup_email,
         personal_mobile: user.personal_mobile,
         linkedin: user.linkedin,
+        created_at: user.created_at,
+        phone_code: location?.phone_code,
       };
       return resolve({
         data: result,
@@ -184,25 +195,7 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      const result = {
-        firstname: updatedUser.firstname,
-        lastname: updatedUser.lastname,
-        gender: updatedUser.gender,
-        location_id: updatedUser.location_id,
-        department_id: updatedUser.department_id,
-        position: updatedUser.position,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        mobile: updatedUser.mobile,
-        avatar: updatedUser.avatar,
-        backup_email: updatedUser.backup_email,
-        personal_mobile: updatedUser.personal_mobile,
-        linkedin: updatedUser.linkedin,
-      };
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+      return resolve(await this.get(updatedUser.id, user_id));
     });
   };
   public updateMe = (
@@ -394,7 +387,7 @@ export default class UserService {
     offset: number,
     filter?: any,
     sort?: any
-  ): Promise<any> => {
+  ): Promise<IUsersResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       if (!user) {
@@ -409,22 +402,27 @@ export default class UserService {
         { ...filter, type: SYSTEM_TYPE.TISC, relation_id: null },
         sort
       );
-      const result = users.map((userItem) => {
-        return {
-          firstname: userItem.firstname,
-          lastname: userItem.lastname,
-          gender: userItem.gender,
-          location: userItem.location_id,
-          position: userItem.position,
-          email: userItem.email,
-          phone: userItem.phone,
-          mobile: userItem.mobile,
-          avatar: userItem.avatar,
-          backup_email: userItem.backup_email,
-          personal_mobile: userItem.personal_mobile,
-          linkedin: userItem.linkedin,
-        };
-      });
+      const result = await Promise.all(
+        users.map(async (userItem) => {
+          const location = await this.locationModel.find(
+            userItem.location_id || ""
+          );
+          return {
+            id: userItem.id,
+            firstname: userItem.firstname,
+            lastname: userItem.lastname,
+            work_location: userItem.work_location,
+            position: userItem.position,
+            email: userItem.email,
+            phone: userItem.phone,
+            access_level: userItem.access_level,
+            status: userItem.status,
+            avatar: userItem.avatar,
+            created_at: userItem.created_at,
+            phone_code: location?.phone_code,
+          };
+        })
+      );
       const pagination: IPagination = await this.userModel.getPagination(
         limit,
         offset

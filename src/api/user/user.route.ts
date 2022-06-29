@@ -29,7 +29,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse,
+                200: response.getOne,
               },
             },
           },
@@ -102,7 +102,7 @@ export default class UserRoute implements IRoute {
           },
         },
         {
-          method: "POST",
+          method: "PUT",
           path: ROUTES.EDIT_TEAM_PROFILE,
           options: {
             handler: controller.update,

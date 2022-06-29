@@ -21,9 +21,9 @@ export const VALID_IMAGE_TYPES = [
 ];
 
 export const BRAND_STATUSES = {
-  ACTIVE: 0,
-  INACTIVE: 1,
-  PENDING: 2,
+  ACTIVE: 1,
+  INACTIVE: 2,
+  PENDING: 3,
 };
 
 export const BRAND_STATUS_OPTIONS = [
@@ -42,8 +42,8 @@ export const BRAND_STATUS_OPTIONS = [
 ];
 
 export const DESIGN_STATUSES = {
-  ACTIVE: 0,
-  INACTIVE: 1,
+  ACTIVE: 1,
+  INACTIVE: 2,
 };
 
 export const DESIGN_STATUS_OPTIONS = [

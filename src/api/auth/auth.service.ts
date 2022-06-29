@@ -299,6 +299,7 @@ class AuthService {
         email: payload.email,
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         is_verified: false,
+        access_level: "Consultant Team",
         verification_token: verificationToken,
         status: USER_STATUSES.ACTIVE,
         type: SYSTEM_TYPE.TISC,

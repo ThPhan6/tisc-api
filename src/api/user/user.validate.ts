@@ -15,9 +15,9 @@ export default {
       location_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Location id is required")),
-      department: Joi.string()
+      department_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Department is required")),
+        .error(commonFailValidatedMessageFunction("Department id is required")),
       position: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Position is required")),
@@ -60,11 +60,12 @@ export default {
       lastname: Joi.string(),
       gender: Joi.boolean(),
       location_id: Joi.string(),
-      department: Joi.string(),
+      department_id: Joi.string(),
       position: Joi.string(),
       email: Joi.string(),
       phone: Joi.string(),
       mobile: Joi.string(),
+      role_id: Joi.string(),
     },
   },
   getOne: {

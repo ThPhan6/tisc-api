@@ -118,8 +118,8 @@ const ROUTES = {
 };
 const USER_STATUSES = {
   ACTIVE: 1,
-  BLOCKED: 0,
-  PENDING: 2,
+  BLOCKED: 2,
+  PENDING: 3,
 };
 const USER_NULL_ATTRIBUTES = {
   id: null,
@@ -163,9 +163,9 @@ const BRAND_NULL_ATTRIBUTES = {
   is_deleted: false,
 };
 const BRAND_STATUSES = {
-  ACTIVE: 0,
-  INACTIVE: 1,
-  PENDING: 2,
+  ACTIVE: 1,
+  INACTIVE: 2,
+  PENDING: 3,
 };
 const DESIGN_NULL_ATTRIBUTES = {
   id: null,
@@ -186,8 +186,8 @@ const DESIGN_NULL_ATTRIBUTES = {
   is_deleted: false,
 };
 const DESIGN_STATUSES = {
-  ACTIVE: 0,
-  INACTIVE: 1,
+  ACTIVE: 1,
+  INACTIVE: 2,
 };
 const CATEGORY_NULL_ATTRIBUTES = {
   id: null,

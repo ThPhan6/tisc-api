@@ -8,6 +8,8 @@ const Joi = HapiJoi.defaults((schema) =>
 export default {
   getOne: Joi.object({
     data: Joi.object({
+      id: Joi.string(),
+      role_id: Joi.string(),
       firstname: Joi.string(),
       lastname: Joi.string(),
       gender: Joi.any(),
@@ -21,24 +23,26 @@ export default {
       backup_email: Joi.any(),
       personal_mobile: Joi.any(),
       linkedin: Joi.any(),
+      created_at: Joi.any(),
+      phone_code: Joi.string(),
     }),
     statusCode: Joi.number(),
   }) as any,
   getList: Joi.object({
     data: Joi.object({
       users: Joi.array().items({
+        id: Joi.string(),
         firstname: Joi.string(),
         lastname: Joi.string(),
-        gender: Joi.any(),
-        location: Joi.string().allow(null),
-        position: Joi.string().allow(null),
+        work_location: Joi.any(),
+        position: Joi.any(),
         email: Joi.string(),
         phone: Joi.any(),
-        mobile: Joi.any(),
         avatar: Joi.any(),
-        backup_email: Joi.any(),
-        personal_mobile: Joi.any(),
-        linkedin: Joi.any(),
+        access_level: Joi.any(),
+        created_at: Joi.any(),
+        status: Joi.any(),
+        phone_code: Joi.string(),
       }),
       pagination: Joi.object({
         page: Joi.number(),

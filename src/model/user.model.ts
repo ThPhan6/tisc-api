@@ -4,10 +4,12 @@ import Model from "./index";
 export interface IUserAttributes {
   id: string;
   role_id: string;
+  access_level: string;
   firstname: string;
   lastname: string;
   gender: boolean | null;
   location_id: string | null;
+  work_location: string | null;
   department_id: string | null;
   position: string | null;
   email: string;
@@ -31,10 +33,12 @@ export interface IUserAttributes {
 export const USER_NULL_ATTRIBUTES = {
   id: null,
   role_id: null,
+  access_level: null,
   firstname: null,
   lastname: null,
   gender: null,
   location_id: null,
+  work_location: null,
   department_id: null,
   position: null,
   email: null,

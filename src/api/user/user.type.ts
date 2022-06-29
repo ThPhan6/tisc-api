@@ -39,6 +39,25 @@ export interface IUserResponse {
   data: IUser;
   statusCode: number;
 }
+export interface IUsersResponse {
+  data: {
+    users: {
+      id: string;
+      firstname: string;
+      lastname: string;
+      work_location: string | null;
+      position: string | null;
+      email: string;
+      phone: string | null;
+      access_level: string;
+      status: number;
+      avatar: string | null;
+      created_at: string | null;
+    }[];
+    pagination: any;
+  };
+  statusCode: number;
+}
 
 export interface IAvatarResponse {
   data: {
