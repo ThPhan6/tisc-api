@@ -6,25 +6,24 @@ import {
 } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-import EmailAutoController from "./email_auto.controller";
-import validate from "./email_auto.validate";
-import response from "./email_auto.response";
+import AutoEmailController from "./auto_email.controller";
+import validate from "./auto_email.validate";
+import response from "./auto_email.response";
 import commonValidate from "../../validate/common.validate";
 
-export default class EmailAutoRoute implements IRoute {
+export default class AutoEmailRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
-      const controller = new EmailAutoController();
-
+      const controller = new AutoEmailController();
       server.route([
         {
           method: "GET",
-          path: ROUTES.GET_LIST_EMAIL_AUTO_TOPIC,
+          path: ROUTES.GET_LIST_AUTO_EMAIL_TOPIC,
           options: {
             handler: controller.getListTopic,
-            description: "Method that get list topic email auto ",
-            tags: ["api", "Email Auto"],
-            auth: AUTH_NAMES.PERMISSION,
+            description: "Method that get list topic auto email",
+            tags: ["api", "Auto Email"],
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 200: statuses,
@@ -34,12 +33,12 @@ export default class EmailAutoRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_LIST_EMAIL_AUTO_TARGETED_FOR,
+          path: ROUTES.GET_LIST_AUTO_EMAIL_TARGETED_FOR,
           options: {
             handler: controller.getListTargetedFor,
-            description: "Method that get list targeted for email auto",
-            tags: ["api", "Email Auto"],
-            auth: AUTH_NAMES.PERMISSION,
+            description: "Method that get list targeted for auto email",
+            tags: ["api", "Auto Email"],
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 200: statuses,
@@ -53,9 +52,9 @@ export default class EmailAutoRoute implements IRoute {
           options: {
             handler: controller.getList,
             validate: commonValidate.getList,
-            description: "Method that get list email auto",
-            tags: ["api", "Email Auto"],
-            auth: AUTH_NAMES.PERMISSION,
+            description: "Method that get list auto email",
+            tags: ["api", "Auto Email"],
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -70,9 +69,9 @@ export default class EmailAutoRoute implements IRoute {
           options: {
             handler: controller.getOne,
             validate: commonValidate.getOne,
-            description: "Method that get one email auto",
-            tags: ["api", "Email Auto"],
-            auth: AUTH_NAMES.PERMISSION,
+            description: "Method that get one auto email",
+            tags: ["api", "Auto Email"],
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -87,9 +86,9 @@ export default class EmailAutoRoute implements IRoute {
           options: {
             handler: controller.update,
             validate: validate.update,
-            description: "Method that update email auto",
-            tags: ["api", "Email Auto"],
-            auth: AUTH_NAMES.PERMISSION,
+            description: "Method that update auto email",
+            tags: ["api", "Auto Email"],
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

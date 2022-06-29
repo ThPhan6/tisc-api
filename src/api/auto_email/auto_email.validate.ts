@@ -1,7 +1,7 @@
 import {
   TOPIC_TYPES,
   TARGETED_FOR_TYPES,
-} from "./../../constant/common.constant";
+} from "../../constant/common.constant";
 import * as Joi from "joi";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
@@ -10,7 +10,11 @@ export default {
     params: {
       id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Attribute id is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Email autoresponders id is required"
+          )
+        ),
     },
     payload: {
       topic: Joi.number()

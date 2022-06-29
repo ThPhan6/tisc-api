@@ -107,7 +107,7 @@ export const MESSAGES = {
   COLLECTION_NOT_FOUND: "Collection not found",
   PRODUCT_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_DOWNLOAD_NOT_FOUND: "Product download not found",
-  EMAIL_AUTO_NOT_FOUND: "Email auto responder not found",
+  AUTO_EMAIL_NOT_FOUND: "Email autoresponders not found",
 };
 
 export const BASIS_TYPES = {

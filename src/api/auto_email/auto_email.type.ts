@@ -1,11 +1,11 @@
-export interface IUpdateEmailAutoRequest {
+export interface IUpdateAutoEmailRequest {
   topic: number;
   targeted_for: number;
   title: string;
   message: string;
 }
 
-export interface IEmailAutoResponse {
+export interface IAutoEmailResponse {
   data: {
     id: string;
     topic: number;
@@ -17,7 +17,7 @@ export interface IEmailAutoResponse {
   statusCode: number;
 }
 
-export interface IEmailsAutoResponse {
+export interface IAutoEmailsResponse {
   data: {
     id: string;
     topic: number;

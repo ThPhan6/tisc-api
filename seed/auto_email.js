@@ -12,7 +12,7 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  const emailAutoCollection = await db.collection("email_autoresponders");
+  const autoEmailCollection = await db.collection("email_autoresponders");
   const createAndSeed = async (collection) => {
     await collection.create();
     await collection.get();
@@ -916,14 +916,14 @@ const seed = async () => {
     console.log("success seed email auto data");
   };
   try {
-    await createAndSeed(emailAutoCollection);
+    await createAndSeed(autoEmailCollection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await emailAutoCollection.drop();
-      await createAndSeed(emailAutoCollection);
+      await autoEmailCollection.drop();
+      await createAndSeed(autoEmailCollection);
     }
   }
 };
 module.exports = {
-  seedEmailAuto: seed,
+  seedAutoEmail: seed,
 };

@@ -115,6 +115,6 @@ export const ROUTES = {
   GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID:
     "/api/product-download/get-list-by-product/{id}",
 
-  GET_LIST_EMAIL_AUTO_TOPIC: "/api/email-auto/get-list-topic",
-  GET_LIST_EMAIL_AUTO_TARGETED_FOR: "/api/email-auto/get-list-targeted-for",
+  GET_LIST_AUTO_EMAIL_TOPIC: "/api/email-auto/get-list-topic",
+  GET_LIST_AUTO_EMAIL_TARGETED_FOR: "/api/email-auto/get-list-targeted-for",
 };

@@ -1,6 +1,6 @@
 import Model from "./index";
 
-export interface IEmailAutoAttributes {
+export interface IAutoEmailAttributes {
   id: string;
   topic: number;
   targeted_for: number;
@@ -9,7 +9,7 @@ export interface IEmailAutoAttributes {
   is_deleted: boolean;
   created_at: string;
 }
-export default class EmailAutoModel extends Model<IEmailAutoAttributes> {
+export default class AutoEmailModel extends Model<IAutoEmailAttributes> {
   constructor() {
     super("email_autoresponders");
   }

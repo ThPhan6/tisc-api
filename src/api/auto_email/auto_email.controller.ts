@@ -3,13 +3,13 @@ import {
   TARGETED_FOR_OPTIONS,
 } from "../../constant/common.constant";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IUpdateEmailAutoRequest } from "./email_auto.type";
-import EmailAutoService from "./email_auto.service";
+import { IUpdateAutoEmailRequest } from "./auto_email.type";
+import AutoEmailService from "./auto_email.service";
 
-export default class EmailAutoController {
-  private service: EmailAutoService;
+export default class AutoEmailController {
+  private service: AutoEmailService;
   constructor() {
-    this.service = new EmailAutoService();
+    this.service = new AutoEmailService();
   }
   public getListTopic = async (req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(TOPIC_OPTIONS).code(200);
@@ -31,7 +31,7 @@ export default class EmailAutoController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public update = async (
-    req: Request & { payload: IUpdateEmailAutoRequest },
+    req: Request & { payload: IUpdateAutoEmailRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
