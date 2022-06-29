@@ -51,4 +51,27 @@ export default {
       };
     }),
   } as any,
+  updateBrandProfile: {
+    payload: {
+      name: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Name is required")),
+      parent_company: Joi.string(),
+      slogan: Joi.string(),
+      mission_n_vision: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Mission and vision is required")
+        ),
+      official_websites: Joi.array()
+        .items({
+          country_id: Joi.string(),
+          url: Joi.string(),
+        })
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Official websites is required")
+        ),
+    },
+  },
 };

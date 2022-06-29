@@ -71,6 +71,7 @@ export const MESSAGES = {
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_IN_WORKSPACE_NOT_FOUND: "Not found user in your work space",
   AVATAR_NOT_VALID_FILE: "Not valid avatar file",
+  NOT_VALID_LOGO: "Not valid logo file",
   CONTACT_NOT_FOUND: "Not found contact",
   NOTFOUND_PERMISSION: "Not found permission",
   CATEGORY_NOT_FOUND: "Category not found",
@@ -108,6 +109,7 @@ export const MESSAGES = {
   PRODUCT_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_DOWNLOAD_NOT_FOUND: "Product download not found",
   AUTO_EMAIL_NOT_FOUND: "Email autoresponders not found",
+  BRAND_NOT_FOUND: "Brand not found",
 };
 
 export const BASIS_TYPES = {

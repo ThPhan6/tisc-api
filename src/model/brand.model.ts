@@ -7,7 +7,10 @@ export interface IBrandAttributes {
   logo: string;
   slogan: string;
   mission_n_vision: string;
-  offical_websites: string[];
+  official_websites: {
+    country_id: string;
+    url: string;
+  }[];
   team_profile_ids: string[];
   location_ids: string[];
   status: number;
@@ -22,7 +25,7 @@ export const BRAND_NULL_ATTRIBUTES = {
   logo: null,
   slogan: null,
   mission_n_vision: null,
-  offical_websites: [],
+  official_websites: [],
   team_profile_ids: [],
   location_ids: [],
   status: null,

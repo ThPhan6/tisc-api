@@ -2,10 +2,7 @@ import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
 import IRoute from "../../helper/route.helper";
-import {
-  defaultRouteOptionResponseStatus,
-  generalMessageResponse,
-} from "../../helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./user.response";
@@ -133,7 +130,7 @@ export default class UserRoute implements IRoute {
                 output: "stream",
               },
               parse: true,
-              failAction: (_request, h, err: any) => {
+              failAction: (_request, _h, err: any) => {
                 if (err.output) {
                   if (err.output.statusCode === 413) {
                     err.output.payload.message = `Can not upload file size greater than 5MB`;

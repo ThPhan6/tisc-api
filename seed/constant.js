@@ -154,7 +154,7 @@ const BRAND_NULL_ATTRIBUTES = {
   logo: null,
   slogan: null,
   mission_n_vision: null,
-  offical_websites: null,
+  official_websites: null,
   team_profile_ids: null,
   location_ids: null,
   status: null,

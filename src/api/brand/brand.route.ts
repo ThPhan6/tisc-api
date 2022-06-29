@@ -10,6 +10,7 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./brand.response";
 import validate from "./brand.validate";
+import Joi from "joi";
 export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -84,7 +85,7 @@ export default class BrandRoute implements IRoute {
           },
         },
         {
-          method: "GET",
+          method: "POST",
           path: ROUTES.SEND_EMAIL_INVITE_BRAND,
           options: {
             handler: controller.invite,
@@ -109,6 +110,59 @@ export default class BrandRoute implements IRoute {
             response: {
               status: {
                 200: statuses,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_BRAND_PROFILE,
+          options: {
+            handler: controller.updateBrandProfile,
+            validate: validate.updateBrandProfile,
+            description: "Method that update brand profile",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.brandProfile,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_BRAND_LOGO,
+          options: {
+            handler: controller.updateBrandProfile,
+            validate: {
+              payload: {
+                logo: Joi.any(),
+              },
+            },
+            description: "Method that update brand logo",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            payload: {
+              maxBytes: 1024 * 1024 * 5,
+              multipart: {
+                output: "stream",
+              },
+              parse: true,
+              failAction: (_request, _h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `Can not upload file size greater than 5MB`;
+                  }
+                }
+                throw err;
+              },
+            },
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.logo,
               },
             },
           },

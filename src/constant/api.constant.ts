@@ -5,6 +5,8 @@ export const ROUTES = {
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
   GET_ONE_BRAND: "/api/brand/get-one/{id}",
   UPDATE_BRAND: "/api/brand/update/{id}",
+  UPDATE_BRAND_PROFILE: "/api/brand/update-profile",
+  UPDATE_BRAND_LOGO: "/api/brand/update-logo",
   GET_BRAND_STATUSES: "/api/brand/statuses",
   SEND_EMAIL_INVITE_BRAND: "/api/brand/invite/{id}",
   GET_LIST_ASSIGN_TEAM: "/api/team/get-list",

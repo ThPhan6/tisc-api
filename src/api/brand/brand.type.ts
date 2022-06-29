@@ -57,3 +57,29 @@ export interface IBrandCardsResponse {
   }[];
   statusCode: number;
 }
+
+export interface IUpdateBrandProfileRequest {
+  name: string;
+  parent_company: string;
+  slogan: string;
+  mission_n_vision: string;
+  official_websites: {
+    country_id: string;
+    url: string;
+  }[];
+}
+export interface IBrandProfileResponse {
+  data: {
+    id: string;
+    name: string;
+    parent_company: string;
+    logo: string;
+    slogan: string;
+    mission_n_vision: string;
+    official_websites: {
+      country_id: string;
+      url: string;
+    }[];
+  };
+  statusCode: number;
+}

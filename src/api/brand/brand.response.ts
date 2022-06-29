@@ -55,6 +55,21 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  brandProfile: Joi.object({
+    data: Joi.object({
+      id: Joi.string(),
+      name: Joi.string(),
+      parent_company: Joi.any(),
+      logo: Joi.any(),
+      slogan: Joi.any(),
+      mission_n_vision: Joi.string(),
+      official_websites: Joi.array().items({
+        country_id: Joi.string(),
+        url: Joi.string(),
+      }),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
   getBrandCards: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
@@ -70,6 +85,12 @@ export default {
         lastname: Joi.string(),
         avatar: Joi.any(),
       }),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
+  logo: Joi.object({
+    data: Joi.object({
+      url: Joi.string(),
     }),
     statusCode: Joi.number(),
   }) as any,
