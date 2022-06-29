@@ -109,6 +109,7 @@ export const MESSAGES = {
   PRODUCT_DOWNLOAD_NOT_FOUND: "Product download not found",
   QUOTATION_MAX_WORD: "Quotation max 120 words",
   QUOTATION_NOT_FOUND: "Inspirational quotation not found",
+  AUTO_EMAIL_NOT_FOUND: "Email autoresponders not found",
 };
 
 export const BASIS_TYPES = {
@@ -133,3 +134,65 @@ export const DOCUMENTATION_TYPES = {
   BRAND_HOW_TO: 3,
   DESIGN_HOW_TO: 4,
 };
+
+export const TOPIC_TYPES = {
+  MARKETING: 1,
+  MESSAGES: 2,
+  ONBOARD: 3,
+  OPERATION: 4,
+  OTHER: 5,
+};
+
+export const TOPIC_OPTIONS = [
+  {
+    key: "Marketing",
+    value: TOPIC_TYPES.MARKETING,
+  },
+  {
+    key: "Messages",
+    value: TOPIC_TYPES.MESSAGES,
+  },
+  {
+    key: "Onboard",
+    value: TOPIC_TYPES.ONBOARD,
+  },
+  {
+    key: "Operation",
+    value: TOPIC_TYPES.OPERATION,
+  },
+  {
+    key: "Other",
+    value: TOPIC_TYPES.OTHER,
+  },
+];
+
+export const TARGETED_FOR_TYPES = {
+  BRAND: 1,
+  DESIGN_FIRM: 2,
+  DISTRIBUTOR: 3,
+  GENERAL: 4,
+  TISC_TEAM: 5,
+};
+
+export const TARGETED_FOR_OPTIONS = [
+  {
+    key: "Brand",
+    value: TARGETED_FOR_TYPES.BRAND,
+  },
+  {
+    key: "Design Firm",
+    value: TARGETED_FOR_TYPES.DESIGN_FIRM,
+  },
+  {
+    key: "Distributor",
+    value: TARGETED_FOR_TYPES.DISTRIBUTOR,
+  },
+  {
+    key: "General",
+    value: TARGETED_FOR_TYPES.GENERAL,
+  },
+  {
+    key: "TISC Team",
+    value: TARGETED_FOR_TYPES.TISC_TEAM,
+  },
+];

@@ -25,6 +25,7 @@ export default {
       linkedin: Joi.any(),
       created_at: Joi.any(),
       phone_code: Joi.string(),
+      work_location: Joi.any(),
     }),
     statusCode: Joi.number(),
   }) as any,

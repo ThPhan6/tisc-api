@@ -102,7 +102,7 @@ export default class UserRoute implements IRoute {
           },
         },
         {
-          method: "PUT",
+          method: "POST",
           path: ROUTES.EDIT_TEAM_PROFILE,
           options: {
             handler: controller.update,
