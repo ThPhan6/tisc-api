@@ -6,20 +6,27 @@ import BrandModel, { IBrandAttributes } from "../../model/brand.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IBrandByAlphabetResponse,
+  IBrandCardsResponse,
   IBrandResponse,
   IBrandsResponse,
 } from "./brand.type";
 import MailService from "../../service/mail.service";
 import UserModel from "../../model/user.model";
+import LocationModel from "../../model/location.model";
+import ProductService from "../../api/product/product.service";
 
 export default class BrandService {
   private brandModel: BrandModel;
   private mailService: MailService;
   private userModel: UserModel;
+  private locationModel: LocationModel;
+  private productService: ProductService;
   constructor() {
     this.brandModel = new BrandModel();
     this.mailService = new MailService();
     this.userModel = new UserModel();
+    this.locationModel = new LocationModel();
+    this.productService = new ProductService();
   }
 
   public getList = (
@@ -247,6 +254,50 @@ export default class BrandService {
       await this.mailService.sendRegisterEmail(user);
       return resolve({
         message: "Success.",
+        statusCode: 200,
+      });
+    });
+  };
+  public getListCard = (
+    limit: number,
+    offset: number,
+    filter: any,
+    sort_name: string,
+    sort_order: "ASC" | "DESC"
+  ): Promise<IBrandCardsResponse> => {
+    return new Promise(async (resolve) => {
+      const brands: IBrandAttributes[] = await this.brandModel.list(
+        limit,
+        offset,
+        filter,
+        [sort_name, sort_order]
+      );
+      const result = await Promise.all(
+        brands.map(async (brand) => {
+          const location = await this.locationModel.find(
+            brand.location_ids ? brand.location_ids[0] : ""
+          );
+          const brandSummary = await this.productService.getBrandProductSummary(
+            brand.id
+          );
+          const teamProfiles = await this.userModel.getMany(
+            brand.team_profile_ids,
+            ["id", "firstname", "lastname", "avatar"]
+          );
+          return {
+            id: brand.id,
+            name: brand.name,
+            logo: brand.logo,
+            country: location?.country_name || "",
+            category_count: brandSummary.data.category_count,
+            collection_count: brandSummary.data.collection_count,
+            card_count: brandSummary.data.card_count,
+            teams: teamProfiles,
+          };
+        })
+      );
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

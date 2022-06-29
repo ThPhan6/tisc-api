@@ -43,3 +43,17 @@ export interface IBrand {
   status_key: any;
   created_at: string;
 }
+
+export interface IBrandCardsResponse {
+  data: {
+    id: string;
+    name: string;
+    logo: string;
+    country: string;
+    category_count: number;
+    collection_count: number;
+    card_count: number;
+    teams: any[];
+  }[];
+  statusCode: number;
+}

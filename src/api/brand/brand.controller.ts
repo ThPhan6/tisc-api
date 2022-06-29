@@ -18,6 +18,17 @@ export default class BrandController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListCard = async (req: Request, toolkit: ResponseToolkit) => {
+    const { limit, offset, filter, sort_name, sort_order } = req.query;
+    const response = await this.service.getListCard(
+      limit,
+      offset,
+      filter,
+      sort_name,
+      sort_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const response = await this.service.getOne(id);

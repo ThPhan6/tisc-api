@@ -55,4 +55,22 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getBrandCards: Joi.object({
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+      logo: Joi.string(),
+      country: Joi.string(),
+      category_count: Joi.number(),
+      collection_count: Joi.number(),
+      card_count: Joi.number(),
+      teams: Joi.array().items({
+        id: Joi.string(),
+        firstname: Joi.string(),
+        lastname: Joi.string(),
+        avatar: Joi.any(),
+      }),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
 };
