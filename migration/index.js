@@ -17,6 +17,7 @@ const migrate = async () => {
   await migrate_table("locations");
   await migrate_table("product_downloads");
   await migrate_table("product_tips");
+  await migrate_table("inspirational_quotations");
 };
 
 migrate();
