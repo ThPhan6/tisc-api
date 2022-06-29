@@ -19,7 +19,7 @@ export default {
     params: {
       id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Attribute id is required")),
+        .error(commonFailValidatedMessageFunction("Quotation id is required")),
     },
     payload: {
       author: Joi.string()
