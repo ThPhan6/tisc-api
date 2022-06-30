@@ -15,7 +15,7 @@ export const toWebp = async (
       width = 300;
       height = 300;
       break;
-    case "medium":
+    case "small":
       width = 200;
       height = 200;
       break;
