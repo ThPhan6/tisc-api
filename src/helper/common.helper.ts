@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
+import { ROLES } from "../constant/user.constant";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -68,4 +69,29 @@ export const tosingleSpace = (str: string) => {
 
 export const getDistinctArray = (arr: Array<any>) => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
+};
+
+export const getAccessLevel = (role_id: string) => {
+  let result = "";
+  switch (role_id) {
+    case ROLES.TISC_ADMIN:
+      result = "TISC Admin";
+      break;
+    case ROLES.TISC_CONSULTANT_TEAM:
+      result = "Consultant Team";
+      break;
+    case ROLES.BRAND_ADMIN:
+      result = "Brand Admin";
+      break;
+    case ROLES.BRAND_TEAM:
+      result = "Brand Team";
+      break;
+    case ROLES.DESIGN_ADMIN:
+      result = "Design Admin";
+      break;
+    default:
+      result = "Design Team";
+      break;
+  }
+  return result;
 };

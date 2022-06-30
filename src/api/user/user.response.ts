@@ -26,6 +26,8 @@ export default {
       created_at: Joi.any(),
       phone_code: Joi.string(),
       work_location: Joi.any(),
+      access_level: Joi.any(),
+      status: Joi.number(),
     }),
     statusCode: Joi.number(),
   }) as any,

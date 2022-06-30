@@ -1,4 +1,4 @@
-import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
+import { MESSAGES } from "./../../constant/common.constant";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import UserModel, {
   IUserAttributes,
@@ -14,13 +14,14 @@ import {
   IUsersResponse,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
+import { USER_STATUSES } from "../../constant/user.constant";
 import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
 import { toWebp } from "../../helper/image.helper";
 import DepartmentModel from "../../model/department.model";
 import LocationModel from "../../model/location.model";
+import { getAccessLevel } from "../../helper/common.helper";
 
 export default class UserService {
   private userModel: UserModel;
@@ -48,8 +49,8 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      const adminUser = await this.userModel.find(user_id);
-      if (!adminUser) {
+      const currentUser = await this.userModel.find(user_id);
+      if (!currentUser) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
@@ -78,15 +79,12 @@ export default class UserService {
         phone: payload.phone,
         mobile: payload.mobile,
         role_id: payload.role_id,
-        access_level:
-          payload.role_id === ROLES.TISC_ADMIN
-            ? "TISC Admin"
-            : "Consultant Team",
+        access_level: getAccessLevel(payload.role_id),
         is_verified: false,
         verification_token: verificationToken,
         status: USER_STATUSES.PENDING,
-        type: adminUser.type,
-        relation_id: adminUser.relation_id,
+        type: currentUser.type,
+        relation_id: currentUser.relation_id,
       });
       if (!createdUser) {
         return resolve({
@@ -148,6 +146,8 @@ export default class UserService {
         personal_mobile: user.personal_mobile,
         linkedin: user.linkedin,
         created_at: user.created_at,
+        access_level: user.access_level,
+        status: user.status,
         phone_code: location?.phone_code,
       };
       return resolve({
@@ -189,7 +189,23 @@ export default class UserService {
           });
         }
       }
-      const updatedUser = await this.userModel.update(user_id, payload);
+      let additionalPayload = {};
+      if (payload.location_id && user.location_id !== payload.location_id) {
+        const location = await this.locationModel.find(payload.location_id);
+        additionalPayload = {
+          work_location: location?.city_name + ", " + location?.country_name,
+        };
+      }
+      if (payload.role_id && user.role_id !== payload.role_id) {
+        additionalPayload = {
+          ...additionalPayload,
+          access_level: getAccessLevel(payload.role_id),
+        };
+      }
+      const updatedUser = await this.userModel.update(user_id, {
+        ...payload,
+        ...additionalPayload,
+      });
       if (!updatedUser) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
@@ -381,7 +397,7 @@ export default class UserService {
       const users: IUserAttributes[] = await this.userModel.list(
         limit,
         offset,
-        { ...filter, type: SYSTEM_TYPE.TISC, relation_id: null },
+        { ...filter, type: user.type, relation_id: user.relation_id },
         sort
       );
       const result = await Promise.all(
@@ -407,7 +423,8 @@ export default class UserService {
       );
       const pagination: IPagination = await this.userModel.getPagination(
         limit,
-        offset
+        offset,
+        { type: user.type, relation_id: user.relation_id }
       );
 
       return resolve({
