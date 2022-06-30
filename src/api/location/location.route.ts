@@ -104,7 +104,7 @@ export default class LocationRoute implements IRoute {
             handler: controller.getListWithGroup,
             description: "Method that get list location with group",
             tags: ["api", "Location"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

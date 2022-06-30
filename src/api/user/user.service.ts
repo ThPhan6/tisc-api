@@ -124,7 +124,7 @@ export default class UserService {
           currentUser.relation_id !== user.relation_id
         ) {
           return resolve({
-            message: MESSAGES.USER_IN_WORKSPACE_NOT_FOUND,
+            message: MESSAGES.USER_NOT_IN_WORKSPACE,
             statusCode: 400,
           });
         }
@@ -184,7 +184,7 @@ export default class UserService {
           currentUser.relation_id !== user.relation_id
         ) {
           return resolve({
-            message: MESSAGES.USER_IN_WORKSPACE_NOT_FOUND,
+            message: MESSAGES.USER_NOT_IN_WORKSPACE,
             statusCode: 400,
           });
         }
@@ -251,7 +251,7 @@ export default class UserService {
         currentUser.relation_id !== user.relation_id
       ) {
         return resolve({
-          message: MESSAGES.USER_IN_WORKSPACE_NOT_FOUND,
+          message: MESSAGES.USER_NOT_IN_WORKSPACE,
           statusCode: 400,
         });
       }

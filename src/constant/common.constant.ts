@@ -69,7 +69,7 @@ export const MESSAGES = {
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verification link has expired",
   CURRENT_USER_NOT_FOUND: "Not found current user",
-  USER_IN_WORKSPACE_NOT_FOUND: "Not found user in your work space",
+  USER_NOT_IN_WORKSPACE: "User not in this work space",
   AVATAR_NOT_VALID_FILE: "Not valid avatar file",
   NOT_VALID_LOGO: "Not valid logo file",
   CONTACT_NOT_FOUND: "Not found contact",

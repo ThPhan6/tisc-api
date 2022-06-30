@@ -252,7 +252,7 @@ export default class AttributeService {
       const pagination: IPagination = await this.attributeModel.getPagination(
         limit,
         offset,
-        attribute_type
+        { type: attribute_type }
       );
 
       const allAttributeByType =

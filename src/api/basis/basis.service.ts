@@ -186,7 +186,7 @@ export default class BasisService {
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
-        BASIS_TYPES.CONVERSION
+        { type: BASIS_TYPES.CONVERSION }
       );
 
       const allConversion = await this.basisModel.getAllBasisByType(
@@ -556,7 +556,7 @@ export default class BasisService {
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
-        BASIS_TYPES.OPTION
+        { type: BASIS_TYPES.OPTION }
       );
 
       const allBasisOption = await this.basisModel.getAllBasisByType(
@@ -878,7 +878,7 @@ export default class BasisService {
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
-        BASIS_TYPES.PRESET
+        { type: BASIS_TYPES.PRESET }
       );
 
       const allBasisPreset = await this.basisModel.getAllBasisByType(

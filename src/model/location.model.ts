@@ -1,3 +1,4 @@
+import { SYSTEM_TYPE } from "../constant/common.constant";
 import Model from "./index";
 
 export interface ILocationAttributes {
@@ -18,6 +19,8 @@ export interface ILocationAttributes {
   general_email: string;
   created_at: string;
   is_deleted: boolean;
+  type: number;
+  relation_id: string | null;
 }
 
 export const LOCATION_NULL_ATTRIBUTES = {
@@ -38,6 +41,8 @@ export const LOCATION_NULL_ATTRIBUTES = {
   general_email: null,
   created_at: null,
   is_deleted: false,
+  type: SYSTEM_TYPE.TISC,
+  relation_id: null,
 };
 
 export default class LocationModel extends Model<ILocationAttributes> {

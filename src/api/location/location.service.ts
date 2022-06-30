@@ -17,7 +17,7 @@ import {
   LocationsWithGroupResponse,
 } from "./location.type";
 import { IMessageResponse } from "../../type/common.type";
-import { MESSAGES } from "../../constant/common.constant";
+import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import CountryStateCityService, {
   ICity,
 } from "../../service/country_state_city.service";
@@ -47,9 +47,17 @@ export default class LocationService {
     });
   };
   public create = (
+    user_id: string,
     payload: ILocationRequest
   ): Promise<ILocationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       //check functional types
       const functional_type_ids = await Promise.all(
         payload.functional_type_ids.map(async (function_type_id) => {
@@ -108,6 +116,8 @@ export default class LocationService {
         postal_code: payload.postal_code,
         general_phone: payload.general_phone,
         general_email: payload.general_email,
+        type: user.type,
+        relation_id: user.relation_id,
       });
       if (!createdLocation) {
         return resolve({
@@ -119,15 +129,32 @@ export default class LocationService {
     });
   };
   public update = (
+    user_id: string,
     id: string,
     payload: ILocationRequest
   ): Promise<ILocationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
           message: MESSAGES.NOT_FOUND_LOCATION,
           statusCode: 404,
+        });
+      }
+      if (
+        user.type !== location.type ||
+        user.relation_id !== location.relation_id
+      ) {
+        return resolve({
+          message: MESSAGES.USER_NOT_IN_WORKSPACE,
+          statusCode: 400,
         });
       }
       //check functional types
@@ -296,42 +323,57 @@ export default class LocationService {
     });
 
   public getList = (
+    user_id: string,
     limit: number,
     offset: number,
     filter: any,
     sort_name: string,
     sort_order: "ASC" | "DESC"
-  ): Promise<ILocationsResponse> =>
+  ): Promise<ILocationsResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
-      const locations = await this.locationModel.list(limit, offset, filter, [
-        sort_name,
-        sort_order,
-      ]);
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const locations = await this.locationModel.list(
+        limit,
+        offset,
+        { ...filter, type: user.type, relation_id: user.relation_id },
+        [sort_name, sort_order]
+      );
       const result: ILocation[] = await Promise.all(
         locations.map(async (location: ILocationAttributes) => {
           const functionalTypes = await this.functionalTypeModel.getMany(
             location.functional_type_ids,
             ["id", "name"]
           );
-          const {
-            is_deleted,
-            functional_type_ids,
-            country_id,
-            state_id,
-            city_id,
-            business_number,
-            postal_code,
-            address,
-            ...rest
-          } = location;
+
           const users = await this.userModel.getBy({
             location_id: location.id,
           });
           const teams = users?.length || 0;
-          return { ...rest, functional_types: functionalTypes, teams };
+          return {
+            id: location.id,
+            business_name: location.business_name,
+            general_phone: location.general_phone,
+            general_email: location.general_email,
+            created_at: location.created_at,
+            country_name: location.country_name,
+            state_name: location.state_name,
+            city_name: location.city_name,
+            phone_code: location.phone_code,
+            functional_types: functionalTypes,
+            teams,
+          };
         })
       );
-      const pagination = await this.locationModel.getPagination(limit, offset);
+      const pagination = await this.locationModel.getPagination(limit, offset, {
+        type: user.type,
+        relation_id: user.relation_id,
+      });
       return resolve({
         data: {
           locations: result,
@@ -340,9 +382,19 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public getListWithGroup = (): Promise<LocationsWithGroupResponse> =>
+  public getListWithGroup = (
+    user_id: string
+  ): Promise<LocationsWithGroupResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
-      const locations = await this.locationModel.getAll(
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const locations = await this.locationModel.getAllBy(
+        { type: user.type, relation_id: user.relation_id },
         undefined,
         "country_name",
         "ASC"
@@ -353,21 +405,22 @@ export default class LocationService {
             location.functional_type_ids,
             ["id", "name"]
           );
-          const {
-            is_deleted,
-            functional_type_ids,
-            country_id,
-            state_id,
-            city_id,
-            business_number,
-            general_email,
-            general_phone,
-            ...rest
-          } = location;
-          return { ...rest, functional_types: functionalTypes };
+          return {
+            id: location.id,
+            business_name: location.business_name,
+            address: location.address,
+            postal_code: location.postal_code,
+            created_at: location.created_at,
+            country_name: location.country_name,
+            state_name: location.state_name,
+            city_name: location.city_name,
+            phone_code: location.phone_code,
+            functional_types: functionalTypes,
+          };
         })
       );
       const distintCountries = await this.locationModel.getGroupBy(
+        { type: user.type, relation_id: user.relation_id },
         "country_name",
         "count"
       );
@@ -385,13 +438,29 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public delete = (id: string): Promise<IMessageResponse> =>
+  public delete = (user_id: string, id: string): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
           message: MESSAGES.NOT_FOUND_LOCATION,
           statusCode: 404,
+        });
+      }
+      if (
+        user.type !== location.type ||
+        user.relation_id !== location.relation_id
+      ) {
+        return resolve({
+          message: MESSAGES.USER_NOT_IN_WORKSPACE,
+          statusCode: 400,
         });
       }
       await this.locationModel.update(id, { is_deleted: true });
