@@ -51,8 +51,8 @@ export default {
         name: Joi.string(),
       },
       categories: Joi.array().items({
-        id: Joi.string().allow(""),
-        name: Joi.string().allow(""),
+        id: Joi.string(),
+        name: Joi.string(),
       }),
       name: Joi.string(),
       code: Joi.string(),

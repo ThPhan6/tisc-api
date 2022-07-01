@@ -101,7 +101,7 @@ export default class ProductService {
         });
       }
       const brand = await this.brandModel.find(payload.brand_id);
-      const imagesPath = await Promise.all(
+      const imagePaths = await Promise.all(
         payload.images.map(async (image, index) => {
           const mediumBuffer = await toWebp(
             Buffer.from(image, "base64"),
@@ -119,7 +119,7 @@ export default class ProductService {
         })
       );
       await this.productModel.update(createdProduct.id, {
-        images: imagesPath,
+        images: imagePaths,
       });
       return resolve(this.get(createdProduct.id));
     });
@@ -162,11 +162,11 @@ export default class ProductService {
       const saveSpecificationAttributeGroups =
         payload.specification_attribute_groups.map(mapAttributeFunction);
 
-      let imagesPath: string[] = [];
+      let imagePaths: string[] = [];
       let isValidImage = true;
       let mediumBuffer: Buffer;
       if (payload.images.join("-") === product.images.join("-")) {
-        imagesPath = product.images;
+        imagePaths = product.images;
       } else {
         const bufferImages = await Promise.all(
           payload.images.map(async (image) => {
@@ -194,7 +194,7 @@ export default class ProductService {
         product.images.map(async (item) => {
           await deleteFile(item.slice(1));
         });
-        imagesPath = await Promise.all(
+        imagePaths = await Promise.all(
           bufferImages.map(async (image, index) => {
             mediumBuffer = await toWebp(image, "medium");
             const brand = await this.brandModel.find(product.brand_id);
@@ -215,7 +215,7 @@ export default class ProductService {
         general_attribute_groups: saveGeneralAttributeGroups,
         feature_attribute_groups: saveFeatureAttributeGroups,
         specification_attribute_groups: saveSpecificationAttributeGroups,
-        images: imagesPath,
+        images: imagePaths,
       });
       if (!updatedProduct) {
         return resolve({

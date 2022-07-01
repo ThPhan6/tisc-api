@@ -94,7 +94,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Images is required at least 1 valid data"
+            "Keywords is required at least 1 valid data"
           )
         ),
     },
@@ -150,7 +150,7 @@ export default {
         .min(1)
         .error(
           commonFailValidatedMessageFunction(
-            "Images is required at least 1 valid data"
+            "Keywords is required at least 1 valid data"
           )
         ),
     },
