@@ -1,5 +1,4 @@
 export const ROUTES = {
-  GET_LIST_WORKSPACE: "/api/work-space",
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_CARD: "/api/brand/get-list-card",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",

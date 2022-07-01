@@ -74,5 +74,5 @@ const seed = async () => {
 };
 
 module.exports = {
-  seedUser: seed,
+  seed,
 };

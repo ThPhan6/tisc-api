@@ -31,17 +31,21 @@ const PERMISSION_TITLE = {
   ADMINISTRATION_REVENUE: "Revenues",
 };
 const ROUTES = {
-  GET_LIST_WORKSPACE: "/api/work-space",
   GET_LIST_BRAND: "/api/brand/get-list",
+  GET_LIST_BRAND_CARD: "/api/brand/get-list-card",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
   GET_ONE_BRAND: "/api/brand/get-one/{id}",
   UPDATE_BRAND: "/api/brand/update/{id}",
+  UPDATE_BRAND_PROFILE: "/api/brand/update-profile",
+  UPDATE_BRAND_LOGO: "/api/brand/update-logo",
+  GET_BRAND_STATUSES: "/api/brand/statuses",
   SEND_EMAIL_INVITE_BRAND: "/api/brand/invite/{id}",
   GET_LIST_ASSIGN_TEAM: "/api/team/get-list",
   ASSIGN_TEAM: "/api/team/assign/{id}",
   GET_LIST_DESIGN_FIRM: "/api/design/get-list",
   GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
   UPDATE_DESIGN_FIRM: "/api/design/update/{id}",
+  GET_DESIGN_STATUSES: "/api/design/statuses",
   GET_LIST_PROJECT: "/api/project/get-list",
   GET_ONE_PROJECT: "/api/project/get-one/{id}",
   GET_LIST_CATEGORY: "/api/category/get-list",
@@ -72,18 +76,29 @@ const ROUTES = {
   GET_ONE_ATTRIBUTE: "/api/attribute/get-one/{id}",
   CREATE_PRODUCT: "/api/product/create",
   UPDATE_PRODUCT: "/api/product/update/{id}",
+  DELETE_PRODUCT: "/api/product/delete/{id}",
   GET_LIST_PRODUCT: "/api/product/get-list",
   GET_ONE_PRODUCT: "/api/product/get-one/{id}",
+  LIKE_OR_UNLIKE_PRODUCT: "/api/product/like/{id}",
+  GET_BRAND_PRODUCT_SUMMARY: "/api/product/brand-product-summary/{brand_id}",
   GET_LIST_DOCUMENTATION: "/api/documentation/get-list",
   EDIT_DOCUMENTATION: "/api/documentation/update/{id}",
   DELETE_DOCUMENTATION: "/api/documentation/delete/{id}",
   CREATE_DOCUMENTATION: "/api/documentation/create",
   GET_ONE_DOCUMENTATION: "/api/documentation/get-one/{id}",
   GET_LIST_LOCATION: "/api/location/get-list",
+  GET_LIST_LOCATION_WITH_GROUP: "/api/location/get-list-with-country-group",
   GET_ONE_LOCATION: "/api/location/get-one/{id}",
   EDIT_LOCATION: "/api/location/update/{id}",
   DELETE_LOCATION: "/api/location/delete/{id}",
   CREATE_LOCATION: "/api/location/create",
+  GET_FUNCTIONAL_TYPES: "/api/functional-type/get-list",
+  GET_DEPARTMENTS: "/api/department/get-list",
+
+  GET_COUNTRIES: "/api/location/get-countries",
+  GET_STATES: "/api/location/get-states",
+  GET_CITIES: "/api/location/get-cities",
+
   GET_LIST_TEAM_PROFILE: "/api/team-profile/get-list",
   GET_ONE_TEAM_PROFILE: "/api/team-profile/get-one/{id}",
   GET_ME_TEAM_PROFILE: "/api/team-profile/get-me",
@@ -115,6 +130,27 @@ const ROUTES = {
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
   GET_LIST_COLLECTION: "/api/collection/get-list",
   CREATE_COLLECTION: "/api/collection/create",
+  GET_LIST_REST_COLLECTION_PRODUCT:
+    "/api/product/get-list-rest-collection-product/{id}",
+
+  CREATE_PRODUCT_TIP: "/api/product-tip/create",
+  GET_LIST_PRODUCT_TIP: "/api/product-tip/get-list",
+  GET_ONE_PRODUCT_TIP: "/api/product-tip/get-one/{id}",
+  EDIT_PRODUCT_TIP: "/api/product-tip/update/{id}",
+  DELETE_PRODUCT_TIP: "/api/product-tip/delete/{id}",
+  GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
+    "/api/product-tip/get-list-by-product/{id}",
+
+  CREATE_PRODUCT_DOWNLOAD: "/api/product-download/create",
+  GET_LIST_PRODUCT_DOWNLOAD: "/api/product-download/get-list",
+  GET_ONE_PRODUCT_DOWNLOAD: "/api/product-download/get-one/{id}",
+  EDIT_PRODUCT_DOWNLOAD: "/api/product-download/update/{id}",
+  DELETE_PRODUCT_DOWNLOAD: "/api/product-download/delete/{id}",
+  GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID:
+    "/api/product-download/get-list-by-product/{id}",
+
+  GET_LIST_AUTO_EMAIL_TOPIC: "/api/email-auto/get-list-topic",
+  GET_LIST_AUTO_EMAIL_TARGETED_FOR: "/api/email-auto/get-list-targeted-for",
 };
 const USER_STATUSES = {
   ACTIVE: 1,
@@ -230,29 +266,6 @@ const TOPIC_TYPES = {
   OTHER: 5,
 };
 
-const TOPIC_OPTIONS = [
-  {
-    key: "Marketing",
-    value: TOPIC_TYPES.MARKETING,
-  },
-  {
-    key: "Messages",
-    value: TOPIC_TYPES.MESSAGES,
-  },
-  {
-    key: "Onboard",
-    value: TOPIC_TYPES.ONBOARD,
-  },
-  {
-    key: "Operation",
-    value: TOPIC_TYPES.OPERATION,
-  },
-  {
-    key: "Other",
-    value: TOPIC_TYPES.OTHER,
-  },
-];
-
 const TARGETED_FOR_TYPES = {
   BRAND: 1,
   DESIGN_FIRM: 2,
@@ -261,28 +274,19 @@ const TARGETED_FOR_TYPES = {
   TISC_TEAM: 5,
 };
 
-const TARGETED_FOR_OPTIONS = [
-  {
-    key: "Brand",
-    value: TARGETED_FOR_TYPES.BRAND,
-  },
-  {
-    key: "Design Firm",
-    value: TARGETED_FOR_TYPES.DESIGN_FIRM,
-  },
-  {
-    key: "Distributor",
-    value: TARGETED_FOR_TYPES.DISTRIBUTOR,
-  },
-  {
-    key: "General",
-    value: TARGETED_FOR_TYPES.GENERAL,
-  },
-  {
-    key: "TISC Team",
-    value: TARGETED_FOR_TYPES.TISC_TEAM,
-  },
-];
+const PERMISSION_NULL_ATTRIBUTES = {
+  id: null,
+  routes: [],
+  role_id: null,
+  type: null,
+  relation_id: null,
+  logo: null,
+  name: null,
+  accessable: null,
+  number: null,
+  parent_number: null,
+  created_at: null,
+};
 
 module.exports = {
   ROLES,
@@ -302,4 +306,5 @@ module.exports = {
   DEPARTMENT_NULL_ATTRIBUTES,
   TOPIC_TYPES,
   TARGETED_FOR_TYPES,
+  PERMISSION_NULL_ATTRIBUTES,
 };

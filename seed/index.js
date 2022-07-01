@@ -1,9 +1,7 @@
-const seedRole = require("./role.seed").seedRole;
-const seedUser = require("./user.seed").seedUser;
-const seedPermission = require("./permission.seed").seedPermission;
+const seedRoute = require("./permission_route.seed").seed;
+const seedPermission = require("./permission.seed").seed;
 const seed = async () => {
-  await seedRole();
-  await seedUser();
+  await seedRoute();
   await seedPermission();
 };
 

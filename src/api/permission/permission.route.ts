@@ -5,6 +5,7 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import response from "./permission.response";
 import { ROUTES } from "../../constant/api.constant";
+import commonValidate from "../../validate/common.validate";
 
 export default class PermissionRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -12,22 +13,6 @@ export default class PermissionRoute implements IRoute {
       const controller = new PermissionController();
 
       server.route([
-        {
-          method: "GET",
-          path: "/api/permission/get-menu",
-          options: {
-            handler: controller.getMenu,
-            description: "Method that get menu",
-            tags: ["api", "Permission"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getMenu,
-              },
-            },
-          },
-        },
         {
           method: "GET",
           path: ROUTES.GET_LIST_PERMISSION,
@@ -49,6 +34,7 @@ export default class PermissionRoute implements IRoute {
           path: ROUTES.OPEN_CLOSE_PERMISSION,
           options: {
             handler: controller.openClose,
+            validate: commonValidate.getOne,
             description: "Method that open or close permission",
             tags: ["api", "Permission"],
             auth: AUTH_NAMES.PERMISSION,

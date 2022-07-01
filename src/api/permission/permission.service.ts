@@ -7,9 +7,11 @@ import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import {
   BRAND_PERMISSION_TITLE,
   DESIGN_PERMISSION_TITLE,
+  PERMISSION_TITLE,
 } from "../../constant/permission.constant";
-import { IMenusResponse, IPermissionsResponse } from "./permission.type";
+import { IPermissionsResponse } from "./permission.type";
 import { IMessageResponse } from "../../type/common.type";
+import { getAccessLevel } from "../../helper/common.helper";
 
 export default class PermissionService {
   private permissionModel: PermissionModel;
@@ -61,8 +63,142 @@ export default class PermissionService {
         });
       }
       if (permission.accessable) {
+        //create new route list too
+        let routes: any[] = [];
+        if (permission.type === SYSTEM_TYPE.TISC) {
+          switch (permission.name) {
+            case PERMISSION_TITLE.MY_WORKSPACE:
+              routes = [{ id: "2" }];
+              break;
+            case PERMISSION_TITLE.USER_GROUP_BRAND:
+              routes = [
+                { id: "1" },
+                { id: "4" },
+                { id: "3" },
+                { id: "5" },
+                { id: "9" },
+              ];
+              break;
+            case PERMISSION_TITLE.USER_GROUP_DESIGN:
+              routes = [{ id: "12" }, { id: "13" }, { id: "14" }];
+              break;
+            case PERMISSION_TITLE.PROJECT_LIST:
+              routes = [{ id: "16" }, { id: "17" }];
+              break;
+            case PERMISSION_TITLE.PRODUCT_CATEGORY:
+              routes = [
+                { id: "18" },
+                { id: "19" },
+                { id: "20" },
+                { id: "21" },
+                { id: "22" },
+              ];
+              break;
+            case PERMISSION_TITLE.PRODUCT_BASIS:
+              routes = [
+                { id: "23" },
+                { id: "24" },
+                { id: "25" },
+                { id: "26" },
+                { id: "27" },
+                { id: "28" },
+                { id: "29" },
+                { id: "30" },
+                { id: "31" },
+                { id: "32" },
+                { id: "33" },
+                { id: "34" },
+                { id: "35" },
+                { id: "36" },
+                { id: "37" },
+              ];
+              break;
+            case PERMISSION_TITLE.PRODUCT_ATTRIBUTE:
+              routes = [
+                { id: "38" },
+                { id: "39" },
+                { id: "40" },
+                { id: "41" },
+                { id: "42" },
+                { id: "43" },
+              ];
+              break;
+            case PERMISSION_TITLE.PRODUCT_CONFIGURATION:
+              routes = [
+                { id: "44" },
+                { id: "45" },
+                { id: "46" },
+                { id: "47" },
+                { id: "48" },
+                { id: "49" },
+                { id: "50" },
+              ];
+              break;
+            case PERMISSION_TITLE.PRODUCT_CONFIGURATION:
+              routes = [
+                { id: "44" },
+                { id: "45" },
+                { id: "46" },
+                { id: "47" },
+                { id: "48" },
+                { id: "49" },
+                { id: "50" },
+              ];
+              break;
+            case PERMISSION_TITLE.ADMINISTRATION_DOCUMENTATION:
+              routes = [
+                { id: "51" },
+                { id: "52" },
+                { id: "53" },
+                { id: "54" },
+                { id: "55" },
+              ];
+              break;
+            case PERMISSION_TITLE.ADMINISTRATION_LOCATION:
+              routes = [
+                { id: "56" },
+                { id: "57" },
+                { id: "58" },
+                { id: "59" },
+                { id: "60" },
+                { id: "61" },
+              ];
+              break;
+            case PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE:
+              routes = [
+                { id: "67" },
+                { id: "68" },
+                { id: "72" },
+                { id: "73" },
+                { id: "74" },
+                { id: "75" },
+                { id: "76" },
+                { id: "77" },
+              ];
+              break;
+            case PERMISSION_TITLE.ADMINISTRATION_MESSAGE:
+              routes = [
+                { id: "78" },
+                { id: "79" },
+                { id: "80" },
+                { id: "81" },
+                { id: "82" },
+                { id: "83" },
+                { id: "84" },
+                { id: "85" },
+                { id: "86" },
+                { id: "87" },
+              ];
+              break;
+            case PERMISSION_TITLE.ADMINISTRATION_REVENUE:
+            default:
+              routes = [{ id: "88" }, { id: "89" }, { id: "90" }, { id: "91" }];
+              break;
+          }
+        }
         await this.permissionModel.update(id, {
           accessable: !permission.accessable,
+          routes: routes,
         });
       }
       return resolve({
@@ -82,112 +218,49 @@ export default class PermissionService {
           statusCode: 404,
         });
       }
-      let permissions;
-      if (user.role_id === ROLES.TISC_ADMIN) {
-        const adminPermissions = await this.permissionModel.getBy({
-          role_id: user.role_id,
-          type: user.type,
-          relation_id: null,
-        });
-        const consultantTeamPermissions = await this.permissionModel.getBy({
-          role_id: ROLES.TISC_CONSULTANT_TEAM,
-          type: user.type,
-          relation_id: null,
-        });
-        permissions = adminPermissions?.map((item) => {
-          const consultantTeamPermission = consultantTeamPermissions?.find(
-            (consultantItem) => consultantItem.name === item.name
-          );
-          return {
-            logo: item.logo,
-            name: item.name,
-            items: [
-              {
-                id: item.id,
-                name: "TISC Admin",
-                accessable: item.accessable,
-              },
-              {
-                id: consultantTeamPermission?.id,
-                name: "Consultant Team",
-                accessable: consultantTeamPermission?.accessable,
-              },
-            ],
-            number: item.number,
-            parent_number: item.parent_number,
-          };
-        });
-      }
-      if (user.role_id === ROLES.BRAND_ADMIN) {
-        const adminPermissions = await this.permissionModel.getBy({
-          role_id: user.role_id,
-          type: user.type,
-          relation_id: user.relation_id,
-        });
-        const brandTeamPermissions = await this.permissionModel.getBy({
-          role_id: ROLES.BRAND_TEAM,
-          type: user.type,
-          relation_id: user.relation_id,
-        });
-        permissions = adminPermissions?.map((item) => {
-          const brandTeamPermission = brandTeamPermissions?.find(
-            (consultantItem) => consultantItem.name === item.name
-          );
-          return {
-            logo: item.logo,
-            name: item.name,
-            items: [
-              {
-                id: item.id,
-                name: "Brand Admin",
-                accessable: item.accessable,
-              },
-              {
-                id: brandTeamPermission?.id,
-                name: "Brand Team",
-                accessable: brandTeamPermission?.accessable,
-              },
-            ],
-            number: item.number,
-            parent_number: item.parent_number,
-          };
-        });
-      }
-      if (user.role_id === ROLES.DESIGN_ADMIN) {
-        const adminPermissions = await this.permissionModel.getBy({
-          role_id: user.role_id,
-          type: user.type,
-          relation_id: user.relation_id,
-        });
-        const designTeamPermissions = await this.permissionModel.getBy({
-          role_id: ROLES.DESIGN_TEAM,
-          type: user.type,
-          relation_id: user.relation_id,
-        });
-        permissions = adminPermissions?.map((item) => {
-          const designTeamPermission = designTeamPermissions?.find(
-            (consultantItem) => consultantItem.name === item.name
-          );
-          return {
-            logo: item.logo,
-            name: item.name,
-            items: [
-              {
-                id: item.id,
-                name: "Design Admin",
-                accessable: item.accessable,
-              },
-              {
-                id: designTeamPermission?.id,
-                name: "Design Team",
-                accessable: designTeamPermission?.accessable,
-              },
-            ],
-            number: item.number,
-            parent_number: item.parent_number,
-          };
-        });
-      }
+      const adminPermissions = await this.permissionModel.getBy({
+        role_id:
+          user.type === SYSTEM_TYPE.TISC
+            ? ROLES.TISC_ADMIN
+            : user.type === SYSTEM_TYPE.BRAND
+            ? ROLES.BRAND_ADMIN
+            : ROLES.DESIGN_ADMIN,
+        type: user.type,
+        relation_id: user.relation_id,
+      });
+      const teamPermissions = await this.permissionModel.getBy({
+        role_id:
+          user.type === SYSTEM_TYPE.TISC
+            ? ROLES.TISC_CONSULTANT_TEAM
+            : user.type === SYSTEM_TYPE.BRAND
+            ? ROLES.BRAND_TEAM
+            : ROLES.DESIGN_TEAM,
+        type: user.type,
+        relation_id: user.relation_id,
+      });
+      const permissions = adminPermissions?.map((item) => {
+        const teamPermission = teamPermissions?.find(
+          (teamItem) => teamItem.name === item.name
+        );
+        return {
+          logo: item.logo,
+          name: item.name,
+          items: [
+            {
+              id: item.id,
+              name: getAccessLevel(ROLES.TISC_ADMIN),
+              accessable: item.accessable,
+            },
+            {
+              id: teamPermission?.id,
+              name: getAccessLevel(ROLES.TISC_CONSULTANT_TEAM),
+              accessable: teamPermission?.accessable,
+            },
+          ],
+          number: item.number,
+          parent_number: item.parent_number,
+        };
+      });
 
       if (!permissions) {
         return resolve({
@@ -199,71 +272,6 @@ export default class PermissionService {
 
       return resolve({
         data: result,
-        statusCode: 200,
-      });
-    });
-  };
-  public getMenu = (
-    user_id: string
-  ): Promise<IMenusResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-
-      const rawPermissions = await this.permissionModel.getBy({
-        role_id: user.role_id,
-        type: user.type,
-        relation_id: user.relation_id,
-      });
-      if (!rawPermissions) {
-        return resolve({
-          data: [],
-          statusCode: 200,
-        });
-      }
-      const permissions = rawPermissions
-        .filter((item) => item.accessable !== false)
-        .map((item) => {
-          return {
-            logo: item.logo,
-            name: item.name,
-            url: item.url,
-            number: item.number,
-            parent_number: item.parent_number,
-          };
-        });
-      const parents = permissions.filter(
-        (permission) => permission.parent_number === null
-      );
-      if (!parents) {
-        return resolve({
-          data: [],
-          statusCode: 200,
-        });
-      }
-      const menu = parents.map((parent) => {
-        if (parent.name.toLowerCase() === "projects") {
-          return parent;
-        }
-        const subs = permissions.filter(
-          (permission) => permission.parent_number === parent.number
-        );
-        const newSubs = subs.map((sub) => this.makeSubItem(sub, permissions));
-        if (newSubs && newSubs[0]) {
-          return {
-            ...parent,
-            subs: newSubs,
-          };
-        }
-        return parent;
-      });
-      return resolve({
-        data: menu,
         statusCode: 200,
       });
     });
@@ -287,9 +295,7 @@ export default class PermissionService {
           logo: "/logo/my_workspace.svg",
           name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: null,
           number: 1,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -299,9 +305,7 @@ export default class PermissionService {
           logo: "/logo/product.svg",
           name: BRAND_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: null,
           number: 2,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -311,9 +315,7 @@ export default class PermissionService {
           logo: "/logo/general_inquires.svg",
           name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
           accessable: true,
-          url: null,
           number: 3,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -323,9 +325,7 @@ export default class PermissionService {
           logo: "/logo/project_tracking.svg",
           name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
           accessable: true,
-          url: null,
           number: 4,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -334,10 +334,7 @@ export default class PermissionService {
           relation_id: brand_id,
           logo: "/logo/administration.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION,
-          accessable: null,
-          url: null,
           number: 5,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -347,7 +344,6 @@ export default class PermissionService {
           logo: "/logo/brand.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE,
           accessable: true,
-          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -359,7 +355,6 @@ export default class PermissionService {
           logo: "/logo/location.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: true,
-          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -371,7 +366,6 @@ export default class PermissionService {
           logo: "/logo/team_profile.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: true,
-          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -383,7 +377,6 @@ export default class PermissionService {
           logo: "/logo/distributor.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR,
           accessable: true,
-          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -395,7 +388,6 @@ export default class PermissionService {
           logo: "/logo/market_availability.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY,
           accessable: true,
-          url: null,
           number: 10,
           parent_number: 5,
         },
@@ -407,7 +399,6 @@ export default class PermissionService {
           logo: "/logo/subscription.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION,
           accessable: true,
-          url: null,
           number: 11,
           parent_number: 5,
         },
@@ -420,9 +411,7 @@ export default class PermissionService {
           logo: "/logo/my_workspace.svg",
           name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: null,
           number: 1,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -432,9 +421,7 @@ export default class PermissionService {
           logo: "/logo/product.svg",
           name: BRAND_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: null,
           number: 2,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -444,9 +431,7 @@ export default class PermissionService {
           logo: "/logo/general_inquires.svg",
           name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
           accessable: true,
-          url: null,
           number: 3,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -456,9 +441,7 @@ export default class PermissionService {
           logo: "/logo/project_tracking.svg",
           name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
           accessable: true,
-          url: null,
           number: 4,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -467,10 +450,7 @@ export default class PermissionService {
           relation_id: brand_id,
           logo: "/logo/administration.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION,
-          accessable: null,
-          url: null,
           number: 5,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -480,7 +460,6 @@ export default class PermissionService {
           logo: "/logo/brand.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE,
           accessable: false,
-          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -492,7 +471,6 @@ export default class PermissionService {
           logo: "/logo/location.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: false,
-          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -504,7 +482,6 @@ export default class PermissionService {
           logo: "/logo/team_profile.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: false,
-          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -516,7 +493,6 @@ export default class PermissionService {
           logo: "/logo/distributor.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR,
           accessable: false,
-          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -528,7 +504,6 @@ export default class PermissionService {
           logo: "/logo/market_availability.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY,
           accessable: false,
-          url: null,
           number: 10,
           parent_number: 5,
         },
@@ -540,7 +515,6 @@ export default class PermissionService {
           logo: "/logo/subscription.svg",
           name: BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION,
           accessable: false,
-          url: null,
           number: 11,
           parent_number: 5,
         },
@@ -570,9 +544,7 @@ export default class PermissionService {
           logo: "/logo/my_workspace.svg",
           name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: null,
           number: 1,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -582,9 +554,7 @@ export default class PermissionService {
           logo: "/logo/favourite.svg",
           name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
           accessable: true,
-          url: null,
           number: 2,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -594,9 +564,7 @@ export default class PermissionService {
           logo: "/logo/product.svg",
           name: DESIGN_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: null,
           number: 3,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -606,9 +574,7 @@ export default class PermissionService {
           logo: "/logo/project.svg",
           name: DESIGN_PERMISSION_TITLE.PROJECT,
           accessable: true,
-          url: null,
           number: 4,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -618,7 +584,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
           accessable: true,
-          url: null,
           number: 5,
           parent_number: 4,
         },
@@ -630,7 +595,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
           accessable: true,
-          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -642,7 +606,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
           accessable: true,
-          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -654,7 +617,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
           accessable: true,
-          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -666,7 +628,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
           accessable: true,
-          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -678,9 +639,7 @@ export default class PermissionService {
           logo: "/logo/administration.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
           accessable: true,
-          url: null,
           number: 10,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -690,7 +649,6 @@ export default class PermissionService {
           logo: "/logo/office.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
           accessable: true,
-          url: null,
           number: 11,
           parent_number: 10,
         },
@@ -702,7 +660,6 @@ export default class PermissionService {
           logo: "/logo/location.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: true,
-          url: null,
           number: 12,
           parent_number: 10,
         },
@@ -714,7 +671,6 @@ export default class PermissionService {
           logo: "/logo/team_profile.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: true,
-          url: null,
           number: 13,
           parent_number: 10,
         },
@@ -726,7 +682,6 @@ export default class PermissionService {
           logo: "/logo/material.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
           accessable: true,
-          url: null,
           number: 14,
           parent_number: 10,
         },
@@ -739,9 +694,7 @@ export default class PermissionService {
           logo: "/logo/my_workspace.svg",
           name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
-          url: null,
           number: 1,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -751,9 +704,7 @@ export default class PermissionService {
           logo: "/logo/favourite.svg",
           name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
           accessable: true,
-          url: null,
           number: 2,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -763,9 +714,7 @@ export default class PermissionService {
           logo: "/logo/product.svg",
           name: DESIGN_PERMISSION_TITLE.PRODUCT,
           accessable: true,
-          url: null,
           number: 3,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -775,9 +724,7 @@ export default class PermissionService {
           logo: "/logo/project.svg",
           name: DESIGN_PERMISSION_TITLE.PROJECT,
           accessable: true,
-          url: null,
           number: 4,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -787,7 +734,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
           accessable: true,
-          url: null,
           number: 5,
           parent_number: 4,
         },
@@ -799,7 +745,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
           accessable: true,
-          url: null,
           number: 6,
           parent_number: 5,
         },
@@ -811,7 +756,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
           accessable: true,
-          url: null,
           number: 7,
           parent_number: 5,
         },
@@ -823,7 +767,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
           accessable: true,
-          url: null,
           number: 8,
           parent_number: 5,
         },
@@ -835,7 +778,6 @@ export default class PermissionService {
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
           accessable: true,
-          url: null,
           number: 9,
           parent_number: 5,
         },
@@ -847,9 +789,7 @@ export default class PermissionService {
           logo: "/logo/administration.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
           accessable: true,
-          url: null,
           number: 10,
-          parent_number: null,
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -859,7 +799,6 @@ export default class PermissionService {
           logo: "/logo/office.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
           accessable: true,
-          url: null,
           number: 11,
           parent_number: 10,
         },
@@ -871,7 +810,6 @@ export default class PermissionService {
           logo: "/logo/location.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
           accessable: true,
-          url: null,
           number: 12,
           parent_number: 10,
         },
@@ -883,7 +821,6 @@ export default class PermissionService {
           logo: "/logo/team_profile.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
           accessable: true,
-          url: null,
           number: 13,
           parent_number: 10,
         },
@@ -895,7 +832,6 @@ export default class PermissionService {
           logo: "/logo/material.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
           accessable: true,
-          url: null,
           number: 14,
           parent_number: 10,
         },

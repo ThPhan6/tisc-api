@@ -2,14 +2,13 @@ import Model from "./index";
 
 export interface IPermissionAttributes {
   id: string;
-  routes: string[]
+  routes: { id: string; check: boolean }[];
   role_id: string;
   type: number;
   relation_id: string | null;
   logo: string | null;
   name: string;
   accessable: boolean | null;
-  url: string | null;
   number: number;
   parent_number: number | null;
   created_at: string | null;
@@ -23,7 +22,6 @@ export const PERMISSION_NULL_ATTRIBUTES = {
   logo: null,
   name: null,
   accessable: null,
-  url: null,
   number: null,
   parent_number: null,
   created_at: null,
