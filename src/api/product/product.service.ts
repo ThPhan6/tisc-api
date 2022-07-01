@@ -1,28 +1,29 @@
 import moment from "moment";
+import { v4 as uuid } from "uuid";
+import CategoryService from "../../api/category/category.service";
 import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
+import {
+  getDistinctArray,
+  getFileTypeFromBase64,
+} from "../../helper/common.helper";
+import { toWebp } from "../../helper/image.helper";
+import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
 import ProductModel, {
   IProductAttributes,
   PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/product.model";
+import { deleteFile, isExists, upload } from "../../service/aws.service";
 import { IMessageResponse, IPagination } from "../../type/common.type";
+import { getBufferFile } from "./../../service/aws.service";
 import {
+  IBrandProductSummary,
   IProductRequest,
   IProductResponse,
   IProductsResponse,
-  IUpdateProductRequest,
   IRestCollectionProductsResponse,
-  IBrandProductSummary,
+  IUpdateProductRequest,
 } from "./product.type";
-import { v4 as uuid } from "uuid";
-import BrandModel from "../../model/brand.model";
-import CategoryService from "../../api/category/category.service";
-import {
-  getDistinctArray,
-  getFileTypeFromBase64,
-} from "../../helper/common.helper";
-import { deleteFile, isExists, upload } from "../../service/aws.service";
-import { toWebp } from "../../helper/image.helper";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -164,58 +165,54 @@ export default class ProductService {
       const saveSpecificationAttributeGroups =
         payload.specification_attribute_groups.map(mapAttributeFunction);
 
+      let imagesPath: string[] = [];
       let isValidImage = true;
-      const validUploadImages: {
-        buffer: Buffer;
-        path: string;
-      }[] = [];
       let mediumBuffer: Buffer;
-      const imagesPath = await Promise.all(
-        payload.images.map(async (image, index) => {
-          //check images is existed
-          if (await isExists(image.slice(1))) {
-            return image;
-          }
-
-          const brand = await this.brandModel.find(product.brand_id);
-          const fileType = await getFileTypeFromBase64(image);
-          if (
-            !fileType ||
-            !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
-          ) {
-            isValidImage = false;
-          }
-          mediumBuffer = await toWebp(Buffer.from(image, "base64"), "medium");
-          console.log(mediumBuffer, "[mediumBuffer]");
-          const keyword = payload.keywords.toString().split(",").join("_");
-          let fileName = `${brand?.name
-            .toLowerCase()
-            .split(" ")
-            .join("-")}${keyword}_${moment.now()}${index}`;
-          validUploadImages.push({
-            buffer: Buffer.from(image, "base64"),
-            path: `product/${id}/${fileName}_medium.webp`,
+      if (payload.images.join("-") === product.images.join("-")) {
+        imagesPath = product.images;
+      } else {
+        const bufferImages = await Promise.all(
+          payload.images.map(async (image) => {
+            const fileType = await getFileTypeFromBase64(image);
+            if (!fileType && (await isExists(image.slice(1)))) {
+              return await getBufferFile(image.slice(1));
+            }
+            if (
+              (!fileType && !(await isExists(image.slice(1)))) ||
+              !VALID_IMAGE_TYPES.find(
+                (validType) => validType === fileType.mime
+              )
+            ) {
+              isValidImage = false;
+            }
+            return Buffer.from(image, "base64");
+          })
+        );
+        if (!isValidImage) {
+          return resolve({
+            message: MESSAGES.INVALID_IMAGE,
+            statusCode: 400,
           });
-          return `/product/${id}/${fileName}_medium.webp`;
-        })
-      );
-      if (!isValidImage) {
-        return resolve({
-          message: MESSAGES.INVALID_IMAGE,
-          statusCode: 400,
+        }
+        product.images.map(async (item) => {
+          await deleteFile(item.slice(1));
         });
+        imagesPath = await Promise.all(
+          bufferImages.map(async (image, index) => {
+            mediumBuffer = await toWebp(image, "medium");
+            const brand = await this.brandModel.find(product.brand_id);
+            const keyword = payload.keywords.toString().split(",").join("_");
+            const brandName = brand?.name.toLowerCase().split(" ").join("-");
+            let fileName = `${brandName}_${keyword}_${moment.now()}${index}`;
+            await upload(
+              mediumBuffer,
+              `product/${id}/${fileName}_medium.webp`,
+              "image/webp"
+            );
+            return `/product/${id}/${fileName}_medium.webp`;
+          })
+        );
       }
-      await Promise.all(
-        validUploadImages.map(async (item) => {
-          await upload(
-            mediumBuffer,
-            `product/${id}/${item.path}_medium.webp`,
-            "image/webp"
-          );
-          return true;
-        })
-      );
-
       const updatedProduct = await this.productModel.update(id, {
         ...payload,
         general_attribute_groups: saveGeneralAttributeGroups,
