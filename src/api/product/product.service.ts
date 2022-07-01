@@ -103,16 +103,13 @@ export default class ProductService {
       const brand = await this.brandModel.find(payload.brand_id);
       const imagesPath = await Promise.all(
         payload.images.map(async (image, index) => {
-          const keyword = payload.keywords.toString().split(",").join("_");
           const mediumBuffer = await toWebp(
             Buffer.from(image, "base64"),
             "medium"
           );
-          let fileName = `${brand?.name
-            .toLowerCase()
-            .split(" ")
-            .join("-")}_${keyword}_${moment.now()}${index}`;
-
+          const keyword = payload.keywords.toString().split(",").join("_");
+          const brandName = brand?.name.toLowerCase().split(" ").join("-");
+          let fileName = `${brandName}_${keyword}_${moment.now()}${index}`;
           await upload(
             mediumBuffer,
             `product/${createdProduct.id}/${fileName}_medium.webp`,
