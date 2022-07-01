@@ -1,22 +1,29 @@
-import { MESSAGES } from "../../constant/common.constant";
+import moment from "moment";
+import { v4 as uuid } from "uuid";
+import CategoryService from "../../api/category/category.service";
+import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
+import {
+  getDistinctArray,
+  getFileTypeFromBase64,
+} from "../../helper/common.helper";
+import { toWebp } from "../../helper/image.helper";
+import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
 import ProductModel, {
   IProductAttributes,
   PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/product.model";
+import { deleteFile, isExists, upload } from "../../service/aws.service";
 import { IMessageResponse, IPagination } from "../../type/common.type";
+import { getBufferFile } from "./../../service/aws.service";
 import {
+  IBrandProductSummary,
   IProductRequest,
   IProductResponse,
   IProductsResponse,
-  IUpdateProductRequest,
   IRestCollectionProductsResponse,
-  IBrandProductSummary,
+  IUpdateProductRequest,
 } from "./product.type";
-import { v4 as uuid } from "uuid";
-import BrandModel from "../../model/brand.model";
-import CategoryService from "../../api/category/category.service";
-import { getDistinctArray } from "../../helper/common.helper";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -54,6 +61,24 @@ export default class ProductService {
         payload.feature_attribute_groups.map(mapAttributeFunction);
       const saveSpecificationAttributeGroups =
         payload.specification_attribute_groups.map(mapAttributeFunction);
+
+      let isValidImage = true;
+      for (const image of payload.images) {
+        const fileType = await getFileTypeFromBase64(image);
+        if (
+          !fileType ||
+          !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+        ) {
+          isValidImage = false;
+        }
+      }
+      if (!isValidImage) {
+        return resolve({
+          message: MESSAGES.INVALID_IMAGE,
+          statusCode: 400,
+        });
+      }
+
       const createdProduct = await this.productModel.create({
         ...PRODUCT_NULL_ATTRIBUTES,
         brand_id: payload.brand_id,
@@ -66,6 +91,8 @@ export default class ProductService {
         feature_attribute_groups: saveFeatureAttributeGroups,
         specification_attribute_groups: saveSpecificationAttributeGroups,
         created_by: user_id,
+        images: [],
+        keywords: payload.keywords,
       });
       if (!createdProduct) {
         return resolve({
@@ -73,7 +100,27 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-
+      const brand = await this.brandModel.find(payload.brand_id);
+      const imagePaths = await Promise.all(
+        payload.images.map(async (image, index) => {
+          const mediumBuffer = await toWebp(
+            Buffer.from(image, "base64"),
+            "medium"
+          );
+          const keyword = payload.keywords.toString().split(",").join("_");
+          const brandName = brand?.name.toLowerCase().split(" ").join("-");
+          let fileName = `${brandName}_${keyword}_${moment.now()}${index}`;
+          await upload(
+            mediumBuffer,
+            `product/${createdProduct.id}/${fileName}_medium.webp`,
+            "image/webp"
+          );
+          return `/product/${createdProduct.id}/${fileName}_medium.webp`;
+        })
+      );
+      await this.productModel.update(createdProduct.id, {
+        images: imagePaths,
+      });
       return resolve(this.get(createdProduct.id));
     });
   };
@@ -114,11 +161,61 @@ export default class ProductService {
         payload.feature_attribute_groups.map(mapAttributeFunction);
       const saveSpecificationAttributeGroups =
         payload.specification_attribute_groups.map(mapAttributeFunction);
+
+      let imagePaths: string[] = [];
+      let isValidImage = true;
+      let mediumBuffer: Buffer;
+      if (payload.images.join("-") === product.images.join("-")) {
+        imagePaths = product.images;
+      } else {
+        const bufferImages = await Promise.all(
+          payload.images.map(async (image) => {
+            const fileType = await getFileTypeFromBase64(image);
+            if (!fileType && (await isExists(image.slice(1)))) {
+              return await getBufferFile(image.slice(1));
+            }
+            if (
+              (!fileType && !(await isExists(image.slice(1)))) ||
+              !VALID_IMAGE_TYPES.find(
+                (validType) => validType === fileType.mime
+              )
+            ) {
+              isValidImage = false;
+            }
+            return Buffer.from(image, "base64");
+          })
+        );
+        if (!isValidImage) {
+          return resolve({
+            message: MESSAGES.INVALID_IMAGE,
+            statusCode: 400,
+          });
+        }
+        product.images.map(async (item) => {
+          await deleteFile(item.slice(1));
+        });
+        imagePaths = await Promise.all(
+          bufferImages.map(async (image, index) => {
+            mediumBuffer = await toWebp(image, "medium");
+            const brand = await this.brandModel.find(product.brand_id);
+            const keyword = payload.keywords.toString().split(",").join("_");
+            const brandName = brand?.name.toLowerCase().split(" ").join("-");
+            let fileName = `${brandName}_${keyword}_${moment.now()}${index}`;
+            await upload(
+              mediumBuffer,
+              `product/${id}/${fileName}_medium.webp`,
+              "image/webp"
+            );
+            return `/product/${id}/${fileName}_medium.webp`;
+          })
+        );
+      }
       const updatedProduct = await this.productModel.update(id, {
         ...payload,
         general_attribute_groups: saveGeneralAttributeGroups,
         feature_attribute_groups: saveFeatureAttributeGroups,
         specification_attribute_groups: saveSpecificationAttributeGroups,
+        images: imagePaths,
       });
       if (!updatedProduct) {
         return resolve({
@@ -126,7 +223,6 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-
       return resolve(this.get(id));
     });
   };
@@ -171,6 +267,7 @@ export default class ProductService {
           created_by: product.created_by,
           favorites: product.favorites?.length || 0,
           images: product.images,
+          keywords: product.keywords,
         },
         statusCode: 200,
       });

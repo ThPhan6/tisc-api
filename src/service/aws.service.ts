@@ -4,8 +4,9 @@ import {
   PutObjectCommand,
   ListObjectsCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
-
+var fs = require("fs");
 const bucket = process.env.SPACES_BUCKET || "";
 export const s3Client = new S3({
   endpoint: process.env.SPACES_ENDPOINT || "",
@@ -89,4 +90,22 @@ export const deleteFile = async (file_name: string) => {
   } catch (err) {
     console.log("Error", err);
   }
+};
+
+export const getBufferFile = async (file_name: string) => {
+  const streamToString = (stream: any) =>
+    new Promise((resolve, reject) => {
+      const chunks: any = [];
+      stream.on("data", (chunk: any) => chunks.push(chunk));
+      stream.on("error", reject);
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+    });
+
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: file_name,
+  });
+
+  const { Body } = await s3Client.send(command);
+  return await streamToString(Body);
 };

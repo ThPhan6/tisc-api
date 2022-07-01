@@ -79,6 +79,24 @@ export default {
             "Specification attribute groups is required"
           )
         ),
+      images: Joi.array()
+        .min(3)
+        .max(9)
+        .items(Joi.string())
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Images is required at least 3 valid data"
+          )
+        ),
+      keywords: Joi.array()
+        .items(Joi.string())
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Keywords is required at least 1 valid data"
+          )
+        ),
     },
   },
   update: {
@@ -126,6 +144,15 @@ export default {
           }),
         })
       ),
+      images: Joi.array().min(3).max(9).items(Joi.string()),
+      keywords: Joi.array()
+        .items(Joi.string())
+        .min(1)
+        .error(
+          commonFailValidatedMessageFunction(
+            "Keywords is required at least 1 valid data"
+          )
+        ),
     },
   },
   getList: {

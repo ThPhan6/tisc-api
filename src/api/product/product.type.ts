@@ -20,7 +20,8 @@ export interface IProduct {
   feature_attribute_groups: any;
   specification_attribute_groups: any;
   favorites: number;
-  images: any;
+  images: string[];
+  keywords: string[];
   created_at: string;
   created_by: any;
 }
@@ -54,6 +55,8 @@ export interface IProductRequest {
       }[];
     }[];
   }[];
+  images: string[];
+  keywords: string[];
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -88,6 +91,8 @@ export interface IUpdateProductRequest {
       }[];
     }[];
   }[];
+  images: string[];
+  keywords: string[];
 }
 export interface IProductResponse {
   data: IProduct;

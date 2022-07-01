@@ -36,7 +36,8 @@ export interface IProductAttributes {
     }[];
   }[];
   favorites: string[];
-  images: string[] | null;
+  images: string[];
+  keywords: string[];
   created_at: string;
   created_by: string;
   is_deleted: boolean;
@@ -54,7 +55,8 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   feature_attribute_groups: null,
   specification_attribute_groups: null,
   favorites: [],
-  images: null,
+  images: [],
+  keywords: [],
   created_at: null,
   created_by: null,
   is_deleted: false,
