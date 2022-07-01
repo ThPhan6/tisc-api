@@ -147,7 +147,7 @@ export default {
       images: Joi.array().min(3).max(9).items(Joi.string()),
       keywords: Joi.array()
         .items(Joi.string())
-        .required()
+        .min(1)
         .error(
           commonFailValidatedMessageFunction(
             "Images is required at least 1 valid data"

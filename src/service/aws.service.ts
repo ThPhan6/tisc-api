@@ -107,6 +107,5 @@ export const getBufferFile = async (file_name: string) => {
   });
 
   const { Body } = await s3Client.send(command);
-  const dataBuffer = await streamToString(Body);
-  return dataBuffer;
+  return await streamToString(Body);
 };
