@@ -2,7 +2,7 @@ import Model from "./index";
 
 export interface IPermissionAttributes {
   id: string;
-  routes: { id: string; check: boolean }[];
+  routes: { id: string; accessable: boolean }[];
   role_id: string;
   type: number;
   relation_id: string | null;

@@ -133,12 +133,13 @@ export default class AuthMiddleware {
             return foundRoute;
           });
 
-          if (permission && permission.accessable === false) {
-            throw Boom.unauthorized("Cannot access!");
+          if (permission && permission.accessable === true) {
+            return h.authenticated({
+              credentials: { user_id: decoded.user_id },
+            });
           }
-          return h.authenticated({
-            credentials: { user_id: decoded.user_id },
-          });
+
+          throw Boom.unauthorized("Cannot access!");
         },
       };
     });
