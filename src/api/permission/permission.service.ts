@@ -7,11 +7,11 @@ import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import {
   BRAND_PERMISSION_TITLE,
   DESIGN_PERMISSION_TITLE,
-  PERMISSION_TITLE,
 } from "../../constant/permission.constant";
 import { IPermissionsResponse } from "./permission.type";
 import { IMessageResponse } from "../../type/common.type";
 import { getAccessLevel } from "../../helper/common.helper";
+import { ROUTE_IDS } from "../../constant/api.constant";
 
 export default class PermissionService {
   private permissionModel: PermissionModel;
@@ -167,6 +167,12 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
           number: 1,
+          routes: [
+            {
+              id: ROUTE_IDS.GET_LIST_PROJECT_CARD,
+              accessable: true,
+            },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -177,6 +183,10 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.PRODUCT,
           accessable: true,
           number: 2,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -187,6 +197,10 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
           accessable: true,
           number: 3,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_INQUIRY, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_INQUIRY, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -197,6 +211,10 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
           accessable: true,
           number: 4,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -217,6 +235,10 @@ export default class PermissionService {
           accessable: true,
           number: 6,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.UPDATE_BRAND_PROFILE, accessable: true },
+            { id: ROUTE_IDS.UPDATE_BRAND_LOGO, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -228,6 +250,14 @@ export default class PermissionService {
           accessable: true,
           number: 7,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: true },
+            { id: ROUTE_IDS.EDIT_LOCATION, accessable: true },
+            { id: ROUTE_IDS.DELETE_LOCATION, accessable: true },
+            { id: ROUTE_IDS.CREATE_LOCATION, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -239,6 +269,16 @@ export default class PermissionService {
           accessable: true,
           number: 8,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: true },
+            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -250,6 +290,13 @@ export default class PermissionService {
           accessable: true,
           number: 9,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.CREATE_DISTRIBUTOR, accessable: true },
+            { id: ROUTE_IDS.UPDATE_DISTRIBUTOR, accessable: true },
+            { id: ROUTE_IDS.DELETE_DISTRIBUTOR, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_DISTRIBUTOR, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_DISTRIBUTOR, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -261,6 +308,11 @@ export default class PermissionService {
           accessable: true,
           number: 10,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.UPDATE_MARKET_AVAILABILITY, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_MARKET_AVAILABILITY, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_MARKET_AVAILABILITY, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -272,6 +324,7 @@ export default class PermissionService {
           accessable: true,
           number: 11,
           parent_number: 5,
+          routes: [{ id: ROUTE_IDS.GET_ONE_SUBSCRIPTION, accessable: true }],
         },
         //brand team
         {
@@ -283,6 +336,12 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
           number: 1,
+          routes: [
+            {
+              id: ROUTE_IDS.GET_LIST_PROJECT_CARD,
+              accessable: true,
+            },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -293,6 +352,10 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.PRODUCT,
           accessable: true,
           number: 2,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -303,6 +366,10 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
           accessable: true,
           number: 3,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_INQUIRY, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_INQUIRY, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -313,6 +380,10 @@ export default class PermissionService {
           name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
           accessable: true,
           number: 4,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -333,6 +404,10 @@ export default class PermissionService {
           accessable: false,
           number: 6,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.UPDATE_BRAND_PROFILE, accessable: false },
+            { id: ROUTE_IDS.UPDATE_BRAND_LOGO, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -344,6 +419,14 @@ export default class PermissionService {
           accessable: false,
           number: 7,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: false },
+            { id: ROUTE_IDS.EDIT_LOCATION, accessable: false },
+            { id: ROUTE_IDS.DELETE_LOCATION, accessable: false },
+            { id: ROUTE_IDS.CREATE_LOCATION, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -355,6 +438,16 @@ export default class PermissionService {
           accessable: false,
           number: 8,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: false },
+            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -366,6 +459,13 @@ export default class PermissionService {
           accessable: false,
           number: 9,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.CREATE_DISTRIBUTOR, accessable: false },
+            { id: ROUTE_IDS.UPDATE_DISTRIBUTOR, accessable: false },
+            { id: ROUTE_IDS.DELETE_DISTRIBUTOR, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_DISTRIBUTOR, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_DISTRIBUTOR, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -377,6 +477,11 @@ export default class PermissionService {
           accessable: false,
           number: 10,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.UPDATE_MARKET_AVAILABILITY, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_MARKET_AVAILABILITY, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_MARKET_AVAILABILITY, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -388,6 +493,7 @@ export default class PermissionService {
           accessable: false,
           number: 11,
           parent_number: 5,
+          routes: [{ id: ROUTE_IDS.GET_ONE_SUBSCRIPTION, accessable: false }],
         },
       ];
       await Promise.all(
@@ -416,6 +522,7 @@ export default class PermissionService {
           name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
           number: 1,
+          routes: [{ id: ROUTE_IDS.GET_LIST_PROJECT_CARD, accessable: true }],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -426,6 +533,10 @@ export default class PermissionService {
           name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
           accessable: true,
           number: 2,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -436,6 +547,10 @@ export default class PermissionService {
           name: DESIGN_PERMISSION_TITLE.PRODUCT,
           accessable: true,
           number: 3,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -457,6 +572,13 @@ export default class PermissionService {
           accessable: true,
           number: 5,
           parent_number: 4,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: true },
+            { id: ROUTE_IDS.CREATE_PROJECT, accessable: true },
+            { id: ROUTE_IDS.UPDATE_PROJECT, accessable: true },
+            { id: ROUTE_IDS.DELETE_PROJECT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -468,6 +590,7 @@ export default class PermissionService {
           accessable: true,
           number: 6,
           parent_number: 5,
+          routes: [{ id: ROUTE_IDS.CREATE_PROJECT, accessable: true }],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -479,6 +602,13 @@ export default class PermissionService {
           accessable: true,
           number: 7,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.CREATE_PROJECT_SPACE, accessable: true },
+            { id: ROUTE_IDS.UPDATE_PROJECT_SPACE, accessable: true },
+            { id: ROUTE_IDS.DELETE_PROJECT_SPACE, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_PROJECT_SPACE, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PROJECT_SPACE, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -522,6 +652,7 @@ export default class PermissionService {
           accessable: true,
           number: 11,
           parent_number: 10,
+          routes: [{ id: ROUTE_IDS.UPDATE_DESIGN_PROFILE, accessable: true }],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -533,6 +664,14 @@ export default class PermissionService {
           accessable: true,
           number: 12,
           parent_number: 10,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: true },
+            { id: ROUTE_IDS.EDIT_LOCATION, accessable: true },
+            { id: ROUTE_IDS.DELETE_LOCATION, accessable: true },
+            { id: ROUTE_IDS.CREATE_LOCATION, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -544,6 +683,16 @@ export default class PermissionService {
           accessable: true,
           number: 13,
           parent_number: 10,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: true },
+            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -555,6 +704,13 @@ export default class PermissionService {
           accessable: true,
           number: 14,
           parent_number: 10,
+          routes: [
+            { id: ROUTE_IDS.CREATE_MATERIAL_CODE, accessable: true },
+            { id: ROUTE_IDS.UPDATE_MATERIAL_CODE, accessable: true },
+            { id: ROUTE_IDS.DELETE_MATERIAL_CODE, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_MATERIAL_CODE, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_MATERIAL_CODE, accessable: true },
+          ],
         },
         // design team
         {
@@ -566,6 +722,7 @@ export default class PermissionService {
           name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
           accessable: true,
           number: 1,
+          routes: [{ id: ROUTE_IDS.GET_LIST_PROJECT_CARD, accessable: true }],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -576,6 +733,10 @@ export default class PermissionService {
           name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
           accessable: true,
           number: 2,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -586,6 +747,10 @@ export default class PermissionService {
           name: DESIGN_PERMISSION_TITLE.PRODUCT,
           accessable: true,
           number: 3,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -604,9 +769,16 @@ export default class PermissionService {
           relation_id: design_id,
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
-          accessable: true,
+          accessable: false,
           number: 5,
           parent_number: 4,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: false },
+            { id: ROUTE_IDS.CREATE_PROJECT, accessable: false },
+            { id: ROUTE_IDS.UPDATE_PROJECT, accessable: false },
+            { id: ROUTE_IDS.DELETE_PROJECT, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -615,9 +787,10 @@ export default class PermissionService {
           relation_id: design_id,
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
-          accessable: true,
+          accessable: false,
           number: 6,
           parent_number: 5,
+          routes: [{ id: ROUTE_IDS.CREATE_PROJECT, accessable: false }],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -626,9 +799,16 @@ export default class PermissionService {
           relation_id: design_id,
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
-          accessable: true,
+          accessable: false,
           number: 7,
           parent_number: 5,
+          routes: [
+            { id: ROUTE_IDS.CREATE_PROJECT_SPACE, accessable: false },
+            { id: ROUTE_IDS.UPDATE_PROJECT_SPACE, accessable: false },
+            { id: ROUTE_IDS.DELETE_PROJECT_SPACE, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_PROJECT_SPACE, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_PROJECT_SPACE, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -637,7 +817,7 @@ export default class PermissionService {
           relation_id: design_id,
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
-          accessable: true,
+          accessable: false,
           number: 8,
           parent_number: 5,
         },
@@ -648,7 +828,7 @@ export default class PermissionService {
           relation_id: design_id,
           logo: null,
           name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
-          accessable: true,
+          accessable: false,
           number: 9,
           parent_number: 5,
         },
@@ -659,7 +839,7 @@ export default class PermissionService {
           relation_id: design_id,
           logo: "/logo/administration.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
-          accessable: true,
+          accessable: false,
           number: 10,
         },
         {
@@ -669,9 +849,10 @@ export default class PermissionService {
           relation_id: design_id,
           logo: "/logo/office.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
-          accessable: true,
+          accessable: false,
           number: 11,
           parent_number: 10,
+          routes: [{ id: ROUTE_IDS.UPDATE_DESIGN_PROFILE, accessable: false }],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -680,9 +861,17 @@ export default class PermissionService {
           relation_id: design_id,
           logo: "/logo/location.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
-          accessable: true,
+          accessable: false,
           number: 12,
           parent_number: 10,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: false },
+            { id: ROUTE_IDS.EDIT_LOCATION, accessable: false },
+            { id: ROUTE_IDS.DELETE_LOCATION, accessable: false },
+            { id: ROUTE_IDS.CREATE_LOCATION, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -691,9 +880,19 @@ export default class PermissionService {
           relation_id: design_id,
           logo: "/logo/team_profile.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
-          accessable: true,
+          accessable: false,
           number: 13,
           parent_number: 10,
+          routes: [
+            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: false },
+            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: false },
+          ],
         },
         {
           ...PERMISSION_NULL_ATTRIBUTES,
@@ -702,9 +901,16 @@ export default class PermissionService {
           relation_id: design_id,
           logo: "/logo/material.svg",
           name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
-          accessable: true,
+          accessable: false,
           number: 14,
           parent_number: 10,
+          routes: [
+            { id: ROUTE_IDS.CREATE_MATERIAL_CODE, accessable: false },
+            { id: ROUTE_IDS.UPDATE_MATERIAL_CODE, accessable: false },
+            { id: ROUTE_IDS.DELETE_MATERIAL_CODE, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_MATERIAL_CODE, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_MATERIAL_CODE, accessable: false },
+          ],
         },
       ];
       await Promise.all(
