@@ -31,6 +31,7 @@ export default class CollectionService {
       const createdCollection = await this.collectionModel.create({
         ...COLLECTION_NULL_ATTRIBUTES,
         name: payload.name,
+        brand_id: payload.brand_id,
       });
       if (!createdCollection) {
         return resolve({
@@ -46,15 +47,17 @@ export default class CollectionService {
     });
   };
   public getList = (
+    brand_id: string,
     limit: number,
     offset: number
   ): Promise<IMessageResponse | ICollectionsResponse> => {
     return new Promise(async (resolve) => {
       const collections: ICollectionAttributes[] =
-        await this.collectionModel.list(limit, offset, {});
+        await this.collectionModel.list(limit, offset, { brand_id });
       const pagination: IPagination = await this.collectionModel.getPagination(
         limit,
-        offset
+        offset,
+        { brand_id }
       );
 
       if (!collections) {

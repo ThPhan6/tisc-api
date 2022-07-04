@@ -5,7 +5,6 @@ import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import CollectionResponse from "./collection.response";
-import commonValidate from "../../validate/common.validate";
 import validate from "./collection.validate";
 
 export default class CollectionRoute implements IRoute {
@@ -19,7 +18,7 @@ export default class CollectionRoute implements IRoute {
           path: ROUTES.GET_LIST_COLLECTION,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getListJustWithLimitOffset,
+            validate: validate.getList,
             description: "Method that get list collection",
             tags: ["api", "Collection"],
             auth: AUTH_NAMES.GENERAL,

@@ -11,6 +11,7 @@ export default {
       collections: Joi.array().items(
         Joi.array().items({
           id: Joi.string(),
+          brand_id: Joi.any(),
           name: Joi.string(),
           created_at: Joi.string(),
         })
