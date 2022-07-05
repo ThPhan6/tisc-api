@@ -4,13 +4,12 @@ export interface IDistributorAttributes {
   brand_id: string;
   name: string;
   country_name: string;
+  country_id: string;
+  state_id: string;
+  state_name: string;
   city_name: string;
-  location: {
-    country_id: string;
-    state_id: string;
-    city_id: string;
-    address: string;
-  };
+  city_id: string;
+  address: string;
   postal_code: string;
   first_name: string;
   last_name: string;
@@ -38,12 +37,12 @@ export const DISTRIBUTOR_NULL_ATTRIBUTES = {
   postal_code: null,
   first_name: null,
   last_name: null,
-  gender: null,
+  gender: false,
   email: null,
   phone: null,
   mobile: null,
-  authorized_country_ids: null,
-  coverage_beyond: null,
+  authorized_country_ids: [],
+  coverage_beyond: false,
   created_at: null,
   is_deleted: false,
 };

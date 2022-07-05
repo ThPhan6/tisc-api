@@ -86,23 +86,22 @@ export default class DistributorService {
       }
 
       const location = await this.getLocation(
-        payload.location.country_id,
-        payload.location.state_id,
-        payload.location.city_id,
-        payload.location.address
+        payload.country_id,
+        payload.state_id,
+        payload.city_id,
+        payload.address
       );
       const createdDistributor = await this.distributorModel.create({
         ...DISTRIBUTOR_NULL_ATTRIBUTES,
         brand_id: payload.brand_id,
         name: payload.name,
         country_name: location.country.name,
+        country_id: payload.country_id,
+        state_id: payload.state_id,
+        state_name: location.state.name,
         city_name: location.city.name,
-        location: {
-          country_id: payload.location.country_id,
-          state_id: payload.location.state_id,
-          city_id: payload.location.city_id,
-          address: payload.location.address,
-        },
+        city_id: payload.city_id,
+        address: payload.address,
         postal_code: payload.postal_code,
         first_name: payload.first_name,
         last_name: payload.last_name,

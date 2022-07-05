@@ -25,7 +25,7 @@ export default class DistributorRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.distributor,
+                200: response.getOne,
               },
             },
           },
@@ -76,7 +76,7 @@ export default class DistributorRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.distributor,
+                200: response.getOne,
               },
             },
           },
