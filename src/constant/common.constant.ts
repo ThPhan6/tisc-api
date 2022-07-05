@@ -112,6 +112,8 @@ export const MESSAGES = {
   QUOTATION_NOT_FOUND: "Inspirational quotation not found",
   AUTO_EMAIL_NOT_FOUND: "Email autoresponders not found",
   BRAND_NOT_FOUND: "Brand not found",
+  DISTRIBUTOR_NOT_FOUND: "Distributor not found",
+  DISTRIBUTOR_EXISTED: "Distributor existed",
 };
 
 export const BASIS_TYPES = {

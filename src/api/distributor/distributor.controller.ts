@@ -1,0 +1,57 @@
+import { Request, ResponseToolkit } from "@hapi/hapi";
+import DistributorService from "./distributor.service";
+import { IDistributorRequest } from "./distributor.type";
+
+export default class DistributorController {
+  private service: DistributorService;
+  constructor() {
+    this.service = new DistributorService();
+  }
+  public create = async (
+    req: Request & { payload: IDistributorRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.service.create(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getOne = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const { brand_id } = req.query;
+    const response = await this.service.getOne(id, brand_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getList = async (req: Request, toolkit: ResponseToolkit) => {
+    const { limit, offset, brand_id, sort_name, sort_order, filter } =
+      req.query;
+    const response = await this.service.getList(
+      brand_id,
+      limit,
+      offset,
+      filter,
+      sort_name,
+      sort_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const { brand_id } = req.query;
+    const response = await this.service.delete(id, brand_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public update = async (
+    req: Request & { payload: IDistributorRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const { brand_id } = req.query;
+    const payload = req.payload;
+    const response = await this.service.update(id, brand_id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+}
