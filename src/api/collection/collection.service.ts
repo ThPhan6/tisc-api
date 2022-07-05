@@ -50,7 +50,7 @@ export default class CollectionService {
     brand_id: string,
     limit: number,
     offset: number
-  ): Promise<IMessageResponse | ICollectionsResponse> => {
+  ): Promise<ICollectionsResponse> => {
     return new Promise(async (resolve) => {
       const collections: ICollectionAttributes[] =
         await this.collectionModel.list(limit, offset, { brand_id });

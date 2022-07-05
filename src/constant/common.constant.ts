@@ -112,6 +112,8 @@ export const MESSAGES = {
   QUOTATION_NOT_FOUND: "Inspirational quotation not found",
   AUTO_EMAIL_NOT_FOUND: "Email autoresponders not found",
   BRAND_NOT_FOUND: "Brand not found",
+  MARKET_AVAILABILITY_EXISTED: "Market availability existed",
+  MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
 };
 
 export const BASIS_TYPES = {
@@ -198,3 +200,12 @@ export const TARGETED_FOR_OPTIONS = [
     value: TARGETED_FOR_TYPES.TISC_TEAM,
   },
 ];
+
+export const REGION_KEY = {
+  AFRICA: "africa",
+  ASIA: "asia",
+  EUROPE: "europe",
+  NORTH_AMERICA: "north america",
+  OCEANIA: "oceania",
+  SOUTH_AMERICA: "south america",
+};

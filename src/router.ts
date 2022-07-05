@@ -16,6 +16,7 @@ import ProductTipRoute from "./api/product-tip/product_tip.route";
 import ProductDownloadRoute from "./api/product_download/product_download.route";
 import QuotationRoute from "./api/quotation/quotation.route";
 import AutoEmailRoute from "./api/auto_email/auto_email.route";
+import MarketAvailabilityRoute from "./api/market_availability/market_availability.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -36,5 +37,6 @@ export default class Router {
     await new ProductDownloadRoute().register(server);
     await new QuotationRoute().register(server);
     await new AutoEmailRoute().register(server);
+    await new MarketAvailabilityRoute().register(server);
   }
 }
