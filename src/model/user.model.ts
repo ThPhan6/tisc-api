@@ -66,8 +66,8 @@ export default class UserModel extends Model<IUserAttributes> {
 
   public getFirstBrandAdmin = async (brand_id: string) => {
     try {
-      const result: any = await this.builder
-        .where("type", SYSTEM_TYPE.BRAND)
+      const result: any = await this.getBuilder()
+        .builder.where("type", SYSTEM_TYPE.BRAND)
         .where("relation_id", brand_id)
         .orderBy("created_at")
         .first();
@@ -78,8 +78,8 @@ export default class UserModel extends Model<IUserAttributes> {
   };
   public getTiscUsers = async () => {
     try {
-      const result: any = await this.builder
-        .where("type", SYSTEM_TYPE.TISC)
+      const result: any = await this.getBuilder()
+        .builder.where("type", SYSTEM_TYPE.TISC)
         .whereNot("is_deleted", true)
         .orderBy("created_at")
         .select();

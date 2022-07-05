@@ -16,8 +16,8 @@ export default class CategoryModel extends Model<ICategoryAttributes> {
 
   public getDuplicatedCategory = async (id: string, name: string) => {
     try {
-      const result: any = await this.builder
-        .whereNot("id", id)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
         .where("name", name.toLowerCase())
         .first();

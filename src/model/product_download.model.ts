@@ -26,8 +26,8 @@ export default class ProductDownloadModel extends Model<IProductDownload> {
     fileName: string
   ) => {
     try {
-      const result: any = await this.builder
-        .whereNot("id", id)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
         .where("file_name", fileName.toLowerCase())
         .first();
