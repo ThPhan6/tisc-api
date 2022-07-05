@@ -7,7 +7,6 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import validate from "./distributor.validate";
 import response from "./distributor.response";
 import DistributorController from "./distributor.controller";
-import commonValidate from "../../validate/common.validate";
 export default class DistributorRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -22,7 +21,7 @@ export default class DistributorRoute implements IRoute {
             validate: validate.create,
             description: "Method that create distributor",
             tags: ["api", "Distributor"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -39,7 +38,7 @@ export default class DistributorRoute implements IRoute {
             validate: validate.getList,
             description: "Method that get list distributor",
             tags: ["api", "Distributor"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -56,7 +55,7 @@ export default class DistributorRoute implements IRoute {
             validate: validate.getOne,
             description: "Method that get one distributor",
             tags: ["api", "Distributor"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -73,7 +72,7 @@ export default class DistributorRoute implements IRoute {
             validate: validate.update,
             description: "Method that update distributor",
             tags: ["api", "Distributor"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -90,7 +89,7 @@ export default class DistributorRoute implements IRoute {
             validate: validate.getOne,
             description: "Method that delete distributor",
             tags: ["api", "Distributor"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
