@@ -99,10 +99,7 @@ export interface IProductResponse {
   statusCode: number;
 }
 export interface IProductsResponse {
-  data: {
-    products: any[];
-    pagination: IPagination;
-  };
+  data: any[];
   statusCode: number;
 }
 

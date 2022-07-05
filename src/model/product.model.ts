@@ -4,7 +4,7 @@ export interface IProductAttributes {
   id: string;
   brand_id: string;
   collection_id: string | null;
-  category_ids: string[] | null;
+  category_ids: string[];
   name: string;
   code: string;
   description: string | null;
@@ -47,7 +47,7 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   id: null,
   brand_id: null,
   collection_id: null,
-  category_ids: null,
+  category_ids: [],
   name: null,
   code: null,
   description: null,
@@ -138,6 +138,31 @@ export default class ProductModel extends Model<IProductAttributes> {
             .paginate(limit, offset)
             .select();
         }
+      }
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
+  public getAllByCategoryId = async (
+    category_id: string,
+    brand_id?: string
+  ) => {
+    try {
+      let result: IProductAttributes[] = [];
+      if (brand_id) {
+        result = await this.builder
+          .whereNot("is_deleted", true)
+          .where("brand_id", brand_id)
+          .whereInRevert("category_ids", category_id)
+          .orderBy("created_at", "DESC")
+          .select();
+      } else {
+        result = await this.builder
+          .whereNot("is_deleted", true)
+          .whereInRevert("category_ids", category_id)
+          .orderBy("created_at", "DESC")
+          .select();
       }
       return result;
     } catch (error) {

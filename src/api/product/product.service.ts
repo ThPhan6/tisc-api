@@ -9,6 +9,7 @@ import {
 import { toWebp } from "../../helper/image.helper";
 import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
+import CategoryModel from "../../model/category.model";
 import ProductModel, {
   IProductAttributes,
   PRODUCT_NULL_ATTRIBUTES,
@@ -30,11 +31,13 @@ export default class ProductService {
   private brandModel: BrandModel;
   private collectionModel: CollectionModel;
   private categoryService: CategoryService;
+  private categoryModel: CategoryModel;
   constructor() {
     this.productModel = new ProductModel();
     this.brandModel = new BrandModel();
     this.collectionModel = new CollectionModel();
     this.categoryService = new CategoryService();
+    this.categoryModel = new CategoryModel();
   }
   public create = (
     user_id: string,
@@ -326,56 +329,105 @@ export default class ProductService {
     });
 
   public getList = (
-    limit: number,
-    offset: number,
-    filter?: any,
-    sort?: any,
-    brand_id?: string
+    brand_id: string,
+    category_id: any,
+    collection_id: any
   ): Promise<IMessageResponse | IProductsResponse> => {
     return new Promise(async (resolve) => {
-      let products: IProductAttributes[] = [];
-      if (filter && filter.category_id) {
-        products = await this.productModel.getListByCategoryId(
-          filter.category_id,
-          limit,
-          offset,
-          sort,
-          brand_id
-        );
-      } else {
-        products = await this.productModel.list(
-          limit,
-          offset,
-          brand_id ? { ...filter, brand_id } : filter,
-          sort
-        );
+      let products: any[] = [];
+      let returnData: any[] = [];
+      if (!category_id && !collection_id) {
+        collection_id = "all";
       }
-      const pagination: IPagination = await this.productModel.getPagination(
-        limit,
-        offset
-      );
-      if (!products) {
-        return resolve({
-          data: {
-            products: [],
-            pagination,
-          },
-          statusCode: 200,
+      if (category_id) {
+        if (category_id === "all") {
+          products = await this.productModel.getAllBy({ brand_id });
+          const rawCategoryIds = products.reduce(
+            (pre: string[], cur: IProductAttributes) => {
+              return pre.concat(cur.category_ids || []);
+            },
+            []
+          );
+          const categoryIds = getDistinctArray(rawCategoryIds);
+          const categories = await this.categoryService.getCategoryValues(
+            categoryIds
+          );
+
+          returnData = categories.map((category) => {
+            const categoryProducts = products.filter((item) =>
+              item.category_ids.includes(category.id)
+            );
+            return {
+              ...category,
+              count: categoryProducts.length,
+              products: categoryProducts,
+            };
+          });
+        } else {
+          products = await this.productModel.getAllByCategoryId(
+            category_id,
+            brand_id
+          );
+          const category = await this.categoryModel.find(category_id);
+          returnData = [
+            {
+              id: category?.id,
+              name: category?.name,
+              count: products.length,
+              products,
+            },
+          ];
+        }
+      }
+      if (collection_id) {
+        if (collection_id === "all") {
+          products = await this.productModel.getAllBy({
+            brand_id,
+          });
+          const rawCollectionIds = products.map((item) => item.collection_id);
+          const collectionIds = getDistinctArray(rawCollectionIds);
+          const collections = await this.collectionModel.getMany(
+            collectionIds,
+            ["id", "name"]
+          );
+          returnData = collections.map((collection) => {
+            const collectionProducts = products.filter(
+              (item) => item.collection_id === collection.id
+            );
+            return {
+              ...collection,
+              count: collectionProducts.length,
+              products: collectionProducts,
+            };
+          });
+        } else {
+          products = await this.productModel.getAllBy({
+            brand_id,
+            collection_id,
+          });
+          const collection = await this.collectionModel.find(collection_id);
+          returnData = [
+            {
+              id: collection?.id,
+              name: collection?.name,
+              count: products.length,
+              products,
+            },
+          ];
+        }
+      }
+      returnData = returnData.map((item) => {
+        const returnProducts = item.products?.map((product: any) => {
+          const { is_deleted, ...rest } = product;
+          return { ...rest, favorites: product.favorites.length };
         });
-      }
-      const result = products.map((product: IProductAttributes) => {
-        const { is_deleted, ...item } = product;
         return {
           ...item,
-          favorites: item.favorites.length,
+          products: returnProducts,
         };
       });
-
       return resolve({
-        data: {
-          products: result,
-          pagination,
-        },
+        data: returnData,
         statusCode: 200,
       });
     });

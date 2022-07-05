@@ -8,13 +8,11 @@ export default class ProductController {
     this.service = new ProductService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, brand_id } = req.query;
+    const { category_id, collection_id, brand_id } = req.query;
     const response = await this.service.getList(
-      limit,
-      offset,
-      filter,
-      sort,
-      brand_id
+      brand_id,
+      category_id,
+      collection_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
