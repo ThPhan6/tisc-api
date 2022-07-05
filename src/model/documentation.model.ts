@@ -48,7 +48,10 @@ export default class DocumentationModel extends Model<IDocumentationAttributes> 
           LIMIT ${offset},${limit} 
           RETURN merge(documentation, {author : user})
         `;
-      const result: any = await this.builder.raw(queryString, bindObj);
+      const result: any = await this.getBuilder().builder.raw(
+        queryString,
+        bindObj
+      );
       return result._result;
     } catch (error) {
       return false;

@@ -4,7 +4,7 @@ export interface IProductAttributes {
   id: string;
   brand_id: string;
   collection_id: string | null;
-  category_ids: string[] | null;
+  category_ids: string[];
   name: string;
   code: string;
   description: string | null;
@@ -47,7 +47,7 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   id: null,
   brand_id: null,
   collection_id: null,
-  category_ids: null,
+  category_ids: [],
   name: null,
   code: null,
   description: null,
@@ -68,8 +68,8 @@ export default class ProductModel extends Model<IProductAttributes> {
   }
   public getDuplicatedProduct = async (id: string, name: string) => {
     try {
-      const result: any = await this.builder
-        .whereNot("id", id)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
         .where("name", name.toLowerCase())
         .first();
@@ -84,8 +84,8 @@ export default class ProductModel extends Model<IProductAttributes> {
     productId: string
   ) => {
     try {
-      const result: any = await this.builder
-        .whereNot("id", productId)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", productId)
         .whereNot("is_deleted", true)
         .where("collection_id", collectionId)
         .orderBy("created_at", "ASC")
@@ -106,16 +106,16 @@ export default class ProductModel extends Model<IProductAttributes> {
       let result: IProductAttributes[] = [];
       if (brand_id) {
         if (sort) {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where("brand_id", brand_id)
             .whereInRevert("category_ids", category_id)
             .orderBy(sort[0], sort[1])
             .paginate(limit, offset)
             .select();
         } else {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where("brand_id", brand_id)
             .whereInRevert("category_ids", category_id)
             .orderBy("created_at", "ASC")
@@ -124,20 +124,45 @@ export default class ProductModel extends Model<IProductAttributes> {
         }
       } else {
         if (sort) {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .whereInRevert("category_ids", category_id)
             .orderBy(sort[0], sort[1])
             .paginate(limit, offset)
             .select();
         } else {
-          result = await this.builder
-            .whereNot("is_deleted", true)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .whereInRevert("category_ids", category_id)
             .orderBy("created_at", "ASC")
             .paginate(limit, offset)
             .select();
         }
+      }
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
+  public getAllByCategoryId = async (
+    category_id: string,
+    brand_id?: string
+  ) => {
+    try {
+      let result: IProductAttributes[] = [];
+      if (brand_id) {
+        result = await this.getBuilder()
+          .builder.whereNot("is_deleted", true)
+          .where("brand_id", brand_id)
+          .whereInRevert("category_ids", category_id)
+          .orderBy("created_at", "DESC")
+          .select();
+      } else {
+        result = await this.getBuilder()
+          .builder.whereNot("is_deleted", true)
+          .whereInRevert("category_ids", category_id)
+          .orderBy("created_at", "DESC")
+          .select();
       }
       return result;
     } catch (error) {

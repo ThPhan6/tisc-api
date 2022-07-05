@@ -40,7 +40,7 @@ export default class BrandModel extends Model<IBrandAttributes> {
   }
   public getAllAndSortByName = async () => {
     try {
-      const result: any = await this.builder
+      const result: any = await this.getBuilder().builder
         .whereNot("is_deleted", true)
         .orderBy("name", "ASC")
         .select();

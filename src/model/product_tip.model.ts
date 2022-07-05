@@ -23,8 +23,8 @@ export default class ProductTipModel extends Model<IProductTip> {
   }
   public getDuplicatedProductTip = async (id: string, title: string) => {
     try {
-      const result: any = await this.builder
-        .whereNot("id", id)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
         .where("title", title.toLowerCase())
         .first();
