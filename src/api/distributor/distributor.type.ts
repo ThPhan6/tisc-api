@@ -21,18 +21,12 @@ export interface IDistributorResponse {
   data: {
     brand_id: string;
     name: string;
-    country: {
-      id: string;
-      name: string;
-    };
-    state: {
-      id: string;
-      name: string;
-    };
-    city: {
-      id: string;
-      name: string;
-    };
+    country_name: string;
+    country_id: string;
+    state_name: string;
+    state_id: string;
+    city_name: string;
+    city_id: string;
     address: string;
     postal_code: string;
     first_name: string;
@@ -41,7 +35,7 @@ export interface IDistributorResponse {
     email: string;
     phone: string;
     mobile: string;
-    authorized_countries: {
+    authorized_country_ids: {
       id: string;
       name: string;
     }[];
@@ -54,21 +48,13 @@ export interface IGetListDistributorResponse {
   data: {
     brand_id: string;
     name: string;
-    location: {
-      country: {
-        id: string;
-        name: string;
-      };
-      state: {
-        id: string;
-        name: string;
-      };
-      city: {
-        id: string;
-        name: string;
-      };
-      address: string;
-    };
+    country_name: string;
+    country_id: string;
+    state_name: string;
+    state_id: string;
+    city_name: string;
+    city_id: string;
+    address: string;
     postal_code: string;
     first_name: string;
     last_name: string;
@@ -76,7 +62,7 @@ export interface IGetListDistributorResponse {
     email: string;
     phone: string;
     mobile: string;
-    authorized_countries: {
+    authorized_country_ids: {
       id: string;
       name: string;
     }[];

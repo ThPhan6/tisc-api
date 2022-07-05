@@ -22,20 +22,18 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Distributor Name is required")
         ),
-      location: {
-        country_id: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Country is required")),
-        state_id: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("State is required")),
-        city_id: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("City is required")),
-        address: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Address is required")),
-      },
+      country_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Country is required")),
+      state_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("State is required")),
+      city_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("City is required")),
+      address: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Address is required")),
       postal_code: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Postal code is required")),
@@ -50,6 +48,7 @@ export default {
         .valid(true, false)
         .error(commonFailValidatedMessageFunction("Gender is required")),
       email: Joi.string()
+        .email()
         .required()
         .error(commonFailValidatedMessageFunction("Work email is required")),
       phone: Joi.string()
@@ -62,7 +61,9 @@ export default {
         .items(Joi.string())
         .required()
         .error(
-          commonFailValidatedMessageFunction("authorized country is required")
+          commonFailValidatedMessageFunction(
+            "authorized country ids is required"
+          )
         ),
       coverage_beyond: Joi.boolean()
         .required()
@@ -72,18 +73,6 @@ export default {
         ),
     },
   },
-  getOne: {
-    params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Id can not be empty")),
-    },
-    query: Joi.object({
-      brand_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
-    }),
-  },
 
   update: {
     params: {
@@ -91,11 +80,7 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Id can not be empty")),
     },
-    query: Joi.object({
-      brand_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
-    }),
+
     payload: {
       brand_id: Joi.string(),
       name: Joi.string()
@@ -103,20 +88,18 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Distributor Name is required")
         ),
-      location: {
-        country_id: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Country is required")),
-        state_id: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("State is required")),
-        city_id: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("City is required")),
-        address: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Address is required")),
-      },
+      country_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Country is required")),
+      state_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("State is required")),
+      city_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("City is required")),
+      address: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Address is required")),
       postal_code: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Postal code is required")),
@@ -143,7 +126,9 @@ export default {
         .items(Joi.string())
         .required()
         .error(
-          commonFailValidatedMessageFunction("authorized country is required")
+          commonFailValidatedMessageFunction(
+            "authorized country ids is required"
+          )
         ),
       coverage_beyond: Joi.boolean()
         .required()
@@ -176,8 +161,8 @@ export default {
           commonFailValidatedMessageFunction("Page Size must be an integer")
         ),
 
-      sort_name: Joi.string(),
-      sort_order: Joi.string().valid("ASC", "DESC"),
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
           return customFilter(value, helpers);
@@ -192,8 +177,8 @@ export default {
             ? 0
             : (value.page - 1) * value.pageSize,
         filter: value.filter,
-        sort_name: value.sort_name ? value.sort_name : "created_at",
-        sort_order: value.sort_order ? value.sort_order : "ASC",
+        sort: value.sort ? value.sort : "created_at",
+        order: value.order ? value.order : "ASC",
         type: value.type,
       };
     }),

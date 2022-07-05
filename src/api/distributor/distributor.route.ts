@@ -7,11 +7,11 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import validate from "./distributor.validate";
 import response from "./distributor.response";
 import DistributorController from "./distributor.controller";
+import commonValidate from "../../validate/common.validate";
 export default class DistributorRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new DistributorController();
-
       server.route([
         {
           method: "POST",
@@ -52,7 +52,7 @@ export default class DistributorRoute implements IRoute {
           path: ROUTES.GET_ONE_DISTRIBUTOR,
           options: {
             handler: controller.getOne,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that get one distributor",
             tags: ["api", "Distributor"],
             auth: AUTH_NAMES.PERMISSION,
@@ -86,7 +86,7 @@ export default class DistributorRoute implements IRoute {
           path: ROUTES.DELETE_DISTRIBUTOR,
           options: {
             handler: controller.delete,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that delete distributor",
             tags: ["api", "Distributor"],
             auth: AUTH_NAMES.PERMISSION,

@@ -8,7 +8,6 @@ import {
   IDistributorRequest,
   IDistributorResponse,
   IGetListDistributorResponse,
-  IGetOneDistributorResponse,
 } from "./distributor.type";
 import CountryStateCityService from "../../service/country_state_city.service";
 export default class DistributorService {
@@ -31,45 +30,6 @@ export default class DistributorService {
     );
   };
 
-  private getLocation = async (
-    country_id: string,
-    state_id: string,
-    city_id: string,
-    address: string
-  ) => {
-    const country = await this.countryStateCityService.getCountryDetail(
-      country_id
-    );
-    const state = await this.countryStateCityService.getStateDetail(
-      country_id,
-      state_id
-    );
-
-    const cities = state_id
-      ? await this.countryStateCityService.getCitiesByStateAndCountry(
-          country_id,
-          state_id
-        )
-      : await this.countryStateCityService.getCitiesByCountry(country_id);
-    const city = cities
-      .filter((city) => city.id.toString() == city_id.toString())
-      .reduce(function (pre: any, cur: any) {
-        return cur;
-      }, {});
-    return {
-      country: {
-        id: country.iso2,
-        name: country.name,
-      },
-      state: {
-        id: state.iso2,
-        name: state.name,
-      },
-      city: city,
-      address,
-    };
-  };
-
   public create = (
     payload: IDistributorRequest
   ): Promise<IMessageResponse | IDistributorResponse> => {
@@ -85,21 +45,37 @@ export default class DistributorService {
         });
       }
 
-      const location = await this.getLocation(
-        payload.country_id,
-        payload.state_id,
-        payload.city_id,
-        payload.address
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
       );
+      const state = await this.countryStateCityService.getStateDetail(
+        payload.country_id,
+        payload.state_id
+      );
+
+      const cities = payload.state_id
+        ? await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
+          )
+        : await this.countryStateCityService.getCitiesByCountry(
+            payload.country_id
+          );
+      const city = cities
+        .filter((city) => city.id.toString() == payload.city_id.toString())
+        .reduce(function (pre: any, cur: any) {
+          return cur;
+        }, {});
+
       const createdDistributor = await this.distributorModel.create({
         ...DISTRIBUTOR_NULL_ATTRIBUTES,
         brand_id: payload.brand_id,
         name: payload.name,
-        country_name: location.country.name,
+        country_name: country.name,
         country_id: payload.country_id,
         state_id: payload.state_id,
-        state_name: location.state.name,
-        city_name: location.city.name,
+        state_name: state.name,
+        city_name: city.name,
         city_id: payload.city_id,
         address: payload.address,
         postal_code: payload.postal_code,
@@ -119,8 +95,13 @@ export default class DistributorService {
           statusCode: 400,
         });
       }
-      const { is_deleted, country_name, city_name, ...rest } =
-        createdDistributor;
+      const returnDistributor = {
+        ...createdDistributor,
+        authorized_country_ids: await this.getAuthorizedCountries(
+          payload.authorized_country_ids
+        ),
+      };
+      const { is_deleted, ...rest } = returnDistributor;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -129,49 +110,24 @@ export default class DistributorService {
   };
 
   public getOne = (
-    id: string,
-    brand_id: string
-  ): Promise<IMessageResponse | IGetOneDistributorResponse> => {
+    id: string
+  ): Promise<IMessageResponse | IDistributorResponse> => {
     return new Promise(async (resolve) => {
-      const distributor = await this.distributorModel.findBy({
-        id,
-        brand_id,
-      });
+      const distributor = await this.distributorModel.find(id);
       if (!distributor) {
         return resolve({
           message: MESSAGES.DISTRIBUTOR_NOT_FOUND,
           statusCode: 404,
         });
       }
-      const authorizedCountries = await Promise.all(
-        distributor.authorized_country_ids.map(async (id) => {
-          const country = await this.countryStateCityService.getCountryDetail(
-            id
-          );
-          return {
-            id: country.iso2,
-            name: country.name,
-          };
-        })
-      );
 
       const distributorData = {
         ...distributor,
-        location: await this.getLocation(
-          distributor.location.country_id,
-          distributor.location.state_id,
-          distributor.location.city_id,
-          distributor.location.address
+        authorized_country_ids: await this.getAuthorizedCountries(
+          distributor.authorized_country_ids
         ),
-        authorized_countries: authorizedCountries,
       };
-      const {
-        is_deleted,
-        authorized_country_ids,
-        country_name,
-        city_name,
-        ...rest
-      } = distributorData;
+      const { is_deleted, ...rest } = distributorData;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -181,14 +137,10 @@ export default class DistributorService {
 
   public update = (
     id: string,
-    brand_id: string,
     payload: IDistributorRequest
-  ): Promise<IMessageResponse | IDistributorResponse> => {
+  ): Promise<IMessageResponse | IDistributorResponse | any> => {
     return new Promise(async (resolve) => {
-      const foundDistributor = await this.distributorModel.findBy({
-        id,
-        brand_id,
-      });
+      const foundDistributor = await this.distributorModel.find(id);
 
       if (!foundDistributor) {
         return resolve({
@@ -207,8 +159,13 @@ export default class DistributorService {
           statusCode: 400,
         });
       }
-      const { is_deleted, country_name, city_name, ...rest } =
-        updatedDistributor;
+      const returnDistributor = {
+        ...updatedDistributor,
+        authorized_country_ids: await this.getAuthorizedCountries(
+          updatedDistributor.authorized_country_ids
+        ),
+      };
+      const { is_deleted, ...rest } = returnDistributor;
       return resolve({
         data: rest,
         statusCode: 200,
@@ -216,12 +173,9 @@ export default class DistributorService {
     });
   };
 
-  public delete = (id: string, brand_id: string): Promise<IMessageResponse> => {
+  public delete = (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const foundDistributor = await this.distributorModel.findBy({
-        id,
-        brand_id,
-      });
+      const foundDistributor = await this.distributorModel.findBy(id);
       if (!foundDistributor) {
         return resolve({
           message: MESSAGES.DISTRIBUTOR_NOT_FOUND,
@@ -250,9 +204,9 @@ export default class DistributorService {
     limit: number,
     offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
-  ): Promise<IMessageResponse | IGetListDistributorResponse | any> => {
+    sort: string,
+    order: "ASC" | "DESC"
+  ): Promise<IMessageResponse | IGetListDistributorResponse> => {
     return new Promise(async (resolve) => {
       const distributors = await this.distributorModel.list(
         limit,
@@ -261,27 +215,15 @@ export default class DistributorService {
           ...filter,
           brand_id,
         },
-        [sort_name, sort_order]
+        [sort, order]
       );
 
       const result = await Promise.all(
         distributors.map(async (distributor: IDistributorAttributes) => {
-          const {
-            is_deleted,
-            authorized_country_ids,
-            country_name,
-            city_name,
-            ...rest
-          } = distributor;
+          const { is_deleted, ...rest } = distributor;
           return {
             ...rest,
-            location: await this.getLocation(
-              distributor.location.country_id,
-              distributor.location.state_id,
-              distributor.location.city_id,
-              distributor.location.address
-            ),
-            authorized_countries: await this.getAuthorizedCountries(
+            authorized_country_ids: await this.getAuthorizedCountries(
               distributor.authorized_country_ids
             ),
           };

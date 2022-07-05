@@ -7,21 +7,13 @@ export default {
       id: Joi.string(),
       brand_id: Joi.string(),
       name: Joi.string(),
-      location: Joi.object({
-        country: Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-        }),
-        state: Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-        }),
-        city: Joi.object({
-          id: Joi.any(),
-          name: Joi.string(),
-        }),
-        address: Joi.string(),
-      }),
+      country_name: Joi.string(),
+      country_id: Joi.string(),
+      state_name: Joi.string(),
+      state_id: Joi.string(),
+      city_name: Joi.string(),
+      city_id: Joi.string(),
+      address: Joi.string(),
       postal_code: Joi.string(),
       first_name: Joi.string(),
       last_name: Joi.string(),
@@ -29,7 +21,7 @@ export default {
       email: Joi.string(),
       phone: Joi.string(),
       mobile: Joi.string(),
-      authorized_countries: Joi.array().items(
+      authorized_country_ids: Joi.array().items(
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
@@ -46,21 +38,13 @@ export default {
         id: Joi.string(),
         brand_id: Joi.string(),
         name: Joi.string(),
-        location: Joi.object({
-          country: Joi.object({
-            id: Joi.string(),
-            name: Joi.string(),
-          }),
-          state: Joi.object({
-            id: Joi.string(),
-            name: Joi.string(),
-          }),
-          city: Joi.object({
-            id: Joi.any(),
-            name: Joi.string(),
-          }),
-          address: Joi.string(),
-        }),
+        country_name: Joi.string(),
+        country_id: Joi.string(),
+        state_name: Joi.string(),
+        state_id: Joi.string(),
+        city_name: Joi.string(),
+        city_id: Joi.string(),
+        address: Joi.string(),
         postal_code: Joi.string(),
         first_name: Joi.string(),
         last_name: Joi.string(),
@@ -68,7 +52,7 @@ export default {
         email: Joi.string(),
         phone: Joi.string(),
         mobile: Joi.string(),
-        authorized_countries: Joi.array().items(
+        authorized_country_ids: Joi.array().items(
           Joi.object({
             id: Joi.string(),
             name: Joi.string(),

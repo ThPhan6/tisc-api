@@ -327,8 +327,8 @@ export default class LocationService {
     limit: number,
     offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
+    sort: string,
+    order: "ASC" | "DESC"
   ): Promise<ILocationsResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
@@ -342,7 +342,7 @@ export default class LocationService {
         limit,
         offset,
         { ...filter, type: user.type, relation_id: user.relation_id },
-        [sort_name, sort_order]
+        [sort, order]
       );
       const result: ILocation[] = await Promise.all(
         locations.map(async (location: ILocationAttributes) => {

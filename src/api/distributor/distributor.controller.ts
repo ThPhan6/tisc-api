@@ -18,29 +18,26 @@ export default class DistributorController {
 
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const { brand_id } = req.query;
-    const response = await this.service.getOne(id, brand_id);
+    const response = await this.service.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, brand_id, sort_name, sort_order, filter } =
-      req.query;
+    const { limit, offset, brand_id, sort, order, filter } = req.query;
     const response = await this.service.getList(
       brand_id,
       limit,
       offset,
       filter,
-      sort_name,
-      sort_order
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const { brand_id } = req.query;
-    const response = await this.service.delete(id, brand_id);
+    const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -49,9 +46,8 @@ export default class DistributorController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const { brand_id } = req.query;
     const payload = req.payload;
-    const response = await this.service.update(id, brand_id, payload);
+    const response = await this.service.update(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
