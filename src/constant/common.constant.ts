@@ -114,6 +114,8 @@ export const MESSAGES = {
   BRAND_NOT_FOUND: "Brand not found",
   DISTRIBUTOR_NOT_FOUND: "Distributor not found",
   DISTRIBUTOR_EXISTED: "Distributor existed",
+  MARKET_AVAILABILITY_EXISTED: "Market availability existed",
+  MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
 };
 
 export const BASIS_TYPES = {
@@ -200,3 +202,12 @@ export const TARGETED_FOR_OPTIONS = [
     value: TARGETED_FOR_TYPES.TISC_TEAM,
   },
 ];
+
+export const REGION_KEY = {
+  AFRICA: "africa",
+  ASIA: "asia",
+  EUROPE: "europe",
+  NORTH_AMERICA: "north america",
+  OCEANIA: "oceania",
+  SOUTH_AMERICA: "south america",
+};

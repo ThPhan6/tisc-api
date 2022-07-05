@@ -20,6 +20,7 @@ const migrate = async () => {
   await migrate_table("inspirational_quotations");
   await migrate_table("email_autoresponders");
   await migrate_table("distributors");
+  await migrate_table("market_availabilities");
 };
 
 migrate();

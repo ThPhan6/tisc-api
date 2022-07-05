@@ -1,0 +1,90 @@
+import {
+  defaultRouteOptionResponseStatus,
+} from "../../helper/response.helper";
+import { AUTH_NAMES } from "../../constant/auth.constant";
+import * as Hapi from "@hapi/hapi";
+import { ROUTES } from "../../constant/api.constant";
+import IRoute from "../../helper/route.helper";
+import MarketAvailabilityController from "./market_availability.controller";
+import validate from "./market_availability.validate";
+import commonValidate from "../../validate/common.validate";
+import response from "./market_availability.response";
+export default class MarketAvailabilityRoute implements IRoute {
+  public async register(server: Hapi.Server): Promise<any> {
+    return new Promise((resolve) => {
+      const controller = new MarketAvailabilityController();
+
+      server.route([
+        {
+          method: "POST",
+          path: ROUTES.CREATE_MARKET_AVAILABILITY,
+          options: {
+            handler: controller.create,
+            validate: validate.create,
+            description: "Method that create market_availability",
+            tags: ["api", "MarketAvailability"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_MARKET_AVAILABILITY,
+          options: {
+            handler: controller.getList,
+            validate: validate.getList,
+            description: "Method that get market availability list",
+            tags: ["api", "MarketAvailability"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_MARKET_AVAILABILITY,
+          options: {
+            handler: controller.get,
+            validate: commonValidate.getOne,
+            description: "Method that get market_availability",
+            tags: ["api", "MarketAvailability"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_MARKET_AVAILABILITY,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update market_availability",
+            tags: ["api", "MarketAvailability"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+      ]);
+      resolve(true);
+    });
+  }
+}
