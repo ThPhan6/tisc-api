@@ -4,12 +4,7 @@ export interface IMarketAvailabilityAttributes {
   id: string;
   collection_id: string;
   collection_name: string;
-  countries: {
-    id: string;
-    name: string;
-    phone_code: string;
-    region: string;
-  }[];
+  country_ids: string[];
   created_at: string;
   is_deleted: boolean;
 }
@@ -18,7 +13,7 @@ export const MARKET_AVAILABILITY_NULL_ATTRIBUTES = {
   id: null,
   collection_id: null,
   collection_name: null,
-  countries: [],
+  country_ids: [],
   created_at: null,
   is_deleted: false,
 };

@@ -1,6 +1,4 @@
-import {
-  defaultRouteOptionResponseStatus,
-} from "../../helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import * as Hapi from "@hapi/hapi";
 import { ROUTES } from "../../constant/api.constant";
@@ -23,7 +21,7 @@ export default class MarketAvailabilityRoute implements IRoute {
             validate: validate.create,
             description: "Method that create market_availability",
             tags: ["api", "MarketAvailability"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -40,7 +38,7 @@ export default class MarketAvailabilityRoute implements IRoute {
             validate: validate.getList,
             description: "Method that get market availability list",
             tags: ["api", "MarketAvailability"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -57,7 +55,7 @@ export default class MarketAvailabilityRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that get market_availability",
             tags: ["api", "MarketAvailability"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -74,7 +72,7 @@ export default class MarketAvailabilityRoute implements IRoute {
             validate: validate.update,
             description: "Method that update market_availability",
             tags: ["api", "MarketAvailability"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
