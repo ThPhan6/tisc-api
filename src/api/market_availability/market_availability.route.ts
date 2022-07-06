@@ -14,23 +14,6 @@ export default class MarketAvailabilityRoute implements IRoute {
 
       server.route([
         {
-          method: "POST",
-          path: ROUTES.CREATE_MARKET_AVAILABILITY,
-          options: {
-            handler: controller.create,
-            validate: validate.create,
-            description: "Method that create market_availability",
-            tags: ["api", "MarketAvailability"],
-            auth: AUTH_NAMES.PERMISSION,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getOne,
-              },
-            },
-          },
-        },
-        {
           method: "GET",
           path: ROUTES.GET_LIST_MARKET_AVAILABILITY,
           options: {

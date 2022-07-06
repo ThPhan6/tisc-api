@@ -9,11 +9,14 @@ import {
   ICollectionResponse,
   ICollectionsResponse,
 } from "./collection.type";
+import MarketAvailabilityService from "../../api/market_availability/market_availability.service";
 
 export default class CollectionService {
   private collectionModel: CollectionModel;
+  private marketAvailabilityService: MarketAvailabilityService;
   constructor() {
     this.collectionModel = new CollectionModel();
+    this.marketAvailabilityService = new MarketAvailabilityService();
   }
   public create = (
     payload: ICollectionRequest
@@ -39,6 +42,16 @@ export default class CollectionService {
           statusCode: 400,
         });
       }
+      const authorizedBrandCountries =
+        await this.marketAvailabilityService.getBrandRegionCountries(
+          payload.brand_id
+        );
+      await this.marketAvailabilityService.create({
+        collection_id: createdCollection.id,
+        country_ids: authorizedBrandCountries.map((item) =>
+          item.id.toLowerCase()
+        ),
+      });
       const { is_deleted, ...result } = createdCollection;
       return resolve({
         data: result,

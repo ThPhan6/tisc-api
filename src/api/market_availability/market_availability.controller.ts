@@ -1,7 +1,6 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import Service from "./market_availability.service";
 import {
-  IMarketAvailabilityRequest,
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
 export default class LocationController {
@@ -9,14 +8,6 @@ export default class LocationController {
   constructor() {
     this.service = new Service();
   }
-  public create = async (
-    req: Request & { payload: IMarketAvailabilityRequest },
-    toolkit: ResponseToolkit
-  ) => {
-    const payload = req.payload;
-    const response = await this.service.create(payload);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
   public update = async (
     req: Request & { payload: IUpdateMarketAvailabilityRequest },
     toolkit: ResponseToolkit

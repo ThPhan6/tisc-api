@@ -66,7 +66,7 @@ export default class Service {
         ...new Map(countries.map((item) => [item["id"], item])).values(),
       ]);
     });
-  private getBrandRegionCountries = (
+  public getBrandRegionCountries = (
     brand_id: string
   ): Promise<
     | {
@@ -190,7 +190,8 @@ export default class Service {
         data: {
           collection_id,
           collection_name: collection.name,
-          total: market.country_ids.length,
+          total_available: market.country_ids.length,
+          total: distributorCountries.length,
           regions: region_names.map((item) => {
             const countries = distributorCountries
               .filter((country) => country.region === item)
@@ -198,7 +199,7 @@ export default class Service {
                 return {
                   ...country,
                   id: country.id.toLowerCase(),
-                  check: market.country_ids
+                  available: market.country_ids
                     .map((el) => el.toLowerCase())
                     .includes(country.id.toLowerCase()),
                 };

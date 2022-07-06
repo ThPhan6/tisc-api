@@ -14,16 +14,53 @@ import CountryStateCityService, {
   ICountryStateCity,
 } from "../../service/country_state_city.service";
 import BrandModel from "../../model/brand.model";
+import MarketAvailabilityModel from "../../model/market_availability.model";
+import CollectionModel from "../../model/collection.model";
+import { getDistinctArray } from "../../helper/common.helper";
 export default class DistributorService {
   private distributorModel: DistributorModel;
   private countryStateCityService: CountryStateCityService;
   private brandModel: BrandModel;
+  private marketAvailabilityModel: MarketAvailabilityModel;
+  private collectionModel: CollectionModel;
   constructor() {
     this.distributorModel = new DistributorModel();
     this.countryStateCityService = new CountryStateCityService();
     this.brandModel = new BrandModel();
+    this.marketAvailabilityModel = new MarketAvailabilityModel();
+    this.collectionModel = new CollectionModel();
   }
 
+  private updateMarkets = async (payload: IDistributorRequest) => {
+    const authorizedCountryIds = getDistinctArray(
+      payload.authorized_country_ids.concat([payload.country_id])
+    );
+    const collections = await this.collectionModel.getAllBy({
+      brand_id: payload.brand_id,
+    });
+    const markets = await Promise.all(
+      collections.map(async (collection) => {
+        return await this.marketAvailabilityModel.findBy({
+          collection_id: collection.id,
+        });
+      })
+    );
+    const newMarkets = markets.filter((item) => item);
+    await Promise.all(
+      newMarkets.map(async (market) => {
+        const newCountryIds = getDistinctArray(
+          market?.country_ids.concat(authorizedCountryIds) || []
+        );
+        const updated = await this.marketAvailabilityModel.update(
+          market?.id || "",
+          {
+            country_ids: newCountryIds,
+          }
+        );
+        return true;
+      })
+    );
+  };
   public create = (
     payload: IDistributorRequest
   ): Promise<IMessageResponse | IDistributorResponse> => {
@@ -107,6 +144,7 @@ export default class DistributorService {
           statusCode: 400,
         });
       }
+      await this.updateMarkets(payload);
       return resolve(await this.getOne(createdDistributor.id));
     });
   };
@@ -232,6 +270,13 @@ export default class DistributorService {
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
+      }
+      if (
+        payload.country_id !== distributor.country_id ||
+        payload.authorized_country_ids.sort().toString() !==
+          distributor.authorized_country_ids.sort().toString()
+      ) {
+        await this.updateMarkets(payload);
       }
       return resolve(await this.getOne(updatedDistributor.id));
     });
