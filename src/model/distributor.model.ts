@@ -1,6 +1,7 @@
 import Model from "./index";
 
 export interface IDistributorAttributes {
+  id: string;
   brand_id: string;
   name: string;
   country_name: string;
@@ -10,6 +11,7 @@ export interface IDistributorAttributes {
   city_name: string;
   city_id: string;
   address: string;
+  phone_code: string;
   postal_code: string;
   first_name: string;
   last_name: string;
@@ -18,12 +20,14 @@ export interface IDistributorAttributes {
   phone: string;
   mobile: string;
   authorized_country_ids: string[];
+  authorized_country_name: string;
   coverage_beyond: boolean;
   created_at: string;
   is_deleted: boolean;
 }
 
 export const DISTRIBUTOR_NULL_ATTRIBUTES = {
+  id: null,
   brand_id: null,
   name: null,
   country_name: null,
@@ -33,6 +37,7 @@ export const DISTRIBUTOR_NULL_ATTRIBUTES = {
   city_name: null,
   city_id: null,
   address: null,
+  phone_code: null,
   postal_code: null,
   first_name: null,
   last_name: null,
@@ -41,6 +46,7 @@ export const DISTRIBUTOR_NULL_ATTRIBUTES = {
   phone: null,
   mobile: null,
   authorized_country_ids: [],
+  authorized_country_name: null,
   coverage_beyond: false,
   created_at: null,
   is_deleted: false,
@@ -50,4 +56,21 @@ export default class DistributorModel extends Model<IDistributorAttributes> {
   constructor() {
     super("distributors");
   }
+  public getExistedBrandDistributor = async (
+    id: string,
+    brand_id: string,
+    name: string
+  ): Promise<IDistributorAttributes | false> => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where("brand_id", brand_id)
+        .whereNot("id", id)
+        .where("name", name)
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

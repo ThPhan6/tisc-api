@@ -5,7 +5,15 @@ export interface ICountry {
   name: string;
   iso2: string;
 }
-
+export interface ICountryStateCity {
+  country_id: string;
+  state_id: any;
+  city_id: string;
+  country_name: string;
+  state_name: string;
+  city_name: string;
+  phone_code: string;
+}
 export interface ICountryDetail {
   id: number;
   name: string;
@@ -131,6 +139,61 @@ export default class CountryStateCityService {
         return resolve(result.data);
       } catch (error) {
         return resolve([]);
+      }
+    });
+
+  public getCountryStateCity = (
+    country_id: string,
+    city_id: string,
+    state_id?: string
+  ): Promise<ICountryStateCity | false> =>
+    new Promise(async (resolve) => {
+      try {
+        const country = await this.getCountryDetail(country_id);
+        let cities = [];
+        let state;
+        if (state_id) {
+          state = await this.getStateDetail(country_id, state_id);
+          cities = await this.getCitiesByStateAndCountry(country_id, state_id);
+        }
+        cities = await this.getCitiesByCountry(country_id);
+        const city = cities.find((item) => item.id.toString() === city_id);
+        if (!country || !state || !city) {
+          return resolve(false);
+        }
+        return resolve({
+          country_id: country.iso2,
+          state_id: state.iso2,
+          city_id,
+          country_name: country.name,
+          state_name: state.name,
+          city_name: city.name,
+          phone_code: country.phonecode,
+        });
+      } catch (error) {
+        return resolve(false);
+      }
+    });
+
+  public getCountries = (ids: string[]): Promise<ICountry[] | false> =>
+    new Promise(async (resolve) => {
+      try {
+        let check = true;
+        const result = await Promise.all(
+          ids.map(async (id) => {
+            const country = await this.getCountryDetail(id);
+            if (!country.id) {
+              check = false;
+            }
+            return country;
+          })
+        );
+        if (!check) {
+          return resolve(false);
+        }
+        return resolve(result);
+      } catch (error) {
+        return resolve(false);
       }
     });
 }

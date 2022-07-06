@@ -58,7 +58,7 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Work mobile is required")),
       authorized_country_ids: Joi.array()
-        .items(Joi.string())
+        .items(Joi.string().required())
         .required()
         .error(
           commonFailValidatedMessageFunction(
@@ -90,13 +90,13 @@ export default {
         ),
       country_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Country is required")),
+        .error(commonFailValidatedMessageFunction("Country id is required")),
       state_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("State is required")),
+        .error(commonFailValidatedMessageFunction("State id is required")),
       city_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("City is required")),
+        .error(commonFailValidatedMessageFunction("City id is required")),
       address: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),

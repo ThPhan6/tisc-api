@@ -14,6 +14,7 @@ export default {
       city_name: Joi.string(),
       city_id: Joi.string(),
       address: Joi.string(),
+      phone_code: Joi.string(),
       postal_code: Joi.string(),
       first_name: Joi.string(),
       last_name: Joi.string(),
@@ -21,46 +22,30 @@ export default {
       email: Joi.string(),
       phone: Joi.string(),
       mobile: Joi.string(),
-      authorized_country_ids: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-        })
-      ),
+      authorized_country_ids: Joi.array().items(Joi.string()),
+      authorized_country_name: Joi.any(),
       coverage_beyond: Joi.boolean(),
       created_at: Joi.string(),
     }),
   }) as any,
   getList: Joi.object({
     statusCode: Joi.number(),
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        brand_id: Joi.string(),
-        name: Joi.string(),
-        country_name: Joi.string(),
-        country_id: Joi.string(),
-        state_name: Joi.string(),
-        state_id: Joi.string(),
-        city_name: Joi.string(),
-        city_id: Joi.string(),
-        address: Joi.string(),
-        postal_code: Joi.string(),
-        first_name: Joi.string(),
-        last_name: Joi.string(),
-        gender: Joi.boolean(),
-        email: Joi.string(),
-        phone: Joi.string(),
-        mobile: Joi.string(),
-        authorized_country_ids: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            name: Joi.string(),
-          })
-        ),
-        coverage_beyond: Joi.boolean(),
-        created_at: Joi.string(),
-      })
-    ),
+    data: Joi.object({
+      pagination: Joi.any(),
+      distributors: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          country_name: Joi.string(),
+          city_name: Joi.string(),
+          first_name: Joi.string(),
+          last_name: Joi.string(),
+          email: Joi.string(),
+          authorized_country_name: Joi.any(),
+          coverage_beyond: Joi.boolean(),
+          created_at: Joi.string(),
+        })
+      ),
+    }),
   }) as any,
 };
