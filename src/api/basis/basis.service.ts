@@ -53,7 +53,38 @@ export default class BasisService {
     }
     return false;
   };
-
+  public getConversion = async (
+    id: string
+  ): Promise<
+    | {
+        id: string;
+        name_1: string;
+        name_2: string;
+        formula_1: string;
+        formula_2: string;
+        unit_1: string;
+        unit_2: string;
+      }
+    | undefined
+  > =>
+    new Promise(async (resolve) => {
+      const allBasisConversion = await this.basisModel.getAllBy({
+        type: BASIS_TYPES.CONVERSION,
+      });
+      const allConversion: {
+        id: string;
+        name_1: string;
+        name_2: string;
+        formula_1: string;
+        formula_2: string;
+        unit_1: string;
+        unit_2: string;
+      }[] = allBasisConversion.reduce((pre, cur) => {
+        return pre.concat(cur.subs);
+      }, []);
+      const conversion = allConversion.find((item: any) => item.id === id);
+      return resolve(conversion);
+    });
   public createBasisConversion = async (
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {

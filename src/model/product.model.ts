@@ -1,3 +1,4 @@
+import { IAttributeGroupHasId } from "../api/product/product.type";
 import Model from "./index";
 
 export interface IProductAttributes {
@@ -8,33 +9,9 @@ export interface IProductAttributes {
   name: string;
   code: string;
   description: string | null;
-  general_attribute_groups: {
-    id: string;
-    name: string;
-    attributes: {
-      id: string;
-      basis_id: string;
-    }[];
-  }[];
-  feature_attribute_groups: {
-    id: string;
-    name: string;
-    attributes: {
-      id: string;
-      basis_id: string;
-    }[];
-  }[];
-  specification_attribute_groups: {
-    id: string;
-    name: string;
-    attributes: {
-      id: string;
-      bases: {
-        id: string;
-        option_code: string;
-      }[];
-    }[];
-  }[];
+  general_attribute_groups: IAttributeGroupHasId[];
+  feature_attribute_groups: IAttributeGroupHasId[];
+  specification_attribute_groups: IAttributeGroupHasId[];
   favorites: string[];
   images: string[];
   keywords: string[];

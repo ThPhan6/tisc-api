@@ -1,4 +1,3 @@
-import { IPagination } from "./../../type/common.type";
 export interface IProduct {
   id: string;
   brand: {
@@ -25,36 +24,46 @@ export interface IProduct {
   created_at: string;
   created_by: any;
 }
+export interface IAttributeGroup {
+  name: string;
+  attributes: {
+    id: string;
+    basis_id: string;
+    type: "Text" | "Conversions" | "Presets" | "Options";
+    text?: string;
+    conversion_value_1?: string;
+    conversion_value_2?: string;
+    basis_options?: {
+      id: string;
+      option_code: string;
+    }[];
+  }[];
+}
+export interface IAttributeGroupHasId {
+  id: string;
+  name: string;
+  attributes: {
+    id: string;
+    basis_id: string;
+    type: "Text" | "Conversions" | "Presets" | "Options";
+    text?: string;
+    conversion_value_1?: string;
+    conversion_value_2?: string;
+    basis_options?: {
+      id: string;
+      option_code: string;
+    }[];
+  }[];
+}
 export interface IProductRequest {
   brand_id: string;
   collection_id: string;
   category_ids: string[];
   name: string;
   description: string;
-  general_attribute_groups: {
-    name: string;
-    attributes: {
-      id: string;
-      basis_id: string;
-    }[];
-  }[];
-  feature_attribute_groups: {
-    name: string;
-    attributes: {
-      id: string;
-      basis_id: string;
-    }[];
-  }[];
-  specification_attribute_groups: {
-    name: string;
-    attributes: {
-      id: string;
-      bases: {
-        id: string;
-        option_code: string;
-      }[];
-    }[];
-  }[];
+  general_attribute_groups: IAttributeGroup[];
+  feature_attribute_groups: IAttributeGroup[];
+  specification_attribute_groups: IAttributeGroup[];
   images: string[];
   keywords: string[];
 }
@@ -64,33 +73,9 @@ export interface IUpdateProductRequest {
   category_ids: string[];
   name: string;
   description: string;
-  general_attribute_groups: {
-    id: string;
-    name: string;
-    attributes: {
-      id: string;
-      basis_id: string;
-    }[];
-  }[];
-  feature_attribute_groups: {
-    id: string;
-    name: string;
-    attributes: {
-      id: string;
-      basis_id: string;
-    }[];
-  }[];
-  specification_attribute_groups: {
-    id: string;
-    name: string;
-    attributes: {
-      id: string;
-      bases: {
-        id: string;
-        option_code: string;
-      }[];
-    }[];
-  }[];
+  general_attribute_groups: IAttributeGroupHasId[];
+  feature_attribute_groups: IAttributeGroupHasId[];
+  specification_attribute_groups: IAttributeGroupHasId[];
   images: string[];
   keywords: string[];
 }

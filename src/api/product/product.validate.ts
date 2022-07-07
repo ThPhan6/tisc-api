@@ -25,6 +25,15 @@ export default {
             attributes: Joi.array().items({
               id: Joi.string(),
               basis_id: Joi.string(),
+              type: Joi.string().valid(
+                "Text",
+                "Conversions",
+                "Presets",
+                "Options"
+              ),
+              text: Joi.any(),
+              conversion_value_1: Joi.any(),
+              conversion_value_2: Joi.any(),
             }),
           })
         )
@@ -41,6 +50,15 @@ export default {
             attributes: Joi.array().items({
               id: Joi.string(),
               basis_id: Joi.string(),
+              type: Joi.string().valid(
+                "Text",
+                "Conversions",
+                "Presets",
+                "Options"
+              ),
+              text: Joi.any(),
+              conversion_value_1: Joi.any(),
+              conversion_value_2: Joi.any(),
             }),
           })
         )
@@ -56,10 +74,23 @@ export default {
             name: Joi.string(),
             attributes: Joi.array().items({
               id: Joi.string(),
-              bases: Joi.array().items({
-                id: Joi.string(),
-                option_code: Joi.string(),
-              }),
+              basis_id: Joi.any(),
+              type: Joi.string().valid(
+                "Text",
+                "Conversions",
+                "Presets",
+                "Options"
+              ),
+              text: Joi.any(),
+              conversion_value_1: Joi.any(),
+              conversion_value_2: Joi.any(),
+              basis_options: [
+                Joi.array().items({
+                  id: Joi.string(),
+                  option_code: Joi.string(),
+                }),
+                Joi.any(),
+              ],
             }),
           })
         )
@@ -108,6 +139,15 @@ export default {
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_id: Joi.string(),
+            type: Joi.string().valid(
+              "Text",
+              "Conversions",
+              "Presets",
+              "Options"
+            ),
+            text: Joi.any(),
+            conversion_value_1: Joi.any(),
+            conversion_value_2: Joi.any(),
           }),
         })
       ),
@@ -118,6 +158,15 @@ export default {
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_id: Joi.string(),
+            type: Joi.string().valid(
+              "Text",
+              "Conversions",
+              "Presets",
+              "Options"
+            ),
+            text: Joi.any(),
+            conversion_value_1: Joi.any(),
+            conversion_value_2: Joi.any(),
           }),
         })
       ),
@@ -127,10 +176,23 @@ export default {
           name: Joi.string(),
           attributes: Joi.array().items({
             id: Joi.string(),
-            bases: Joi.array().items({
-              id: Joi.string(),
-              option_code: Joi.string(),
-            }),
+            basis_id: Joi.any(),
+            type: Joi.string().valid(
+              "Text",
+              "Conversions",
+              "Presets",
+              "Options"
+            ),
+            text: Joi.any(),
+            conversion_value_1: Joi.any(),
+            conversion_value_2: Joi.any(),
+            basis_options: [
+              Joi.array().items({
+                id: Joi.string(),
+                option_code: Joi.string(),
+              }),
+              Joi.any(),
+            ],
           }),
         })
       ),

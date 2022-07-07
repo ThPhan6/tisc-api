@@ -15,9 +15,10 @@ import ProductModel, {
   PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/product.model";
 import { deleteFile, isExists, upload } from "../../service/aws.service";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
+  IAttributeGroup,
   IBrandProductSummary,
   IProductRequest,
   IProductResponse,
@@ -25,6 +26,7 @@ import {
   IRestCollectionProductsResponse,
   IUpdateProductRequest,
 } from "./product.type";
+import BasisService from "../../api/basis/basis.service";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -32,12 +34,14 @@ export default class ProductService {
   private collectionModel: CollectionModel;
   private categoryService: CategoryService;
   private categoryModel: CategoryModel;
+  private basisService: BasisService;
   constructor() {
     this.productModel = new ProductModel();
     this.brandModel = new BrandModel();
     this.collectionModel = new CollectionModel();
     this.categoryService = new CategoryService();
     this.categoryModel = new CategoryModel();
+    this.basisService = new BasisService();
   }
   public create = (
     user_id: string,
@@ -54,16 +58,39 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const mapAttributeFunction = (item: any) => ({
-        ...item,
-        id: uuid(),
-      });
-      const saveGeneralAttributeGroups =
-        payload.general_attribute_groups.map(mapAttributeFunction);
-      const saveFeatureAttributeGroups =
-        payload.feature_attribute_groups.map(mapAttributeFunction);
-      const saveSpecificationAttributeGroups =
-        payload.specification_attribute_groups.map(mapAttributeFunction);
+      const mapAttributeFunction = async (item: any) => {
+        const newAttributes = await Promise.all(
+          item.attributes.map(async (attribute: any) => {
+            if (attribute.type === "Conversions") {
+              const conversion = await this.basisService.getConversion(
+                attribute.basis_id
+              );
+              const value1 = parseFloat(attribute.conversion_value_1 || "0");
+              const value2 = value1 / parseFloat(conversion?.formula_1 || "1");
+              return {
+                ...attribute,
+                conversion_value_1: value1.toFixed(2),
+                conversion_value_2: value2.toFixed(2),
+              };
+            }
+            return attribute;
+          })
+        );
+        return {
+          ...item,
+          id: uuid(),
+          attributes: newAttributes,
+        };
+      };
+      const saveGeneralAttributeGroups = await Promise.all(
+        payload.general_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveFeatureAttributeGroups = await Promise.all(
+        payload.feature_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveSpecificationAttributeGroups = await Promise.all(
+        payload.specification_attribute_groups.map(mapAttributeFunction)
+      );
 
       let isValidImage = true;
       for (const image of payload.images) {
@@ -149,21 +176,45 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const mapAttributeFunction = (item: any) => {
+      const mapAttributeFunction = async (item: any) => {
+        const newAttributes = await Promise.all(
+          item.attributes.map(async (attribute: any) => {
+            if (attribute.type === "Conversions") {
+              const conversion = await this.basisService.getConversion(
+                attribute.basis_id
+              );
+              const value1 = parseFloat(attribute.conversion_value_1 || "0");
+              const value2 = value1 / parseFloat(conversion?.formula_1 || "1");
+              return {
+                ...attribute,
+                conversion_value_1: value1.toFixed(2),
+                conversion_value_2: value2.toFixed(2),
+              };
+            }
+            return attribute;
+          })
+        );
         if (item.id) {
-          return item;
+          return {
+            ...item,
+            attributes: newAttributes,
+          };
         }
         return {
           ...item,
           id: uuid(),
+          attributes: newAttributes,
         };
       };
-      const saveGeneralAttributeGroups =
-        payload.general_attribute_groups.map(mapAttributeFunction);
-      const saveFeatureAttributeGroups =
-        payload.feature_attribute_groups.map(mapAttributeFunction);
-      const saveSpecificationAttributeGroups =
-        payload.specification_attribute_groups.map(mapAttributeFunction);
+      const saveGeneralAttributeGroups = await Promise.all(
+        payload.general_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveFeatureAttributeGroups = await Promise.all(
+        payload.feature_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveSpecificationAttributeGroups = await Promise.all(
+        payload.specification_attribute_groups.map(mapAttributeFunction)
+      );
 
       let imagePaths: string[] = [];
       let isValidImage = true;
@@ -299,8 +350,8 @@ export default class ProductService {
           let temp: any = [];
           cur.specification_attribute_groups.forEach((group) => {
             group.attributes.forEach((attribute) => {
-              attribute.bases.forEach((basis) => {
-                temp.push(basis);
+              attribute.basis_options?.forEach((basis_option) => {
+                temp.push(basis_option);
               });
             });
           });
