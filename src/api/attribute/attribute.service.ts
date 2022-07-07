@@ -467,12 +467,12 @@ export default class AttributeService {
   };
 
   private returnDataAttributeProduct = async (attributes: any[]) => {
-    let subAttribute: any;
+    let subs: any;
     return await Promise.all(
       attributes?.map(async (attributeGroup: any) => {
         const { is_deleted, ...rest } = attributeGroup;
         if (attributeGroup.subs) {
-          subAttribute = await Promise.all(
+          subs = await Promise.all(
             attributeGroup.subs.map(async (attribute: any) => {
               const basis = await this.basisModel.find(attribute.basis_id);
               if (basis) {
@@ -491,7 +491,7 @@ export default class AttributeService {
         }
         return {
           ...rest,
-          subs: subAttribute,
+          subs,
         };
       })
     );
@@ -515,9 +515,9 @@ export default class AttributeService {
         );
       return resolve({
         data: {
-          generals: returnedGeneralAttributes,
-          features: returnedFeatureAttributes,
-          specifications: returnedSpecificationAttributes,
+          general: returnedGeneralAttributes,
+          feature: returnedFeatureAttributes,
+          specification: returnedSpecificationAttributes,
         },
         statusCode: 200,
       });

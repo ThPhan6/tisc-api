@@ -80,9 +80,9 @@ type TAttributeProduct = {
 };
 export interface IGetListAttributeProductResponse {
   data: {
-    generals: TAttributeProduct[];
-    features: TAttributeProduct[];
-    specifications: TAttributeProduct[];
+    general: TAttributeProduct[];
+    feature: TAttributeProduct[];
+    specification: TAttributeProduct[];
   };
   statusCode: number;
 }
