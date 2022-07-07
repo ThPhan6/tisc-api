@@ -467,12 +467,12 @@ export default class AttributeService {
   };
 
   private returnDataAttributeProduct = async (attributes: any[]) => {
-    let subAttributeGeneral: any;
+    let subAttribute: any;
     return await Promise.all(
       attributes?.map(async (attributeGroup: any) => {
         const { is_deleted, ...rest } = attributeGroup;
         if (attributeGroup.subs) {
-          subAttributeGeneral = await Promise.all(
+          subAttribute = await Promise.all(
             attributeGroup.subs.map(async (attribute: any) => {
               const basis = await this.basisModel.find(attribute.basis_id);
               if (basis) {
@@ -491,7 +491,7 @@ export default class AttributeService {
         }
         return {
           ...rest,
-          subs: subAttributeGeneral,
+          subs: subAttribute,
         };
       })
     );
