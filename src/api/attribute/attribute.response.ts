@@ -71,7 +71,7 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
-  getListAttributeProduct: Joi.object({
+  getAllAttribute: Joi.object({
     data: Joi.object({
       general: Joi.any(),
       feature: Joi.any(),

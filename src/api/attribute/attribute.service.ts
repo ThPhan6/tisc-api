@@ -16,7 +16,7 @@ import {
   IAttributeResponse,
   IAttributesResponse,
   IContentTypesResponse,
-  IGetListAttributeProductResponse,
+  IGetAllAttributeResponse,
   IUpdateAttributeRequest,
 } from "./attribute.type";
 import { v4 as uuid } from "uuid";
@@ -452,24 +452,22 @@ export default class AttributeService {
       });
     });
   };
-
-  private getBasisNameByType = (type: number) => {
+  private getBasisType = (type: number) => {
     switch (type) {
       case BASIS_TYPES.CONVERSION:
-        return "Basis Conversions";
+        return "Conversions";
       case BASIS_TYPES.PRESET:
-        return "Basis Presets";
+        return "Presets";
       case BASIS_TYPES.OPTION:
-        return "Basis Options";
+        return "Options";
       default:
-        return undefined;
+        return "Text";
     }
   };
-
-  private returnDataAttributeProduct = async (attributes: any[]) => {
+  private returnAttributeData = async (attributes: any[]) => {
     let subs: any;
     return await Promise.all(
-      attributes?.map(async (attributeGroup: any) => {
+      attributes.map(async (attributeGroup: any) => {
         const { is_deleted, ...rest } = attributeGroup;
         if (attributeGroup.subs) {
           subs = await Promise.all(
@@ -481,7 +479,7 @@ export default class AttributeService {
                   ...attribute,
                   basis: {
                     ...restBasis,
-                    type_name: this.getBasisNameByType(restBasis.type),
+                    type: this.getBasisType(basis.type),
                   },
                 };
               }
@@ -497,22 +495,21 @@ export default class AttributeService {
     );
   };
 
-  public getListAttributeProduct = (): Promise<
-    IMessageResponse | IGetListAttributeProductResponse
+  public getAllAttribute = (): Promise<
+    IMessageResponse | IGetAllAttributeResponse
   > => {
     return new Promise(async (resolve) => {
-      const returnedGeneralAttributes = await this.returnDataAttributeProduct(
+      const returnedGeneralAttributes = await this.returnAttributeData(
         await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.GENERAL)
       );
-      const returnedFeatureAttributes = await this.returnDataAttributeProduct(
+      const returnedFeatureAttributes = await this.returnAttributeData(
         await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.FEATURE)
       );
-      const returnedSpecificationAttributes =
-        await this.returnDataAttributeProduct(
-          await this.attributeModel.getAllAttributeByType(
-            ATTRIBUTE_TYPES.SPECIFICATION
-          )
-        );
+      const returnedSpecificationAttributes = await this.returnAttributeData(
+        await this.attributeModel.getAllAttributeByType(
+          ATTRIBUTE_TYPES.SPECIFICATION
+        )
+      );
       return resolve({
         data: {
           general: returnedGeneralAttributes,

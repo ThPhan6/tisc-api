@@ -78,7 +78,7 @@ type TAttributeProduct = {
   ];
   created_at: string;
 };
-export interface IGetListAttributeProductResponse {
+export interface IGetAllAttributeResponse {
   data: {
     general: TAttributeProduct[];
     feature: TAttributeProduct[];

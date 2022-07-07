@@ -150,7 +150,7 @@ export const ROUTES = {
   DELETE_MATERIAL_CODE: "/api/material-code/delete/{id}",
   GET_LIST_MATERIAL_CODE: "/api/material-code/get-list",
   GET_ONE_MATERIAL_CODE: "/api/material-code/get-one/{id}",
-  GET_LIST_ATTRIBUTE_PRODUCT: "/api/attribute/get-list-attribute-product",
+  GET_ALL_ATTRIBUTE: "/api/attribute/get-all",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -301,5 +301,5 @@ export const ROUTE_IDS = {
   DELETE_MATERIAL_CODE: "140",
   GET_LIST_MATERIAL_CODE: "141",
   GET_ONE_MATERIAL_CODE: "142",
-  GET_LIST_ATTRIBUTE_PRODUCT: "143",
+  GET_ALL_ATTRIBUTE: "143",
 };
