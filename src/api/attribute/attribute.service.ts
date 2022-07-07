@@ -25,15 +25,12 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import BasisModel, { IBasisAttributes } from "../../model/basis.model";
-import BasisService from "../basis/basis.service";
 export default class AttributeService {
   private attributeModel: AttributeModel;
   private basisModel: BasisModel;
-  private basisService: BasisService;
   constructor() {
     this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
-    this.basisService = new BasisService();
   }
   private countAttribute = (attributes: IAttributeAttributes[]) => {
     return attributes.reduce((pre, cur) => {
@@ -469,7 +466,7 @@ export default class AttributeService {
     }
   };
 
-  private makeDataAttributeProduct = async (attributes: any[]) => {
+  private returnDataAttributeProduct = async (attributes: any[]) => {
     let subAttributeGeneral: any;
     return await Promise.all(
       attributes?.map(async (attributeGroup: any) => {
@@ -504,14 +501,14 @@ export default class AttributeService {
     IMessageResponse | IGetListAttributeProductResponse
   > => {
     return new Promise(async (resolve) => {
-      const returnedGeneralAttributes = await this.makeDataAttributeProduct(
+      const returnedGeneralAttributes = await this.returnDataAttributeProduct(
         await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.GENERAL)
       );
-      const returnedFeatureAttributes = await this.makeDataAttributeProduct(
+      const returnedFeatureAttributes = await this.returnDataAttributeProduct(
         await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.FEATURE)
       );
       const returnedSpecificationAttributes =
-        await this.makeDataAttributeProduct(
+        await this.returnDataAttributeProduct(
           await this.attributeModel.getAllAttributeByType(
             ATTRIBUTE_TYPES.SPECIFICATION
           )
