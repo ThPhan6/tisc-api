@@ -182,6 +182,7 @@ const seed = async () => {
           { id: ROUTE_IDS.DELETE_ATTRIBUTE, accessable: true },
           { id: ROUTE_IDS.CREATE_ATTRIBUTE, accessable: true },
           { id: ROUTE_IDS.GET_ONE_ATTRIBUTE, accessable: true },
+          { id: ROUTE_IDS.GET_ALL_ATTRIBUTE, accessable: true },
         ],
       },
       {
@@ -479,6 +480,7 @@ const seed = async () => {
           { id: ROUTE_IDS.DELETE_ATTRIBUTE, accessable: true },
           { id: ROUTE_IDS.CREATE_ATTRIBUTE, accessable: true },
           { id: ROUTE_IDS.GET_ONE_ATTRIBUTE, accessable: true },
+          { id: ROUTE_IDS.GET_ALL_ATTRIBUTE, accessable: true },
         ],
       },
       {

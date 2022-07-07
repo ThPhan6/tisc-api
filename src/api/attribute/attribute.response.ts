@@ -71,4 +71,87 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  getAllAttribute: Joi.object({
+    data: Joi.object({
+      general: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          type: Joi.number(),
+          subs: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              name: Joi.string(),
+              basis_id: Joi.string(),
+              description: Joi.string(),
+              description_1: Joi.string(),
+              description_2: Joi.string(),
+              content_type: Joi.string(),
+              basis: Joi.object({
+                id: Joi.string(),
+                type: Joi.string(),
+                name: Joi.string(),
+                subs: Joi.array().items(Joi.any()),
+                created_at: Joi.string(),
+              }),
+            })
+          ),
+          created_at: Joi.string(),
+        })
+      ),
+      feature: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          type: Joi.number(),
+          subs: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              name: Joi.string(),
+              basis_id: Joi.string(),
+              description: Joi.string(),
+              description_1: Joi.string(),
+              description_2: Joi.string(),
+              content_type: Joi.string(),
+              basis: Joi.object({
+                id: Joi.string(),
+                type: Joi.string(),
+                name: Joi.string(),
+                subs: Joi.array().items(Joi.any()),
+                created_at: Joi.string(),
+              }),
+            })
+          ),
+          created_at: Joi.string(),
+        })
+      ),
+      specification: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          type: Joi.number(),
+          subs: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              name: Joi.string(),
+              basis_id: Joi.string(),
+              description: Joi.string(),
+              description_1: Joi.string(),
+              description_2: Joi.string(),
+              content_type: Joi.string(),
+              basis: Joi.object({
+                id: Joi.string(),
+                type: Joi.string(),
+                name: Joi.string(),
+                subs: Joi.array().items(Joi.any()),
+                created_at: Joi.string(),
+              }),
+            })
+          ),
+          created_at: Joi.string(),
+        })
+      ),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
 };

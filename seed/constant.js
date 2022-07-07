@@ -182,6 +182,7 @@ const ROUTES = {
   DELETE_MATERIAL_CODE: "/api/material-code/delete/{id}",
   GET_LIST_MATERIAL_CODE: "/api/material-code/get-list",
   GET_ONE_MATERIAL_CODE: "/api/material-code/get-one/{id}",
+  GET_ALL_ATTRIBUTE: "/api/attribute/get-all",
 };
 const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -332,6 +333,7 @@ const ROUTE_IDS = {
   DELETE_MATERIAL_CODE: "140",
   GET_LIST_MATERIAL_CODE: "141",
   GET_ONE_MATERIAL_CODE: "142",
+  GET_ALL_ATTRIBUTE: "143",
 };
 
 const USER_STATUSES = {

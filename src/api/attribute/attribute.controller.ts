@@ -62,4 +62,8 @@ export default class AttributeController {
     const response = await this.service.getListContentType();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getAllAttribute = async (_req: Request, toolkit: ResponseToolkit) => {
+    const response = await this.service.getAllAttribute();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
