@@ -114,6 +114,22 @@ export default class AttributeRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_ATTRIBUTE_PRODUCT,
+          options: {
+            handler: controller.getListAttributeProduct,
+            description: "Method that get list attribute product",
+            tags: ["api", "Attribute"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListAttributeProduct,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

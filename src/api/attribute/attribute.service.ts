@@ -16,6 +16,7 @@ import {
   IAttributeResponse,
   IAttributesResponse,
   IContentTypesResponse,
+  IGetListAttributeProductResponse,
   IUpdateAttributeRequest,
 } from "./attribute.type";
 import { v4 as uuid } from "uuid";
@@ -24,13 +25,15 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import BasisModel, { IBasisAttributes } from "../../model/basis.model";
-
+import BasisService from "../basis/basis.service";
 export default class AttributeService {
   private attributeModel: AttributeModel;
   private basisModel: BasisModel;
+  private basisService: BasisService;
   constructor() {
     this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
+    this.basisService = new BasisService();
   }
   private countAttribute = (attributes: IAttributeAttributes[]) => {
     return attributes.reduce((pre, cur) => {
@@ -448,6 +451,77 @@ export default class AttributeService {
       };
       return resolve({
         data,
+        statusCode: 200,
+      });
+    });
+  };
+
+  private getBasisNameByType = (type: number) => {
+    switch (type) {
+      case BASIS_TYPES.CONVERSION:
+        return "Basis Conversions";
+      case BASIS_TYPES.PRESET:
+        return "Basis Presets";
+      case BASIS_TYPES.OPTION:
+        return "Basis Options";
+      default:
+        return undefined;
+    }
+  };
+
+  private makeDataAttributeProduct = async (attributes: any[]) => {
+    let subAttributeGeneral: any;
+    return await Promise.all(
+      attributes?.map(async (attributeGroup: any) => {
+        const { is_deleted, ...rest } = attributeGroup;
+        if (attributeGroup.subs) {
+          subAttributeGeneral = await Promise.all(
+            attributeGroup.subs.map(async (attribute: any) => {
+              const basis = await this.basisModel.find(attribute.basis_id);
+              if (basis) {
+                const { is_deleted, ...restBasis } = basis;
+                return {
+                  ...attribute,
+                  basis: {
+                    ...restBasis,
+                    type_name: this.getBasisNameByType(restBasis.type),
+                  },
+                };
+              }
+              return undefined;
+            })
+          );
+        }
+        return {
+          ...rest,
+          subs: subAttributeGeneral,
+        };
+      })
+    );
+  };
+
+  public getListAttributeProduct = (): Promise<
+    IMessageResponse | IGetListAttributeProductResponse
+  > => {
+    return new Promise(async (resolve) => {
+      const returnedGeneralAttributes = await this.makeDataAttributeProduct(
+        await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.GENERAL)
+      );
+      const returnedFeatureAttributes = await this.makeDataAttributeProduct(
+        await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.FEATURE)
+      );
+      const returnedSpecificationAttributes =
+        await this.makeDataAttributeProduct(
+          await this.attributeModel.getAllAttributeByType(
+            ATTRIBUTE_TYPES.SPECIFICATION
+          )
+        );
+      return resolve({
+        data: {
+          generals: returnedGeneralAttributes,
+          features: returnedFeatureAttributes,
+          specifications: returnedSpecificationAttributes,
+        },
         statusCode: 200,
       });
     });
