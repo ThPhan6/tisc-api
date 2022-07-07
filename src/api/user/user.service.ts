@@ -22,17 +22,20 @@ import { toWebp } from "../../helper/image.helper";
 import DepartmentModel from "../../model/department.model";
 import LocationModel from "../../model/location.model";
 import { getAccessLevel } from "../../helper/common.helper";
+import PermissionService from "../../api/permission/permission.service";
 
 export default class UserService {
   private userModel: UserModel;
   private mailService: MailService;
   private departmentModel: DepartmentModel;
   private locationModel: LocationModel;
+  private permissionService: PermissionService;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
     this.departmentModel = new DepartmentModel();
     this.locationModel = new LocationModel();
+    this.permissionService = new PermissionService();
   }
 
   public create = (
@@ -128,6 +131,9 @@ export default class UserService {
         }
       }
       const location = await this.locationModel.find(user.location_id || "");
+      const permissions = current_user_id
+        ? undefined
+        : await this.permissionService.getList(user_id);
       const result = {
         id: user.id,
         role_id: user.role_id,
@@ -149,6 +155,7 @@ export default class UserService {
         access_level: user.access_level,
         status: user.status,
         phone_code: location?.phone_code,
+        permissions,
       };
       return resolve({
         data: result,

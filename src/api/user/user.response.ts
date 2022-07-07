@@ -28,6 +28,7 @@ export default {
       work_location: Joi.any(),
       access_level: Joi.any(),
       status: Joi.number(),
+      permissions: Joi.any(),
     }),
     statusCode: Joi.number(),
   }) as any,
