@@ -63,7 +63,6 @@ export interface IContentTypesResponse {
 type TAttributeProduct = {
   id: string;
   name: string;
-  count: number;
   subs: [
     {
       id: string;

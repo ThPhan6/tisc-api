@@ -32,6 +32,48 @@ export default class AttributeService {
     this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
   }
+  private getBasisType = (type: number) => {
+    switch (type) {
+      case BASIS_TYPES.CONVERSION:
+        return "Conversions";
+      case BASIS_TYPES.PRESET:
+        return "Presets";
+      case BASIS_TYPES.OPTION:
+        return "Options";
+      default:
+        return "Text";
+    }
+  };
+  private returnAttributeData = async (attributes: any[]) => {
+    let subs: any;
+    return await Promise.all(
+      attributes.map(async (attributeGroup: any) => {
+        const { is_deleted, ...rest } = attributeGroup;
+        if (attributeGroup.subs) {
+          subs = await Promise.all(
+            attributeGroup.subs.map(async (attribute: any) => {
+              const basis = await this.basisModel.find(attribute.basis_id);
+              if (basis) {
+                const { is_deleted, ...restBasis } = basis;
+                return {
+                  ...attribute,
+                  basis: {
+                    ...restBasis,
+                    type: this.getBasisType(basis.type),
+                  },
+                };
+              }
+              return undefined;
+            })
+          );
+        }
+        return {
+          ...rest,
+          subs,
+        };
+      })
+    );
+  };
   private countAttribute = (attributes: IAttributeAttributes[]) => {
     return attributes.reduce((pre, cur) => {
       return pre + cur.subs.length;
@@ -451,48 +493,6 @@ export default class AttributeService {
         statusCode: 200,
       });
     });
-  };
-  private getBasisType = (type: number) => {
-    switch (type) {
-      case BASIS_TYPES.CONVERSION:
-        return "Conversions";
-      case BASIS_TYPES.PRESET:
-        return "Presets";
-      case BASIS_TYPES.OPTION:
-        return "Options";
-      default:
-        return "Text";
-    }
-  };
-  private returnAttributeData = async (attributes: any[]) => {
-    let subs: any;
-    return await Promise.all(
-      attributes.map(async (attributeGroup: any) => {
-        const { is_deleted, ...rest } = attributeGroup;
-        if (attributeGroup.subs) {
-          subs = await Promise.all(
-            attributeGroup.subs.map(async (attribute: any) => {
-              const basis = await this.basisModel.find(attribute.basis_id);
-              if (basis) {
-                const { is_deleted, ...restBasis } = basis;
-                return {
-                  ...attribute,
-                  basis: {
-                    ...restBasis,
-                    type: this.getBasisType(basis.type),
-                  },
-                };
-              }
-              return undefined;
-            })
-          );
-        }
-        return {
-          ...rest,
-          subs,
-        };
-      })
-    );
   };
 
   public getAllAttribute = (): Promise<
