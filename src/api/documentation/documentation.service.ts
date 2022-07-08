@@ -161,6 +161,12 @@ class DocumentationService {
           statusCode: 404,
         });
       }
+      if (documentation.type !== DOCUMENTATION_TYPES.GENERAL) {
+        return resolve({
+          message: "Cannot delete how to documentation",
+          statusCode: 400,
+        });
+      }
       const result = await this.documentationModel.update(id, {
         is_deleted: true,
       });
