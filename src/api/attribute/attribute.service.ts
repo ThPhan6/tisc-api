@@ -63,7 +63,10 @@ export default class AttributeService {
                   },
                 };
               }
-              return undefined;
+              return {
+                ...attribute,
+                basis: {},
+              };
             })
           );
         }
