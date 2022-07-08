@@ -54,7 +54,7 @@ export default class Service {
           if (countryDetail.region.toLowerCase() === "europe")
             region = REGION_KEY.EUROPE;
           return {
-            id: countryDetail.iso2,
+            id: countryDetail.id,
             name: countryDetail.name,
             phone_code: countryDetail.phonecode,
             region,

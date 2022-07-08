@@ -1,7 +1,9 @@
-import axios from "axios";
+import CountryModel, { ICountryAttributes } from "../model/country";
+import StateModel, { IStateAttributes } from "../model/state";
+import CityModel, { ICityAttributes } from "../model/city";
 
 export interface ICountry {
-  id: number;
+  id: string;
   name: string;
   iso2: string;
 }
@@ -14,102 +16,82 @@ export interface ICountryStateCity {
   city_name: string;
   phone_code: string;
 }
-export interface ICountryDetail {
-  id: number;
-  name: string;
-  iso3: string;
-  numeric_code: string;
-  iso2: string;
-  phonecode: string;
-  capital: string;
-  currency: string;
-  currency_name: string;
-  currency_symbol: string;
-  tld: string;
-  native: string;
-  region: string;
-  subregion: string;
-  timezones: string;
-  translations: string;
-  latitude: string;
-  longitude: string;
-  emoji: string;
-  emojiU: string;
-}
-export interface IStateDetail {
-  id: number;
-  name: string;
-  country_id: string;
-  country_code: string;
-  iso2: string;
-  type: any;
-  latitude: string;
-  longtitude: string;
-}
 export interface ICity {
-  id: number;
+  id: string;
   name: string;
 }
-const url = "https://api.countrystatecity.in/v1";
-const api_key = process.env.X_CSCAPI_KEY || "";
-const options = {
-  headers: {
-    "Content-Type": "application/json",
-    "X-CSCAPI-KEY": api_key,
-  },
-};
-
 export default class CountryStateCityService {
+  private countryModel: CountryModel;
+  private stateModel: StateModel;
+  private cityModel: CityModel;
+  constructor() {
+    this.countryModel = new CountryModel();
+    this.stateModel = new StateModel();
+    this.cityModel = new CityModel();
+  }
   public getAllCountry = (): Promise<ICountry[]> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(`${url}/countries`, options);
-        return resolve(result.data);
+        const result = await this.countryModel.getAll();
+        return resolve(
+          result.map((item) => ({
+            id: item.id,
+            iso2: item.iso2,
+            name: item.name,
+          }))
+        );
       } catch (error) {
         return resolve([]);
       }
     });
-  public getCountryDetail = (id: string): Promise<ICountryDetail | any> =>
+  public getCountryDetail = (id: string): Promise<ICountryAttributes | any> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(`${url}/countries/${id}`, options);
-        return resolve(result.data);
+        const result = await this.countryModel.find(id);
+        if (result === undefined) {
+          return resolve({});
+        }
+        return resolve(result);
       } catch (error) {
         return resolve({});
       }
     });
-  public getAllState = (): Promise<IStateDetail[]> =>
+  public getCityDetail = (id: string): Promise<ICityAttributes | any> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(`${url}/states`, options);
-        return resolve(result.data);
+        const result = await this.cityModel.find(id);
+        if (result === undefined) {
+          return resolve({});
+        }
+        return resolve(result);
       } catch (error) {
-        return resolve([]);
+        return resolve({});
       }
     });
   public getStatesByCountry = (country_id: string): Promise<ICountry[]> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(
-          `${url}/countries/${country_id}/states`,
-          options
-        );
-        return resolve(result.data);
+        const states = await this.stateModel.getBy({
+          country_id,
+        });
+        if (states === undefined) {
+          return resolve([]);
+        }
+        const result = states.map((item) => ({
+          id: item.id,
+          name: item.name,
+          iso2: item.state_code,
+        }));
+        return resolve(result);
       } catch (error) {
         return resolve([]);
       }
     });
-  public getStateDetail = (
-    country_id: string,
-    id: string
-  ): Promise<IStateDetail | any> =>
+  public getStateDetail = (id: string): Promise<IStateAttributes | any> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(
-          `${url}/countries/${country_id}/states/${id}`,
-          options
-        );
-        return resolve(result.data);
+        const result = await this.stateModel.find(id);
+        return resolve(result);
       } catch (error) {
         return resolve({});
       }
@@ -120,11 +102,16 @@ export default class CountryStateCityService {
   ): Promise<ICity[]> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(
-          `${url}/countries/${country_id}/states/${state_id}/cities`,
-          options
+        const result = await this.cityModel.getBy({
+          country_id,
+          state_id,
+        });
+        if (!result) {
+          return resolve([]);
+        }
+        return resolve(
+          result.map((item) => ({ id: item.id, name: item.name }))
         );
-        return resolve(result.data);
       } catch (error) {
         return resolve([]);
       }
@@ -132,11 +119,15 @@ export default class CountryStateCityService {
   public getCitiesByCountry = (country_id: string): Promise<ICity[]> =>
     new Promise(async (resolve) => {
       try {
-        const result = await axios.get(
-          `${url}/countries/${country_id}/cities`,
-          options
+        const result = await this.cityModel.getBy({
+          country_id,
+        });
+        if (!result) {
+          return resolve([]);
+        }
+        return resolve(
+          result.map((item) => ({ id: item.id, name: item.name }))
         );
-        return resolve(result.data);
       } catch (error) {
         return resolve([]);
       }
@@ -146,29 +137,31 @@ export default class CountryStateCityService {
     country_id: string,
     city_id: string,
     state_id?: string
-  ): Promise<ICountryStateCity | false> =>
+  ): Promise<ICountryStateCity | false | any> =>
     new Promise(async (resolve) => {
       try {
-        const country = await this.getCountryDetail(country_id);
-        let cities = [];
-        let state;
+        const country = await this.countryModel.find(country_id);
+        const city = await this.cityModel.find(city_id);
         if (state_id) {
-          state = await this.getStateDetail(country_id, state_id);
-          cities = await this.getCitiesByStateAndCountry(country_id, state_id);
-        }
-        cities = await this.getCitiesByCountry(country_id);
-        const city = cities.find((item) => item.id.toString() === city_id);
-        if (!country || !state || !city) {
-          return resolve(false);
+          const state = await this.stateModel.find(state_id);
+          return resolve({
+            country_id: country?.id || "",
+            state_id: state?.id || "",
+            city_id: city?.id || "",
+            country_name: country?.name || "",
+            state_name: state?.name || "",
+            city_name: city?.name || "",
+            phone_code: country?.phone_code || "",
+          });
         }
         return resolve({
-          country_id: country.iso2,
-          state_id: state.iso2,
-          city_id,
-          country_name: country.name,
-          state_name: state.name,
-          city_name: city.name,
-          phone_code: country.phonecode,
+          country_id: country?.id || "",
+          state_id: "",
+          city_id: city?.id || "",
+          country_name: country?.name || "",
+          state_name: "",
+          city_name: city?.name || "",
+          phone_code: country?.phone_code || "",
         });
       } catch (error) {
         return resolve(false);

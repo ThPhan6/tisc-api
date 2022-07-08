@@ -17,7 +17,7 @@ import {
   LocationsWithGroupResponse,
 } from "./location.type";
 import { IMessageResponse } from "../../type/common.type";
-import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
+import { MESSAGES } from "../../constant/common.constant";
 import CountryStateCityService, {
   ICity,
 } from "../../service/country_state_city.service";
@@ -76,30 +76,12 @@ export default class LocationService {
           return function_type_id;
         })
       );
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      let state;
-      if (payload.state_id) {
-        state = await this.countryStateCityService.getStateDetail(
+      const countryStateCity =
+        await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
+          payload.city_id,
           payload.state_id
         );
-      }
-      let cities;
-      if (payload.state_id) {
-        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
-          payload.country_id,
-          payload.state_id
-        );
-      }
-      if (!cities || cities === [])
-        cities = await this.countryStateCityService.getCitiesByCountry(
-          payload.country_id
-        );
-      const city = cities.find(
-        (item) => item.id.toString() === payload.city_id
-      );
       const createdLocation = await this.locationModel.create({
         ...LOCATION_NULL_ATTRIBUTES,
         business_name: payload.business_name,
@@ -108,10 +90,10 @@ export default class LocationService {
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
-        country_name: country?.name || "",
-        state_name: state?.name || "",
-        city_name: city?.name || "",
-        phone_code: country.phonecode,
+        country_name: countryStateCity?.country_name || "",
+        state_name: countryStateCity?.state_name || "",
+        city_name: countryStateCity?.city_name || "",
+        phone_code: countryStateCity.phone_code,
         address: payload.address,
         postal_code: payload.postal_code,
         general_phone: payload.general_phone,
@@ -175,30 +157,12 @@ export default class LocationService {
           return function_type_id;
         })
       );
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      let state;
-      if (payload.state_id) {
-        state = await this.countryStateCityService.getStateDetail(
+      const countryStateCity =
+        await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
+          payload.city_id,
           payload.state_id
         );
-      }
-      let cities;
-      if (payload.state_id) {
-        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
-          payload.country_id,
-          payload.state_id
-        );
-      }
-      if (!cities || cities === [])
-        cities = await this.countryStateCityService.getCitiesByCountry(
-          payload.country_id
-        );
-      const city = cities.find(
-        (item) => item.id.toString() === payload.city_id
-      );
       const updatedLocation = await this.locationModel.update(id, {
         business_name: payload.business_name,
         business_number: payload.business_number,
@@ -206,10 +170,10 @@ export default class LocationService {
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
-        country_name: country?.name || "",
-        state_name: state?.name || "",
-        city_name: city?.name || "",
-        phone_code: country.phonecode,
+        country_name: countryStateCity?.country_name || "",
+        state_name: countryStateCity?.state_name || "",
+        city_name: countryStateCity?.city_name || "",
+        phone_code: countryStateCity.phone_code,
         address: payload.address,
         postal_code: payload.postal_code,
         general_phone: payload.general_phone,
@@ -271,7 +235,7 @@ export default class LocationService {
             country.id.toString()
           );
           return {
-            id: country.iso2,
+            id: country.id,
             name: country.name,
             phone_code: detail.phonecode,
           };
@@ -288,7 +252,7 @@ export default class LocationService {
         country_id
       );
       const result = states.map((state) => ({
-        id: state.iso2,
+        id: state.id,
         name: state.name,
       }));
       return resolve({

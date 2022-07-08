@@ -96,6 +96,22 @@ export default class Builder {
     }
     return this;
   };
+  public whereOr = (key: string, values: string[]) => {
+    const parts = values.map((value, index) => {
+      this.bindObj = { ...this.bindObj, [key + index]: value };
+      return ` ${this.prefix}.${key} == @${key}${index} `;
+    });
+    this.query += ` filter ${parts.join(" or ")} `;
+    return this;
+  };
+  public whereOrRevert = (keys: string[], value: string) => {
+    const parts = keys.map((key) => {
+      this.bindObj = { ...this.bindObj, [key]: value };
+      return ` ${this.prefix}.${key} == @${key} `;
+    });
+    this.query += ` filter ${parts.join(" or ")} `;
+    return this;
+  };
 
   public whereNotLike = (key: any, value?: string) => {
     if (value) {
@@ -255,7 +271,6 @@ export default class Builder {
         ? ` return merge(${this.prefix}, {@key : item}) `
         : ` return ${this.prefix} `;
     }
-
     const result: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,
