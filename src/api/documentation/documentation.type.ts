@@ -14,7 +14,6 @@ export interface IDocumentation {
 export interface IDocumentationRequest {
   title: string;
   document: object;
-  type: number | null;
   logo?: string;
 }
 

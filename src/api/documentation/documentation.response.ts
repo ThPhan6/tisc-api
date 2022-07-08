@@ -22,23 +22,7 @@ export default {
   documentations: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({
-      documentations: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          logo: Joi.string().allow(null),
-          type: Joi.number().allow(null),
-          title: Joi.string(),
-          document: Joi.object(),
-          created_at: Joi.any(),
-          created_by: Joi.any(),
-          updated_at: Joi.any(),
-          author: Joi.object({
-            id: Joi.string(),
-            firstname: Joi.string(),
-            lastname: Joi.string(),
-          }),
-        })
-      ),
+      documentations: Joi.array().items(Joi.any()),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),

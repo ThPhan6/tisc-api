@@ -16,7 +16,7 @@ export const DOCUMENTATION_NULL_ATTRIBUTES = {
   logo: null,
   type: null,
   title: null,
-  document: null,
+  document: {},
   created_at: null,
   created_by: null,
   updated_at: null,

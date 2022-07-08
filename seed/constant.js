@@ -471,7 +471,50 @@ const PERMISSION_NULL_ATTRIBUTES = {
   parent_number: null,
   created_at: null,
 };
-
+const DOCUMENTATION_NULL_ATTRIBUTES = {
+  id: null,
+  logo: null,
+  type: null,
+  title: null,
+  document: {},
+  created_at: null,
+  created_by: null,
+  updated_at: null,
+  is_deleted: false,
+};
+const DOCUMENTATION_TYPES = {
+  GENERAL: 1,
+  TISC_HOW_TO: 2,
+  BRAND_HOW_TO: 3,
+  DESIGN_HOW_TO: 4,
+};
+const LOGO_PATH = {
+  MY_WORKSPACE: "/logo/my_workspace.svg",
+  USER_GROUP: "/logo/user_group.svg",
+  PROJECT: "/logo/project.svg",
+  LIST: "/logo/list.svg",
+  PRODUCT: "/logo/product.svg",
+  ADMINISTRATION: "/logo/administration.svg",
+  GENERAL_INQUIRY: "/logo/general_inquires.svg",
+  PROJECT_TRACKING: "/logo/project_tracking.svg",
+  FAVORITE: "/logo/favourite.svg",
+  SUBSCRIPTION: "/logo/subscription.svg",
+  MARKET: "/logo/market_availability.svg",
+  DISTRIBUTOR: "/logo/distributor.svg",
+  REVENUE: "/logo/revenue.svg",
+  MESSAGE: "/logo/message.svg",
+  TEAM_PROFILE: "/logo/team_profile.svg",
+  LOCATION: "/logo/location.svg",
+  DOCUMENTATION: "/logo/documentation.svg",
+  CONFIGURATION: "/logo/configuration.svg",
+  ATTRIBUTE: "/logo/attribute.svg",
+  BASIS: "/logo/basis.svg",
+  CATEGORY: "/logo/category.svg",
+  BRAND: "/logo/brand.svg",
+  DESIGN: "/logo/design.svg",
+  OFFICE: "/logo/office.svg",
+  MATERIAL: "/logo/material.svg",
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -492,4 +535,7 @@ module.exports = {
   TOPIC_TYPES,
   TARGETED_FOR_TYPES,
   PERMISSION_NULL_ATTRIBUTES,
+  DOCUMENTATION_NULL_ATTRIBUTES,
+  DOCUMENTATION_TYPES,
+  LOGO_PATH,
 };

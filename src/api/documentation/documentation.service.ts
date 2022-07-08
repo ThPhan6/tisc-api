@@ -1,4 +1,5 @@
-import { MESSAGES } from "../../constant/common.constant";
+import moment from "moment";
+import { DOCUMENTATION_TYPES, MESSAGES } from "../../constant/common.constant";
 import DocumentationModel, {
   DOCUMENTATION_NULL_ATTRIBUTES,
 } from "../../model/documentation.model";
@@ -30,7 +31,7 @@ class DocumentationService {
         title: payload.title,
         document: payload.document,
         created_by: user_id,
-        type: payload.type,
+        type: DOCUMENTATION_TYPES.GENERAL,
       });
       if (!createdDocumentation) {
         return resolve({
@@ -38,6 +39,9 @@ class DocumentationService {
           statusCode: 400,
         });
       }
+      await this.documentationModel.update(createdDocumentation.id, {
+        updated_at: moment(),
+      });
       const { is_deleted, ...rest } = createdDocumentation;
       return resolve({
         data: rest,
@@ -51,29 +55,34 @@ class DocumentationService {
     limit: number,
     offset: number,
     sort: any
-  ): Promise<IDocumentationsResponse | IMessageResponse> => {
+  ): Promise<IDocumentationsResponse | any> => {
     return new Promise(async (resolve) => {
-      const documentations = await this.documentationModel.getListWithoutFilter(
-        type,
-        limit,
-        offset,
-        sort
-      );
-      if (!documentations) {
+      const pagination: IPagination =
+        await this.documentationModel.getPagination(limit, offset, { type });
+      const documentations = await this.documentationModel.getAllBy({ type });
+      if (type !== DOCUMENTATION_TYPES.GENERAL) {
         return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
+          data: {
+            documentations: documentations.map((item) => {
+              const { is_deleted, ...rest } = item;
+              return rest;
+            }),
+            pagination,
+          },
+          statusCode: 200,
         });
       }
-      const result = documentations.map((documentation: any) => {
+      const generalDocumentations =
+        await this.documentationModel.getListWithoutFilter(
+          type,
+          limit,
+          offset,
+          sort
+        );
+      const result = generalDocumentations.map((documentation: any) => {
         return {
-          created_at: documentation.created_at,
-          created_by: documentation.created_by,
-          document: documentation.document,
           id: documentation.id,
-          logo: documentation.logo,
           title: documentation.title,
-          type: documentation.type,
           updated_at: documentation.updated_at,
           author: {
             id: documentation.author.id,
@@ -82,9 +91,6 @@ class DocumentationService {
           },
         };
       });
-      const pagination: IPagination =
-        await this.documentationModel.getPagination(limit, offset);
-
       return resolve({
         data: {
           documentations: result,
@@ -124,10 +130,15 @@ class DocumentationService {
           statusCode: 404,
         });
       }
-      const updatedDocumentation = await this.documentationModel.update(
-        id,
-        payload
-      );
+      const updatedDocumentation =
+        documentation.type === DOCUMENTATION_TYPES.GENERAL
+          ? await this.documentationModel.update(id, {
+              ...payload,
+              updated_at: moment(),
+            })
+          : await this.documentationModel.update(id, {
+              document: payload.document,
+            });
       if (!updatedDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,

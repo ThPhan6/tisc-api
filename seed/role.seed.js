@@ -1,16 +1,7 @@
-const { Database } = require("arangojs");
-const dotenv = require("dotenv");
 const moment = require("moment");
 const ROLES = require("./constant").ROLES;
-dotenv.config();
 
-const db = new Database({
-  url: process.env.DATABASE_HOSTNAME,
-});
-db.useDatabase(process.env.DATABASE_NAME || "");
-db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-
-const seed = async () => {
+const seed = async (db) => {
   const roleCollection = await db.collection("roles");
   const createAndSeed = async (collection) => {
     await collection.create();

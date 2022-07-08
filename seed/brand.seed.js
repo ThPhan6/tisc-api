@@ -1,17 +1,9 @@
-const { Database } = require("arangojs");
-const dotenv = require("dotenv");
-dotenv.config();
 const uuid = require("uuid").v4;
 const moment = require("moment");
 const BRAND_NULL_ATTRIBUTES = require("./constant").BRAND_NULL_ATTRIBUTES;
 const BRAND_STATUSES = require("./constant").BRAND_STATUSES;
-const db = new Database({
-  url: process.env.DATABASE_HOSTNAME,
-});
-db.useDatabase(process.env.DATABASE_NAME || "");
-db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
-const seed = async () => {
+const seed = async (db) => {
   const brandCollection = await db.collection("brands");
   const createAndSeed = async (collection) => {
     await collection.create();
