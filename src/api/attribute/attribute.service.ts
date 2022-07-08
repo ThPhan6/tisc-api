@@ -15,8 +15,10 @@ import {
   IAttributeRequest,
   IAttributeResponse,
   IAttributesResponse,
+  IContentType,
   IContentTypesResponse,
   IGetAllAttributeResponse,
+  ISubAttribute,
   IUpdateAttributeRequest,
 } from "./attribute.type";
 import { v4 as uuid } from "uuid";
@@ -44,39 +46,7 @@ export default class AttributeService {
         return "Text";
     }
   };
-  private returnAttributeData = async (attributes: any[]) => {
-    let subs: any;
-    return await Promise.all(
-      attributes.map(async (attributeGroup: any) => {
-        const { is_deleted, ...rest } = attributeGroup;
-        if (attributeGroup.subs) {
-          subs = await Promise.all(
-            attributeGroup.subs.map(async (attribute: any) => {
-              const basis = await this.basisModel.find(attribute.basis_id);
-              if (basis) {
-                const { is_deleted, ...restBasis } = basis;
-                return {
-                  ...attribute,
-                  basis: {
-                    ...restBasis,
-                    type: this.getBasisType(basis.type),
-                  },
-                };
-              }
-              return {
-                ...attribute,
-                basis: {},
-              };
-            })
-          );
-        }
-        return {
-          ...rest,
-          subs,
-        };
-      })
-    );
-  };
+
   private countAttribute = (attributes: IAttributeAttributes[]) => {
     return attributes.reduce((pre, cur) => {
       return pre + cur.subs.length;
@@ -133,6 +103,42 @@ export default class AttributeService {
     });
 
     return data;
+  };
+
+  private returnAttributeData = async (
+    attributes: IAttributeAttributes[],
+    subsBasis: any,
+    contentTypes: IContentType[]
+  ) => {
+    return attributes.map((attribute) => {
+      const { is_deleted, ...rest } = attribute;
+      const subsAttribute = attribute.subs.map((item: ISubAttribute) => {
+        const foundBasis = subsBasis.find(
+          (basis: any) => basis.id == item.basis_id
+        );
+        if (foundBasis) {
+          const { is_deleted, ...restBasis } = foundBasis;
+          const contentType = contentTypes.find(
+            (item: IContentType) => item.id === foundBasis.id
+          );
+          return {
+            ...item,
+            basis: {
+              ...restBasis,
+              content_type: contentType,
+            },
+          };
+        }
+        return {
+          ...item,
+          basis: {},
+        };
+      });
+      return {
+        ...rest,
+        subs: subsAttribute,
+      };
+    });
   };
   public create = (
     payload: IAttributeRequest
@@ -502,16 +508,35 @@ export default class AttributeService {
     IMessageResponse | IGetAllAttributeResponse
   > => {
     return new Promise(async (resolve) => {
+      const contentTypes = await this.getFlatListContentType();
+      const bases: any = await this.basisModel.getAll();
+      const subsBasis = bases.reduce((pre: any, cur: any) => {
+        const temp = cur.subs.map((item: any) => ({
+          ...item,
+          type: this.getBasisType(cur.type),
+        }));
+        return pre.concat(temp);
+      }, []);
       const returnedGeneralAttributes = await this.returnAttributeData(
-        await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.GENERAL)
+        await this.attributeModel.getAllAttributeByType(
+          ATTRIBUTE_TYPES.GENERAL
+        ),
+        subsBasis,
+        contentTypes
       );
       const returnedFeatureAttributes = await this.returnAttributeData(
-        await this.attributeModel.getAllAttributeByType(ATTRIBUTE_TYPES.FEATURE)
+        await this.attributeModel.getAllAttributeByType(
+          ATTRIBUTE_TYPES.FEATURE
+        ),
+        subsBasis,
+        contentTypes
       );
       const returnedSpecificationAttributes = await this.returnAttributeData(
         await this.attributeModel.getAllAttributeByType(
           ATTRIBUTE_TYPES.SPECIFICATION
-        )
+        ),
+        subsBasis,
+        contentTypes
       );
       return resolve({
         data: {

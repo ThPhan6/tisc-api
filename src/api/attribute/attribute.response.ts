@@ -87,13 +87,7 @@ export default {
               description_1: Joi.string(),
               description_2: Joi.string(),
               content_type: Joi.string(),
-              basis: Joi.object({
-                id: Joi.string(),
-                type: Joi.string(),
-                name: Joi.string(),
-                subs: Joi.array().items(Joi.any()),
-                created_at: Joi.string(),
-              }),
+              basis: Joi.any(),
             })
           ),
           created_at: Joi.string(),
@@ -113,13 +107,7 @@ export default {
               description_1: Joi.string(),
               description_2: Joi.string(),
               content_type: Joi.string(),
-              basis: Joi.object({
-                id: Joi.string(),
-                type: Joi.string(),
-                name: Joi.string(),
-                subs: Joi.array().items(Joi.any()),
-                created_at: Joi.string(),
-              }),
+              basis: Joi.any(),
             })
           ),
           created_at: Joi.string(),
@@ -139,13 +127,7 @@ export default {
               description_1: Joi.string(),
               description_2: Joi.string(),
               content_type: Joi.string(),
-              basis: Joi.object({
-                id: Joi.string(),
-                type: Joi.string(),
-                name: Joi.string(),
-                subs: Joi.array().items(Joi.any()),
-                created_at: Joi.string(),
-              }),
+              basis: Joi.any(),
             })
           ),
           created_at: Joi.string(),
