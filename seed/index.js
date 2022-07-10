@@ -2,6 +2,12 @@ const { Database } = require("arangojs");
 const dotenv = require("dotenv");
 const seedDocumentation = require("./documentation.seed").seed;
 
+const seedRole = require("./role.seed").seed;
+const seedUser = require("./user.seed").seed;
+const seedPermission = require("./permission.seed").seed;
+const seedBrand = require("./brand.seed").seed;
+const seedBasis = require("./basis.seed").seed;
+const seedPermissionRoute = require("./permission_route.seed").seed;
 dotenv.config();
 
 const db = new Database({
@@ -12,6 +18,12 @@ db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
   await seedDocumentation(db);
+  await seedRole(db);
+  await seedUser(db);
+  await seedPermission(db);
+  await seedPermissionRoute(db);
+  await seedBrand(db);
+  await seedBasis(db);
 };
 
 seed();
