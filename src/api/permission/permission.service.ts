@@ -505,6 +505,7 @@ export default class PermissionService {
           await this.permissionModel.create(record);
         })
       );
+      return resolve(true);
     });
   };
   public createDesignPermission = (design_id: string): Promise<boolean> => {

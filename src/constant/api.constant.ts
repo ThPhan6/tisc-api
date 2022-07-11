@@ -165,6 +165,8 @@ export const ROUTES = {
   GET_COUNTRY: "/api/location/get-country/{id}",
   GET_STATE: "/api/location/get-state/{id}",
   GET_CITY: "/api/location/get-city/{id}",
+
+  CREATE_BRAND: "/api/brand/create",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -326,4 +328,6 @@ export const ROUTE_IDS = {
   GET_COUNTRY: "149",
   GET_STATE: "150",
   GET_CITY: "151",
+
+  CREATE_BRAND: "152",
 };

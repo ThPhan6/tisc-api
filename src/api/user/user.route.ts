@@ -163,6 +163,22 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "POST",
+          path: ROUTES.SEND_INVITE_TEAM_PROFILE,
+          options: {
+            handler: controller.invite,
+            validate: commonValidate.getOne,
+            description: "Method that invite team profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

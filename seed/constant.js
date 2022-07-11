@@ -193,6 +193,12 @@ const ROUTES = {
     "/api/product-catelogue-download/update/{product_id}",
   DELETE_PRODUCT_CATELOGUE_DOWNLOAD:
     "/api/product-catelogue-download/delete/{product_id}",
+
+  GET_COUNTRY: "/api/location/get-country/{id}",
+  GET_STATE: "/api/location/get-state/{id}",
+  GET_CITY: "/api/location/get-city/{id}",
+
+  CREATE_BRAND: "/api/brand/create",
 };
 const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -350,6 +356,12 @@ const ROUTE_IDS = {
   GET_ONE_PRODUCT_CATELOGUE_DOWNLOAD: "146",
   EDIT_PRODUCT_CATELOGUE_DOWNLOAD: "147",
   DELETE_PRODUCT_CATELOGUE_DOWNLOAD: "148",
+
+  GET_COUNTRY: "149",
+  GET_STATE: "150",
+  GET_CITY: "151",
+
+  CREATE_BRAND: "152",
 };
 
 const USER_STATUSES = {

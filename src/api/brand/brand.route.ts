@@ -101,6 +101,22 @@ export default class BrandRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.CREATE_BRAND,
+          options: {
+            handler: controller.create,
+            validate: validate.create,
+            description: "Method that create brand",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_BRAND_STATUSES,
           options: {
