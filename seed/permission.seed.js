@@ -282,6 +282,8 @@ const seed = async (db) => {
         routes: [
           { id: ROUTE_IDS.GET_LIST_EMAIL_AUTO, accessable: true },
           { id: ROUTE_IDS.GET_ONE_EMAIL_AUTO, accessable: true },
+          { id: ROUTE_IDS.GET_LIST_AUTO_EMAIL_TARGETED_FOR, accessable: true },
+          { id: ROUTE_IDS.GET_LIST_AUTO_EMAIL_TOPIC, accessable: true },
           { id: ROUTE_IDS.EDIT_EMAIL_AUTO, accessable: true },
           { id: ROUTE_IDS.DELETE_EMAIL_AUTO, accessable: true },
           { id: ROUTE_IDS.CREATE_EMAIL_AUTO, accessable: true },
@@ -581,6 +583,8 @@ const seed = async (db) => {
         routes: [
           { id: ROUTE_IDS.GET_LIST_EMAIL_AUTO, accessable: false },
           { id: ROUTE_IDS.GET_ONE_EMAIL_AUTO, accessable: false },
+          { id: ROUTE_IDS.GET_LIST_AUTO_EMAIL_TARGETED_FOR, accessable: false },
+          { id: ROUTE_IDS.GET_LIST_AUTO_EMAIL_TOPIC, accessable: false },
           { id: ROUTE_IDS.EDIT_EMAIL_AUTO, accessable: false },
           { id: ROUTE_IDS.DELETE_EMAIL_AUTO, accessable: false },
           { id: ROUTE_IDS.CREATE_EMAIL_AUTO, accessable: false },
