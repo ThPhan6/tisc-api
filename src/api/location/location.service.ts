@@ -389,6 +389,9 @@ export default class LocationService {
             country_name: location.country_name,
             state_name: location.state_name,
             city_name: location.city_name,
+            country_id: location.country_id,
+            state_id: location.state_id,
+            city_id: location.city_id,
             phone_code: location.phone_code,
             functional_types: functionalTypes,
           };
