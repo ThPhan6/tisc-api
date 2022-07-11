@@ -4,14 +4,13 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import IRoute from "../../helper/route.helper";
-import commonValidate from "../../validate/common.validate";
-import ProductDownloadController from "./product_download.controller";
-import response from "./product_download.response";
-import validate from "./product_download.validate";
+import Controller from "./controller";
+import response from "./response";
+import validate from "./validate";
 export default class ProductDownloadRoute implements IRoute {
   public async register(server: Server): Promise<any> {
     return new Promise(async (resolve) => {
-      const controller = new ProductDownloadController();
+      const controller = new Controller();
 
       server.route([
         {
@@ -26,23 +25,7 @@ export default class ProductDownloadRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.productDownload,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_LIST_PRODUCT_DOWNLOAD,
-          options: {
-            handler: controller.getList,
-            description: "Method that get list product download",
-            tags: ["api", "Product download"],
-            auth: AUTH_NAMES.PERMISSION,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.productDownloads,
+                200: response.one,
               },
             },
           },
@@ -51,15 +34,15 @@ export default class ProductDownloadRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_PRODUCT_DOWNLOAD,
           options: {
-            handler: controller.getById,
-            validate: commonValidate.getOne,
+            handler: controller.get,
+            validate: validate.getOne,
             description: "Method that get one product download",
             tags: ["api", "Product download"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.productDownload,
+                200: response.one,
               },
             },
           },
@@ -76,7 +59,7 @@ export default class ProductDownloadRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.productDownload,
+                200: response.one,
               },
             },
           },
@@ -86,7 +69,7 @@ export default class ProductDownloadRoute implements IRoute {
           path: ROUTES.DELETE_PRODUCT_DOWNLOAD,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: validate.getOne,
             description: "Method that delete product download",
             tags: ["api", "Product download"],
             auth: AUTH_NAMES.PERMISSION,
@@ -94,23 +77,6 @@ export default class ProductDownloadRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: generalMessageResponse,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID,
-          options: {
-            handler: controller.getDownloadsByProductId,
-            validate: commonValidate.getOne,
-            description: "Method that get product downloads by product id",
-            tags: ["api", "Product download"],
-            auth: AUTH_NAMES.PERMISSION,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.productDownloads,
               },
             },
           },

@@ -6,23 +6,33 @@ const Joi = HapiJoi.defaults((schema) =>
 );
 
 export default {
-  productTip: Joi.object({
+  one: Joi.object({
     data: Joi.object({
       id: Joi.string(),
       product_id: Joi.string(),
-      title: Joi.string(),
-      content: Joi.string(),
+      contents: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          title: Joi.string(),
+          url: Joi.string(),
+        })
+      ),
       created_at: Joi.string(),
     }),
     statusCode: Joi.number(),
   }) as any,
-  productTips: Joi.object({
+  many: Joi.object({
     data: Joi.array().items(
       Joi.object({
         id: Joi.string(),
         product_id: Joi.string(),
-        title: Joi.string(),
-        content: Joi.string(),
+        contents: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            title: Joi.string(),
+            url: Joi.string(),
+          })
+        ),
         created_at: Joi.string(),
       })
     ),

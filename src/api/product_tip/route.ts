@@ -4,14 +4,14 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import IRoute from "../../helper/route.helper";
-import ProductTipController from "./product_tip.controller";
-import validate from "./product_tip.validate";
-import response from "./product_tip.response";
-import commonValidate from "../../validate/common.validate";
+import Controller from "./controller";
+import response from "./response";
+import validate from "./validate";
 export default class ProductTipRoute implements IRoute {
   public async register(server: Server): Promise<any> {
-    return new Promise((resolve) => {
-      const controller = new ProductTipController();
+    return new Promise(async (resolve) => {
+      const controller = new Controller();
+
       server.route([
         {
           method: "POST",
@@ -25,23 +25,7 @@ export default class ProductTipRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.productTip,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_LIST_PRODUCT_TIP,
-          options: {
-            handler: controller.getList,
-            description: "Method that get list product tip",
-            tags: ["api", "Product tip"],
-            auth: AUTH_NAMES.PERMISSION,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.productTips,
+                200: response.one,
               },
             },
           },
@@ -50,15 +34,15 @@ export default class ProductTipRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_ONE_PRODUCT_TIP,
           options: {
-            handler: controller.getById,
-            validate: commonValidate.getOne,
+            handler: controller.get,
+            validate: validate.getOne,
             description: "Method that get one product tip",
             tags: ["api", "Product tip"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.productTip,
+                200: response.one,
               },
             },
           },
@@ -75,7 +59,7 @@ export default class ProductTipRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.productTip,
+                200: response.one,
               },
             },
           },
@@ -85,7 +69,7 @@ export default class ProductTipRoute implements IRoute {
           path: ROUTES.DELETE_PRODUCT_TIP,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: validate.getOne,
             description: "Method that delete product tip",
             tags: ["api", "Product tip"],
             auth: AUTH_NAMES.PERMISSION,
@@ -93,23 +77,6 @@ export default class ProductTipRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: generalMessageResponse,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID,
-          options: {
-            handler: controller.getTipsByProductId,
-            validate: commonValidate.getOne,
-            description: "Method that get product tips by product id",
-            tags: ["api", "Product tip"],
-            auth: AUTH_NAMES.PERMISSION,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.productTips,
               },
             },
           },

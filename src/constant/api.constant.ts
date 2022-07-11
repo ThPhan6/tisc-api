@@ -103,17 +103,17 @@ export const ROUTES = {
 
   CREATE_PRODUCT_TIP: "/api/product-tip/create",
   GET_LIST_PRODUCT_TIP: "/api/product-tip/get-list",
-  GET_ONE_PRODUCT_TIP: "/api/product-tip/get-one/{id}",
-  EDIT_PRODUCT_TIP: "/api/product-tip/update/{id}",
-  DELETE_PRODUCT_TIP: "/api/product-tip/delete/{id}",
+  GET_ONE_PRODUCT_TIP: "/api/product-tip/get-one/{product_id}",
+  EDIT_PRODUCT_TIP: "/api/product-tip/update/{product_id}",
+  DELETE_PRODUCT_TIP: "/api/product-tip/delete/{product_id}",
   GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
     "/api/product-tip/get-list-by-product/{id}",
 
   CREATE_PRODUCT_DOWNLOAD: "/api/product-download/create",
   GET_LIST_PRODUCT_DOWNLOAD: "/api/product-download/get-list",
-  GET_ONE_PRODUCT_DOWNLOAD: "/api/product-download/get-one/{id}",
-  EDIT_PRODUCT_DOWNLOAD: "/api/product-download/update/{id}",
-  DELETE_PRODUCT_DOWNLOAD: "/api/product-download/delete/{id}",
+  GET_ONE_PRODUCT_DOWNLOAD: "/api/product-download/get-one/{product_id}",
+  EDIT_PRODUCT_DOWNLOAD: "/api/product-download/update/{product_id}",
+  DELETE_PRODUCT_DOWNLOAD: "/api/product-download/delete/{product_id}",
   GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID:
     "/api/product-download/get-list-by-product/{id}",
 
@@ -151,6 +151,16 @@ export const ROUTES = {
   GET_LIST_MATERIAL_CODE: "/api/material-code/get-list",
   GET_ONE_MATERIAL_CODE: "/api/material-code/get-one/{id}",
   GET_ALL_ATTRIBUTE: "/api/attribute/get-all",
+
+  CREATE_PRODUCT_CATELOGUE_DOWNLOAD: "/api/product-catelogue-download/create",
+  GET_LIST_PRODUCT_CATELOGUE_DOWNLOAD:
+    "/api/product-catelogue-download/get-list",
+  GET_ONE_PRODUCT_CATELOGUE_DOWNLOAD:
+    "/api/product-catelogue-download/get-one/{product_id}",
+  EDIT_PRODUCT_CATELOGUE_DOWNLOAD:
+    "/api/product-catelogue-download/update/{product_id}",
+  DELETE_PRODUCT_CATELOGUE_DOWNLOAD:
+    "/api/product-catelogue-download/delete/{product_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -302,4 +312,10 @@ export const ROUTE_IDS = {
   GET_LIST_MATERIAL_CODE: "141",
   GET_ONE_MATERIAL_CODE: "142",
   GET_ALL_ATTRIBUTE: "143",
+
+  CREATE_PRODUCT_CATELOGUE_DOWNLOAD: "144",
+  GET_LIST_PRODUCT_CATELOGUE_DOWNLOAD: "145",
+  GET_ONE_PRODUCT_CATELOGUE_DOWNLOAD: "146",
+  EDIT_PRODUCT_CATELOGUE_DOWNLOAD: "147",
+  DELETE_PRODUCT_CATELOGUE_DOWNLOAD: "148",
 };

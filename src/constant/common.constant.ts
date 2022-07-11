@@ -116,6 +116,9 @@ export const MESSAGES = {
   DISTRIBUTOR_EXISTED: "Distributor existed",
   MARKET_AVAILABILITY_EXISTED: "Market availability existed",
   MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
+
+  PRODUCT_CATELOGUE_DOWNLOAD_EXISTED: "Product download existed",
+  PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND: "Product download not found",
 };
 
 export const BASIS_TYPES = {

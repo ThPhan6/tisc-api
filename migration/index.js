@@ -21,6 +21,7 @@ const migrate = async () => {
   await migrate_table("email_autoresponders");
   await migrate_table("distributors");
   await migrate_table("market_availabilities");
+  await migrate_table("product_catelogue_n_downloads");
 
   await migrate_table("countries");
   await migrate_table("states");
