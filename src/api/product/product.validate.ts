@@ -25,6 +25,7 @@ export default {
             attributes: Joi.array().items({
               id: Joi.string(),
               basis_id: Joi.string(),
+              basis_value_id: Joi.any(),
               type: Joi.string().valid(
                 "Text",
                 "Conversions",
@@ -50,6 +51,7 @@ export default {
             attributes: Joi.array().items({
               id: Joi.string(),
               basis_id: Joi.string(),
+              basis_value_id: Joi.any(),
               type: Joi.string().valid(
                 "Text",
                 "Conversions",
@@ -75,6 +77,7 @@ export default {
             attributes: Joi.array().items({
               id: Joi.string(),
               basis_id: Joi.any(),
+              basis_value_id: Joi.any(),
               type: Joi.string().valid(
                 "Text",
                 "Conversions",
@@ -139,6 +142,7 @@ export default {
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_id: Joi.string(),
+            basis_value_id: Joi.any(),
             type: Joi.string().valid(
               "Text",
               "Conversions",
@@ -158,6 +162,7 @@ export default {
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_id: Joi.string(),
+            basis_value_id: Joi.any(),
             type: Joi.string().valid(
               "Text",
               "Conversions",
@@ -177,6 +182,7 @@ export default {
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_id: Joi.any(),
+            basis_value_id: Joi.any(),
             type: Joi.string().valid(
               "Text",
               "Conversions",
