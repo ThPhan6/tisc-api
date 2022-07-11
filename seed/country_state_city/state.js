@@ -54773,6 +54773,7 @@ records = records.map((record) => ({
   ...record,
   id: record.id.toString(),
   country_id: record.country_id.toString(),
+  state_code: record.state_code.toString(),
 }));
 const seed = async (db) => {
   const stateCollection = await db.collection("states");

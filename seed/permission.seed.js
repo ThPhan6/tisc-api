@@ -195,6 +195,18 @@ const seed = async (db) => {
           { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
           { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.GET_BRAND_PRODUCT_SUMMARY, accessable: true },
+
+          { id: ROUTE_IDS.CREATE_PRODUCT_CATELOGUE_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.EDIT_PRODUCT_CATELOGUE_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.DELETE_PRODUCT_CATELOGUE_DOWNLOAD, accessable: true },
+
+          { id: ROUTE_IDS.CREATE_PRODUCT_TIP, accessable: true },
+          { id: ROUTE_IDS.EDIT_PRODUCT_TIP, accessable: true },
+          { id: ROUTE_IDS.DELETE_PRODUCT_TIP, accessable: true },
+
+          { id: ROUTE_IDS.CREATE_PRODUCT_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.EDIT_PRODUCT_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.DELETE_PRODUCT_DOWNLOAD, accessable: true },
         ],
       },
       {
@@ -495,6 +507,18 @@ const seed = async (db) => {
           { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
           { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.GET_BRAND_PRODUCT_SUMMARY, accessable: true },
+
+          { id: ROUTE_IDS.CREATE_PRODUCT_CATELOGUE_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.EDIT_PRODUCT_CATELOGUE_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.DELETE_PRODUCT_CATELOGUE_DOWNLOAD, accessable: true },
+
+          { id: ROUTE_IDS.CREATE_PRODUCT_TIP, accessable: true },
+          { id: ROUTE_IDS.EDIT_PRODUCT_TIP, accessable: true },
+          { id: ROUTE_IDS.DELETE_PRODUCT_TIP, accessable: true },
+
+          { id: ROUTE_IDS.CREATE_PRODUCT_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.EDIT_PRODUCT_DOWNLOAD, accessable: true },
+          { id: ROUTE_IDS.DELETE_PRODUCT_DOWNLOAD, accessable: true },
         ],
       },
       {

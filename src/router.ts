@@ -12,12 +12,13 @@ import CategoryRoute from "./api/category/category.route";
 import AttributeRoute from "./api/attribute/attribute.route";
 import BasisRoute from "./api/basis/basis.route";
 import LocationRoute from "./api/location/location.route";
-import ProductTipRoute from "./api/product-tip/product_tip.route";
-import ProductDownloadRoute from "./api/product_download/product_download.route";
+import ProductTipRoute from "./api/product_tip/route";
+import ProductDownloadRoute from "./api/product_download/route";
 import QuotationRoute from "./api/quotation/quotation.route";
 import AutoEmailRoute from "./api/auto_email/auto_email.route";
 import DistributorRoute from "./api/distributor/distributor.route";
 import MarketAvailabilityRoute from "./api/market_availability/market_availability.route";
+import ProductCatelogueNDownloadRoute from "./api/product_catelogue_n_download/route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -40,5 +41,6 @@ export default class Router {
     await new AutoEmailRoute().register(server);
     await new DistributorRoute().register(server);
     await new MarketAvailabilityRoute().register(server);
+    await new ProductCatelogueNDownloadRoute().register(server);
   }
 }

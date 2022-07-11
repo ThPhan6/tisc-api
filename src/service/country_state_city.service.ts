@@ -1,12 +1,6 @@
 import CountryModel, { ICountryAttributes } from "../model/country";
 import StateModel, { IStateAttributes } from "../model/state";
 import CityModel, { ICityAttributes } from "../model/city";
-
-export interface ICountry {
-  id: string;
-  name: string;
-  iso2: string;
-}
 export interface ICountryStateCity {
   country_id: string;
   state_id: any;
@@ -15,10 +9,6 @@ export interface ICountryStateCity {
   state_name: string;
   city_name: string;
   phone_code: string;
-}
-export interface ICity {
-  id: string;
-  name: string;
 }
 export default class CountryStateCityService {
   private countryModel: CountryModel;
@@ -29,17 +19,11 @@ export default class CountryStateCityService {
     this.stateModel = new StateModel();
     this.cityModel = new CityModel();
   }
-  public getAllCountry = (): Promise<ICountry[]> =>
+  public getAllCountry = (): Promise<ICountryAttributes[]> =>
     new Promise(async (resolve) => {
       try {
         const result = await this.countryModel.getAll();
-        return resolve(
-          result.map((item) => ({
-            id: item.id,
-            iso2: item.iso2,
-            name: item.name,
-          }))
-        );
+        return resolve(result);
       } catch (error) {
         return resolve([]);
       }
@@ -68,7 +52,9 @@ export default class CountryStateCityService {
         return resolve({});
       }
     });
-  public getStatesByCountry = (country_id: string): Promise<ICountry[]> =>
+  public getStatesByCountry = (
+    country_id: string
+  ): Promise<IStateAttributes[]> =>
     new Promise(async (resolve) => {
       try {
         const states = await this.stateModel.getBy({
@@ -77,12 +63,7 @@ export default class CountryStateCityService {
         if (states === undefined) {
           return resolve([]);
         }
-        const result = states.map((item) => ({
-          id: item.id,
-          name: item.name,
-          iso2: item.state_code,
-        }));
-        return resolve(result);
+        return resolve(states);
       } catch (error) {
         return resolve([]);
       }
@@ -99,7 +80,7 @@ export default class CountryStateCityService {
   public getCitiesByStateAndCountry = (
     country_id: string,
     state_id: string
-  ): Promise<ICity[]> =>
+  ): Promise<ICityAttributes[]> =>
     new Promise(async (resolve) => {
       try {
         const result = await this.cityModel.getBy({
@@ -109,14 +90,14 @@ export default class CountryStateCityService {
         if (!result) {
           return resolve([]);
         }
-        return resolve(
-          result.map((item) => ({ id: item.id, name: item.name }))
-        );
+        return resolve(result);
       } catch (error) {
         return resolve([]);
       }
     });
-  public getCitiesByCountry = (country_id: string): Promise<ICity[]> =>
+  public getCitiesByCountry = (
+    country_id: string
+  ): Promise<ICityAttributes[]> =>
     new Promise(async (resolve) => {
       try {
         const result = await this.cityModel.getBy({
@@ -125,9 +106,7 @@ export default class CountryStateCityService {
         if (!result) {
           return resolve([]);
         }
-        return resolve(
-          result.map((item) => ({ id: item.id, name: item.name }))
-        );
+        return resolve(result);
       } catch (error) {
         return resolve([]);
       }
@@ -168,7 +147,9 @@ export default class CountryStateCityService {
       }
     });
 
-  public getCountries = (ids: string[]): Promise<ICountry[] | false> =>
+  public getCountries = (
+    ids: string[]
+  ): Promise<ICountryAttributes[] | false> =>
     new Promise(async (resolve) => {
       try {
         let check = true;
