@@ -113,9 +113,32 @@ export default class AttributeService {
     return attributes.map((attribute) => {
       const { is_deleted, ...rest } = attribute;
       const subsAttribute = attribute.subs.map((item: ISubAttribute) => {
+        if (item.basis_id === SHORT_TEXT_ID) {
+          return {
+            ...item,
+            basis: {
+              id: SHORT_TEXT_ID,
+              name: "Short Format",
+              type: "Text",
+              content_type: "Text",
+            },
+          };
+        }
+        if (item.basis_id === LONG_TEXT_ID) {
+          return {
+            ...item,
+            basis: {
+              id: LONG_TEXT_ID,
+              name: "Long Format",
+              type: "Text",
+              content_type: "Text",
+            },
+          };
+        }
         const foundBasis = subsBasis.find(
           (basis: any) => basis.id == item.basis_id
         );
+
         if (foundBasis) {
           const { is_deleted, ...restBasis } = foundBasis;
           const contentType = contentTypes.find(
