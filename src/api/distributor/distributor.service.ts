@@ -10,13 +10,13 @@ import {
   IDistributorsResponse,
 } from "./distributor.type";
 import CountryStateCityService, {
-  ICountry,
   ICountryStateCity,
 } from "../../service/country_state_city.service";
 import BrandModel from "../../model/brand.model";
 import MarketAvailabilityModel from "../../model/market_availability.model";
 import CollectionModel from "../../model/collection.model";
 import { getDistinctArray } from "../../helper/common.helper";
+import { ICountryAttributes } from "../../model/country";
 export default class DistributorService {
   private distributorModel: DistributorModel;
   private countryStateCityService: CountryStateCityService;
@@ -230,7 +230,7 @@ export default class DistributorService {
           phone_code: countryStateCity.phone_code,
         };
       }
-      let authorizedCountries: ICountry[] | false = false;
+      let authorizedCountries: ICountryAttributes[] | false = false;
       let authorizedCountriesName = "";
       if (
         payload.authorized_country_ids.toString() !==

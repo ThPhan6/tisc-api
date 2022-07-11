@@ -7,20 +7,23 @@ import FunctionalTypeModel, {
 } from "../../model/functional_type.model";
 import UserModel from "../../model/user.model";
 import {
+  ICitiesResponse,
+  ICityResponse,
   ICountriesResponse,
+  ICountryResponse,
   IFunctionalTypesResponse,
   ILocation,
   ILocationRequest,
   ILocationResponse,
   ILocationsResponse,
+  IStateResponse,
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
 import { IMessageResponse } from "../../type/common.type";
 import { MESSAGES } from "../../constant/common.constant";
-import CountryStateCityService, {
-  ICity,
-} from "../../service/country_state_city.service";
+import CountryStateCityService from "../../service/country_state_city.service";
+import { ICityAttributes } from "../../model/city";
 
 export default class LocationService {
   private locationModel: LocationModel;
@@ -228,19 +231,35 @@ export default class LocationService {
   };
   public getAllCountry = (): Promise<ICountriesResponse> =>
     new Promise(async (resolve) => {
-      const countries = await this.countryStateCityService.getAllCountry();
-      const result = await Promise.all(
-        countries.map(async (country) => {
-          const detail = await this.countryStateCityService.getCountryDetail(
-            country.id.toString()
-          );
-          return {
-            id: country.id,
-            name: country.name,
-            phone_code: detail.phonecode,
-          };
-        })
-      );
+      const result = await this.countryStateCityService.getAllCountry();
+
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getCountry = (id: string): Promise<ICountryResponse> =>
+    new Promise(async (resolve) => {
+      const result = await this.countryStateCityService.getCountryDetail(id);
+
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getState = (id: string): Promise<IStateResponse> =>
+    new Promise(async (resolve) => {
+      const result = await this.countryStateCityService.getStateDetail(id);
+
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getCity = (id: string): Promise<ICityResponse> =>
+    new Promise(async (resolve) => {
+      const result = await this.countryStateCityService.getCityDetail(id);
+
       return resolve({
         data: result,
         statusCode: 200,
@@ -248,13 +267,9 @@ export default class LocationService {
     });
   public getStates = (country_id: string): Promise<IStatesResponse> =>
     new Promise(async (resolve) => {
-      const states = await this.countryStateCityService.getStatesByCountry(
+      const result = await this.countryStateCityService.getStatesByCountry(
         country_id
       );
-      const result = states.map((state) => ({
-        id: state.id,
-        name: state.name,
-      }));
       return resolve({
         data: result,
         statusCode: 200,
@@ -263,9 +278,9 @@ export default class LocationService {
   public getCities = (
     country_id: string,
     state_id?: string
-  ): Promise<IStatesResponse> =>
+  ): Promise<ICitiesResponse> =>
     new Promise(async (resolve) => {
-      let cities: ICity[] = [];
+      let cities: ICityAttributes[] = [];
       if (!state_id) {
         cities = await this.countryStateCityService.getCitiesByCountry(
           country_id
@@ -276,12 +291,8 @@ export default class LocationService {
           state_id
         );
       }
-      const result = cities.map((city) => ({
-        id: city.id.toString(),
-        name: city.name,
-      }));
       return resolve({
-        data: result,
+        data: cities,
         statusCode: 200,
       });
     });

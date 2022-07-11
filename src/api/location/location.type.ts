@@ -1,3 +1,6 @@
+import { ICityAttributes } from "../../model/city";
+import { ICountryAttributes } from "../../model/country";
+import { IStateAttributes } from "../../model/state";
 import { IPagination } from "../../type/common.type";
 
 export interface IFunctionalTypesResponse {
@@ -56,18 +59,27 @@ export interface ILocationRequest {
 }
 
 export interface ICountriesResponse {
-  data: {
-    id: string;
-    name: string;
-    phone_code: string;
-  }[];
+  data: ICountryAttributes[];
   statusCode: number;
 }
 export interface IStatesResponse {
-  data: {
-    id: string;
-    name: string;
-  }[];
+  data: IStateAttributes[];
+  statusCode: number;
+}
+export interface ICitiesResponse {
+  data: ICityAttributes[];
+  statusCode: number;
+}
+export interface ICountryResponse {
+  data: ICountryAttributes;
+  statusCode: number;
+}
+export interface IStateResponse {
+  data: IStateAttributes;
+  statusCode: number;
+}
+export interface ICityResponse {
+  data: ICityAttributes;
   statusCode: number;
 }
 
