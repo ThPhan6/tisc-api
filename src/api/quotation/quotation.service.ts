@@ -5,7 +5,7 @@ import {
 import { MESSAGES } from "../../constant/common.constant";
 import { countWord } from "../../helper/common.helper";
 import QuotationModel from "../../model/quotation.model";
-import { IMessageResponse } from "./../../type/common.type";
+import { IMessageResponse, IPagination } from "./../../type/common.type";
 import {
   IQuotationRequest,
   IQuotationResponse,
@@ -69,8 +69,15 @@ export default class QuotationService {
         const { is_deleted, ...rest } = item;
         return rest;
       });
+      const pagination: IPagination = await this.quotationModel.getPagination(
+        limit,
+        offset
+      );
       return resolve({
-        data: result,
+        data: {
+          quotations: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });
