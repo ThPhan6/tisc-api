@@ -1,4 +1,7 @@
-import { MESSAGES } from "./../../constant/common.constant";
+import {
+  BRAND_STATUSES,
+  MESSAGES,
+} from "./../../constant/common.constant";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
   IAdminLoginRequest,
@@ -26,13 +29,16 @@ import {
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
+import BrandModel from "../../model/brand.model";
 
 class AuthService {
   private userModel: UserModel;
   private mailService: MailService;
+  private brandModel: BrandModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
+    this.brandModel = new BrandModel();
   }
 
   public login = (
@@ -373,6 +379,15 @@ class AuthService {
           message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
+      }
+      // update brand status after verify the first brand admin
+      if (user.type === SYSTEM_TYPE.BRAND && user.relation_id) {
+        const brand = await this.brandModel.find(user.relation_id);
+        if (brand && brand.status === BRAND_STATUSES.PENDING) {
+          await this.brandModel.update(brand.id, {
+            status: BRAND_STATUSES.ACTIVE,
+          });
+        }
       }
       return resolve({
         message: MESSAGES.SUCCESS,
