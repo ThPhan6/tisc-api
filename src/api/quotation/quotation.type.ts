@@ -1,3 +1,4 @@
+import { IPagination } from "./../../type/common.type";
 export interface IQuotationRequest {
   author: string;
   identity: string;
@@ -17,11 +18,14 @@ export interface IQuotationResponse {
 
 export interface IQuotationsResponse {
   data: {
-    id: string;
-    author: string;
-    identity: string;
-    quotation: string;
-    created_at: string;
-  }[];
+    quotations: {
+      id: string;
+      author: string;
+      identity: string;
+      quotation: string;
+      created_at: string;
+    }[];
+    pagination: IPagination;
+  };
   statusCode: number;
 }
