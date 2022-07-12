@@ -2,7 +2,7 @@ import { MESSAGES } from "../../constant/common.constant";
 import AutoEmailModel, {
   IAutoEmailAttributes,
 } from "../../model/auto_email.model";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IAutoEmailResponse,
   IAutoEmailsResponse,
@@ -64,8 +64,15 @@ export default class AutoEmailService {
         const { is_deleted, ...rest } = item;
         return rest;
       });
+      const pagination: IPagination = await this.autoEmailModel.getPagination(
+        limit,
+        offset
+      );
       return resolve({
-        data: result,
+        data: {
+          auto_emails: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });
