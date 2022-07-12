@@ -18,16 +18,24 @@ export default {
     statusCode: Joi.number(),
   }) as any,
   getList: Joi.object({
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        topic: Joi.number(),
-        targeted_for: Joi.number(),
-        title: Joi.string(),
-        message: Joi.string(),
-        created_at: Joi.string(),
-      })
-    ),
+    data: Joi.object({
+      auto_emails: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          topic: Joi.number(),
+          targeted_for: Joi.number(),
+          title: Joi.string(),
+          message: Joi.string(),
+          created_at: Joi.string(),
+        })
+      ),
+      pagination: Joi.object({
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      }),
+    }),
     statusCode: Joi.number(),
   }),
 };
