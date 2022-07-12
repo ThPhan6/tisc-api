@@ -309,7 +309,7 @@ export default class UserService {
 
       if (!avatar._data) {
         return resolve({
-          message: MESSAGES.AVATAR_NOT_VALID_FILE,
+          message: MESSAGES.AVATAR_NOT_VALID,
           statusCode: 400,
         });
       }
@@ -319,7 +319,7 @@ export default class UserService {
         )
       ) {
         return resolve({
-          message: MESSAGES.AVATAR_NOT_VALID_FILE,
+          message: MESSAGES.AVATAR_NOT_VALID,
           statusCode: 400,
         });
       }

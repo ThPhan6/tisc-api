@@ -104,7 +104,7 @@ export default class ProductService {
       }
       if (!isValidImage) {
         return resolve({
-          message: MESSAGES.INVALID_IMAGE,
+          message: MESSAGES.IMAGE_INVALID,
           statusCode: 400,
         });
       }
@@ -172,7 +172,7 @@ export default class ProductService {
       );
       if (duplicatedProduct) {
         return resolve({
-          message: MESSAGES.DUPLICATED_PRODUCT,
+          message: MESSAGES.PRODUCT_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -241,7 +241,7 @@ export default class ProductService {
         );
         if (!isValidImage) {
           return resolve({
-            message: MESSAGES.INVALID_IMAGE,
+            message: MESSAGES.IMAGE_INVALID,
             statusCode: 400,
           });
         }
@@ -285,7 +285,7 @@ export default class ProductService {
       const product = await this.productModel.find(id);
       if (!product) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_PRODUCT,
+          message: MESSAGES.PRODUCT_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -554,7 +554,7 @@ export default class ProductService {
       const product = await this.productModel.find(id);
       if (!product) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_PRODUCT,
+          message: MESSAGES.PRODUCT_NOT_FOUND,
           statusCode: 404,
         });
       }

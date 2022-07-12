@@ -441,7 +441,7 @@ export default class BrandService {
 
       if (!logo._data) {
         return resolve({
-          message: MESSAGES.NOT_VALID_LOGO,
+          message: MESSAGES.LOGO_NOT_VALID,
           statusCode: 400,
         });
       }
@@ -451,7 +451,7 @@ export default class BrandService {
         )
       ) {
         return resolve({
-          message: MESSAGES.NOT_VALID_LOGO,
+          message: MESSAGES.LOGO_NOT_VALID,
           statusCode: 400,
         });
       }

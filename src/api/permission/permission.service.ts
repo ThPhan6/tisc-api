@@ -62,7 +62,7 @@ export default class PermissionService {
       const permission = await this.permissionModel.find(id);
       if (!permission) {
         return resolve({
-          message: MESSAGES.NOTFOUND_PERMISSION,
+          message: MESSAGES.PERMISSION_NOT_FOUND,
           statusCode: 404,
         });
       }

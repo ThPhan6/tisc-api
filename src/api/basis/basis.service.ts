@@ -96,7 +96,7 @@ export default class BasisService {
 
       if (conversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
+          message: MESSAGES.BASIS_CONVERSION_GROUP_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -110,7 +110,7 @@ export default class BasisService {
 
       if (isCheckedSubsDuplicate) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -118,7 +118,7 @@ export default class BasisService {
       const isCheckedConversion = this.isDuplicatedConversion(payload);
       if (isCheckedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -301,7 +301,7 @@ export default class BasisService {
       );
       if (duplicatedConversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
+          message: MESSAGES.BASIS_CONVERSION_GROUP_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -315,7 +315,7 @@ export default class BasisService {
 
       if (duplicatedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -323,7 +323,7 @@ export default class BasisService {
       const isCheckedConversion = this.isDuplicatedConversion(payload);
       if (isCheckedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -405,7 +405,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_OPTION,
+          message: MESSAGES.BASIS_OPTION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -473,7 +473,7 @@ export default class BasisService {
       );
       if (!isValidImage) {
         return resolve({
-          message: MESSAGES.INVALID_IMAGE,
+          message: MESSAGES.IMAGE_INVALID,
           statusCode: 400,
         });
       }
@@ -655,7 +655,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_OPTION,
+          message: MESSAGES.BASIS_OPTION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -760,7 +760,7 @@ export default class BasisService {
       );
       if (!isValidImage) {
         return resolve({
-          message: MESSAGES.INVALID_IMAGE,
+          message: MESSAGES.IMAGE_INVALID,
           statusCode: 400,
         });
       }
@@ -805,7 +805,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_PRESET,
+          message: MESSAGES.BASIS_PRESET_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -970,7 +970,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_PRESET,
+          message: MESSAGES.BASIS_PRESET_DUPLICATED,
           statusCode: 400,
         });
       }

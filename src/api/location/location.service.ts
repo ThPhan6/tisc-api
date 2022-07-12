@@ -129,7 +129,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -196,7 +196,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -428,7 +428,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }

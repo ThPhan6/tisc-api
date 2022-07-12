@@ -177,7 +177,7 @@ export default class AttributeService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -209,7 +209,7 @@ export default class AttributeService {
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -358,7 +358,7 @@ export default class AttributeService {
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -366,7 +366,7 @@ export default class AttributeService {
         await this.attributeModel.getDuplicatedAttribute(id, payload.name);
       if (duplicatedAttribute) {
         return resolve({
-          message: MESSAGES.DUPLICATED_GROUP_ATTRIBUTE,
+          message: MESSAGES.GROUP_ATTRIBUTE_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -378,7 +378,7 @@ export default class AttributeService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -416,7 +416,7 @@ export default class AttributeService {
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
           statusCode: 404,
         });
       }
