@@ -108,7 +108,7 @@ export default class Model<IModelData> {
     }
   };
 
-  public getBy = async (params: any): Promise<IModelData[] | undefined> => {
+  public getBy = async (params: any): Promise<IModelData[]> => {
     try {
       const result: any = await this.getBuilder()
         .builder.where(params)
@@ -116,7 +116,7 @@ export default class Model<IModelData> {
         .select();
       return result;
     } catch (error) {
-      return undefined;
+      return [];
     }
   };
 

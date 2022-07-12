@@ -329,7 +329,7 @@ export default class LocationService {
           const users = await this.userModel.getBy({
             location_id: location.id,
           });
-          const teams = users?.length || 0;
+          const teams = users.length;
           return {
             id: location.id,
             business_name: location.business_name,

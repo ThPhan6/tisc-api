@@ -28,9 +28,12 @@ import { upload, deleteFile } from "../../service/aws.service";
 import { toWebp } from "../../helper/image.helper";
 import moment from "moment";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
-import { getAccessLevel } from "../../helper/common.helper";
+import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import PermissionService from "../permission/permission.service";
+import DistributorModel from "../../model/distributor.model";
+import CollectionModel from "../../model/collection.model";
+import ProductModel from "../../model/product.model";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -39,6 +42,9 @@ export default class BrandService {
   private locationModel: LocationModel;
   private productService: ProductService;
   private permissionService: PermissionService;
+  private distributorModel: DistributorModel;
+  private collectionModel: CollectionModel;
+  private productModel: ProductModel;
   constructor() {
     this.brandModel = new BrandModel();
     this.mailService = new MailService();
@@ -46,6 +52,9 @@ export default class BrandService {
     this.locationModel = new LocationModel();
     this.productService = new ProductService();
     this.permissionService = new PermissionService();
+    this.distributorModel = new DistributorModel();
+    this.collectionModel = new CollectionModel();
+    this.productModel = new ProductModel();
   }
 
   public getList = (
@@ -75,19 +84,56 @@ export default class BrandService {
             "email",
             "avatar",
           ]);
+          const locations = await this.locationModel.getBy({
+            type: SYSTEM_TYPE.BRAND,
+            relation_id: brand.id,
+          });
+          const originLocation = await this.locationModel.getOriginLocation(
+            brand.id
+          );
+          const distributors = await this.distributorModel.getBy({
+            brand_id: brand.id,
+          });
+          const collections = await this.collectionModel.getBy({
+            brand_id: brand.id,
+          });
+          const cards = await this.productModel.getBy({
+            brand_id: brand.id,
+          });
+          const categories = getDistinctArray(
+            cards.reduce((pre: string[], cur) => {
+              return pre.concat(cur.category_ids);
+            }, [])
+          );
+          const products = cards.reduce((pre: number, cur) => {
+            cur.specification_attribute_groups.forEach((group) => {
+              group.attributes.forEach((attribute) => {
+                if (attribute.type === "Options")
+                  pre = pre + (attribute.basis_options?.length || 0);
+              });
+            });
+            return pre;
+          }, 0);
+          const coverages = getDistinctArray(
+            distributors.reduce((pre: string[], cur) => {
+              const temp = [cur.country_id].concat(cur.authorized_country_ids);
+              return pre.concat(temp);
+            }, [])
+          );
+
           return {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            origin: "",
-            locations: 1,
-            teams: 1,
-            distributors: 1,
-            coverages: 1,
-            categories: 1,
-            collections: 1,
-            cards: 1,
-            products: 1,
+            origin: originLocation === false ? "" : originLocation.country_name,
+            locations: locations.length,
+            teams: users.length,
+            distributors: distributors.length,
+            coverages: coverages.length,
+            categories: categories.length,
+            collections: collections.length,
+            cards: cards.length,
+            products: products,
             assign_team: users,
             status: brand.status,
             status_key: foundStatus?.key,

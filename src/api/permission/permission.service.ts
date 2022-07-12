@@ -113,8 +113,8 @@ export default class PermissionService {
         type: user.type,
         relation_id: user.relation_id,
       });
-      const permissions = adminPermissions?.map((item) => {
-        const teamPermission = teamPermissions?.find(
+      const permissions = adminPermissions.map((item) => {
+        const teamPermission = teamPermissions.find(
           (teamItem) => teamItem.name === item.name
         );
         return {
