@@ -11,6 +11,8 @@ const seedBasis = require("./basis.seed").seed;
 const seedPermissionRoute = require("./permission_route.seed").seed;
 const seedAutoEmail = require("./auto_email").seed;
 const seedFunctionalType = require("./functional_type.seed").seed;
+const seedDocumentation = require("./documentation.seed").seed;
+const seedDepartment = require("./department.seed").seed;
 dotenv.config();
 
 const db = new Database({
@@ -23,14 +25,15 @@ const seed = async () => {
   // await seedDocumentation(db);
   // await seedRole(db);
   // await seedUser(db);
-  await seedPermission(db);
-  await seedPermissionRoute(db);
+  // await seedPermission(db);
+  // await seedPermissionRoute(db);
   // await seedBrand(db);
   // await seedBasis(db);
   // await seedAutoEmail(db);
   // await seedFunctionalType(db);
-  // await seed1(db);
-  // await seed2(db);
+  // await seedDepartment(db);
+  await seed1(db);
+  await seed2(db);
 };
 
 seed();

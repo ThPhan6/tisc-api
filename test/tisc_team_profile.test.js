@@ -1,3 +1,4 @@
+const { Database } = require("arangojs");
 const dotenv = require("dotenv");
 dotenv.config();
 const chai = require("chai");
@@ -6,8 +7,61 @@ const should = chai.should();
 chai.use(chaiHttp);
 const HOST_URL = process.env.API_URL;
 const tiscAdminToken = process.env.TEST_TISC_ADMIN_TOKEN;
+const db = new Database({
+  url: process.env.DATABASE_HOSTNAME,
+});
+db.useDatabase(process.env.DATABASE_NAME || "");
+db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
+const uuid = require("uuid").v4;
 let teamProfileId = "";
 let permissionId = "";
+let functionalTypeId = "";
+let locationId = "";
+let departmentId = "";
+async function getFunctionalTypes() {
+  const functionalType = await db.query({
+    query: `FOR data in @@model return data`,
+    bindVars: {
+      "@model": "functional_types",
+    },
+  });
+  return functionalType._result[0].id;
+}
+
+(async function insertLocation() {
+  functionalTypeId = await getFunctionalTypes();
+  const location = await db.query({
+    query: `INSERT ({
+      id : "${uuid()}",
+      business_name: "business_name 1",
+      business_number: "business_number2 ",
+      functional_type_ids: "[${functionalTypeId}]",
+      country_id: "233",
+      state_id: "1456",
+      city_id: "110968",
+      address: "My tho",
+      country_name : "United States",
+      postal_code: "1234",
+      general_phone: "0123456789",
+      general_email: "0123456789"
+    }) INTO @@model RETURN NEW`,
+    bindVars: {
+      "@model": "locations",
+    },
+  });
+  locationId = location._result[0].id;
+})();
+
+(async function getDepartments() {
+  const department = await db.query({
+    query: `FOR data in @@model return data`,
+    bindVars: {
+      "@model": "departments",
+    },
+  });
+  departmentId = department._result[0].id;
+})();
+
 describe("Tisc team profile API ", () => {
   beforeEach((done) => {
     done();
@@ -21,8 +75,8 @@ describe("Tisc team profile API ", () => {
         .send({
           lastname: "Test",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212@gmail.com",
           phone: "0123123123",
@@ -49,10 +103,10 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
-          email: "unittest2212112312323@gmail.com",
+          email: "unittest332311123@gmail.com",
           phone: "0123123123",
           mobile: "0123123123",
           role_id: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
@@ -82,8 +136,7 @@ describe("Tisc team profile API ", () => {
             "linkedin",
             "created_at",
             "access_level",
-            "status",
-            "phone_code"
+            "status"
           );
           done();
         });
@@ -108,20 +161,15 @@ describe("Tisc team profile API ", () => {
             "page_count"
           );
           res.body.data.users.map((item) => {
-            item.should.have.keys(
-              "id",
-              "firstname",
-              "lastname",
-              "work_location",
-              "position",
-              "email",
-              "phone",
-              "access_level",
-              "status",
-              "avatar",
-              "created_at",
-              "phone_code"
-            );
+            item.should.have.property("id");
+            item.should.have.property("firstname");
+            item.should.have.property("lastname");
+            item.should.have.property("position");
+            item.should.have.property("email");
+            item.should.have.property("phone");
+            item.should.have.property("status");
+            item.should.have.property("avatar");
+            item.should.have.property("created_at");
           });
           done();
         });
@@ -137,8 +185,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -163,8 +211,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -195,8 +243,7 @@ describe("Tisc team profile API ", () => {
             "linkedin",
             "created_at",
             "access_level",
-            "status",
-            "phone_code"
+            "status"
           );
           done();
         });
@@ -209,8 +256,8 @@ describe("Tisc team profile API ", () => {
         .send({
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -241,8 +288,7 @@ describe("Tisc team profile API ", () => {
             "linkedin",
             "created_at",
             "access_level",
-            "status",
-            "phone_code"
+            "status"
           );
           done();
         });
@@ -256,8 +302,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -288,8 +334,7 @@ describe("Tisc team profile API ", () => {
             "linkedin",
             "created_at",
             "access_level",
-            "status",
-            "phone_code"
+            "status"
           );
           done();
         });
@@ -305,8 +350,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -331,8 +376,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -363,8 +408,7 @@ describe("Tisc team profile API ", () => {
             "linkedin",
             "created_at",
             "access_level",
-            "status",
-            "phone_code"
+            "status"
           );
           done();
         });
@@ -380,8 +424,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -406,8 +450,8 @@ describe("Tisc team profile API ", () => {
           firstname: "Unit",
           lastname: "Test updated",
           gender: true,
-          location_id: "94766f63-4885-4b35-97c5-319e2d69b250",
-          department_id: "36bfc014-5ac2-4133-87f9-afbabd2638c1",
+          location_id: locationId,
+          department_id: departmentId,
           position: "Position",
           email: "unittest2212123@gmail.com",
           phone: "0123123123",
@@ -438,8 +482,7 @@ describe("Tisc team profile API ", () => {
             "linkedin",
             "created_at",
             "access_level",
-            "status",
-            "phone_code"
+            "status"
           );
           done();
         });
@@ -458,14 +501,11 @@ describe("Tisc team profile API ", () => {
           res.body.should.have.property("statusCode", 200);
           res.body.data.map((item) => {
             permissionId = item.items[0].id;
-            item.should.have.keys(
-              "logo",
-              "name",
-              "items",
-              "number",
-              "parent_number",
-              "subs"
-            );
+            item.should.have.property("logo");
+            item.should.have.property("name");
+            item.should.have.property("items");
+            item.should.have.property("number");
+            item.should.have.property("parent_number");
           });
           done();
         });

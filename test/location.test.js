@@ -6,7 +6,22 @@ const should = chai.should();
 chai.use(chaiHttp);
 const HOST_URL = process.env.API_URL;
 const tiscAdminToken = process.env.TEST_TISC_ADMIN_TOKEN;
-
+const { Database } = require("arangojs");
+const db = new Database({
+  url: process.env.DATABASE_HOSTNAME,
+});
+db.useDatabase(process.env.DATABASE_NAME || "");
+db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
+let functionalTypeId = "";
+(async function getFunctionalTypes() {
+  const functionalType = await db.query({
+    query: `FOR data in @@model return data`,
+    bindVars: {
+      "@model": "functional_types",
+    },
+  });
+  functionalTypeId = functionalType._result[0].id;
+})();
 let locationId = "";
 describe("Location API ", () => {
   beforeEach((done) => {
@@ -20,7 +35,7 @@ describe("Location API ", () => {
         .set({ Authorization: `Bearer ${tiscAdminToken}` })
         .send({
           business_number: "43",
-          functional_type_ids: ["268be8f8-a234-4446-b468-212c9cee790c"],
+          functional_type_ids: [functionalTypeId],
           country_id: "233",
           state_id: "1456",
           city_id: "110968",
@@ -28,6 +43,7 @@ describe("Location API ", () => {
           postal_code: "5000",
           general_phone: "0123123123",
           general_email: "unittest@gmail.com",
+          country_name: "United States",
         })
         .end((_err, res) => {
           res.should.have.status(400);
@@ -47,7 +63,7 @@ describe("Location API ", () => {
         .send({
           business_name: "Business Name",
           business_number: "43",
-          functional_type_ids: ["268be8f8-a234-4446-b468-212c9cee790c"],
+          functional_type_ids: [functionalTypeId],
           country_id: "233",
           state_id: "1456",
           city_id: "110968",
@@ -55,6 +71,7 @@ describe("Location API ", () => {
           postal_code: "5000",
           general_phone: "0123123123",
           general_email: "unittest@gmail.com",
+          country_name: "United States",
         })
         .end((_err, res) => {
           locationId = res.body.data.id;
@@ -125,7 +142,7 @@ describe("Location API ", () => {
         .send({
           business_name: "Business Name updated",
           business_number: "43",
-          functional_type_ids: ["268be8f8-a234-4446-b468-212c9cee790c"],
+          functional_type_ids: [functionalTypeId],
           country_id: "233",
           state_id: "1456",
           city_id: "110968",
@@ -133,6 +150,7 @@ describe("Location API ", () => {
           postal_code: "5000",
           general_phone: "0123123123",
           general_email: "unittest@gmail.com",
+          country_name: "United States",
         })
         .end((_err, res) => {
           res.should.have.status(404);
@@ -152,7 +170,7 @@ describe("Location API ", () => {
         .send({
           business_name: "Business Name updated",
           business_number: "43",
-          functional_type_ids: ["268be8f8-a234-4446-b468-212c9cee790c"],
+          functional_type_ids: [functionalTypeId],
           country_id: "233",
           state_id: "1456",
           city_id: "110968",
@@ -160,6 +178,7 @@ describe("Location API ", () => {
           postal_code: "5000",
           general_phone: "0123123123",
           general_email: "unittest@gmail.com",
+          country_name: "United States",
         })
         .end((_err, res) => {
           res.should.have.status(200);
@@ -194,7 +213,7 @@ describe("Location API ", () => {
         .set({ Authorization: `Bearer ${tiscAdminToken}` })
         .send({
           business_number: "43",
-          functional_type_ids: ["268be8f8-a234-4446-b468-212c9cee790c"],
+          functional_type_ids: [functionalTypeId],
           country_id: "233",
           state_id: "1456",
           city_id: "110968",
@@ -202,6 +221,7 @@ describe("Location API ", () => {
           postal_code: "5000",
           general_phone: "0123123123",
           general_email: "unittest@gmail.com",
+          country_name: "United States",
         })
         .end((_err, res) => {
           res.should.have.status(400);
@@ -221,7 +241,7 @@ describe("Location API ", () => {
         .send({
           business_name: "Business Name updated",
           business_number: "43",
-          functional_type_ids: ["268be8f8-a234-4446-b468-212c9cee790c"],
+          functional_type_ids: [functionalTypeId],
           country_id: "233",
           state_id: "1456",
           city_id: "110968",
@@ -229,6 +249,7 @@ describe("Location API ", () => {
           postal_code: "5000",
           general_phone: "0123123123",
           general_email: "unittest@gmail.com",
+          country_name: "United States",
         })
         .end((_err, res) => {
           res.should.have.status(200);
