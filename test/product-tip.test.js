@@ -29,36 +29,38 @@ let productId = "";
       "@model": "brands",
     },
   });
-  await insertCollection(brandId);
-  return brand;
+  brandId = brand._result[0].id;
+  insertCollection(brandId);
+  return true;
 })();
 
 async function insertCollection(brandId) {
-  return await db.query({
+  const collection = await db.query({
     query: `INSERT ({
                 id : "${uuid()}",
-                name: "Collection test 1",
+                name: "Collection",
                 brand_id: "${brandId}"
               }) INTO @@model RETURN NEW`,
     bindVars: {
       "@model": "collections",
     },
   });
+  collectionId = collection._result[0].id;
 }
 
 (async function insertCategory() {
-  return await db.query({
+  const category = await db.query({
     query: `INSERT ({
       id : "${uuid()}",
-      name: "Main Category test 1",
+      name: "Main Category test",
       subs: [
         {
           id : "${uuid()}",
-          name: "Sub Category test 1",
+          name: "Sub Category test",
           subs: [
             {
               id : "${uuid()}",
-              name: "Category test 1"
+              name: "Category test"
             }
           ]
         }
@@ -68,18 +70,23 @@ async function insertCollection(brandId) {
       "@model": "categories",
     },
   });
+  category._result[0].subs.forEach((subCategory) => {
+    subCategory.subs.forEach((category) => {
+      categoryId = category.id;
+    });
+  });
 })();
 
 (async function insertBasisConversion() {
-  return await db.query({
+  const basisConversion = await db.query({
     query: `INSERT ({
       id : "${uuid()}",
-      name: "Basis Conversion 1",
+      name: "Basis Conversion",
       subs: [
         {
           id : "${uuid()}",
-          name_1: "meter 1",
-          name_2: "millimeter 1",
+          name_1: "meter",
+          name_2: "millimeter",
           formula_1: "1",
           formula_2: "10",
           unit_1: "m",

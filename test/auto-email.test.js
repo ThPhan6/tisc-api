@@ -19,13 +19,13 @@ describe("Auto Email API ", () => {
         .get("/email-auto/get-list")
         .set({ Authorization: `Bearer ${tiscAdminToken}` })
         .end((_err, res) => {
-          autoEmailId = res.body.data[0].id;
+          autoEmailId = res.body.data.auto_emails[0].id;
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 200);
-          res.body.data.should.be.an("array");
-          res.body.data.map((item) => {
+          res.body.data.auto_emails.should.be.an("array");
+          res.body.data.auto_emails.map((item) => {
             item.should.have.keys(
               "id",
               "topic",
