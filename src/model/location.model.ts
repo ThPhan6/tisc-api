@@ -49,4 +49,18 @@ export default class LocationModel extends Model<ILocationAttributes> {
   constructor() {
     super("locations");
   }
+  public getOriginLocation = async (
+    relation_id: string
+  ): Promise<ILocationAttributes | false> => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where("relation_id", relation_id)
+        .orderBy("created_at", "DESC")
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

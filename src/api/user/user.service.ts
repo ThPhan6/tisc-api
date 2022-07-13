@@ -309,7 +309,7 @@ export default class UserService {
 
       if (!avatar._data) {
         return resolve({
-          message: MESSAGES.AVATAR_NOT_VALID_FILE,
+          message: MESSAGES.AVATAR_NOT_VALID,
           statusCode: 400,
         });
       }
@@ -319,7 +319,7 @@ export default class UserService {
         )
       ) {
         return resolve({
-          message: MESSAGES.AVATAR_NOT_VALID_FILE,
+          message: MESSAGES.AVATAR_NOT_VALID,
           statusCode: 400,
         });
       }
@@ -455,4 +455,26 @@ export default class UserService {
         statusCode: 200,
       });
     });
+  public invite = (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (user.status !== USER_STATUSES.PENDING) {
+        return resolve({
+          message: "Invited.",
+          statusCode: 400,
+        });
+      }
+      await this.mailService.sendRegisterEmail(user);
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
 }

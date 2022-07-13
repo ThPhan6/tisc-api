@@ -74,4 +74,29 @@ export default {
         ),
     },
   },
+  invite: {
+    payload: {
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("email is required")),
+    },
+  },
+  create: {
+    payload: {
+      name: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Name is required")),
+      first_name: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("First name is required")),
+      last_name: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Last name is required")),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+    },
+  },
 };

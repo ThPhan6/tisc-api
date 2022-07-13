@@ -129,7 +129,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -196,7 +196,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -329,7 +329,7 @@ export default class LocationService {
           const users = await this.userModel.getBy({
             location_id: location.id,
           });
-          const teams = users?.length || 0;
+          const teams = users.length;
           return {
             id: location.id,
             business_name: location.business_name,
@@ -389,6 +389,9 @@ export default class LocationService {
             country_name: location.country_name,
             state_name: location.state_name,
             city_name: location.city_name,
+            country_id: location.country_id,
+            state_id: location.state_id,
+            city_id: location.city_id,
             phone_code: location.phone_code,
             functional_types: functionalTypes,
           };
@@ -425,7 +428,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }

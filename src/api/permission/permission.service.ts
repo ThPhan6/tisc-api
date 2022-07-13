@@ -62,7 +62,7 @@ export default class PermissionService {
       const permission = await this.permissionModel.find(id);
       if (!permission) {
         return resolve({
-          message: MESSAGES.NOTFOUND_PERMISSION,
+          message: MESSAGES.PERMISSION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -113,8 +113,8 @@ export default class PermissionService {
         type: user.type,
         relation_id: user.relation_id,
       });
-      const permissions = adminPermissions?.map((item) => {
-        const teamPermission = teamPermissions?.find(
+      const permissions = adminPermissions.map((item) => {
+        const teamPermission = teamPermissions.find(
           (teamItem) => teamItem.name === item.name
         );
         return {
@@ -505,6 +505,7 @@ export default class PermissionService {
           await this.permissionModel.create(record);
         })
       );
+      return resolve(true);
     });
   };
   public createDesignPermission = (design_id: string): Promise<boolean> => {

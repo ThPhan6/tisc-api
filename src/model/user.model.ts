@@ -68,6 +68,7 @@ export default class UserModel extends Model<IUserAttributes> {
     try {
       const result: any = await this.getBuilder()
         .builder.where("type", SYSTEM_TYPE.BRAND)
+        .whereNot("is_deleted", true)
         .where("relation_id", brand_id)
         .orderBy("created_at")
         .first();

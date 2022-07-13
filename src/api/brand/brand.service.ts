@@ -5,24 +5,35 @@ import {
   SYSTEM_TYPE,
   VALID_IMAGE_TYPES,
 } from "../../constant/common.constant";
-import BrandModel, { IBrandAttributes } from "../../model/brand.model";
+import BrandModel, {
+  IBrandAttributes,
+  BRAND_NULL_ATTRIBUTES,
+} from "../../model/brand.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IBrandByAlphabetResponse,
   IBrandCardsResponse,
   IBrandProfileResponse,
+  IBrandRequest,
   IBrandResponse,
   IBrandsResponse,
   IUpdateBrandProfileRequest,
 } from "./brand.type";
 import MailService from "../../service/mail.service";
-import UserModel from "../../model/user.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import LocationModel from "../../model/location.model";
 import ProductService from "../../api/product/product.service";
 import { IAvatarResponse } from "../user/user.type";
 import { upload, deleteFile } from "../../service/aws.service";
 import { toWebp } from "../../helper/image.helper";
 import moment from "moment";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
+import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
+import { createResetPasswordToken } from "../../helper/password.helper";
+import PermissionService from "../permission/permission.service";
+import DistributorModel from "../../model/distributor.model";
+import CollectionModel from "../../model/collection.model";
+import ProductModel from "../../model/product.model";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -30,12 +41,20 @@ export default class BrandService {
   private userModel: UserModel;
   private locationModel: LocationModel;
   private productService: ProductService;
+  private permissionService: PermissionService;
+  private distributorModel: DistributorModel;
+  private collectionModel: CollectionModel;
+  private productModel: ProductModel;
   constructor() {
     this.brandModel = new BrandModel();
     this.mailService = new MailService();
     this.userModel = new UserModel();
     this.locationModel = new LocationModel();
     this.productService = new ProductService();
+    this.permissionService = new PermissionService();
+    this.distributorModel = new DistributorModel();
+    this.collectionModel = new CollectionModel();
+    this.productModel = new ProductModel();
   }
 
   public getList = (
@@ -65,19 +84,56 @@ export default class BrandService {
             "email",
             "avatar",
           ]);
+          const locations = await this.locationModel.getBy({
+            type: SYSTEM_TYPE.BRAND,
+            relation_id: brand.id,
+          });
+          const originLocation = await this.locationModel.getOriginLocation(
+            brand.id
+          );
+          const distributors = await this.distributorModel.getBy({
+            brand_id: brand.id,
+          });
+          const collections = await this.collectionModel.getBy({
+            brand_id: brand.id,
+          });
+          const cards = await this.productModel.getBy({
+            brand_id: brand.id,
+          });
+          const categories = getDistinctArray(
+            cards.reduce((pre: string[], cur) => {
+              return pre.concat(cur.category_ids);
+            }, [])
+          );
+          const products = cards.reduce((pre: number, cur) => {
+            cur.specification_attribute_groups.forEach((group) => {
+              group.attributes.forEach((attribute) => {
+                if (attribute.type === "Options")
+                  pre = pre + (attribute.basis_options?.length || 0);
+              });
+            });
+            return pre;
+          }, 0);
+          const coverages = getDistinctArray(
+            distributors.reduce((pre: string[], cur) => {
+              const temp = [cur.country_id].concat(cur.authorized_country_ids);
+              return pre.concat(temp);
+            }, [])
+          );
+
           return {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            origin: "",
-            locations: 1,
-            teams: 1,
-            distributors: 1,
-            coverages: 1,
-            categories: 1,
-            collections: 1,
-            cards: 1,
-            products: 1,
+            origin: originLocation === false ? "" : originLocation.country_name,
+            locations: locations.length,
+            teams: users.length,
+            distributors: distributors.length,
+            coverages: coverages.length,
+            categories: categories.length,
+            collections: collections.length,
+            cards: cards.length,
+            products: products,
             assign_team: users,
             status: brand.status,
             status_key: foundStatus?.key,
@@ -243,7 +299,7 @@ export default class BrandService {
       const brand = await this.brandModel.find(id);
       if (!brand) {
         return resolve({
-          message: "Not found brand.",
+          message: MESSAGES.BRAND_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -256,13 +312,13 @@ export default class BrandService {
       const user = await this.userModel.getFirstBrandAdmin(brand.id);
       if (!user) {
         return resolve({
-          message: "Not found user.",
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
       await this.mailService.sendRegisterEmail(user);
       return resolve({
-        message: "Success.",
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
@@ -346,10 +402,10 @@ export default class BrandService {
       const result = {
         id: brand.id,
         name: updatedBrand.name,
-        parent_company: updatedBrand.parent_company,
+        parent_company: updatedBrand.parent_company || "",
         logo: updatedBrand.logo,
-        slogan: updatedBrand.slogan,
-        mission_n_vision: updatedBrand.mission_n_vision,
+        slogan: updatedBrand.slogan || "",
+        mission_n_vision: updatedBrand.mission_n_vision || "",
         official_websites: updatedBrand.official_websites,
       };
       return resolve({
@@ -385,7 +441,7 @@ export default class BrandService {
 
       if (!logo._data) {
         return resolve({
-          message: MESSAGES.NOT_VALID_LOGO,
+          message: MESSAGES.LOGO_NOT_VALID,
           statusCode: 400,
         });
       }
@@ -395,7 +451,7 @@ export default class BrandService {
         )
       ) {
         return resolve({
-          message: MESSAGES.NOT_VALID_LOGO,
+          message: MESSAGES.LOGO_NOT_VALID,
           statusCode: 400,
         });
       }
@@ -460,5 +516,72 @@ export default class BrandService {
         },
         statusCode: 200,
       });
+    });
+
+  public create = (
+    payload: IBrandRequest
+  ): Promise<IMessageResponse | IBrandResponse> =>
+    new Promise(async (resolve) => {
+      const brand = await this.brandModel.findBy({
+        name: payload.name,
+      });
+      if (brand) {
+        return resolve({
+          message: MESSAGES.BRAND_EXISTED,
+          statusCode: 400,
+        });
+      }
+      const user = await this.userModel.findBy({
+        email: payload.email,
+      });
+      if (user) {
+        return resolve({
+          message: MESSAGES.USER_EXISTED,
+          statusCode: 400,
+        });
+      }
+      const createdBrand = await this.brandModel.create({
+        ...BRAND_NULL_ATTRIBUTES,
+        name: payload.name,
+        status: BRAND_STATUSES.PENDING,
+      });
+      if (!createdBrand) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      let verificationToken: string;
+      let isDuplicated = true;
+      do {
+        verificationToken = createResetPasswordToken();
+        const duplicateVerificationTokenFromDb = await this.userModel.findBy({
+          verification_token: verificationToken,
+        });
+        if (!duplicateVerificationTokenFromDb) isDuplicated = false;
+      } while (isDuplicated);
+      const createdUser = await this.userModel.create({
+        ...USER_NULL_ATTRIBUTES,
+        firstname: payload.first_name,
+        lastname: payload.last_name,
+        gender: true,
+        email: payload.email,
+        role_id: ROLES.BRAND_ADMIN,
+        access_level: getAccessLevel(ROLES.BRAND_ADMIN),
+        verification_token: verificationToken,
+        is_verified: false,
+        status: USER_STATUSES.PENDING,
+        type: SYSTEM_TYPE.BRAND,
+        relation_id: createdBrand.id,
+      });
+      if (!createdUser) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      //create brand permissions
+      await this.permissionService.createBrandPermission(createdBrand.id);
+      return resolve(await this.getOne(createdBrand.id));
     });
 }

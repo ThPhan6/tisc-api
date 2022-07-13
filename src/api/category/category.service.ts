@@ -62,7 +62,7 @@ export default class CategoryService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_SUB_CATEGORY,
+          message: MESSAGES.SUB_CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -81,7 +81,7 @@ export default class CategoryService {
 
       if (isDuplicatedCategory) {
         return resolve({
-          message: MESSAGES.DUPLICATED_CATEGORY,
+          message: MESSAGES.CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -235,7 +235,7 @@ export default class CategoryService {
       );
       if (duplicatedCategory) {
         return resolve({
-          message: MESSAGES.DUPLICATED_MAIN_CATEGORY,
+          message: MESSAGES.MAIN_CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -248,7 +248,7 @@ export default class CategoryService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_SUB_CATEGORY,
+          message: MESSAGES.SUB_CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -266,7 +266,7 @@ export default class CategoryService {
 
       if (isDuplicatedCategory) {
         return resolve({
-          message: MESSAGES.DUPLICATED_CATEGORY,
+          message: MESSAGES.CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }

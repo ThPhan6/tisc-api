@@ -12,7 +12,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
-          logo: Joi.string(),
+          logo: Joi.any(),
           origin: Joi.string().allow("", null),
           locations: Joi.number(),
           teams: Joi.number(),
@@ -62,7 +62,7 @@ export default {
       parent_company: Joi.any(),
       logo: Joi.any(),
       slogan: Joi.any(),
-      mission_n_vision: Joi.string(),
+      mission_n_vision: Joi.any(),
       official_websites: Joi.array().items({
         country_id: Joi.string(),
         url: Joi.string(),

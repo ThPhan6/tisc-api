@@ -27,6 +27,11 @@ export default class UserController {
     const response = await this.service.get(userId, currentUserId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public invite = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.invite(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort } = req.query;
     const userId = req.auth.credentials.user_id as string;

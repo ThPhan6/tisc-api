@@ -3,10 +3,10 @@ import Model from "./index";
 export interface IBrandAttributes {
   id: string;
   name: string;
-  parent_company: string;
-  logo: string;
-  slogan: string;
-  mission_n_vision: string;
+  parent_company: string | null;
+  logo: string | null;
+  slogan: string | null;
+  mission_n_vision: string | null;
   official_websites: {
     country_id: string;
     url: string;
@@ -40,8 +40,8 @@ export default class BrandModel extends Model<IBrandAttributes> {
   }
   public getAllAndSortByName = async () => {
     try {
-      const result: any = await this.getBuilder().builder
-        .whereNot("is_deleted", true)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
         .orderBy("name", "ASC")
         .select();
       return result;

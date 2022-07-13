@@ -117,7 +117,7 @@ export default class AuthMiddleware {
           if (!permissionRoute) {
             throw Boom.unauthorized("Not found permissions route");
           }
-          const permissions: any = await permissionModel.getBy({
+          const permissions = await permissionModel.getBy({
             role_id: user.role_id,
             type: user.type,
             relation_id: user.relation_id,

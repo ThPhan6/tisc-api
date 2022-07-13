@@ -60,9 +60,6 @@ export default class CountryStateCityService {
         const states = await this.stateModel.getBy({
           country_id,
         });
-        if (states === undefined) {
-          return resolve([]);
-        }
         return resolve(states);
       } catch (error) {
         return resolve([]);
@@ -87,9 +84,6 @@ export default class CountryStateCityService {
           country_id,
           state_id,
         });
-        if (!result) {
-          return resolve([]);
-        }
         return resolve(result);
       } catch (error) {
         return resolve([]);
@@ -103,9 +97,6 @@ export default class CountryStateCityService {
         const result = await this.cityModel.getBy({
           country_id,
         });
-        if (!result) {
-          return resolve([]);
-        }
         return resolve(result);
       } catch (error) {
         return resolve([]);
