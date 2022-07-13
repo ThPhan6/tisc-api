@@ -137,9 +137,17 @@ export default class ProductService {
             Buffer.from(image, "base64"),
             "medium"
           );
-          const keyword = payload.keywords.toString().split(",").join("_");
-          const brandName = brand?.name.toLowerCase().split(" ").join("-");
-          let fileName = `${brandName}_${keyword}_${moment.now()}${index}`;
+          let keyword = "";
+          payload.keywords.forEach((item) => {
+            keyword += item.trim().replace(/ /g, "-");
+          });
+          const brandName = brand?.name
+            .trim()
+            .toLowerCase()
+            .split(" ")
+            .join("-")
+            .replace(/ /g, "-");
+          let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
           await upload(
             mediumBuffer,
             `product/${createdProduct.id}/${fileName}_medium.webp`,
@@ -252,9 +260,17 @@ export default class ProductService {
           bufferImages.map(async (image, index) => {
             mediumBuffer = await toWebp(image, "medium");
             const brand = await this.brandModel.find(product.brand_id);
-            const keyword = payload.keywords.toString().split(",").join("_");
-            const brandName = brand?.name.toLowerCase().split(" ").join("-");
-            let fileName = `${brandName}_${keyword}_${moment.now()}${index}`;
+            let keyword = "";
+            payload.keywords.forEach((item) => {
+              keyword += item.trim().replace(/ /g, "-");
+            });
+            const brandName = brand?.name
+              .trim()
+              .toLowerCase()
+              .split(" ")
+              .join("-")
+              .replace(/ /g, "-");
+            let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
             await upload(
               mediumBuffer,
               `product/${id}/${fileName}_medium.webp`,
