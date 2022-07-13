@@ -746,7 +746,6 @@ describe("Auto Email API ", () => {
             "message",
             "created_at"
           );
-
           done();
         });
     });

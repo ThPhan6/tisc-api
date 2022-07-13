@@ -470,7 +470,7 @@ export default class ProductService {
       returnData = returnData.map((item) => {
         const returnProducts = item.products?.map((product: any) => {
           const { is_deleted, ...rest } = product;
-          return { ...rest, favorites: product.favorites.length };
+          return { ...rest, favorites: product.favorites?.length };
         });
         return {
           ...item,
