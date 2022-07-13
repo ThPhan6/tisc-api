@@ -23,7 +23,7 @@ export default class AutoEmailRoute implements IRoute {
             handler: controller.getListTopic,
             description: "Method that get list topic auto email",
             tags: ["api", "Auto Email"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 200: statuses,
@@ -38,7 +38,7 @@ export default class AutoEmailRoute implements IRoute {
             handler: controller.getListTargetedFor,
             description: "Method that get list targeted for auto email",
             tags: ["api", "Auto Email"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 200: statuses,
