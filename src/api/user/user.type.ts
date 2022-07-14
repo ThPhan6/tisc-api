@@ -33,6 +33,7 @@ export interface IUser {
   backup_email: string | null;
   personal_mobile: string | null;
   linkedin: string | null;
+  brand?: any;
 }
 
 export interface IUserResponse {

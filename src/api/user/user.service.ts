@@ -1,4 +1,4 @@
-import { MESSAGES } from "./../../constant/common.constant";
+import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import UserModel, {
   IUserAttributes,
@@ -23,6 +23,7 @@ import DepartmentModel from "../../model/department.model";
 import LocationModel from "../../model/location.model";
 import { getAccessLevel } from "../../helper/common.helper";
 import PermissionService from "../../api/permission/permission.service";
+import BrandModel from "../../model/brand.model";
 
 export default class UserService {
   private userModel: UserModel;
@@ -30,12 +31,14 @@ export default class UserService {
   private departmentModel: DepartmentModel;
   private locationModel: LocationModel;
   private permissionService: PermissionService;
+  private brandModel: BrandModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
     this.departmentModel = new DepartmentModel();
     this.locationModel = new LocationModel();
     this.permissionService = new PermissionService();
+    this.brandModel = new BrandModel();
   }
 
   public create = (
@@ -131,6 +134,7 @@ export default class UserService {
         }
       }
       const location = await this.locationModel.find(user.location_id || "");
+
       const permissions = current_user_id
         ? undefined
         : await this.permissionService.getList(user_id);
@@ -155,9 +159,17 @@ export default class UserService {
         access_level: user.access_level,
         status: user.status,
         type: user.type,
+        relation_id: user.relation_id,
         phone_code: location?.phone_code,
         permissions,
       };
+      if (user.type === SYSTEM_TYPE.BRAND) {
+        const brand = await this.brandModel.find(user.relation_id || "");
+        return resolve({
+          data: { ...result, brand },
+          statusCode: 200,
+        });
+      }
       return resolve({
         data: result,
         statusCode: 200,
