@@ -317,10 +317,7 @@ export default class ProductService {
       return resolve({
         data: {
           id: product.id,
-          brand: {
-            id: brand?.id || product.brand_id,
-            name: brand?.name || "",
-          },
+          brand: brand,
           collection: {
             id: collection?.id || "",
             name: collection?.name || "",
@@ -496,7 +493,10 @@ export default class ProductService {
         };
       });
       return resolve({
-        data: returnData,
+        data: {
+          data: returnData,
+          brand: await this.brandModel.find(brand_id),
+        },
         statusCode: 200,
       });
     });

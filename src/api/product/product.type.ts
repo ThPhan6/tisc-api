@@ -1,9 +1,6 @@
 export interface IProduct {
   id: string;
-  brand: {
-    id: string;
-    name: string;
-  };
+  brand: any;
   collection: {
     id: string;
     name: string;
@@ -85,7 +82,10 @@ export interface IProductResponse {
   statusCode: number;
 }
 export interface IProductsResponse {
-  data: any[];
+  data: {
+    data: any[];
+    brand: any;
+  };
   statusCode: number;
 }
 

@@ -7,32 +7,35 @@ const Joi = HapiJoi.defaults((schema) =>
 
 export default {
   getList: Joi.object({
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        name: Joi.string(),
-        count: Joi.number(),
-        products: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            brand_id: Joi.string(),
-            collection_id: Joi.any(),
-            category_ids: Joi.array().items(Joi.any()),
-            name: Joi.string(),
-            code: Joi.any(),
-            description: Joi.any(),
-            general_attribute_groups: Joi.array().items(Joi.any()),
-            feature_attribute_groups: Joi.array().items(Joi.any()),
-            specification_attribute_groups: Joi.array().items(Joi.any()),
-            favorites: Joi.number(),
-            images: Joi.any(),
-            keywords: Joi.array().items(Joi.string()),
-            created_at: Joi.any(),
-            created_by: Joi.any(),
-          })
-        ),
-      })
-    ),
+    data: Joi.object({
+      data: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          count: Joi.number(),
+          products: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              brand_id: Joi.string(),
+              collection_id: Joi.any(),
+              category_ids: Joi.array().items(Joi.any()),
+              name: Joi.string(),
+              code: Joi.any(),
+              description: Joi.any(),
+              general_attribute_groups: Joi.array().items(Joi.any()),
+              feature_attribute_groups: Joi.array().items(Joi.any()),
+              specification_attribute_groups: Joi.array().items(Joi.any()),
+              favorites: Joi.number(),
+              images: Joi.any(),
+              keywords: Joi.array().items(Joi.string()),
+              created_at: Joi.any(),
+              created_by: Joi.any(),
+            })
+          ),
+        })
+      ),
+      brand: Joi.any(),
+    }),
     statusCode: Joi.number(),
   }) as any,
   brandProductSummary: Joi.object({
@@ -59,10 +62,7 @@ export default {
   getOne: Joi.object({
     data: Joi.object({
       id: Joi.string(),
-      brand: {
-        id: Joi.string(),
-        name: Joi.string(),
-      },
+      brand: Joi.any(),
       collection: {
         id: Joi.string(),
         name: Joi.string(),
