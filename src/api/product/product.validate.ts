@@ -11,7 +11,7 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Collection id is required")),
       category_ids: Joi.array()
-        .items(Joi.string())
+        .items(Joi.string().required())
         .required()
         .error(commonFailValidatedMessageFunction("Category ids is required")),
       name: Joi.string()
@@ -21,21 +21,20 @@ export default {
       general_attribute_groups: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string(),
-            attributes: Joi.array().items({
-              id: Joi.string(),
-              basis_id: Joi.string(),
-              basis_value_id: Joi.any(),
-              type: Joi.string().valid(
-                "Text",
-                "Conversions",
-                "Presets",
-                "Options"
-              ),
-              text: Joi.any(),
-              conversion_value_1: Joi.any(),
-              conversion_value_2: Joi.any(),
-            }),
+            name: Joi.string().required(),
+            attributes: Joi.array()
+              .items({
+                id: Joi.string().required(),
+                basis_id: Joi.string().required(),
+                basis_value_id: Joi.any(),
+                type: Joi.string()
+                  .valid("Text", "Conversions", "Presets", "Options")
+                  .required(),
+                text: Joi.any(),
+                conversion_value_1: Joi.any(),
+                conversion_value_2: Joi.any(),
+              })
+              .required(),
           })
         )
         .required()
@@ -47,21 +46,20 @@ export default {
       feature_attribute_groups: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string(),
-            attributes: Joi.array().items({
-              id: Joi.string(),
-              basis_id: Joi.string(),
-              basis_value_id: Joi.any(),
-              type: Joi.string().valid(
-                "Text",
-                "Conversions",
-                "Presets",
-                "Options"
-              ),
-              text: Joi.any(),
-              conversion_value_1: Joi.any(),
-              conversion_value_2: Joi.any(),
-            }),
+            name: Joi.string().required(),
+            attributes: Joi.array()
+              .items({
+                id: Joi.string().required(),
+                basis_id: Joi.string().required(),
+                basis_value_id: Joi.any(),
+                type: Joi.string()
+                  .valid("Text", "Conversions", "Presets", "Options")
+                  .required(),
+                text: Joi.any(),
+                conversion_value_1: Joi.any(),
+                conversion_value_2: Joi.any(),
+              })
+              .required(),
           })
         )
         .required()
@@ -73,17 +71,14 @@ export default {
       specification_attribute_groups: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string(),
+            name: Joi.string().required(),
             attributes: Joi.array().items({
-              id: Joi.string(),
-              basis_id: Joi.any(),
+              id: Joi.string().required(),
+              basis_id: Joi.any().required(),
               basis_value_id: Joi.any(),
-              type: Joi.string().valid(
-                "Text",
-                "Conversions",
-                "Presets",
-                "Options"
-              ),
+              type: Joi.string()
+                .valid("Text", "Conversions", "Presets", "Options")
+                .required(),
               text: Joi.any(),
               conversion_value_1: Joi.any(),
               conversion_value_2: Joi.any(),
