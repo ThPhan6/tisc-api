@@ -916,5 +916,5 @@ const seed = async (db) => {
   }
 };
 module.exports = {
-  seedAutoEmail: seed,
+  seed,
 };

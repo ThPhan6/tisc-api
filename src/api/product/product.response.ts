@@ -26,6 +26,7 @@ export default {
             specification_attribute_groups: Joi.array().items(Joi.any()),
             favorites: Joi.number(),
             images: Joi.any(),
+            keywords: Joi.array().items(Joi.string()),
             created_at: Joi.any(),
             created_by: Joi.any(),
             keywords: Joi.array().items(Joi.string()),
