@@ -154,6 +154,7 @@ export default class UserService {
         created_at: user.created_at,
         access_level: user.access_level,
         status: user.status,
+        type: user.type,
         phone_code: location?.phone_code,
         permissions,
       };

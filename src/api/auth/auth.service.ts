@@ -1,7 +1,4 @@
-import {
-  BRAND_STATUSES,
-  MESSAGES,
-} from "./../../constant/common.constant";
+import { BRAND_STATUSES, MESSAGES } from "./../../constant/common.constant";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
   IAdminLoginRequest,
@@ -42,7 +39,8 @@ class AuthService {
   }
 
   public login = (
-    payload: IAdminLoginRequest
+    payload: IAdminLoginRequest,
+    type?: number
   ): Promise<ILoginResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
@@ -52,6 +50,12 @@ class AuthService {
         return resolve({
           message: MESSAGES.ACCOUNT_NOT_EXIST,
           statusCode: 404,
+        });
+      }
+      if (user.type !== type) {
+        return resolve({
+          message: MESSAGES.LOGIN_INCORRECT_TYPE,
+          statusCode: 400,
         });
       }
       if (!user.is_verified) {

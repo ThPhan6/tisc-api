@@ -120,6 +120,7 @@ export default class PermissionService {
         return {
           logo: item.logo,
           name: item.name,
+          accessable: item.accessable,
           items: [
             {
               id: item.id,

@@ -33,6 +33,23 @@ export default class AuthRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: `${PREFIX}/login/brand`,
+          options: {
+            handler: controller.brandLogin,
+            validate: validate.login,
+            description: "Method that authenticate brand user",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: authResponse.login,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: `/api/auth/is-valid-reset-password-token/{token}`,
           options: {
