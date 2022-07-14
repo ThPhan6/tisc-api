@@ -24,6 +24,7 @@ export default {
       mobile: Joi.string(),
       authorized_country_ids: Joi.array().items(Joi.string()),
       authorized_country_name: Joi.any(),
+      authorized_countries: Joi.any(),
       coverage_beyond: Joi.boolean(),
       created_at: Joi.string(),
     }),

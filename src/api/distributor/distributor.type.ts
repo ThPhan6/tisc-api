@@ -37,6 +37,10 @@ export interface IDistributorResponse {
     mobile: string;
     authorized_country_ids: string[];
     authorized_country_name: string;
+    authorized_countries: {
+      id: string;
+      name: string;
+    }[];
     coverage_beyond: boolean;
     created_at: string;
   };
