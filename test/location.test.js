@@ -157,7 +157,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Not found location");
+          res.body.should.have.property("message", "Location not found");
 
           done();
         });
@@ -289,7 +289,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Not found location");
+          res.body.should.have.property("message", "Location not found");
 
           done();
         });
@@ -337,7 +337,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Not found location");
+          res.body.should.have.property("message", "Location not found");
           done();
         });
     });

@@ -72,8 +72,8 @@ describe("Quotation API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 200);
-          res.body.data.should.be.an("array");
-          res.body.data.map((item) => {
+          res.body.data.quotations.should.be.an("array");
+          res.body.data.quotations.map((item) => {
             item.should.have.keys(
               "id",
               "author",
