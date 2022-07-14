@@ -9,7 +9,6 @@ const path = require("path");
 const basedir = path.resolve("./test/test_files");
 const HOST_URL = process.env.API_URL;
 const tiscAdminToken = process.env.TEST_TISC_ADMIN_TOKEN;
-console.log(`${basedir}/meo.jpg`, "[${basedir}/meo.jpg]");
 describe("User profile API", () => {
   beforeEach((done) => {
     done();
@@ -26,13 +25,14 @@ describe("User profile API", () => {
           res.should.be.json;
           res.body.should.have.property("statusCode", 200);
           res.body.should.have.property("data");
-
           res.body.data.should.have.keys(
+            "id",
+            "role_id",
             "firstname",
             "lastname",
             "gender",
             "location_id",
-            "department_id",
+            "work_location",
             "position",
             "email",
             "phone",
@@ -40,7 +40,10 @@ describe("User profile API", () => {
             "avatar",
             "backup_email",
             "personal_mobile",
-            "linkedin"
+            "linkedin",
+            "created_at",
+            "status",
+            "permissions"
           );
           done();
         });
@@ -54,8 +57,8 @@ describe("User profile API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -98,8 +101,8 @@ describe("User profile API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -119,7 +122,7 @@ describe("User profile API", () => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("message", "Not valid avatar file");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -139,7 +142,7 @@ describe("User profile API", () => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("message", "Not valid avatar file");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -162,13 +165,14 @@ describe("User profile API", () => {
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.have.property("statusCode", 200);
-
           res.body.data.should.have.keys(
+            "id",
+            "role_id",
             "firstname",
             "lastname",
             "gender",
             "location_id",
-            "department_id",
+            "work_location",
             "position",
             "email",
             "phone",
@@ -176,7 +180,9 @@ describe("User profile API", () => {
             "avatar",
             "backup_email",
             "personal_mobile",
-            "linkedin"
+            "linkedin",
+            "created_at",
+            "status"
           );
           done();
         });
@@ -197,8 +203,8 @@ describe("User profile API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
