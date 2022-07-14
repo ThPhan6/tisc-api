@@ -232,8 +232,8 @@ describe("Product tip API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("error", "Bad Request");
-          res.body.should.have.property("message", "Product id is required");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -289,7 +289,7 @@ describe("Product tip API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Product tip not found");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -342,8 +342,8 @@ describe("Product tip API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("error", "Bad Request");
-          res.body.should.have.property("message", "Product id is required");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -399,7 +399,7 @@ describe("Product tip API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Product tip not found");
+          res.body.should.have.property("message");
           done();
         });
     });

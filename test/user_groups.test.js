@@ -447,7 +447,7 @@ describe("Design API", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Not found desinger.");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });

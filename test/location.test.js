@@ -50,8 +50,8 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("error", "Bad Request");
-          res.body.should.have.property("message", "Business name is required");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -157,7 +157,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Location not found");
+          res.body.should.have.property("message");
 
           done();
         });
@@ -228,8 +228,8 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("error", "Bad Request");
-          res.body.should.have.property("message", "Business name is required");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -289,7 +289,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Location not found");
+          res.body.should.have.property("message");
 
           done();
         });
@@ -337,7 +337,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message", "Location not found");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -351,7 +351,7 @@ describe("Location API ", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 200);
-          res.body.should.have.property("message", "Success.");
+          res.body.should.have.property("message");
           done();
         });
     });
