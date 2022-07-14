@@ -160,9 +160,30 @@ export default class DistributorService {
           statusCode: 404,
         });
       }
+
+      const authorizedCountries =
+        await this.countryStateCityService.getCountries(
+          distributor.authorized_country_ids
+        );
+      if (authorizedCountries === false) {
+        return resolve({
+          message: "Not authorized countries, please check ids",
+          statusCode: 400,
+        });
+      }
+      const authorizedCountriesName = authorizedCountries.map((item) => {
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
       const { is_deleted, ...rest } = distributor;
+      const result = {
+        ...rest,
+        authorized_countries: authorizedCountriesName,
+      };
       return resolve({
-        data: rest,
+        data: result,
         statusCode: 200,
       });
     });
