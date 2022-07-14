@@ -106,7 +106,7 @@ describe("Tisc team profile API ", () => {
           location_id: locationId,
           department_id: departmentId,
           position: "Position",
-          email: "unittest332311123@gmail.com",
+          email: "unittest123qwe@gmail.com",
           phone: "0123123123",
           mobile: "0123123123",
           role_id: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",

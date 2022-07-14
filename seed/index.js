@@ -13,6 +13,8 @@ const seedAutoEmail = require("./auto_email").seed;
 const seedFunctionalType = require("./functional_type.seed").seed;
 const seedDocumentation = require("./documentation.seed").seed;
 const seedDepartment = require("./department.seed").seed;
+const seedDesigner = require("./designer.seed").seed;
+
 dotenv.config();
 
 const db = new Database({
@@ -22,18 +24,20 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  // await seedDocumentation(db);
-  // await seedRole(db);
-  // await seedUser(db);
-  // await seedPermission(db);
-  // await seedPermissionRoute(db);
-  // await seedBrand(db);
-  // await seedBasis(db);
-  // await seedAutoEmail(db);
-  // await seedFunctionalType(db);
-  // await seedDepartment(db);
-  await seed1(db);
-  await seed2(db);
+  await seedDocumentation(db);
+  await seedRole(db);
+  await seedUser(db);
+  await seedPermission(db);
+  await seedPermissionRoute(db);
+  await seedBrand(db);
+  await seedBasis(db);
+  await seedAutoEmail(db);
+  await seedFunctionalType(db);
+  await seedDepartment(db);
+  await seedDesigner(db);
+
+  // await seed1(db);
+  // await seed2(db);
 };
 
 seed();

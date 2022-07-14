@@ -13,6 +13,7 @@ const db = new Database({
 db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 const uuid = require("uuid").v4;
+const moment = require("moment");
 
 let brandId = "";
 let collectionId = "";
@@ -64,7 +65,8 @@ async function insertCollection(brandId) {
             }
           ]
         }
-      ]
+      ],
+      created_at : "${moment()}"
     }) INTO @@model RETURN NEW`,
     bindVars: {
       "@model": "categories",
@@ -90,7 +92,8 @@ async function insertCollection(brandId) {
           formula_1: "1",
           formula_2: "10",
           unit_1: "m",
-          unit_2: "mm"
+          unit_2: "mm",
+          image : "/basis-option/e9ab4b81c35f9244.webp"
         }
       ]
     }) INTO @@model RETURN NEW`,
