@@ -419,7 +419,6 @@ export default class ProductService {
           const categories = await this.categoryService.getCategoryValues(
             categoryIds
           );
-
           returnData = categories.map((category) => {
             const categoryProducts = products.filter((item) =>
               item.category_ids.includes(category.id)
@@ -435,11 +434,14 @@ export default class ProductService {
             category_id,
             brand_id
           );
-          const category = await this.categoryModel.find(category_id);
+          const category = await this.categoryService.getCategoryValues([
+            category_id,
+          ]);
+
           returnData = [
             {
-              id: category?.id,
-              name: category?.name,
+              id: category[0].id,
+              name: category[0].name,
               count: products.length,
               products,
             },
