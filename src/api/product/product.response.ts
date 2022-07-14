@@ -29,7 +29,6 @@ export default {
             keywords: Joi.array().items(Joi.string()),
             created_at: Joi.any(),
             created_by: Joi.any(),
-            keywords: Joi.array().items(Joi.string()),
           })
         ),
       })
