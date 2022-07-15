@@ -151,7 +151,7 @@ export default class BrandRoute implements IRoute {
           method: "PUT",
           path: ROUTES.UPDATE_BRAND_LOGO,
           options: {
-            handler: controller.updateBrandProfile,
+            handler: controller.updateBrandLogo,
             validate: {
               payload: {
                 logo: Joi.any(),
