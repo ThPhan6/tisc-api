@@ -20,6 +20,7 @@ export interface IProduct {
   keywords: string[];
   created_at: string;
   created_by: any;
+  is_liked: boolean;
 }
 export interface IAttributeGroup {
   name: string;

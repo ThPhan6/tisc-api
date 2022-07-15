@@ -159,11 +159,12 @@ export default class ProductService {
       await this.productModel.update(createdProduct.id, {
         images: imagePaths,
       });
-      return resolve(this.get(createdProduct.id));
+      return resolve(this.get(createdProduct.id, user_id));
     });
   };
   public duplicate = (
-    id: string
+    id: string,
+    user_id: string
   ): Promise<IMessageResponse | IProductResponse> =>
     new Promise(async (resolve) => {
       const product = await this.productModel.find(id);
@@ -214,11 +215,12 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(created.id));
+      return resolve(this.get(created.id, user_id));
     });
   public update = (
     id: string,
-    payload: IUpdateProductRequest
+    payload: IUpdateProductRequest,
+    user_id: string
   ): Promise<IMessageResponse | IProductResponse> => {
     return new Promise(async (resolve) => {
       const product = await this.productModel.find(id);
@@ -347,10 +349,13 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(id));
+      return resolve(this.get(id, user_id));
     });
   };
-  public get = (id: string): Promise<IMessageResponse | IProductResponse> =>
+  public get = (
+    id: string,
+    user_id: string
+  ): Promise<IMessageResponse | IProductResponse> =>
     new Promise(async (resolve) => {
       const product = await this.productModel.find(id);
       if (!product) {
@@ -389,6 +394,7 @@ export default class ProductService {
           favorites: product.favorites?.length || 0,
           images: product.images,
           keywords: product.keywords,
+          is_liked: product.favorites.includes(user_id),
         },
         statusCode: 200,
       });
@@ -449,7 +455,8 @@ export default class ProductService {
   public getList = (
     brand_id: string,
     category_id: any,
-    collection_id: any
+    collection_id: any,
+    user_id: string
   ): Promise<IMessageResponse | IProductsResponse> => {
     return new Promise(async (resolve) => {
       let products: any[] = [];
@@ -539,7 +546,11 @@ export default class ProductService {
       returnData = returnData.map((item) => {
         const returnProducts = item.products?.map((product: any) => {
           const { is_deleted, ...rest } = product;
-          return { ...rest, favorites: product.favorites.length };
+          return {
+            ...rest,
+            favorites: product.favorites.length,
+            is_liked: product.favorites.includes(user_id),
+          };
         });
         return {
           ...item,

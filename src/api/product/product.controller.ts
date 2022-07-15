@@ -9,10 +9,12 @@ export default class ProductController {
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { category_id, collection_id, brand_id } = req.query;
+    const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getList(
       brand_id,
       category_id,
-      collection_id
+      collection_id,
+      userId
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -26,12 +28,14 @@ export default class ProductController {
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.get(id);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.get(id, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public duplicate = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.duplicate(id);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.duplicate(id, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public create = async (
@@ -48,8 +52,9 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
+    const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
-    const response = await this.service.update(id, payload);
+    const response = await this.service.update(id, payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
