@@ -205,7 +205,7 @@ export default class ProductService {
       );
       const created = await this.productModel.create({
         ...product,
-        name: product.name + "-copy",
+        name: product.name + " - copy",
         keywords: product.keywords.concat(["copy"]),
         images: imagePaths,
       });
