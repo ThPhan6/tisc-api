@@ -1,6 +1,7 @@
 export interface IProductTipRequest {
   product_id: string;
   contents: {
+    id?: string;
     title: string;
     content: string;
   }[];

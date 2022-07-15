@@ -1,6 +1,7 @@
 export interface IProductDownloadRequest {
   product_id: string;
   contents: {
+    id?: string;
     title: string;
     url: string;
   }[];

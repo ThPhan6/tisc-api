@@ -20,41 +20,58 @@ export default class ProductTipService {
 
   public create = async (
     payload: IProductTipRequest
-  ): Promise<IMessageResponse | IProductTipResponse> => {
+  ): Promise<IMessageResponse | IProductTipResponse | any> => {
     return new Promise(async (resolve) => {
-      const productCatelogue = await this.model.findBy({
-        product_id: payload.product_id,
-      });
-      if (productCatelogue) {
-        return resolve({
-          message: MESSAGES.PRODUCT_TIP_EXISTED,
-          statusCode: 400,
-        });
-      }
       const product = await this.productModel.find(payload.product_id);
       if (!product) {
         return resolve({
-          message: MESSAGES.PRODUCT_NOT_FOUND,
-          statusCode: 404,
+          data: {},
+          statusCode: 200,
         });
       }
-
-      const newContents = payload.contents.map((content) => {
-        return {
-          ...content,
-          id: uuid(),
-        };
-      });
-      const created = await this.model.create({
-        ...PRODUCT_TIP_NULL_ATTRIBUTES,
+      const productTip = await this.model.findBy({
         product_id: payload.product_id,
-        contents: newContents,
       });
-      if (!created) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
+      if (!productTip) {
+        const newContents = payload.contents.map((content) => {
+          return {
+            ...content,
+            id: uuid(),
+          };
         });
+        const created = await this.model.create({
+          ...PRODUCT_TIP_NULL_ATTRIBUTES,
+          product_id: payload.product_id,
+          contents: newContents,
+        });
+        if (!created) {
+          return resolve({
+            message: MESSAGES.SOMETHING_WRONG_CREATE,
+            statusCode: 400,
+          });
+        }
+      } else {
+        const newContents = payload.contents.map((content: any) => {
+          if (content.id) {
+            const found = productTip.contents.find(
+              (item) => item.id === content.id
+            );
+            if (found) return content;
+          }
+          return {
+            ...content,
+            id: uuid(),
+          };
+        });
+        const updated = await this.model.update(productTip.id, {
+          contents: newContents,
+        });
+        if (!updated) {
+          return resolve({
+            message: MESSAGES.SOMETHING_WRONG_CREATE,
+            statusCode: 400,
+          });
+        }
       }
       return resolve(await this.get(payload.product_id));
     });
@@ -62,13 +79,13 @@ export default class ProductTipService {
 
   public get = async (
     product_id: string
-  ): Promise<IMessageResponse | IProductTipResponse> => {
+  ): Promise<IProductTipResponse | any> => {
     return new Promise(async (resolve) => {
       const found = await this.model.findBy({ product_id });
       if (!found) {
         return resolve({
-          message: MESSAGES.PRODUCT_TIP_NOT_FOUND,
-          statusCode: 404,
+          data: {},
+          statusCode: 200,
         });
       }
 

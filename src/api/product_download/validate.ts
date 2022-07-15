@@ -8,6 +8,7 @@ export default {
         .error(commonFailValidatedMessageFunction("Product id is required")),
       contents: Joi.array().items(
         Joi.object({
+          id: Joi.any(),
           title: Joi.string()
             .required()
             .error(commonFailValidatedMessageFunction("Title is required")),
@@ -25,9 +26,6 @@ export default {
         .error(commonFailValidatedMessageFunction("Product id is required")),
     },
     payload: {
-      product_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Product id is required")),
       contents: Joi.array().items(
         Joi.object({
           id: Joi.any(),
