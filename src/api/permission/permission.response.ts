@@ -10,6 +10,7 @@ export default {
     data: Joi.array().items({
       logo: Joi.string().allow(null),
       name: Joi.string(),
+      accessable: Joi.boolean().allow(null),
       items: Joi.array().items({
         id: Joi.string(),
         name: Joi.string(),
