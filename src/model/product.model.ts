@@ -151,7 +151,8 @@ export default class ProductModel extends Model<IProductAttributes> {
   ): Promise<IProductAttributes[]> => {
     try {
       const result = await this.getBuilder()
-        .builder.where("brand_id", brand_id)
+        .builder.whereNot("is_deleted", true)
+        .where("brand_id", brand_id)
         .orderBy("created_at", "ASC")
         .select();
       return result;

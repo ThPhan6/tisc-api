@@ -29,6 +29,11 @@ export default class ProductController {
     const response = await this.service.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public duplicate = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.duplicate(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public create = async (
     req: Request & { payload: IProductRequest },
     toolkit: ResponseToolkit

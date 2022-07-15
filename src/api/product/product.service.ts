@@ -162,6 +162,60 @@ export default class ProductService {
       return resolve(this.get(createdProduct.id));
     });
   };
+  public duplicate = (
+    id: string
+  ): Promise<IMessageResponse | IProductResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const brand = await this.brandModel.find(product.brand_id);
+      const brandName = brand?.name
+        .trim()
+        .toLowerCase()
+        .split(" ")
+        .join("-")
+        .replace(/ /g, "-");
+      const imageBuffers = await Promise.all(
+        product.images.map(
+          async (image: string) => await getBufferFile(image.slice(1))
+        )
+      );
+      const imagePaths = await Promise.all(
+        imageBuffers.map(async (image, index) => {
+          const mediumBuffer = await toWebp(image, "medium");
+          let keyword = "";
+          product.keywords.concat(["copy"]).forEach((item) => {
+            keyword += item.trim().replace(/ /g, "-");
+          });
+
+          let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+          await upload(
+            mediumBuffer,
+            `product/${id}/${fileName}_medium.webp`,
+            "image/webp"
+          );
+          return `/product/${id}/${fileName}_medium.webp`;
+        })
+      );
+      const created = await this.productModel.create({
+        ...product,
+        name: product.name + "-copy",
+        keywords: product.keywords.concat(["copy"]),
+        images: imagePaths,
+      });
+      if (!created) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(this.get(created.id));
+    });
   public update = (
     id: string,
     payload: IUpdateProductRequest

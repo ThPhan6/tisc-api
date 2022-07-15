@@ -191,6 +191,7 @@ const seed = async (db) => {
         parent_number: 7,
         routes: [
           { id: ROUTE_IDS.CREATE_PRODUCT, accessable: true },
+          { id: ROUTE_IDS.DUPLICATE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.UPDATE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.DELETE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
@@ -502,6 +503,7 @@ const seed = async (db) => {
         parent_number: 7,
         routes: [
           { id: ROUTE_IDS.CREATE_PRODUCT, accessable: true },
+          { id: ROUTE_IDS.DUPLICATE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.UPDATE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.DELETE_PRODUCT, accessable: true },
           { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },

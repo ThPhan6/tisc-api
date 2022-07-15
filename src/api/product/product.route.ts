@@ -99,6 +99,23 @@ export default class ProductRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.DUPLICATE_PRODUCT,
+          options: {
+            handler: controller.duplicate,
+            validate: commonValidate.getOne,
+            description: "Method that duplicate product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getOne,
+              },
+            },
+          },
+        },
+        {
           method: "PUT",
           path: ROUTES.UPDATE_PRODUCT,
           options: {

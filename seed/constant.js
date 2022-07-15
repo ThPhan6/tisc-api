@@ -199,6 +199,7 @@ const ROUTES = {
   GET_CITY: "/api/location/get-city/{id}",
 
   CREATE_BRAND: "/api/brand/create",
+  DUPLICATE_PRODUCT: "/api/product/duplicate/{id}",
 };
 const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -362,6 +363,8 @@ const ROUTE_IDS = {
   GET_CITY: "151",
 
   CREATE_BRAND: "152",
+
+  DUPLICATE_PRODUCT: "153",
 };
 
 const USER_STATUSES = {
