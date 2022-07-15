@@ -109,13 +109,9 @@ export default {
           )
         ),
       keywords: Joi.array()
-        .items(Joi.string())
+        .items(Joi.string().allow(""))
         .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Keywords is required at least 1 valid data"
-          )
-        ),
+        .error(commonFailValidatedMessageFunction("Keywords is required")),
     },
   },
   update: {
@@ -199,13 +195,9 @@ export default {
       ),
       images: Joi.array().min(3).max(9).items(Joi.string()),
       keywords: Joi.array()
-        .items(Joi.string())
-        .min(1)
-        .error(
-          commonFailValidatedMessageFunction(
-            "Keywords is required at least 1 valid data"
-          )
-        ),
+        .items(Joi.string().allow(""))
+        .required()
+        .error(commonFailValidatedMessageFunction("Keywords is required")),
     },
   },
   getList: {
