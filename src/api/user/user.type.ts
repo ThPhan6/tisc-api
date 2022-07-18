@@ -23,6 +23,7 @@ export interface IUpdateMeRequest {
 export interface IUser {
   firstname: string;
   lastname: string;
+  fullname: string;
   location_id: string | null;
   department_id: string | null;
   position: string | null;
