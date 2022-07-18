@@ -324,18 +324,15 @@ export default class BrandService {
     });
   };
   public getListCard = (
-    limit: number,
-    offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
+    sort: any
   ): Promise<IBrandCardsResponse> => {
     return new Promise(async (resolve) => {
-      const brands: IBrandAttributes[] = await this.brandModel.list(
-        limit,
-        offset,
+      const brands: IBrandAttributes[] = await this.brandModel.getAllBy(
         filter,
-        [sort_name, sort_order]
+        undefined,
+        sort ? sort[0] : "created_at",
+        sort ? sort[1] : "DESC"
       );
       const result = await Promise.all(
         brands.map(async (brand) => {
