@@ -452,6 +452,7 @@ const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
   name: null,
   created_at: null,
   is_deleted: false,
+  type: 0,
 };
 const BASIS_NULL_ATTRIBUTES = {
   id: null,

@@ -36,15 +36,31 @@ export default class LocationService {
     this.countryStateCityService = new CountryStateCityService();
     this.userModel = new UserModel();
   }
-  public getFunctionalTypes = (): Promise<IFunctionalTypesResponse> => {
+  public getFunctionalTypes = (
+    user_id: string
+  ): Promise<IFunctionalTypesResponse> => {
     return new Promise(async (resolve) => {
-      const functionalTypes = await this.functionalTypeModel.getAll(
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const rawFunctionalTypes = await this.functionalTypeModel.getAllBy(
+        { type: 0 },
+        ["id", "name"],
+        "created_at",
+        "ASC"
+      );
+      const functionalTypes = await this.functionalTypeModel.getAllBy(
+        { type: user.type, relation_id: user.relation_id },
         ["id", "name"],
         "created_at",
         "ASC"
       );
       return resolve({
-        data: functionalTypes,
+        data: rawFunctionalTypes.concat(functionalTypes),
         statusCode: 200,
       });
     });
@@ -72,6 +88,8 @@ export default class LocationService {
               {
                 ...FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
                 name: function_type_id,
+                type: user.type,
+                relation_id: user.relation_id,
               }
             );
             return createdFunctionalType ? createdFunctionalType.id : "";
@@ -153,6 +171,8 @@ export default class LocationService {
               {
                 ...FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
                 name: function_type_id,
+                type: user.type,
+                relation_id: user.relation_id,
               }
             );
             return createdFunctionalType ? createdFunctionalType.id : "";

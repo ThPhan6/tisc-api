@@ -84,10 +84,11 @@ export default class LocationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getFunctionalTypes = async (
-    _req: Request,
+    req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await this.service.getFunctionalTypes();
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getFunctionalTypes(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
