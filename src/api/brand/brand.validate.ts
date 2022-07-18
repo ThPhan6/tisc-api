@@ -56,8 +56,8 @@ export default {
       name: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Name is required")),
-      parent_company: Joi.string(),
-      slogan: Joi.string(),
+      parent_company: Joi.string().allow(""),
+      slogan: Joi.string().allow(""),
       mission_n_vision: Joi.string()
         .required()
         .error(
@@ -73,7 +73,7 @@ export default {
           commonFailValidatedMessageFunction("Official websites is required")
         ),
     },
-  },
+  } as any,
   invite: {
     payload: {
       email: Joi.string()
