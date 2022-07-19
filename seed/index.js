@@ -33,9 +33,9 @@ const seed = async () => {
   // await seedBasis(db);
   // await seedAutoEmail(db);
   // await seedFunctionalType(db);
-  await seedDepartment(db);
+  // await seedDepartment(db);
   // await seedDesigner(db);
-  // await seed1(db);
+  await seed1(db);
   // await seed2(db);
 };
 

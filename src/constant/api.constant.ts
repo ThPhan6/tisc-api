@@ -168,6 +168,8 @@ export const ROUTES = {
 
   CREATE_BRAND: "/api/brand/create",
   DUPLICATE_PRODUCT: "/api/product/duplicate/{id}",
+  UPDATE_HOWTO: "/api/documentation/howto/update",
+  GET_ALL_HOWTO: "/api/documentation/howto/get-all",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -332,4 +334,6 @@ export const ROUTE_IDS = {
 
   CREATE_BRAND: "152",
   DUPLICATE_PRODUCT: "153",
+  UPDATE_HOWTO: "154",
+  GET_ALL_HOWTO: "155",
 };

@@ -31,4 +31,16 @@ export default {
       }),
     }),
   }) as any,
+  howtos: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.any(),
+  }) as any,
+  allHowto: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.object({
+      tisc: Joi.any(),
+      brand: Joi.any(),
+      design: Joi.any(),
+    }),
+  }) as any,
 };

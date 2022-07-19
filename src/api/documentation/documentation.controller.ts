@@ -1,4 +1,4 @@
-import { IDocumentationRequest } from "./documentation.type";
+import { IDocumentationRequest, IHowto } from "./documentation.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import DocumentationService from "./documentation.service";
 export default class DocumentationController {
@@ -7,13 +7,8 @@ export default class DocumentationController {
     this.service = new DocumentationService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, sort, type } = req.query;
-    const response = await this.service.getList(
-      type,
-      limit,
-      offset,
-      sort
-    );
+    const { limit, offset, sort } = req.query;
+    const response = await this.service.getList(limit, offset, sort);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -40,6 +35,23 @@ export default class DocumentationController {
     const { id } = req.params;
     const payload = req.payload;
     const response = await this.service.update(id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public updateHowtos = async (
+    req: Request & { payload: { data: IHowto[] } },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.service.updateHowto(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getAllHowto = async (_req: Request, toolkit: ResponseToolkit) => {
+    const response = await this.service.getAllHowto();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getHowto = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getHowto(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

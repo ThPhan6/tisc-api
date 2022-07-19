@@ -238,6 +238,8 @@ const seed = async (db) => {
           { id: ROUTE_IDS.DELETE_DOCUMENTATION, accessable: true },
           { id: ROUTE_IDS.CREATE_DOCUMENTATION, accessable: true },
           { id: ROUTE_IDS.GET_ONE_DOCUMENTATION, accessable: true },
+          { id: ROUTE_IDS.UPDATE_HOWTO, accessable: true },
+          { id: ROUTE_IDS.GET_ALL_HOWTO, accessable: true },
         ],
       },
       {
@@ -551,6 +553,8 @@ const seed = async (db) => {
           { id: ROUTE_IDS.DELETE_DOCUMENTATION, accessable: false },
           { id: ROUTE_IDS.CREATE_DOCUMENTATION, accessable: false },
           { id: ROUTE_IDS.GET_ONE_DOCUMENTATION, accessable: false },
+          { id: ROUTE_IDS.UPDATE_HOWTO, accessable: false },
+          { id: ROUTE_IDS.GET_ALL_HOWTO, accessable: false },
         ],
       },
       {

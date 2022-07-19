@@ -14,7 +14,23 @@ export interface IDocumentation {
 export interface IDocumentationRequest {
   title: string;
   document: object;
-  logo?: string;
+}
+export interface IHowto {
+  id: string;
+  title: string;
+  document: object;
+}
+export interface IHowtosResponse {
+  data: any[];
+  statusCode: number;
+}
+export interface IAllHowtoResponse {
+  data: {
+    tisc: any;
+    brand: any;
+    design: any;
+  };
+  statusCode: number;
 }
 
 export interface IDocumentationResponse {

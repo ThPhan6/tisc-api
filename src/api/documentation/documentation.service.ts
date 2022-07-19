@@ -5,14 +5,20 @@ import DocumentationModel, {
 } from "../../model/documentation.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
+  IAllHowtoResponse,
   IDocumentationRequest,
   IDocumentationResponse,
   IDocumentationsResponse,
+  IHowto,
+  IHowtosResponse,
 } from "./documentation.type";
+import UserModel from "../../model/user.model";
 class DocumentationService {
   private documentationModel: DocumentationModel;
+  private userModel: UserModel;
   constructor() {
     this.documentationModel = new DocumentationModel();
+    this.userModel = new UserModel();
   }
 
   public create = (
@@ -20,10 +26,11 @@ class DocumentationService {
     user_id: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      if (!user_id) {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
         return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
         });
       }
       const createdDocumentation = await this.documentationModel.create({
@@ -51,30 +58,19 @@ class DocumentationService {
   };
 
   public getList = (
-    type: number,
     limit: number,
     offset: number,
     sort: any
   ): Promise<IDocumentationsResponse | any> => {
     return new Promise(async (resolve) => {
       const pagination: IPagination =
-        await this.documentationModel.getPagination(limit, offset, { type });
-      const documentations = await this.documentationModel.getAllBy({ type });
-      if (type !== DOCUMENTATION_TYPES.GENERAL) {
-        return resolve({
-          data: {
-            documentations: documentations.map((item) => {
-              const { is_deleted, ...rest } = item;
-              return rest;
-            }),
-            pagination,
-          },
-          statusCode: 200,
+        await this.documentationModel.getPagination(limit, offset, {
+          type: DOCUMENTATION_TYPES.GENERAL,
         });
-      }
+
       const generalDocumentations =
         await this.documentationModel.getListWithoutFilter(
-          type,
+          DOCUMENTATION_TYPES.GENERAL,
           limit,
           offset,
           sort
@@ -96,6 +92,66 @@ class DocumentationService {
           documentations: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+  };
+  public getAllHowto = (): Promise<IAllHowtoResponse> => {
+    return new Promise(async (resolve) => {
+      const tiscHowtos = await this.documentationModel.getAllBy(
+        {
+          type: DOCUMENTATION_TYPES.TISC_HOW_TO,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "created_at",
+        "ASC"
+      );
+      const brandHowtos = await this.documentationModel.getAllBy(
+        {
+          type: DOCUMENTATION_TYPES.BRAND_HOW_TO,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "created_at",
+        "ASC"
+      );
+      const designHowtos = await this.documentationModel.getAllBy(
+        {
+          type: DOCUMENTATION_TYPES.DESIGN_HOW_TO,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "created_at",
+        "ASC"
+      );
+      return resolve({
+        data: {
+          tisc: tiscHowtos,
+          brand: brandHowtos,
+          design: designHowtos,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public getHowto = (user_id: string): Promise<IHowtosResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const result = await this.documentationModel.getAllBy(
+        {
+          type: user.type + 1,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "created_at",
+        "ASC"
+      );
+
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });
@@ -152,6 +208,38 @@ class DocumentationService {
       });
     });
   };
+  public updateHowto = (payload: {
+    data: IHowto[];
+  }): Promise<IHowtosResponse> =>
+    new Promise(async (resolve) => {
+      const updatedHowtos = await Promise.all(
+        payload.data.map(async (howto) => {
+          return await this.documentationModel.update(howto.id, {
+            title: howto.title,
+            document: howto.document,
+          });
+        })
+      );
+      const firstHowto = await this.documentationModel.find(
+        payload.data[0]?.id
+      );
+      if (!firstHowto) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const howtos = await this.documentationModel.getAllBy(
+        { type: firstHowto.type },
+        ["id", "title", "document", "created_at"],
+        "created_at",
+        "DESC"
+      );
+      return resolve({
+        data: howtos,
+        statusCode: 200,
+      });
+    });
   public delete = (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const documentation = await this.documentationModel.find(id);
