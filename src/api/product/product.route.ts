@@ -90,6 +90,21 @@ export default class ProductRoute implements IRoute {
             description: "Method that create one product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,
+            payload: {
+              maxBytes: 1024 * 1024 * 5,
+              multipart: {
+                output: "stream",
+              },
+              parse: true,
+              failAction: (_request, _h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `Can not upload file size greater than 5MB`;
+                  }
+                }
+                throw err;
+              },
+            },
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
