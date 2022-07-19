@@ -26,10 +26,10 @@ export interface ILocation {
   created_at: string;
   country_id: string;
   state_id: string | null;
-  city_id: string;
+  city_id: string | null;
   country_name: string;
   state_name: string | null;
-  city_name: string;
+  city_name: string | null;
   phone_code: string;
 }
 

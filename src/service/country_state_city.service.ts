@@ -105,31 +105,30 @@ export default class CountryStateCityService {
 
   public getCountryStateCity = (
     country_id: string,
-    city_id: string,
+    city_id?: string,
     state_id?: string
   ): Promise<ICountryStateCity | false | any> =>
     new Promise(async (resolve) => {
       try {
-        const country = await this.countryModel.find(country_id);
-        const city = await this.cityModel.find(city_id);
-        if (state_id) {
-          const state = await this.stateModel.find(state_id);
+        if (country_id === "-1") {
           return resolve({
-            country_id: country?.id || "",
-            state_id: state?.id || "",
-            city_id: city?.id || "",
-            country_name: country?.name || "",
-            state_name: state?.name || "",
-            city_name: city?.name || "",
-            phone_code: country?.phone_code || "",
+            country_id: "-1",
+            country_name: "Global",
+            state_id: "",
+            state_name: "",
+            city_id: "",
+            city_name: "",
           });
         }
+        const country = await this.countryModel.find(country_id);
+        const city = await this.cityModel.find(city_id || "");
+        const state = await this.stateModel.find(state_id || "");
         return resolve({
           country_id: country?.id || "",
-          state_id: "",
+          state_id: state?.id || "",
           city_id: city?.id || "",
           country_name: country?.name || "",
-          state_name: "",
+          state_name: state?.name || "",
           city_name: city?.name || "",
           phone_code: country?.phone_code || "",
         });

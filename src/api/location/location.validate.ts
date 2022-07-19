@@ -47,10 +47,8 @@ export default {
       country_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string(),
-      city_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("City id is required")),
+      state_id: Joi.string().allow(""),
+      city_id: Joi.string().allow(""),
       address: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),
@@ -89,10 +87,8 @@ export default {
       country_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string(),
-      city_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("City id is required")),
+      state_id: Joi.string().allow(""),
+      city_id: Joi.string().allow(""),
       address: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),
