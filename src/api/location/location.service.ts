@@ -77,7 +77,6 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      //check functional types
       const functional_type_ids = await Promise.all(
         payload.functional_type_ids.map(async (function_type_id) => {
           const functional_type = await this.functionalTypeModel.find(
