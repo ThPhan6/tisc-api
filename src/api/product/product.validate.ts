@@ -9,11 +9,11 @@ export default {
         .error(commonFailValidatedMessageFunction("Brand id is required")),
       collection_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Collection id is required")),
+        .error(commonFailValidatedMessageFunction("Please select collection")),
       category_ids: Joi.array()
         .items(Joi.string().required())
         .required()
-        .error(commonFailValidatedMessageFunction("Category ids is required")),
+        .error(commonFailValidatedMessageFunction("Please select category")),
       name: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Name is required")),

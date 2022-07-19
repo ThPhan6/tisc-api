@@ -472,6 +472,7 @@ const DEPARTMENT_NULL_ATTRIBUTES = {
   name: null,
   created_at: null,
   is_deleted: false,
+  type: 0,
 };
 
 const TOPIC_TYPES = {

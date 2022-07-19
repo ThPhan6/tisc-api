@@ -19,7 +19,9 @@ import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
 import { toWebp } from "../../helper/image.helper";
-import DepartmentModel from "../../model/department.model";
+import DepartmentModel, {
+  DEPARTMENT_NULL_ATTRIBUTES,
+} from "../../model/department.model";
 import LocationModel from "../../model/location.model";
 import { getAccessLevel } from "../../helper/common.helper";
 import PermissionService from "../../api/permission/permission.service";
@@ -72,6 +74,16 @@ export default class UserService {
         if (!duplicateVerificationTokenFromDb) isDuplicated = false;
       } while (isDuplicated);
       const location = await this.locationModel.find(payload.location_id);
+      const department = await this.departmentModel.find(payload.department_id);
+      if (!department) {
+        const createdDepartment = await this.departmentModel.create({
+          ...DEPARTMENT_NULL_ATTRIBUTES,
+          name: payload.department_id,
+          type: currentUser.type,
+          relation_id: currentUser.relation_id,
+        });
+        if (createdDepartment) payload.department_id = createdDepartment.id;
+      }
       const createdUser = await this.userModel.create({
         ...USER_NULL_ATTRIBUTES,
         firstname: payload.firstname,
@@ -208,6 +220,18 @@ export default class UserService {
             message: MESSAGES.USER_NOT_IN_WORKSPACE,
             statusCode: 400,
           });
+        }
+        const department = await this.departmentModel.find(
+          payload.department_id
+        );
+        if (!department) {
+          const createdDepartment = await this.departmentModel.create({
+            ...DEPARTMENT_NULL_ATTRIBUTES,
+            name: payload.department_id,
+            type: currentUser.type,
+            relation_id: currentUser.relation_id,
+          });
+          if (createdDepartment) payload.department_id = createdDepartment.id;
         }
       }
       let additionalPayload = {};
@@ -458,15 +482,29 @@ export default class UserService {
       });
     });
   };
-  public getListDepartment = (): Promise<IDepartmentsResponse> =>
+  public getListDepartment = (user_id: string): Promise<IDepartmentsResponse> =>
     new Promise(async (resolve) => {
-      const departments = await this.departmentModel.getAll(
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const rawDepartments = await this.departmentModel.getAllBy(
+        { type: 0 },
+        ["id", "name"],
+        "created_at",
+        "ASC"
+      );
+      const departments = await this.departmentModel.getAllBy(
+        { type: user.type, relation_id: user.relation_id },
         ["id", "name"],
         "created_at",
         "ASC"
       );
       return resolve({
-        data: departments,
+        data: rawDepartments.concat(departments),
         statusCode: 200,
       });
     });
