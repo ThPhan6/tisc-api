@@ -73,7 +73,11 @@ export default {
             ? 0
             : (value.page - 1) * value.pageSize,
         filter: value.filter,
-        sort: value.sort ? [value.sort, value.order] : undefined,
+        sort: !value.sort
+          ? undefined
+          : value.sort === "collection_name"
+          ? ["name", value.order]
+          : [value.sort, value.order],
       };
     }),
   } as any,

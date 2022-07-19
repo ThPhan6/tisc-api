@@ -24,7 +24,6 @@ export default class LocationController {
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, brand_id } = req.query;
-    const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getList(
       brand_id,
       limit,
