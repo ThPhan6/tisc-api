@@ -36,7 +36,7 @@ export default class MarketAvailabilityRoute implements IRoute {
           options: {
             handler: controller.get,
             validate: commonValidate.getOne,
-            description: "Method that get market_availability",
+            description: "Method that get market availability",
             tags: ["api", "MarketAvailability"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
@@ -53,7 +53,7 @@ export default class MarketAvailabilityRoute implements IRoute {
           options: {
             handler: controller.update,
             validate: validate.update,
-            description: "Method that update market_availability",
+            description: "Method that update market availability",
             tags: ["api", "MarketAvailability"],
             auth: AUTH_NAMES.PERMISSION,
             response: {

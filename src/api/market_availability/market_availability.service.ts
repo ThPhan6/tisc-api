@@ -42,21 +42,21 @@ export default class Service {
           const countryDetail =
             await this.countryStateCityService.getCountryDetail(country_id);
           let region = REGION_KEY.AFRICA;
-          if (countryDetail.region.toLowerCase() === "americas") {
-            if (countryDetail.subregion.toLowerCase() === "northern america")
+          if (countryDetail.region?.toLowerCase() === "americas") {
+            if (countryDetail.subregion?.toLowerCase() === "northern america")
               region = REGION_KEY.NORTH_AMERICA;
             else region = REGION_KEY.SOUTH_AMERICA;
           }
-          if (countryDetail.region.toLowerCase() === "asia")
+          if (countryDetail.region?.toLowerCase() === "asia")
             region = REGION_KEY.ASIA;
-          if (countryDetail.region.toLowerCase() === "oceania")
+          if (countryDetail.region?.toLowerCase() === "oceania")
             region = REGION_KEY.OCEANIA;
-          if (countryDetail.region.toLowerCase() === "europe")
+          if (countryDetail.region?.toLowerCase() === "europe")
             region = REGION_KEY.EUROPE;
           return {
             id: countryDetail.id,
             name: countryDetail.name,
-            phone_code: countryDetail.phonecode,
+            phone_code: countryDetail.phone_code,
             region,
           };
         })
@@ -198,10 +198,10 @@ export default class Service {
               .map((country) => {
                 return {
                   ...country,
-                  id: country.id.toLowerCase(),
+                  id: country.id?.toLowerCase(),
                   available: market.country_ids
                     .map((el) => el.toLowerCase())
-                    .includes(country.id.toLowerCase()),
+                    .includes(country.id?.toLowerCase()),
                 };
               });
             return {
