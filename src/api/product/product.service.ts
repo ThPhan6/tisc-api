@@ -208,6 +208,7 @@ export default class ProductService {
         name: product.name + " - copy",
         keywords: product.keywords.concat(["copy"]),
         images: imagePaths,
+        favorites: [],
       });
       if (!created) {
         return resolve({
