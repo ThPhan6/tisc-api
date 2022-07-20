@@ -58,10 +58,10 @@ export default {
           .required()
           .error(commonFailValidatedMessageFunction("Title is required")),
         document: Joi.object({
-          document: Joi.string(),
+          document: Joi.string().allow(""),
           question_and_answer: Joi.array().items({
-            question: Joi.string(),
-            answer: Joi.string(),
+            question: Joi.string().allow(""),
+            answer: Joi.string().allow(""),
           }),
         })
           .required()
