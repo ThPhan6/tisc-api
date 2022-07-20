@@ -90,7 +90,8 @@ export default class UserService {
         lastname: payload.lastname,
         gender: payload.gender,
         location_id: payload.location_id,
-        work_location: location?.city_name + ", " + location?.country_name,
+        work_location:
+          location?.city_name + ", " + location?.country_name.toUpperCase(),
         department_id: payload.department_id,
         position: payload.position,
         email: payload.email,
@@ -156,7 +157,8 @@ export default class UserService {
         fullname: `${user.firstname} ${user.lastname}`,
         gender: user.gender,
         location_id: user.location_id,
-        work_location: location?.city_name + ", " + location?.country_name,
+        work_location:
+          location?.city_name + ", " + location?.country_name.toUpperCase(),
         department_id: user.department_id,
         position: user.position,
         email: user.email,
