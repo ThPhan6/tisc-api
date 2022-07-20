@@ -112,4 +112,35 @@ export default class MailService {
         .then(() => this.exeAfterSend(resolve));
     });
   }
+
+  public async sendInviteEmailTeamProfile(
+    inviteUser: IUserAttributes | any,
+    senderUser: IUserAttributes
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const html = await ejs.renderFile(
+        `${process.cwd()}/src/templates/wellcome-team.ejs`,
+        {
+          firstname: inviteUser.firstname,
+          email: inviteUser.email,
+          sender_first_name: senderUser.firstname,
+          verify_link: `${this.frontpageURL}/create-password?verification_token=${inviteUser.verification_token}/${inviteUser.email}`,
+        }
+      );
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: inviteUser.email,
+          },
+        ],
+        subject: "Tisc - Invitation",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
 }
