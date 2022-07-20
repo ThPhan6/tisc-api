@@ -187,6 +187,10 @@ export const TARGETED_FOR_TYPES = {
 
 export const TARGETED_FOR_OPTIONS = [
   {
+    key: "TISC Team",
+    value: TARGETED_FOR_TYPES.TISC_TEAM,
+  },
+  {
     key: "Brand",
     value: TARGETED_FOR_TYPES.BRAND,
   },
@@ -201,10 +205,6 @@ export const TARGETED_FOR_OPTIONS = [
   {
     key: "General",
     value: TARGETED_FOR_TYPES.GENERAL,
-  },
-  {
-    key: "TISC Team",
-    value: TARGETED_FOR_TYPES.TISC_TEAM,
   },
 ];
 
