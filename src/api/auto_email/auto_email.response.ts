@@ -24,6 +24,8 @@ export default {
           id: Joi.string(),
           topic: Joi.number(),
           targeted_for: Joi.number(),
+          topic_key: Joi.string(),
+          targeted_for_key: Joi.string(),
           title: Joi.string(),
           message: Joi.string(),
           created_at: Joi.string(),

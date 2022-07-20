@@ -1,4 +1,8 @@
-import { MESSAGES } from "../../constant/common.constant";
+import {
+  MESSAGES,
+  TARGETED_FOR_OPTIONS,
+  TOPIC_OPTIONS,
+} from "../../constant/common.constant";
 import AutoEmailModel, {
   IAutoEmailAttributes,
 } from "../../model/auto_email.model";
@@ -62,7 +66,15 @@ export default class AutoEmailService {
       }
       const result = autoEmails.map((item: IAutoEmailAttributes) => {
         const { is_deleted, ...rest } = item;
-        return rest;
+        return {
+          ...rest,
+          targeted_for_key: TARGETED_FOR_OPTIONS.find(
+            (targetedFor) => targetedFor.value === rest.targeted_for
+          )?.key,
+          topic_key: TOPIC_OPTIONS.find(
+            (topic) => topic.value === rest.targeted_for
+          )?.key,
+        };
       });
       const pagination: IPagination = await this.autoEmailModel.getPagination(
         limit,
