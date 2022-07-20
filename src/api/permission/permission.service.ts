@@ -66,7 +66,7 @@ export default class PermissionService {
           statusCode: 404,
         });
       }
-      if (permission.accessable) {
+      if (permission.accessable === true || permission.accessable === false) {
         const newRoutes = permission.routes.map((route) => ({
           ...route,
           accessable: !route.accessable,
@@ -93,16 +93,22 @@ export default class PermissionService {
           statusCode: 404,
         });
       }
-      const adminPermissions = await this.permissionModel.getBy({
-        role_id:
-          user.type === SYSTEM_TYPE.TISC
-            ? ROLES.TISC_ADMIN
-            : user.type === SYSTEM_TYPE.BRAND
-            ? ROLES.BRAND_ADMIN
-            : ROLES.DESIGN_ADMIN,
-        type: user.type,
-        relation_id: user.relation_id,
-      });
+      let adminPermissions = await this.permissionModel.getAllBy(
+        {
+          role_id:
+            user.type === SYSTEM_TYPE.TISC
+              ? ROLES.TISC_ADMIN
+              : user.type === SYSTEM_TYPE.BRAND
+              ? ROLES.BRAND_ADMIN
+              : ROLES.DESIGN_ADMIN,
+          type: user.type,
+          relation_id: user.relation_id,
+        },
+        undefined,
+        "number",
+        "ASC"
+      );
+
       const teamPermissions = await this.permissionModel.getBy({
         role_id:
           user.type === SYSTEM_TYPE.TISC

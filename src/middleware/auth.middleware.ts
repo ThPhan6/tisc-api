@@ -105,41 +105,45 @@ export default class AuthMiddleware {
           ) {
             throw Boom.unauthorized("Invalid token signature");
           }
-          //check permission
           const decoded: any = jwt_decode(token);
-          const user: any = await userModel.find(decoded.user_id);
-          if (!user) {
-            throw Boom.unauthorized("Not found user");
-          }
-          const permissionRoute = await permissionRouteModel.findBy({
-            route: request.route.path,
+          return h.authenticated({
+            credentials: { user_id: decoded.user_id },
           });
-          if (!permissionRoute) {
-            throw Boom.unauthorized("Not found permissions route");
-          }
-          const permissions = await permissionModel.getBy({
-            role_id: user.role_id,
-            type: user.type,
-            relation_id: user.relation_id,
-          });
-          if (!permissions) {
-            throw Boom.unauthorized("Not found permissions");
-          }
+          //check permission
+          // const decoded: any = jwt_decode(token);
+          // const user: any = await userModel.find(decoded.user_id);
+          // if (!user) {
+          //   throw Boom.unauthorized("Not found user");
+          // }
+          // const permissionRoute = await permissionRouteModel.findBy({
+          //   route: request.route.path,
+          // });
+          // if (!permissionRoute) {
+          //   throw Boom.unauthorized("Not found permissions route");
+          // }
+          // const permissions = await permissionModel.getBy({
+          //   role_id: user.role_id,
+          //   type: user.type,
+          //   relation_id: user.relation_id,
+          // });
+          // if (!permissions) {
+          //   throw Boom.unauthorized("Not found permissions");
+          // }
 
-          const permission = permissions.find((item: any) => {
-            const foundRoute = item.routes.find(
-              (route: any) => route.id === permissionRoute.id
-            );
-            return foundRoute;
-          });
+          // const permission = permissions.find((item: any) => {
+          //   const foundRoute = item.routes.find(
+          //     (route: any) => route.id === permissionRoute.id
+          //   );
+          //   return foundRoute;
+          // });
 
-          if (permission && permission.accessable === true) {
-            return h.authenticated({
-              credentials: { user_id: decoded.user_id },
-            });
-          }
+          // if (permission && permission.accessable === true) {
+          //   return h.authenticated({
+          //     credentials: { user_id: decoded.user_id },
+          //   });
+          // }
 
-          throw Boom.unauthorized("Cannot access!");
+          // throw Boom.unauthorized("Cannot access!");
         },
       };
     });
