@@ -49,6 +49,13 @@ export default class LocationController {
     const response = await this.service.getCountry(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getAllCountryWithRegionGroup = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await this.service.getListCountryWithRegionGroup();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getState = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const response = await this.service.getState(id);

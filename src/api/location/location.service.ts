@@ -36,6 +36,15 @@ export default class LocationService {
     this.countryStateCityService = new CountryStateCityService();
     this.userModel = new UserModel();
   }
+
+  private getRegionName = (key: string) => {
+    if (key === "africa") return "AFRICA";
+    if (key === "asia") return "ASIA";
+    if (key === "europe") return "EUROPE";
+    if (key === "n_america") return "NORTH AMERICA";
+    if (key === "oceania") return "OCEANIA";
+    return "SOUTH AMERICA";
+  };
   public getFunctionalTypes = (
     user_id: string
   ): Promise<IFunctionalTypesResponse> => {
@@ -485,6 +494,99 @@ export default class LocationService {
       await this.locationModel.update(id, { is_deleted: true });
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  public getListCountryWithRegionGroup = (): Promise<any> =>
+    new Promise(async (resolve) => {
+      const allCountry = await this.countryStateCityService.getAllCountry();
+      const data = allCountry.reduce(
+        (pre: any, cur) => {
+          if (cur.region.toLowerCase() === "americas") {
+            if (cur.subregion.toLowerCase() === "northern america")
+              return {
+                ...pre,
+                n_america: pre.n_america.concat([
+                  {
+                    id: cur.id,
+                    name: cur.name,
+                    phone_code: cur.phone_code,
+                  },
+                ]),
+              };
+            else
+              return {
+                ...pre,
+                s_america: pre.s_america.concat([
+                  {
+                    id: cur.id,
+                    name: cur.name,
+                    phone_code: cur.phone_code,
+                  },
+                ]),
+              };
+          }
+          if (cur.region.toLowerCase() === "asia")
+            return {
+              ...pre,
+              asia: pre.asia.concat([
+                {
+                  id: cur.id,
+                  name: cur.name,
+                  phone_code: cur.phone_code,
+                },
+              ]),
+            };
+          if (cur.region.toLowerCase() === "africa")
+            return {
+              ...pre,
+              africa: pre.africa.concat([
+                {
+                  id: cur.id,
+                  name: cur.name,
+                  phone_code: cur.phone_code,
+                },
+              ]),
+            };
+          if (cur.region.toLowerCase() === "oceania")
+            return {
+              ...pre,
+              oceania: pre.oceania.concat([
+                {
+                  id: cur.id,
+                  name: cur.name,
+                  phone_code: cur.phone_code,
+                },
+              ]),
+            };
+          return {
+            ...pre,
+            europe: pre.europe.concat([
+              {
+                id: cur.id,
+                name: cur.name,
+                phone_code: cur.phone_code,
+              },
+            ]),
+          };
+        },
+        {
+          africa: [],
+          asia: [],
+          europe: [],
+          n_america: [],
+          oceania: [],
+          s_america: [],
+        }
+      );
+      const keys = Object.keys(data);
+      const result = keys.map((key) => ({
+        name: this.getRegionName(key),
+        count: data[key].length,
+        countries: data[key],
+      }));
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

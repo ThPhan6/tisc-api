@@ -66,6 +66,22 @@ export default class LocationRoute implements IRoute {
         },
         {
           method: "GET",
+          path: "/api/location/regions",
+          options: {
+            handler: controller.getAllCountryWithRegionGroup,
+            description: "Method that get all country with region group",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListRegion,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_FUNCTIONAL_TYPES,
           options: {
             handler: controller.getFunctionalTypes,

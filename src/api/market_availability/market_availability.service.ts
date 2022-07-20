@@ -49,6 +49,8 @@ export default class Service {
           }
           if (countryDetail.region?.toLowerCase() === "asia")
             region = REGION_KEY.ASIA;
+          if (countryDetail.region?.toLowerCase() === "africa")
+            region = REGION_KEY.AFRICA;
           if (countryDetail.region?.toLowerCase() === "oceania")
             region = REGION_KEY.OCEANIA;
           if (countryDetail.region?.toLowerCase() === "europe")

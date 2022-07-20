@@ -207,4 +207,16 @@ export default {
       name: Joi.string(),
     }),
   }) as any,
+  getListRegion: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.array().items({
+      count: Joi.number(),
+      name: Joi.string(),
+      countries: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string(),
+        phone_code: Joi.string(),
+      }),
+    }),
+  }) as any,
 };
