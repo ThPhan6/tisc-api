@@ -511,7 +511,6 @@ export default class UserService {
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(id);
-      console.log(user, "[iser]");
       if (!user) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
@@ -524,7 +523,6 @@ export default class UserService {
           statusCode: 400,
         });
       }
-
       const currentUser = await this.userModel.find(current_user_id);
       if (!currentUser) {
         return resolve({
