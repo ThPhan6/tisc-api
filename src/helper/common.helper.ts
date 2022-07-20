@@ -70,7 +70,7 @@ export const tosingleSpace = (str: string) => {
 export const getDistinctArray = (arr: Array<any>) => {
   return arr.filter(
     (value, index, self) =>
-      self.indexOf(value.toString().toLowerCase()) === index
+      self.indexOf(value?.toString().toLowerCase()) === index
   );
 };
 

@@ -55,6 +55,25 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getAllBrandSummary: Joi.object({
+    data: Joi.object({
+      brands: Joi.number(),
+      locations: Joi.number(),
+      teams: Joi.number(),
+      countries: Joi.number(),
+      africa: Joi.number(),
+      asia: Joi.number(),
+      europe: Joi.number(),
+      north_america: Joi.number(),
+      oceania: Joi.number(),
+      south_america: Joi.number(),
+      cards: Joi.number(),
+      collections: Joi.number(),
+      categories: Joi.number(),
+      products: Joi.number(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
   brandProfile: Joi.object({
     data: Joi.object({
       id: Joi.string(),

@@ -26,7 +26,7 @@ export default class Service {
     this.distributorModel = new DistributorModel();
     this.brandModel = new BrandModel();
   }
-  private getRegionCountries = (
+  public getRegionCountries = (
     ids: string[]
   ): Promise<
     | {

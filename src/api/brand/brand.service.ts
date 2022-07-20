@@ -2,6 +2,7 @@ import {
   BRAND_STATUSES,
   BRAND_STATUS_OPTIONS,
   MESSAGES,
+  REGION_KEY,
   SYSTEM_TYPE,
   VALID_IMAGE_TYPES,
 } from "../../constant/common.constant";
@@ -34,6 +35,7 @@ import PermissionService from "../permission/permission.service";
 import DistributorModel from "../../model/distributor.model";
 import CollectionModel from "../../model/collection.model";
 import ProductModel from "../../model/product.model";
+import MarketAvailabilityService from "../market_availability/market_availability.service";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -45,6 +47,7 @@ export default class BrandService {
   private distributorModel: DistributorModel;
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
+  private marketAvailabilityService: MarketAvailabilityService;
   constructor() {
     this.brandModel = new BrandModel();
     this.mailService = new MailService();
@@ -55,6 +58,7 @@ export default class BrandService {
     this.distributorModel = new DistributorModel();
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
+    this.marketAvailabilityService = new MarketAvailabilityService();
   }
 
   public getList = (
@@ -580,5 +584,81 @@ export default class BrandService {
       //create brand permissions
       await this.permissionService.createBrandPermission(createdBrand.id);
       return resolve(await this.getOne(createdBrand.id));
+    });
+
+  public getAllBrandSummary = (): Promise<any> =>
+    new Promise(async (resolve) => {
+      const allBrand = await this.brandModel.getAll();
+      const locationIds = getDistinctArray(
+        allBrand.reduce((pre: string[], cur) => {
+          return pre.concat(cur.location_ids);
+        }, [])
+      );
+      const teamProfileIds = getDistinctArray(
+        allBrand.reduce((pre: string[], cur) => {
+          return pre.concat(cur.team_profile_ids);
+        }, [])
+      );
+      const countryIds = await Promise.all(
+        locationIds.map(async (locationId) => {
+          const location = await this.locationModel.find(locationId);
+          return location?.country_id || "";
+        })
+      );
+      const distinctCountryIds = getDistinctArray(countryIds);
+      const countries = await this.marketAvailabilityService.getRegionCountries(
+        distinctCountryIds
+      );
+      const cards = (
+        await Promise.all(
+          allBrand.map(async (brand) => {
+            return await this.productModel.getBy({ brand_id: brand.id });
+          })
+        )
+      ).flat();
+      const collectionIds = getDistinctArray(
+        cards.map((product) => product.collection_id)
+      );
+      const categoryIds = getDistinctArray(
+        cards.map((product) => product.category_ids).flat()
+      );
+
+      const products = cards.reduce((pre: number, cur) => {
+        cur.specification_attribute_groups.forEach((group) => {
+          group.attributes.forEach((attribute) => {
+            if (attribute.type === "Options")
+              pre = pre + (attribute.basis_options?.length || 0);
+          });
+        });
+        return pre;
+      }, 0);
+      return resolve({
+        data: {
+          brands: allBrand.length,
+          locations: locationIds.length,
+          teams: teamProfileIds.length,
+          countries: countries.length,
+          africa: countries.filter((item) => item.region === REGION_KEY.AFRICA)
+            .length,
+          asia: countries.filter((item) => item.region === REGION_KEY.ASIA)
+            .length,
+          europe: countries.filter((item) => item.region === REGION_KEY.EUROPE)
+            .length,
+          north_america: countries.filter(
+            (item) => item.region === REGION_KEY.NORTH_AMERICA
+          ).length,
+          oceania: countries.filter(
+            (item) => item.region === REGION_KEY.OCEANIA
+          ).length,
+          south_america: countries.filter(
+            (item) => item.region === REGION_KEY.SOUTH_AMERICA
+          ).length,
+          cards: cards.length,
+          collections: collectionIds.length,
+          categories: categoryIds.length,
+          products: products,
+        },
+        statusCode: 200,
+      });
     });
 }

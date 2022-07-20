@@ -36,6 +36,22 @@ export default class BrandRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.GET_ALL_BRAND_SUMMARY,
+          options: {
+            handler: controller.getAllBrandSummary,
+            description: "Method that get all brand summary",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getAllBrandSummary,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_LIST_BRAND_CARD,
           options: {
             handler: controller.getListCard,

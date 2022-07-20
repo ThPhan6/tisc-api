@@ -48,6 +48,7 @@ const seed = async (db) => {
         number: 3,
         parent_number: 2,
         routes: [
+          { id: ROUTE_IDS.GET_ALL_BRAND_SUMMARY, accessable: true },
           { id: ROUTE_IDS.CREATE_BRAND, accessable: true },
           { id: ROUTE_IDS.GET_LIST_BRAND, accessable: true },
           { id: ROUTE_IDS.GET_ONE_BRAND, accessable: true },
@@ -362,6 +363,7 @@ const seed = async (db) => {
         number: 3,
         parent_number: 2,
         routes: [
+          { id: ROUTE_IDS.GET_ALL_BRAND_SUMMARY, accessable: false },
           { id: ROUTE_IDS.CREATE_BRAND, accessable: false },
           { id: ROUTE_IDS.GET_LIST_BRAND, accessable: false },
           { id: ROUTE_IDS.GET_ONE_BRAND, accessable: false },

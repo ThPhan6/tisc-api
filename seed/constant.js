@@ -202,6 +202,7 @@ const ROUTES = {
   DUPLICATE_PRODUCT: "/api/product/duplicate/{id}",
   UPDATE_HOWTO: "/api/documentation/howto/update",
   GET_ALL_HOWTO: "/api/documentation/howto/get-all",
+  GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
 };
 const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -369,6 +370,7 @@ const ROUTE_IDS = {
   DUPLICATE_PRODUCT: "153",
   UPDATE_HOWTO: "154",
   GET_ALL_HOWTO: "155",
+  GET_ALL_BRAND_SUMMARY: "156",
 };
 
 const USER_STATUSES = {
