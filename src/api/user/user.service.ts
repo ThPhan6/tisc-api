@@ -526,7 +526,6 @@ export default class UserService {
       }
 
       const currentUser = await this.userModel.find(current_user_id);
-      console.log(currentUser, "[currentUser]");
       if (!currentUser) {
         return resolve({
           message: MESSAGES.CURRENT_USER_NOT_FOUND,
