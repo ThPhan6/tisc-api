@@ -176,7 +176,8 @@ class DocumentationService {
   };
   public update = (
     id: string,
-    payload: IDocumentationRequest
+    payload: IDocumentationRequest,
+    userId: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const documentation = await this.documentationModel.find(id);
@@ -190,6 +191,7 @@ class DocumentationService {
         documentation.type === DOCUMENTATION_TYPES.GENERAL
           ? await this.documentationModel.update(id, {
               ...payload,
+              created_by: userId,
               updated_at: moment(),
             })
           : await this.documentationModel.update(id, {
