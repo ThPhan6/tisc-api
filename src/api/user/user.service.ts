@@ -505,9 +505,13 @@ export default class UserService {
         statusCode: 200,
       });
     });
-  public invite = (id: string): Promise<IMessageResponse> => {
+  public invite = (
+    id: string,
+    current_user_id: string
+  ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(id);
+      console.log(user, "[iser]");
       if (!user) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
@@ -520,7 +524,16 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendRegisterEmail(user);
+
+      const currentUser = await this.userModel.find(current_user_id);
+      console.log(currentUser, "[currentUser]");
+      if (!currentUser) {
+        return resolve({
+          message: MESSAGES.CURRENT_USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      await this.mailService.sendInviteEmailTeamProfile(user, currentUser);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
