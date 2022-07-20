@@ -39,7 +39,7 @@ export default {
           commonFailValidatedMessageFunction("Business number is required")
         ),
       functional_type_ids: Joi.array()
-        .items(Joi.string())
+        .items(Joi.string().required())
         .required()
         .error(
           commonFailValidatedMessageFunction("Functional type ids is required")

@@ -6,6 +6,7 @@ export interface ILocationAttributes {
   business_name: string;
   business_number: string;
   functional_type_ids: string[];
+  functional_type: string
   country_id: string;
   country_name: string;
   state_id: string | null;
@@ -28,6 +29,7 @@ export const LOCATION_NULL_ATTRIBUTES = {
   business_name: null,
   business_number: null,
   functional_type_ids: [],
+  functional_type: null,
   country_id: null,
   state_id: null,
   city_id: null,

@@ -77,23 +77,31 @@ export default class LocationService {
           statusCode: 404,
         });
       }
+      let functional_type_name = "";
       const functional_type_ids = await Promise.all(
-        payload.functional_type_ids.map(async (function_type_id) => {
-          const functional_type = await this.functionalTypeModel.find(
-            function_type_id
+        payload.functional_type_ids.map(async (functional_type_id) => {
+          let functional_type = await this.functionalTypeModel.find(
+            functional_type_id
           );
+          if (!functional_type) {
+            functional_type = await this.functionalTypeModel.findBy({
+              name: functional_type_id.toLowerCase(),
+            });
+          }
           if (!functional_type) {
             const createdFunctionalType = await this.functionalTypeModel.create(
               {
                 ...FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-                name: function_type_id,
+                name: functional_type_id,
                 type: user.type,
                 relation_id: user.relation_id,
               }
             );
+            functional_type_name += ", " + createdFunctionalType?.name;
             return createdFunctionalType ? createdFunctionalType.id : "";
           }
-          return function_type_id;
+          functional_type_name += ", " + functional_type.name;
+          return functional_type.id;
         })
       );
       const countryStateCity =
@@ -107,6 +115,7 @@ export default class LocationService {
         business_name: payload.business_name,
         business_number: payload.business_number,
         functional_type_ids,
+        functional_type: functional_type_name.slice(2),
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
@@ -159,24 +168,32 @@ export default class LocationService {
           statusCode: 400,
         });
       }
+      let functional_type_name = "";
       //check functional types
       const functional_type_ids = await Promise.all(
-        payload.functional_type_ids.map(async (function_type_id) => {
-          const functional_type = await this.functionalTypeModel.find(
-            function_type_id
+        payload.functional_type_ids.map(async (functional_type_id) => {
+          let functional_type = await this.functionalTypeModel.find(
+            functional_type_id
           );
+          if (!functional_type) {
+            functional_type = await this.functionalTypeModel.findBy({
+              name: functional_type_id.toLowerCase(),
+            });
+          }
           if (!functional_type) {
             const createdFunctionalType = await this.functionalTypeModel.create(
               {
                 ...FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-                name: function_type_id,
+                name: functional_type_id,
                 type: user.type,
                 relation_id: user.relation_id,
               }
             );
+            functional_type_name += ", " + createdFunctionalType?.name;
             return createdFunctionalType ? createdFunctionalType.id : "";
           }
-          return function_type_id;
+          functional_type_name += ", " + functional_type.name;
+          return functional_type.id;
         })
       );
       const countryStateCity =
@@ -189,6 +206,7 @@ export default class LocationService {
         business_name: payload.business_name,
         business_number: payload.business_number,
         functional_type_ids,
+        functional_type: functional_type_name.slice(2),
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
@@ -224,11 +242,13 @@ export default class LocationService {
         location.functional_type_ids,
         ["id", "name"]
       );
+      // console.log(location.functional_type_ids, functionalTypes);
       const result = {
         id: location.id,
         business_name: location.business_name,
         business_number: location.business_number,
         functional_types: functionalTypes,
+        functional_type: location.functional_type,
         country_id: location.country_id,
         state_id: location.state_id,
         city_id: location.city_id,
@@ -360,10 +380,12 @@ export default class LocationService {
             city_name: location.city_name,
             phone_code: location.phone_code,
             functional_types: functionalTypes,
+            functional_type: location.functional_type,
             teams,
           };
         })
       );
+      console.log(result);
       const pagination = await this.locationModel.getPagination(limit, offset, {
         type: user.type,
         relation_id: user.relation_id,
