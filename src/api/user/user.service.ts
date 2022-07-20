@@ -146,7 +146,6 @@ export default class UserService {
         }
       }
       const location = await this.locationModel.find(user.location_id || "");
-
       const permissions = current_user_id
         ? undefined
         : await this.permissionService.getList(user_id);
@@ -293,7 +292,6 @@ export default class UserService {
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
-
       if (!user) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,

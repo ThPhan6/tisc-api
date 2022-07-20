@@ -55,7 +55,7 @@ export default {
     payload: {
       name: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Name is required")),
+        .error(commonFailValidatedMessageFunction("Brand name is required")),
       parent_company: Joi.string().allow(""),
       slogan: Joi.string().allow(""),
       mission_n_vision: Joi.string()
@@ -86,7 +86,7 @@ export default {
     payload: {
       name: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Name is required")),
+        .error(commonFailValidatedMessageFunction("Brand Name is required")),
       first_name: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("First name is required")),

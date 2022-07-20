@@ -34,7 +34,8 @@ export default class DocumentationController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.update(id, payload);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.update(id, payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public updateHowtos = async (
