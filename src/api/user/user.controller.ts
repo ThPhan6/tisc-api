@@ -78,4 +78,10 @@ export default class UserController {
     const response = await this.service.getListDepartment(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const currentUserId = req.auth.credentials.user_id as string;
+    const userId = req.params.id;
+    const response = await this.service.delete(userId, currentUserId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

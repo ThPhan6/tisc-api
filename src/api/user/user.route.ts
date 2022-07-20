@@ -179,6 +179,22 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_TEAM_PROFILE,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete team profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
