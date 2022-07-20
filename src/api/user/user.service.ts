@@ -110,7 +110,6 @@ export default class UserService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendInviteEmail(createdUser);
       return resolve(await this.get(createdUser.id, user_id));
     });
   };
