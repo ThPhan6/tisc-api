@@ -4,15 +4,18 @@ export default {
   create: {
     payload: {
       product_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Product id is required")),
       contents: Joi.array().items(
         Joi.object({
           id: Joi.any(),
           title: Joi.string()
+            .trim()
             .required()
             .error(commonFailValidatedMessageFunction("Title is required")),
           url: Joi.string()
+            .trim()
             .required()
             .error(commonFailValidatedMessageFunction("Url required")),
         })
@@ -30,9 +33,11 @@ export default {
         Joi.object({
           id: Joi.any(),
           title: Joi.string()
+            .trim()
             .required()
             .error(commonFailValidatedMessageFunction("Title is required")),
           url: Joi.string()
+            .trim()
             .required()
             .error(commonFailValidatedMessageFunction("Url required")),
         })

@@ -5,20 +5,23 @@ export default {
   create: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Collection name is required")
         ),
       brand_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
+        .error(commonFailValidatedMessageFunction("Brand is required")),
     },
   },
   getList: {
     query: Joi.object({
       brand_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
+        .error(commonFailValidatedMessageFunction("Brand is required")),
       page: Joi.number()
         .min(1)
         .custom((value, helpers) => {

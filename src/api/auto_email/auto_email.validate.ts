@@ -40,6 +40,7 @@ export default {
           commonFailValidatedMessageFunction("Targeted for type is required")
         ),
       title: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Title is required")),
       message: Joi.string()

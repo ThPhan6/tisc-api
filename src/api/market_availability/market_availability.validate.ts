@@ -15,32 +15,42 @@ export default {
   create: {
     payload: {
       collection_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Collection id is required")),
+        .error(commonFailValidatedMessageFunction("Collection is required")),
       country_ids: Joi.array()
-        .items(Joi.string())
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(commonFailValidatedMessageFunction("Country is required"))
+        )
         .required()
-        .error(commonFailValidatedMessageFunction("Country ids is required")),
+        .error(commonFailValidatedMessageFunction("Country is required")),
     },
   },
   update: {
     params: {
       id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Collection id is required")),
+        .error(commonFailValidatedMessageFunction("Collection is required")),
     },
     payload: {
       country_ids: Joi.array()
-        .items(Joi.string())
+        .items(
+          Joi.string()
+            .required()
+            .error(commonFailValidatedMessageFunction("Country is required"))
+        )
         .required()
-        .error(commonFailValidatedMessageFunction("Country ids is required")),
+        .error(commonFailValidatedMessageFunction("Country is required")),
     },
   },
   getList: {
     query: Joi.object({
       brand_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
+        .error(commonFailValidatedMessageFunction("Brand is required")),
       page: Joi.number()
         .min(1)
         .custom((value, helpers) => {

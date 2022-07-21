@@ -31,34 +31,48 @@ export default {
   create: {
     payload: {
       business_name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Business name is required")),
       business_number: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Business number is required")
         ),
       functional_type_ids: Joi.array()
-        .items(Joi.string().required())
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Functional type is required")
+            )
+        )
         .required()
         .error(
           commonFailValidatedMessageFunction("Functional type is required")
         ),
       country_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string().allow(""),
-      city_id: Joi.string().allow(""),
+        .error(commonFailValidatedMessageFunction("Country is required")),
+      state_id: Joi.string().trim().allow(""),
+      city_id: Joi.string().trim().allow(""),
       address: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),
       postal_code: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Postal code is required")),
       general_phone: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General phone is required")),
       general_email: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
@@ -71,34 +85,48 @@ export default {
     },
     payload: {
       business_name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Business name is required")),
       business_number: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Business number is required")
         ),
       functional_type_ids: Joi.array()
-        .items(Joi.string().required())
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Functional type is required")
+            )
+        )
         .required()
         .error(
           commonFailValidatedMessageFunction("Functional type is required")
         ),
       country_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string().allow(""),
-      city_id: Joi.string().allow(""),
+      state_id: Joi.string().trim().allow(""),
+      city_id: Joi.string().trim().allow(""),
       address: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),
       postal_code: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Postal code is required")),
       general_phone: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General phone is required")),
       general_email: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
