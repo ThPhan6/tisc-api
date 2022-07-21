@@ -394,7 +394,6 @@ export default class LocationService {
           };
         })
       );
-      console.log(result);
       const pagination = await this.locationModel.getPagination(limit, offset, {
         type: user.type,
         relation_id: user.relation_id,
