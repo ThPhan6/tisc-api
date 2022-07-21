@@ -42,7 +42,7 @@ export default {
         .items(Joi.string().required())
         .required()
         .error(
-          commonFailValidatedMessageFunction("Functional type ids is required")
+          commonFailValidatedMessageFunction("Functional type is required")
         ),
       country_id: Joi.string()
         .required()
@@ -79,10 +79,10 @@ export default {
           commonFailValidatedMessageFunction("Business number is required")
         ),
       functional_type_ids: Joi.array()
-        .items(Joi.string())
+        .items(Joi.string().required())
         .required()
         .error(
-          commonFailValidatedMessageFunction("Functional type ids is required")
+          commonFailValidatedMessageFunction("Functional type is required")
         ),
       country_id: Joi.string()
         .required()
