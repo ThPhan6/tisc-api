@@ -66,6 +66,16 @@ export default class PermissionService {
           statusCode: 404,
         });
       }
+      if (
+        permission.role_id === ROLES.TISC_ADMIN ||
+        permission.role_id === ROLES.BRAND_ADMIN ||
+        permission.role_id === ROLES.DESIGN_ADMIN
+      ) {
+        return resolve({
+          message: "Cannot modify admin permission.",
+          statusCode: 400,
+        });
+      }
       if (permission.accessable === true || permission.accessable === false) {
         const newRoutes = permission.routes.map((route) => ({
           ...route,
