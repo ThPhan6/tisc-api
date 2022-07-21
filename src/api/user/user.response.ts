@@ -25,7 +25,7 @@ export default {
       personal_mobile: Joi.any(),
       linkedin: Joi.any(),
       created_at: Joi.any(),
-      phone_code: Joi.string(),
+      phone_code: Joi.string().allow(""),
       work_location: Joi.any(),
       access_level: Joi.any(),
       status: Joi.number(),
@@ -51,7 +51,7 @@ export default {
         access_level: Joi.any(),
         created_at: Joi.any(),
         status: Joi.any(),
-        phone_code: Joi.string(),
+        phone_code: Joi.string().allow(""),
       }),
       pagination: Joi.object({
         page: Joi.number(),
