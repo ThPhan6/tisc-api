@@ -170,7 +170,7 @@ export default class Builder {
   };
 
   public where = (key: any, value?: any) => {
-    if (value || value === false) {
+    if (value || value === false || value === "") {
       this.query += ` filter ${this.prefix}.${key} == @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }
