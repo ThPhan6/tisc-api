@@ -46,7 +46,7 @@ export default class MailService {
             email: user.email,
           },
         ],
-        subject: "Tisc - Registration",
+        subject: "Successfully signed-up!",
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };
@@ -103,7 +103,7 @@ export default class MailService {
             email: user.email,
           },
         ],
-        subject: "Tisc - Password Reset Request",
+        subject: "User password reset request.",
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };
@@ -134,7 +134,7 @@ export default class MailService {
             email: inviteUser.email,
           },
         ],
-        subject: "Tisc - Invitation",
+        subject: "Welcome to the team!",
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };
