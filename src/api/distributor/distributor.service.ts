@@ -309,10 +309,13 @@ export default class DistributorService {
         const newCountryIds = getDistinctArray(
           payload.authorized_country_ids.concat([payload.country_id])
         );
-        const removeCountry_ids = oldCountryIds.filter(
+        const removeCountryIds = oldCountryIds.filter(
           (item) => !newCountryIds.includes(item)
         );
-        await this.updateMarkets(payload);
+        const addCountryIds = newCountryIds.filter(
+          (item) => !oldCountryIds.includes(item)
+        );
+        await this.updateMarkets(payload, removeCountryIds, addCountryIds);
       }
       return resolve(await this.getOne(updatedDistributor.id));
     });
