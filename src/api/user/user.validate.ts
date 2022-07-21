@@ -14,17 +14,17 @@ export default {
         .error(commonFailValidatedMessageFunction("Gender is required")),
       location_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Location id is required")),
+        .error(commonFailValidatedMessageFunction("Work location is required")),
       department_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Department id is required")),
+        .error(commonFailValidatedMessageFunction("Department is required")),
       position: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Position is required")),
       email: Joi.string()
         .email()
         .required()
-        .error(commonFailValidatedMessageFunction("Email is required")),
+        .error(commonFailValidatedMessageFunction("Work email is required")),
       phone: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Phone is required")),
@@ -33,7 +33,7 @@ export default {
         .error(commonFailValidatedMessageFunction("Mobile is required")),
       role_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Role id is required")),
+        .error(commonFailValidatedMessageFunction("Access level is required")),
     },
   },
   updateMe: {
@@ -56,16 +56,37 @@ export default {
         .error(commonFailValidatedMessageFunction("Id is required")),
     },
     payload: {
-      firstname: Joi.string(),
-      lastname: Joi.string(),
-      gender: Joi.boolean(),
-      location_id: Joi.string(),
-      department_id: Joi.string(),
-      position: Joi.string(),
-      email: Joi.string(),
-      phone: Joi.string(),
-      mobile: Joi.string(),
-      role_id: Joi.string(),
+      firstname: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("First name is required")),
+      lastname: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Last name is required")),
+      gender: Joi.boolean()
+        .required()
+        .error(commonFailValidatedMessageFunction("Gender is required")),
+      location_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Work location is required")),
+      department_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Department is required")),
+      position: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Position is required")),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Work email is required")),
+      phone: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Phone is required")),
+      mobile: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Mobile is required")),
+      role_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Access level is required")),
     },
   },
   getOne: {
