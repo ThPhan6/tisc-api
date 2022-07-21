@@ -70,7 +70,7 @@ export default {
         })
         .required()
         .error(
-          commonFailValidatedMessageFunction("Official websites is required")
+          commonFailValidatedMessageFunction("Official website is required")
         ),
     },
   } as any,
