@@ -94,7 +94,7 @@ export default {
       id: Joi.string(),
       name: Joi.string(),
       logo: Joi.any(),
-      country: Joi.string(),
+      country: Joi.any(),
       category_count: Joi.number(),
       collection_count: Joi.number(),
       card_count: Joi.number(),

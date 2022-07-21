@@ -340,8 +340,8 @@ export default class BrandService {
       );
       const result = await Promise.all(
         brands.map(async (brand) => {
-          const location = await this.locationModel.find(
-            brand.location_ids ? brand.location_ids[0] : ""
+          const originLocation = await this.locationModel.getOriginLocation(
+            brand.id
           );
           const brandSummary = await this.productService.getBrandProductSummary(
             brand.id
@@ -354,7 +354,8 @@ export default class BrandService {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            country: location?.country_name || "",
+            country:
+              originLocation === false ? "N/A" : originLocation.country_name,
             category_count: brandSummary.data.category_count,
             collection_count: brandSummary.data.collection_count,
             card_count: brandSummary.data.card_count,
