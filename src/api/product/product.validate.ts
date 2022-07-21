@@ -17,7 +17,7 @@ export default {
       name: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Name is required")),
-      description: Joi.string(),
+      description: Joi.string().allow(""),
       general_attribute_groups: Joi.array()
         .items(
           Joi.object({
@@ -125,7 +125,7 @@ export default {
       collection_id: Joi.string(),
       category_ids: Joi.array().items(Joi.string()),
       name: Joi.string(),
-      description: Joi.string(),
+      description: Joi.string().allow(""),
       general_attribute_groups: Joi.array().items(
         Joi.object({
           id: Joi.any(),
@@ -193,7 +193,15 @@ export default {
           }),
         })
       ),
-      images: Joi.array().min(3).max(9).items(Joi.string()),
+      images: Joi.array()
+        .min(3)
+        .max(9)
+        .items(Joi.string())
+        .error(
+          commonFailValidatedMessageFunction(
+            "Images is required at least 3 valid data"
+          )
+        ),
       keywords: Joi.array()
         .items(Joi.string().allow(""))
         .required()
