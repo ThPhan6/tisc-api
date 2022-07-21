@@ -124,7 +124,7 @@ export default class MailService {
           firstname: inviteUser.firstname,
           email: inviteUser.email,
           sender_first_name: senderUser.firstname,
-          verify_link: `${this.frontpageURL}/create-password?verification_token=${inviteUser.verification_token}/${inviteUser.email}`,
+          verify_link: `${this.frontpageURL}/create-password?verification_token=${inviteUser.verification_token}&email=${inviteUser.email}`,
         }
       );
       this.sendSmtpEmail = {
