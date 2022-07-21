@@ -71,9 +71,8 @@ export default class AutoEmailService {
           targeted_for_key: TARGETED_FOR_OPTIONS.find(
             (targetedFor) => targetedFor.value === rest.targeted_for
           )?.key,
-          topic_key: TOPIC_OPTIONS.find(
-            (topic) => topic.value === rest.targeted_for
-          )?.key,
+          topic_key: TOPIC_OPTIONS.find((topic) => topic.value === rest.topic)
+            ?.key,
         };
       });
       const pagination: IPagination = await this.autoEmailModel.getPagination(

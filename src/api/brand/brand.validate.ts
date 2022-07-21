@@ -54,6 +54,7 @@ export default {
   updateBrandProfile: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Brand name is required")),
       parent_company: Joi.string().allow(""),
@@ -85,6 +86,7 @@ export default {
   create: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Brand Name is required")),
       first_name: Joi.string()
