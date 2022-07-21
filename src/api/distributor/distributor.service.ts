@@ -61,7 +61,7 @@ export default class DistributorService {
               .concat(add_country_ids || []) || [];
         }
         await this.marketAvailabilityModel.update(market?.id || "", {
-          country_ids: newCountryIds,
+          country_ids: getDistinctArray(newCountryIds),
         });
         return true;
       })
