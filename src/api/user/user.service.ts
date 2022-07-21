@@ -173,7 +173,7 @@ export default class UserService {
         status: user.status,
         type: user.type,
         relation_id: user.relation_id,
-        phone_code: location?.phone_code,
+        phone_code: location?.phone_code || "",
         permissions,
       };
       if (user.type === SYSTEM_TYPE.BRAND) {
@@ -462,7 +462,7 @@ export default class UserService {
             status: userItem.status,
             avatar: userItem.avatar,
             created_at: userItem.created_at,
-            phone_code: location?.phone_code,
+            phone_code: location?.phone_code || "",
           };
         })
       );
