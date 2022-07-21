@@ -31,7 +31,11 @@ export default class DistributorService {
     this.collectionModel = new CollectionModel();
   }
 
-  private updateMarkets = async (payload: IDistributorRequest) => {
+  private updateMarkets = async (
+    payload: IDistributorRequest,
+    remove_country_ids?: string[],
+    add_country_ids?: string[]
+  ) => {
     const authorizedCountryIds = getDistinctArray(
       payload.authorized_country_ids.concat([payload.country_id])
     );
@@ -45,18 +49,20 @@ export default class DistributorService {
         });
       })
     );
-    const newMarkets = markets.filter((item) => item);
     await Promise.all(
-      newMarkets.map(async (market) => {
-        const newCountryIds = getDistinctArray(
+      markets.map(async (market) => {
+        let newCountryIds: string[] = getDistinctArray(
           market?.country_ids.concat(authorizedCountryIds) || []
         );
-        const updated = await this.marketAvailabilityModel.update(
-          market?.id || "",
-          {
-            country_ids: newCountryIds,
-          }
-        );
+        if (remove_country_ids || add_country_ids) {
+          newCountryIds =
+            market?.country_ids
+              .filter((item) => !remove_country_ids?.includes(item))
+              .concat(add_country_ids || []) || [];
+        }
+        await this.marketAvailabilityModel.update(market?.id || "", {
+          country_ids: newCountryIds,
+        });
         return true;
       })
     );
@@ -297,6 +303,15 @@ export default class DistributorService {
         payload.authorized_country_ids.sort().toString() !==
           distributor.authorized_country_ids.sort().toString()
       ) {
+        const oldCountryIds = getDistinctArray(
+          distributor.authorized_country_ids.concat([distributor.country_id])
+        );
+        const newCountryIds = getDistinctArray(
+          payload.authorized_country_ids.concat([payload.country_id])
+        );
+        const removeCountry_ids = oldCountryIds.filter(
+          (item) => !newCountryIds.includes(item)
+        );
         await this.updateMarkets(payload);
       }
       return resolve(await this.getOne(updatedDistributor.id));

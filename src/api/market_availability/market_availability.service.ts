@@ -200,10 +200,8 @@ export default class Service {
               .map((country) => {
                 return {
                   ...country,
-                  id: country.id?.toLowerCase(),
-                  available: market.country_ids
-                    .map((el) => el.toLowerCase())
-                    .includes(country.id?.toLowerCase()),
+                  id: country.id,
+                  available: market.country_ids.includes(country.id),
                 };
               });
             return {
