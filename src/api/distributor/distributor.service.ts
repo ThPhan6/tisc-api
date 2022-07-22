@@ -89,6 +89,62 @@ export default class DistributorService {
           statusCode: 404,
         });
       }
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
+      );
+      if (!country) {
+        return resolve({
+          message: MESSAGES.COUNTRY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const states = await this.countryStateCityService.getStatesByCountry(
+        payload.country_id
+      );
+      if (states.length >= 1) {
+        if (!payload.state_id || payload.state_id === "") {
+          return resolve({
+            message: MESSAGES.STATE_REQUIRED,
+            statusCode: 400,
+          });
+        }
+        const foundState = states.find((item) => item.id === payload.state_id);
+        if (!foundState) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_IN_COUNTRY,
+            statusCode: 400,
+          });
+        }
+        const state = await this.countryStateCityService.getStateDetail(
+          payload.state_id
+        );
+        if (!state) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+        const cities =
+          await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
+          );
+        if (cities.length >= 1) {
+          if (!payload.city_id || payload.city_id === "") {
+            return resolve({
+              message: MESSAGES.CITY_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundCity = cities.find((item) => item.id === payload.city_id);
+          if (!foundCity) {
+            return resolve({
+              message: MESSAGES.CITY_NOT_IN_STATE,
+              statusCode: 400,
+            });
+          }
+        }
+      }
       const countryStateCity =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
@@ -226,6 +282,62 @@ export default class DistributorService {
           message: MESSAGES.DISTRIBUTOR_EXISTED,
           statusCode: 400,
         });
+      }
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
+      );
+      if (!country) {
+        return resolve({
+          message: MESSAGES.COUNTRY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const states = await this.countryStateCityService.getStatesByCountry(
+        payload.country_id
+      );
+      if (states.length >= 1) {
+        if (!payload.state_id || payload.state_id === "") {
+          return resolve({
+            message: MESSAGES.STATE_REQUIRED,
+            statusCode: 400,
+          });
+        }
+        const foundState = states.find((item) => item.id === payload.state_id);
+        if (!foundState) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_IN_COUNTRY,
+            statusCode: 400,
+          });
+        }
+        const state = await this.countryStateCityService.getStateDetail(
+          payload.state_id
+        );
+        if (!state) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+        const cities =
+          await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
+          );
+        if (cities.length >= 1) {
+          if (!payload.city_id || payload.city_id === "") {
+            return resolve({
+              message: MESSAGES.CITY_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundCity = cities.find((item) => item.id === payload.city_id);
+          if (!foundCity) {
+            return resolve({
+              message: MESSAGES.CITY_NOT_IN_STATE,
+              statusCode: 400,
+            });
+          }
+        }
       }
       let newPayload: any = payload;
       let countryStateCity: ICountryStateCity | false = false;

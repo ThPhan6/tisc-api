@@ -87,6 +87,62 @@ export default class LocationService {
           statusCode: 404,
         });
       }
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
+      );
+      if (!country) {
+        return resolve({
+          message: MESSAGES.COUNTRY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const states = await this.countryStateCityService.getStatesByCountry(
+        payload.country_id
+      );
+      if (states.length >= 1) {
+        if (!payload.state_id || payload.state_id === "") {
+          return resolve({
+            message: MESSAGES.STATE_REQUIRED,
+            statusCode: 400,
+          });
+        }
+        const foundState = states.find((item) => item.id === payload.state_id);
+        if (!foundState) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_IN_COUNTRY,
+            statusCode: 400,
+          });
+        }
+        const state = await this.countryStateCityService.getStateDetail(
+          payload.state_id
+        );
+        if (!state) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+        const cities =
+          await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
+          );
+        if (cities.length >= 1) {
+          if (!payload.city_id || payload.city_id === "") {
+            return resolve({
+              message: MESSAGES.CITY_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundCity = cities.find((item) => item.id === payload.city_id);
+          if (!foundCity) {
+            return resolve({
+              message: MESSAGES.CITY_NOT_IN_STATE,
+              statusCode: 400,
+            });
+          }
+        }
+      }
       let functional_type_names: string[] = [];
       const functional_type_ids = await Promise.all(
         payload.functional_type_ids.map(async (functional_type_id) => {
@@ -161,6 +217,62 @@ export default class LocationService {
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
+      }
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
+      );
+      if (!country) {
+        return resolve({
+          message: MESSAGES.COUNTRY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const states = await this.countryStateCityService.getStatesByCountry(
+        payload.country_id
+      );
+      if (states.length >= 1) {
+        if (!payload.state_id || payload.state_id === "") {
+          return resolve({
+            message: MESSAGES.STATE_REQUIRED,
+            statusCode: 400,
+          });
+        }
+        const foundState = states.find((item) => item.id === payload.state_id);
+        if (!foundState) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_IN_COUNTRY,
+            statusCode: 400,
+          });
+        }
+        const state = await this.countryStateCityService.getStateDetail(
+          payload.state_id
+        );
+        if (!state) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+        const cities =
+          await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
+          );
+        if (cities.length >= 1) {
+          if (!payload.city_id || payload.city_id === "") {
+            return resolve({
+              message: MESSAGES.CITY_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundCity = cities.find((item) => item.id === payload.city_id);
+          if (!foundCity) {
+            return resolve({
+              message: MESSAGES.CITY_NOT_IN_STATE,
+              statusCode: 400,
+            });
+          }
+        }
       }
       const location = await this.locationModel.find(id);
       if (!location) {

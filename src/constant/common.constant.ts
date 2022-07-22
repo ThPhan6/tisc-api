@@ -122,6 +122,13 @@ export const MESSAGES = {
   PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND: "Product download not found",
   LOGIN_INCORRECT_TYPE: "Please log in correct account type",
   DELETE_CURRENT_USER: "Cannot delete current user",
+  COUNTRY_NOT_FOUND: "Country not found.",
+  STATE_NOT_FOUND: "State not found.",
+  CITY_NOT_FOUND: "City not found.",
+  STATE_REQUIRED: "State id required.",
+  CITY_REQUIRED: "City id required.",
+  STATE_NOT_IN_COUNTRY: "State not in country",
+  CITY_NOT_IN_STATE: "City not in state",
 };
 
 export const BASIS_TYPES = {
