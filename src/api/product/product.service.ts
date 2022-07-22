@@ -27,6 +27,7 @@ import {
   IUpdateProductRequest,
 } from "./product.type";
 import BasisService from "../../api/basis/basis.service";
+import CountryStateCityService from "../../service/country_state_city_v1.service";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -35,6 +36,8 @@ export default class ProductService {
   private categoryService: CategoryService;
   private categoryModel: CategoryModel;
   private basisService: BasisService;
+  private countryStateCityService: CountryStateCityService;
+
   constructor() {
     this.productModel = new ProductModel();
     this.brandModel = new BrandModel();
@@ -42,6 +45,7 @@ export default class ProductService {
     this.categoryService = new CategoryService();
     this.categoryModel = new CategoryModel();
     this.basisService = new BasisService();
+    this.countryStateCityService = new CountryStateCityService();
   }
   public create = (
     user_id: string,
@@ -365,7 +369,24 @@ export default class ProductService {
           statusCode: 404,
         });
       }
-      const brand = await this.brandModel.find(product.brand_id);
+      const foundBrand = await this.brandModel.find(product.brand_id);
+      if (!foundBrand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const officialWebsites = await Promise.all(
+        foundBrand.official_websites.map(async (officialWebsite) => {
+          const country = await this.countryStateCityService.getCountryDetail(
+            officialWebsite.country_id
+          );
+          return {
+            ...officialWebsite,
+            country_name: country.name,
+          };
+        })
+      );
 
       const collection = await this.collectionModel.find(
         product.collection_id || ""
@@ -377,7 +398,10 @@ export default class ProductService {
       return resolve({
         data: {
           id: product.id,
-          brand: brand,
+          brand: {
+            ...foundBrand,
+            official_websites: officialWebsites,
+          },
           collection: {
             id: collection?.id || "",
             name: collection?.name || "",
