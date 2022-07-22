@@ -6,6 +6,7 @@ export default {
   create: {
     payload: {
       title: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Title is required")),
 
@@ -35,6 +36,7 @@ export default {
     },
     payload: {
       title: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Title is required")),
       document: Joi.object({
@@ -55,13 +57,14 @@ export default {
           .required()
           .error(commonFailValidatedMessageFunction("Id is required")),
         title: Joi.string()
+          .trim()
           .required()
           .error(commonFailValidatedMessageFunction("Title is required")),
         document: Joi.object({
-          document: Joi.string().allow(""),
+          document: Joi.string().trim().allow(""),
           question_and_answer: Joi.array().items({
-            question: Joi.string().allow(""),
-            answer: Joi.string().allow(""),
+            question: Joi.string().trim().allow(""),
+            answer: Joi.string().trim().allow(""),
           }),
         })
           .required()

@@ -5,12 +5,15 @@ export default {
   create: {
     payload: {
       author: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Author is required")),
       identity: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Identity is required")),
       quotation: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Quotation is required")),
     },
@@ -23,12 +26,15 @@ export default {
     },
     payload: {
       author: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Author is required")),
       identity: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Identity is required")),
       quotation: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Quotation is required")),
     },

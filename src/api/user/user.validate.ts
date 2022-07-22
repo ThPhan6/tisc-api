@@ -4,21 +4,26 @@ export default {
   create: {
     payload: {
       firstname: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("First name is required")),
       lastname: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Last name is required")),
       gender: Joi.boolean()
         .required()
         .error(commonFailValidatedMessageFunction("Gender is required")),
       location_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Work location is required")),
       department_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Department is required")),
       position: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Position is required")),
       email: Joi.string()
@@ -26,12 +31,15 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Work email is required")),
       phone: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Phone is required")),
       mobile: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Mobile is required")),
       role_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Access level is required")),
     },
@@ -57,21 +65,26 @@ export default {
     },
     payload: {
       firstname: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("First name is required")),
       lastname: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Last name is required")),
       gender: Joi.boolean()
         .required()
         .error(commonFailValidatedMessageFunction("Gender is required")),
       location_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Work location is required")),
       department_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Department is required")),
       position: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Position is required")),
       email: Joi.string()
@@ -79,12 +92,15 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Work email is required")),
       phone: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Phone is required")),
       mobile: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Mobile is required")),
       role_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Access level is required")),
     },
@@ -92,6 +108,7 @@ export default {
   getOne: {
     params: {
       id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Id is required")),
     },

@@ -57,9 +57,10 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Brand name is required")),
-      parent_company: Joi.string().allow(""),
-      slogan: Joi.string().allow(""),
+      parent_company: Joi.string().trim().allow(""),
+      slogan: Joi.string().trim().allow(""),
       mission_n_vision: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Mission and vision is required")
@@ -90,9 +91,11 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Brand Name is required")),
       first_name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("First name is required")),
       last_name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Last name is required")),
       email: Joi.string()
