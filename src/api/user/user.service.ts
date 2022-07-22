@@ -292,6 +292,12 @@ export default class UserService {
     current_user_id: string
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
+      if (user_id === current_user_id) {
+        return resolve({
+          message: MESSAGES.DELETE_CURRENT_USER,
+          statusCode: 400,
+        });
+      }
       const user = await this.userModel.find(user_id);
       if (!user) {
         return resolve({

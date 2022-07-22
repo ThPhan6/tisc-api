@@ -121,6 +121,7 @@ export const MESSAGES = {
   PRODUCT_CATELOGUE_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND: "Product download not found",
   LOGIN_INCORRECT_TYPE: "Please log in correct account type",
+  DELETE_CURRENT_USER: "Cannot delete current user",
 };
 
 export const BASIS_TYPES = {
