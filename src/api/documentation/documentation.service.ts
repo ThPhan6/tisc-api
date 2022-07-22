@@ -103,7 +103,7 @@ class DocumentationService {
           type: DOCUMENTATION_TYPES.TISC_HOW_TO,
         },
         ["id", "title", "logo", "document", "created_at"],
-        "created_at",
+        "number",
         "ASC"
       );
       const brandHowtos = await this.documentationModel.getAllBy(
@@ -111,7 +111,7 @@ class DocumentationService {
           type: DOCUMENTATION_TYPES.BRAND_HOW_TO,
         },
         ["id", "title", "logo", "document", "created_at"],
-        "created_at",
+        "number",
         "ASC"
       );
       const designHowtos = await this.documentationModel.getAllBy(
@@ -119,7 +119,7 @@ class DocumentationService {
           type: DOCUMENTATION_TYPES.DESIGN_HOW_TO,
         },
         ["id", "title", "logo", "document", "created_at"],
-        "created_at",
+        "number",
         "ASC"
       );
       return resolve({
@@ -146,7 +146,7 @@ class DocumentationService {
           type: user.type + 1,
         },
         ["id", "title", "logo", "document", "created_at"],
-        "created_at",
+        "number",
         "ASC"
       );
 

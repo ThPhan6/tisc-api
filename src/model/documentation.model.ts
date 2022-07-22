@@ -10,6 +10,7 @@ export interface IDocumentationAttributes {
   created_by: string;
   updated_at: string | null;
   is_deleted: boolean;
+  number: number;
 }
 export const DOCUMENTATION_NULL_ATTRIBUTES = {
   id: null,
@@ -21,6 +22,7 @@ export const DOCUMENTATION_NULL_ATTRIBUTES = {
   created_by: null,
   updated_at: null,
   is_deleted: false,
+  number: 0,
 };
 export default class DocumentationModel extends Model<IDocumentationAttributes> {
   constructor() {

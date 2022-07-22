@@ -17,6 +17,7 @@ export default {
       created_at: Joi.any(),
       created_by: Joi.any(),
       updated_at: Joi.any(),
+      number: Joi.any(),
     }),
   }) as any,
   documentations: Joi.object({
