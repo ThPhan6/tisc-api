@@ -36,6 +36,7 @@ import DistributorModel from "../../model/distributor.model";
 import CollectionModel from "../../model/collection.model";
 import ProductModel from "../../model/product.model";
 import MarketAvailabilityService from "../market_availability/market_availability.service";
+import CountryStateCityService from "../../service/country_state_city_v1.service";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -48,6 +49,8 @@ export default class BrandService {
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
   private marketAvailabilityService: MarketAvailabilityService;
+  private countryStateCityService: CountryStateCityService;
+
   constructor() {
     this.brandModel = new BrandModel();
     this.mailService = new MailService();
@@ -59,6 +62,7 @@ export default class BrandService {
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
     this.marketAvailabilityService = new MarketAvailabilityService();
+    this.countryStateCityService = new CountryStateCityService();
   }
 
   public getList = (
@@ -292,8 +296,22 @@ export default class BrandService {
           statusCode: 404,
         });
       }
+      const officialWebsites = await Promise.all(
+        brand.official_websites.map(async (officialWebsite) => {
+          const country = await this.countryStateCityService.getCountryDetail(
+            officialWebsite.country_id
+          );
+          return {
+            ...officialWebsite,
+            country_name: country.name,
+          };
+        })
+      );
       return resolve({
-        data: brand,
+        data: {
+          ...brand,
+          official_websites: officialWebsites,
+        },
         statusCode: 200,
       });
     });
