@@ -58,7 +58,7 @@ export default class LocationModel extends Model<ILocationAttributes> {
       const result: any = await this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .where("relation_id", relation_id)
-        .orderBy("created_at", "DESC")
+        .orderBy("created_at", "ASC")
         .first();
       return result;
     } catch (error) {
@@ -74,7 +74,7 @@ export default class LocationModel extends Model<ILocationAttributes> {
         .builder.whereNot("is_deleted", true)
         .where("relation_id", relation_id)
         .whereInRevert("functional_type_ids", headquarter_id)
-        .orderBy("created_at", "DESC")
+        .orderBy("created_at", "ASC")
         .first();
       return result;
     } catch (error) {
