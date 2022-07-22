@@ -28,14 +28,8 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Country is required")),
-      state_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("State is required")),
-      city_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("City is required")),
+      state_id: Joi.string().trim().allow(""),
+      city_id: Joi.string().trim().allow(""),
       address: Joi.string()
         .trim()
         .required()
@@ -104,14 +98,8 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Country is required")),
-      state_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("State is required")),
-      city_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("City is required")),
+      state_id: Joi.string().trim().allow(""),
+      city_id: Joi.string().trim().allow(""),
       address: Joi.string()
         .trim()
         .required()
