@@ -383,7 +383,8 @@ export default class ProductService {
           );
           return {
             ...officialWebsite,
-            country_name: country.name,
+            country_name:
+              officialWebsite.country_id === "-1" ? "Global" : country.name,
           };
         })
       );
