@@ -24,6 +24,7 @@ import { IMessageResponse } from "../../type/common.type";
 import { MESSAGES } from "../../constant/common.constant";
 import CountryStateCityService from "../../service/country_state_city.service";
 import { ICityAttributes } from "../../model/city";
+import { getDistinctArray } from "../../helper/common.helper";
 
 export default class LocationService {
   private locationModel: LocationModel;
@@ -86,7 +87,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      let functional_type_name = "";
+      let functional_type_names: string[] = [];
       const functional_type_ids = await Promise.all(
         payload.functional_type_ids.map(async (functional_type_id) => {
           let functional_type = await this.functionalTypeModel.find(
@@ -106,10 +107,10 @@ export default class LocationService {
                 relation_id: user.relation_id,
               }
             );
-            functional_type_name += ", " + createdFunctionalType?.name;
+            functional_type_names.push(createdFunctionalType?.name || "");
             return createdFunctionalType ? createdFunctionalType.id : "";
           }
-          functional_type_name += ", " + functional_type.name;
+          functional_type_names.push(functional_type.name);
           return functional_type.id;
         })
       );
@@ -124,7 +125,7 @@ export default class LocationService {
         business_name: payload.business_name,
         business_number: payload.business_number,
         functional_type_ids,
-        functional_type: functional_type_name.slice(2),
+        functional_type: getDistinctArray(functional_type_names).join(", "),
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
@@ -177,7 +178,7 @@ export default class LocationService {
           statusCode: 400,
         });
       }
-      let functional_type_name = "";
+      let functional_type_names: string[] = [];
       //check functional types
       const functional_type_ids = await Promise.all(
         payload.functional_type_ids.map(async (functional_type_id) => {
@@ -198,13 +199,15 @@ export default class LocationService {
                 relation_id: user.relation_id,
               }
             );
-            functional_type_name += ", " + createdFunctionalType?.name;
+            functional_type_names.push(createdFunctionalType?.name || "");
             return createdFunctionalType ? createdFunctionalType.id : "";
           }
-          functional_type_name += ", " + functional_type.name;
+          functional_type_names.push(functional_type.name);
           return functional_type.id;
         })
       );
+      console.log(functional_type_names);
+      console.log(getDistinctArray(functional_type_names));
       const countryStateCity =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
@@ -215,7 +218,7 @@ export default class LocationService {
         business_name: payload.business_name,
         business_number: payload.business_number,
         functional_type_ids,
-        functional_type: functional_type_name.slice(2),
+        functional_type: getDistinctArray(functional_type_names).join(", "),
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,

@@ -67,11 +67,8 @@ export const tosingleSpace = (str: string) => {
   return str.trim().replace(/ +/g, " ");
 };
 
-export const getDistinctArray = (arr: Array<any>) => {
-  return arr.filter(
-    (value, index, self) =>
-      self.indexOf(value?.toString().toLowerCase()) === index
-  );
+export const getDistinctArray = (arr: Array<string>) => {
+  return arr.filter((value, index, self) => self.indexOf(value) === index);
 };
 
 export const getAccessLevel = (role_id: string) => {

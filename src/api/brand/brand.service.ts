@@ -618,7 +618,7 @@ export default class BrandService {
         )
       ).flat();
       const collectionIds = getDistinctArray(
-        cards.map((product) => product.collection_id)
+        cards.map((product) => product.collection_id || "")
       );
       const categoryIds = getDistinctArray(
         cards.map((product) => product.category_ids).flat()
