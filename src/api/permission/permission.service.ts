@@ -103,6 +103,16 @@ export default class PermissionService {
           statusCode: 404,
         });
       }
+      let userPermissions = await this.permissionModel.getAllBy(
+        {
+          role_id: user.role_id,
+          type: user.type,
+          relation_id: user.relation_id,
+        },
+        undefined,
+        "number",
+        "ASC"
+      );
       let adminPermissions = await this.permissionModel.getAllBy(
         {
           role_id:
@@ -129,7 +139,10 @@ export default class PermissionService {
         type: user.type,
         relation_id: user.relation_id,
       });
-      const permissions = adminPermissions.map((item) => {
+      const permissions = userPermissions.map((item) => {
+        const adminPermission = adminPermissions.find(
+          (teamItem) => teamItem.name === item.name
+        );
         const teamPermission = teamPermissions.find(
           (teamItem) => teamItem.name === item.name
         );
@@ -139,9 +152,9 @@ export default class PermissionService {
           accessable: item.accessable,
           items: [
             {
-              id: item.id,
+              id: adminPermission?.id,
               name: getAccessLevel(ROLES.TISC_ADMIN),
-              accessable: item.accessable,
+              accessable: adminPermission?.accessable,
             },
             {
               id: teamPermission?.id,
