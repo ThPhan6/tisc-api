@@ -52,7 +52,7 @@ class AuthService {
           statusCode: 404,
         });
       }
-      if (user.type !== type) {
+      if (type && user.type !== type) {
         return resolve({
           message: MESSAGES.LOGIN_INCORRECT_TYPE,
           statusCode: 400,

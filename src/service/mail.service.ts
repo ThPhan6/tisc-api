@@ -1,7 +1,9 @@
+import { ISystemType } from "./../type/common.type";
 import * as DotEnv from "dotenv";
 import * as ejs from "ejs";
 import { IUserAttributes } from "../model/user.model";
 import os from "os";
+import { SYSTEM_TYPE } from "./../constant/common.constant";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 export default class MailService {
   private fromAddress: string;
@@ -87,13 +89,16 @@ export default class MailService {
     browserName: string
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
+      const userType = Object.keys(SYSTEM_TYPE)
+        .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
+        ?.toLowerCase();
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/forgot-password.ejs`,
         {
           operating_system: os.type(),
           browser_name: browserName,
           fullname: user.firstname + " " + user.lastname,
-          reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}`,
+          reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
         }
       );
       this.sendSmtpEmail = {
