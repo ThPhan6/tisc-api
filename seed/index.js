@@ -24,14 +24,14 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  await seedDocumentation(db);
+  // await seedDocumentation(db);
   // await seedRole(db);
   // await seedUser(db);
   // await seedPermission(db);
   // await seedPermissionRoute(db);
   // await seedBrand(db);
   // await seedBasis(db);
-  // await seedAutoEmail(db);
+  await seedAutoEmail(db);
   // await seedFunctionalType(db);
   // await seedDepartment(db);
   // await seedDesigner(db);
