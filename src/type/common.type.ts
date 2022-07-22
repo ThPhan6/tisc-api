@@ -9,3 +9,9 @@ export interface IPagination {
   total: number;
   page_count: number;
 }
+
+export interface ISystemType {
+  TISC: number;
+  BRAND: number;
+  DESIGN: number;
+}
