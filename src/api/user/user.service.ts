@@ -157,8 +157,7 @@ export default class UserService {
         fullname: `${user.firstname} ${user.lastname}`,
         gender: user.gender,
         location_id: user.location_id,
-        work_location:
-          location?.city_name + ", " + location?.country_name.toUpperCase(),
+        work_location: '',
         department_id: user.department_id,
         position: user.position,
         email: user.email,
@@ -175,7 +174,18 @@ export default class UserService {
         relation_id: user.relation_id,
         phone_code: location?.phone_code || "",
         permissions,
+
       };
+      /// combine work_location
+      if (location) {
+        if (location.city_name) {
+          result.work_location = `${location.city_name}, `;
+        }
+        if (location.country_name) {
+          result.work_location += location.country_name.toUpperCase();
+        }
+      }
+
       if (user.type === SYSTEM_TYPE.BRAND) {
         const brand = await this.brandModel.find(user.relation_id || "");
         return resolve({
