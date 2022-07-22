@@ -465,12 +465,24 @@ export default class UserService {
           const location = await this.locationModel.find(
             userItem.location_id || ""
           );
+
+          /// combine work_location
+          let workLocation = '';
+          if (location) {
+            if (location.city_name) {
+              workLocation = `${location.city_name}, `;
+            }
+            if (location.country_name) {
+              workLocation += location.country_name.toUpperCase();
+            }
+          }
+          
           return {
             id: userItem.id,
             firstname: userItem.firstname,
             lastname: userItem.lastname,
             fullname: `${userItem.firstname} ${userItem.lastname}`,
-            work_location: userItem.work_location,
+            work_location: workLocation,
             position: userItem.position,
             email: userItem.email,
             phone: userItem.phone,
