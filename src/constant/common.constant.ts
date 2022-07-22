@@ -125,8 +125,8 @@ export const MESSAGES = {
   COUNTRY_NOT_FOUND: "Country not found.",
   STATE_NOT_FOUND: "State not found.",
   CITY_NOT_FOUND: "City not found.",
-  STATE_REQUIRED: "State id required.",
-  CITY_REQUIRED: "City id required.",
+  STATE_REQUIRED: "State is required.",
+  CITY_REQUIRED: "City is required.",
   STATE_NOT_IN_COUNTRY: "State not in country",
   CITY_NOT_IN_STATE: "City not in state",
 };
