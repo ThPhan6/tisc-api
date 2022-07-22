@@ -7,7 +7,7 @@ export interface IDesignerAttributes {
   logo: string;
   slogan: string;
   profile_n_philosophy: string;
-  offical_website: string;
+  official_website: string;
   design_capabilities: string;
   team_profile_ids: string[];
   location_ids: string[];
@@ -26,7 +26,7 @@ export const DESIGN_NULL_ATTRIBUTES = {
   logo: null,
   slogan: null,
   profile_n_philosophy: null,
-  offical_website: null,
+  official_website: null,
   design_capabilities: null,
   team_profile_ids: null,
   location_ids: null,

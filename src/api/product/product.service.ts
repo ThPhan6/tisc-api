@@ -376,6 +376,7 @@ export default class ProductService {
           statusCode: 404,
         });
       }
+      console.log(foundBrand.official_websites);
       const officialWebsites = await Promise.all(
         foundBrand.official_websites.map(async (officialWebsite) => {
           const country = await this.countryStateCityService.getCountryDetail(

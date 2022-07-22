@@ -425,7 +425,7 @@ describe("Design API", () => {
             "material_code_ids",
             "mission_n_vision",
             "name",
-            "offical_website",
+            "official_website",
             "official_websites",
             "parent_company",
             "profile_n_philosophy",
