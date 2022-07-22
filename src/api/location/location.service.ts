@@ -206,8 +206,6 @@ export default class LocationService {
           return functional_type.id;
         })
       );
-      console.log(functional_type_names);
-      console.log(getDistinctArray(functional_type_names));
       const countryStateCity =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,

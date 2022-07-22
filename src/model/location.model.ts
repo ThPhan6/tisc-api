@@ -6,7 +6,7 @@ export interface ILocationAttributes {
   business_name: string;
   business_number: string;
   functional_type_ids: string[];
-  functional_type: string
+  functional_type: string;
   country_id: string;
   country_name: string;
   state_id: string | null;
@@ -58,6 +58,22 @@ export default class LocationModel extends Model<ILocationAttributes> {
       const result: any = await this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .where("relation_id", relation_id)
+        .orderBy("created_at", "DESC")
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
+  public getFirstHeadquarterLocation = async (
+    relation_id: string,
+    headquarter_id: string
+  ): Promise<ILocationAttributes | false> => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where("relation_id", relation_id)
+        .whereInRevert("functional_type_ids", headquarter_id)
         .orderBy("created_at", "DESC")
         .first();
       return result;

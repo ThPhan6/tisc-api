@@ -36,7 +36,7 @@ import DistributorModel from "../../model/distributor.model";
 import CollectionModel from "../../model/collection.model";
 import ProductModel from "../../model/product.model";
 import MarketAvailabilityService from "../market_availability/market_availability.service";
-import CountryStateCityService from "../../service/country_state_city_v1.service";
+import FunctionalTypeModel from "../../model/functional_type.model";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -49,8 +49,7 @@ export default class BrandService {
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
   private marketAvailabilityService: MarketAvailabilityService;
-  private countryStateCityService: CountryStateCityService;
-
+  private functionalTypeModel: FunctionalTypeModel;
   constructor() {
     this.brandModel = new BrandModel();
     this.mailService = new MailService();
@@ -62,7 +61,7 @@ export default class BrandService {
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
     this.marketAvailabilityService = new MarketAvailabilityService();
-    this.countryStateCityService = new CountryStateCityService();
+    this.functionalTypeModel = new FunctionalTypeModel();
   }
 
   public getList = (
@@ -296,23 +295,8 @@ export default class BrandService {
           statusCode: 404,
         });
       }
-      const officialWebsites = await Promise.all(
-        brand.official_websites.map(async (officialWebsite) => {
-          const country = await this.countryStateCityService.getCountryDetail(
-            officialWebsite.country_id
-          );
-          return {
-            ...officialWebsite,
-            country_name:
-              officialWebsite.country_id === "-1" ? "Global" : country.name,
-          };
-        })
-      );
       return resolve({
-        data: {
-          ...brand,
-          official_websites: officialWebsites,
-        },
+        data: brand,
         statusCode: 200,
       });
     });
@@ -362,6 +346,14 @@ export default class BrandService {
           const originLocation = await this.locationModel.getOriginLocation(
             brand.id
           );
+          const headquarter = await this.functionalTypeModel.findBy({
+            name: "headquarter",
+          });
+          const headquarterLocation =
+            await this.locationModel.getFirstHeadquarterLocation(
+              brand.id,
+              headquarter?.id || ""
+            );
           const brandSummary = await this.productService.getBrandProductSummary(
             brand.id
           );
@@ -374,7 +366,11 @@ export default class BrandService {
             name: brand.name,
             logo: brand.logo,
             country:
-              originLocation === false ? "N/A" : originLocation.country_name,
+              originLocation === false
+                ? "N/A"
+                : headquarterLocation
+                ? headquarterLocation.country_name
+                : originLocation.country_name,
             category_count: brandSummary.data.category_count,
             collection_count: brandSummary.data.collection_count,
             card_count: brandSummary.data.card_count,
