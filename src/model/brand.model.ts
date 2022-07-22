@@ -3,11 +3,14 @@ import Model from "./index";
 export interface IBrandAttributes {
   id: string;
   name: string;
-  parent_company: string;
-  logo: string;
-  slogan: string;
-  mission_n_vision: string;
-  offical_websites: string[];
+  parent_company: string | null;
+  logo: string | null;
+  slogan: string | null;
+  mission_n_vision: string | null;
+  official_websites: {
+    country_id: string;
+    url: string;
+  }[];
   team_profile_ids: string[];
   location_ids: string[];
   status: number;
@@ -22,9 +25,9 @@ export const BRAND_NULL_ATTRIBUTES = {
   logo: null,
   slogan: null,
   mission_n_vision: null,
-  offical_websites: null,
-  team_profile_ids: null,
-  location_ids: null,
+  official_websites: [],
+  team_profile_ids: [],
+  location_ids: [],
   status: null,
   created_at: null,
   updated_at: null,
@@ -37,8 +40,8 @@ export default class BrandModel extends Model<IBrandAttributes> {
   }
   public getAllAndSortByName = async () => {
     try {
-      const result: any = await this.builder
-        .whereNot("is_deleted", true)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
         .orderBy("name", "ASC")
         .select();
       return result;

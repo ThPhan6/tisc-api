@@ -31,36 +31,48 @@ export default {
   create: {
     payload: {
       business_name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Business name is required")),
       business_number: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Business number is required")
         ),
       functional_type_ids: Joi.array()
-        .items(Joi.string())
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Functional type is required")
+            )
+        )
         .required()
         .error(
-          commonFailValidatedMessageFunction("Functional type ids is required")
+          commonFailValidatedMessageFunction("Functional type is required")
         ),
       country_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string(),
-      city_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("City id is required")),
+        .error(commonFailValidatedMessageFunction("Country is required")),
+      state_id: Joi.string().trim().allow(""),
+      city_id: Joi.string().trim().allow(""),
       address: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),
       postal_code: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Postal code is required")),
       general_phone: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General phone is required")),
       general_email: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
@@ -73,36 +85,48 @@ export default {
     },
     payload: {
       business_name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Business name is required")),
       business_number: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Business number is required")
         ),
       functional_type_ids: Joi.array()
-        .items(Joi.string())
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Functional type is required")
+            )
+        )
         .required()
         .error(
-          commonFailValidatedMessageFunction("Functional type ids is required")
+          commonFailValidatedMessageFunction("Functional type is required")
         ),
       country_id: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string(),
-      city_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("City id is required")),
+      state_id: Joi.string().trim().allow(""),
+      city_id: Joi.string().trim().allow(""),
       address: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Address is required")),
       postal_code: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Postal code is required")),
       general_phone: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General phone is required")),
       general_email: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
@@ -130,8 +154,8 @@ export default {
           return customFilter(value, helpers);
         }, "custom filter validation")
         .error(commonFailValidatedMessageFunction("Invalid filter")),
-      sort_name: Joi.string(),
-      sort_order: Joi.string().valid("ASC", "DESC"),
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
@@ -140,8 +164,8 @@ export default {
             ? 0
             : (value.page - 1) * value.pageSize,
         filter: value.filter,
-        sort_name: value.sort_name ? value.sort_name : "created_at",
-        sort_order: value.sort_order ? value.sort_order : "ASC",
+        sort: value.sort ? value.sort : "created_at",
+        order: value.order ? value.order : "ASC",
       };
     }),
   } as any,

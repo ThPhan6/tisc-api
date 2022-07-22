@@ -27,7 +27,7 @@ describe("Product Bases API", () => {
           .post("/basis-conversion/create")
           .set({ Authorization: `Bearer ${tiscAdminToken}` })
           .send({
-            name: "LENGTH",
+            name: "LENGTH - 1",
             subs: [
               {
                 name_1: "Millimeter",
@@ -66,19 +66,76 @@ describe("Product Bases API", () => {
           .request(HOST_URL)
           .post("/basis-conversion/create")
           .set({ Authorization: `Bearer ${tiscAdminToken}` })
-          .send({
-            name: "LENGTH",
-            subs: [
-              {
-                name_1: "Millimeter",
-                name_2: "Inch",
-                formula_1: "25.4",
-                formula_2: "1",
-                unit_1: "mm",
-                unit_2: "in",
-              },
-            ],
-          })
+          .send(
+            {
+              name: "LENGTH",
+              subs: [
+                {
+                  name_1: "Millimeter",
+                  name_2: "Inch",
+                  formula_1: "25.4",
+                  formula_2: "1",
+                  unit_1: "mm",
+                  unit_2: "in",
+                },
+              ],
+            },
+            {
+              name: "LENGTH",
+              subs: [
+                {
+                  name_1: "Millimeter",
+                  name_2: "Inch",
+                  formula_1: "25.4",
+                  formula_2: "1",
+                  unit_1: "mm",
+                  unit_2: "in",
+                },
+              ],
+            }
+          )
+          .end((_err, res) => {
+            res.should.have.status(400);
+            res.should.be.json;
+            res.body.should.be.a("object");
+            res.body.should.have.property("message");
+            res.body.should.have.property("statusCode", 400);
+            done();
+          });
+      });
+      it("Duplicate conversion group", (done) => {
+        chai
+          .request(HOST_URL)
+          .post("/basis-conversion/create")
+          .set({ Authorization: `Bearer ${tiscAdminToken}` })
+          .send(
+            {
+              name: "LENGTH",
+              subs: [
+                {
+                  name_1: "Millimeter",
+                  name_2: "Inch",
+                  formula_1: "25.4",
+                  formula_2: "1",
+                  unit_1: "mm",
+                  unit_2: "in",
+                },
+              ],
+            },
+            {
+              name: "LENGTH",
+              subs: [
+                {
+                  name_1: "Millimeter",
+                  name_2: "Inch",
+                  formula_1: "25.4",
+                  formula_2: "1",
+                  unit_1: "mm",
+                  unit_2: "in",
+                },
+              ],
+            }
+          )
           .end((_err, res) => {
             res.should.have.status(400);
             res.should.be.json;
@@ -110,40 +167,7 @@ describe("Product Bases API", () => {
             res.should.have.status(400);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property(
-              "message",
-              "Duplicated basis conversion group."
-            );
-            res.body.should.have.property("statusCode", 400);
-            done();
-          });
-      });
-      it("Duplicate conversion group", (done) => {
-        chai
-          .request(HOST_URL)
-          .post("/basis-conversion/create")
-          .set({ Authorization: `Bearer ${tiscAdminToken}` })
-          .send({
-            name: "LENGTH",
-            subs: [
-              {
-                name_1: "Millimeter",
-                name_2: "Inch",
-                formula_1: "25.4",
-                formula_2: "1",
-                unit_1: "mm",
-                unit_2: "in",
-              },
-            ],
-          })
-          .end((_err, res) => {
-            res.should.have.status(400);
-            res.should.be.json;
-            res.body.should.be.a("object");
-            res.body.should.have.property(
-              "message",
-              "Duplicated basis conversion group."
-            );
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 400);
             done();
           });
@@ -196,8 +220,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -243,10 +267,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property(
-              "message",
-              "Basis conversion not found"
-            );
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -273,8 +294,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -357,8 +378,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -427,10 +448,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property(
-              "message",
-              "Basis conversion not found"
-            );
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -470,8 +488,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -486,7 +504,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property("message", "Basis not found");
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -513,8 +531,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -528,7 +546,7 @@ describe("Product Bases API", () => {
             res.should.be.json;
             res.body.should.be.a("object");
             res.body.should.have.property("statusCode", 200);
-            res.body.should.have.property("message", "Success.");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -654,10 +672,7 @@ describe("Product Bases API", () => {
             res.should.have.status(400);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property(
-              "message",
-              "Duplicated basis preset names."
-            );
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 400);
             done();
           });
@@ -717,8 +732,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -767,7 +782,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property("message", "Basis preset not found");
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -794,8 +809,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -873,8 +888,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -958,7 +973,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property("message", "Basis preset not found");
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -1001,8 +1016,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1017,7 +1032,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property("message", "Basis not found");
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -1044,8 +1059,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1059,7 +1074,7 @@ describe("Product Bases API", () => {
             res.should.be.json;
             res.body.should.be.a("object");
             res.body.should.have.property("statusCode", 200);
-            res.body.should.have.property("message", "Success.");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1178,7 +1193,7 @@ describe("Product Bases API", () => {
             });
             done();
           });
-      });
+      }).timeout(5000);
       it("Invalid image", (done) => {
         chai
           .request(HOST_URL)
@@ -1207,7 +1222,7 @@ describe("Product Bases API", () => {
             res.should.be.json;
             res.body.should.be.a("object");
             res.body.should.have.property("statusCode", 400);
-            res.body.should.have.property("message", "Invalid image");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1281,10 +1296,7 @@ describe("Product Bases API", () => {
             res.should.have.status(400);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property(
-              "message",
-              "Duplicated basis option names."
-            );
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 400);
             done();
           });
@@ -1346,8 +1358,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1426,12 +1438,13 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
     });
+
     describe("Get list", () => {
       it("Success", (done) => {
         chai
@@ -1449,10 +1462,15 @@ describe("Product Bases API", () => {
               "summary",
               "pagination"
             );
-
             res.body.data.basis_options.should.be.a("array");
             res.body.data.basis_options.map((optionGroup) => {
-              optionGroup.should.have.keys("id", "name", "subs", "created_at");
+              optionGroup.should.have.keys(
+                "id",
+                "name",
+                "subs",
+                "created_at",
+                "count"
+              );
               optionGroup.subs.map((option) => {
                 option.should.have.keys("id", "name", "subs", "count");
                 option.subs.map((value) => {
@@ -1503,8 +1521,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1644,7 +1662,7 @@ describe("Product Bases API", () => {
             res.should.be.json;
             res.body.should.be.a("object");
             res.body.should.have.property("statusCode", 400);
-            res.body.should.have.property("message", "Invalid image");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1736,8 +1754,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1752,7 +1770,7 @@ describe("Product Bases API", () => {
             res.should.have.status(404);
             res.should.be.json;
             res.body.should.be.a("object");
-            res.body.should.have.property("message", "Basis not found");
+            res.body.should.have.property("message");
             res.body.should.have.property("statusCode", 404);
             done();
           });
@@ -1779,8 +1797,8 @@ describe("Product Bases API", () => {
             res.should.have.status(401);
             res.should.be.json;
             res.body.should.have.property("statusCode", 401);
-            res.body.should.have.property("error", "Unauthorized");
-            res.body.should.have.property("message", "Invalid token signature");
+            res.body.should.have.property("error");
+            res.body.should.have.property("message");
             done();
           });
       });
@@ -1794,7 +1812,7 @@ describe("Product Bases API", () => {
             res.should.be.json;
             res.body.should.be.a("object");
             res.body.should.have.property("statusCode", 200);
-            res.body.should.have.property("message", "Success.");
+            res.body.should.have.property("message");
             done();
           });
       });

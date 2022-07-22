@@ -108,7 +108,7 @@ export default class Model<IModelData> {
     }
   };
 
-  public getBy = async (params: any): Promise<IModelData[] | undefined> => {
+  public getBy = async (params: any): Promise<IModelData[]> => {
     try {
       const result: any = await this.getBuilder()
         .builder.where(params)
@@ -116,7 +116,7 @@ export default class Model<IModelData> {
         .select();
       return result;
     } catch (error) {
-      return undefined;
+      return [];
     }
   };
 
@@ -151,6 +151,32 @@ export default class Model<IModelData> {
       }
       result = await this.getBuilder()
         .builder.whereNot("is_deleted", true)
+        .select(keys);
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
+
+  public getAllBy = async (
+    params: any,
+    keys?: string[],
+    sort_name?: string,
+    sort_order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any;
+      if (sort_name && sort_order) {
+        result = await this.getBuilder()
+          .builder.whereNot("is_deleted", true)
+          .where(params)
+          .orderBy(sort_name, sort_order)
+          .select(keys);
+        return result;
+      }
+      result = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params)
         .select(keys);
       return result;
     } catch (error) {
@@ -214,25 +240,14 @@ export default class Model<IModelData> {
     }
   };
 
-  private getAllByType = async (type: number): Promise<IModelData[]> => {
-    try {
-      return await this.getBuilder()
-        .builder.whereNot("is_deleted", true)
-        .where("type", type)
-        .select();
-    } catch (error) {
-      return [];
-    }
-  };
-
   public getPagination = async (
     limit: number,
     offset: number,
-    type?: number
+    params?: any
   ): Promise<IPagination> => {
     let total;
-    if (type) {
-      total = (await this.getAllByType(type)).length;
+    if (params) {
+      total = (await this.getAllBy(params)).length;
     } else {
       total = (await this.getAll()).length;
     }
@@ -246,10 +261,11 @@ export default class Model<IModelData> {
     };
   };
 
-  public getGroupBy = async (key: string, count_key?: string) => {
+  public getGroupBy = async (params: any, key: string, count_key?: string) => {
     try {
       return await this.getBuilder()
         .builder.whereNot("is_deleted", true)
+        .where(params)
         .groupBy(key, count_key);
     } catch (error) {
       return [];

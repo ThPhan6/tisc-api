@@ -15,7 +15,10 @@ import {
   IAttributeRequest,
   IAttributeResponse,
   IAttributesResponse,
+  IContentType,
   IContentTypesResponse,
+  IGetAllAttributeResponse,
+  ISubAttribute,
   IUpdateAttributeRequest,
 } from "./attribute.type";
 import { v4 as uuid } from "uuid";
@@ -24,7 +27,6 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import BasisModel, { IBasisAttributes } from "../../model/basis.model";
-
 export default class AttributeService {
   private attributeModel: AttributeModel;
   private basisModel: BasisModel;
@@ -32,6 +34,19 @@ export default class AttributeService {
     this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
   }
+  private getBasisType = (type: number) => {
+    switch (type) {
+      case BASIS_TYPES.CONVERSION:
+        return "Conversions";
+      case BASIS_TYPES.PRESET:
+        return "Presets";
+      case BASIS_TYPES.OPTION:
+        return "Options";
+      default:
+        return "Text";
+    }
+  };
+
   private countAttribute = (attributes: IAttributeAttributes[]) => {
     return attributes.reduce((pre, cur) => {
       return pre + cur.subs.length;
@@ -89,6 +104,58 @@ export default class AttributeService {
 
     return data;
   };
+
+  private returnAttributeData = async (
+    attributes: IAttributeAttributes[],
+    subsBasis: any
+  ) => {
+    return attributes.map((attribute) => {
+      const { is_deleted, ...rest } = attribute;
+      const subsAttribute = attribute.subs.map((item: ISubAttribute) => {
+        if (item.basis_id === SHORT_TEXT_ID) {
+          return {
+            ...item,
+            basis: {
+              id: SHORT_TEXT_ID,
+              name: "Short Format",
+              type: "Text",
+            },
+          };
+        }
+        if (item.basis_id === LONG_TEXT_ID) {
+          return {
+            ...item,
+            basis: {
+              id: LONG_TEXT_ID,
+              name: "Long Format",
+              type: "Text",
+            },
+          };
+        }
+        const foundBasis = subsBasis.find(
+          (basis: any) => basis.id == item.basis_id
+        );
+
+        if (foundBasis) {
+          const { is_deleted, ...restBasis } = foundBasis;
+          return {
+            ...item,
+            basis: {
+              ...restBasis,
+            },
+          };
+        }
+        return {
+          ...item,
+          basis: {},
+        };
+      });
+      return {
+        ...rest,
+        subs: subsAttribute,
+      };
+    });
+  };
   public create = (
     payload: IAttributeRequest
   ): Promise<IMessageResponse | IAttributeResponse> => {
@@ -110,7 +177,7 @@ export default class AttributeService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -142,7 +209,7 @@ export default class AttributeService {
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -252,7 +319,7 @@ export default class AttributeService {
       const pagination: IPagination = await this.attributeModel.getPagination(
         limit,
         offset,
-        attribute_type
+        { type: attribute_type }
       );
 
       const allAttributeByType =
@@ -291,7 +358,7 @@ export default class AttributeService {
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -299,7 +366,7 @@ export default class AttributeService {
         await this.attributeModel.getDuplicatedAttribute(id, payload.name);
       if (duplicatedAttribute) {
         return resolve({
-          message: MESSAGES.DUPLICATED_GROUP_ATTRIBUTE,
+          message: MESSAGES.GROUP_ATTRIBUTE_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -311,7 +378,7 @@ export default class AttributeService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -349,7 +416,7 @@ export default class AttributeService {
       const attribute = await this.attributeModel.find(id);
       if (!attribute) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_ATTRIBUTE,
+          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -448,6 +515,47 @@ export default class AttributeService {
       };
       return resolve({
         data,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getAllAttribute = (): Promise<
+    IMessageResponse | IGetAllAttributeResponse
+  > => {
+    return new Promise(async (resolve) => {
+      const bases: any = await this.basisModel.getAll();
+      const subsBasis = bases.reduce((pre: any, cur: any) => {
+        const temp = cur.subs.map((item: any) => ({
+          ...item,
+          type: this.getBasisType(cur.type),
+        }));
+        return pre.concat(temp);
+      }, []);
+      const returnedGeneralAttributes = await this.returnAttributeData(
+        await this.attributeModel.getAllAttributeByType(
+          ATTRIBUTE_TYPES.GENERAL
+        ),
+        subsBasis
+      );
+      const returnedFeatureAttributes = await this.returnAttributeData(
+        await this.attributeModel.getAllAttributeByType(
+          ATTRIBUTE_TYPES.FEATURE
+        ),
+        subsBasis
+      );
+      const returnedSpecificationAttributes = await this.returnAttributeData(
+        await this.attributeModel.getAllAttributeByType(
+          ATTRIBUTE_TYPES.SPECIFICATION
+        ),
+        subsBasis
+      );
+      return resolve({
+        data: {
+          general: returnedGeneralAttributes,
+          feature: returnedFeatureAttributes,
+          specification: returnedSpecificationAttributes,
+        },
         statusCode: 200,
       });
     });

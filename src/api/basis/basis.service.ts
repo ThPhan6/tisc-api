@@ -53,7 +53,38 @@ export default class BasisService {
     }
     return false;
   };
-
+  public getConversion = async (
+    id: string
+  ): Promise<
+    | {
+        id: string;
+        name_1: string;
+        name_2: string;
+        formula_1: string;
+        formula_2: string;
+        unit_1: string;
+        unit_2: string;
+      }
+    | undefined
+  > =>
+    new Promise(async (resolve) => {
+      const allBasisConversion = await this.basisModel.getAllBy({
+        type: BASIS_TYPES.CONVERSION,
+      });
+      const allConversion: {
+        id: string;
+        name_1: string;
+        name_2: string;
+        formula_1: string;
+        formula_2: string;
+        unit_1: string;
+        unit_2: string;
+      }[] = allBasisConversion.reduce((pre, cur) => {
+        return pre.concat(cur.subs);
+      }, []);
+      const conversion = allConversion.find((item: any) => item.id === id);
+      return resolve(conversion);
+    });
   public createBasisConversion = async (
     payload: IBasisConversionRequest
   ): Promise<IMessageResponse | IBasisConversionResponse> => {
@@ -65,7 +96,7 @@ export default class BasisService {
 
       if (conversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
+          message: MESSAGES.BASIS_CONVERSION_GROUP_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -79,7 +110,7 @@ export default class BasisService {
 
       if (isCheckedSubsDuplicate) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -87,7 +118,7 @@ export default class BasisService {
       const isCheckedConversion = this.isDuplicatedConversion(payload);
       if (isCheckedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -186,7 +217,7 @@ export default class BasisService {
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
-        BASIS_TYPES.CONVERSION
+        { type: BASIS_TYPES.CONVERSION }
       );
 
       const allConversion = await this.basisModel.getAllBasisByType(
@@ -270,7 +301,7 @@ export default class BasisService {
       );
       if (duplicatedConversionGroup) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION_GROUP,
+          message: MESSAGES.BASIS_CONVERSION_GROUP_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -284,7 +315,7 @@ export default class BasisService {
 
       if (duplicatedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -292,7 +323,7 @@ export default class BasisService {
       const isCheckedConversion = this.isDuplicatedConversion(payload);
       if (isCheckedConversion) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_CONVERSION,
+          message: MESSAGES.BASIS_CONVERSION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -374,7 +405,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_OPTION,
+          message: MESSAGES.BASIS_OPTION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -442,7 +473,7 @@ export default class BasisService {
       );
       if (!isValidImage) {
         return resolve({
-          message: MESSAGES.INVALID_IMAGE,
+          message: MESSAGES.IMAGE_INVALID,
           statusCode: 400,
         });
       }
@@ -556,7 +587,7 @@ export default class BasisService {
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
-        BASIS_TYPES.OPTION
+        { type: BASIS_TYPES.OPTION }
       );
 
       const allBasisOption = await this.basisModel.getAllBasisByType(
@@ -624,7 +655,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_OPTION,
+          message: MESSAGES.BASIS_OPTION_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -729,7 +760,7 @@ export default class BasisService {
       );
       if (!isValidImage) {
         return resolve({
-          message: MESSAGES.INVALID_IMAGE,
+          message: MESSAGES.IMAGE_INVALID,
           statusCode: 400,
         });
       }
@@ -774,7 +805,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_PRESET,
+          message: MESSAGES.BASIS_PRESET_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -878,7 +909,7 @@ export default class BasisService {
       const pagination: IPagination = await this.basisModel.getPagination(
         limit,
         offset,
-        BASIS_TYPES.PRESET
+        { type: BASIS_TYPES.PRESET }
       );
 
       const allBasisPreset = await this.basisModel.getAllBasisByType(
@@ -939,7 +970,7 @@ export default class BasisService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_BASIS_PRESET,
+          message: MESSAGES.BASIS_PRESET_DUPLICATED,
           statusCode: 400,
         });
       }

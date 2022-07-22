@@ -5,6 +5,7 @@ export default {
   create: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Contact name is required")),
 
@@ -13,6 +14,8 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Contact email is required")),
       inquiry: Joi.string()
+        .trim()
+        .allow("")
         .max(250)
         .error(
           commonFailValidatedMessageFunction(

@@ -102,19 +102,17 @@
 <body>
     <div class="wrapper">
         <div class="content-email">
-            <div class="title-email">
-                <h1>Welcome to the team!</h1>
-            </div>
             <div class="message-email">
                 <p>Hi <%= firstname %>,</p>
-                <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{(sender firstname)}</span> has
+                <p style="line-height: 2;" class="pb-15"><span class="text-blue-light"><%= sender_first_name %></span>
+                    has
                     invited you to join the TISC, a platform and tools dedicated to
                     improving operation and increasing productivity for the design and construction industry.</p>
 
                 <p class="text-bold-black">Your account name: <%= email %></p>
                 <p class="pb-15">Activate your account below.</p>
                 <div class="button pb-30">
-                    <a href="#" class="button-account-password">Set Password</a>
+                    <a href="<%= verify_link %>" class="button-account-password">Set Password</a>
                 </div>
                 <p class="pb-20">The <span class="text-italic">How-To</span> section at the top right corner will guide
                     you through
@@ -130,7 +128,7 @@
                 </div>
                 <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                 </p>
-                <a class="text-blue-light" href=" #"><%= url %>></a>
+                <span class="text-blue-light"><%= verify_link %></span>
             </div>
         </div>
     </div>

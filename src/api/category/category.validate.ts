@@ -16,14 +16,23 @@ export default {
   create: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(() => new Error("Main category is required")),
       subs: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string(),
+            name: Joi.string()
+              .trim()
+              .required()
+              .error(() => new Error("Subs category is required")),
             subs: Joi.array()
-              .items({ name: Joi.string() })
+              .items({
+                name: Joi.string()
+                  .trim()
+                  .required()
+                  .error(() => new Error("Category is required")),
+              })
               .required()
               .error(() => new Error("Category is required")),
           })
@@ -40,17 +49,24 @@ export default {
     },
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(() => new Error("Main category is required")),
       subs: Joi.array()
         .items(
           Joi.object({
             id: Joi.string().allow(null),
-            name: Joi.string(),
+            name: Joi.string()
+              .trim()
+              .required()
+              .error(() => new Error("Subs category is required")),
             subs: Joi.array()
               .items({
                 id: Joi.string().allow(null),
-                name: Joi.string(),
+                name: Joi.string()
+                  .trim()
+                  .required()
+                  .error(() => new Error("Category is required")),
               })
               .required()
               .error(() => new Error("Category is required")),

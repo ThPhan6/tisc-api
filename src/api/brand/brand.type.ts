@@ -28,7 +28,7 @@ export interface IBrandByAlphabetResponse {
 export interface IBrand {
   id: string;
   name: string;
-  logo: string;
+  logo: string | null;
   origin: string;
   locations: number;
   teams: number;
@@ -42,4 +42,51 @@ export interface IBrand {
   status: number;
   status_key: any;
   created_at: string;
+}
+
+export interface IBrandCardsResponse {
+  data: {
+    id: string;
+    name: string;
+    logo: string | null;
+    country: string;
+    category_count: number;
+    collection_count: number;
+    card_count: number;
+    teams: any[];
+  }[];
+  statusCode: number;
+}
+
+export interface IUpdateBrandProfileRequest {
+  name: string;
+  parent_company: string;
+  slogan: string;
+  mission_n_vision: string;
+  official_websites: {
+    country_id: string;
+    url: string;
+  }[];
+}
+export interface IBrandProfileResponse {
+  data: {
+    id: string;
+    name: string;
+    parent_company: string;
+    logo: string | null;
+    slogan: string;
+    mission_n_vision: string;
+    official_websites: {
+      country_id: string;
+      url: string;
+    }[];
+  };
+  statusCode: number;
+}
+
+export interface IBrandRequest {
+  name: string;
+  first_name: string;
+  last_name: string;
+  email: string;
 }

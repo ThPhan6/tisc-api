@@ -10,7 +10,6 @@ import {
 } from "./../../helper/common.helper";
 import {
   ICategoriesResponse,
-  ICategoryAttributes,
   ICategoryRequest,
   ICategoryResponse,
 } from "./category.type";
@@ -22,6 +21,25 @@ export default class CategoryService {
     this.categoryModel = new CategoryModel();
   }
 
+  public getCategoryValues = (
+    ids: string[]
+  ): Promise<{ id: string; name: string }[]> =>
+    new Promise(async (resolve) => {
+      const allCategoryGroup = await this.categoryModel.getAll();
+      const allValue = allCategoryGroup.reduce((pre, cur) => {
+        const temp: any = cur.subs.reduce((pre1: any[], cur1: any) => {
+          return pre1.concat(cur1.subs);
+        }, []);
+        return pre.concat(temp);
+      }, []);
+      const values: { id: string; name: string }[] = ids.map(
+        (id) =>
+          allValue.find(
+            (item: { id: string; name: string }) => item.id === id
+          ) || { id: "", name: "" }
+      );
+      return resolve(values);
+    });
   public create = async (
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
@@ -44,7 +62,7 @@ export default class CategoryService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_SUB_CATEGORY,
+          message: MESSAGES.SUB_CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -63,7 +81,7 @@ export default class CategoryService {
 
       if (isDuplicatedCategory) {
         return resolve({
-          message: MESSAGES.DUPLICATED_CATEGORY,
+          message: MESSAGES.CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -217,7 +235,7 @@ export default class CategoryService {
       );
       if (duplicatedCategory) {
         return resolve({
-          message: MESSAGES.DUPLICATED_MAIN_CATEGORY,
+          message: MESSAGES.MAIN_CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -230,7 +248,7 @@ export default class CategoryService {
         )
       ) {
         return resolve({
-          message: MESSAGES.DUPLICATED_SUB_CATEGORY,
+          message: MESSAGES.SUB_CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }
@@ -248,7 +266,7 @@ export default class CategoryService {
 
       if (isDuplicatedCategory) {
         return resolve({
-          message: MESSAGES.DUPLICATED_CATEGORY,
+          message: MESSAGES.CATEGORY_DUPLICATED,
           statusCode: 400,
         });
       }

@@ -2,10 +2,7 @@ import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
 import IRoute from "../../helper/route.helper";
-import {
-  defaultRouteOptionResponseStatus,
-  generalMessageResponse,
-} from "../../helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./user.response";
@@ -29,7 +26,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse,
+                200: response.getOne,
               },
             },
           },
@@ -133,7 +130,7 @@ export default class UserRoute implements IRoute {
                 output: "stream",
               },
               parse: true,
-              failAction: (_request, h, err: any) => {
+              failAction: (_request, _h, err: any) => {
                 if (err.output) {
                   if (err.output.statusCode === 413) {
                     err.output.payload.message = `Can not upload file size greater than 5MB`;
@@ -162,6 +159,38 @@ export default class UserRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getListDepartment,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.SEND_INVITE_TEAM_PROFILE,
+          options: {
+            handler: controller.invite,
+            validate: commonValidate.getOne,
+            description: "Method that invite team profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_TEAM_PROFILE,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete team profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

@@ -8,8 +8,8 @@ export default class CollectionController {
     this.service = new CollectionService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset } = req.query;
-    const response = await this.service.getList(limit, offset);
+    const { limit, offset, brand_id } = req.query;
+    const response = await this.service.getList(brand_id, limit, offset);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public create = async (

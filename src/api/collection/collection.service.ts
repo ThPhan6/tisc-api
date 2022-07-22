@@ -9,11 +9,14 @@ import {
   ICollectionResponse,
   ICollectionsResponse,
 } from "./collection.type";
+import MarketAvailabilityService from "../../api/market_availability/market_availability.service";
 
 export default class CollectionService {
   private collectionModel: CollectionModel;
+  private marketAvailabilityService: MarketAvailabilityService;
   constructor() {
     this.collectionModel = new CollectionModel();
+    this.marketAvailabilityService = new MarketAvailabilityService();
   }
   public create = (
     payload: ICollectionRequest
@@ -31,6 +34,7 @@ export default class CollectionService {
       const createdCollection = await this.collectionModel.create({
         ...COLLECTION_NULL_ATTRIBUTES,
         name: payload.name,
+        brand_id: payload.brand_id,
       });
       if (!createdCollection) {
         return resolve({
@@ -38,6 +42,16 @@ export default class CollectionService {
           statusCode: 400,
         });
       }
+      const authorizedBrandCountries =
+        await this.marketAvailabilityService.getBrandRegionCountries(
+          payload.brand_id
+        );
+      await this.marketAvailabilityService.create({
+        collection_id: createdCollection.id,
+        country_ids: authorizedBrandCountries.map((item) =>
+          item.id.toLowerCase()
+        ),
+      });
       const { is_deleted, ...result } = createdCollection;
       return resolve({
         data: result,
@@ -46,15 +60,17 @@ export default class CollectionService {
     });
   };
   public getList = (
+    brand_id: string,
     limit: number,
     offset: number
-  ): Promise<IMessageResponse | ICollectionsResponse> => {
+  ): Promise<ICollectionsResponse> => {
     return new Promise(async (resolve) => {
       const collections: ICollectionAttributes[] =
-        await this.collectionModel.list(limit, offset, {});
+        await this.collectionModel.list(limit, offset, { brand_id });
       const pagination: IPagination = await this.collectionModel.getPagination(
         limit,
-        offset
+        offset,
+        { brand_id }
       );
 
       if (!collections) {

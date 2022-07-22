@@ -7,20 +7,24 @@ import FunctionalTypeModel, {
 } from "../../model/functional_type.model";
 import UserModel from "../../model/user.model";
 import {
+  ICitiesResponse,
+  ICityResponse,
   ICountriesResponse,
+  ICountryResponse,
   IFunctionalTypesResponse,
   ILocation,
   ILocationRequest,
   ILocationResponse,
   ILocationsResponse,
+  IStateResponse,
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
 import { IMessageResponse } from "../../type/common.type";
 import { MESSAGES } from "../../constant/common.constant";
-import CountryStateCityService, {
-  ICity,
-} from "../../service/country_state_city.service";
+import CountryStateCityService from "../../service/country_state_city.service";
+import { ICityAttributes } from "../../model/city";
+import { getDistinctArray } from "../../helper/common.helper";
 
 export default class LocationService {
   private locationModel: LocationModel;
@@ -33,81 +37,164 @@ export default class LocationService {
     this.countryStateCityService = new CountryStateCityService();
     this.userModel = new UserModel();
   }
-  public getFunctionalTypes = (): Promise<IFunctionalTypesResponse> => {
+
+  private getRegionName = (key: string) => {
+    if (key === "africa") return "AFRICA";
+    if (key === "asia") return "ASIA";
+    if (key === "europe") return "EUROPE";
+    if (key === "n_america") return "NORTH AMERICA";
+    if (key === "oceania") return "OCEANIA";
+    return "SOUTH AMERICA";
+  };
+  public getFunctionalTypes = (
+    user_id: string
+  ): Promise<IFunctionalTypesResponse> => {
     return new Promise(async (resolve) => {
-      const functionalTypes = await this.functionalTypeModel.getAll(
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const rawFunctionalTypes = await this.functionalTypeModel.getAllBy(
+        { type: 0 },
+        ["id", "name"],
+        "created_at",
+        "ASC"
+      );
+      const functionalTypes = await this.functionalTypeModel.getAllBy(
+        { type: user.type, relation_id: user.relation_id },
         ["id", "name"],
         "created_at",
         "ASC"
       );
       return resolve({
-        data: functionalTypes,
+        data: rawFunctionalTypes.concat(functionalTypes),
         statusCode: 200,
       });
     });
   };
   public create = (
+    user_id: string,
     payload: ILocationRequest
   ): Promise<ILocationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      //check functional types
-      const functional_type_ids = await Promise.all(
-        payload.functional_type_ids.map(async (function_type_id) => {
-          const functional_type = await this.functionalTypeModel.find(
-            function_type_id
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
+      );
+      if (!country) {
+        return resolve({
+          message: MESSAGES.COUNTRY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const states = await this.countryStateCityService.getStatesByCountry(
+        payload.country_id
+      );
+      if (states.length >= 1) {
+        if (!payload.state_id || payload.state_id === "") {
+          return resolve({
+            message: MESSAGES.STATE_REQUIRED,
+            statusCode: 400,
+          });
+        }
+        const foundState = states.find((item) => item.id === payload.state_id);
+        if (!foundState) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_IN_COUNTRY,
+            statusCode: 400,
+          });
+        }
+        const state = await this.countryStateCityService.getStateDetail(
+          payload.state_id
+        );
+        if (!state) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+        const cities =
+          await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
           );
+        if (cities.length >= 1) {
+          if (!payload.city_id || payload.city_id === "") {
+            return resolve({
+              message: MESSAGES.CITY_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundCity = cities.find((item) => item.id === payload.city_id);
+          if (!foundCity) {
+            return resolve({
+              message: MESSAGES.CITY_NOT_IN_STATE,
+              statusCode: 400,
+            });
+          }
+        }
+      }
+      let functional_type_names: string[] = [];
+      const functional_type_ids = await Promise.all(
+        payload.functional_type_ids.map(async (functional_type_id) => {
+          let functional_type = await this.functionalTypeModel.find(
+            functional_type_id
+          );
+          if (!functional_type) {
+            functional_type = await this.functionalTypeModel.findBy({
+              name: functional_type_id.toLowerCase(),
+            });
+          }
           if (!functional_type) {
             const createdFunctionalType = await this.functionalTypeModel.create(
               {
                 ...FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-                name: function_type_id,
+                name: functional_type_id,
+                type: user.type,
+                relation_id: user.relation_id,
               }
             );
+            functional_type_names.push(createdFunctionalType?.name || "");
             return createdFunctionalType ? createdFunctionalType.id : "";
           }
-          return function_type_id;
+          functional_type_names.push(functional_type.name);
+          return functional_type.id;
         })
       );
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      let state;
-      if (payload.state_id) {
-        state = await this.countryStateCityService.getStateDetail(
+      const countryStateCity =
+        await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
+          payload.city_id,
           payload.state_id
         );
-      }
-      let cities;
-      if (payload.state_id) {
-        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
-          payload.country_id,
-          payload.state_id
-        );
-      }
-      if (!cities || cities === [])
-        cities = await this.countryStateCityService.getCitiesByCountry(
-          payload.country_id
-        );
-      const city = cities.find(
-        (item) => item.id.toString() === payload.city_id
-      );
       const createdLocation = await this.locationModel.create({
         ...LOCATION_NULL_ATTRIBUTES,
         business_name: payload.business_name,
         business_number: payload.business_number,
         functional_type_ids,
+        functional_type: getDistinctArray(functional_type_names).join(", "),
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
-        country_name: country?.name || "",
-        state_name: state?.name || "",
-        city_name: city?.name || "",
-        phone_code: country.phonecode,
+        country_name: countryStateCity?.country_name || "",
+        state_name: countryStateCity?.state_name || "",
+        city_name: countryStateCity?.city_name || "",
+        phone_code: countryStateCity.phone_code,
         address: payload.address,
         postal_code: payload.postal_code,
         general_phone: payload.general_phone,
         general_email: payload.general_email,
+        type: user.type,
+        relation_id: user.relation_id,
       });
       if (!createdLocation) {
         return resolve({
@@ -119,70 +206,136 @@ export default class LocationService {
     });
   };
   public update = (
+    user_id: string,
     id: string,
     payload: ILocationRequest
   ): Promise<ILocationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const location = await this.locationModel.find(id);
-      if (!location) {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
+      const country = await this.countryStateCityService.getCountryDetail(
+        payload.country_id
+      );
+      if (!country) {
+        return resolve({
+          message: MESSAGES.COUNTRY_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const states = await this.countryStateCityService.getStatesByCountry(
+        payload.country_id
+      );
+      if (states.length >= 1) {
+        if (!payload.state_id || payload.state_id === "") {
+          return resolve({
+            message: MESSAGES.STATE_REQUIRED,
+            statusCode: 400,
+          });
+        }
+        const foundState = states.find((item) => item.id === payload.state_id);
+        if (!foundState) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_IN_COUNTRY,
+            statusCode: 400,
+          });
+        }
+        const state = await this.countryStateCityService.getStateDetail(
+          payload.state_id
+        );
+        if (!state) {
+          return resolve({
+            message: MESSAGES.STATE_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+        const cities =
+          await this.countryStateCityService.getCitiesByStateAndCountry(
+            payload.country_id,
+            payload.state_id
+          );
+        if (cities.length >= 1) {
+          if (!payload.city_id || payload.city_id === "") {
+            return resolve({
+              message: MESSAGES.CITY_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundCity = cities.find((item) => item.id === payload.city_id);
+          if (!foundCity) {
+            return resolve({
+              message: MESSAGES.CITY_NOT_IN_STATE,
+              statusCode: 400,
+            });
+          }
+        }
+      }
+      const location = await this.locationModel.find(id);
+      if (!location) {
+        return resolve({
+          message: MESSAGES.LOCATION_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (
+        user.type !== location.type ||
+        user.relation_id !== location.relation_id
+      ) {
+        return resolve({
+          message: MESSAGES.USER_NOT_IN_WORKSPACE,
+          statusCode: 400,
+        });
+      }
+      let functional_type_names: string[] = [];
       //check functional types
       const functional_type_ids = await Promise.all(
-        payload.functional_type_ids.map(async (function_type_id) => {
-          const functional_type = await this.functionalTypeModel.find(
-            function_type_id
+        payload.functional_type_ids.map(async (functional_type_id) => {
+          let functional_type = await this.functionalTypeModel.find(
+            functional_type_id
           );
+          if (!functional_type) {
+            functional_type = await this.functionalTypeModel.findBy({
+              name: functional_type_id.toLowerCase(),
+            });
+          }
           if (!functional_type) {
             const createdFunctionalType = await this.functionalTypeModel.create(
               {
                 ...FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-                name: function_type_id,
+                name: functional_type_id,
+                type: user.type,
+                relation_id: user.relation_id,
               }
             );
+            functional_type_names.push(createdFunctionalType?.name || "");
             return createdFunctionalType ? createdFunctionalType.id : "";
           }
-          return function_type_id;
+          functional_type_names.push(functional_type.name);
+          return functional_type.id;
         })
       );
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      let state;
-      if (payload.state_id) {
-        state = await this.countryStateCityService.getStateDetail(
+      const countryStateCity =
+        await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
+          payload.city_id,
           payload.state_id
         );
-      }
-      let cities;
-      if (payload.state_id) {
-        cities = await this.countryStateCityService.getCitiesByStateAndCountry(
-          payload.country_id,
-          payload.state_id
-        );
-      }
-      if (!cities || cities === [])
-        cities = await this.countryStateCityService.getCitiesByCountry(
-          payload.country_id
-        );
-      const city = cities.find(
-        (item) => item.id.toString() === payload.city_id
-      );
       const updatedLocation = await this.locationModel.update(id, {
         business_name: payload.business_name,
         business_number: payload.business_number,
         functional_type_ids,
+        functional_type: getDistinctArray(functional_type_names).join(", "),
         country_id: payload.country_id,
         state_id: payload.state_id,
         city_id: payload.city_id,
-        country_name: country?.name || "",
-        state_name: state?.name || "",
-        city_name: city?.name || "",
-        phone_code: country.phonecode,
+        country_name: countryStateCity?.country_name || "",
+        state_name: countryStateCity?.state_name || "",
+        city_name: countryStateCity?.city_name || "",
+        phone_code: countryStateCity.phone_code,
         address: payload.address,
         postal_code: payload.postal_code,
         general_phone: payload.general_phone,
@@ -202,7 +355,7 @@ export default class LocationService {
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -211,11 +364,13 @@ export default class LocationService {
         location.functional_type_ids,
         ["id", "name"]
       );
+      // console.log(location.functional_type_ids, functionalTypes);
       const result = {
         id: location.id,
         business_name: location.business_name,
         business_number: location.business_number,
         functional_types: functionalTypes,
+        functional_type: location.functional_type,
         country_id: location.country_id,
         state_id: location.state_id,
         city_id: location.city_id,
@@ -237,19 +392,35 @@ export default class LocationService {
   };
   public getAllCountry = (): Promise<ICountriesResponse> =>
     new Promise(async (resolve) => {
-      const countries = await this.countryStateCityService.getAllCountry();
-      const result = await Promise.all(
-        countries.map(async (country) => {
-          const detail = await this.countryStateCityService.getCountryDetail(
-            country.id.toString()
-          );
-          return {
-            id: country.iso2,
-            name: country.name,
-            phone_code: detail.phonecode,
-          };
-        })
-      );
+      const result = await this.countryStateCityService.getAllCountry();
+
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getCountry = (id: string): Promise<ICountryResponse> =>
+    new Promise(async (resolve) => {
+      const result = await this.countryStateCityService.getCountryDetail(id);
+
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getState = (id: string): Promise<IStateResponse> =>
+    new Promise(async (resolve) => {
+      const result = await this.countryStateCityService.getStateDetail(id);
+
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getCity = (id: string): Promise<ICityResponse> =>
+    new Promise(async (resolve) => {
+      const result = await this.countryStateCityService.getCityDetail(id);
+
       return resolve({
         data: result,
         statusCode: 200,
@@ -257,13 +428,9 @@ export default class LocationService {
     });
   public getStates = (country_id: string): Promise<IStatesResponse> =>
     new Promise(async (resolve) => {
-      const states = await this.countryStateCityService.getStatesByCountry(
+      const result = await this.countryStateCityService.getStatesByCountry(
         country_id
       );
-      const result = states.map((state) => ({
-        id: state.iso2,
-        name: state.name,
-      }));
       return resolve({
         data: result,
         statusCode: 200,
@@ -272,9 +439,9 @@ export default class LocationService {
   public getCities = (
     country_id: string,
     state_id?: string
-  ): Promise<IStatesResponse> =>
+  ): Promise<ICitiesResponse> =>
     new Promise(async (resolve) => {
-      let cities: ICity[] = [];
+      let cities: ICityAttributes[] = [];
       if (!state_id) {
         cities = await this.countryStateCityService.getCitiesByCountry(
           country_id
@@ -285,53 +452,65 @@ export default class LocationService {
           state_id
         );
       }
-      const result = cities.map((city) => ({
-        id: city.id.toString(),
-        name: city.name,
-      }));
       return resolve({
-        data: result,
+        data: cities,
         statusCode: 200,
       });
     });
 
   public getList = (
+    user_id: string,
     limit: number,
     offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
-  ): Promise<ILocationsResponse> =>
+    sort: string,
+    order: "ASC" | "DESC"
+  ): Promise<ILocationsResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
-      const locations = await this.locationModel.list(limit, offset, filter, [
-        sort_name,
-        sort_order,
-      ]);
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const locations = await this.locationModel.list(
+        limit,
+        offset,
+        { ...filter, type: user.type, relation_id: user.relation_id },
+        [sort, order]
+      );
       const result: ILocation[] = await Promise.all(
         locations.map(async (location: ILocationAttributes) => {
           const functionalTypes = await this.functionalTypeModel.getMany(
             location.functional_type_ids,
             ["id", "name"]
           );
-          const {
-            is_deleted,
-            functional_type_ids,
-            country_id,
-            state_id,
-            city_id,
-            business_number,
-            postal_code,
-            address,
-            ...rest
-          } = location;
+
           const users = await this.userModel.getBy({
             location_id: location.id,
           });
-          const teams = users?.length || 0;
-          return { ...rest, functional_types: functionalTypes, teams };
+          const teams = users.length;
+          return {
+            id: location.id,
+            business_name: location.business_name,
+            general_phone: location.general_phone,
+            general_email: location.general_email,
+            created_at: location.created_at,
+            country_name: location.country_name,
+            state_name: location.state_name,
+            city_name: location.city_name,
+            phone_code: location.phone_code,
+            functional_types: functionalTypes,
+            functional_type: location.functional_type,
+            teams,
+          };
         })
       );
-      const pagination = await this.locationModel.getPagination(limit, offset);
+      const pagination = await this.locationModel.getPagination(limit, offset, {
+        type: user.type,
+        relation_id: user.relation_id,
+      });
       return resolve({
         data: {
           locations: result,
@@ -340,9 +519,19 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public getListWithGroup = (): Promise<LocationsWithGroupResponse> =>
+  public getListWithGroup = (
+    user_id: string
+  ): Promise<LocationsWithGroupResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
-      const locations = await this.locationModel.getAll(
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const locations = await this.locationModel.getAllBy(
+        { type: user.type, relation_id: user.relation_id },
         undefined,
         "country_name",
         "ASC"
@@ -353,21 +542,25 @@ export default class LocationService {
             location.functional_type_ids,
             ["id", "name"]
           );
-          const {
-            is_deleted,
-            functional_type_ids,
-            country_id,
-            state_id,
-            city_id,
-            business_number,
-            general_email,
-            general_phone,
-            ...rest
-          } = location;
-          return { ...rest, functional_types: functionalTypes };
+          return {
+            id: location.id,
+            business_name: location.business_name,
+            address: location.address,
+            postal_code: location.postal_code,
+            created_at: location.created_at,
+            country_name: location.country_name,
+            state_name: location.state_name,
+            city_name: location.city_name,
+            country_id: location.country_id,
+            state_id: location.state_id,
+            city_id: location.city_id,
+            phone_code: location.phone_code,
+            functional_types: functionalTypes,
+          };
         })
       );
       const distintCountries = await this.locationModel.getGroupBy(
+        { type: user.type, relation_id: user.relation_id },
         "country_name",
         "count"
       );
@@ -385,18 +578,127 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public delete = (id: string): Promise<IMessageResponse> =>
+  public delete = (user_id: string, id: string): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const location = await this.locationModel.find(id);
       if (!location) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_LOCATION,
+          message: MESSAGES.LOCATION_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+      if (
+        user.type !== location.type ||
+        user.relation_id !== location.relation_id
+      ) {
+        return resolve({
+          message: MESSAGES.USER_NOT_IN_WORKSPACE,
+          statusCode: 400,
         });
       }
       await this.locationModel.update(id, { is_deleted: true });
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  public getListCountryWithRegionGroup = (): Promise<any> =>
+    new Promise(async (resolve) => {
+      const allCountry = await this.countryStateCityService.getAllCountry();
+      const data = allCountry.reduce(
+        (pre: any, cur) => {
+          if (cur.region.toLowerCase() === "americas") {
+            if (cur.subregion.toLowerCase() === "northern america")
+              return {
+                ...pre,
+                n_america: pre.n_america.concat([
+                  {
+                    id: cur.id,
+                    name: cur.name,
+                    phone_code: cur.phone_code,
+                  },
+                ]),
+              };
+            else
+              return {
+                ...pre,
+                s_america: pre.s_america.concat([
+                  {
+                    id: cur.id,
+                    name: cur.name,
+                    phone_code: cur.phone_code,
+                  },
+                ]),
+              };
+          }
+          if (cur.region.toLowerCase() === "asia")
+            return {
+              ...pre,
+              asia: pre.asia.concat([
+                {
+                  id: cur.id,
+                  name: cur.name,
+                  phone_code: cur.phone_code,
+                },
+              ]),
+            };
+          if (cur.region.toLowerCase() === "africa")
+            return {
+              ...pre,
+              africa: pre.africa.concat([
+                {
+                  id: cur.id,
+                  name: cur.name,
+                  phone_code: cur.phone_code,
+                },
+              ]),
+            };
+          if (cur.region.toLowerCase() === "oceania")
+            return {
+              ...pre,
+              oceania: pre.oceania.concat([
+                {
+                  id: cur.id,
+                  name: cur.name,
+                  phone_code: cur.phone_code,
+                },
+              ]),
+            };
+          return {
+            ...pre,
+            europe: pre.europe.concat([
+              {
+                id: cur.id,
+                name: cur.name,
+                phone_code: cur.phone_code,
+              },
+            ]),
+          };
+        },
+        {
+          africa: [],
+          asia: [],
+          europe: [],
+          n_america: [],
+          oceania: [],
+          s_america: [],
+        }
+      );
+      const keys = Object.keys(data);
+      const result = keys.map((key) => ({
+        name: this.getRegionName(key),
+        count: data[key].length,
+        countries: data[key],
+      }));
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

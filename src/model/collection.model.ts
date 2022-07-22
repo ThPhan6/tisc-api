@@ -2,6 +2,7 @@ import Model from "./index";
 
 export interface ICollectionAttributes {
   id: string;
+  brand_id: string;
   name: string;
   created_at: string;
   is_deleted: boolean;
@@ -9,6 +10,7 @@ export interface ICollectionAttributes {
 
 export const COLLECTION_NULL_ATTRIBUTES = {
   id: null,
+  brand_id: null,
   name: null,
   created_at: null,
   is_deleted: false,

@@ -6,6 +6,7 @@ export interface ICollection {
 }
 export interface ICollectionRequest {
   name: string;
+  brand_id: string;
 }
 export interface ICollectionResponse {
   data: ICollection;

@@ -1,19 +1,51 @@
-import { MESSAGES } from "../../constant/common.constant";
-import ProductModel, {
-  PRODUCT_NULL_ATTRIBUTES,
-  IProductAttributes,
-} from "../../model/product.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import moment from "moment";
+import { v4 as uuid } from "uuid";
+import CategoryService from "../../api/category/category.service";
+import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import {
+  getDistinctArray,
+  getFileTypeFromBase64,
+} from "../../helper/common.helper";
+import { toWebp } from "../../helper/image.helper";
+import BrandModel from "../../model/brand.model";
+import CollectionModel from "../../model/collection.model";
+import CategoryModel from "../../model/category.model";
+import ProductModel, {
+  IProductAttributes,
+  PRODUCT_NULL_ATTRIBUTES,
+} from "../../model/product.model";
+import { deleteFile, isExists, upload } from "../../service/aws.service";
+import { IMessageResponse } from "../../type/common.type";
+import { getBufferFile } from "./../../service/aws.service";
+import {
+  IAttributeGroup,
+  IBrandProductSummary,
   IProductRequest,
   IProductResponse,
   IProductsResponse,
+  IRestCollectionProductsResponse,
+  IUpdateProductRequest,
 } from "./product.type";
+import BasisService from "../../api/basis/basis.service";
+import CountryStateCityService from "../../service/country_state_city_v1.service";
 
 export default class ProductService {
   private productModel: ProductModel;
+  private brandModel: BrandModel;
+  private collectionModel: CollectionModel;
+  private categoryService: CategoryService;
+  private categoryModel: CategoryModel;
+  private basisService: BasisService;
+  private countryStateCityService: CountryStateCityService;
+
   constructor() {
     this.productModel = new ProductModel();
+    this.brandModel = new BrandModel();
+    this.collectionModel = new CollectionModel();
+    this.categoryService = new CategoryService();
+    this.categoryModel = new CategoryModel();
+    this.basisService = new BasisService();
+    this.countryStateCityService = new CountryStateCityService();
   }
   public create = (
     user_id: string,
@@ -30,6 +62,57 @@ export default class ProductService {
           statusCode: 400,
         });
       }
+      const mapAttributeFunction = async (item: any) => {
+        const newAttributes = await Promise.all(
+          item.attributes.map(async (attribute: any) => {
+            if (attribute.type === "Conversions") {
+              const conversion = await this.basisService.getConversion(
+                attribute.basis_id
+              );
+              const value1 = parseFloat(attribute.conversion_value_1 || "0");
+              const value2 = value1 / parseFloat(conversion?.formula_1 || "1");
+              return {
+                ...attribute,
+                conversion_value_1: value1.toFixed(2),
+                conversion_value_2: value2.toFixed(2),
+              };
+            }
+            return attribute;
+          })
+        );
+        return {
+          ...item,
+          id: uuid(),
+          attributes: newAttributes,
+        };
+      };
+      const saveGeneralAttributeGroups = await Promise.all(
+        payload.general_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveFeatureAttributeGroups = await Promise.all(
+        payload.feature_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveSpecificationAttributeGroups = await Promise.all(
+        payload.specification_attribute_groups.map(mapAttributeFunction)
+      );
+
+      let isValidImage = true;
+      for (const image of payload.images) {
+        const fileType = await getFileTypeFromBase64(image);
+        if (
+          !fileType ||
+          !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+        ) {
+          isValidImage = false;
+        }
+      }
+      if (!isValidImage) {
+        return resolve({
+          message: MESSAGES.IMAGE_INVALID,
+          statusCode: 400,
+        });
+      }
+
       const createdProduct = await this.productModel.create({
         ...PRODUCT_NULL_ATTRIBUTES,
         brand_id: payload.brand_id,
@@ -38,10 +121,12 @@ export default class ProductService {
         name: payload.name,
         code: "random",
         description: payload.description,
-        general_attribute_ids: payload.general_attribute_ids,
-        feature_attribute_ids: payload.feature_attribute_ids,
-        specification_attribute_ids: payload.specification_attribute_ids,
+        general_attribute_groups: saveGeneralAttributeGroups,
+        feature_attribute_groups: saveFeatureAttributeGroups,
+        specification_attribute_groups: saveSpecificationAttributeGroups,
         created_by: user_id,
+        images: [],
+        keywords: payload.keywords,
       });
       if (!createdProduct) {
         return resolve({
@@ -49,51 +134,553 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const { is_deleted, ...result } = createdProduct;
+      const brand = await this.brandModel.find(payload.brand_id);
+      const imagePaths = await Promise.all(
+        payload.images.map(async (image, index) => {
+          const mediumBuffer = await toWebp(
+            Buffer.from(image, "base64"),
+            "medium"
+          );
+          let keyword = "";
+          payload.keywords.forEach((item) => {
+            keyword += item.trim().replace(/ /g, "-");
+          });
+          const brandName = brand?.name
+            .trim()
+            .toLowerCase()
+            .split(" ")
+            .join("-")
+            .replace(/ /g, "-");
+          let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+          await upload(
+            mediumBuffer,
+            `product/${createdProduct.id}/${fileName}_medium.webp`,
+            "image/webp"
+          );
+          return `/product/${createdProduct.id}/${fileName}_medium.webp`;
+        })
+      );
+      await this.productModel.update(createdProduct.id, {
+        images: imagePaths,
+      });
+      return resolve(this.get(createdProduct.id, user_id));
+    });
+  };
+  public duplicate = (
+    id: string,
+    user_id: string
+  ): Promise<IMessageResponse | IProductResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const brand = await this.brandModel.find(product.brand_id);
+      const brandName = brand?.name
+        .trim()
+        .toLowerCase()
+        .split(" ")
+        .join("-")
+        .replace(/ /g, "-");
+      const imageBuffers = await Promise.all(
+        product.images.map(
+          async (image: string) => await getBufferFile(image.slice(1))
+        )
+      );
+      const imagePaths = await Promise.all(
+        imageBuffers.map(async (image, index) => {
+          const mediumBuffer = await toWebp(image, "medium");
+          let keyword = "";
+          product.keywords.concat(["copy"]).forEach((item) => {
+            keyword += item.trim().replace(/ /g, "-");
+          });
+
+          let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+          await upload(
+            mediumBuffer,
+            `product/${id}/${fileName}_medium.webp`,
+            "image/webp"
+          );
+          return `/product/${id}/${fileName}_medium.webp`;
+        })
+      );
+      const created = await this.productModel.create({
+        ...product,
+        name: product.name + " - copy",
+        keywords: product.keywords.concat(["copy"]),
+        images: imagePaths,
+        favorites: [],
+      });
+      if (!created) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(this.get(created.id, user_id));
+    });
+  public update = (
+    id: string,
+    payload: IUpdateProductRequest,
+    user_id: string
+  ): Promise<IMessageResponse | IProductResponse> => {
+    return new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const duplicatedProduct = await this.productModel.getDuplicatedProduct(
+        id,
+        payload.name
+      );
+      if (duplicatedProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_DUPLICATED,
+          statusCode: 400,
+        });
+      }
+      const mapAttributeFunction = async (item: any) => {
+        const newAttributes = await Promise.all(
+          item.attributes.map(async (attribute: any) => {
+            if (attribute.type === "Conversions") {
+              const conversion = await this.basisService.getConversion(
+                attribute.basis_id
+              );
+              const value1 = parseFloat(attribute.conversion_value_1 || "0");
+              const value2 = value1 / parseFloat(conversion?.formula_1 || "1");
+              return {
+                ...attribute,
+                conversion_value_1: value1.toFixed(2),
+                conversion_value_2: value2.toFixed(2),
+              };
+            }
+            return attribute;
+          })
+        );
+        if (item.id) {
+          return {
+            ...item,
+            attributes: newAttributes,
+          };
+        }
+        return {
+          ...item,
+          id: uuid(),
+          attributes: newAttributes,
+        };
+      };
+      const saveGeneralAttributeGroups = await Promise.all(
+        payload.general_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveFeatureAttributeGroups = await Promise.all(
+        payload.feature_attribute_groups.map(mapAttributeFunction)
+      );
+      const saveSpecificationAttributeGroups = await Promise.all(
+        payload.specification_attribute_groups.map(mapAttributeFunction)
+      );
+
+      let imagePaths: string[] = [];
+      let isValidImage = true;
+      let mediumBuffer: Buffer;
+      if (payload.images.join("-") === product.images.join("-")) {
+        imagePaths = product.images;
+      } else {
+        const bufferImages = await Promise.all(
+          payload.images.map(async (image) => {
+            const fileType = await getFileTypeFromBase64(image);
+            if (!fileType && (await isExists(image.slice(1)))) {
+              return await getBufferFile(image.slice(1));
+            }
+            if (
+              (!fileType && !(await isExists(image.slice(1)))) ||
+              !VALID_IMAGE_TYPES.find(
+                (validType) => validType === fileType.mime
+              )
+            ) {
+              isValidImage = false;
+            }
+            return Buffer.from(image, "base64");
+          })
+        );
+        if (!isValidImage) {
+          return resolve({
+            message: MESSAGES.IMAGE_INVALID,
+            statusCode: 400,
+          });
+        }
+        product.images.map(async (item) => {
+          await deleteFile(item.slice(1));
+        });
+        imagePaths = await Promise.all(
+          bufferImages.map(async (image, index) => {
+            mediumBuffer = await toWebp(image, "medium");
+            const brand = await this.brandModel.find(product.brand_id);
+            let keyword = "";
+            payload.keywords.forEach((item) => {
+              keyword += item.trim().replace(/ /g, "-");
+            });
+            const brandName = brand?.name
+              .trim()
+              .toLowerCase()
+              .split(" ")
+              .join("-")
+              .replace(/ /g, "-");
+            let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+            await upload(
+              mediumBuffer,
+              `product/${id}/${fileName}_medium.webp`,
+              "image/webp"
+            );
+            return `/product/${id}/${fileName}_medium.webp`;
+          })
+        );
+      }
+      const updatedProduct = await this.productModel.update(id, {
+        ...payload,
+        general_attribute_groups: saveGeneralAttributeGroups,
+        feature_attribute_groups: saveFeatureAttributeGroups,
+        specification_attribute_groups: saveSpecificationAttributeGroups,
+        images: imagePaths,
+      });
+      if (!updatedProduct) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(this.get(id, user_id));
+    });
+  };
+  public get = (
+    id: string,
+    user_id: string
+  ): Promise<IMessageResponse | IProductResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const foundBrand = await this.brandModel.find(product.brand_id);
+      if (!foundBrand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const officialWebsites = await Promise.all(
+        foundBrand.official_websites.map(async (officialWebsite) => {
+          const country = await this.countryStateCityService.getCountryDetail(
+            officialWebsite.country_id
+          );
+          return {
+            ...officialWebsite,
+            country_name:
+              officialWebsite.country_id === "-1" ? "Global" : country.name,
+          };
+        })
+      );
+
+      const collection = await this.collectionModel.find(
+        product.collection_id || ""
+      );
+      const categories: { id: string; name: string }[] =
+        await this.categoryService.getCategoryValues(
+          product.category_ids || []
+        );
+      return resolve({
+        data: {
+          id: product.id,
+          brand: {
+            ...foundBrand,
+            official_websites: officialWebsites,
+          },
+          collection: {
+            id: collection?.id || "",
+            name: collection?.name || "",
+          },
+          categories: categories,
+          name: product.name,
+          code: product.code,
+          description: product.description,
+          general_attribute_groups: product.general_attribute_groups,
+          feature_attribute_groups: product.feature_attribute_groups,
+          specification_attribute_groups:
+            product.specification_attribute_groups,
+          created_at: product.created_at,
+          created_by: product.created_by,
+          favorites: product.favorites?.length || 0,
+          images: product.images,
+          keywords: product.keywords,
+          is_liked: product.favorites.includes(user_id),
+        },
+        statusCode: 200,
+      });
+    });
+  public getBrandProductSummary = (
+    brand_id: string
+  ): Promise<IBrandProductSummary> =>
+    new Promise(async (resolve) => {
+      const allProduct = await this.productModel.getAllBrandProduct(brand_id);
+      const rawCategoryIds = allProduct.reduce(
+        (pre: string[], cur: IProductAttributes) => {
+          return pre.concat(cur.category_ids || []);
+        },
+        []
+      );
+
+      const rawCollectionIds = allProduct.reduce(
+        (pre: string[], cur: IProductAttributes) => {
+          return pre.concat(cur.collection_id || "");
+        },
+        []
+      );
+
+      const variants = allProduct.reduce(
+        (pre: string[], cur: IProductAttributes) => {
+          let temp: any = [];
+          cur.specification_attribute_groups.forEach((group) => {
+            group.attributes.forEach((attribute) => {
+              attribute.basis_options?.forEach((basis_option) => {
+                temp.push(basis_option);
+              });
+            });
+          });
+          return pre.concat(temp);
+        },
+        []
+      );
+      const categoryIds = getDistinctArray(rawCategoryIds);
+      const collectionIds = getDistinctArray(rawCollectionIds);
+      const categories = await this.categoryService.getCategoryValues(
+        categoryIds
+      );
+      const collections: { id: string; name: string }[] =
+        await this.collectionModel.getMany(collectionIds, ["id", "name"]);
+      return resolve({
+        data: {
+          categories,
+          collections,
+          category_count: categories.length,
+          collection_count: collections.length,
+          card_count: allProduct.length,
+          product_count: variants.length,
+        },
+        statusCode: 200,
+      });
+    });
+
+  public getList = (
+    brand_id: string,
+    category_id: any,
+    collection_id: any,
+    user_id: string
+  ): Promise<IMessageResponse | IProductsResponse> => {
+    return new Promise(async (resolve) => {
+      let products: any[] = [];
+      let returnData: any[] = [];
+      if (!category_id && !collection_id) {
+        collection_id = "all";
+      }
+      if (category_id) {
+        if (category_id === "all") {
+          products = await this.productModel.getAllBy({ brand_id });
+          const rawCategoryIds = products.reduce(
+            (pre: string[], cur: IProductAttributes) => {
+              return pre.concat(cur.category_ids || []);
+            },
+            []
+          );
+          const categoryIds = getDistinctArray(rawCategoryIds);
+          const categories = await this.categoryService.getCategoryValues(
+            categoryIds
+          );
+          returnData = categories.map((category) => {
+            const categoryProducts = products.filter((item) =>
+              item.category_ids.includes(category.id)
+            );
+            return {
+              ...category,
+              count: categoryProducts.length,
+              products: categoryProducts,
+            };
+          });
+        } else {
+          products = await this.productModel.getAllByCategoryId(
+            category_id,
+            brand_id
+          );
+          const category = await this.categoryService.getCategoryValues([
+            category_id,
+          ]);
+
+          returnData = [
+            {
+              id: category[0].id,
+              name: category[0].name,
+              count: products.length,
+              products,
+            },
+          ];
+        }
+      }
+      if (collection_id) {
+        if (collection_id === "all") {
+          products = await this.productModel.getAllBy({
+            brand_id,
+          });
+          const rawCollectionIds = products.map((item) => item.collection_id);
+          const collectionIds = getDistinctArray(rawCollectionIds);
+          const collections = await this.collectionModel.getMany(
+            collectionIds,
+            ["id", "name"]
+          );
+          returnData = collections.map((collection) => {
+            const collectionProducts = products.filter(
+              (item) => item.collection_id === collection.id
+            );
+            return {
+              ...collection,
+              count: collectionProducts.length,
+              products: collectionProducts,
+            };
+          });
+        } else {
+          products = await this.productModel.getAllBy({
+            brand_id,
+            collection_id,
+          });
+          const collection = await this.collectionModel.find(collection_id);
+          returnData = [
+            {
+              id: collection?.id,
+              name: collection?.name,
+              count: products.length,
+              products,
+            },
+          ];
+        }
+      }
+      returnData = returnData.map((item) => {
+        const returnProducts = item.products?.map((product: any) => {
+          const { is_deleted, ...rest } = product;
+          return {
+            ...rest,
+            favorites: product.favorites.length,
+            is_liked: product.favorites.includes(user_id),
+          };
+        });
+        return {
+          ...item,
+          products: returnProducts,
+        };
+      });
+      return resolve({
+        data: {
+          data: returnData,
+          brand: await this.brandModel.find(brand_id),
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public delete = async (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      await this.productModel.update(id, { is_deleted: true });
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+  public getListRestCollectionProduct = (
+    productId: string
+  ): Promise<IMessageResponse | IRestCollectionProductsResponse> => {
+    return new Promise(async (resolve) => {
+      const foundProduct = await this.productModel.find(productId);
+      if (!foundProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (!foundProduct.collection_id) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const foundCollection = await this.collectionModel.find(
+        foundProduct.collection_id
+      );
+      if (!foundCollection) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const restCollectionProducts =
+        await this.productModel.getListRestCollectionProduct(
+          foundProduct.collection_id,
+          productId
+        );
+
+      const result = restCollectionProducts.map((item: IProductAttributes) => {
+        return {
+          id: item.id,
+          collection_id: item.collection_id,
+          name: item.name,
+          images: item.images,
+          created_at: item.created_at,
+        };
+      });
       return resolve({
         data: result,
         statusCode: 200,
       });
     });
   };
-  public getList = (
-    limit: number,
-    offset: number,
-    filter?: any,
-    sort?: any
-  ): Promise<IMessageResponse | IProductsResponse> => {
-    return new Promise(async (resolve) => {
-      const products: IProductAttributes[] = await this.productModel.list(
-        limit,
-        offset,
-        filter,
-        sort
-      );
-      const pagination: IPagination = await this.productModel.getPagination(
-        limit,
-        offset
-      );
-      if (!products) {
+  public likeOrUnlike = (
+    id: string,
+    user_id: string
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(id);
+      if (!product) {
         return resolve({
-          data: {
-            products: [],
-            pagination,
-          },
-          statusCode: 200,
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
         });
       }
-      const result = products.map((product: IProductAttributes) => {
-        const { is_deleted, ...item } = product;
-        return item;
+      const foundUserId = product.favorites.find((item) => item === user_id);
+      let newFavorites: string[] = [];
+      if (foundUserId) {
+        newFavorites = product.favorites.filter((item) => item !== foundUserId);
+      } else {
+        newFavorites = product.favorites;
+        newFavorites.push(user_id);
+      }
+      await this.productModel.update(id, {
+        favorites: newFavorites,
       });
-
       return resolve({
-        data: {
-          products: result,
-          pagination,
-        },
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });
-  };
 }

@@ -4,10 +4,12 @@ import Model from "./index";
 export interface IUserAttributes {
   id: string;
   role_id: string;
+  access_level: string;
   firstname: string;
   lastname: string;
   gender: boolean | null;
   location_id: string | null;
+  work_location: string | null;
   department_id: string | null;
   position: string | null;
   email: string;
@@ -31,10 +33,12 @@ export interface IUserAttributes {
 export const USER_NULL_ATTRIBUTES = {
   id: null,
   role_id: null,
+  access_level: null,
   firstname: null,
   lastname: null,
   gender: null,
   location_id: null,
+  work_location: null,
   department_id: null,
   position: null,
   email: null,
@@ -62,8 +66,9 @@ export default class UserModel extends Model<IUserAttributes> {
 
   public getFirstBrandAdmin = async (brand_id: string) => {
     try {
-      const result: any = await this.builder
-        .where("type", SYSTEM_TYPE.BRAND)
+      const result: any = await this.getBuilder()
+        .builder.where("type", SYSTEM_TYPE.BRAND)
+        .whereNot("is_deleted", true)
         .where("relation_id", brand_id)
         .orderBy("created_at")
         .first();
@@ -74,8 +79,8 @@ export default class UserModel extends Model<IUserAttributes> {
   };
   public getTiscUsers = async () => {
     try {
-      const result: any = await this.builder
-        .where("type", SYSTEM_TYPE.TISC)
+      const result: any = await this.getBuilder()
+        .builder.where("type", SYSTEM_TYPE.TISC)
         .whereNot("is_deleted", true)
         .orderBy("created_at")
         .select();

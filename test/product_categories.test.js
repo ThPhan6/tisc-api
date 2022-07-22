@@ -80,32 +80,55 @@ describe("Product Categories API", () => {
         .request(HOST_URL)
         .post("/category/create")
         .set({ Authorization: `Bearer ${tiscAdminToken}` })
-        .send({
-          name: "Main Category 1",
-          subs: [
-            {
-              name: "SubCategory",
-              subs: [
-                {
-                  name: "Category 1",
-                },
-              ],
-            },
-            {
-              name: "SubCategory",
-              subs: [
-                {
-                  name: "Category 2",
-                },
-              ],
-            },
-          ],
-        })
+        .send(
+          {
+            name: "Main Category 1",
+            subs: [
+              {
+                name: "SubCategory",
+                subs: [
+                  {
+                    name: "Category 1",
+                  },
+                ],
+              },
+              {
+                name: "SubCategory",
+                subs: [
+                  {
+                    name: "Category 2",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: "Main Category 1",
+            subs: [
+              {
+                name: "SubCategory",
+                subs: [
+                  {
+                    name: "Category 1",
+                  },
+                ],
+              },
+              {
+                name: "SubCategory",
+                subs: [
+                  {
+                    name: "Category 2",
+                  },
+                ],
+              },
+            ],
+          }
+        )
         .end((_err, res) => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Duplicated sub category");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 400);
           done();
         });
@@ -135,7 +158,7 @@ describe("Product Categories API", () => {
           res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Duplicated category");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 400);
           done();
         });
@@ -194,8 +217,8 @@ describe("Product Categories API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -232,7 +255,7 @@ describe("Product Categories API", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Category not found");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });
@@ -260,8 +283,8 @@ describe("Product Categories API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -326,8 +349,8 @@ describe("Product Categories API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -400,7 +423,7 @@ describe("Product Categories API", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Category not found");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });
@@ -443,8 +466,8 @@ describe("Product Categories API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -459,7 +482,7 @@ describe("Product Categories API", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Category not found");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });
@@ -486,8 +509,8 @@ describe("Product Categories API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -501,7 +524,7 @@ describe("Product Categories API", () => {
           res.should.be.json;
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 200);
-          res.body.should.have.property("message", "Success.");
+          res.body.should.have.property("message");
           done();
         });
     });

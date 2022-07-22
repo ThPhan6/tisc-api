@@ -11,7 +11,8 @@ export default class LocationController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.create(payload);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.create(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public update = async (
@@ -20,7 +21,8 @@ export default class LocationController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.update(id, payload);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.update(userId, id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {
@@ -42,31 +44,58 @@ export default class LocationController {
     const response = await this.service.getCities(country_id, state_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getCountry = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.getCountry(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getAllCountryWithRegionGroup = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await this.service.getListCountryWithRegionGroup();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getState = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.getState(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getCity = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.getCity(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort_name, sort_order } = req.query;
+    const { limit, offset, filter, sort, order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getList(
+      userId,
       limit,
       offset,
       filter,
-      sort_name,
-      sort_order
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getListWithGroup = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await this.service.getListWithGroup();
+  public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListWithGroup(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.delete(id);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.delete(userId, id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getFunctionalTypes = async (
-    _req: Request,
+    req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await this.service.getFunctionalTypes();
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getFunctionalTypes(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

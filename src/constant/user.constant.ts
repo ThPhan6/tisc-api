@@ -15,8 +15,8 @@ export const TISC_ADMIN_USER_FULL_NAME = "admin";
 
 export const USER_STATUSES = {
   ACTIVE: 1,
-  BLOCKED: 0,
-  PENDING: 2,
+  BLOCKED: 2,
+  PENDING: 3,
 };
 
 export const USER_STATUS_OPTIONS = [

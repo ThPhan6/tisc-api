@@ -27,8 +27,8 @@ export default class AttributeModel extends Model<IAttributeAttributes> {
   }
   public getDuplicatedAttribute = async (id: string, name: string) => {
     try {
-      const result: any = await this.builder
-        .whereNot("id", id)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
         .where("name", name.toLowerCase())
         .first();
@@ -39,8 +39,8 @@ export default class AttributeModel extends Model<IAttributeAttributes> {
   };
   public getAllAttributeByType = async (type: number) => {
     try {
-      const result: any = await this.builder
-        .whereNot("is_deleted", true)
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
         .where("type", type)
         .orderBy("created_at", "ASC")
         .select();

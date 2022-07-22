@@ -4,6 +4,7 @@ import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
 import UserModel from "../model/user.model";
 import PermissionModel from "../model/permission.model";
+import PermissionRouteModel from "../model/permission_route.model";
 import {
   verifyAdminToken,
   verifyBrandAdminToken,
@@ -14,6 +15,7 @@ import {
 } from "../helper/jwt.helper";
 const userModel = new UserModel();
 const permissionModel = new PermissionModel();
+const permissionRouteModel = new PermissionRouteModel();
 export default class AuthMiddleware {
   public static registration = (server: Server) => {
     server.auth.scheme(AUTH_NAMES.GENERAL, (_server: Server) => {
@@ -103,31 +105,45 @@ export default class AuthMiddleware {
           ) {
             throw Boom.unauthorized("Invalid token signature");
           }
-          //check permission
           const decoded: any = jwt_decode(token);
-          const user: any = await userModel.find(decoded.user_id);
-          if (!user) {
-            throw Boom.unauthorized("Not found user");
-          }
-          const permissions: any = await permissionModel.getBy({
-            role_id: user.role_id,
+          return h.authenticated({
+            credentials: { user_id: decoded.user_id },
           });
-          if (!permissions) {
-            throw Boom.unauthorized("Not found permissions");
-          }
-          const permission = permissions.find((item: any) => {
-            const foundRoute = item.routes.find(
-              (route: string) => route === request.route.path
-            );
-            if (foundRoute) return true;
-            return false;
-          });
-          if (permission && permission.accessable === true) {
-            return h.authenticated({
-              credentials: { user_id: decoded.user_id },
-            });
-          }
-          throw Boom.unauthorized("Cannot access!");
+          //check permission
+          // const decoded: any = jwt_decode(token);
+          // const user: any = await userModel.find(decoded.user_id);
+          // if (!user) {
+          //   throw Boom.unauthorized("Not found user");
+          // }
+          // const permissionRoute = await permissionRouteModel.findBy({
+          //   route: request.route.path,
+          // });
+          // if (!permissionRoute) {
+          //   throw Boom.unauthorized("Not found permissions route");
+          // }
+          // const permissions = await permissionModel.getBy({
+          //   role_id: user.role_id,
+          //   type: user.type,
+          //   relation_id: user.relation_id,
+          // });
+          // if (!permissions) {
+          //   throw Boom.unauthorized("Not found permissions");
+          // }
+
+          // const permission = permissions.find((item: any) => {
+          //   const foundRoute = item.routes.find(
+          //     (route: any) => route.id === permissionRoute.id
+          //   );
+          //   return foundRoute;
+          // });
+
+          // if (permission && permission.accessable === true) {
+          //   return h.authenticated({
+          //     credentials: { user_id: decoded.user_id },
+          //   });
+          // }
+
+          // throw Boom.unauthorized("Cannot access!");
         },
       };
     });

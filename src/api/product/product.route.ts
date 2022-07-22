@@ -19,7 +19,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.GET_LIST_PRODUCT,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: validate.getList,
             description: "Method that get list product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.GENERAL,
@@ -33,6 +33,56 @@ export default class ProductRoute implements IRoute {
         },
         {
           method: "POST",
+          path: ROUTES.LIKE_OR_UNLIKE_PRODUCT,
+          options: {
+            handler: controller.likeOrUnlike,
+            validate: commonValidate.getOne,
+            description: "Method that like or unlike product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_PRODUCT_SUMMARY,
+          options: {
+            handler: controller.getBrandProductSummary,
+            validate: validate.getBrandProductSummary,
+            description: "Method that get brand summary",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.brandProductSummary,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_PRODUCT,
+          options: {
+            handler: controller.get,
+            validate: commonValidate.getOne,
+            description: "Method that get one product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
           path: ROUTES.CREATE_PRODUCT,
           options: {
             handler: controller.create,
@@ -40,10 +90,92 @@ export default class ProductRoute implements IRoute {
             description: "Method that create one product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,
+            payload: {
+              maxBytes: 1024 * 1024 * 5,
+              multipart: {
+                output: "stream",
+              },
+              parse: true,
+              failAction: (_request, _h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `Can not upload file size greater than 5MB`;
+                  }
+                }
+                throw err;
+              },
+            },
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: ProductResponse.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.DUPLICATE_PRODUCT,
+          options: {
+            handler: controller.duplicate,
+            validate: commonValidate.getOne,
+            description: "Method that duplicate product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_PRODUCT,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_PRODUCT,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_REST_COLLECTION_PRODUCT,
+          options: {
+            handler: controller.getListRestCollectionProduct,
+            validate: commonValidate.getOne,
+            description: "Method that get list rest collection product",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getListRestCollectionProduct,
               },
             },
           },

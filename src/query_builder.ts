@@ -96,6 +96,22 @@ export default class Builder {
     }
     return this;
   };
+  public whereOr = (key: string, values: string[]) => {
+    const parts = values.map((value, index) => {
+      this.bindObj = { ...this.bindObj, [key + index]: value };
+      return ` ${this.prefix}.${key} == @${key}${index} `;
+    });
+    this.query += ` filter ${parts.join(" or ")} `;
+    return this;
+  };
+  public whereOrRevert = (keys: string[], value: string) => {
+    const parts = keys.map((key) => {
+      this.bindObj = { ...this.bindObj, [key]: value };
+      return ` ${this.prefix}.${key} == @${key} `;
+    });
+    this.query += ` filter ${parts.join(" or ")} `;
+    return this;
+  };
 
   public whereNotLike = (key: any, value?: string) => {
     if (value) {
@@ -116,6 +132,12 @@ export default class Builder {
   public whereIn = (key: string, value: Array<string>) => {
     this.bindObj = { ...this.bindObj, [key]: value };
     this.query += ` filter ${this.prefix}.${key} in @${key} `;
+    return this;
+  };
+
+  public whereInRevert = (key: string, value: any) => {
+    this.bindObj = { ...this.bindObj, [key]: value };
+    this.query += ` filter @${key} in ${this.prefix}.${key} `;
     return this;
   };
 
@@ -148,7 +170,7 @@ export default class Builder {
   };
 
   public where = (key: any, value?: any) => {
-    if (value || value === false) {
+    if (value || value === false || value === "") {
       this.query += ` filter ${this.prefix}.${key} == @${key} `;
       this.bindObj = { ...this.bindObj, [key]: value };
     }
@@ -249,7 +271,6 @@ export default class Builder {
         ? ` return merge(${this.prefix}, {@key : item}) `
         : ` return ${this.prefix} `;
     }
-
     const result: any = await db.query({
       query: this.query,
       bindVars: this.bindObj,

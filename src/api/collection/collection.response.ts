@@ -8,13 +8,12 @@ const Joi = HapiJoi.defaults((schema) =>
 export default {
   getList: Joi.object({
     data: Joi.object({
-      collections: Joi.array().items(
-        Joi.array().items({
-          id: Joi.string(),
-          name: Joi.string(),
-          created_at: Joi.string(),
-        })
-      ),
+      collections: Joi.array().items({
+        id: Joi.string(),
+        brand_id: Joi.any(),
+        name: Joi.string(),
+        created_at: Joi.string(),
+      }),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),

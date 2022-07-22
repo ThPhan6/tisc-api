@@ -1,25 +1,14 @@
-const { Database } = require("arangojs");
-const dotenv = require("dotenv");
-dotenv.config();
 const uuid = require("uuid").v4;
-
 const ROLES = require("./constant").ROLES;
 const SYSTEM_TYPE = require("./constant").SYSTEM_TYPE;
 const USER_STATUSES = require("./constant").USER_STATUSES;
 const USER_NULL_ATTRIBUTES = require("./constant").USER_NULL_ATTRIBUTES;
-
 const TISC_ADMIN_USER_ID = "1110813b-8422-4e94-8d2a-8fdef644480e";
 const TISC_ADMIN_USER_PASSWORD =
   "$2a$09$Uk42d5scAMr8MkxbzTTsceXpsouiX4aKFXL4NHQ6b.HHBI23rpIgS";
 const TISC_ADMIN_USER_EMAIL = "liming@tisc.global";
 
-const db = new Database({
-  url: process.env.DATABASE_HOSTNAME,
-});
-db.useDatabase(process.env.DATABASE_NAME || "");
-db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-
-const seed = async () => {
+const seed = async (db) => {
   const userCollection = await db.collection("users");
   const createAndSeed = async (collection) => {
     await collection.create();
@@ -74,5 +63,5 @@ const seed = async () => {
 };
 
 module.exports = {
-  seedUser: seed,
+  seed,
 };

@@ -16,6 +16,7 @@ export default {
   createBasisConversion: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction(
@@ -51,6 +52,7 @@ export default {
     },
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction(
@@ -80,6 +82,7 @@ export default {
   createBasisOption: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction(
@@ -89,6 +92,7 @@ export default {
       subs: Joi.array()
         .items({
           name: Joi.string()
+            .trim()
             .required()
             .error(
               commonFailValidatedMessageFunction(
@@ -220,6 +224,7 @@ export default {
   createBasisPreset: {
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction(
@@ -229,6 +234,7 @@ export default {
       subs: Joi.array()
         .items({
           name: Joi.string()
+            .trim()
             .required()
             .error(
               commonFailValidatedMessageFunction(
@@ -261,12 +267,11 @@ export default {
     params: {
       id: Joi.string()
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Basis preset id is required")
-        ),
+        .error(commonFailValidatedMessageFunction("Basis preset is required")),
     },
     payload: {
       name: Joi.string()
+        .trim()
         .required()
         .error(
           commonFailValidatedMessageFunction("Basis group name is required")
@@ -275,6 +280,7 @@ export default {
         .items({
           id: Joi.string(),
           name: Joi.string()
+            .trim()
             .required()
             .error(
               commonFailValidatedMessageFunction(

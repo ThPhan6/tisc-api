@@ -6,9 +6,8 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
-import documentation from "./documentation.response";
+import response from "./documentation.response";
 import { ROUTES } from "../../constant/api.constant";
-import commonValidate from "../../validate/common.validate";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 export default class DocumentationRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -23,12 +22,12 @@ export default class DocumentationRoute implements IRoute {
             handler: controller.create,
             validate: validate.create,
             description: "Method that create documentation",
-            tags: ["api", "documentation"],
+            tags: ["api", "Documentation"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: documentation.documentation,
+                200: response.documentation,
               },
             },
           },
@@ -38,14 +37,46 @@ export default class DocumentationRoute implements IRoute {
           path: ROUTES.GET_LIST_DOCUMENTATION,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: validate.getList,
             description: "Method that get list documentation",
-            tags: ["api", "documentation"],
+            tags: ["api", "Documentation"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: documentation.documentations,
+                200: response.documentations,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ALL_HOWTO,
+          options: {
+            handler: controller.getAllHowto,
+            description: "Method that get all how to documentation",
+            tags: ["api", "Documentation"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.allHowto,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: "/api/documentation/howto/get-current",
+          options: {
+            handler: controller.getHowto,
+            description: "Method that get all how to for current user",
+            tags: ["api", "Documentation"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.howtos,
               },
             },
           },
@@ -57,12 +88,12 @@ export default class DocumentationRoute implements IRoute {
             handler: controller.getById,
             validate: validate.getById,
             description: "Method that get documentation by ID",
-            tags: ["api", "documentation"],
-            auth: false,
+            tags: ["api", "Documentation"],
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: documentation.documentation,
+                200: response.documentation,
               },
             },
           },
@@ -74,12 +105,29 @@ export default class DocumentationRoute implements IRoute {
             handler: controller.update,
             validate: validate.update,
             description: "Method that update documentation",
-            tags: ["api", "documentation"],
+            tags: ["api", "Documentation"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: documentation.documentation,
+                200: response.documentation,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_HOWTO,
+          options: {
+            handler: controller.updateHowtos,
+            validate: validate.updateHowto,
+            description: "Method that update How to",
+            tags: ["api", "Documentation"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.howtos,
               },
             },
           },
@@ -91,7 +139,7 @@ export default class DocumentationRoute implements IRoute {
             handler: controller.delete,
             validate: validate.getById,
             description: "Method that delete documentation",
-            tags: ["api", "documentation"],
+            tags: ["api", "Documentation"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

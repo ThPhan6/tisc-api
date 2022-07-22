@@ -59,3 +59,39 @@ export interface IContentTypesResponse {
   };
   statusCode: number;
 }
+
+type TAttributeProduct = {
+  subs: {
+    basis: any;
+    id: string;
+    name: string;
+    basis_id: string;
+  }[];
+  id: string;
+  type: number;
+  name: string;
+  created_at: string;
+};
+
+export interface IGetAllAttributeResponse {
+  data: {
+    general: TAttributeProduct[];
+    feature: TAttributeProduct[];
+    specification: TAttributeProduct[];
+  };
+  statusCode: number;
+}
+
+export interface ISubAttribute {
+  id: string;
+  name: string;
+  basis_id: string;
+}
+
+export interface IContentType {
+  id: string;
+  name?: string;
+  type: string;
+  name_1?: string;
+  name_2?: string;
+}

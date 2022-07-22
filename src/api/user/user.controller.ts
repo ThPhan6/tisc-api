@@ -27,6 +27,12 @@ export default class UserController {
     const response = await this.service.get(userId, currentUserId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public invite = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.invite(id, userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort } = req.query;
     const userId = req.auth.credentials.user_id as string;
@@ -68,8 +74,15 @@ export default class UserController {
     const response = await this.service.updateAvatar(userId, avatar);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getDepartments = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await this.service.getListDepartment();
+  public getDepartments = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListDepartment(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const currentUserId = req.auth.credentials.user_id as string;
+    const userId = req.params.id;
+    const response = await this.service.delete(userId, currentUserId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

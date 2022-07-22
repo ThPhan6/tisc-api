@@ -23,6 +23,7 @@ export interface IUpdateMeRequest {
 export interface IUser {
   firstname: string;
   lastname: string;
+  fullname: string;
   location_id: string | null;
   department_id: string | null;
   position: string | null;
@@ -33,10 +34,30 @@ export interface IUser {
   backup_email: string | null;
   personal_mobile: string | null;
   linkedin: string | null;
+  brand?: any;
 }
 
 export interface IUserResponse {
   data: IUser;
+  statusCode: number;
+}
+export interface IUsersResponse {
+  data: {
+    users: {
+      id: string;
+      firstname: string;
+      lastname: string;
+      work_location: string | null;
+      position: string | null;
+      email: string;
+      phone: string | null;
+      access_level: string;
+      status: number;
+      avatar: string | null;
+      created_at: string | null;
+    }[];
+    pagination: any;
+  };
   statusCode: number;
 }
 

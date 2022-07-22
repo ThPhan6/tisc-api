@@ -1,18 +1,24 @@
 import moment from "moment";
-import { MESSAGES } from "../../constant/common.constant";
+import { DOCUMENTATION_TYPES, MESSAGES } from "../../constant/common.constant";
 import DocumentationModel, {
   DOCUMENTATION_NULL_ATTRIBUTES,
 } from "../../model/documentation.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
+  IAllHowtoResponse,
   IDocumentationRequest,
   IDocumentationResponse,
   IDocumentationsResponse,
+  IHowto,
+  IHowtosResponse,
 } from "./documentation.type";
+import UserModel from "../../model/user.model";
 class DocumentationService {
   private documentationModel: DocumentationModel;
+  private userModel: UserModel;
   constructor() {
     this.documentationModel = new DocumentationModel();
+    this.userModel = new UserModel();
   }
 
   public create = (
@@ -20,30 +26,32 @@ class DocumentationService {
     user_id: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
-      if (!user_id) {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
         return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
         });
       }
-      const updated_at = moment().toISOString();
-      const result = await this.documentationModel.create({
+      const createdDocumentation = await this.documentationModel.create({
         ...DOCUMENTATION_NULL_ATTRIBUTES,
         title: payload.title,
         document: payload.document,
         created_by: user_id,
-        type: payload.type,
-        updated_at,
-        is_deleted: false,
+        type: DOCUMENTATION_TYPES.GENERAL,
       });
-      if (!result) {
+      if (!createdDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
           statusCode: 400,
         });
       }
+      await this.documentationModel.update(createdDocumentation.id, {
+        updated_at: moment(),
+      });
+      const { is_deleted, ...rest } = createdDocumentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
@@ -52,60 +60,33 @@ class DocumentationService {
   public getList = (
     limit: number,
     offset: number,
-    filter: any,
     sort: any
-  ): Promise<IDocumentationsResponse | IMessageResponse> => {
+  ): Promise<IDocumentationsResponse | any> => {
     return new Promise(async (resolve) => {
-      const join = {
-        key: "created_by",
-        collection: "users",
-      };
-      const documentations = await this.documentationModel.list(
-        limit,
-        offset,
-        filter,
-        sort,
-        join
-      );
-      if (!documentations) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
+      const pagination: IPagination =
+        await this.documentationModel.getPagination(limit, offset, {
+          type: DOCUMENTATION_TYPES.GENERAL,
         });
-      }
-      const result = documentations.map((documentation: any) => {
-        const {
-          _key,
-          _id,
-          _rev,
-          id,
-          role_id,
-          location_id,
-          email,
-          phone,
-          mobile,
-          password,
-          backup_email,
-          personal_mobile,
-          linkedin,
-          is_verified,
-          verification_token,
-          reset_password_token,
-          status,
-          avatar,
-          type,
-          relation_id,
-          ...rest
-        } = documentation.created_by;
+
+      const generalDocumentations =
+        await this.documentationModel.getListWithoutFilter(
+          DOCUMENTATION_TYPES.GENERAL,
+          limit,
+          offset,
+          sort
+        );
+      const result = generalDocumentations.map((documentation: any) => {
         return {
-          ...documentation,
-          created_by: documentation.created_by.id,
-          author: rest,
+          id: documentation.id,
+          title: documentation.title,
+          updated_at: documentation.updated_at,
+          author: {
+            id: documentation.author.id,
+            firstname: documentation.author.firstname,
+            lastname: documentation.author.lastname,
+          },
         };
       });
-      const pagination: IPagination =
-        await this.documentationModel.getPagination(limit, offset);
-
       return resolve({
         data: {
           documentations: result,
@@ -115,26 +96,68 @@ class DocumentationService {
       });
     });
   };
-  public getById = (
-    id: string
-  ): Promise<IDocumentationResponse | IMessageResponse> => {
+  public getAllHowto = (): Promise<IAllHowtoResponse> => {
     return new Promise(async (resolve) => {
-      const result = await this.documentationModel.find(id);
-      if (!result) {
+      const tiscHowtos = await this.documentationModel.getAllBy(
+        {
+          type: DOCUMENTATION_TYPES.TISC_HOW_TO,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "number",
+        "ASC"
+      );
+      const brandHowtos = await this.documentationModel.getAllBy(
+        {
+          type: DOCUMENTATION_TYPES.BRAND_HOW_TO,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "number",
+        "ASC"
+      );
+      const designHowtos = await this.documentationModel.getAllBy(
+        {
+          type: DOCUMENTATION_TYPES.DESIGN_HOW_TO,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "number",
+        "ASC"
+      );
+      return resolve({
+        data: {
+          tisc: tiscHowtos,
+          brand: brandHowtos,
+          design: designHowtos,
+        },
+        statusCode: 200,
+      });
+    });
+  };
+  public getHowto = (user_id: string): Promise<IHowtosResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
         return resolve({
-          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
-          statusCode: 404,
+          data: [],
+          statusCode: 200,
         });
       }
+      const result = await this.documentationModel.getAllBy(
+        {
+          type: user.type + 1,
+        },
+        ["id", "title", "logo", "document", "created_at"],
+        "number",
+        "ASC"
+      );
+
       return resolve({
         data: result,
         statusCode: 200,
       });
     });
   };
-  public update = (
-    id: string,
-    payload: IDocumentationRequest
+  public getById = (
+    id: string
   ): Promise<IDocumentationResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const documentation = await this.documentationModel.find(id);
@@ -144,19 +167,81 @@ class DocumentationService {
           statusCode: 404,
         });
       }
-      const result = await this.documentationModel.update(id, payload);
-      if (!result) {
+      const { is_deleted, ...rest } = documentation;
+      return resolve({
+        data: rest,
+        statusCode: 200,
+      });
+    });
+  };
+  public update = (
+    id: string,
+    payload: IDocumentationRequest,
+    userId: string
+  ): Promise<IDocumentationResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const documentation = await this.documentationModel.find(id);
+      if (!documentation) {
+        return resolve({
+          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
+          statusCode: 404,
+        });
+      }
+      const updatedDocumentation =
+        documentation.type === DOCUMENTATION_TYPES.GENERAL
+          ? await this.documentationModel.update(id, {
+              ...payload,
+              created_by: userId,
+              updated_at: moment(),
+            })
+          : await this.documentationModel.update(id, {
+              document: payload.document,
+            });
+      if (!updatedDocumentation) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
           statusCode: 400,
         });
       }
+      const { is_deleted, ...rest } = updatedDocumentation;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
   };
+  public updateHowto = (payload: {
+    data: IHowto[];
+  }): Promise<IHowtosResponse> =>
+    new Promise(async (resolve) => {
+      const updatedHowtos = await Promise.all(
+        payload.data.map(async (howto) => {
+          return await this.documentationModel.update(howto.id, {
+            title: howto.title,
+            document: howto.document,
+          });
+        })
+      );
+      const firstHowto = await this.documentationModel.find(
+        payload.data[0]?.id
+      );
+      if (!firstHowto) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const howtos = await this.documentationModel.getAllBy(
+        { type: firstHowto.type },
+        ["id", "title", "document", "created_at"],
+        "created_at",
+        "DESC"
+      );
+      return resolve({
+        data: howtos,
+        statusCode: 200,
+      });
+    });
   public delete = (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const documentation = await this.documentationModel.find(id);
@@ -164,6 +249,12 @@ class DocumentationService {
         return resolve({
           message: MESSAGES.NOT_FOUND_DOCUMENTATION,
           statusCode: 404,
+        });
+      }
+      if (documentation.type !== DOCUMENTATION_TYPES.GENERAL) {
+        return resolve({
+          message: "Cannot delete how to documentation",
+          statusCode: 400,
         });
       }
       const result = await this.documentationModel.update(id, {

@@ -1,4 +1,4 @@
-import { MESSAGES } from "./../../constant/common.constant";
+import { BRAND_STATUSES, MESSAGES } from "./../../constant/common.constant";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
   IAdminLoginRequest,
@@ -26,17 +26,21 @@ import {
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
+import BrandModel from "../../model/brand.model";
 
 class AuthService {
   private userModel: UserModel;
   private mailService: MailService;
+  private brandModel: BrandModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
+    this.brandModel = new BrandModel();
   }
 
   public login = (
-    payload: IAdminLoginRequest
+    payload: IAdminLoginRequest,
+    type?: number
   ): Promise<ILoginResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.findBy({
@@ -46,6 +50,12 @@ class AuthService {
         return resolve({
           message: MESSAGES.ACCOUNT_NOT_EXIST,
           statusCode: 404,
+        });
+      }
+      if (type && user.type !== type) {
+        return resolve({
+          message: MESSAGES.LOGIN_INCORRECT_TYPE,
+          statusCode: 400,
         });
       }
       if (!user.is_verified) {
@@ -299,6 +309,7 @@ class AuthService {
         email: payload.email,
         role_id: ROLES.TISC_CONSULTANT_TEAM,
         is_verified: false,
+        access_level: "Consultant Team",
         verification_token: verificationToken,
         status: USER_STATUSES.ACTIVE,
         type: SYSTEM_TYPE.TISC,
@@ -372,6 +383,15 @@ class AuthService {
           message: MESSAGES.SOMETHING_WRONG,
           statusCode: 400,
         });
+      }
+      // update brand status after verify the first brand admin
+      if (user.type === SYSTEM_TYPE.BRAND && user.relation_id) {
+        const brand = await this.brandModel.find(user.relation_id);
+        if (brand && brand.status === BRAND_STATUSES.PENDING) {
+          await this.brandModel.update(brand.id, {
+            status: BRAND_STATUSES.ACTIVE,
+          });
+        }
       }
       return resolve({
         message: MESSAGES.SUCCESS,

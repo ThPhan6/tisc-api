@@ -8,15 +8,29 @@ export interface IDocumentation {
   created_at: string | null;
   created_by: string;
   updated_at: string | null;
-  is_deleted: boolean | null;
   author?: any;
 }
 
 export interface IDocumentationRequest {
   title: string;
   document: object;
-  type: number | null;
-  logo?: string;
+}
+export interface IHowto {
+  id: string;
+  title: string;
+  document: object;
+}
+export interface IHowtosResponse {
+  data: any[];
+  statusCode: number;
+}
+export interface IAllHowtoResponse {
+  data: {
+    tisc: any;
+    brand: any;
+    design: any;
+  };
+  statusCode: number;
 }
 
 export interface IDocumentationResponse {

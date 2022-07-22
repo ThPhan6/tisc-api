@@ -59,8 +59,8 @@ describe("Brand API ", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -132,8 +132,8 @@ describe("Brand API ", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -187,7 +187,7 @@ describe("Brand API ", () => {
             "logo",
             "slogan",
             "mission_n_vision",
-            "offical_websites",
+            "official_websites",
             "team_profile_ids",
             "location_ids",
             "status",
@@ -207,7 +207,7 @@ describe("Brand API ", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Not found brand.");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });
@@ -234,8 +234,8 @@ describe("Brand API ", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -264,7 +264,7 @@ describe("Brand API ", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Not found brand.");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });
@@ -286,13 +286,13 @@ describe("Brand API ", () => {
     it("Missing headers authorization ", (done) => {
       chai
         .request(HOST_URL)
-        .get("/brand/invite/" + brandId)
+        .post("/brand/invite/" + brandId)
         .end((_err, res) => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -368,8 +368,8 @@ describe("Design API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
@@ -425,8 +425,8 @@ describe("Design API", () => {
             "material_code_ids",
             "mission_n_vision",
             "name",
-            "offical_website",
-            "offical_websites",
+            "official_website",
+            "official_websites",
             "parent_company",
             "profile_n_philosophy",
             "project_ids",
@@ -447,7 +447,7 @@ describe("Design API", () => {
           res.should.have.status(404);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("message", "Not found desinger.");
+          res.body.should.have.property("message");
           res.body.should.have.property("statusCode", 404);
           done();
         });
@@ -474,8 +474,8 @@ describe("Design API", () => {
           res.should.have.status(401);
           res.should.be.json;
           res.body.should.have.property("statusCode", 401);
-          res.body.should.have.property("error", "Unauthorized");
-          res.body.should.have.property("message", "Invalid token signature");
+          res.body.should.have.property("error");
+          res.body.should.have.property("message");
           done();
         });
     });
