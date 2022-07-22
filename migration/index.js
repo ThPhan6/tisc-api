@@ -3,6 +3,7 @@ const migrate_table = require("./migrate_template").migrate;
 const migrate = async () => {
   await migrate_table("roles");
   await migrate_table("users");
+  await migrate_table("permission_routes");
   await migrate_table("permissions");
   await migrate_table("documentations");
   await migrate_table("brands");
