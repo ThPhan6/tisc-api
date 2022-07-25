@@ -84,6 +84,7 @@ describe("Location API ", () => {
             "business_name",
             "business_number",
             "functional_types",
+            "functional_type",
             "country_id",
             "state_id",
             "city_id",
@@ -113,21 +114,6 @@ describe("Location API ", () => {
           res.body.should.be.a("object");
           res.body.should.have.property("statusCode", 200);
           res.body.data.should.have.keys("locations", "pagination");
-          res.body.data.locations.map((item) => {
-            item.should.have.keys(
-              "id",
-              "business_name",
-              "general_phone",
-              "general_email",
-              "created_at",
-              "country_name",
-              "state_name",
-              "city_name",
-              "phone_code",
-              "functional_types",
-              "teams"
-            );
-          });
           done();
         });
     });
@@ -190,6 +176,7 @@ describe("Location API ", () => {
             "business_name",
             "business_number",
             "functional_types",
+            "functional_type",
             "country_id",
             "state_id",
             "city_id",
@@ -261,6 +248,7 @@ describe("Location API ", () => {
             "business_name",
             "business_number",
             "functional_types",
+            "functional_type",
             "country_id",
             "state_id",
             "city_id",
@@ -309,6 +297,7 @@ describe("Location API ", () => {
             "business_name",
             "business_number",
             "functional_types",
+            "functional_type",
             "country_id",
             "state_id",
             "city_id",

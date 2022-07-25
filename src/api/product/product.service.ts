@@ -5,11 +5,11 @@ import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import {
   getDistinctArray,
   getFileTypeFromBase64,
+  removeSpecialChars,
 } from "../../helper/common.helper";
 import { toWebp } from "../../helper/image.helper";
 import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
-import CategoryModel from "../../model/category.model";
 import ProductModel, {
   IProductAttributes,
   PRODUCT_NULL_ATTRIBUTES,
@@ -18,7 +18,6 @@ import { deleteFile, isExists, upload } from "../../service/aws.service";
 import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
-  IAttributeGroup,
   IBrandProductSummary,
   IProductRequest,
   IProductResponse,
@@ -34,7 +33,6 @@ export default class ProductService {
   private brandModel: BrandModel;
   private collectionModel: CollectionModel;
   private categoryService: CategoryService;
-  private categoryModel: CategoryModel;
   private basisService: BasisService;
   private countryStateCityService: CountryStateCityService;
 
@@ -43,7 +41,6 @@ export default class ProductService {
     this.brandModel = new BrandModel();
     this.collectionModel = new CollectionModel();
     this.categoryService = new CategoryService();
-    this.categoryModel = new CategoryModel();
     this.basisService = new BasisService();
     this.countryStateCityService = new CountryStateCityService();
   }
@@ -141,17 +138,20 @@ export default class ProductService {
             Buffer.from(image, "base64"),
             "medium"
           );
-          let keyword = "";
-          payload.keywords.forEach((item) => {
-            keyword += item.trim().replace(/ /g, "-");
+          const keywords = payload.keywords.map((item) => {
+            return item.trim().replace(/ /g, "-");
           });
-          const brandName = brand?.name
-            .trim()
-            .toLowerCase()
-            .split(" ")
-            .join("-")
-            .replace(/ /g, "-");
-          let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+          const brandName = removeSpecialChars(
+            brand?.name
+              .trim()
+              .toLowerCase()
+              .split(" ")
+              .join("-")
+              .replace(/ /g, "-") || ""
+          );
+          let fileName = `${brandName}-${keywords.join(
+            "-"
+          )}-${moment.now()}${index}`;
           await upload(
             mediumBuffer,
             `product/${createdProduct.id}/${fileName}_medium.webp`,
@@ -163,7 +163,7 @@ export default class ProductService {
       await this.productModel.update(createdProduct.id, {
         images: imagePaths,
       });
-      return resolve(this.get(createdProduct.id, user_id));
+      return resolve(await this.get(createdProduct.id, user_id));
     });
   };
   public duplicate = (
@@ -193,12 +193,20 @@ export default class ProductService {
       const imagePaths = await Promise.all(
         imageBuffers.map(async (image, index) => {
           const mediumBuffer = await toWebp(image, "medium");
-          let keyword = "";
-          product.keywords.concat(["copy"]).forEach((item) => {
-            keyword += item.trim().replace(/ /g, "-");
+          const keywords = product.keywords.map((item) => {
+            return item.trim().replace(/ /g, "-");
           });
-
-          let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+          const brandName = removeSpecialChars(
+            brand?.name
+              .trim()
+              .toLowerCase()
+              .split(" ")
+              .join("-")
+              .replace(/ /g, "-") || ""
+          );
+          let fileName = `${brandName}-${keywords
+            .concat(["copy"])
+            .join("-")}-${moment.now()}${index}`;
           await upload(
             mediumBuffer,
             `product/${id}/${fileName}_medium.webp`,
@@ -220,7 +228,7 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(created.id, user_id));
+      return resolve(await this.get(created.id, user_id));
     });
   public update = (
     id: string,
@@ -235,6 +243,7 @@ export default class ProductService {
           statusCode: 404,
         });
       }
+      const brand = await this.brandModel.find(payload.brand_id);
       const duplicatedProduct = await this.productModel.getDuplicatedProduct(
         id,
         payload.name
@@ -288,7 +297,10 @@ export default class ProductService {
       let imagePaths: string[] = [];
       let isValidImage = true;
       let mediumBuffer: Buffer;
-      if (payload.images.join("-") === product.images.join("-")) {
+      if (
+        payload.images.join("-") === product.images.join("-") &&
+        payload.keywords.join("") === product.keywords.join("")
+      ) {
         imagePaths = product.images;
       } else {
         const bufferImages = await Promise.all(
@@ -320,18 +332,21 @@ export default class ProductService {
         imagePaths = await Promise.all(
           bufferImages.map(async (image, index) => {
             mediumBuffer = await toWebp(image, "medium");
-            const brand = await this.brandModel.find(product.brand_id);
-            let keyword = "";
-            payload.keywords.forEach((item) => {
-              keyword += item.trim().replace(/ /g, "-");
+
+            const keywords = payload.keywords.map((item) => {
+              return item.trim().replace(/ /g, "-");
             });
-            const brandName = brand?.name
-              .trim()
-              .toLowerCase()
-              .split(" ")
-              .join("-")
-              .replace(/ /g, "-");
-            let fileName = `${brandName}-${keyword}-${moment.now()}${index}`;
+            const brandName = removeSpecialChars(
+              brand?.name
+                .trim()
+                .toLowerCase()
+                .split(" ")
+                .join("-")
+                .replace(/ /g, "-") || ""
+            );
+            let fileName = `${brandName}-${keywords.join(
+              "-"
+            )}-${moment.now()}${index}`;
             await upload(
               mediumBuffer,
               `product/${id}/${fileName}_medium.webp`,
@@ -354,7 +369,7 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(id, user_id));
+      return resolve(await this.get(id, user_id));
     });
   };
   public get = (

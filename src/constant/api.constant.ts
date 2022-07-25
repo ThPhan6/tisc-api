@@ -171,6 +171,7 @@ export const ROUTES = {
   UPDATE_HOWTO: "/api/documentation/howto/update",
   GET_ALL_HOWTO: "/api/documentation/howto/get-all",
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
+  DELETE_COLLECTION: "/api/collection/delete/{id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -338,4 +339,5 @@ export const ROUTE_IDS = {
   UPDATE_HOWTO: "154",
   GET_ALL_HOWTO: "155",
   GET_ALL_BRAND_SUMMARY: "156",
+  DELETE_COLLECTION: "157",
 };

@@ -29,9 +29,9 @@ const seed = async () => {
   // await seedUser(db);
   // await seedPermission(db);
   // await seedPermissionRoute(db);
-  // await seedBrand(db);
+  await seedBrand(db);
   // await seedBasis(db);
-  await seedAutoEmail(db);
+  // await seedAutoEmail(db);
   // await seedFunctionalType(db);
   // await seedDepartment(db);
   // await seedDesigner(db);

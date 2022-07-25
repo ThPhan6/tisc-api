@@ -20,4 +20,9 @@ export default class CollectionController {
     const response = await this.service.create(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await this.service.delete(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

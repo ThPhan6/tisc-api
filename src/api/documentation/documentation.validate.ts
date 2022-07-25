@@ -1,4 +1,3 @@
-import { DOCUMENTATION_TYPES } from "./../../constant/common.constant";
 import * as Joi from "joi";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 

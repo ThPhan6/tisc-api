@@ -73,6 +73,7 @@ export default {
         .error(commonFailValidatedMessageFunction("General phone is required")),
       general_email: Joi.string()
         .trim()
+        .email()
         .required()
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
@@ -127,6 +128,7 @@ export default {
         .error(commonFailValidatedMessageFunction("General phone is required")),
       general_email: Joi.string()
         .trim()
+        .email()
         .required()
         .error(commonFailValidatedMessageFunction("General email is required")),
     },

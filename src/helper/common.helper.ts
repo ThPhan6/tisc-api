@@ -95,3 +95,7 @@ export const getAccessLevel = (role_id: string) => {
   }
   return result;
 };
+
+export const removeSpecialChars = (str: string, replaceStr: string = "") => {
+  return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, replaceStr);
+};

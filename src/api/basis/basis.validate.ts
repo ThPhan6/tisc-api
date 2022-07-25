@@ -20,7 +20,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis conversion group name is required"
+            "Basis conversion group name is missing"
           )
         ),
       subs: Joi.array()
@@ -37,7 +37,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis conversion group item is required"
+            "Basis conversion sub-group name is missing"
           )
         ),
     },
@@ -56,7 +56,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis conversion group name is required"
+            "Basis conversion group name is missing"
           )
         ),
       subs: Joi.array()
@@ -74,7 +74,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis conversion group item is required"
+            "Basis conversion sub-group is missing"
           )
         ),
     },
@@ -86,7 +86,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis option group name is required"
+            "Basis option group name is missing"
           )
         ),
       subs: Joi.array()
@@ -96,7 +96,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis option group item name is required"
+                "Basis option sub-group name is missing"
               )
             ),
           is_have_image: Joi.valid(true, false),
@@ -115,14 +115,14 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis option value is required"
+                "Basis option value is missing"
               )
             ),
         })
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis option group item is required"
+            "Basis option sub-group is missing"
           )
         ),
     },
@@ -140,7 +140,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis option group name is required"
+            "Basis option group name is missing"
           )
         ),
       subs: Joi.array()
@@ -150,7 +150,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis option group item name is required"
+                "Basis option sub-group name is missing"
               )
             ),
           is_have_image: Joi.valid(true, false),
@@ -170,14 +170,14 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis option value is required"
+                "Basis option value is missing"
               )
             ),
         })
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis option group item is required"
+            "Basis option sub-group is missing"
           )
         ),
     },
@@ -228,7 +228,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis preset group name is required"
+            "Basis preset group name is missing"
           )
         ),
       subs: Joi.array()
@@ -238,7 +238,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis preset group item name is required"
+                "Basis preset sub-group name is missing"
               )
             ),
           subs: Joi.array()
@@ -251,14 +251,14 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis preset value is required"
+                "Basis preset value is missing"
               )
             ),
         })
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis preset group item is required"
+            "Basis preset sub-group is missing"
           )
         ),
     },
@@ -267,14 +267,14 @@ export default {
     params: {
       id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Basis preset is required")),
+        .error(commonFailValidatedMessageFunction("Basis preset is missing")),
     },
     payload: {
       name: Joi.string()
         .trim()
         .required()
         .error(
-          commonFailValidatedMessageFunction("Basis group name is required")
+          commonFailValidatedMessageFunction("Basis group name is missing")
         ),
       subs: Joi.array()
         .items({
@@ -284,7 +284,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis preset group item name is required"
+                "Basis preset sub-group name is missing"
               )
             ),
           subs: Joi.array()
@@ -298,14 +298,14 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis preset value is required"
+                "Basis preset value is missing"
               )
             ),
         })
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis preset group item is required"
+            "Basis preset sub-group is missing"
           )
         ),
     },

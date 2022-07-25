@@ -29,7 +29,9 @@ describe("Auto Email API ", () => {
             item.should.have.keys(
               "id",
               "topic",
+              "topic_key",
               "targeted_for",
+              "targeted_for_key",
               "title",
               "message",
               "created_at"

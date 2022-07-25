@@ -122,6 +122,10 @@ describe("Tisc team profile API ", () => {
             "role_id",
             "firstname",
             "lastname",
+            "fullname",
+            "phone_code",
+            "type",
+            "relation_id",
             "gender",
             "location_id",
             "work_location",
@@ -229,6 +233,10 @@ describe("Tisc team profile API ", () => {
             "role_id",
             "firstname",
             "lastname",
+            "fullname",
+            "phone_code",
+            "type",
+            "relation_id",
             "gender",
             "location_id",
             "work_location",
@@ -265,31 +273,10 @@ describe("Tisc team profile API ", () => {
           role_id: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
         })
         .end((_err, res) => {
-          res.should.have.status(200);
+          res.should.have.status(400);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("statusCode", 200);
-          res.body.data.should.have.keys(
-            "id",
-            "role_id",
-            "firstname",
-            "lastname",
-            "gender",
-            "location_id",
-            "work_location",
-            "department_id",
-            "position",
-            "email",
-            "phone",
-            "mobile",
-            "avatar",
-            "backup_email",
-            "personal_mobile",
-            "linkedin",
-            "created_at",
-            "access_level",
-            "status"
-          );
+          res.body.should.have.property("statusCode", 400);
           done();
         });
     });
@@ -320,6 +307,10 @@ describe("Tisc team profile API ", () => {
             "role_id",
             "firstname",
             "lastname",
+            "fullname",
+            "phone_code",
+            "type",
+            "relation_id",
             "gender",
             "location_id",
             "work_location",
@@ -394,6 +385,10 @@ describe("Tisc team profile API ", () => {
             "role_id",
             "firstname",
             "lastname",
+            "fullname",
+            "phone_code",
+            "type",
+            "relation_id",
             "gender",
             "location_id",
             "work_location",
@@ -468,6 +463,10 @@ describe("Tisc team profile API ", () => {
             "role_id",
             "firstname",
             "lastname",
+            "fullname",
+            "phone_code",
+            "type",
+            "relation_id",
             "gender",
             "location_id",
             "work_location",
@@ -501,6 +500,7 @@ describe("Tisc team profile API ", () => {
           res.body.should.have.property("statusCode", 200);
           res.body.data.map((item) => {
             permissionId = item.items[0].id;
+            teamPermissionId = item.items[1].id;
             item.should.have.property("logo");
             item.should.have.property("name");
             item.should.have.property("items");
@@ -512,10 +512,24 @@ describe("Tisc team profile API ", () => {
     });
   });
   describe("Update permission", () => {
-    it("Success", (done) => {
+    it("Update admin permission", (done) => {
       chai
         .request(HOST_URL)
         .put(`/permission/open-close/${permissionId}`)
+        .set({ Authorization: `Bearer ${tiscAdminToken}` })
+        .end((_err, res) => {
+          res.should.have.status(400);
+          res.should.be.json;
+          res.body.should.be.a("object");
+          res.body.should.have.property("statusCode", 400);
+          res.body.should.have.property("message");
+          done();
+        });
+    });
+    it("Success", (done) => {
+      chai
+        .request(HOST_URL)
+        .put(`/permission/open-close/${teamPermissionId}`)
         .set({ Authorization: `Bearer ${tiscAdminToken}` })
         .end((_err, res) => {
           res.should.have.status(200);
