@@ -9,7 +9,6 @@ import {
 import { toWebp } from "../../helper/image.helper";
 import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
-import CategoryModel from "../../model/category.model";
 import ProductModel, {
   IProductAttributes,
   PRODUCT_NULL_ATTRIBUTES,
@@ -18,7 +17,6 @@ import { deleteFile, isExists, upload } from "../../service/aws.service";
 import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
-  IAttributeGroup,
   IBrandProductSummary,
   IProductRequest,
   IProductResponse,
@@ -34,7 +32,6 @@ export default class ProductService {
   private brandModel: BrandModel;
   private collectionModel: CollectionModel;
   private categoryService: CategoryService;
-  private categoryModel: CategoryModel;
   private basisService: BasisService;
   private countryStateCityService: CountryStateCityService;
 
@@ -43,7 +40,6 @@ export default class ProductService {
     this.brandModel = new BrandModel();
     this.collectionModel = new CollectionModel();
     this.categoryService = new CategoryService();
-    this.categoryModel = new CategoryModel();
     this.basisService = new BasisService();
     this.countryStateCityService = new CountryStateCityService();
   }
@@ -163,7 +159,7 @@ export default class ProductService {
       await this.productModel.update(createdProduct.id, {
         images: imagePaths,
       });
-      return resolve(this.get(createdProduct.id, user_id));
+      return resolve(await this.get(createdProduct.id, user_id));
     });
   };
   public duplicate = (
@@ -220,7 +216,7 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(created.id, user_id));
+      return resolve(await this.get(created.id, user_id));
     });
   public update = (
     id: string,
@@ -354,7 +350,7 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(id, user_id));
+      return resolve(await this.get(id, user_id));
     });
   };
   public get = (

@@ -69,6 +69,7 @@ describe("Document API ", () => {
             "type",
             "title",
             "document",
+            "number",
             "created_at",
             "created_by",
             "updated_at"
@@ -170,6 +171,7 @@ describe("Document API ", () => {
             "type",
             "title",
             "document",
+            "number",
             "created_at",
             "created_by",
             "updated_at"
@@ -238,6 +240,7 @@ describe("Document API ", () => {
             "type",
             "title",
             "document",
+            "number",
             "created_at",
             "created_by",
             "updated_at"
@@ -284,6 +287,7 @@ describe("Document API ", () => {
             "type",
             "title",
             "document",
+            "number",
             "created_at",
             "created_by",
             "updated_at"

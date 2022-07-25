@@ -338,12 +338,10 @@ describe("Product tip API ", () => {
           ],
         })
         .end((_err, res) => {
-          res.should.have.status(400);
+          res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("statusCode", 400);
-          res.body.should.have.property("error");
-          res.body.should.have.property("message");
+          res.body.should.have.property("statusCode", 200);
           done();
         });
     });
@@ -395,11 +393,10 @@ describe("Product tip API ", () => {
           ],
         })
         .end((_err, res) => {
-          res.should.have.status(404);
+          res.should.have.status(200);
           res.should.be.json;
           res.body.should.be.a("object");
-          res.body.should.have.property("statusCode", 404);
-          res.body.should.have.property("message");
+          res.body.should.have.property("statusCode", 200);
           done();
         });
     });
