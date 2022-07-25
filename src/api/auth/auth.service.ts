@@ -27,15 +27,19 @@ import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
 import BrandModel from "../../model/brand.model";
+import { getAccessLevel } from "../../helper/common.helper";
+import DesignModel from "../../model/designer.model"
 
 class AuthService {
   private userModel: UserModel;
   private mailService: MailService;
   private brandModel: BrandModel;
+  private designModel: DesignModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
     this.brandModel = new BrandModel();
+    this.designModel = new DesignModel();
   }
 
   public login = (
@@ -289,6 +293,8 @@ class AuthService {
           statusCode: 400,
         });
       }
+      //create design firm
+      const lastDeletedDesign = await this.designModel.getLastDeleted(payload.email)
 
       const saltHash = createHashWithSalt(payload.password);
       const password = saltHash.hash;
@@ -307,12 +313,12 @@ class AuthService {
         lastname: payload.lastname,
         password,
         email: payload.email,
-        role_id: ROLES.TISC_CONSULTANT_TEAM,
+        role_id: ROLES.DESIGN_ADMIN,
         is_verified: false,
-        access_level: "Consultant Team",
+        access_level: getAccessLevel(ROLES.DESIGN_ADMIN),
         verification_token: verificationToken,
-        status: USER_STATUSES.ACTIVE,
-        type: SYSTEM_TYPE.TISC,
+        status: USER_STATUSES.PENDING,
+        type: SYSTEM_TYPE.DESIGN,
       });
       if (!createdUser) {
         return resolve({

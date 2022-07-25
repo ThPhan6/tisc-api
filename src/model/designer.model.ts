@@ -28,10 +28,10 @@ export const DESIGN_NULL_ATTRIBUTES = {
   profile_n_philosophy: null,
   official_website: null,
   design_capabilities: null,
-  team_profile_ids: null,
-  location_ids: null,
-  material_code_ids: null,
-  project_ids: null,
+  team_profile_ids: [],
+  location_ids: [],
+  material_code_ids: [],
+  project_ids: [],
   status: null,
   created_at: null,
   updated_at: null,
@@ -42,4 +42,18 @@ export default class DesignerModel extends Model<IDesignerAttributes> {
   constructor() {
     super("designers");
   }
+  public getLastDeleted = async (
+    email: string
+  ): Promise<IDesignerAttributes | false> => {
+    try {
+      const result: IDesignerAttributes = await this.getBuilder()
+        .builder.where("is_deleted", true)
+        .where("email", email)
+        .orderBy("created_at", "DESC")
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }
