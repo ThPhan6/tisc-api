@@ -153,7 +153,7 @@ const seed = async (db) => {
         id: uuid(),
         logo: LOGO_PATH.GENERAL_INQUIRY,
         type: DOCUMENTATION_TYPES.BRAND_HOW_TO,
-        title: "General Inquries",
+        title: "General Inquiries",
         created_at: moment(),
         number: 4,
       },
