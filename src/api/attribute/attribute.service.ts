@@ -408,7 +408,7 @@ export default class AttributeService {
           statusCode: 400,
         });
       }
-      return resolve(this.get(id));
+      return resolve(await this.get(id));
     });
   };
   public delete = (id: string): Promise<IMessageResponse> => {
