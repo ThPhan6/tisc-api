@@ -10,13 +10,16 @@ import {
   ICollectionsResponse,
 } from "./collection.type";
 import MarketAvailabilityService from "../../api/market_availability/market_availability.service";
+import ProductModel from "../../model/product.model";
 
 export default class CollectionService {
   private collectionModel: CollectionModel;
   private marketAvailabilityService: MarketAvailabilityService;
+  private productModel: ProductModel;
   constructor() {
     this.collectionModel = new CollectionModel();
     this.marketAvailabilityService = new MarketAvailabilityService();
+    this.productModel = new ProductModel();
   }
   public create = (
     payload: ICollectionRequest
@@ -103,6 +106,13 @@ export default class CollectionService {
         return resolve({
           message: MESSAGES.COLLECTION_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+      const product = await this.productModel.findBy({ collection_id: id });
+      if (product) {
+        return resolve({
+          message: MESSAGES.CANNOT_DELETE_COLLECTION_HAS_PRODUCT,
+          statusCode: 400,
         });
       }
       const result = await this.collectionModel.update(id, {
