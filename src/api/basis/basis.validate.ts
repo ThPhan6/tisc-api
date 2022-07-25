@@ -37,7 +37,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis conversion group item is required"
+            "Basis conversion sub-group name is required"
           )
         ),
     },
@@ -74,7 +74,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis conversion group item is required"
+            "Basis conversion sub-group is required"
           )
         ),
     },
@@ -96,7 +96,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis option group item name is required"
+                "Basis option sub-group name is required"
               )
             ),
           is_have_image: Joi.valid(true, false),
@@ -122,7 +122,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis option group item is required"
+            "Basis option sub-group is required"
           )
         ),
     },
@@ -150,7 +150,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis option group item name is required"
+                "Basis option sub-group name is required"
               )
             ),
           is_have_image: Joi.valid(true, false),
@@ -177,7 +177,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis option group item is required"
+            "Basis option sub-group is required"
           )
         ),
     },
@@ -238,7 +238,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis preset group item name is required"
+                "Basis preset sub-group name is required"
               )
             ),
           subs: Joi.array()
@@ -258,7 +258,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis preset group item is required"
+            "Basis preset sub-group is required"
           )
         ),
     },
@@ -284,7 +284,7 @@ export default {
             .required()
             .error(
               commonFailValidatedMessageFunction(
-                "Basis preset group item name is required"
+                "Basis preset sub-group name is required"
               )
             ),
           subs: Joi.array()
@@ -305,7 +305,7 @@ export default {
         .required()
         .error(
           commonFailValidatedMessageFunction(
-            "Basis preset group item is required"
+            "Basis preset sub-group is required"
           )
         ),
     },
