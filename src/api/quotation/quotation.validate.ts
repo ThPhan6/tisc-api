@@ -15,14 +15,14 @@ export default {
       quotation: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Quotation is required")),
+        .error(commonFailValidatedMessageFunction("Quote is required")),
     },
   },
   update: {
     params: {
       id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Quotation id is required")),
+        .error(commonFailValidatedMessageFunction("Quote id is required")),
     },
     payload: {
       author: Joi.string()
@@ -36,7 +36,7 @@ export default {
       quotation: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Quotation is required")),
+        .error(commonFailValidatedMessageFunction("Quote is required")),
     },
   },
 };
