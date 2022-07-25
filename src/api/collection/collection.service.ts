@@ -96,4 +96,28 @@ export default class CollectionService {
       });
     });
   };
+  public delete = (id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const collection = await this.collectionModel.find(id);
+      if (!collection) {
+        return resolve({
+          message: MESSAGES.COLLECTION_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const result = await this.collectionModel.update(id, {
+        is_deleted: true,
+      });
+      if (!result) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
 }
