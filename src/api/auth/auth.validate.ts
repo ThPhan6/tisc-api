@@ -33,9 +33,7 @@ export default {
       firstname: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("First name is required")),
-      lastname: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Last name is required")),
+      lastname: Joi.string(),
       company_name: Joi.string().allow(null, ""),
       password: Joi.string()
         .required()
