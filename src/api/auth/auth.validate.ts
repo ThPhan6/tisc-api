@@ -42,6 +42,14 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Password is required and valid")
         ),
+      confirmed_password: Joi.any()
+        .valid(Joi.ref("password"))
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Password confirmation is required and match with password"
+          )
+        ),
     },
   },
   verify: {

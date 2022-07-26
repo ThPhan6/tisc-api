@@ -21,6 +21,7 @@ export interface IForgotPasswordResponse {
 
 export interface ILoginResponse {
   token: string;
+  type?: string;
   message: string;
   statusCode?: number;
 }

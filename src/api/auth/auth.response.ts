@@ -8,6 +8,7 @@ const Joi = HapiJoi.defaults((schema) =>
 export default {
   login: Joi.object({
     token: Joi.string(),
+    type: Joi.any(),
     message: Joi.string(),
     statusCode: Joi.number(),
   }) as any,

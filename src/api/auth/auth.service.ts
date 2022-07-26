@@ -1,4 +1,8 @@
-import { BRAND_STATUSES, MESSAGES } from "./../../constant/common.constant";
+import {
+  BRAND_STATUSES,
+  DESIGN_STATUSES,
+  MESSAGES,
+} from "./../../constant/common.constant";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
   IAdminLoginRequest,
@@ -23,12 +27,18 @@ import {
   signDesignAdminToken,
   signDesignTeamToken,
 } from "../../helper/jwt.helper";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
+import {
+  ROLES,
+  TISC_ADMIN_USER_ID,
+  USER_STATUSES,
+} from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
 import BrandModel from "../../model/brand.model";
 import { getAccessLevel } from "../../helper/common.helper";
-import DesignModel from "../../model/designer.model"
+import DesignModel, {
+  DESIGN_NULL_ATTRIBUTES,
+} from "../../model/designer.model";
 
 class AuthService {
   private userModel: UserModel;
@@ -42,11 +52,17 @@ class AuthService {
     this.designModel = new DesignModel();
   }
 
-  public login = (
+  public tiscLogin = (
     payload: IAdminLoginRequest,
     type?: number
   ): Promise<ILoginResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
+      if (type && type !== SYSTEM_TYPE.TISC) {
+        return resolve({
+          message: MESSAGES.LOGIN_INCORRECT_TYPE,
+          statusCode: 400,
+        });
+      }
       const user = await this.userModel.findBy({
         email: payload.email,
       });
@@ -54,12 +70,6 @@ class AuthService {
         return resolve({
           message: MESSAGES.ACCOUNT_NOT_EXIST,
           statusCode: 404,
-        });
-      }
-      if (type && user.type !== type) {
-        return resolve({
-          message: MESSAGES.LOGIN_INCORRECT_TYPE,
-          statusCode: 400,
         });
       }
       if (!user.is_verified) {
@@ -88,9 +98,48 @@ class AuthService {
           statusCode: 200,
         });
       }
+      return resolve({
+        message: MESSAGES.USER_ROLE_NOT_FOUND,
+        statusCode: 404,
+      });
+    });
+  };
+  public login = (
+    payload: IAdminLoginRequest,
+    type?: number
+  ): Promise<ILoginResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      if (type && type === SYSTEM_TYPE.TISC) {
+        return resolve({
+          message: MESSAGES.LOGIN_INCORRECT_TYPE,
+          statusCode: 400,
+        });
+      }
+      const user = await this.userModel.findBy({
+        email: payload.email,
+      });
+      if (!user) {
+        return resolve({
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
+          statusCode: 404,
+        });
+      }
+      if (!user.is_verified) {
+        return resolve({
+          message: MESSAGES.VERIFY_ACCOUNT_FIRST,
+          statusCode: 404,
+        });
+      }
+      if (!comparePassword(payload.password, user.password || "")) {
+        return resolve({
+          message: MESSAGES.PASSWORD_NOT_CORRECT,
+          statusCode: 400,
+        });
+      }
       if (user.role_id === ROLES.BRAND_ADMIN) {
         return resolve({
           token: signBrandAdminToken(user.id),
+          type: "brand",
           message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
@@ -98,6 +147,7 @@ class AuthService {
       if (user.role_id === ROLES.BRAND_TEAM) {
         return resolve({
           token: signBrandTeamToken(user.id),
+          type: "brand",
           message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
@@ -105,6 +155,7 @@ class AuthService {
       if (user.role_id === ROLES.DESIGN_ADMIN) {
         return resolve({
           token: signDesignAdminToken(user.id),
+          type: "design",
           message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
@@ -112,6 +163,7 @@ class AuthService {
       if (user.role_id === ROLES.DESIGN_TEAM) {
         return resolve({
           token: signDesignTeamToken(user.id),
+          type: "design",
           message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
@@ -294,8 +346,39 @@ class AuthService {
         });
       }
       //create design firm
-      const lastDeletedDesign = await this.designModel.getLastDeleted(payload.email)
-
+      let createdDesign;
+      const lastDeletedDesign = await this.designModel.getLastDeleted(
+        payload.email
+      );
+      if (lastDeletedDesign !== false) {
+        createdDesign = await this.designModel.create({
+          ...DESIGN_NULL_ATTRIBUTES,
+          name: lastDeletedDesign.name,
+          parent_company: lastDeletedDesign.parent_company,
+          logo: lastDeletedDesign.logo,
+          slogan: lastDeletedDesign.slogan,
+          profile_n_philosophy: lastDeletedDesign.profile_n_philosophy,
+          official_website: lastDeletedDesign.official_website,
+          design_capabilities: lastDeletedDesign.design_capabilities,
+          team_profile_ids: lastDeletedDesign.team_profile_ids,
+          location_ids: lastDeletedDesign.location_ids,
+          material_code_ids: lastDeletedDesign.material_code_ids,
+          project_ids: lastDeletedDesign.project_ids,
+          status: DESIGN_STATUSES.ACTIVE,
+        });
+      } else {
+        createdDesign = await this.designModel.create({
+          ...DESIGN_NULL_ATTRIBUTES,
+          name: payload.company_name || payload.firstname + "Design Firm",
+          status: DESIGN_STATUSES.ACTIVE,
+        });
+      }
+      if (!createdDesign) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_CREATE,
+          statusCode: 400,
+        });
+      }
       const saltHash = createHashWithSalt(payload.password);
       const password = saltHash.hash;
       let verificationToken: string;
@@ -319,6 +402,7 @@ class AuthService {
         verification_token: verificationToken,
         status: USER_STATUSES.PENDING,
         type: SYSTEM_TYPE.DESIGN,
+        relation_id: createdDesign.id,
       });
       if (!createdUser) {
         return resolve({
@@ -326,7 +410,11 @@ class AuthService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendRegisterEmail(createdUser);
+      const tiscAdminUser = await this.userModel.find(TISC_ADMIN_USER_ID);
+      await this.mailService.sendInviteEmailTeamProfile(
+        createdUser,
+        tiscAdminUser
+      );
 
       return resolve({
         message: MESSAGES.SUCCESS,
@@ -349,6 +437,7 @@ class AuthService {
       const updatedUser = await this.userModel.update(user.id, {
         verification_token: null,
         is_verified: true,
+        status: USER_STATUSES.ACTIVE,
       });
       if (!updatedUser) {
         return resolve({

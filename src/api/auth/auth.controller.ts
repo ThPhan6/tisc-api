@@ -20,7 +20,7 @@ export default class AuthController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.authService.login(payload, SYSTEM_TYPE.TISC);
+    const response = await this.authService.tiscLogin(payload, SYSTEM_TYPE.TISC);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public brandLogin = async (

@@ -129,7 +129,7 @@ export default class MailService {
 
   public async sendInviteEmailTeamProfile(
     inviteUser: IUserAttributes | any,
-    senderUser: IUserAttributes
+    senderUser: IUserAttributes | any
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
