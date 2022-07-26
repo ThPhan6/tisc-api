@@ -33,6 +33,7 @@ export default {
       relation_id: Joi.any(),
       permissions: Joi.any(),
       brand: Joi.any(),
+      design: Joi.any(),
     }),
     statusCode: Joi.number(),
   }) as any,

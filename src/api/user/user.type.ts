@@ -35,6 +35,7 @@ export interface IUser {
   personal_mobile: string | null;
   linkedin: string | null;
   brand?: any;
+  design?: any;
 }
 
 export interface IUserResponse {

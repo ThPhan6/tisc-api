@@ -26,6 +26,7 @@ import LocationModel from "../../model/location.model";
 import { getAccessLevel } from "../../helper/common.helper";
 import PermissionService from "../../api/permission/permission.service";
 import BrandModel from "../../model/brand.model";
+import DesignModel from "../../model/designer.model";
 
 export default class UserService {
   private userModel: UserModel;
@@ -34,6 +35,7 @@ export default class UserService {
   private locationModel: LocationModel;
   private permissionService: PermissionService;
   private brandModel: BrandModel;
+  private designModel: DesignModel;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
@@ -41,6 +43,7 @@ export default class UserService {
     this.locationModel = new LocationModel();
     this.permissionService = new PermissionService();
     this.brandModel = new BrandModel();
+    this.designModel = new DesignModel();
   }
 
   public create = (
@@ -157,7 +160,7 @@ export default class UserService {
         fullname: `${user.firstname} ${user.lastname}`,
         gender: user.gender,
         location_id: user.location_id,
-        work_location: '',
+        work_location: "",
         department_id: user.department_id,
         position: user.position,
         email: user.email,
@@ -174,7 +177,6 @@ export default class UserService {
         relation_id: user.relation_id,
         phone_code: location?.phone_code || "",
         permissions,
-
       };
       /// combine work_location
       if (location) {
@@ -188,8 +190,9 @@ export default class UserService {
 
       if (user.type === SYSTEM_TYPE.BRAND) {
         const brand = await this.brandModel.find(user.relation_id || "");
+        const design = await this.designModel.find(user.relation_id || "");
         return resolve({
-          data: { ...result, brand },
+          data: { ...result, brand, design },
           statusCode: 200,
         });
       }
@@ -467,7 +470,7 @@ export default class UserService {
           );
 
           /// combine work_location
-          let workLocation = '';
+          let workLocation = "";
           if (location) {
             if (location.city_name) {
               workLocation = `${location.city_name}, `;
@@ -476,7 +479,7 @@ export default class UserService {
               workLocation += location.country_name.toUpperCase();
             }
           }
-          
+
           return {
             id: userItem.id,
             firstname: userItem.firstname,
