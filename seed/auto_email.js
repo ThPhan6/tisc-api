@@ -947,7 +947,7 @@ const seed = async (db) => {
                 <div class="content-email">
                     <div class="message-email">
                         <p>Hi <%= firstname %>,</p>
-                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{(sender firstname)}</span> has
+                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{sender_first_name}</span> has
                             invited you to join the TISC, a
                             platform and tools dedicated to
                             improving operation and increasing productivity for the design and construction industry.</p>
@@ -1093,7 +1093,7 @@ const seed = async (db) => {
                 <div class="content-email">
                     <div class="message-email">
                         <p>Hi <%= firstname %>,</p>
-                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{(sender firstname)}</span> has
+                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{sender_first_name}</span> has
                             invited you to join the TISC, a platform and tools dedicated to
                             improving operation and increasing productivity for the design and construction industry.</p>
         
@@ -1239,7 +1239,7 @@ const seed = async (db) => {
                 <div class="content-email">
                     <div class="message-email">
                         <p>Hi <%= firstname %>,</p>
-                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{(sender firstname)}</span> has
+                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{sender_first_name}</span> has
                             invited you to join the BRAND, a platform and tools dedicated to
                             improving operation and increasing productivity for the design and construction industry.</p>
         
@@ -1385,7 +1385,7 @@ const seed = async (db) => {
                 <div class="content-email">
                     <div class="message-email">
                         <p>Hi <%= firstname %>,</p>
-                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{(sender firstname)}</span> has
+                        <p style="line-height: 2;" class="pb-15"><span class="text-blue-light">{sender_first_name}</span> has
                             invited you to join the DESIGN FIRM, a platform and tools dedicated to
                             improving operation and increasing productivity for the design and construction industry.</p>
         
