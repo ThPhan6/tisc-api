@@ -451,11 +451,11 @@ export default class ProductService {
         []
       );
 
-      const rawCollectionIds = allProduct.reduce(
-        (pre: string[], cur: IProductAttributes) => {
-          return pre.concat(cur.collection_id || "");
-        },
-        []
+      const collections = await this.collectionModel.getAllBy(
+        { brand_id },
+        ["id", "name"],
+        "created_at",
+        "ASC"
       );
 
       const variants = allProduct.reduce(
@@ -473,12 +473,9 @@ export default class ProductService {
         []
       );
       const categoryIds = getDistinctArray(rawCategoryIds);
-      const collectionIds = getDistinctArray(rawCollectionIds);
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
-      const collections: { id: string; name: string }[] =
-        await this.collectionModel.getMany(collectionIds, ["id", "name"]);
       return resolve({
         data: {
           categories,
@@ -551,11 +548,11 @@ export default class ProductService {
           products = await this.productModel.getAllBy({
             brand_id,
           });
-          const rawCollectionIds = products.map((item) => item.collection_id);
-          const collectionIds = getDistinctArray(rawCollectionIds);
-          const collections = await this.collectionModel.getMany(
-            collectionIds,
-            ["id", "name"]
+          const collections = await this.collectionModel.getAllBy(
+            { brand_id },
+            ["id", "name"],
+            "created_at",
+            "ASC"
           );
           returnData = collections.map((collection) => {
             const collectionProducts = products.filter(
