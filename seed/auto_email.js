@@ -279,9 +279,9 @@ const seed = async (db) => {
                 </div>
                 <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                 </p>
-                <a class="text-blue-light" href="<%= reset_link %>">
+                <span class="text-blue-light">
                   <%= reset_link %>
-                </a>
+                </span>
               </div>
             </div>
           </div>
@@ -405,9 +405,9 @@ const seed = async (db) => {
                 </div>
                 <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                 </p>
-                <a class="text-blue-light" href="<%= reset_link %>">
-                  <%= reset_link %>
-                </a>
+                <span class="text-blue-light">
+                <%= reset_link %>
+              </span>
               </div>
             </div>
           </div>
@@ -531,9 +531,9 @@ const seed = async (db) => {
                 </div>
                 <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                 </p>
-                <a class="text-blue-light" href="<%= reset_link %>">
+                <span class="text-blue-light">
                   <%= reset_link %>
-                </a>
+                </span>
               </div>
             </div>
           </div>
@@ -783,7 +783,7 @@ const seed = async (db) => {
                         <p class="text-bold-black">Your account name: <%= email %></p>
                         <p class="pb-15">Click the below button to set your password and log in.</p>
                         <div class="button pb-30">
-                            <a href="#" class="button-account-password">Account password</a>
+                            <a href="<%= url %>" class="button-account-password">Account password</a>
                         </div>
                         <p>As a <span class="text-bold-black">Brand Admin</span> user, it is essential to complete the
                             following after logging in for
@@ -955,7 +955,7 @@ const seed = async (db) => {
                         <p class="text-bold-black">Your account name: <%= email %></p>
                         <p class="pb-15">Activate your account below.</p>
                         <div class="button pb-30">
-                            <a href="#" class="button-account-password">Set Password</a>
+                            <a href="<%= url %>" class="button-account-password">Set Password</a>
                         </div>
                         <p class="pb-20">The <span class="text-italic">How-To</span> section at the top right corner will guide
                             you through
@@ -971,7 +971,7 @@ const seed = async (db) => {
                         </div>
                         <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                         </p>
-                        <a class="text-blue-light" href=" #"><%= url %>></a>
+                        <a class="text-blue-light" href="<%= url %>"><%= url %>></a>
                     </div>
                 </div>
             </div>
@@ -1100,7 +1100,7 @@ const seed = async (db) => {
                         <p class="text-bold-black">Your account name: <%= email %></p>
                         <p class="pb-15">Activate your account below.</p>
                         <div class="button pb-30">
-                            <a href="#" class="button-account-password">Set Password</a>
+                            <a href="<%= url %>" class="button-account-password">Set Password</a>
                         </div>
                         <p class="pb-20">The <span class="text-italic">How-To</span> section at the top right corner will guide
                             you through
@@ -1116,7 +1116,7 @@ const seed = async (db) => {
                         </div>
                         <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                         </p>
-                        <a class="text-blue-light" href=" #"><%= url %>></a>
+                        <span class="text-blue-light"><%= url %></span>
                     </div>
                 </div>
             </div>
@@ -1246,7 +1246,7 @@ const seed = async (db) => {
                         <p class="text-bold-black">Your account name: <%= email %></p>
                         <p class="pb-15">Activate your account below.</p>
                         <div class="button pb-30">
-                            <a href="#" class="button-account-password">Set Password</a>
+                            <a href="<%= url %>" class="button-account-password">Set Password</a>
                         </div>
                         <p class="pb-20">The <span class="text-italic">How-To</span> section at the top right corner will guide
                             you through
@@ -1262,7 +1262,7 @@ const seed = async (db) => {
                         </div>
                         <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                         </p>
-                        <a class="text-blue-light" href=" #"><%= url %>></a>
+                        <span class="text-blue-light"><%= url %></span>
                     </div>
                 </div>
             </div>
@@ -1392,7 +1392,7 @@ const seed = async (db) => {
                         <p class="text-bold-black">Your account name: <%= email %></p>
                         <p class="pb-15">Activate your account below.</p>
                         <div class="button pb-30">
-                            <a href="#" class="button-account-password">Set Password</a>
+                            <a href="<%= url %>" class="button-account-password">Set Password</a>
                         </div>
                         <p class="pb-20">The <span class="text-italic">How-To</span> section at the top right corner will guide
                             you through
@@ -1408,7 +1408,7 @@ const seed = async (db) => {
                         </div>
                         <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                         </p>
-                        <a class="text-blue-light" href=" #"><%= url %>></a>
+                        <span class="text-blue-light"><%= url %></span>
                     </div>
                 </div>
             </div>
