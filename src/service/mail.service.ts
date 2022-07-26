@@ -144,7 +144,7 @@ export default class MailService {
       const html = await ejs.render(emailAutoResponder?.message || "", {
         firstname: inviteUser.firstname,
         email: inviteUser.email,
-        sender_first_name: senderUser.firstname,
+        sender_first_name: senderUser.firstname + " " + senderUser.lastname,
         url: `${this.frontpageURL}/create-password?verification_token=${inviteUser.verification_token}&email=${inviteUser.email}`,
       });
       this.sendSmtpEmail = {
