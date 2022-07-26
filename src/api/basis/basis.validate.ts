@@ -107,10 +107,10 @@ export default {
                 then: Joi.required(),
                 otherwise: Joi.optional().allow(""),
               }),
-              value_1: Joi.string(),
-              value_2: Joi.string(),
-              unit_1: Joi.string(),
-              unit_2: Joi.string(),
+              value_1: Joi.string().allow(""),
+              value_2: Joi.string().allow(""),
+              unit_1: Joi.string().allow(""),
+              unit_2: Joi.string().allow(""),
             })
             .required()
             .error(
@@ -119,12 +119,6 @@ export default {
               )
             ),
         })
-        .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Basis option sub-group is missing"
-          )
-        ),
     },
   },
   updateBasisOption: {
@@ -162,10 +156,10 @@ export default {
                 then: Joi.required(),
                 otherwise: Joi.optional().allow(""),
               }),
-              value_1: Joi.string(),
-              value_2: Joi.string(),
-              unit_1: Joi.string(),
-              unit_2: Joi.string(),
+              value_1: Joi.string().allow(""),
+              value_2: Joi.string().allow(""),
+              unit_1: Joi.string().allow(""),
+              unit_2: Joi.string().allow(""),
             })
             .required()
             .error(
@@ -174,12 +168,6 @@ export default {
               )
             ),
         })
-        .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Basis option sub-group is missing"
-          )
-        ),
     },
   },
   getListBasisOption: {
@@ -231,36 +219,27 @@ export default {
             "Basis preset group name is missing"
           )
         ),
-      subs: Joi.array()
-        .items({
-          name: Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis preset sub-group name is missing"
-              )
-            ),
-          subs: Joi.array()
-            .items({
-              value_1: Joi.string(),
-              value_2: Joi.string(),
-              unit_1: Joi.string(),
-              unit_2: Joi.string(),
-            })
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis preset value is missing"
-              )
-            ),
-        })
-        .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Basis preset sub-group is missing"
-          )
-        ),
+      subs: Joi.array().items({
+        name: Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis preset sub-group name is missing"
+            )
+          ),
+        subs: Joi.array()
+          .items({
+            value_1: Joi.string().allow(""),
+            value_2: Joi.string().allow(""),
+            unit_1: Joi.string().allow(""),
+            unit_2: Joi.string().allow(""),
+          })
+          .required()
+          .error(
+            commonFailValidatedMessageFunction("Basis preset value is missing")
+          ),
+      }),
     },
   },
   updateBasisPreset: {
@@ -276,38 +255,29 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Basis group name is missing")
         ),
-      subs: Joi.array()
-        .items({
-          id: Joi.string(),
-          name: Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis preset sub-group name is missing"
-              )
-            ),
-          subs: Joi.array()
-            .items({
-              id: Joi.string(),
-              value_1: Joi.string(),
-              value_2: Joi.string(),
-              unit_1: Joi.string(),
-              unit_2: Joi.string(),
-            })
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis preset value is missing"
-              )
-            ),
-        })
-        .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Basis preset sub-group is missing"
-          )
-        ),
+      subs: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis preset sub-group name is missing"
+            )
+          ),
+        subs: Joi.array()
+          .items({
+            id: Joi.string(),
+            value_1: Joi.string().allow(""),
+            value_2: Joi.string().allow(""),
+            unit_1: Joi.string().allow(""),
+            unit_2: Joi.string().allow(""),
+          })
+          .required()
+          .error(
+            commonFailValidatedMessageFunction("Basis preset value is missing")
+          ),
+      }),
     },
   },
   getListBasisPreset: {
