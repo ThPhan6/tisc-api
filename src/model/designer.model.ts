@@ -3,12 +3,12 @@ import Model from "./index";
 export interface IDesignerAttributes {
   id: string;
   name: string;
-  parent_company: string;
-  logo: string;
-  slogan: string;
-  profile_n_philosophy: string;
-  official_website: string;
-  design_capabilities: string;
+  parent_company: string | null;
+  logo: string | null;
+  slogan: string | null;
+  profile_n_philosophy: string | null;
+  official_website: string | null;
+  design_capabilities: string | null;
   team_profile_ids: string[];
   location_ids: string[];
   material_code_ids: string[];

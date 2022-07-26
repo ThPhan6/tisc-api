@@ -33,14 +33,20 @@ export default {
       firstname: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("First name is required")),
-      lastname: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Last name is required")),
+      lastname: Joi.string(),
       company_name: Joi.string().allow(null, ""),
       password: Joi.string()
         .required()
         .error(
           commonFailValidatedMessageFunction("Password is required and valid")
+        ),
+      confirmed_password: Joi.any()
+        .valid(Joi.ref("password"))
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Password confirmation is required and match with password"
+          )
         ),
     },
   },

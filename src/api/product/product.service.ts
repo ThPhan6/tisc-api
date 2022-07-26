@@ -132,6 +132,14 @@ export default class ProductService {
         });
       }
       const brand = await this.brandModel.find(payload.brand_id);
+      const brandName = removeSpecialChars(
+        brand?.name
+          .trim()
+          .toLowerCase()
+          .split(" ")
+          .join("-")
+          .replace(/ /g, "-") || ""
+      );
       const imagePaths = await Promise.all(
         payload.images.map(async (image, index) => {
           const mediumBuffer = await toWebp(
@@ -141,14 +149,6 @@ export default class ProductService {
           const keywords = payload.keywords.map((item) => {
             return item.trim().replace(/ /g, "-");
           });
-          const brandName = removeSpecialChars(
-            brand?.name
-              .trim()
-              .toLowerCase()
-              .split(" ")
-              .join("-")
-              .replace(/ /g, "-") || ""
-          );
           let fileName = `${brandName}-${keywords.join(
             "-"
           )}-${moment.now()}${index}`;
@@ -179,12 +179,14 @@ export default class ProductService {
         });
       }
       const brand = await this.brandModel.find(product.brand_id);
-      const brandName = brand?.name
-        .trim()
-        .toLowerCase()
-        .split(" ")
-        .join("-")
-        .replace(/ /g, "-");
+      const brandName = removeSpecialChars(
+        brand?.name
+          .trim()
+          .toLowerCase()
+          .split(" ")
+          .join("-")
+          .replace(/ /g, "-") || ""
+      );
       const imageBuffers = await Promise.all(
         product.images.map(
           async (image: string) => await getBufferFile(image.slice(1))
@@ -196,14 +198,6 @@ export default class ProductService {
           const keywords = product.keywords.map((item) => {
             return item.trim().replace(/ /g, "-");
           });
-          const brandName = removeSpecialChars(
-            brand?.name
-              .trim()
-              .toLowerCase()
-              .split(" ")
-              .join("-")
-              .replace(/ /g, "-") || ""
-          );
           let fileName = `${brandName}-${keywords
             .concat(["copy"])
             .join("-")}-${moment.now()}${index}`;
@@ -306,16 +300,21 @@ export default class ProductService {
         const bufferImages = await Promise.all(
           payload.images.map(async (image) => {
             const fileType = await getFileTypeFromBase64(image);
-            if (!fileType && (await isExists(image.slice(1)))) {
-              return await getBufferFile(image.slice(1));
+            if (!fileType) {
+              const isExisted = await isExists(image.slice(1));
+              if (isExisted) {
+                return await getBufferFile(image.slice(1));
+              }
+              isValidImage = false;
+              return false;
             }
             if (
-              (!fileType && !(await isExists(image.slice(1)))) ||
               !VALID_IMAGE_TYPES.find(
                 (validType) => validType === fileType.mime
               )
             ) {
               isValidImage = false;
+              return false;
             }
             return Buffer.from(image, "base64");
           })
@@ -452,11 +451,11 @@ export default class ProductService {
         []
       );
 
-      const rawCollectionIds = allProduct.reduce(
-        (pre: string[], cur: IProductAttributes) => {
-          return pre.concat(cur.collection_id || "");
-        },
-        []
+      const collections = await this.collectionModel.getAllBy(
+        { brand_id },
+        ["id", "name"],
+        "created_at",
+        "ASC"
       );
 
       const variants = allProduct.reduce(
@@ -474,12 +473,9 @@ export default class ProductService {
         []
       );
       const categoryIds = getDistinctArray(rawCategoryIds);
-      const collectionIds = getDistinctArray(rawCollectionIds);
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
-      const collections: { id: string; name: string }[] =
-        await this.collectionModel.getMany(collectionIds, ["id", "name"]);
       return resolve({
         data: {
           categories,
@@ -552,11 +548,11 @@ export default class ProductService {
           products = await this.productModel.getAllBy({
             brand_id,
           });
-          const rawCollectionIds = products.map((item) => item.collection_id);
-          const collectionIds = getDistinctArray(rawCollectionIds);
-          const collections = await this.collectionModel.getMany(
-            collectionIds,
-            ["id", "name"]
+          const collections = await this.collectionModel.getAllBy(
+            { brand_id },
+            ["id", "name"],
+            "created_at",
+            "ASC"
           );
           returnData = collections.map((collection) => {
             const collectionProducts = products.filter(

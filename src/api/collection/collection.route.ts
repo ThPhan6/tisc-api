@@ -58,7 +58,7 @@ export default class CollectionRoute implements IRoute {
             handler: controller.delete,
             validate: commonValidate.getOne,
             description: "Method that delete collection",
-            tags: ["api", "Documentation"],
+            tags: ["api", "Collection"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
