@@ -6,7 +6,11 @@ import {
 import ProjectModel, {
   PROJECT_NULL_ATTRIBUTES,
 } from "../../model/project.model";
-import { IProjectRequest, IProjectResponse } from "./project.type";
+import {
+  IProjectRequest,
+  IProjectResponse,
+  IProjectsResponse,
+} from "./project.type";
 import ProjectTypeModel, {
   PROJECT_TYPE_NULL_ATTRIBUTES,
 } from "../../model/project_type.model";
@@ -235,7 +239,7 @@ export default class ProjectService {
         construction_start: payload.construction_start,
 
         design_id: user.relation_id || "",
-        status: PROJECT_STATUS.LIVE,
+        status: payload.status,
       });
       if (!createdProject) {
         return resolve({
@@ -255,8 +259,61 @@ export default class ProjectService {
           statusCode: 404,
         });
       }
+      const { is_deleted, design_id, ...rest } = project;
       return resolve({
-        data: project,
+        data: rest,
+        statusCode: 200,
+      });
+    });
+  public getList = (
+    user_id: string,
+    limit: number,
+    offset: number,
+    filter: any,
+    sort: any
+  ): Promise<IProjectsResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const projects = await this.projectModel.listV2(
+        limit,
+        offset,
+        { ...filter, design_id: user.relation_id },
+        sort
+      );
+      const result = await Promise.all(
+        projects.map(async (project) => {
+          const users = await this.userModel.getMany(project.team_profile_ids, [
+            "id",
+            "firstname",
+            "logo",
+          ]);
+          return {
+            id: project.id,
+            code: project.code,
+            name: project.name,
+            location: project.location,
+            project_type: project.project_type,
+            building_type: project.building_type,
+            design_due: project.design_due,
+            status: project.status,
+            teams: users,
+          };
+        })
+      );
+      const pagination = await this.projectModel.getPagination(limit, offset, {
+        design_id: user.relation_id,
+      });
+      return resolve({
+        data: {
+          projects: result,
+          pagination,
+        },
         statusCode: 200,
       });
     });

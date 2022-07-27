@@ -66,6 +66,56 @@ export default class Model<IModelData> {
     }
   };
 
+  public listV2 = async (
+    limit: number,
+    offset: number,
+    filter: any,
+    sort?: any,
+    join?: {
+      key: string;
+      collection: string;
+    }
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any;
+      if (sort) {
+        if (join) {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .join(join.key, join.collection)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select();
+      } else {
+        if (join) {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .join(join.key, join.collection)
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .paginate(limit, offset)
+            .select();
+        }
+      }
+      return result;
+    } catch (err) {
+      return [];
+    }
+  };
+
   public create = async (params: Omit<IModelData, "id" | "created_at">) => {
     try {
       const id = uuidv4();

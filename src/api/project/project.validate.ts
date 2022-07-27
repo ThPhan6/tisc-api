@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { PROJECT_STATUS } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
@@ -49,6 +50,14 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Construction start is required")
         ),
+      status: Joi.number()
+        .valid(
+          PROJECT_STATUS.ARCHIVE,
+          PROJECT_STATUS.LIVE,
+          PROJECT_STATUS.ON_HOLD
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status is required")),
     },
   },
   update: {

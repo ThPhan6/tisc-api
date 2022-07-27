@@ -11,9 +11,14 @@ export interface IProjectRequest {
   measurement_unit: number;
   design_due: string;
   construction_start: string;
+  status: number;
 }
 
 export interface IProjectResponse {
+  data: any;
+  statusCode: number;
+}
+export interface IProjectsResponse {
   data: any;
   statusCode: number;
 }
