@@ -34,7 +34,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/login/brand`,
+          path: `${PREFIX}/brand-design/login`,
           options: {
             handler: controller.brandLogin,
             validate: validate.login,
