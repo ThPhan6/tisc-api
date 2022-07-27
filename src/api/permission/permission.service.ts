@@ -153,12 +153,24 @@ export default class PermissionService {
           items: [
             {
               id: adminPermission?.id,
-              name: getAccessLevel(ROLES.TISC_ADMIN),
+              name: getAccessLevel(
+                user.type === SYSTEM_TYPE.TISC
+                  ? ROLES.TISC_ADMIN
+                  : user.type === SYSTEM_TYPE.BRAND
+                  ? ROLES.BRAND_ADMIN
+                  : ROLES.DESIGN_ADMIN
+              ),
               accessable: adminPermission?.accessable,
             },
             {
               id: teamPermission?.id,
-              name: getAccessLevel(ROLES.TISC_CONSULTANT_TEAM),
+              name: getAccessLevel(
+                user.type === SYSTEM_TYPE.TISC
+                  ? ROLES.TISC_CONSULTANT_TEAM
+                  : user.type === SYSTEM_TYPE.BRAND
+                  ? ROLES.BRAND_TEAM
+                  : ROLES.DESIGN_TEAM
+              ),
               accessable: teamPermission?.accessable,
             },
           ],
