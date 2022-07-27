@@ -413,10 +413,8 @@ class AuthService {
           statusCode: 400,
         });
       }
-      const tiscAdminUser = await this.userModel.find(TISC_ADMIN_USER_ID);
-      await this.mailService.sendInviteEmailTeamProfile(
-        createdUser,
-        tiscAdminUser
+      await this.mailService.sendDesignRegisterEmail(
+        createdUser
       );
       await this.permissionService.createDesignPermission(createdDesign.id);
       return resolve({

@@ -163,4 +163,32 @@ export default class MailService {
         .then(() => this.exeAfterSend(resolve));
     });
   }
+  public async sendDesignRegisterEmail(
+    user: IUserAttributes | any
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+        title: "Successfully signed-up!",
+      });
+      const html = await ejs.render(emailAutoResponder?.message || "", {
+        firstname: user.firstname,
+        email: user.email,
+        verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}&email=${user.email}`,
+      });
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: "Welcome to the team!",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
 }
