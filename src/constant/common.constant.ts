@@ -131,7 +131,12 @@ export const MESSAGES = {
   CITY_REQUIRED: "City is required.",
   STATE_NOT_IN_COUNTRY: "State not in country",
   CITY_NOT_IN_STATE: "City not in state",
+  COUNTRY_STATE_CITY_NOT_FOUND:
+    "Not found location, please check country state city id",
   CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
+  PROJECT_EXISTED: "Project existed",
+  PROJECT_NOT_FOUND: "Project not found",
+  JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
 };
 
 export const BASIS_TYPES = {
@@ -255,3 +260,37 @@ export const LOGO_PATH = {
   OFFICE: "/logo/office.svg",
   MATERIAL: "/logo/material.svg",
 };
+
+export const PROJECT_STATUS = {
+  ARCHIVE: 1,
+  LIVE: 2,
+  ON_HOLD: 3,
+};
+export const PROJECT_STATUS_OPTIONS = [
+  {
+    key: "Live",
+    value: PROJECT_STATUS.LIVE,
+  },
+  {
+    key: "On Hold",
+    value: PROJECT_STATUS.ON_HOLD,
+  },
+  {
+    key: "Archive",
+    value: PROJECT_STATUS.ARCHIVE,
+  },
+];
+export const MEASUREMENT_UNIT = {
+  IMPERIAL: 1,
+  METRIC: 2,
+};
+export const MEASUREMENT_UNIT_OPTIONS = [
+  {
+    key: "Metric",
+    value: MEASUREMENT_UNIT.METRIC,
+  },
+  {
+    key: "Imperial",
+    value: MEASUREMENT_UNIT.IMPERIAL,
+  },
+];

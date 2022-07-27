@@ -173,6 +173,8 @@ export const ROUTES = {
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
   DELETE_COLLECTION: "/api/collection/delete/{id}",
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
+  GET_PROJECT_TYPES: "/api/project/project-types",
+  GET_BUILDING_TYPES: "/api/project/building-types",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -342,4 +344,6 @@ export const ROUTE_IDS = {
   GET_ALL_BRAND_SUMMARY: "156",
   DELETE_COLLECTION: "157",
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "158",
+  GET_PROJECT_TYPES: "159",
+  GET_BUILDING_TYPES: "160",
 };

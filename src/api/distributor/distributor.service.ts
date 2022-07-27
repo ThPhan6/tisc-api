@@ -153,7 +153,7 @@ export default class DistributorService {
         );
       if (countryStateCity === false) {
         return resolve({
-          message: "Not found location, please check country state city id",
+          message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
           statusCode: 400,
         });
       }
@@ -354,7 +354,7 @@ export default class DistributorService {
           );
         if (countryStateCity === false) {
           return resolve({
-            message: "Not found location, please check country state city id",
+            message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
             statusCode: 400,
           });
         }

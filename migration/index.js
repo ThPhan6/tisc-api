@@ -27,6 +27,10 @@ const migrate = async () => {
   await migrate_table("countries");
   await migrate_table("states");
   await migrate_table("cities");
+
+  await migrate_table("projects");
+  await migrate_table("project_types");
+  await migrate_table("building_types");
 };
 
 migrate();

@@ -14,6 +14,8 @@ const seedFunctionalType = require("./functional_type.seed").seed;
 const seedDocumentation = require("./documentation.seed").seed;
 const seedDepartment = require("./department.seed").seed;
 const seedDesigner = require("./designer.seed").seed;
+const seedProjectType = require("./project_type.seed").seed;
+const seedBuildingType = require("./building_type.seed").seed;
 
 dotenv.config();
 
@@ -31,12 +33,14 @@ const seed = async () => {
   // await seedPermissionRoute(db);
   // await seedBrand(db);
   // await seedBasis(db);
-  await seedAutoEmail(db);
+  // await seedAutoEmail(db);
   // await seedFunctionalType(db);
   // await seedDepartment(db);
   // await seedDesigner(db);
   // await seed1(db);
   // await seed2(db);
+  await seedProjectType(db);
+  await seedBuildingType(db);
 };
 
 seed();

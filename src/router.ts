@@ -19,6 +19,7 @@ import AutoEmailRoute from "./api/auto_email/auto_email.route";
 import DistributorRoute from "./api/distributor/distributor.route";
 import MarketAvailabilityRoute from "./api/market_availability/market_availability.route";
 import ProductCatelogueNDownloadRoute from "./api/product_catelogue_n_download/route";
+import ProjectRoute from "./api/project/project.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -42,5 +43,6 @@ export default class Router {
     await new DistributorRoute().register(server);
     await new MarketAvailabilityRoute().register(server);
     await new ProductCatelogueNDownloadRoute().register(server);
+    await new ProjectRoute().register(server);
   }
 }

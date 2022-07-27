@@ -205,6 +205,8 @@ const ROUTES = {
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
   DELETE_COLLECTION: "/api/collection/delete/{id}",
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
+  GET_PROJECT_TYPES: "/api/project/project-types",
+  GET_BUILDING_TYPES: "/api/project/building-types",
 };
 const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -375,6 +377,8 @@ const ROUTE_IDS = {
   GET_ALL_BRAND_SUMMARY: "156",
   DELETE_COLLECTION: "157",
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "158",
+  GET_PROJECT_TYPES: "159",
+  GET_BUILDING_TYPES: "160",
 };
 
 const USER_STATUSES = {
@@ -463,6 +467,14 @@ const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
   created_at: null,
   is_deleted: false,
   type: 0,
+};
+const PROJECT_TYPE_NULL_ATTRIBUTES = {
+  id: "",
+  name: "",
+  created_at: "",
+  is_deleted: false,
+  type: 0,
+  relation_id: "",
 };
 const BASIS_NULL_ATTRIBUTES = {
   id: null,
@@ -558,6 +570,14 @@ const LOGO_PATH = {
   OFFICE: "/logo/office.svg",
   MATERIAL: "/logo/material.svg",
 };
+const BUILDING_TYPE_NULL_ATTRIBUTES = {
+  id: "",
+  name: "",
+  created_at: "",
+  is_deleted: false,
+  type: 0,
+  relation_id: "",
+};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -581,4 +601,6 @@ module.exports = {
   DOCUMENTATION_NULL_ATTRIBUTES,
   DOCUMENTATION_TYPES,
   LOGO_PATH,
+  PROJECT_TYPE_NULL_ATTRIBUTES,
+  BUILDING_TYPE_NULL_ATTRIBUTES,
 };
