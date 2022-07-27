@@ -953,6 +953,7 @@ export default class PermissionService {
           await this.permissionModel.create(record);
         })
       );
+      return resolve(true);
     });
   };
 }

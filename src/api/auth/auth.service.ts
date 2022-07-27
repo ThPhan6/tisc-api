@@ -39,17 +39,20 @@ import { getAccessLevel } from "../../helper/common.helper";
 import DesignModel, {
   DESIGN_NULL_ATTRIBUTES,
 } from "../../model/designer.model";
+import PermissionService from "../permission/permission.service";
 
 class AuthService {
   private userModel: UserModel;
   private mailService: MailService;
   private brandModel: BrandModel;
   private designModel: DesignModel;
+  private permissionService: PermissionService;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
     this.brandModel = new BrandModel();
     this.designModel = new DesignModel();
+    this.permissionService = new PermissionService();
   }
 
   public tiscLogin = (
@@ -415,7 +418,7 @@ class AuthService {
         createdUser,
         tiscAdminUser
       );
-
+      await this.permissionService.createDesignPermission(createdDesign.id);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,

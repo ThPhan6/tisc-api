@@ -123,25 +123,21 @@ export default class ProductModel extends Model<IProductAttributes> {
   };
   public getAllByCategoryId = async (
     category_id: string,
-    brand_id?: string
+    brand_id?: string,
+    name?: string
   ) => {
     try {
-      let result: IProductAttributes[] = [];
+      let result = this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .whereInRevert("category_ids", category_id);
       if (brand_id) {
-        result = await this.getBuilder()
-          .builder.whereNot("is_deleted", true)
-          .where("brand_id", brand_id)
-          .whereInRevert("category_ids", category_id)
-          .orderBy("created_at", "DESC")
-          .select();
-      } else {
-        result = await this.getBuilder()
-          .builder.whereNot("is_deleted", true)
-          .whereInRevert("category_ids", category_id)
-          .orderBy("created_at", "DESC")
-          .select();
+        result = result.where("brand_id", brand_id);
       }
-      return result;
+      if (name) {
+        result = result.whereLike("name", name);
+      }
+      result = await result.orderBy("created_at", "DESC").select();
+      return result as any;
     } catch (error) {
       return [];
     }
@@ -156,6 +152,29 @@ export default class ProductModel extends Model<IProductAttributes> {
         .orderBy("created_at", "ASC")
         .select();
       return result;
+    } catch (error) {
+      return [];
+    }
+  };
+  public getAllByAndNameLike = async (
+    params: any,
+    keys?: string[],
+    sort_name?: string,
+    sort_order?: "ASC" | "DESC",
+    name?: string
+  ): Promise<IProductAttributes[]> => {
+    try {
+      let result = this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params);
+      if (sort_name && sort_order) {
+        result = result.orderBy(sort_name, sort_order);
+      }
+      if (name) {
+        result = result.whereLike("name", name);
+      }
+      result = await result.select(keys);
+      return result as any;
     } catch (error) {
       return [];
     }

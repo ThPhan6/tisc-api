@@ -18,6 +18,20 @@ export default class ProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListDesignerBrandProducts = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { category_id, brand_id, name } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListDesignerBrandProducts(
+      userId,
+      brand_id,
+      category_id,
+      name
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getBrandProductSummary = async (
     req: Request,
     toolkit: ResponseToolkit

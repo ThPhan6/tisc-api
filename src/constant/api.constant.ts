@@ -172,6 +172,7 @@ export const ROUTES = {
   GET_ALL_HOWTO: "/api/documentation/howto/get-all",
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
   DELETE_COLLECTION: "/api/collection/delete/{id}",
+  GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -340,4 +341,5 @@ export const ROUTE_IDS = {
   GET_ALL_HOWTO: "155",
   GET_ALL_BRAND_SUMMARY: "156",
   DELETE_COLLECTION: "157",
+  GET_LIST_DESIGNER_BRAND_PRODUCTS: "158",
 };

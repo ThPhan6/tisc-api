@@ -603,6 +603,133 @@ export default class ProductService {
       });
     });
   };
+  public getListDesignerBrandProducts = (
+    user_id: string,
+    brand_id: any,
+    category_id: any,
+    name?: string
+  ): Promise<IMessageResponse | IProductsResponse> => {
+    return new Promise(async (resolve) => {
+      let products: any[] = [];
+      let returnData: any[] = [];
+      if (!category_id && !brand_id) {
+        brand_id = "all";
+      }
+      if (category_id) {
+        if (category_id === "all") {
+          products = await this.productModel.getAllByAndNameLike(
+            {},
+            undefined,
+            undefined,
+            undefined,
+            name
+          );
+          const rawCategoryIds = products.reduce(
+            (pre: string[], cur: IProductAttributes) => {
+              return pre.concat(cur.category_ids || []);
+            },
+            []
+          );
+          const categoryIds = getDistinctArray(rawCategoryIds);
+          const categories = await this.categoryService.getCategoryValues(
+            categoryIds
+          );
+          returnData = categories.map((category) => {
+            const categoryProducts = products.filter((item) =>
+              item.category_ids.includes(category.id)
+            );
+            return {
+              ...category,
+              count: categoryProducts.length,
+              products: categoryProducts,
+            };
+          });
+        } else {
+          products = await this.productModel.getAllByCategoryId(
+            category_id,
+            brand_id
+          );
+          const category = await this.categoryService.getCategoryValues([
+            category_id,
+          ]);
+
+          returnData = [
+            {
+              id: category[0].id,
+              name: category[0].name,
+              count: products.length,
+              products,
+            },
+          ];
+        }
+      }
+      if (brand_id) {
+        if (brand_id === "all") {
+          products = await this.productModel.getAllByAndNameLike(
+            {},
+            undefined,
+            undefined,
+            undefined,
+            name
+          );
+          const brands = await this.brandModel.getAllBy(
+            {},
+            ["id", "name"],
+            "created_at",
+            "ASC"
+          );
+          returnData = brands.map((brand) => {
+            const brandProducts = products.filter(
+              (item) => item.brand_id === brand.id
+            );
+            return {
+              ...brand,
+              count: brandProducts.length,
+              products: brandProducts,
+            };
+          });
+        } else {
+          products = await this.productModel.getAllByAndNameLike(
+            {},
+            undefined,
+            undefined,
+            undefined,
+            name
+          );
+          const brand = await this.brandModel.find(brand_id);
+          returnData = [
+            {
+              id: brand?.id,
+              name: brand?.name,
+              count: products.length,
+              products,
+            },
+          ];
+        }
+      }
+      returnData = returnData.map((item) => {
+        const returnProducts = item.products?.map((product: any) => {
+          const { is_deleted, ...rest } = product;
+          return {
+            ...rest,
+            favorites: product.favorites?.length,
+            is_liked: product.favorites?.includes(user_id),
+          };
+        });
+        return {
+          ...item,
+          products: returnProducts,
+        };
+      });
+      return resolve({
+        data: {
+          data: returnData,
+          brand: await this.brandModel.find(brand_id),
+        },
+        statusCode: 200,
+      });
+    });
+  };
   public delete = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const product = await this.productModel.find(id);

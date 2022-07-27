@@ -217,6 +217,13 @@ export default {
       collection_id: Joi.string(),
     }),
   } as any,
+  getListDesignerBrandProducts: {
+    query: Joi.object({
+      category_id: Joi.string(),
+      brand_id: Joi.string(),
+      name: Joi.string(),
+    }),
+  } as any,
   getBrandProductSummary: {
     params: {
       brand_id: Joi.string()

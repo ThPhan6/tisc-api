@@ -32,6 +32,23 @@ export default class ProductRoute implements IRoute {
           },
         },
         {
+          method: "GET",
+          path: ROUTES.GET_LIST_DESIGNER_BRAND_PRODUCTS,
+          options: {
+            handler: controller.getListDesignerBrandProducts,
+            validate: validate.getListDesignerBrandProducts,
+            description: "Method that get list product for designer",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getList,
+              },
+            },
+          },
+        },
+        {
           method: "POST",
           path: ROUTES.LIKE_OR_UNLIKE_PRODUCT,
           options: {
