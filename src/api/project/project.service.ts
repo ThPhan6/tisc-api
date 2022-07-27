@@ -291,7 +291,7 @@ export default class ProjectService {
           const users = await this.userModel.getMany(project.team_profile_ids, [
             "id",
             "firstname",
-            "logo",
+            "avatar",
           ]);
           return {
             id: project.id,

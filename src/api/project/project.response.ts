@@ -11,7 +11,29 @@ export default {
     statusCode: Joi.number(),
   }) as any,
   getList: Joi.object({
-    data: Joi.any(),
+    data: Joi.object({
+      pagination: {
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      },
+      projects: Joi.array().items({
+        id: Joi.string(),
+        code: Joi.string(),
+        name: Joi.string(),
+        location: Joi.string(),
+        project_type: Joi.string(),
+        building_type: Joi.string(),
+        design_due: Joi.string(),
+        status: Joi.number(),
+        teams: Joi.array().items({
+          id: Joi.string(),
+          name: Joi.string(),
+          avatar: Joi.any(),
+        }),
+      }),
+    }),
     statusCode: Joi.number(),
   }) as any,
   getlistType: Joi.object({
