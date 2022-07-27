@@ -131,6 +131,7 @@ export const MESSAGES = {
   CITY_REQUIRED: "City is required.",
   STATE_NOT_IN_COUNTRY: "State not in country",
   CITY_NOT_IN_STATE: "City not in state",
+  CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
 };
 
 export const BASIS_TYPES = {

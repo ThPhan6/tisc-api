@@ -71,8 +71,15 @@ export const getDistinctArray = (arr: Array<string>) => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
 };
 
+type AccessLevelType =
+  | "TISC Admin"
+  | "Consultant Team"
+  | "Brand Admin"
+  | "Brand Team"
+  | "Design Admin"
+  | "Design Team";
 export const getAccessLevel = (role_id: string) => {
-  let result = "";
+  let result: AccessLevelType;
   switch (role_id) {
     case ROLES.TISC_ADMIN:
       result = "TISC Admin";

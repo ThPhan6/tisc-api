@@ -14,7 +14,7 @@ import {
   IUsersResponse,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
-import { USER_STATUSES } from "../../constant/user.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
@@ -65,6 +65,23 @@ export default class UserService {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+      // check role id
+      if (
+        (currentUser.type === SYSTEM_TYPE.TISC &&
+          (payload.role_id !== ROLES.TISC_ADMIN ||
+            payload.role_id !== ROLES.TISC_CONSULTANT_TEAM)) ||
+        (currentUser.type === SYSTEM_TYPE.BRAND &&
+          (payload.role_id !== ROLES.BRAND_ADMIN ||
+            payload.role_id !== ROLES.BRAND_TEAM)) ||
+        (currentUser.type === SYSTEM_TYPE.DESIGN &&
+          (payload.role_id !== ROLES.DESIGN_ADMIN ||
+            payload.role_id !== ROLES.DESIGN_TEAM))
+      ) {
+        return resolve({
+          message: MESSAGES.CANNOT_UPDATE_TO_OTHER_ROLE,
+          statusCode: 400,
         });
       }
       let verificationToken: string;
