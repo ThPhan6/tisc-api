@@ -317,4 +317,163 @@ export default class ProjectService {
         statusCode: 200,
       });
     });
+
+  public update = async (
+    id: string,
+    user_id: string,
+    payload: IProjectRequest
+  ): Promise<IMessageResponse | IProjectResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (user.type !== SYSTEM_TYPE.DESIGN) {
+        return resolve({
+          message: MESSAGES.JUST_DESIGNER_CAN_UPDATE,
+          statusCode: 400,
+        });
+      }
+      const foundProject = await this.projectModel.find(id);
+      if (!foundProject) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      let projectType = await this.projectTypeModel.findByNameOrId(
+        payload.project_type_id
+      );
+      if (projectType === false) {
+        projectType = await this.projectTypeModel.create({
+          ...PROJECT_TYPE_NULL_ATTRIBUTES,
+          name: payload.project_type_id,
+          type: user.type,
+          relation_id: user.relation_id || "",
+        });
+      }
+
+      let buildingType = await this.buildingTypeModel.findByNameOrId(
+        payload.building_type_id
+      );
+      if (buildingType === false) {
+        buildingType = await this.buildingTypeModel.create({
+          ...PROJECT_TYPE_NULL_ATTRIBUTES,
+          name: payload.building_type_id,
+          type: user.type,
+          relation_id: user.relation_id || "",
+        });
+      }
+      let locationParts = [];
+      if (
+        foundProject.country_id.toString() !== payload.country_id.toString()
+      ) {
+        const country = await this.countryStateCityService.getCountryDetail(
+          payload.country_id
+        );
+        if (!country) {
+          return resolve({
+            message: MESSAGES.COUNTRY_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
+      }
+      if (foundProject.state_id.toString() !== payload.state_id.toString()) {
+        const states = await this.countryStateCityService.getStatesByCountry(
+          payload.country_id
+        );
+        if (states.length >= 1) {
+          if (!payload.state_id || payload.state_id === "") {
+            return resolve({
+              message: MESSAGES.STATE_REQUIRED,
+              statusCode: 400,
+            });
+          }
+          const foundState = states.find(
+            (item) => item.id === payload.state_id
+          );
+          if (!foundState) {
+            return resolve({
+              message: MESSAGES.STATE_NOT_IN_COUNTRY,
+              statusCode: 400,
+            });
+          }
+          const state = await this.countryStateCityService.getStateDetail(
+            payload.state_id
+          );
+          if (!state) {
+            return resolve({
+              message: MESSAGES.STATE_NOT_FOUND,
+              statusCode: 404,
+            });
+          }
+          const cities =
+            await this.countryStateCityService.getCitiesByStateAndCountry(
+              payload.country_id,
+              payload.state_id
+            );
+          if (cities.length >= 1) {
+            if (!payload.city_id || payload.city_id === "") {
+              return resolve({
+                message: MESSAGES.CITY_REQUIRED,
+                statusCode: 400,
+              });
+            }
+            const foundCity = cities.find(
+              (item) => item.id === payload.city_id
+            );
+            if (!foundCity) {
+              return resolve({
+                message: MESSAGES.CITY_NOT_IN_STATE,
+                statusCode: 400,
+              });
+            }
+          }
+        }
+      }
+      const countryStateCity =
+        await this.countryStateCityService.getCountryStateCity(
+          payload.country_id,
+          payload.city_id,
+          payload.state_id
+        );
+      if (countryStateCity === false) {
+        return resolve({
+          message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
+          statusCode: 400,
+        });
+      }
+      if (countryStateCity.city_name && countryStateCity.city_name !== "") {
+        locationParts.push(countryStateCity.city_name);
+      }
+      locationParts.push(countryStateCity.country_name);
+      const updatedProject = await this.projectModel.update(id, {
+        ...payload,
+        location: locationParts.join(", "),
+        country_id: countryStateCity.country_id,
+        state_id: countryStateCity.state_id,
+        city_id: countryStateCity.city_id,
+        country_name: countryStateCity.country_name,
+        state_name: countryStateCity.state_name,
+        city_name: countryStateCity.city_name,
+        phone_code: countryStateCity.phone_code,
+        project_type: projectType.name,
+        project_type_id: projectType.id,
+        building_type: buildingType.name,
+        building_type_id: buildingType.id,
+        design_id: user.relation_id || "",
+      });
+      if (!updatedProject) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve(await this.get(id));
+    });
+  };
 }
