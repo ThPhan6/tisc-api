@@ -201,7 +201,7 @@ export default class UserRoute implements IRoute {
           options: {
             handler: controller.getInterestedOptions,
             description: "Method that get interested options",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
