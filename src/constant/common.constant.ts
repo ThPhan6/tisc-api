@@ -134,7 +134,7 @@ export const MESSAGES = {
   COUNTRY_STATE_CITY_NOT_FOUND:
     "Not found location, please check country state city id",
   CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
-  PROJECT_EXISTED: "Project existed",
+  PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE: "Just owner can update project",
