@@ -68,7 +68,7 @@ export const MESSAGES = {
   USER_NOT_FOUND: "User not found",
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
-  VERIFICATION_LINK_HAS_EXPIRED: "Verification link has expired",
+  VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_NOT_IN_WORKSPACE: "User not in this work space",
   AVATAR_NOT_VALID: "Avatar not valid",
@@ -137,7 +137,7 @@ export const MESSAGES = {
   PROJECT_EXISTED: "Project existed",
   PROJECT_NOT_FOUND: "Project not found",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
-  JUST_OWNER_CAN_UPDATE: "Just owner of project can update",
+  JUST_OWNER_CAN_UPDATE: "Just owner can update project",
   JUST_OWNER_CAN_DELETE: "Just owner can delete project",
 };
 

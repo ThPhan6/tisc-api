@@ -154,7 +154,7 @@ export default class ProjectRoute implements IRoute {
             validate: commonValidate.getOne,
             description: "Method that delete project",
             tags: ["api", "Project"],
-            auth: AUTH_NAMES.PERMISSION,
+            // auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

@@ -175,6 +175,7 @@ export const ROUTES = {
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
   GET_PROJECT_TYPES: "/api/project/project-types",
   GET_BUILDING_TYPES: "/api/project/building-types",
+  GET_PRODUCT_OPTIONS: "/api/product/{id}/attribute/{attribute_id}/get-options",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
