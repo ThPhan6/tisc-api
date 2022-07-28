@@ -34,6 +34,7 @@ export default {
       permissions: Joi.any(),
       brand: Joi.any(),
       design: Joi.any(),
+      interested: Joi.any(),
     }),
     statusCode: Joi.number(),
   }) as any,

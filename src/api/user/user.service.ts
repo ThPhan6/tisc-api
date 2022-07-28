@@ -194,6 +194,7 @@ export default class UserService {
         relation_id: user.relation_id,
         phone_code: location?.phone_code || "",
         permissions,
+        interested: user.interested || [],
       };
       /// combine work_location
       if (location) {
