@@ -540,15 +540,15 @@ export default class ProjectService {
           statusCode: 404,
         });
       }
-      // if (
-      //   user.type !== SYSTEM_TYPE.DESIGN ||
-      //   foundProject.design_id !== user.relation_id
-      // ) {
-      //   return resolve({
-      //     message: MESSAGES.JUST_OWNER_CAN_DELETE,
-      //     statusCode: 400,
-      //   });
-      // }
+      if (
+        user.type !== SYSTEM_TYPE.DESIGN ||
+        foundProject.design_id !== user.relation_id
+      ) {
+        return resolve({
+          message: MESSAGES.JUST_OWNER_CAN_DELETE,
+          statusCode: 400,
+        });
+      }
 
       const updatedProject = await this.projectModel.update(id, {
         is_deleted: true,
