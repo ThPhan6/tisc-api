@@ -137,3 +137,9 @@ export interface IProductOptionResponse {
   data: IProductOption[];
   statusCode: number;
 }
+
+export interface IProductAssignToProject {
+  product_id: string;
+  project_id: string;
+  project_zone_ids: string[];
+}

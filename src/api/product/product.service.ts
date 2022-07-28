@@ -23,6 +23,7 @@ import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
   IBrandProductSummary,
+  IProductAssignToProject,
   IProductOptionAttribute,
   IProductOptionResponse,
   IProductRequest,
@@ -34,6 +35,7 @@ import {
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
 import BasisModel from "../../model/basis.model";
+import ProjectModel from "../../model/project.model";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -43,6 +45,7 @@ export default class ProductService {
   private basisService: BasisService;
   private countryStateCityService: CountryStateCityService;
   private basisModel: BasisModel;
+  private projectModel: ProjectModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -52,6 +55,7 @@ export default class ProductService {
     this.basisService = new BasisService();
     this.countryStateCityService = new CountryStateCityService();
     this.basisModel = new BasisModel();
+    this.projectModel = new ProjectModel();
   }
   public create = (
     user_id: string,
@@ -878,6 +882,41 @@ export default class ProductService {
       });
       return resolve({
         data: result || [],
+        statusCode: 200,
+      });
+    });
+  public assign = (
+    payload: IProductAssignToProject
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(payload.product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 400,
+        });
+      }
+      const project = await this.projectModel.find(payload.project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 400,
+        });
+      }
+      const newProductIds = project.product_ids
+        ? project.product_ids.concat([payload.product_id])
+        : [payload.product_id];
+      const updated = await this.projectModel.update(project.id, {
+        product_ids: getDistinctArray(newProductIds),
+      });
+      if (!updated) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

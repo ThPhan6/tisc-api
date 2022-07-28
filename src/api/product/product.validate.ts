@@ -245,4 +245,15 @@ export default {
         .error(commonFailValidatedMessageFunction("Attribute Id is required")),
     },
   },
+  assign: {
+    payload: {
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      project_zone_ids: Joi.array().items(Joi.string()),
+    },
+  },
 };
