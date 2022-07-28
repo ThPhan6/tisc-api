@@ -331,12 +331,6 @@ export default class ProjectService {
           statusCode: 404,
         });
       }
-      if (user.type !== SYSTEM_TYPE.DESIGN) {
-        return resolve({
-          message: MESSAGES.JUST_DESIGNER_CAN_UPDATE,
-          statusCode: 400,
-        });
-      }
       const foundProject = await this.projectModel.find(id);
       if (!foundProject) {
         return resolve({
@@ -344,30 +338,51 @@ export default class ProjectService {
           statusCode: 404,
         });
       }
-
-      let projectType = await this.projectTypeModel.findByNameOrId(
-        payload.project_type_id
-      );
-      if (projectType === false) {
-        projectType = await this.projectTypeModel.create({
-          ...PROJECT_TYPE_NULL_ATTRIBUTES,
-          name: payload.project_type_id,
-          type: user.type,
-          relation_id: user.relation_id || "",
+      if (
+        user.type !== SYSTEM_TYPE.DESIGN ||
+        user.relation_id !== foundProject.design_id
+      ) {
+        return resolve({
+          message: MESSAGES.JUST_OWNER_CAN_UPDATE,
+          statusCode: 400,
         });
       }
 
-      let buildingType = await this.buildingTypeModel.findByNameOrId(
-        payload.building_type_id
-      );
-      if (buildingType === false) {
-        buildingType = await this.buildingTypeModel.create({
-          ...PROJECT_TYPE_NULL_ATTRIBUTES,
-          name: payload.building_type_id,
-          type: user.type,
-          relation_id: user.relation_id || "",
-        });
+      let projectType;
+      if (
+        payload.project_type_id !== foundProject.project_type_id ||
+        payload.project_type_id !== foundProject.project_type
+      ) {
+        projectType = await this.projectTypeModel.findByNameOrId(
+          payload.project_type_id
+        );
+        if (projectType === false) {
+          projectType = await this.projectTypeModel.create({
+            ...PROJECT_TYPE_NULL_ATTRIBUTES,
+            name: payload.project_type_id,
+            type: user.type,
+            relation_id: user.relation_id || "",
+          });
+        }
       }
+      let buildingType;
+      if (
+        payload.building_type_id !== foundProject.building_type_id ||
+        payload.building_type_id !== foundProject.building_type
+      ) {
+        buildingType = await this.buildingTypeModel.findByNameOrId(
+          payload.building_type_id
+        );
+        if (buildingType === false) {
+          buildingType = await this.buildingTypeModel.create({
+            ...PROJECT_TYPE_NULL_ATTRIBUTES,
+            name: payload.building_type_id,
+            type: user.type,
+            relation_id: user.relation_id || "",
+          });
+        }
+      }
+
       let locationParts = [];
       if (
         foundProject.country_id.toString() !== payload.country_id.toString()
@@ -435,37 +450,90 @@ export default class ProjectService {
           }
         }
       }
-      const countryStateCity =
-        await this.countryStateCityService.getCountryStateCity(
-          payload.country_id,
-          payload.city_id,
-          payload.state_id
-        );
-      if (countryStateCity === false) {
-        return resolve({
-          message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
-          statusCode: 400,
-        });
+      let countryStateCity;
+      if (
+        payload.country_id !== foundProject.country_id ||
+        payload.city_id !== foundProject.city_id ||
+        payload.state_id !== foundProject.state_id
+      ) {
+        countryStateCity =
+          await this.countryStateCityService.getCountryStateCity(
+            payload.country_id,
+            payload.city_id,
+            payload.state_id
+          );
+        if (countryStateCity === false) {
+          return resolve({
+            message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
+            statusCode: 400,
+          });
+        }
       }
-      if (countryStateCity.city_name && countryStateCity.city_name !== "") {
-        locationParts.push(countryStateCity.city_name);
+      if (
+        payload.country_id !== foundProject.country_id ||
+        payload.state_id !== foundProject.state_id
+      ) {
+        if (countryStateCity.city_name && countryStateCity.city_name !== "") {
+          locationParts.push(countryStateCity.city_name);
+        }
+        locationParts.push(countryStateCity.country_name);
       }
-      locationParts.push(countryStateCity.country_name);
+
       const updatedProject = await this.projectModel.update(id, {
         ...payload,
-        location: locationParts.join(", "),
-        country_id: countryStateCity.country_id,
-        state_id: countryStateCity.state_id,
-        city_id: countryStateCity.city_id,
-        country_name: countryStateCity.country_name,
-        state_name: countryStateCity.state_name,
-        city_name: countryStateCity.city_name,
-        phone_code: countryStateCity.phone_code,
-        project_type: projectType.name,
-        project_type_id: projectType.id,
-        building_type: buildingType.name,
-        building_type_id: buildingType.id,
-        design_id: user.relation_id || "",
+        location:
+          payload.country_id !== foundProject.country_id ||
+          payload.state_id !== foundProject.state_id
+            ? locationParts.join(", ")
+            : foundProject.location,
+        country_id:
+          payload.country_id !== foundProject.country_id
+            ? countryStateCity.country_id
+            : foundProject.country_id,
+        state_id:
+          payload.state_id !== foundProject.state_id
+            ? countryStateCity.state_id
+            : foundProject.state_id,
+        city_id:
+          payload.city_id !== foundProject.city_id
+            ? countryStateCity.city_id
+            : foundProject.city_id,
+        country_name:
+          payload.country_id !== foundProject.country_id
+            ? countryStateCity.country_name
+            : foundProject.country_name,
+        state_name:
+          payload.state_id !== foundProject.state_id
+            ? countryStateCity.state_name
+            : foundProject.state_name,
+        city_name:
+          payload.city_id !== foundProject.city_id
+            ? countryStateCity.city_name
+            : foundProject.city_name,
+        phone_code:
+          payload.country_id !== foundProject.country_id
+            ? countryStateCity.phone_code
+            : foundProject.phone_code,
+        project_type:
+          payload.project_type_id !== foundProject.project_type_id ||
+          payload.project_type_id !== foundProject.project_type
+            ? projectType.name
+            : foundProject.project_type,
+        project_type_id:
+          payload.project_type_id !== foundProject.project_type_id ||
+          payload.project_type_id !== foundProject.project_type
+            ? projectType.id
+            : foundProject.project_type_id,
+        building_type:
+          payload.building_type_id !== foundProject.building_type_id ||
+          payload.building_type_id !== foundProject.building_type
+            ? buildingType.name
+            : foundProject.building_type,
+        building_type_id:
+          payload.building_type_id !== foundProject.building_type_id ||
+          payload.building_type_id !== foundProject.building_type
+            ? buildingType.id
+            : foundProject.building_type_id,
       });
       if (!updatedProject) {
         return resolve({
