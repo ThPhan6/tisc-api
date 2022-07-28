@@ -55,6 +55,7 @@ export const DESIGN_STATUS_OPTIONS = [
 ];
 export const MESSAGES = {
   SUCCESS: "Success.",
+  AVAILABLE: "Available.",
   SOMETHING_WRONG: "Something wrong !",
   SOMETHING_WRONG_CREATE: "Something wrong when create !",
   SOMETHING_WRONG_UPDATE: "Something wrong when update !",
@@ -69,6 +70,7 @@ export const MESSAGES = {
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
+  EMAIL_ALREADY_USED: "Email is already used, please use other email.",
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_NOT_IN_WORKSPACE: "User not in this work space",
   AVATAR_NOT_VALID: "Avatar not valid",
