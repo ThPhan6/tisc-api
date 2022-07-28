@@ -47,4 +47,10 @@ export default {
     key: Joi.string(),
     value: Joi.number(),
   }) as any,
+  getSummary: Joi.object({
+    projects: Joi.number(),
+    live: Joi.number(),
+    onHold: Joi.number(),
+    archived: Joi.number(),
+  }) as any,
 };

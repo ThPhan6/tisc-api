@@ -162,6 +162,22 @@ export default class ProjectRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_PROJECT_SUMMARY,
+          options: {
+            handler: controller.getProjectSummary,
+            description: "Method that get project summary",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSummary,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
