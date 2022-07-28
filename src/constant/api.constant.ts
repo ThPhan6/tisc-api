@@ -176,6 +176,8 @@ export const ROUTES = {
   GET_PROJECT_TYPES: "/api/project/project-types",
   GET_BUILDING_TYPES: "/api/project/building-types",
   GET_PRODUCT_OPTIONS: "/api/product/{id}/attribute/{attribute_id}/get-options",
+
+  CREATE_PROJECT_ZONE: "/api/project-zone/create",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -347,4 +349,5 @@ export const ROUTE_IDS = {
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "158",
   GET_PROJECT_TYPES: "159",
   GET_BUILDING_TYPES: "160",
+  CREATE_PROJECT_ZONE: "161",
 };
