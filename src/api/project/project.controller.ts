@@ -68,4 +68,11 @@ export default class ProjectController {
     const response = await this.service.update(id, userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const { id } = req.params;
+    const response = await this.service.delete(id, userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

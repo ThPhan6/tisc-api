@@ -544,4 +544,49 @@ export default class ProjectService {
       return resolve(await this.get(id));
     });
   };
+
+  public delete = async (
+    id: string,
+    user_id: string
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const foundProject = await this.projectModel.find(id);
+      if (!foundProject) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      if (
+        user.type !== SYSTEM_TYPE.DESIGN ||
+        foundProject.design_id !== user.relation_id
+      ) {
+        return resolve({
+          message: MESSAGES.JUST_OWNER_CAN_DELETE,
+          statusCode: 400,
+        });
+      }
+
+      const updatedProject = await this.projectModel.update(id, {
+        is_deleted: true,
+      });
+      if (!updatedProject) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
 }
