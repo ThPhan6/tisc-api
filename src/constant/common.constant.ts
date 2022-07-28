@@ -137,6 +137,7 @@ export const MESSAGES = {
   PROJECT_EXISTED: "Project existed",
   PROJECT_NOT_FOUND: "Project not found",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
+  JUST_OWNER_CAN_UPDATE: "Just owner can update project",
 };
 
 export const BASIS_TYPES = {
