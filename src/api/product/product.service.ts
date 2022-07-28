@@ -1,7 +1,11 @@
 import moment from "moment";
 import { v4 as uuid } from "uuid";
 import CategoryService from "../../api/category/category.service";
-import { MESSAGES, VALID_IMAGE_TYPES } from "../../constant/common.constant";
+import {
+  BASIS_TYPES,
+  MESSAGES,
+  VALID_IMAGE_TYPES,
+} from "../../constant/common.constant";
 import {
   getDistinctArray,
   getFileTypeFromBase64,
@@ -19,6 +23,8 @@ import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
   IBrandProductSummary,
+  IProductOptionAttribute,
+  IProductOptionResponse,
   IProductRequest,
   IProductResponse,
   IProductsResponse,
@@ -27,6 +33,7 @@ import {
 } from "./product.type";
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
+import BasisModel from "../../model/basis.model";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -35,6 +42,7 @@ export default class ProductService {
   private categoryService: CategoryService;
   private basisService: BasisService;
   private countryStateCityService: CountryStateCityService;
+  private basisModel: BasisModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -43,6 +51,7 @@ export default class ProductService {
     this.categoryService = new CategoryService();
     this.basisService = new BasisService();
     this.countryStateCityService = new CountryStateCityService();
+    this.basisModel = new BasisModel();
   }
   public create = (
     user_id: string,
@@ -818,6 +827,53 @@ export default class ProductService {
       });
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  public getProductOptions = (
+    product_id: string,
+    attribute_id: string
+  ): Promise<IProductOptionResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(product_id);
+      if (!product) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      let attributes: IProductOptionAttribute[] = [];
+      product.specification_attribute_groups.forEach((item) => {
+        attributes = attributes.concat(item.attributes);
+      });
+      const attribute = attributes.find((item) => item.id === attribute_id);
+      if (!attribute) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const optionGroups = await this.basisModel.getAllBy({
+        type: BASIS_TYPES.OPTION,
+      });
+      const options = optionGroups.reduce((pre: any, cur: any) => {
+        return pre.concat(cur.subs);
+      }, []);
+
+      const optionValues = options.reduce((pre: any, cur: any) => {
+        return pre.concat(cur.subs);
+      }, []);
+      const result = attribute.basis_options?.map((item) => {
+        const foundValue = optionValues.find((el: any) => el.id === item.id);
+        return {
+          id: item.id,
+          option_code: item.option_code,
+          name: foundValue.value_1 + " - " + foundValue.value_2,
+          image: foundValue.image,
+        };
+      });
+      return resolve({
+        data: result || [],
         statusCode: 200,
       });
     });

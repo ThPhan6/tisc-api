@@ -38,21 +38,22 @@ export interface IAttributeGroup {
     }[];
   }[];
 }
+export interface IProductOptionAttribute {
+  id: string;
+  basis_id: string;
+  type: "Text" | "Conversions" | "Presets" | "Options";
+  text?: string;
+  conversion_value_1?: string;
+  conversion_value_2?: string;
+  basis_options?: {
+    id: string;
+    option_code: string;
+  }[];
+}
 export interface IAttributeGroupHasId {
   id: string;
   name: string;
-  attributes: {
-    id: string;
-    basis_id: string;
-    type: "Text" | "Conversions" | "Presets" | "Options";
-    text?: string;
-    conversion_value_1?: string;
-    conversion_value_2?: string;
-    basis_options?: {
-      id: string;
-      option_code: string;
-    }[];
-  }[];
+  attributes: IProductOptionAttribute[];
 }
 export interface IProductRequest {
   brand_id: string;
@@ -116,5 +117,17 @@ export interface IBrandProductSummary {
     card_count: number;
     product_count: number;
   };
+  statusCode: number;
+}
+
+export interface IProductOption {
+  id: string;
+  name?: string;
+  option_code: string;
+  image?: string;
+}
+
+export interface IProductOptionResponse {
+  data: IProductOption[];
   statusCode: number;
 }
