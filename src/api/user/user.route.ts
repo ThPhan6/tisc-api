@@ -195,6 +195,22 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: '/api/user/get-interested-options',
+          options: {
+            handler: controller.getInterestedOptions,
+            description: "Method that get interested options",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getInterestedOptions,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

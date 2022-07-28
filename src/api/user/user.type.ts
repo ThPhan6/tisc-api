@@ -18,6 +18,7 @@ export interface IUpdateMeRequest {
   personal_mobile?: string;
   zone_code?: string;
   linkedin?: string;
+  interested?: number[]
 }
 
 export interface IUser {

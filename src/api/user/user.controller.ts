@@ -1,6 +1,7 @@
 import UserService from "./user.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IUpdateMeRequest, IUserRequest } from "./user.type";
+import { INTERESTED_IN_OPTIONS } from "../../constant/common.constant";
 
 export default class UserController {
   private service: UserService;
@@ -84,5 +85,11 @@ export default class UserController {
     const userId = req.params.id;
     const response = await this.service.delete(userId, currentUserId);
     return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getInterestedOptions = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    return toolkit.response(INTERESTED_IN_OPTIONS).code(200);
   };
 }

@@ -50,6 +50,7 @@ export default {
       personal_mobile: Joi.string().allow(""),
       zone_code: Joi.string().allow(""),
       linkedin: Joi.string().allow(""),
+      interested: Joi.array().items(Joi.number()),
     },
   },
   updateAvatar: {

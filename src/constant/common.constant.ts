@@ -294,3 +294,33 @@ export const MEASUREMENT_UNIT_OPTIONS = [
     value: MEASUREMENT_UNIT.IMPERIAL,
   },
 ];
+
+export const INTERESTED_IN = {
+  BRAND_FACTORY: 1,
+  DESIGN_CONFERENCE: 2,
+  INDUSTRY_EXHIBITION: 3,
+  PRODUCT_LAUNCHES: 4,
+  PRODUCT_RECOMMENDATION: 5,
+};
+export const INTERESTED_IN_OPTIONS = [
+  {
+    key: "Brand Factory/Showroom Visits",
+    value: INTERESTED_IN.BRAND_FACTORY,
+  },
+  {
+    key: "Design Conferences/Events/Seminars",
+    value: INTERESTED_IN.DESIGN_CONFERENCE,
+  },
+  {
+    key: "Industry Exhibitions/Trade Shows",
+    value: INTERESTED_IN.INDUSTRY_EXHIBITION,
+  },
+  {
+    key: "Product Launches/Promotions/Workshops",
+    value: INTERESTED_IN.PRODUCT_LAUNCHES,
+  },
+  {
+    key: "Product Recommendations/Updates",
+    value: INTERESTED_IN.PRODUCT_RECOMMENDATION,
+  },
+];

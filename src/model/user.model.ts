@@ -28,6 +28,8 @@ export interface IUserAttributes {
   type: number;
   relation_id: string | null;
   is_deleted: boolean;
+
+  interested: number[];
 }
 
 export const USER_NULL_ATTRIBUTES = {
@@ -57,6 +59,7 @@ export const USER_NULL_ATTRIBUTES = {
   type: null,
   relation_id: null,
   is_deleted: false,
+  interested: [],
 };
 
 export default class UserModel extends Model<IUserAttributes> {

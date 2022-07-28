@@ -76,4 +76,8 @@ export default {
       name: Joi.string(),
     }),
   }) as any,
+  getInterestedOptions: Joi.array().items({
+    key: Joi.string(),
+    value: Joi.number(),
+  }),
 };

@@ -307,6 +307,7 @@ export default class UserService {
         backup_email: payload.backup_email,
         personal_mobile: payload.personal_mobile,
         linkedin: payload.linkedin,
+        interested: payload.interested,
       });
       if (!updatedUser) {
         return resolve({
