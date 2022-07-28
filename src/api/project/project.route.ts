@@ -146,6 +146,22 @@ export default class ProjectRoute implements IRoute {
             },
           },
         },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_PROJECT,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete project",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

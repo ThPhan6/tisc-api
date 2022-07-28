@@ -138,6 +138,7 @@ export const MESSAGES = {
   PROJECT_NOT_FOUND: "Project not found",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE: "Just owner can update project",
+  JUST_OWNER_CAN_DELETE: "Just owner can delete project",
 };
 
 export const BASIS_TYPES = {
