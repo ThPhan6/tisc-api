@@ -101,9 +101,10 @@ export default class MailService {
             ? TARGETED_FOR_TYPES.BRAND
             : TARGETED_FOR_TYPES.DESIGN_FIRM,
       });
-      const userType = Object.keys(SYSTEM_TYPE)
+      let userType = Object.keys(SYSTEM_TYPE)
         .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
         ?.toLowerCase();
+      userType = userType === "design" ? "design-firms" : userType;
       const html = await ejs.render(emailAutoResponder?.message || "", {
         operating_system: os.type(),
         browser_name: browserName,
