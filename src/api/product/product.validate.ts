@@ -231,4 +231,14 @@ export default {
         .error(commonFailValidatedMessageFunction("Brand id is required")),
     },
   },
+  getProductOptions: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
+      attribute_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Attribute Id is required")),
+    },
+  },
 };

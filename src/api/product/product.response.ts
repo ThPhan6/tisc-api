@@ -99,4 +99,13 @@ export default {
     ),
     statusCode: Joi.number(),
   }) as any,
+  getProductOptions: Joi.object({
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+      option_code: Joi.any(),
+      image: Joi.any(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
 };

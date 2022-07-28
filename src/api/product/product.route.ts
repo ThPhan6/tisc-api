@@ -197,6 +197,23 @@ export default class ProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_PRODUCT_OPTIONS,
+          options: {
+            handler: controller.getProductOptions,
+            validate: validate.getProductOptions,
+            description: "Method that get list product options",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getProductOptions,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
