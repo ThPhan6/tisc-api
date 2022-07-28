@@ -129,6 +129,39 @@ export default class ProjectRoute implements IRoute {
             },
           },
         },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_PROJECT,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update project",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_PROJECT,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete project",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

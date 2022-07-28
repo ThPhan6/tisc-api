@@ -57,4 +57,22 @@ export default class ProjectController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public update = async (
+    req: Request & { payload: IProjectRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const userId = req.auth.credentials.user_id as string;
+    const payload = req.payload;
+    const response = await this.service.update(id, userId, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const { id } = req.params;
+    const response = await this.service.delete(id, userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
