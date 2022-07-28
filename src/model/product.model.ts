@@ -15,6 +15,8 @@ export interface IProductAttributes {
   favorites: string[];
   images: string[];
   keywords: string[];
+  brand_location_id: string;
+  distributor_location_id: string;
   created_at: string;
   created_by: string;
   is_deleted: boolean;
@@ -34,6 +36,8 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   favorites: [],
   images: [],
   keywords: [],
+  brand_location_id: null,
+  distributor_location_id: null,
   created_at: null,
   created_by: null,
   is_deleted: false,

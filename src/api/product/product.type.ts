@@ -18,6 +18,8 @@ export interface IProduct {
   favorites: number;
   images: string[];
   keywords: string[];
+  brand_location_id: string;
+  distributor_location_id: string;
   created_at: string;
   created_by: any;
   is_liked: boolean;
@@ -66,6 +68,8 @@ export interface IProductRequest {
   specification_attribute_groups: IAttributeGroup[];
   images: string[];
   keywords: string[];
+  brand_location_id: string;
+  distributor_location_id: string;
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -78,6 +82,8 @@ export interface IUpdateProductRequest {
   specification_attribute_groups: IAttributeGroupHasId[];
   images: string[];
   keywords: string[];
+  brand_location_id: string;
+  distributor_location_id: string;
 }
 export interface IProductResponse {
   data: IProduct;

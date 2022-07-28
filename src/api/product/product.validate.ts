@@ -112,6 +112,8 @@ export default {
         .items(Joi.string().allow(""))
         .required()
         .error(commonFailValidatedMessageFunction("Keywords is required")),
+      brand_location_id: Joi.string().allow(""),
+      distributor_location_id: Joi.string().allow(""),
     },
   },
   update: {
@@ -206,6 +208,8 @@ export default {
         .items(Joi.string().allow(""))
         .required()
         .error(commonFailValidatedMessageFunction("Keywords is required")),
+      brand_location_id: Joi.string().allow(""),
+      distributor_location_id: Joi.string().allow(""),
     },
   },
   getList: {

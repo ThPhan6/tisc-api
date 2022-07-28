@@ -133,6 +133,8 @@ export default class ProductService {
         created_by: user_id,
         images: [],
         keywords: payload.keywords,
+        brand_location_id: payload.brand_location_id,
+        distributor_location_id: payload.distributor_location_id,
       });
       if (!createdProduct) {
         return resolve({
@@ -443,6 +445,8 @@ export default class ProductService {
           favorites: product.favorites?.length || 0,
           images: product.images,
           keywords: product.keywords,
+          brand_location_id: product.brand_location_id || "",
+          distributor_location_id: product.distributor_location_id || "",
           is_liked: product.favorites.includes(user_id),
         },
         statusCode: 200,
