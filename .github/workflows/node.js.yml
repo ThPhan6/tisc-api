@@ -5,7 +5,7 @@ name: TISC CI
 
 on:
   push:
-    branches: [ master, dev, staging ]
+    branches: [ master, dev, staging, bugs/sonar ]
   pull_request:
     branches: [ master, dev, staging ]
 
