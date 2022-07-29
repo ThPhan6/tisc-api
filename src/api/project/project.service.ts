@@ -151,7 +151,7 @@ export default class ProjectService {
       const country = await this.countryStateCityService.getCountryDetail(
         payload.country_id
       );
-      if (!country) {
+      if (!country.id) {
         return resolve({
           message: MESSAGES.COUNTRY_NOT_FOUND,
           statusCode: 404,
@@ -177,7 +177,7 @@ export default class ProjectService {
         const state = await this.countryStateCityService.getStateDetail(
           payload.state_id
         );
-        if (!state) {
+        if (!state.id) {
           return resolve({
             message: MESSAGES.STATE_NOT_FOUND,
             statusCode: 404,
@@ -399,7 +399,7 @@ export default class ProjectService {
           const country = await this.countryStateCityService.getCountryDetail(
             payload.country_id
           );
-          if (!country) {
+          if (!country.id) {
             return resolve({
               message: MESSAGES.COUNTRY_NOT_FOUND,
               statusCode: 404,
@@ -429,7 +429,7 @@ export default class ProjectService {
             const state = await this.countryStateCityService.getStateDetail(
               payload.state_id
             );
-            if (!state) {
+            if (!state.id) {
               return resolve({
                 message: MESSAGES.STATE_NOT_FOUND,
                 statusCode: 404,
