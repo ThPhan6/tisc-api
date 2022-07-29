@@ -8,7 +8,7 @@ import {
   IProductTipRequest,
   IProductTipResponse,
   IUpdateProductTipRequest,
-} from "./type";
+} from "./product_tip.type";
 import { v4 as uuid } from "uuid";
 export default class ProductTipService {
   private model: ProductTipModel;

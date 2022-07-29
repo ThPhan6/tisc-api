@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import Service from "./service";
+import Service from "./product_download.service";
 import { IProductDownloadRequest, IUpdateProductDownloadRequest } from "./type";
 
 export default class ProductDownloadController {

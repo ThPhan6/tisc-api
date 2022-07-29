@@ -1,13 +1,13 @@
-import { generalMessageResponse } from "./../../helper/response.helper";
+import { generalMessageResponse } from "../../helper/response.helper";
 import { Server } from "@hapi/hapi";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import IRoute from "../../helper/route.helper";
-import Controller from "./controller";
-import response from "./response";
-import validate from "./validate";
-export default class ProductDownloadRoute implements IRoute {
+import Controller from "./product_catelogue_n_download.controller";
+import response from "./product_catelogue_n_download.response";
+import validate from "./product_catelogue_n_download.validate";
+export default class ProductCatelogueNDownloadRoute implements IRoute {
   public async register(server: Server): Promise<any> {
     return new Promise(async (resolve) => {
       const controller = new Controller();
@@ -15,12 +15,12 @@ export default class ProductDownloadRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: ROUTES.CREATE_PRODUCT_DOWNLOAD,
+          path: ROUTES.CREATE_PRODUCT_CATELOGUE_DOWNLOAD,
           options: {
             handler: controller.create,
             validate: validate.create,
-            description: "Method that create product download",
-            tags: ["api", "Product download"],
+            description: "Method that create product catelogue download",
+            tags: ["api", "Product catelogue and download"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -32,12 +32,12 @@ export default class ProductDownloadRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_ONE_PRODUCT_DOWNLOAD,
+          path: ROUTES.GET_ONE_PRODUCT_CATELOGUE_DOWNLOAD,
           options: {
             handler: controller.get,
             validate: validate.getOne,
-            description: "Method that get one product download",
-            tags: ["api", "Product download"],
+            description: "Method that get one product catelogue download",
+            tags: ["api", "Product catelogue and download"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -49,12 +49,12 @@ export default class ProductDownloadRoute implements IRoute {
         },
         {
           method: "PUT",
-          path: ROUTES.EDIT_PRODUCT_DOWNLOAD,
+          path: ROUTES.EDIT_PRODUCT_CATELOGUE_DOWNLOAD,
           options: {
             handler: controller.update,
             validate: validate.update,
-            description: "Method that update product download",
-            tags: ["api", "Product download"],
+            description: "Method that update product catelogue download",
+            tags: ["api", "Product catelogue and download"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -66,12 +66,12 @@ export default class ProductDownloadRoute implements IRoute {
         },
         {
           method: "DELETE",
-          path: ROUTES.DELETE_PRODUCT_DOWNLOAD,
+          path: ROUTES.DELETE_PRODUCT_CATELOGUE_DOWNLOAD,
           options: {
             handler: controller.delete,
             validate: validate.getOne,
-            description: "Method that delete product download",
-            tags: ["api", "Product download"],
+            description: "Method that delete product catelogue download",
+            tags: ["api", "Product catelogue and download"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

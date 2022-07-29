@@ -1,12 +1,12 @@
-import { generalMessageResponse } from "./../../helper/response.helper";
+import { generalMessageResponse } from "../../helper/response.helper";
 import { Server } from "@hapi/hapi";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import IRoute from "../../helper/route.helper";
-import Controller from "./controller";
-import response from "./response";
-import validate from "./validate";
+import Controller from "./product_tip.controller";
+import response from "./product_tip.response";
+import validate from "./product_tip.validate";
 export default class ProductTipRoute implements IRoute {
   public async register(server: Server): Promise<any> {
     return new Promise(async (resolve) => {
