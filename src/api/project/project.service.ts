@@ -352,6 +352,18 @@ export default class ProjectService {
         });
       }
 
+      const project = await this.projectModel.findBy({
+        design_id: user.relation_id,
+        code: payload.code,
+      });
+
+      if (project) {
+        return resolve({
+          message: MESSAGES.PROJECT_EXISTED,
+          statusCode: 400,
+        });
+      }
+
       let projectType;
       if (
         payload.project_type_id !== foundProject.project_type_id &&
