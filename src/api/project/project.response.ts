@@ -50,7 +50,7 @@ export default {
   getSummary: Joi.object({
     projects: Joi.number(),
     live: Joi.number(),
-    onHold: Joi.number(),
+    on_hold: Joi.number(),
     archived: Joi.number(),
   }) as any,
 };

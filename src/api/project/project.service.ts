@@ -587,7 +587,7 @@ export default class ProjectService {
         live: projects.filter(
           (project) => project.status === PROJECT_STATUS.LIVE
         ).length,
-        onHold: projects.filter(
+        on_hold: projects.filter(
           (project) => project.status === PROJECT_STATUS.ON_HOLD
         ).length,
         archived: projects.filter(

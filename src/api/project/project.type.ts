@@ -26,6 +26,6 @@ export interface IProjectsResponse {
 export interface IProjectSummaryResponse {
   projects: number;
   live: number;
-  onHold: number;
+  on_hold: number;
   archived: number;
 }
