@@ -709,20 +709,22 @@ export default class ProductService {
           });
         }
       }
-      returnData = returnData.map((item) => {
-        const returnProducts = item.products?.map((product: any) => {
-          const { is_deleted, ...rest } = product;
+      returnData = returnData
+        .filter((item) => item.products.length !== 0)
+        .map((item) => {
+          const returnProducts = item.products?.map((product: any) => {
+            const { is_deleted, ...rest } = product;
+            return {
+              ...rest,
+              favorites: product.favorites?.length,
+              is_liked: product.favorites?.includes(user_id),
+            };
+          });
           return {
-            ...rest,
-            favorites: product.favorites?.length,
-            is_liked: product.favorites?.includes(user_id),
+            ...item,
+            products: returnProducts,
           };
         });
-        return {
-          ...item,
-          products: returnProducts,
-        };
-      });
       return resolve({
         data: returnData,
         statusCode: 200,
