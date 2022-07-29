@@ -1,4 +1,3 @@
-import { generalMessageResponse } from "./../../helper/response.helper";
 import * as Hapi from "@hapi/hapi";
 import commonValidate from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";

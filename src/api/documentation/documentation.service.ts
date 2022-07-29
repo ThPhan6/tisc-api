@@ -214,7 +214,7 @@ class DocumentationService {
     data: IHowto[];
   }): Promise<IHowtosResponse> =>
     new Promise(async (resolve) => {
-      const updatedHowtos = await Promise.all(
+      await Promise.all(
         payload.data.map(async (howto) => {
           return await this.documentationModel.update(howto.id, {
             title: howto.title,

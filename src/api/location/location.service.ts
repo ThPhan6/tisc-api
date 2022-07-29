@@ -373,7 +373,6 @@ export default class LocationService {
         location.functional_type_ids,
         ["id", "name"]
       );
-      // console.log(location.functional_type_ids, functionalTypes);
       const result = {
         id: location.id,
         business_name: location.business_name,

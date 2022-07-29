@@ -341,9 +341,12 @@ export default class ProductService {
             statusCode: 400,
           });
         }
-        product.images.map(async (item) => {
-          await deleteFile(item.slice(1));
-        });
+        await Promise.all(
+          product.images.map(async (item) => {
+            await deleteFile(item.slice(1));
+            return true;
+          })
+        );
         imagePaths = await Promise.all(
           bufferImages.map(async (image, index) => {
             mediumBuffer = await toWebp(image, "medium");

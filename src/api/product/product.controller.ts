@@ -107,7 +107,6 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
     const response = await this.service.assign(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
