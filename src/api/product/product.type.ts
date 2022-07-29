@@ -96,6 +96,10 @@ export interface IProductsResponse {
   };
   statusCode: number;
 }
+export interface IDesignerProductsResponse {
+  data: any[];
+  statusCode: number;
+}
 
 export interface IRestCollectionProductsResponse {
   data: {
@@ -129,6 +133,8 @@ export interface IBrandProductSummary {
 export interface IProductOption {
   id: string;
   name?: string;
+  value_1?: string;
+  value_2?: string;
   option_code: string;
   image?: string;
 }
@@ -136,4 +142,10 @@ export interface IProductOption {
 export interface IProductOptionResponse {
   data: IProductOption[];
   statusCode: number;
+}
+
+export interface IProductAssignToProject {
+  product_id: string;
+  project_id: string;
+  project_zone_ids: string[];
 }

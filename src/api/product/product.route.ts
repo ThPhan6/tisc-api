@@ -43,7 +43,7 @@ export default class ProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: ProductResponse.getList,
+                200: ProductResponse.getListDesignerProducts,
               },
             },
           },
@@ -210,6 +210,22 @@ export default class ProductRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: ProductResponse.getProductOptions,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.ASSIGN_PRODUCT_TO_PROJECT,
+          options: {
+            handler: controller.assign,
+            validate: validate.assign,
+            description: "Method that assign product to project",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

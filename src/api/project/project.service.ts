@@ -10,6 +10,7 @@ import {
   IProjectRequest,
   IProjectResponse,
   IProjectsResponse,
+  IProjectSummaryResponse,
 } from "./project.type";
 import ProjectTypeModel, {
   PROJECT_TYPE_NULL_ATTRIBUTES,
@@ -113,7 +114,10 @@ export default class ProjectService {
         });
       }
 
-      const project = await this.projectModel.findBy({ code: payload.code });
+      const project = await this.projectModel.findBy({
+        code: payload.code,
+        design_id: user.relation_id,
+      });
       if (project) {
         return resolve({
           message: MESSAGES.PROJECT_EXISTED,
@@ -147,7 +151,7 @@ export default class ProjectService {
       const country = await this.countryStateCityService.getCountryDetail(
         payload.country_id
       );
-      if (!country) {
+      if (!country.id) {
         return resolve({
           message: MESSAGES.COUNTRY_NOT_FOUND,
           statusCode: 404,
@@ -173,7 +177,7 @@ export default class ProjectService {
         const state = await this.countryStateCityService.getStateDetail(
           payload.state_id
         );
-        if (!state) {
+        if (!state.id) {
           return resolve({
             message: MESSAGES.STATE_NOT_FOUND,
             statusCode: 404,
@@ -395,7 +399,7 @@ export default class ProjectService {
           const country = await this.countryStateCityService.getCountryDetail(
             payload.country_id
           );
-          if (!country) {
+          if (!country.id) {
             return resolve({
               message: MESSAGES.COUNTRY_NOT_FOUND,
               statusCode: 404,
@@ -425,7 +429,7 @@ export default class ProjectService {
             const state = await this.countryStateCityService.getStateDetail(
               payload.state_id
             );
-            if (!state) {
+            if (!state.id) {
               return resolve({
                 message: MESSAGES.STATE_NOT_FOUND,
                 statusCode: 404,
@@ -562,6 +566,36 @@ export default class ProjectService {
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
+      });
+    });
+  };
+
+  public getProjectSummary = async (
+    user_id: string
+  ): Promise<IMessageResponse | IProjectSummaryResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const projects = await this.projectModel.getBy({
+        design_id: user.relation_id,
+      });
+
+      return resolve({
+        projects: projects.length,
+        live: projects.filter(
+          (project) => project.status === PROJECT_STATUS.LIVE
+        ).length,
+        on_hold: projects.filter(
+          (project) => project.status === PROJECT_STATUS.ON_HOLD
+        ).length,
+        archived: projects.filter(
+          (project) => project.status === PROJECT_STATUS.ARCHIVE
+        ).length,
       });
     });
   };

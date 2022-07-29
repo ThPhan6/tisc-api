@@ -55,6 +55,7 @@ export const DESIGN_STATUS_OPTIONS = [
 ];
 export const MESSAGES = {
   SUCCESS: "Success.",
+  AVAILABLE: "Available.",
   SOMETHING_WRONG: "Something wrong !",
   SOMETHING_WRONG_CREATE: "Something wrong when create !",
   SOMETHING_WRONG_UPDATE: "Something wrong when update !",
@@ -63,12 +64,13 @@ export const MESSAGES = {
   ACCOUNT_NOT_EXIST: "Account does not exist",
   VERIFY_ACCOUNT_FIRST: "Please verify your account first",
   PASSWORD_NOT_CORRECT: "Your password is not correct",
-  USER_ROLE_NOT_FOUND: "Not found user role",
+  USER_ROLE_NOT_FOUND: "Please login in the right section.",
   SEND_EMAIL_WRONG: "Something wrong when send email",
   USER_NOT_FOUND: "User not found",
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
+  EMAIL_ALREADY_USED: "Email is already used, please use other email.",
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_NOT_IN_WORKSPACE: "User not in this work space",
   AVATAR_NOT_VALID: "Avatar not valid",
@@ -134,7 +136,7 @@ export const MESSAGES = {
   COUNTRY_STATE_CITY_NOT_FOUND:
     "Not found location, please check country state city id",
   CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
-  PROJECT_EXISTED: "Project existed",
+  PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE: "Just owner can update project",

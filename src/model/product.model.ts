@@ -168,7 +168,7 @@ export default class ProductModel extends Model<IProductAttributes> {
     name?: string
   ): Promise<IProductAttributes[]> => {
     try {
-      let result = this.getBuilder()
+      let result: any = this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .where(params);
       if (sort_name && sort_order) {
@@ -178,7 +178,32 @@ export default class ProductModel extends Model<IProductAttributes> {
         result = result.whereLike("name", name);
       }
       result = await result.select(keys);
-      return result as any;
+      return result as IProductAttributes[];
+    } catch (error) {
+      return [];
+    }
+  };
+  public getAllByAndNameLikeAndCategory = async (
+    params: any,
+    category_id: string,
+    keys?: string[],
+    sort_name?: string,
+    sort_order?: "ASC" | "DESC",
+    name?: string
+  ): Promise<IProductAttributes[]> => {
+    try {
+      let result: any = this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params)
+        .whereInRevert("category_ids", category_id);
+      if (sort_name && sort_order) {
+        result = result.orderBy(sort_name, sort_order);
+      }
+      if (name) {
+        result = result.whereLike("name", name);
+      }
+      result = await result.select(keys);
+      return result as IProductAttributes[];
     } catch (error) {
       return [];
     }

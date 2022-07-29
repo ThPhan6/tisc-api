@@ -23,6 +23,8 @@ import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
   IBrandProductSummary,
+  IDesignerProductsResponse,
+  IProductAssignToProject,
   IProductOptionAttribute,
   IProductOptionResponse,
   IProductRequest,
@@ -34,6 +36,7 @@ import {
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
 import BasisModel from "../../model/basis.model";
+import ProjectModel from "../../model/project.model";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -43,6 +46,7 @@ export default class ProductService {
   private basisService: BasisService;
   private countryStateCityService: CountryStateCityService;
   private basisModel: BasisModel;
+  private projectModel: ProjectModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -52,6 +56,7 @@ export default class ProductService {
     this.basisService = new BasisService();
     this.countryStateCityService = new CountryStateCityService();
     this.basisModel = new BasisModel();
+    this.projectModel = new ProjectModel();
   }
   public create = (
     user_id: string,
@@ -620,71 +625,55 @@ export default class ProductService {
     user_id: string,
     brand_id: any,
     category_id: any,
-    name?: string
-  ): Promise<IMessageResponse | IProductsResponse> => {
+    name?: string,
+    sort?: string,
+    order?: "ASC" | "DESC"
+  ): Promise<IMessageResponse | IDesignerProductsResponse> => {
     return new Promise(async (resolve) => {
-      let products: any[] = [];
+      let products: IProductAttributes[] = [];
       let returnData: any[] = [];
       if (!category_id && !brand_id) {
         brand_id = "all";
       }
       if (category_id) {
-        if (category_id === "all") {
-          products = await this.productModel.getAllByAndNameLike(
-            {},
-            undefined,
-            undefined,
-            undefined,
-            name
-          );
-          const rawCategoryIds = products.reduce(
-            (pre: string[], cur: IProductAttributes) => {
-              return pre.concat(cur.category_ids || []);
-            },
-            []
-          );
-          const categoryIds = getDistinctArray(rawCategoryIds);
-          const categories = await this.categoryService.getCategoryValues(
-            categoryIds
-          );
-          returnData = categories.map((category) => {
-            const categoryProducts = products.filter((item) =>
-              item.category_ids.includes(category.id)
-            );
-            return {
-              ...category,
-              count: categoryProducts.length,
-              products: categoryProducts,
-            };
-          });
-        } else {
-          products = await this.productModel.getAllByCategoryId(
-            category_id,
-            brand_id
-          );
-          const category = await this.categoryService.getCategoryValues([
-            category_id,
-          ]);
+        products = await this.productModel.getAllByAndNameLikeAndCategory(
+          {},
+          category_id,
+          undefined,
+          sort,
+          order,
+          name
+        );
+        const brandIds = getDistinctArray(
+          products.map((product) => product.brand_id)
+        );
 
-          returnData = [
-            {
-              id: category[0].id,
-              name: category[0].name,
-              count: products.length,
-              products,
-            },
-          ];
-        }
+        const brands = await this.brandModel.getManyOrder(
+          brandIds,
+          ["id", "name"],
+          "name",
+          "ASC"
+        );
+        returnData = brands.map((brand) => {
+          const brandProducts = products.filter(
+            (item) => item.brand_id === brand.id
+          );
+          return {
+            ...brand,
+            count: brandProducts.length,
+            products: brandProducts,
+          };
+        });
       }
       if (brand_id) {
+        products = await this.productModel.getAllByAndNameLike(
+          {},
+          undefined,
+          sort,
+          order,
+          name
+        );
         if (brand_id === "all") {
-          products = await this.productModel.getAllByAndNameLike(
-            {},
-            undefined,
-            undefined,
-            undefined,
-            name
-          );
           const brands = await this.brandModel.getAllBy(
             {},
             ["id", "name"],
@@ -702,22 +691,22 @@ export default class ProductService {
             };
           });
         } else {
-          products = await this.productModel.getAllByAndNameLike(
-            {},
-            undefined,
-            undefined,
-            undefined,
-            name
+          const collections = await this.collectionModel.getAllBy(
+            { brand_id },
+            ["id", "name"],
+            "name",
+            "ASC"
           );
-          const brand = await this.brandModel.find(brand_id);
-          returnData = [
-            {
-              id: brand?.id,
-              name: brand?.name,
-              count: products.length,
-              products,
-            },
-          ];
+          returnData = collections.map((collection) => {
+            const collectionProducts = products.filter(
+              (item) => item.collection_id === collection.id
+            );
+            return {
+              ...collection,
+              count: collectionProducts.length,
+              products: collectionProducts,
+            };
+          });
         }
       }
       returnData = returnData.map((item) => {
@@ -735,10 +724,7 @@ export default class ProductService {
         };
       });
       return resolve({
-        data: {
-          data: returnData,
-          brand: await this.brandModel.find(brand_id),
-        },
+        data: returnData,
         statusCode: 200,
       });
     });
@@ -873,11 +859,48 @@ export default class ProductService {
           id: item.id,
           option_code: item.option_code,
           name: foundValue.value_1 + " - " + foundValue.value_2,
+          value_1: foundValue.value_1,
+          value_2: foundValue.value_2,
           image: foundValue.image,
         };
       });
       return resolve({
         data: result || [],
+        statusCode: 200,
+      });
+    });
+  public assign = (
+    payload: IProductAssignToProject
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(payload.product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 400,
+        });
+      }
+      const project = await this.projectModel.find(payload.project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 400,
+        });
+      }
+      const newProductIds = project.product_ids
+        ? project.product_ids.concat([payload.product_id])
+        : [payload.product_id];
+      const updated = await this.projectModel.update(project.id, {
+        product_ids: getDistinctArray(newProductIds),
+      });
+      if (!updated) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

@@ -84,6 +84,16 @@ export default class LocationController {
     const response = await this.service.getListWithGroup(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getMarketLocationGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { product_id } = req.params;
+    const response = await this.service.getMarketLocationGroupByCountry(
+      product_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const userId = req.auth.credentials.user_id as string;

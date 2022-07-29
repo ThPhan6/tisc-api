@@ -413,9 +413,7 @@ class AuthService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendDesignRegisterEmail(
-        createdUser
-      );
+      await this.mailService.sendDesignRegisterEmail(createdUser);
       await this.permissionService.createDesignPermission(createdDesign.id);
       return resolve({
         message: MESSAGES.SUCCESS,
@@ -491,6 +489,24 @@ class AuthService {
       }
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+  public checkEmail = (email: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        email,
+      });
+      if (user) {
+        return resolve({
+          message: MESSAGES.EMAIL_ALREADY_USED,
+          statusCode: 400,
+        });
+      }
+
+      return resolve({
+        message: MESSAGES.AVAILABLE,
         statusCode: 200,
       });
     });

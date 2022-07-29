@@ -1,6 +1,10 @@
 import ProductService from "./product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IProductRequest, IUpdateProductRequest } from "./product.type";
+import {
+  IProductAssignToProject,
+  IProductRequest,
+  IUpdateProductRequest,
+} from "./product.type";
 
 export default class ProductController {
   private service: ProductService;
@@ -22,13 +26,15 @@ export default class ProductController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { category_id, brand_id, name } = req.query;
+    const { category_id, brand_id, name, sort, order } = req.query;
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getListDesignerBrandProducts(
       userId,
       brand_id,
       category_id,
-      name
+      name,
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -94,6 +100,15 @@ export default class ProductController {
   public getProductOptions = async (req: Request, toolkit: ResponseToolkit) => {
     const { id, attribute_id } = req.params;
     const response = await this.service.getProductOptions(id, attribute_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public assign = async (
+    req: Request & { payload: IProductAssignToProject },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.assign(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

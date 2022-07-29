@@ -41,12 +41,44 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  getListDesignerProducts: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        name: Joi.string(),
+        count: Joi.number(),
+        products: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            brand_id: Joi.string(),
+            collection_id: Joi.any(),
+            category_ids: Joi.array().items(Joi.any()),
+            name: Joi.string(),
+            code: Joi.any(),
+            description: Joi.any(),
+            general_attribute_groups: Joi.array().items(Joi.any()),
+            feature_attribute_groups: Joi.array().items(Joi.any()),
+            specification_attribute_groups: Joi.array().items(Joi.any()),
+            favorites: Joi.number(),
+            images: Joi.any(),
+            keywords: Joi.array().items(Joi.string().allow("")),
+            brand_location_id: Joi.any(),
+            distributor_location_id: Joi.any(),
+            created_at: Joi.any(),
+            created_by: Joi.any(),
+            is_liked: Joi.boolean(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }) as any,
   brandProductSummary: Joi.object({
     data: Joi.object({
       categories: Joi.array().items(
         Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
+          id: Joi.any(),
+          name: Joi.any(),
         })
       ),
       collections: Joi.array().items(
@@ -106,7 +138,9 @@ export default {
   getProductOptions: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
-      name: Joi.string(),
+      name: Joi.any(),
+      value_1: Joi.any(),
+      value_2: Joi.any(),
       option_code: Joi.any(),
       image: Joi.any(),
     }),

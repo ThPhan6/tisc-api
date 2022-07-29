@@ -22,3 +22,10 @@ export interface IProjectsResponse {
   data: any;
   statusCode: number;
 }
+
+export interface IProjectSummaryResponse {
+  projects: number;
+  live: number;
+  on_hold: number;
+  archived: number;
+}

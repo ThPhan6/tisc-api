@@ -226,6 +226,8 @@ export default {
       category_id: Joi.string(),
       brand_id: Joi.string(),
       name: Joi.string(),
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
     }),
   } as any,
   getBrandProductSummary: {
@@ -243,6 +245,17 @@ export default {
       attribute_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Attribute Id is required")),
+    },
+  },
+  assign: {
+    payload: {
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      project_zone_ids: Joi.array().items(Joi.string()),
     },
   },
 };

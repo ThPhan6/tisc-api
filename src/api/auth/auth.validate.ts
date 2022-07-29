@@ -129,4 +129,12 @@ export default {
         .error(commonFailValidatedMessageFunction("Email is required")),
     },
   },
+  checkEmail: {
+    params: {
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+    },
+  },
 };
