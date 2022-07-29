@@ -236,7 +236,25 @@ export default class LocationRoute implements IRoute {
           options: {
             handler: controller.getMarketLocationGroupByCountry,
             validate: validate.getMarketLocationsCountryGroup,
-            description: "Method that get market availability locations group by country",
+            description:
+              "Method that get market availability locations group by country",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListWithGroup,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_LOCATIONS_COUNTRY_GROUP,
+          options: {
+            handler: controller.getBrandLocationGroupByCountry,
+            validate: validate.getBrandLocationsCountryGroup,
+            description: "Method that get brand locations group by country",
             tags: ["api", "Location"],
             auth: AUTH_NAMES.GENERAL,
             response: {

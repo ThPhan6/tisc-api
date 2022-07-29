@@ -587,6 +587,58 @@ export default class LocationService {
         statusCode: 200,
       });
     });
+  public getBrandLocationGroupByCountry = (
+    brand_id: string
+  ): Promise<LocationsWithGroupResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const locations = await this.locationModel.getAllBy(
+        { type: SYSTEM_TYPE.BRAND, relation_id: brand_id },
+        undefined,
+        "country_name",
+        "ASC"
+      );
+      const removedFields = await Promise.all(
+        locations.map(async (location: ILocationAttributes) => {
+          const functionalTypes = await this.functionalTypeModel.getMany(
+            location.functional_type_ids,
+            ["id", "name"]
+          );
+          return {
+            id: location.id,
+            business_name: location.business_name,
+            address: location.address,
+            postal_code: location.postal_code,
+            created_at: location.created_at,
+            country_name: location.country_name,
+            state_name: location.state_name,
+            city_name: location.city_name,
+            country_id: location.country_id,
+            state_id: location.state_id,
+            city_id: location.city_id,
+            phone_code: location.phone_code,
+            functional_types: functionalTypes,
+          };
+        })
+      );
+      const distintCountries = await this.locationModel.getGroupBy(
+        { type: SYSTEM_TYPE.BRAND, relation_id: brand_id },
+        "country_name",
+        "count"
+      );
+      const result = distintCountries.map((distintCountry: any) => {
+        const groupLocations = removedFields.filter(
+          (item) => item.country_name === distintCountry.country_name
+        );
+        return {
+          ...distintCountry,
+          locations: groupLocations,
+        };
+      });
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
   public getMarketLocationGroupByCountry = (
     product_id: string
   ): Promise<LocationsWithGroupResponse | IMessageResponse> =>

@@ -180,6 +180,7 @@ export const ROUTES = {
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",
+  GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
