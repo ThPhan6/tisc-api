@@ -108,7 +108,10 @@ export default class MailService {
       const html = await ejs.render(emailAutoResponder?.message || "", {
         operating_system: os.type(),
         browser_name: browserName,
-        fullname: user.firstname + " " + user.lastname,
+        fullname:
+          userType === "design"
+            ? user.firstname
+            : user.firstname + " " + user.lastname,
         reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
       });
       this.sendSmtpEmail = {
