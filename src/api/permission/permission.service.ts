@@ -648,6 +648,7 @@ export default class PermissionService {
             { id: ROUTE_IDS.CREATE_PROJECT, accessable: true },
             { id: ROUTE_IDS.UPDATE_PROJECT, accessable: true },
             { id: ROUTE_IDS.DELETE_PROJECT, accessable: true },
+            { id: ROUTE_IDS.GET_PROJECT_SUMMARY, accessable: true },
           ],
         },
         {
@@ -871,6 +872,7 @@ export default class PermissionService {
             { id: ROUTE_IDS.CREATE_PROJECT, accessable: false },
             { id: ROUTE_IDS.UPDATE_PROJECT, accessable: false },
             { id: ROUTE_IDS.DELETE_PROJECT, accessable: false },
+            { id: ROUTE_IDS.GET_PROJECT_SUMMARY, accessable: false },
           ],
         },
         {

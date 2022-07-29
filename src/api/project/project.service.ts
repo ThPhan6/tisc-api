@@ -10,6 +10,7 @@ import {
   IProjectRequest,
   IProjectResponse,
   IProjectsResponse,
+  IProjectSummaryResponse,
 } from "./project.type";
 import ProjectTypeModel, {
   PROJECT_TYPE_NULL_ATTRIBUTES,
@@ -562,6 +563,36 @@ export default class ProjectService {
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
+      });
+    });
+  };
+
+  public getProjectSummary = async (
+    user_id: string
+  ): Promise<IMessageResponse | IProjectSummaryResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const projects = await this.projectModel.getBy({
+        design_id: user.relation_id,
+      });
+
+      return resolve({
+        projects: projects.length,
+        live: projects.filter(
+          (project) => project.status === PROJECT_STATUS.LIVE
+        ).length,
+        on_hold: projects.filter(
+          (project) => project.status === PROJECT_STATUS.ON_HOLD
+        ).length,
+        archived: projects.filter(
+          (project) => project.status === PROJECT_STATUS.ARCHIVE
+        ).length,
       });
     });
   };
