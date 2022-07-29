@@ -1,26 +1,26 @@
 import { MESSAGES } from "./../../constant/common.constant";
 import ProductModel from "../../model/product.model";
-import ProductDownloadModel, {
-  PRODUCT_DOWNLOAD_NULL_ATTRIBUTES,
-} from "../../model/product_download.model";
+import ProductCatelogueNDownloadModel, {
+  PRODUCT_CATELOGUE_N_DOWNLOAD_NULL_ATTRIBUTES,
+} from "../../model/product_catelogue_n_download";
 import { IMessageResponse } from "../../type/common.type";
 import {
-  IProductDownloadRequest,
-  IProductDownloadResponse,
-  IUpdateProductDownloadRequest,
-} from "./type";
+  IProductCatelogueNDownloadRequest,
+  IProductCatelogueNDownloadResponse,
+  IUpdateProductCatelogueNDownloadRequest,
+} from "./product_catelogue_n_download.type";
 import { v4 as uuid } from "uuid";
-export default class ProductDownloadService {
-  private model: ProductDownloadModel;
+export default class ProductCatelogueNDownloadService {
+  private model: ProductCatelogueNDownloadModel;
   private productModel: ProductModel;
   constructor() {
-    this.model = new ProductDownloadModel();
+    this.model = new ProductCatelogueNDownloadModel();
     this.productModel = new ProductModel();
   }
 
   public create = async (
-    payload: IProductDownloadRequest
-  ): Promise<IMessageResponse | IProductDownloadResponse | any> => {
+    payload: IProductCatelogueNDownloadRequest
+  ): Promise<IMessageResponse | IProductCatelogueNDownloadResponse | any> => {
     return new Promise(async (resolve) => {
       const product = await this.productModel.find(payload.product_id);
       if (!product) {
@@ -30,10 +30,10 @@ export default class ProductDownloadService {
         });
       }
 
-      const productDownload = await this.model.findBy({
+      const productCatelogue = await this.model.findBy({
         product_id: payload.product_id,
       });
-      if (!productDownload) {
+      if (!productCatelogue) {
         const newContents = payload.contents.map((content) => {
           return {
             ...content,
@@ -41,7 +41,7 @@ export default class ProductDownloadService {
           };
         });
         const created = await this.model.create({
-          ...PRODUCT_DOWNLOAD_NULL_ATTRIBUTES,
+          ...PRODUCT_CATELOGUE_N_DOWNLOAD_NULL_ATTRIBUTES,
           product_id: payload.product_id,
           contents: newContents,
         });
@@ -54,7 +54,7 @@ export default class ProductDownloadService {
       } else {
         const newContents = payload.contents.map((content: any) => {
           if (content.id) {
-            const found = productDownload.contents.find(
+            const found = productCatelogue.contents.find(
               (item) => item.id === content.id
             );
             if (found) return content;
@@ -64,7 +64,7 @@ export default class ProductDownloadService {
             id: uuid(),
           };
         });
-        const updated = await this.model.update(productDownload.id, {
+        const updated = await this.model.update(productCatelogue.id, {
           contents: newContents,
         });
         if (!updated) {
@@ -80,7 +80,7 @@ export default class ProductDownloadService {
 
   public get = async (
     product_id: string
-  ): Promise<any | IProductDownloadResponse> => {
+  ): Promise<IProductCatelogueNDownloadResponse | any> => {
     return new Promise(async (resolve) => {
       const found = await this.model.findBy({ product_id });
       if (!found) {
@@ -100,13 +100,13 @@ export default class ProductDownloadService {
 
   public update = async (
     product_id: string,
-    payload: IUpdateProductDownloadRequest
-  ): Promise<IMessageResponse | IProductDownloadResponse> => {
+    payload: IUpdateProductCatelogueNDownloadRequest
+  ): Promise<IMessageResponse | IProductCatelogueNDownloadResponse> => {
     return new Promise(async (resolve) => {
       const found = await this.model.findBy({ product_id });
       if (!found) {
         return resolve({
-          message: MESSAGES.PRODUCT_DOWNLOAD_NOT_FOUND,
+          message: MESSAGES.PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND,
           statusCode: 404,
         });
       }
@@ -138,7 +138,7 @@ export default class ProductDownloadService {
       const found = await this.model.findBy({ product_id });
       if (!found) {
         return resolve({
-          message: MESSAGES.PRODUCT_DOWNLOAD_NOT_FOUND,
+          message: MESSAGES.PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND,
           statusCode: 404,
         });
       }

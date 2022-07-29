@@ -1,9 +1,9 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import Service from "./service";
+import Service from "./product_catelogue_n_download.service";
 import {
   IProductCatelogueNDownloadRequest,
   IUpdateProductCatelogueNDownloadRequest,
-} from "./type";
+} from "./product_catelogue_n_download.type";
 
 export default class ProductCatelogueNDownloadController {
   private service: Service;

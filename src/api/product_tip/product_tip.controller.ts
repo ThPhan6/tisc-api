@@ -1,6 +1,9 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import Service from "./service";
-import { IProductTipRequest, IUpdateProductTipRequest } from "./type";
+import Service from "./product_tip.service";
+import {
+  IProductTipRequest,
+  IUpdateProductTipRequest,
+} from "./product_tip.type";
 
 export default class ProductTipController {
   private service: Service;
