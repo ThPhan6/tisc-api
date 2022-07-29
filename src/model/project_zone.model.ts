@@ -9,9 +9,9 @@ export interface IProjectZoneAttributes {
     room: {
       room_name: string;
       room_id: string;
-      room_size: string;
+      room_size: number;
       quantity: number;
-      sub_total: string;
+      sub_total: number;
     }[];
   }[];
   created_at: string;
@@ -31,7 +31,7 @@ export const PROJECT_ZONE_NULL_ATTRIBUTES = {
           room_id: "",
           room_size: "",
           quantity: 0,
-          sub_total: "",
+          sub_total: 0,
         },
       ],
     },

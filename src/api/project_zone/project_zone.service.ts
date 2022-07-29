@@ -1,5 +1,9 @@
 import { PROJECT_ZONE_NULL_ATTRIBUTES } from "./../../model/project_zone.model";
-import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
+import {
+  MEASUREMENT_UNIT,
+  MESSAGES,
+  SYSTEM_TYPE,
+} from "./../../constant/common.constant";
 import ProjectModel from "../../model/project.model";
 import UserModel from "../../model/user.model";
 import { IMessageResponse } from "./../../type/common.type";
@@ -102,10 +106,9 @@ export default class ProjectZoneService {
           return {
             room_name: room.room_name,
             room_id: room.room_id,
-            room_size: room.room_size + " " + room.room_size_unit,
+            room_size: room.room_size,
             quantity: room.quantity,
-            sub_total:
-              room.quantity * room.room_size + " " + room.room_size_unit,
+            sub_total: room.quantity * room.room_size,
           };
         });
         return {
@@ -126,9 +129,28 @@ export default class ProjectZoneService {
           statusCode: 400,
         });
       }
+      const roomSizeUnit =
+        foundProject.measurement_unit === MEASUREMENT_UNIT.IMPERIAL
+          ? "sq.ft."
+          : foundProject.measurement_unit === MEASUREMENT_UNIT.METRIC
+          ? "sq.m."
+          : "";
       const { is_deleted, ...rest } = createdProjectZone;
+      const returnedAreas = createdProjectZone.area.map((area) => {
+        const rooms = area.room.map((room) => {
+          return {
+            ...room,
+            room_size_unit: roomSizeUnit,
+          };
+        });
+        return {
+          ...area,
+          room: rooms,
+        };
+      });
+
       return resolve({
-        data: rest,
+        data: { ...rest, area: returnedAreas },
         statusCode: 200,
       });
     });

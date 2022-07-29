@@ -20,7 +20,6 @@ export default {
               room_name: Joi.string().trim(),
               room_id: Joi.string().trim(),
               room_size: Joi.number(),
-              room_size_unit: Joi.string().trim(),
               quantity: Joi.number(),
             })
           ),

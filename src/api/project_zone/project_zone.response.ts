@@ -18,9 +18,10 @@ export default {
             Joi.object({
               room_name: Joi.string(),
               room_id: Joi.string(),
-              room_size: Joi.string(),
+              room_size: Joi.number(),
               quantity: Joi.number(),
-              sub_total: Joi.string(),
+              sub_total: Joi.number(),
+              room_size_unit: Joi.string(),
             })
           ),
         })

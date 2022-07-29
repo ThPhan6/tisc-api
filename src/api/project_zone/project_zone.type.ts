@@ -7,7 +7,6 @@ export interface IProjectZoneRequest {
       room_name: string;
       room_id: string;
       room_size: number;
-      room_size_unit: string;
       quantity: number;
     }[];
   }[];
@@ -23,9 +22,10 @@ export interface IProjectZoneResponse {
       room: {
         room_name: string;
         room_id: string;
-        room_size: string;
+        room_size: number;
         quantity: number;
-        sub_total: string;
+        sub_total: number;
+        room_size_unit: string;
       }[];
     }[];
     created_at: string;
