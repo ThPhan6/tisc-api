@@ -13,12 +13,15 @@ import {
   ICategoryRequest,
   ICategoryResponse,
 } from "./category.type";
+import ProductModel from "../../model/product.model";
 const uuid = require("uuid").v4;
 
 export default class CategoryService {
   private categoryModel: CategoryModel;
+  private productModel: ProductModel;
   constructor() {
     this.categoryModel = new CategoryModel();
+    this.productModel = new ProductModel();
   }
 
   public getCategoryValues = (
@@ -325,6 +328,13 @@ export default class CategoryService {
         return resolve({
           message: MESSAGES.CATEGORY_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+      const products = await this.productModel.getAllByCategoryId(id);
+      if (products.length === 0) {
+        return resolve({
+          message: MESSAGES.CATEGORY_IN_PRODUCT,
+          statusCode: 400,
         });
       }
       await this.categoryModel.update(id, { is_deleted: true });

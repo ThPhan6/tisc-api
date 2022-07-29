@@ -78,6 +78,7 @@ export const MESSAGES = {
   CONTACT_NOT_FOUND: "Contact not found",
   PERMISSION_NOT_FOUND: "Permission not found",
   CATEGORY_NOT_FOUND: "Category not found",
+  CATEGORY_IN_PRODUCT: "Some products use this category. So, cannot delete.",
   CATEGORY_EXISTED: "Category existed",
   NOT_FOUND: "Not found",
   COLLECTION_EXISTED: "Collection existed.",

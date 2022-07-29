@@ -129,9 +129,9 @@ export default class ProductModel extends Model<IProductAttributes> {
     category_id: string,
     brand_id?: string,
     name?: string
-  ) => {
+  ): Promise<IProductAttributes[]> => {
     try {
-      let result = this.getBuilder()
+      let result: any = this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereInRevert("category_ids", category_id);
       if (brand_id) {
@@ -141,7 +141,7 @@ export default class ProductModel extends Model<IProductAttributes> {
         result = result.whereLike("name", name);
       }
       result = await result.orderBy("created_at", "DESC").select();
-      return result as any;
+      return result as IProductAttributes[];
     } catch (error) {
       return [];
     }
