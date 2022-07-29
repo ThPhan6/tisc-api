@@ -20,7 +20,7 @@ const removeUnnecessaryArangoFields = (obj: any) => {
   return rest;
 };
 
-export default class Builder {
+export default class QueryBuilder {
   private modelName: string;
   private prefix: string;
   private query: string;

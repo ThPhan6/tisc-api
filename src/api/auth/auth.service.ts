@@ -29,7 +29,6 @@ import {
 } from "../../helper/jwt.helper";
 import {
   ROLES,
-  TISC_ADMIN_USER_ID,
   USER_STATUSES,
 } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";

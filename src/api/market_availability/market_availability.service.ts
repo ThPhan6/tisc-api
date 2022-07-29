@@ -13,7 +13,7 @@ import {
 import DistributorModel from "../../model/distributor.model";
 import BrandModel from "../../model/brand.model";
 import { getDistinctArray } from "../../helper/common.helper";
-export default class Service {
+export default class MarketAvailabilityService {
   private marketAvailabilityModel: MarketAvailabilityModel;
   private countryStateCityService: CountryStateCityService;
   private collectionModel: CollectionModel;

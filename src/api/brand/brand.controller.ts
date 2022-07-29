@@ -30,7 +30,7 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAllBrandSummary = async (
-    req: Request,
+    _req: Request,
     toolkit: ResponseToolkit
   ) => {
     const response = await this.service.getAllBrandSummary();

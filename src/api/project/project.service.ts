@@ -19,10 +19,8 @@ import BuildingTypeModel from "../../model/building_type.model";
 import UserModel from "../../model/user.model";
 import { IFunctionalTypesResponse } from "../location/location.type";
 import CountryStateCityService, {
-  ICountryStateCity,
 } from "../../service/country_state_city.service";
 import { IMessageResponse } from "../../type/common.type";
-import moment from "moment";
 
 export default class ProjectService {
   private projectModel: ProjectModel;

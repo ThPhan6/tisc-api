@@ -30,7 +30,7 @@ export default class LocationController {
     const response = await this.service.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllCountry = async (req: Request, toolkit: ResponseToolkit) => {
+  public getAllCountry = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getAllCountry();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -50,7 +50,7 @@ export default class LocationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAllCountryWithRegionGroup = async (
-    req: Request,
+    _req: Request,
     toolkit: ResponseToolkit
   ) => {
     const response = await this.service.getListCountryWithRegionGroup();

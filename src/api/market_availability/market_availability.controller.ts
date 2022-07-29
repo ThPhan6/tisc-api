@@ -1,9 +1,7 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import Service from "./market_availability.service";
-import {
-  IUpdateMarketAvailabilityRequest,
-} from "./market_availability.type";
-export default class LocationController {
+import { IUpdateMarketAvailabilityRequest } from "./market_availability.type";
+export default class MarketAvailabilityController {
   private service: Service;
   constructor() {
     this.service = new Service();
