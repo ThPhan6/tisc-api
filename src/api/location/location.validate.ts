@@ -13,6 +13,13 @@ const customFilter = (value: any, helpers: any) => {
   }
 };
 export default {
+  getMarketLocationsCountryGroup: {
+    params: {
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+    },
+  },
   getStates: {
     query: {
       country_id: Joi.string()
