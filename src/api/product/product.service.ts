@@ -877,6 +877,8 @@ export default class ProductService {
           id: item.id,
           option_code: item.option_code,
           name: foundValue.value_1 + " - " + foundValue.value_2,
+          value_1: foundValue.value_1,
+          value_2: foundValue.value_2,
           image: foundValue.image,
         };
       });

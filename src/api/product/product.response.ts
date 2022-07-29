@@ -106,7 +106,9 @@ export default {
   getProductOptions: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
-      name: Joi.string(),
+      name: Joi.any(),
+      value_1: Joi.any(),
+      value_2: Joi.any(),
       option_code: Joi.any(),
       image: Joi.any(),
     }),

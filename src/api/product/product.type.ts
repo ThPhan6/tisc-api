@@ -129,6 +129,8 @@ export interface IBrandProductSummary {
 export interface IProductOption {
   id: string;
   name?: string;
+  value_1?: string;
+  value_2?: string;
   option_code: string;
   image?: string;
 }
