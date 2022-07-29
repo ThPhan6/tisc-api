@@ -64,7 +64,7 @@ export const MESSAGES = {
   ACCOUNT_NOT_EXIST: "Account does not exist",
   VERIFY_ACCOUNT_FIRST: "Please verify your account first",
   PASSWORD_NOT_CORRECT: "Your password is not correct",
-  USER_ROLE_NOT_FOUND: "Not found user role",
+  USER_ROLE_NOT_FOUND: "Please login in the right section.",
   SEND_EMAIL_WRONG: "Something wrong when send email",
   USER_NOT_FOUND: "User not found",
   USER_EXISTED: "User existed",
