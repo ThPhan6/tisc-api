@@ -46,7 +46,7 @@ export default {
       categories: Joi.array().items(
         Joi.object({
           id: Joi.string(),
-          name: Joi.string(),
+          name: Joi.any(),
         })
       ),
       collections: Joi.array().items(
