@@ -7,7 +7,26 @@ const Joi = HapiJoi.defaults((schema) =>
 
 export default {
   getOne: Joi.object({
-    data: Joi.any(),
+    data: Joi.object({
+      id: Joi.string(),
+      project_id: Joi.string(),
+      name: Joi.string(),
+      area: Joi.array().items(
+        Joi.object({
+          name: Joi.string(),
+          room: Joi.array().items(
+            Joi.object({
+              room_name: Joi.string(),
+              room_id: Joi.string(),
+              room_size: Joi.string(),
+              quantity: Joi.number(),
+              sub_total: Joi.string(),
+            })
+          ),
+        })
+      ),
+      created_at: Joi.string(),
+    }),
     statusCode: Joi.number(),
   }) as any,
 };

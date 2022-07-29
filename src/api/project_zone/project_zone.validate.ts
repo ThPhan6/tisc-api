@@ -1,9 +1,31 @@
 import * as Joi from "joi";
-import { PROJECT_STATUS } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
   create: {
-    payload: {},
+    payload: {
+      project_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project is required")),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Zone is required")),
+      area: Joi.array().items(
+        Joi.object({
+          name: Joi.string().trim(),
+          room: Joi.array().items(
+            Joi.object({
+              room_name: Joi.string().trim(),
+              room_id: Joi.string().trim(),
+              room_size: Joi.number(),
+              room_size_unit: Joi.string().trim(),
+              quantity: Joi.number(),
+            })
+          ),
+        })
+      ),
+    },
   },
 };

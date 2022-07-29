@@ -139,6 +139,10 @@ export const MESSAGES = {
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE: "Just owner can update project",
   JUST_OWNER_CAN_DELETE: "Just owner can delete project",
+  JUST_OWNER_CAN_CREATE: "Just owner can create",
+  PROJECT_ZONE_EXISTED: "Project zone existed",
+  PROJECT_ZONE_AREA_DUPLICATED: "Project zone area duplicated.",
+  PROJECT_ZONE_ROOM_DUPLICATED: "Project zone room duplicated.",
 };
 
 export const BASIS_TYPES = {

@@ -16,13 +16,13 @@ export default class ProjectZoneRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: ROUTES.CREATE_PROJECT_ZONE,
+          path: ROUTES.CREATE_PROJECT_SPACE,
           options: {
             handler: controller.create,
             validate: validate.create,
             description: "Method that create project zone",
             tags: ["api", "Project Zone"],
-            // auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
