@@ -114,7 +114,10 @@ export default class ProjectService {
         });
       }
 
-      const project = await this.projectModel.findBy({ code: payload.code });
+      const project = await this.projectModel.findBy({
+        code: payload.code,
+        design_id: user.relation_id,
+      });
       if (project) {
         return resolve({
           message: MESSAGES.PROJECT_EXISTED,
