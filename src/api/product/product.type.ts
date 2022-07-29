@@ -96,6 +96,10 @@ export interface IProductsResponse {
   };
   statusCode: number;
 }
+export interface IDesignerProductsResponse {
+  data: any[];
+  statusCode: number;
+}
 
 export interface IRestCollectionProductsResponse {
   data: {

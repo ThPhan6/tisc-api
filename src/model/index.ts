@@ -185,6 +185,29 @@ export default class Model<IModelData> {
     }
   };
 
+  public getManyOrder = async (
+    ids: string[],
+    key?: string[],
+    sort_name?: string,
+    sort_order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any = this.getBuilder()
+        .builder.whereIn("id", ids)
+        .whereNot("is_deleted", true);
+      if (sort_name && sort_order) {
+        result = result.orderBy(sort_name, sort_order);
+      }
+      if (key) {
+        result = await result.select(key);
+      }
+      result = await result.select();
+      return result as IModelData[];
+    } catch (error) {
+      return [] as IModelData[];
+    }
+  };
+
   public getAll = async (
     keys?: string[],
     sort_name?: string,

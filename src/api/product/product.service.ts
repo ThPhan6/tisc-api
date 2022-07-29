@@ -23,6 +23,7 @@ import { IMessageResponse } from "../../type/common.type";
 import { getBufferFile } from "./../../service/aws.service";
 import {
   IBrandProductSummary,
+  IDesignerProductsResponse,
   IProductAssignToProject,
   IProductOptionAttribute,
   IProductOptionResponse,
@@ -625,70 +626,52 @@ export default class ProductService {
     brand_id: any,
     category_id: any,
     name?: string
-  ): Promise<IMessageResponse | IProductsResponse> => {
+  ): Promise<IMessageResponse | IDesignerProductsResponse> => {
     return new Promise(async (resolve) => {
-      let products: any[] = [];
+      let products: IProductAttributes[] = [];
       let returnData: any[] = [];
       if (!category_id && !brand_id) {
         brand_id = "all";
       }
       if (category_id) {
-        if (category_id === "all") {
-          products = await this.productModel.getAllByAndNameLike(
-            {},
-            undefined,
-            undefined,
-            undefined,
-            name
-          );
-          const rawCategoryIds = products.reduce(
-            (pre: string[], cur: IProductAttributes) => {
-              return pre.concat(cur.category_ids || []);
-            },
-            []
-          );
-          const categoryIds = getDistinctArray(rawCategoryIds);
-          const categories = await this.categoryService.getCategoryValues(
-            categoryIds
-          );
-          returnData = categories.map((category) => {
-            const categoryProducts = products.filter((item) =>
-              item.category_ids.includes(category.id)
-            );
-            return {
-              ...category,
-              count: categoryProducts.length,
-              products: categoryProducts,
-            };
-          });
-        } else {
-          products = await this.productModel.getAllByCategoryId(
-            category_id,
-            brand_id
-          );
-          const category = await this.categoryService.getCategoryValues([
-            category_id,
-          ]);
+        products = await this.productModel.getAllByAndNameLikeAndCategory(
+          {},
+          category_id,
+          undefined,
+          undefined,
+          undefined,
+          name
+        );
+        const brandIds = getDistinctArray(
+          products.map((product) => product.brand_id)
+        );
 
-          returnData = [
-            {
-              id: category[0].id,
-              name: category[0].name,
-              count: products.length,
-              products,
-            },
-          ];
-        }
+        const brands = await this.brandModel.getManyOrder(
+          brandIds,
+          ["id", "name"],
+          "name",
+          "ASC"
+        );
+        returnData = brands.map((brand) => {
+          const brandProducts = products.filter(
+            (item) => item.brand_id === brand.id
+          );
+          return {
+            ...brand,
+            count: brandProducts.length,
+            products: brandProducts,
+          };
+        });
       }
       if (brand_id) {
+        products = await this.productModel.getAllByAndNameLike(
+          {},
+          undefined,
+          undefined,
+          undefined,
+          name
+        );
         if (brand_id === "all") {
-          products = await this.productModel.getAllByAndNameLike(
-            {},
-            undefined,
-            undefined,
-            undefined,
-            name
-          );
           const brands = await this.brandModel.getAllBy(
             {},
             ["id", "name"],
@@ -706,22 +689,22 @@ export default class ProductService {
             };
           });
         } else {
-          products = await this.productModel.getAllByAndNameLike(
-            {},
-            undefined,
-            undefined,
-            undefined,
-            name
+          const collections = await this.collectionModel.getAllBy(
+            { brand_id },
+            ["id", "name"],
+            "name",
+            "ASC"
           );
-          const brand = await this.brandModel.find(brand_id);
-          returnData = [
-            {
-              id: brand?.id,
-              name: brand?.name,
-              count: products.length,
-              products,
-            },
-          ];
+          returnData = collections.map((collection) => {
+            const collectionProducts = products.filter(
+              (item) => item.collection_id === collection.id
+            );
+            return {
+              ...collection,
+              count: collectionProducts.length,
+              products: collectionProducts,
+            };
+          });
         }
       }
       returnData = returnData.map((item) => {
@@ -739,10 +722,7 @@ export default class ProductService {
         };
       });
       return resolve({
-        data: {
-          data: returnData,
-          brand: await this.brandModel.find(brand_id),
-        },
+        data: returnData,
         statusCode: 200,
       });
     });

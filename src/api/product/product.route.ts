@@ -43,7 +43,7 @@ export default class ProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: ProductResponse.getList,
+                200: ProductResponse.getListDesignerProducts,
               },
             },
           },
