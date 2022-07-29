@@ -226,6 +226,8 @@ export default {
       category_id: Joi.string(),
       brand_id: Joi.string(),
       name: Joi.string(),
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
     }),
   } as any,
   getBrandProductSummary: {

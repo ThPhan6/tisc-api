@@ -625,7 +625,9 @@ export default class ProductService {
     user_id: string,
     brand_id: any,
     category_id: any,
-    name?: string
+    name?: string,
+    sort?: string,
+    order?: "ASC" | "DESC"
   ): Promise<IMessageResponse | IDesignerProductsResponse> => {
     return new Promise(async (resolve) => {
       let products: IProductAttributes[] = [];
@@ -638,8 +640,8 @@ export default class ProductService {
           {},
           category_id,
           undefined,
-          undefined,
-          undefined,
+          sort,
+          order,
           name
         );
         const brandIds = getDistinctArray(
@@ -667,8 +669,8 @@ export default class ProductService {
         products = await this.productModel.getAllByAndNameLike(
           {},
           undefined,
-          undefined,
-          undefined,
+          sort,
+          order,
           name
         );
         if (brand_id === "all") {
