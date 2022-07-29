@@ -198,10 +198,7 @@ export default class Model<IModelData> {
       if (sort_name && sort_order) {
         result = result.orderBy(sort_name, sort_order);
       }
-      if (key) {
-        result = await result.select(key);
-      }
-      result = await result.select();
+      result = await result.select(key);
       return result as IModelData[];
     } catch (error) {
       return [] as IModelData[];
