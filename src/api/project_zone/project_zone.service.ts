@@ -132,9 +132,7 @@ export default class ProjectZoneService {
       const roomSizeUnit =
         foundProject.measurement_unit === MEASUREMENT_UNIT.IMPERIAL
           ? "sq.ft."
-          : foundProject.measurement_unit === MEASUREMENT_UNIT.METRIC
-          ? "sq.m."
-          : "";
+          : "sq.m.";
       const { is_deleted, ...rest } = createdProjectZone;
       const returnedAreas = createdProjectZone.area.map((area) => {
         const rooms = area.room.map((room) => {
