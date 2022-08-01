@@ -22,7 +22,7 @@ import {
 } from "./brand.type";
 import MailService from "../../service/mail.service";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
-import LocationModel from "../../model/location.model";
+import LocationModel, { ILocationAttributes } from "../../model/location.model";
 import ProductService from "../../api/product/product.service";
 import { IAvatarResponse } from "../user/user.type";
 import { upload, deleteFile } from "../../service/aws.service";
@@ -68,6 +68,17 @@ export default class BrandService {
     this.countryStateCityService = new CountryStateCityService();
   }
 
+  private getCountryName = (
+    originLocation: ILocationAttributes | false,
+    headquarterLocation: ILocationAttributes | false
+  ) => {
+    if (originLocation === false) {
+      return "N/A";
+    }
+    return headquarterLocation
+      ? headquarterLocation.country_name
+      : originLocation.country_name;
+  };
   public getList = (
     limit: number,
     offset: number,
@@ -381,12 +392,7 @@ export default class BrandService {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            country:
-              originLocation === false
-                ? "N/A"
-                : headquarterLocation
-                ? headquarterLocation.country_name
-                : originLocation.country_name,
+            country: this.getCountryName(originLocation, headquarterLocation),
             category_count: brandSummary.data.category_count,
             collection_count: brandSummary.data.collection_count,
             card_count: brandSummary.data.card_count,

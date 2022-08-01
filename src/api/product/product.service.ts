@@ -2,6 +2,7 @@ import moment from "moment";
 import { v4 as uuid } from "uuid";
 import CategoryService from "../../api/category/category.service";
 import {
+  ATTRIBUTE_TYPES,
   BASIS_TYPES,
   MESSAGES,
   VALID_IMAGE_TYPES,
@@ -36,6 +37,7 @@ import {
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
 import BasisModel from "../../model/basis.model";
+import AttributeModel from "../../model/attribute.model";
 import ProjectModel from "../../model/project.model";
 
 export default class ProductService {
@@ -47,6 +49,7 @@ export default class ProductService {
   private countryStateCityService: CountryStateCityService;
   private basisModel: BasisModel;
   private projectModel: ProjectModel;
+  private attributeModel: AttributeModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -57,6 +60,7 @@ export default class ProductService {
     this.countryStateCityService = new CountryStateCityService();
     this.basisModel = new BasisModel();
     this.projectModel = new ProjectModel();
+    this.attributeModel = new AttributeModel();
   }
   public create = (
     user_id: string,
@@ -429,6 +433,150 @@ export default class ProductService {
         await this.categoryService.getCategoryValues(
           product.category_ids || []
         );
+      const allFeatureAttributeGroup = await this.attributeModel.getAllBy({
+        type: ATTRIBUTE_TYPES.FEATURE,
+      });
+      const allFeatureAttribute: any[] = allFeatureAttributeGroup.reduce(
+        (pre: any, cur) => {
+          return pre.concat(cur.subs);
+        },
+        []
+      );
+      const allGeneralAttributeGroup = await this.attributeModel.getAllBy({
+        type: ATTRIBUTE_TYPES.GENERAL,
+      });
+      const allGeneralAttribute: any[] = allGeneralAttributeGroup.reduce(
+        (pre: any, cur) => {
+          return pre.concat(cur.subs);
+        },
+        []
+      );
+      const allSpecificationAttributeGroup = await this.attributeModel.getAllBy(
+        {
+          type: ATTRIBUTE_TYPES.SPECIFICATION,
+        }
+      );
+      const allSpecificationAttribute: any[] =
+        allSpecificationAttributeGroup.reduce((pre: any, cur) => {
+          return pre.concat(cur.subs);
+        }, []);
+
+      const allBasisOptionGroup = await this.basisModel.getAllBy({
+        type: BASIS_TYPES.OPTION,
+      });
+      const allBasisOption = allBasisOptionGroup.reduce((pre, cur) => {
+        return pre.concat(cur.subs);
+      }, []);
+
+      const allBasisOptionValue: any[] = allBasisOption.reduce(
+        (pre: any, cur: any) => {
+          return pre.concat(cur.subs);
+        },
+        []
+      );
+      const allBasisConversionGroup = await this.basisModel.getAllBy({
+        type: BASIS_TYPES.CONVERSION,
+      });
+      const allBasisConversion = allBasisConversionGroup.reduce((pre, cur) => {
+        return pre.concat(cur.subs);
+      }, []);
+      const newSpecificationGroups = await Promise.all(
+        product.specification_attribute_groups.map(async (group) => {
+          const newAttributes = await Promise.all(
+            group.attributes.map(async (attribute) => {
+              const foundAttribute = allSpecificationAttribute.find(
+                (item) => item.id === attribute.id
+              );
+              let newBasisOptions: any = attribute.basis_options;
+              if (attribute.basis_options) {
+                newBasisOptions = attribute.basis_options.map((basisOption) => {
+                  const foundBasisOption = allBasisOptionValue.find(
+                    (item) => item.id === basisOption.id
+                  );
+                  return {
+                    ...basisOption,
+                    value_1: foundBasisOption.value_1,
+                    value_2: foundBasisOption.value_2,
+                    unit_1: foundBasisOption.unit_1,
+                    unit_2: foundBasisOption.unit_2,
+                    image: foundBasisOption.image,
+                  };
+                });
+              }
+              if (attribute.type === "Conversions") {
+                const conversion = allBasisConversion.find(
+                  (item: any) => item.id === attribute.basis_id
+                );
+                return {
+                  ...attribute,
+                  name: foundAttribute?.name,
+                  basis_options: newBasisOptions,
+                  conversion,
+                };
+              }
+              return {
+                ...attribute,
+                name: foundAttribute?.name,
+                basis_options: newBasisOptions,
+              };
+            })
+          );
+          return { ...group, attributes: newAttributes };
+        })
+      );
+      const newGeneralGroups = await Promise.all(
+        product.general_attribute_groups.map(async (group) => {
+          const newAttributes = await Promise.all(
+            group.attributes.map(async (attribute) => {
+              const foundAttribute = allGeneralAttribute.find(
+                (item) => item.id === attribute.id
+              );
+              if (attribute.type === "Conversions") {
+                const conversion = allBasisConversion.find(
+                  (item: any) => item.id === attribute.basis_id
+                );
+                return {
+                  ...attribute,
+                  name: foundAttribute?.name,
+                  conversion,
+                };
+              }
+              return {
+                ...attribute,
+                name: foundAttribute?.name,
+              };
+            })
+          );
+          return { ...group, attributes: newAttributes };
+        })
+      );
+      const newFeatureGroups = await Promise.all(
+        product.feature_attribute_groups.map(async (group) => {
+          const newAttributes = await Promise.all(
+            group.attributes.map(async (attribute) => {
+              const foundAttribute = allFeatureAttribute.find(
+                (item) => item.id === attribute.id
+              );
+              if (attribute.type === "Conversions") {
+                const conversion = allBasisConversion.find(
+                  (item: any) => item.id === attribute.basis_id
+                );
+                return {
+                  ...attribute,
+                  name: foundAttribute?.name,
+                  conversion,
+                };
+              }
+              return {
+                ...attribute,
+                name: foundAttribute?.name,
+              };
+            })
+          );
+          return { ...group, attributes: newAttributes };
+        })
+      );
+
       return resolve({
         data: {
           id: product.id,
@@ -444,10 +592,9 @@ export default class ProductService {
           name: product.name,
           code: product.code,
           description: product.description,
-          general_attribute_groups: product.general_attribute_groups,
-          feature_attribute_groups: product.feature_attribute_groups,
-          specification_attribute_groups:
-            product.specification_attribute_groups,
+          general_attribute_groups: newGeneralGroups,
+          feature_attribute_groups: newFeatureGroups,
+          specification_attribute_groups: newSpecificationGroups,
           created_at: product.created_at,
           created_by: product.created_by,
           favorites: product.favorites?.length || 0,
