@@ -4,9 +4,11 @@ export interface IProjectZoneAttributes {
   id: string;
   project_id: string;
   name: string;
-  area: {
+  areas: {
+    id: string;
     name: string;
-    room: {
+    rooms: {
+      id: string;
       room_name: string;
       room_id: string;
       room_size: number;
@@ -22,11 +24,13 @@ export const PROJECT_ZONE_NULL_ATTRIBUTES = {
   id: "",
   project_id: "",
   name: "",
-  area: [
+  areas: [
     {
+      id: "",
       name: "",
-      room: [
+      rooms: [
         {
+          id: "",
           room_name: "",
           room_id: "",
           room_size: "",

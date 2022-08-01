@@ -1,9 +1,9 @@
 export interface IProjectZoneRequest {
   project_id: string;
   name: string;
-  area: {
+  areas: {
     name: string;
-    room: {
+    rooms: {
       room_name: string;
       room_id: string;
       room_size: number;
@@ -17,9 +17,9 @@ export interface IProjectZoneResponse {
     id: string;
     project_id: string;
     name: string;
-    area: {
+    areas: {
       name: string;
-      room: {
+      rooms: {
         room_name: string;
         room_id: string;
         room_size: number;
@@ -29,6 +29,37 @@ export interface IProjectZoneResponse {
       }[];
     }[];
     created_at: string;
+  };
+  statusCode: number;
+}
+
+export interface IProjectZonesResponse {
+  data: {
+    project_zones: {
+      id: string;
+      project_id: string;
+      name: string;
+      count: number;
+      areas: {
+        id: string;
+        name: string;
+        count: number;
+        rooms: {
+          id: string;
+          room_name: string;
+          room_id: string;
+          room_size: number;
+          quantity: number;
+          sub_total: number;
+          room_size_unit: string;
+        }[];
+      }[];
+      created_at: string;
+    }[];
+    summary: {
+      name: string;
+      value: number;
+    }[];
   };
   statusCode: number;
 }
