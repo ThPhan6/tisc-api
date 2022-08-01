@@ -260,7 +260,8 @@ export default class ProductService {
       const brand = await this.brandModel.find(payload.brand_id);
       const duplicatedProduct = await this.productModel.getDuplicatedProduct(
         id,
-        payload.name
+        payload.name,
+        payload.brand_id
       );
       if (duplicatedProduct) {
         return resolve({
@@ -495,11 +496,11 @@ export default class ProductService {
                   );
                   return {
                     ...basisOption,
-                    value_1: foundBasisOption.value_1,
-                    value_2: foundBasisOption.value_2,
-                    unit_1: foundBasisOption.unit_1,
-                    unit_2: foundBasisOption.unit_2,
-                    image: foundBasisOption.image,
+                    value_1: foundBasisOption?.value_1,
+                    value_2: foundBasisOption?.value_2,
+                    unit_1: foundBasisOption?.unit_1,
+                    unit_2: foundBasisOption?.unit_2,
+                    image: foundBasisOption?.image,
                   };
                 });
               }

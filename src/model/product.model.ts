@@ -47,11 +47,16 @@ export default class ProductModel extends Model<IProductAttributes> {
   constructor() {
     super("products");
   }
-  public getDuplicatedProduct = async (id: string, name: string) => {
+  public getDuplicatedProduct = async (
+    id: string,
+    name: string,
+    brand_id: string
+  ) => {
     try {
       const result: any = await this.getBuilder()
         .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
+        .where("brand_id", brand_id)
         .where("name", name.toLowerCase())
         .first();
       return result;
