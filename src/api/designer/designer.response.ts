@@ -12,7 +12,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
-          logo: Joi.string(),
+          logo: Joi.string().allow(null),
           origin: Joi.any(),
           main_office: Joi.any(),
           satellites: Joi.number(),
