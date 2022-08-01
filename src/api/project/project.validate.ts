@@ -1,5 +1,8 @@
 import * as Joi from "joi";
-import { PROJECT_STATUS } from "../../constant/common.constant";
+import {
+  MEASUREMENT_UNIT,
+  PROJECT_STATUS,
+} from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
@@ -36,6 +39,7 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Building type is required")),
       measurement_unit: Joi.number()
+        .valid(MEASUREMENT_UNIT.METRIC, MEASUREMENT_UNIT.IMPERIAL)
         .required()
         .error(
           commonFailValidatedMessageFunction("Measurement unit is required")
@@ -98,6 +102,7 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Building type is required")),
       measurement_unit: Joi.number()
+        .valid(MEASUREMENT_UNIT.METRIC, MEASUREMENT_UNIT.IMPERIAL)
         .required()
         .error(
           commonFailValidatedMessageFunction("Measurement unit is required")
