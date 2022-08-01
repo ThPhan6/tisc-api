@@ -23,7 +23,7 @@ export interface IProjectAttributes {
   construction_start: string;
   team_profile_ids: string[];
 
-  product_ids: string[]
+  product_ids: string[];
 
   design_id: string;
   status: number;
@@ -49,7 +49,7 @@ export const PROJECT_NULL_ATTRIBUTES = {
   project_type: "",
   building_type_id: "",
   building_type: "",
-  measurement_unit: 0,
+  measurement_unit: 1,
   design_due: "",
   construction_start: "",
   team_profile_ids: [],
