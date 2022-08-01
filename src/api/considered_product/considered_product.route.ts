@@ -15,7 +15,7 @@ export default class ConsideredProductRoute implements IRoute {
       server.route([
         {
           method: "GET",
-          path: "/api/considered-product/get-list/{project_id}",
+          path: ROUTES.GET_CONSIDERED_PRODUCTS,
           options: {
             handler: controller.getList,
             validate: validate.getList,
@@ -32,7 +32,7 @@ export default class ConsideredProductRoute implements IRoute {
         },
         {
           method: "GET",
-          path: "/api/considered-product/status",
+          path: ROUTES.GET_CONSIDERED_PRODUCT_STATUS,
           options: {
             handler: controller.getConsideredProductStatusOptions,
             description: "Method that get list considered product status",

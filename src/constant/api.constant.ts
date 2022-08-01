@@ -181,6 +181,8 @@ export const ROUTES = {
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
+  GET_CONSIDERED_PRODUCTS: "/api/considered-product/get-list/{project_id}",
+  GET_CONSIDERED_PRODUCT_STATUS: "/api/considered-product/status",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -353,4 +355,8 @@ export const ROUTE_IDS = {
   GET_PROJECT_TYPES: "159",
   GET_BUILDING_TYPES: "160",
   GET_PROJECT_SUMMARY: "161",
+  GET_MARKET_LOCATIONS_COUNTRY_GROUP: "162",
+  GET_BRAND_LOCATIONS_COUNTRY_GROUP: "163",
+  GET_CONSIDERED_PRODUCTS: "164",
+  GET_CONSIDERED_PRODUCT_STATUS: "165",
 };
