@@ -674,11 +674,11 @@ export default class PermissionService {
           number: 7,
           parent_number: 5,
           routes: [
-            { id: ROUTE_IDS.CREATE_PROJECT_SPACE, accessable: true },
-            { id: ROUTE_IDS.UPDATE_PROJECT_SPACE, accessable: true },
-            { id: ROUTE_IDS.DELETE_PROJECT_SPACE, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_PROJECT_SPACE, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PROJECT_SPACE, accessable: true },
+            { id: ROUTE_IDS.CREATE_PROJECT_ZONE, accessable: true },
+            { id: ROUTE_IDS.UPDATE_PROJECT_ZONE, accessable: true },
+            { id: ROUTE_IDS.DELETE_PROJECT_ZONE, accessable: true },
+            { id: ROUTE_IDS.GET_LIST_PROJECT_ZONE, accessable: true },
+            { id: ROUTE_IDS.GET_ONE_PROJECT_ZONE, accessable: true },
           ],
         },
         {
@@ -898,11 +898,11 @@ export default class PermissionService {
           number: 7,
           parent_number: 5,
           routes: [
-            { id: ROUTE_IDS.CREATE_PROJECT_SPACE, accessable: false },
-            { id: ROUTE_IDS.UPDATE_PROJECT_SPACE, accessable: false },
-            { id: ROUTE_IDS.DELETE_PROJECT_SPACE, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_PROJECT_SPACE, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_PROJECT_SPACE, accessable: false },
+            { id: ROUTE_IDS.CREATE_PROJECT_ZONE, accessable: false },
+            { id: ROUTE_IDS.UPDATE_PROJECT_ZONE, accessable: false },
+            { id: ROUTE_IDS.DELETE_PROJECT_ZONE, accessable: false },
+            { id: ROUTE_IDS.GET_LIST_PROJECT_ZONE, accessable: false },
+            { id: ROUTE_IDS.GET_ONE_PROJECT_ZONE, accessable: false },
           ],
         },
         {

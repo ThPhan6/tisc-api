@@ -16,7 +16,7 @@ export default class ProjectZoneRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: ROUTES.CREATE_PROJECT_SPACE,
+          path: ROUTES.CREATE_PROJECT_ZONE,
           options: {
             handler: controller.create,
             validate: validate.create,
@@ -33,7 +33,7 @@ export default class ProjectZoneRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_LIST_PROJECT_SPACE,
+          path: ROUTES.GET_LIST_PROJECT_ZONE,
           options: {
             handler: controller.getList,
             validate: validate.getList,
