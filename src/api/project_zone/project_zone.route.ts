@@ -31,6 +31,23 @@ export default class ProjectZoneRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_PROJECT_SPACE,
+          options: {
+            handler: controller.getList,
+            validate: validate.getList,
+            description: "Method that get list project zone",
+            tags: ["api", "Project Zone"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
