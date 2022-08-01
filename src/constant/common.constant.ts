@@ -147,6 +147,7 @@ export const MESSAGES = {
   PROJECT_ZONE_AREA_DUPLICATED: "Project zone area duplicated.",
   PROJECT_ZONE_ROOM_DUPLICATED: "Project zone room duplicated.",
   JUST_OWNER_CAN_GET: "Just owner can get",
+  MATERIAL_CODE_NOT_FOUND: "Material code not found",
 };
 
 export const BASIS_TYPES = {

@@ -2,7 +2,7 @@ import ConsideredProductService from "./considered_product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { CONSIDERED_PRODUCT_STATUS_OPTIONS } from "../../constant/common.constant";
 
-export default class ProductController {
+export default class ConsideredProductController {
   private service: ConsideredProductService;
   constructor() {
     this.service = new ConsideredProductService();

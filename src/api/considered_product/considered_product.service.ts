@@ -1,6 +1,6 @@
 import ConsideredProductModel, {
   IConsideredProductAttributes,
-} from "../../model/considered_product";
+} from "../../model/considered_product.model";
 import ProjectZoneModel from "../../model/project_zone.model";
 import ProjectModel from "../../model/project.model";
 import ProductModel from "../../model/product.model";

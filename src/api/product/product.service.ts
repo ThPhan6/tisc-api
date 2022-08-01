@@ -41,8 +41,8 @@ import BasisModel from "../../model/basis.model";
 import AttributeModel from "../../model/attribute.model";
 import ProjectModel from "../../model/project.model";
 import ConsideredProductModel, {
-  CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES,
-} from "../../model/considered_product";
+  CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+} from "../../model/considered_product.model";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -1054,7 +1054,7 @@ export default class ProductService {
         await Promise.all(
           payload.project_zone_ids.map(async (project_zone_id) => {
             await this.consideredProductModel.create({
-              ...CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES,
+              ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
               product_id: payload.product_id,
               project_id: payload.project_id,
               assigned_by: user_id,
@@ -1067,7 +1067,7 @@ export default class ProductService {
         );
       } else {
         await this.consideredProductModel.create({
-          ...CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES,
+          ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
           product_id: payload.product_id,
           project_id: payload.project_id,
           assigned_by: user_id,

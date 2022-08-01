@@ -12,7 +12,7 @@ export interface IConsideredProductAttributes {
   is_entire: boolean;
 }
 
-export const CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES = {
+export const CONSIDERED_PRODUCT_NULL_ATTRIBUTES = {
   id: null,
   product_id: null,
   project_id: null,
