@@ -59,4 +59,22 @@ export default class ProjectZoneModel extends Model<IProjectZoneAttributes> {
       return false;
     }
   };
+
+  public getExistedProjectZone = async (
+    id: string,
+    name: string,
+    projectId: string
+  ) => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("name", name.toLowerCase())
+        .where("project_id", projectId)
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }

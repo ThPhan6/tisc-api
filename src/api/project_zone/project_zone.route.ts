@@ -1,6 +1,4 @@
-import { generalMessageResponse } from "./../../helper/response.helper";
 import * as Hapi from "@hapi/hapi";
-import commonValidate from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
@@ -21,7 +19,7 @@ export default class ProjectZoneRoute implements IRoute {
             handler: controller.create,
             validate: validate.create,
             description: "Method that create project zone",
-            tags: ["api", "Project Zone"],
+            tags: ["api", "Project zone"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -38,12 +36,62 @@ export default class ProjectZoneRoute implements IRoute {
             handler: controller.getList,
             validate: validate.getList,
             description: "Method that get list project zone",
-            tags: ["api", "Project Zone"],
+            tags: ["api", "Project zone"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_PROJECT_ZONE,
+          options: {
+            handler: controller.getOne,
+            validate: validate.getOne,
+            description: "Method that get one project zone",
+            tags: ["api", "Project zone"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_PROJECT_ZONE,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update project zone",
+            tags: ["api", "Project zone"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_PROJECT_ZONE,
+          options: {
+            handler: controller.delete,
+            validate: validate.getOne,
+            description: "Method that delete project zone",
+            tags: ["api", "Project zone"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

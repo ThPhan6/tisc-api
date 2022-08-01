@@ -147,6 +147,7 @@ export const MESSAGES = {
   PROJECT_ZONE_AREA_DUPLICATED: "Project zone area duplicated.",
   PROJECT_ZONE_ROOM_DUPLICATED: "Project zone room duplicated.",
   JUST_OWNER_CAN_GET: "Just owner can get",
+  PROJECT_ZONE_NOT_FOUND: "Project zone not found",
 };
 
 export const BASIS_TYPES = {
