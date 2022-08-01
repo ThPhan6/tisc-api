@@ -589,4 +589,8 @@ export default class UserService {
       });
     });
   };
+
+  public getTeamGroupByCountry = async (
+    brand_id: string
+  ): Promise<IMessageResponse | IGetTeamsGroupByCountry> => {};
 }

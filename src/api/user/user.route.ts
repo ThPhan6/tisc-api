@@ -197,7 +197,7 @@ export default class UserRoute implements IRoute {
         },
         {
           method: "GET",
-          path: '/api/user/get-interested-options',
+          path: "/api/user/get-interested-options",
           options: {
             handler: controller.getInterestedOptions,
             description: "Method that get interested options",
@@ -209,6 +209,22 @@ export default class UserRoute implements IRoute {
                 200: response.getInterestedOptions,
               },
             },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_TEAM_GROUP_BY_COUNTRY,
+          options: {
+            handler: controller.getTeamGroupByCountry,
+            description: "Method that get list team group by country",
+            tags: ["api", "User profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            // response: {
+            //   status: {
+            //     ...defaultRouteOptionResponseStatus,
+            //     200: response.,
+            //   },
+            // },
           },
         },
       ]);

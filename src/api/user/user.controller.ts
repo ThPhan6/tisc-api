@@ -92,4 +92,13 @@ export default class UserController {
   ) => {
     return toolkit.response(INTERESTED_IN_OPTIONS).code(200);
   };
+
+  public getTeamGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.query;
+    const response = await this.service.getTeamGroupByCountry(brand_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
