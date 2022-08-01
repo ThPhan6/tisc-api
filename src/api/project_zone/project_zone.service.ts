@@ -70,7 +70,7 @@ export default class ProjectZoneService {
       }
       if (
         isDuplicatedString(
-          payload.area.map((item) => {
+          payload.areas.map((item) => {
             return item.name;
           })
         )
@@ -82,15 +82,15 @@ export default class ProjectZoneService {
       }
 
       let isAreaDuplicate = false;
-      payload.area.forEach((area) => {
+      payload.areas.forEach((area) => {
         if (
           isDuplicatedString(
-            area.room.map((item) => {
+            area.rooms.map((item) => {
               return item.room_name;
             })
           ) ||
           isDuplicatedString(
-            area.room.map((item) => {
+            area.rooms.map((item) => {
               return item.room_id;
             })
           )
@@ -105,8 +105,8 @@ export default class ProjectZoneService {
         });
       }
 
-      const areas = payload.area.map((area) => {
-        const rooms = area.room.map((room) => {
+      const areas = payload.areas.map((area) => {
+        const rooms = area.rooms.map((room) => {
           return {
             id: uuidv4(),
             room_name: room.room_name,
@@ -119,7 +119,7 @@ export default class ProjectZoneService {
         return {
           id: uuidv4(),
           name: area.name,
-          room: rooms,
+          rooms,
         };
       });
 
@@ -127,7 +127,7 @@ export default class ProjectZoneService {
         ...PROJECT_ZONE_NULL_ATTRIBUTES,
         project_id: payload.project_id,
         name: payload.name,
-        area: areas,
+        areas,
       });
       if (!createdProjectZone) {
         return resolve({
@@ -140,8 +140,8 @@ export default class ProjectZoneService {
           ? "sq.ft."
           : "sq.m.";
       const { is_deleted, ...rest } = createdProjectZone;
-      const returnedAreas = createdProjectZone.area.map((area) => {
-        const rooms = area.room.map((room) => {
+      const returnedAreas = createdProjectZone.areas.map((area) => {
+        const rooms = area.rooms.map((room) => {
           return {
             ...room,
             room_size_unit: roomSizeUnit,
@@ -149,12 +149,12 @@ export default class ProjectZoneService {
         });
         return {
           ...area,
-          room: rooms,
+          rooms,
         };
       });
 
       return resolve({
-        data: { ...rest, area: returnedAreas },
+        data: { ...rest, areas: returnedAreas },
         statusCode: 200,
       });
     });
@@ -206,26 +206,26 @@ export default class ProjectZoneService {
           : "sq.m.";
       const result = projectZones.map((projectZone) => {
         const { is_deleted, ...rest } = projectZone;
-        const areas = projectZone.area.map((area) => {
-          const rooms = area.room.map((room) => {
+        const areas = projectZone.areas.map((area) => {
+          const rooms = area.rooms.map((room) => {
             totalArea += room.quantity * room.room_size;
             return {
               ...room,
               room_size_unit: roomSizeUnit,
             };
           });
-          countRoom = area.room.length;
+          countRoom = area.rooms.length;
           return {
             ...area,
-            room: rooms,
-            count: area.room.length,
+            rooms,
+            count: area.rooms.length,
           };
         });
-        countArea = projectZone.area.length;
+        countArea = projectZone.areas.length;
         return {
           ...rest,
-          area: areas,
-          count: projectZone.area.length,
+          areas,
+          count: projectZone.areas.length,
         };
       });
 

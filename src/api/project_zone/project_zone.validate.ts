@@ -12,14 +12,14 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Zone is required")),
-      area: Joi.array()
+      areas: Joi.array()
         .items(
           Joi.object({
             name: Joi.string()
               .trim()
               .required()
               .error(commonFailValidatedMessageFunction("Area is required")),
-            room: Joi.array()
+            rooms: Joi.array()
               .items(
                 Joi.object({
                   room_name: Joi.string()

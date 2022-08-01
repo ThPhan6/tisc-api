@@ -11,11 +11,11 @@ export default {
       id: Joi.string(),
       project_id: Joi.string(),
       name: Joi.string(),
-      area: Joi.array().items(
+      areas: Joi.array().items(
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
-          room: Joi.array().items(
+          rooms: Joi.array().items(
             Joi.object({
               id: Joi.string(),
               room_name: Joi.string(),
@@ -40,12 +40,12 @@ export default {
           project_id: Joi.string(),
           name: Joi.string(),
           count: Joi.number(),
-          area: Joi.array().items(
+          areas: Joi.array().items(
             Joi.object({
               id: Joi.string(),
               name: Joi.string(),
               count: Joi.number(),
-              room: Joi.array().items(
+              rooms: Joi.array().items(
                 Joi.object({
                   id: Joi.string(),
                   room_name: Joi.string(),
