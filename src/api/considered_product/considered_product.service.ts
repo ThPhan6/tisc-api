@@ -1,0 +1,190 @@
+import ConsideredProductModel, {
+  IConsideredProductAttributes,
+} from "../../model/considered_product";
+import ProjectZoneModel from "../../model/project_zone.model";
+import ProjectModel from "../../model/project.model";
+import ProductModel from "../../model/product.model";
+import BrandModel from "../../model/brand.model";
+import CollectionModel from "../../model/collection.model";
+import UserModel from "../../model/user.model";
+import {
+  CONSIDERED_PRODUCT_STATUS,
+  MESSAGES,
+} from "../../constant/common.constant";
+import {
+  getConsideredProductStatusName,
+  sortObjectArray,
+} from "../../helper/common.helper";
+import {
+  IConsideredProductsResponse,
+  SortOrder,
+} from "./considered_product.type";
+import { IMessageResponse } from "../../type/common.type";
+
+export default class ConsideredProductService {
+  private consideredProductModel: ConsideredProductModel;
+  private projectZoneModel: ProjectZoneModel;
+  private projectModel: ProjectModel;
+  private productModel: ProductModel;
+  private brandModel: BrandModel;
+  private collectionModel: CollectionModel;
+  private userModel: UserModel;
+
+  constructor() {
+    this.consideredProductModel = new ConsideredProductModel();
+    this.projectZoneModel = new ProjectZoneModel();
+    this.projectModel = new ProjectModel();
+    this.productModel = new ProductModel();
+    this.brandModel = new BrandModel();
+    this.collectionModel = new CollectionModel();
+    this.userModel = new UserModel();
+  }
+  private getAssignProducts = async (
+    foundConsideredProducts: IConsideredProductAttributes[],
+    brand_order: SortOrder
+  ) => {
+    const products = await Promise.all(
+      foundConsideredProducts.map(async (foundConsideredProduct) => {
+        const product = await this.productModel.find(
+          foundConsideredProduct.product_id
+        );
+        if (!product) {
+          return {};
+        }
+        const brand = await this.brandModel.find(product.brand_id);
+        const collection = await this.collectionModel.find(
+          product.collection_id || ""
+        );
+        const user = await this.userModel.find(
+          foundConsideredProduct.assigned_by
+        );
+
+        return {
+          id: product.id,
+          name: product.name,
+          image: product.images[0],
+          brand_id: product.brand_id,
+          brand_name: brand?.name,
+          collection_id: product.collection_id,
+          collection_name: collection?.name,
+          assigned_by: foundConsideredProduct.assigned_by,
+          assigned_name: user?.firstname + " " + user?.lastname,
+          status: foundConsideredProduct.status,
+          status_name: getConsideredProductStatusName(
+            foundConsideredProduct.status
+          ),
+        };
+      })
+    );
+    return sortObjectArray(products, "brand_name", brand_order);
+  };
+
+  getList = (
+    project_id: string,
+    zone_order: SortOrder,
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder
+  ): Promise<IConsideredProductsResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const projectZones = await this.projectZoneModel.getAllBy(
+        {
+          project_id,
+        },
+        ["id", "name", "areas"],
+        "name",
+        zone_order
+      );
+
+      const consideredProducts = await this.consideredProductModel.getAllBy(
+        {
+          project_id,
+        },
+        [
+          "id",
+          "product_id",
+          "project_zone_id",
+          "assigned_by",
+          "status",
+          "is_entire",
+        ]
+      );
+      const newProjectZones = await Promise.all(
+        projectZones.map(async (zone) => {
+          const newAreas = await Promise.all(
+            zone.areas.map(async (area) => {
+              const newRooms = await Promise.all(
+                area.rooms.map(async (room) => {
+                  const foundConsideredProducts = consideredProducts.filter(
+                    (item) => item.project_zone_id === room.id
+                  );
+                  const products = await this.getAssignProducts(
+                    foundConsideredProducts,
+                    brand_order
+                  );
+                  return {
+                    ...room,
+                    products,
+                    count: products.length,
+                  };
+                })
+              );
+              const sortedNewRooms = sortObjectArray(
+                newRooms,
+                "name",
+                room_order
+              );
+              return {
+                ...area,
+                rooms: sortedNewRooms,
+              };
+            })
+          );
+          const sortedAreas = sortObjectArray(newAreas, "name", area_order);
+          return {
+            ...zone,
+            areas: sortedAreas,
+          };
+        })
+      );
+      const entireConsideredProducts = consideredProducts.filter(
+        (item) => item.is_entire === true
+      );
+      const entireProducts = await this.getAssignProducts(
+        entireConsideredProducts,
+        brand_order
+      );
+      const result = [
+        {
+          name: "ENTIRE PROJECT",
+          products: entireProducts,
+          count: entireProducts.length,
+        },
+      ].concat(newProjectZones as any);
+      const consideredCount = consideredProducts.reduce((pre, cur) => {
+        if (cur.status === CONSIDERED_PRODUCT_STATUS.CONSIDERED) return pre + 1;
+        return pre;
+      }, 0);
+      const unlistedCount = consideredProducts.reduce((pre, cur) => {
+        if (cur.status === CONSIDERED_PRODUCT_STATUS.UNLISTED) return pre + 1;
+        return pre;
+      }, 0);
+      return resolve({
+        data: {
+          considered_products: result,
+          summary: [
+            { name: "Considered", value: consideredCount },
+            { name: "Unlisted", value: unlistedCount },
+          ],
+        },
+        statusCode: 200,
+      });
+    });
+}

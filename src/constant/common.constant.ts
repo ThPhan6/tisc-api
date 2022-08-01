@@ -334,3 +334,24 @@ export const INTERESTED_IN_OPTIONS = [
     value: INTERESTED_IN.PRODUCT_RECOMMENDATION,
   },
 ];
+
+export const CONSIDERED_PRODUCT_STATUS = {
+  CONSIDERED: 1,
+  RE_CONSIDERED: 2,
+  UNLISTED: 3,
+};
+
+export const CONSIDERED_PRODUCT_STATUS_OPTIONS = [
+  {
+    key: "Considered",
+    value: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+  },
+  {
+    key: "Re-considered",
+    value: CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED,
+  },
+  {
+    key: "Unlisted",
+    value: CONSIDERED_PRODUCT_STATUS.UNLISTED,
+  },
+];

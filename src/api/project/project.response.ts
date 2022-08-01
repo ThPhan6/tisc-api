@@ -22,7 +22,7 @@ export default {
         id: Joi.string(),
         code: Joi.string(),
         name: Joi.string(),
-        location: Joi.string(),
+        location: Joi.any(),
         project_type: Joi.string(),
         building_type: Joi.string(),
         design_due: Joi.string(),

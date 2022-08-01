@@ -4,6 +4,7 @@ import CategoryService from "../../api/category/category.service";
 import {
   ATTRIBUTE_TYPES,
   BASIS_TYPES,
+  CONSIDERED_PRODUCT_STATUS,
   MESSAGES,
   VALID_IMAGE_TYPES,
 } from "../../constant/common.constant";
@@ -39,6 +40,9 @@ import CountryStateCityService from "../../service/country_state_city_v1.service
 import BasisModel from "../../model/basis.model";
 import AttributeModel from "../../model/attribute.model";
 import ProjectModel from "../../model/project.model";
+import ConsideredProductModel, {
+  CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES,
+} from "../../model/considered_product";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -50,6 +54,7 @@ export default class ProductService {
   private basisModel: BasisModel;
   private projectModel: ProjectModel;
   private attributeModel: AttributeModel;
+  private consideredProductModel: ConsideredProductModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -61,6 +66,7 @@ export default class ProductService {
     this.basisModel = new BasisModel();
     this.projectModel = new ProjectModel();
     this.attributeModel = new AttributeModel();
+    this.consideredProductModel = new ConsideredProductModel();
   }
   public create = (
     user_id: string,
@@ -1023,6 +1029,7 @@ export default class ProductService {
       });
     });
   public assign = (
+    user_id: string,
     payload: IProductAssignToProject
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
@@ -1038,6 +1045,34 @@ export default class ProductService {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
           statusCode: 400,
+        });
+      }
+      if (
+        payload.is_entire === false &&
+        payload.project_zone_ids.length !== 0
+      ) {
+        await Promise.all(
+          payload.project_zone_ids.map(async (project_zone_id) => {
+            await this.consideredProductModel.create({
+              ...CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES,
+              product_id: payload.product_id,
+              project_id: payload.project_id,
+              assigned_by: user_id,
+              is_entire: false,
+              project_zone_id,
+              status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+            });
+            return true;
+          })
+        );
+      } else {
+        await this.consideredProductModel.create({
+          ...CONSIDERED_PRODUCT_TIP_NULL_ATTRIBUTES,
+          product_id: payload.product_id,
+          project_id: payload.project_id,
+          assigned_by: user_id,
+          is_entire: true,
+          status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
         });
       }
       const newProductIds = project.product_ids
