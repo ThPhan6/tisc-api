@@ -42,4 +42,21 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getAllDesignSummary: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        quantity: Joi.number(),
+        label: Joi.string(),
+        subs: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            quantity: Joi.number(),
+            label: Joi.string(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
 };
