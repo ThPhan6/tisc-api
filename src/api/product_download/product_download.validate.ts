@@ -7,19 +7,34 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Product is required")),
-      contents: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          title: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Title is required")),
-          url: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Url required")),
-        })
-      ),
+      contents: Joi.array()
+        .items(
+          Joi.object({
+            id: Joi.any(),
+            title: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "File name product download is required"
+                )
+              ),
+            url: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Url product download is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product download contents is required"
+          )
+        ),
     },
   },
   update: {
@@ -29,19 +44,34 @@ export default {
         .error(commonFailValidatedMessageFunction("Product id is required")),
     },
     payload: {
-      contents: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          title: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Title is required")),
-          url: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Url required")),
-        })
-      ),
+      contents: Joi.array()
+        .items(
+          Joi.object({
+            id: Joi.any(),
+            title: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "File name product download is required"
+                )
+              ),
+            url: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Url product download is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product download contents is required"
+          )
+        ),
     },
   },
   getOne: {
