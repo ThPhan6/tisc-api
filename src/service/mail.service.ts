@@ -109,7 +109,7 @@ export default class MailService {
         operating_system: os.type(),
         browser_name: browserName,
         fullname:
-          userType === "design"
+          user.type === SYSTEM_TYPE.DESIGN
             ? user.firstname
             : user.firstname + " " + user.lastname,
         reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
