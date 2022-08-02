@@ -249,6 +249,7 @@ export default {
   },
   assign: {
     payload: {
+      is_entire: Joi.boolean().required(),
       product_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Product id is required")),

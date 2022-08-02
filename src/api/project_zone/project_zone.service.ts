@@ -284,7 +284,6 @@ export default class ProjectZoneService {
 
   public getOne = async (
     userId: string,
-    projectId: string,
     projectZoneId: string
   ): Promise<IMessageResponse | IProjectZoneResponse> => {
     return new Promise(async (resolve) => {
@@ -295,8 +294,15 @@ export default class ProjectZoneService {
           statusCode: 404,
         });
       }
+      const projectZone = await this.projectZoneModel.find(projectZoneId);
+      if (!projectZone) {
+        return resolve({
+          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const foundProject = await this.projectModel.findBy({
-        id: projectId,
+        id: projectZone.project_id,
         design_id: foundUser.relation_id,
       });
       if (!foundProject) {
@@ -313,13 +319,6 @@ export default class ProjectZoneService {
         return resolve({
           message: MESSAGES.JUST_OWNER_CAN_GET,
           statusCode: 400,
-        });
-      }
-      const projectZone = await this.projectZoneModel.find(projectZoneId);
-      if (!projectZone) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
-          statusCode: 404,
         });
       }
 
@@ -351,7 +350,6 @@ export default class ProjectZoneService {
   };
   public delete = async (
     userId: string,
-    projectId: string,
     projectZoneId: string
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
@@ -362,8 +360,15 @@ export default class ProjectZoneService {
           statusCode: 404,
         });
       }
+      const projectZone = await this.projectZoneModel.find(projectZoneId);
+      if (!projectZone) {
+        return resolve({
+          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const foundProject = await this.projectModel.findBy({
-        id: projectId,
+        id: projectZone.project_id,
         design_id: foundUser.relation_id,
       });
       if (!foundProject) {
@@ -380,13 +385,6 @@ export default class ProjectZoneService {
         return resolve({
           message: MESSAGES.JUST_OWNER_CAN_DELETE,
           statusCode: 400,
-        });
-      }
-      const projectZone = await this.projectZoneModel.find(projectZoneId);
-      if (!projectZone) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
-          statusCode: 404,
         });
       }
 
@@ -408,7 +406,6 @@ export default class ProjectZoneService {
   };
   public update = async (
     userId: string,
-    projectId: string,
     projectZoneId: string,
     payload: IUpdateProjectZoneRequest
   ): Promise<IMessageResponse | IProjectZoneResponse> => {
@@ -420,8 +417,16 @@ export default class ProjectZoneService {
           statusCode: 404,
         });
       }
+
+      const projectZone = await this.projectZoneModel.find(projectZoneId);
+      if (!projectZone) {
+        return resolve({
+          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const foundProject = await this.projectModel.findBy({
-        id: projectId,
+        id: projectZone.project_id,
         design_id: foundUser.relation_id,
       });
       if (!foundProject) {
@@ -440,19 +445,12 @@ export default class ProjectZoneService {
           statusCode: 400,
         });
       }
-      const projectZone = await this.projectZoneModel.find(projectZoneId);
-      if (!projectZone) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
 
       const foundProjectZone =
         await this.projectZoneModel.getExistedProjectZone(
           projectZoneId,
           payload.name,
-          projectId
+          projectZone.project_id
         );
 
       if (foundProjectZone) {

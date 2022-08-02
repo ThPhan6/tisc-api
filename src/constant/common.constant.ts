@@ -140,14 +140,18 @@ export const MESSAGES = {
   PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
-  JUST_OWNER_CAN_UPDATE: "Just owner can update project",
-  JUST_OWNER_CAN_DELETE: "Just owner can delete project",
-  JUST_OWNER_CAN_CREATE: "Just owner can create",
+  JUST_OWNER_CAN_UPDATE:
+    "You are not in this design firm. So you cannot update",
+  JUST_OWNER_CAN_DELETE:
+    "You are not in this design firm. So you cannot delete",
+  JUST_OWNER_CAN_CREATE:
+    "You are not in this design firm. So you cannot create",
   PROJECT_ZONE_EXISTED: "Project zone existed",
   PROJECT_ZONE_AREA_DUPLICATED: "Project zone area duplicated.",
   PROJECT_ZONE_ROOM_DUPLICATED: "Project zone room duplicated.",
-  JUST_OWNER_CAN_GET: "Just owner can get",
+  JUST_OWNER_CAN_GET: "You are not in this design firm. So you cannot get",
   PROJECT_ZONE_NOT_FOUND: "Project zone not found",
+  MATERIAL_CODE_NOT_FOUND: "Material code not found",
 };
 
 export const BASIS_TYPES = {
@@ -333,5 +337,26 @@ export const INTERESTED_IN_OPTIONS = [
   {
     key: "Product Recommendations/Updates",
     value: INTERESTED_IN.PRODUCT_RECOMMENDATION,
+  },
+];
+
+export const CONSIDERED_PRODUCT_STATUS = {
+  CONSIDERED: 1,
+  RE_CONSIDERED: 2,
+  UNLISTED: 3,
+};
+
+export const CONSIDERED_PRODUCT_STATUS_OPTIONS = [
+  {
+    key: "Considered",
+    value: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+  },
+  {
+    key: "Re-considered",
+    value: CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED,
+  },
+  {
+    key: "Unlisted",
+    value: CONSIDERED_PRODUCT_STATUS.UNLISTED,
   },
 ];

@@ -21,6 +21,8 @@ import MarketAvailabilityRoute from "./api/market_availability/market_availabili
 import ProductCatelogueNDownloadRoute from "./api/product_catelogue_n_download/product_catelogue_n_download.route";
 import ProjectRoute from "./api/project/project.route";
 import ProjectZoneRoute from "./api/project_zone/project_zone.route";
+import ConsideredProductRoute from "./api/considered_product/considered_product.route";
+import MaterialCodeRoute from "./api/material_code/material_code.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -46,5 +48,7 @@ export default class Router {
     await new ProductCatelogueNDownloadRoute().register(server);
     await new ProjectRoute().register(server);
     await new ProjectZoneRoute().register(server);
+    await new ConsideredProductRoute().register(server);
+    await new MaterialCodeRoute().register(server);
   }
 }

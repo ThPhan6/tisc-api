@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
+import { CONSIDERED_PRODUCT_STATUS } from "../constant/common.constant";
 import { ROLES } from "../constant/user.constant";
 
 export const isDuplicatedString = (values: string[]) => {
@@ -105,4 +106,25 @@ export const getAccessLevel = (role_id: string) => {
 
 export const removeSpecialChars = (str: string, replaceStr: string = "") => {
   return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, replaceStr);
+};
+
+type ConsideredProductStatus = "Considered" | "Re-considered" | "Unlist";
+export const getConsideredProductStatusName = (
+  status: number
+): ConsideredProductStatus => {
+  let result: ConsideredProductStatus = "Unlist";
+  switch (status) {
+    case CONSIDERED_PRODUCT_STATUS.CONSIDERED:
+      result = "Considered";
+      break;
+
+    case CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED:
+      result = "Re-considered";
+      break;
+
+    default:
+      result = "Unlist";
+      break;
+  }
+  return result;
 };

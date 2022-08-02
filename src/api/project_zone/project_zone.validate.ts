@@ -83,12 +83,6 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Project zone is required")),
     },
-    query: {
-      project_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project is required")),
-    },
   },
   update: {
     params: {
@@ -96,12 +90,6 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Project zone is required")),
-    },
-    query: {
-      project_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project is required")),
     },
     payload: {
       project_id: Joi.string()

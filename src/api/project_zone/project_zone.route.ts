@@ -6,6 +6,7 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import validate from "./project_zone.validate";
 import response from "./project_zone.response";
 import ProjectZoneController from "./project_zone.controller";
+import commonValidate from "../../validate/common.validate";
 export default class ProjectZoneRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -51,7 +52,7 @@ export default class ProjectZoneRoute implements IRoute {
           path: ROUTES.GET_ONE_PROJECT_ZONE,
           options: {
             handler: controller.getOne,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that get one project zone",
             tags: ["api", "Project zone"],
             auth: AUTH_NAMES.PERMISSION,
@@ -85,7 +86,7 @@ export default class ProjectZoneRoute implements IRoute {
           path: ROUTES.DELETE_PROJECT_ZONE,
           options: {
             handler: controller.delete,
-            validate: validate.getOne,
+            validate: commonValidate.getOne,
             description: "Method that delete project zone",
             tags: ["api", "Project zone"],
             auth: AUTH_NAMES.PERMISSION,
