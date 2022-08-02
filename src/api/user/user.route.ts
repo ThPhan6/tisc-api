@@ -216,15 +216,16 @@ export default class UserRoute implements IRoute {
           path: ROUTES.GET_TEAM_GROUP_BY_COUNTRY,
           options: {
             handler: controller.getTeamGroupByCountry,
+            validate: validate.getWithBrandId,
             description: "Method that get list team group by country",
-            tags: ["api", "User profile"],
+            tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
-            // response: {
-            //   status: {
-            //     ...defaultRouteOptionResponseStatus,
-            //     200: response.,
-            //   },
-            // },
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByCountry,
+              },
+            },
           },
         },
       ]);

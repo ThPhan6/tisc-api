@@ -1,3 +1,4 @@
+import { getDistinctArray } from "./../../helper/common.helper";
 import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import UserModel, {
@@ -12,6 +13,7 @@ import {
   IUserResponse,
   IDepartmentsResponse,
   IUsersResponse,
+  IGetTeamsGroupByCountry,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
@@ -27,6 +29,7 @@ import { getAccessLevel } from "../../helper/common.helper";
 import PermissionService from "../../api/permission/permission.service";
 import BrandModel from "../../model/brand.model";
 import DesignModel from "../../model/designer.model";
+import CountryStateCityService from "../../service/country_state_city.service";
 
 export default class UserService {
   private userModel: UserModel;
@@ -36,6 +39,7 @@ export default class UserService {
   private permissionService: PermissionService;
   private brandModel: BrandModel;
   private designModel: DesignModel;
+  private countryStateCityService: CountryStateCityService;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
@@ -44,6 +48,7 @@ export default class UserService {
     this.permissionService = new PermissionService();
     this.brandModel = new BrandModel();
     this.designModel = new DesignModel();
+    this.countryStateCityService = new CountryStateCityService();
   }
 
   public create = (
@@ -591,6 +596,86 @@ export default class UserService {
   };
 
   public getTeamGroupByCountry = async (
+    user_id: string,
     brand_id: string
-  ): Promise<IMessageResponse | IGetTeamsGroupByCountry> => {};
+  ): Promise<IMessageResponse | IGetTeamsGroupByCountry> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      const users = await this.userModel.getBy({
+        type: user.type,
+        relation_id: user.relation_id,
+      });
+      const locationIds = getDistinctArray(
+        users.map((user) => user?.location_id || "")
+      );
+      const locations = await this.locationModel.getMany(locationIds);
+      let temp: {
+        [key: string]: {
+          country_name: string;
+          count: number;
+          users: any[];
+        };
+      } = {};
+      await Promise.all(
+        locations.map(async (location) => {
+          const country = await this.countryStateCityService.getCountryDetail(
+            location.country_id
+          );
+          const foundUser = users.find(
+            (item) => item.location_id === location.id
+          );
+          if (!foundUser) {
+            return null;
+          }
+          const removedFieldsOfUser = {
+            logo: foundUser.avatar,
+            firstname: foundUser.firstname,
+            lastname: foundUser.lastname,
+            gender: foundUser.gender,
+            work_location: foundUser.work_location?.replace(/^,/, "").trim(),
+            department: foundUser.department_id,
+            position: foundUser.position,
+            email: foundUser.email,
+            phone: foundUser.phone,
+            mobile: foundUser.mobile,
+            access_level: foundUser.access_level,
+            status: foundUser.status,
+          };
+          const newUsers = temp[country.name]
+            ? temp[country.name].users.concat([removedFieldsOfUser])
+            : [removedFieldsOfUser];
+          temp = {
+            ...temp,
+            [country.name]: {
+              ...temp[country.name],
+              country_name:
+                location.country_id === "-1" ? "Global" : country.name,
+              users: newUsers,
+              count: newUsers.length,
+            },
+          };
+          return true;
+        })
+      );
+      const result = Object.values(temp);
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
 }

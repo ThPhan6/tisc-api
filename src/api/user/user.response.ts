@@ -81,4 +81,30 @@ export default {
     key: Joi.string(),
     value: Joi.number(),
   }),
+
+  getTeamGroupByCountry: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        country_name: Joi.string(),
+        count: Joi.number(),
+        users: Joi.array().items(
+          Joi.object({
+            logo: Joi.string().allow(null),
+            firstname: Joi.string(),
+            lastname: Joi.string(),
+            gender: Joi.boolean(),
+            work_location: Joi.string(),
+            department: Joi.string(),
+            position: Joi.string(),
+            email: Joi.string(),
+            phone: Joi.string(),
+            mobile: Joi.string(),
+            access_level: Joi.string(),
+            status: Joi.number(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
 };

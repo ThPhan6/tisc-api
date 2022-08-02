@@ -98,7 +98,8 @@ export default class UserController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.query;
-    const response = await this.service.getTeamGroupByCountry(brand_id);
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getTeamGroupByCountry(userId, brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

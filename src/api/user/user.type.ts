@@ -88,6 +88,12 @@ export interface IGetTeamsGroupByCountry {
       work_location: string | null;
       department: string;
       position: string | null;
+      email: string;
+      phone: string | null;
+      mobile: string | null;
+      access_level: string;
+      status: number;
     }[];
   }[];
+  statusCode: number;
 }
