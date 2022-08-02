@@ -183,6 +183,12 @@ export const ROUTES = {
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
   GET_CONSIDERED_PRODUCTS: "/api/considered-product/get-list/{project_id}",
   GET_CONSIDERED_PRODUCT_STATUS: "/api/considered-product/status",
+  SPECIFY_PRODUCT: "/api/specified-product/specify",
+  GET_REQUIREMENT_TYPES: "/api/requirement-type/get-list",
+  GET_INSTRUCTION_TYPES: "/api/instruction-type/get-list",
+  GET_UNIT_TYPES: "/api/unit-type/get-list",
+  GET_ONE_SPECIFIED_PRODUCT:
+    "/api/specified-product/get-one/{considered_product_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -359,4 +365,9 @@ export const ROUTE_IDS = {
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "163",
   GET_CONSIDERED_PRODUCTS: "164",
   GET_CONSIDERED_PRODUCT_STATUS: "165",
+  SPECIFY_PRODUCT: "166",
+  GET_REQUIREMENT_TYPES: "167",
+  GET_INSTRUCTION_TYPES: "168",
+  GET_UNIT_TYPES: "169",
+  GET_ONE_SPECIFIED_PRODUCT: "170",
 };
