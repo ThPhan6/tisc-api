@@ -1,5 +1,6 @@
 import {
   DESIGN_STATUS_OPTIONS,
+  PROJECT_STATUS,
   REGION_KEY,
 } from "../../constant/common.constant";
 import DesignerModel, { IDesignerAttributes } from "../../model/designer.model";
@@ -204,22 +205,33 @@ export default class DesignerService {
           },
           {
             id: uuidv4(),
-            quantity: 11,
+            quantity: projects.flat(Infinity).length,
             label: "PROJECTS",
             subs: [
               {
                 id: uuidv4(),
-                quantity: 8,
+                quantity: projects
+                  .flat()
+                  .filter((project) => project.status === PROJECT_STATUS.LIVE)
+                  .length,
                 label: "Live",
               },
               {
                 id: uuidv4(),
-                quantity: 2,
+                quantity: projects
+                  .flat()
+                  .filter(
+                    (project) => project.status === PROJECT_STATUS.ON_HOLD
+                  ).length,
                 label: "On Hold",
               },
               {
                 id: uuidv4(),
-                quantity: 1,
+                quantity: projects
+                  .flat()
+                  .filter(
+                    (project) => project.status === PROJECT_STATUS.ARCHIVE
+                  ).length,
                 label: "Archived",
               },
             ],
