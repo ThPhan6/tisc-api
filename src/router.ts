@@ -23,6 +23,7 @@ import ProjectRoute from "./api/project/project.route";
 import ProjectZoneRoute from "./api/project_zone/project_zone.route";
 import ConsideredProductRoute from "./api/considered_product/considered_product.route";
 import MaterialCodeRoute from "./api/material_code/material_code.route";
+import SpecifiedProductRoute from "./api/specified_product/specified_product.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -50,5 +51,6 @@ export default class Router {
     await new ProjectZoneRoute().register(server);
     await new ConsideredProductRoute().register(server);
     await new MaterialCodeRoute().register(server);
+    await new SpecifiedProductRoute().register(server);
   }
 }

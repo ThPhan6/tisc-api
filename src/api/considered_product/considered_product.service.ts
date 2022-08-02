@@ -17,9 +17,8 @@ import {
 } from "../../helper/common.helper";
 import {
   IConsideredProductsResponse,
-  SortOrder,
 } from "./considered_product.type";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, SortOrder } from "../../type/common.type";
 
 export default class ConsideredProductService {
   private consideredProductModel: ConsideredProductModel;

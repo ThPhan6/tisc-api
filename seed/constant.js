@@ -470,6 +470,21 @@ const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
   is_deleted: false,
   type: 0,
 };
+const UNIT_TYPE_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  code: null,
+  created_at: null,
+  is_deleted: false,
+  design_id: "0",
+};
+const REQUIREMENT_TYPE_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  created_at: null,
+  is_deleted: false,
+  design_id: "0",
+};
 const PROJECT_TYPE_NULL_ATTRIBUTES = {
   id: "",
   name: "",
@@ -605,4 +620,6 @@ module.exports = {
   LOGO_PATH,
   PROJECT_TYPE_NULL_ATTRIBUTES,
   BUILDING_TYPE_NULL_ATTRIBUTES,
+  UNIT_TYPE_NULL_ATTRIBUTES,
+  REQUIREMENT_TYPE_NULL_ATTRIBUTES,
 };

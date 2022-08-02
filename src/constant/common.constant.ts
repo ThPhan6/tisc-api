@@ -1,9 +1,34 @@
+import {
+  ConsiderProductStatusKey,
+  ConsiderProductStatusValue,
+  OrderMethodKey,
+  OrderMethodValue,
+  InterestedInKey,
+  InterestedInValue,
+  MeasurementUnitKey,
+  MeasurementUnitValue,
+  ProjectStatusKey,
+  ProjectStatusValue,
+  RegionKey,
+  TargetedForKey,
+  TargetedForValue,
+  TopicTypeKey,
+  TopicTypeValue,
+  ISystemType,
+  BrandStatusKey,
+  BrandStatusValue,
+  DesignStatusKey,
+  DesignStatusValue,
+  BasisType,
+  AttributeType,
+  DocumentationType,
+} from "../type/common.type";
 export const EMAIL_TYPE = {
   VERIFICATION: "verification",
   FORGOT_PASSWORD: "forgot_password",
 };
 
-export const SYSTEM_TYPE = {
+export const SYSTEM_TYPE: ISystemType = {
   TISC: 1,
   BRAND: 2,
   DESIGN: 3,
@@ -17,13 +42,20 @@ export const VALID_IMAGE_TYPES = [
   "image/svg+xml",
 ];
 
-export const BRAND_STATUSES = {
+export const BRAND_STATUSES: {
+  ACTIVE: BrandStatusValue;
+  INACTIVE: BrandStatusValue;
+  PENDING: BrandStatusValue;
+} = {
   ACTIVE: 1,
   INACTIVE: 2,
   PENDING: 3,
 };
 
-export const BRAND_STATUS_OPTIONS = [
+export const BRAND_STATUS_OPTIONS: {
+  key: BrandStatusKey;
+  value: BrandStatusValue;
+}[] = [
   {
     key: "Active",
     value: BRAND_STATUSES.ACTIVE,
@@ -38,12 +70,18 @@ export const BRAND_STATUS_OPTIONS = [
   },
 ];
 
-export const DESIGN_STATUSES = {
+export const DESIGN_STATUSES: {
+  ACTIVE: DesignStatusValue;
+  INACTIVE: DesignStatusValue;
+} = {
   ACTIVE: 1,
   INACTIVE: 2,
 };
 
-export const DESIGN_STATUS_OPTIONS = [
+export const DESIGN_STATUS_OPTIONS: {
+  key: DesignStatusKey;
+  value: DesignStatusValue;
+}[] = [
   {
     key: "Active",
     value: DESIGN_STATUSES.ACTIVE,
@@ -152,14 +190,23 @@ export const MESSAGES = {
   JUST_OWNER_CAN_GET: "You are not in this design firm. So you cannot get",
   PROJECT_ZONE_NOT_FOUND: "Project zone not found",
   MATERIAL_CODE_NOT_FOUND: "Material code not found",
+  CONSIDERED_PRODUCT_NOT_FOUND: "Considered product not found",
 };
 
-export const BASIS_TYPES = {
+export const BASIS_TYPES: {
+  CONVERSION: BasisType;
+  PRESET: BasisType;
+  OPTION: BasisType;
+} = {
   CONVERSION: 1,
   PRESET: 2,
   OPTION: 3,
 };
-export const ATTRIBUTE_TYPES = {
+export const ATTRIBUTE_TYPES: {
+  GENERAL: AttributeType;
+  FEATURE: AttributeType;
+  SPECIFICATION: AttributeType;
+} = {
   GENERAL: 1,
   FEATURE: 2,
   SPECIFICATION: 3,
@@ -170,14 +217,25 @@ export const SHORT_TEXT_ID = "66d7e3c1-1c8f-4743-99bf-f607d5379504";
 
 export const BASIS_OPTION_STORE = "basis-option";
 
-export const DOCUMENTATION_TYPES = {
+export const DOCUMENTATION_TYPES: {
+  GENERAL: DocumentationType;
+  TISC_HOW_TO: DocumentationType;
+  BRAND_HOW_TO: DocumentationType;
+  DESIGN_HOW_TO: DocumentationType;
+} = {
   GENERAL: 1,
   TISC_HOW_TO: 2,
   BRAND_HOW_TO: 3,
   DESIGN_HOW_TO: 4,
 };
 
-export const TOPIC_TYPES = {
+export const TOPIC_TYPES: {
+  MARKETING: TopicTypeValue;
+  MESSAGES: TopicTypeValue;
+  ONBOARD: TopicTypeValue;
+  OPERATION: TopicTypeValue;
+  OTHER: TopicTypeValue;
+} = {
   MARKETING: 1,
   MESSAGES: 2,
   ONBOARD: 3,
@@ -185,7 +243,10 @@ export const TOPIC_TYPES = {
   OTHER: 5,
 };
 
-export const TOPIC_OPTIONS = [
+export const TOPIC_OPTIONS: {
+  key: TopicTypeKey;
+  value: TopicTypeValue;
+}[] = [
   {
     key: "Marketing",
     value: TOPIC_TYPES.MARKETING,
@@ -208,7 +269,13 @@ export const TOPIC_OPTIONS = [
   },
 ];
 
-export const TARGETED_FOR_TYPES = {
+export const TARGETED_FOR_TYPES: {
+  BRAND: TargetedForValue;
+  DESIGN_FIRM: TargetedForValue;
+  DISTRIBUTOR: TargetedForValue;
+  GENERAL: TargetedForValue;
+  TISC_TEAM: TargetedForValue;
+} = {
   BRAND: 1,
   DESIGN_FIRM: 2,
   DISTRIBUTOR: 3,
@@ -216,7 +283,10 @@ export const TARGETED_FOR_TYPES = {
   TISC_TEAM: 5,
 };
 
-export const TARGETED_FOR_OPTIONS = [
+export const TARGETED_FOR_OPTIONS: {
+  key: TargetedForKey;
+  value: TargetedForValue;
+}[] = [
   {
     key: "TISC Team",
     value: TARGETED_FOR_TYPES.TISC_TEAM,
@@ -239,7 +309,14 @@ export const TARGETED_FOR_OPTIONS = [
   },
 ];
 
-export const REGION_KEY = {
+export const REGION_KEY: {
+  AFRICA: RegionKey;
+  ASIA: RegionKey;
+  EUROPE: RegionKey;
+  NORTH_AMERICA: RegionKey;
+  OCEANIA: RegionKey;
+  SOUTH_AMERICA: RegionKey;
+} = {
   AFRICA: "africa",
   ASIA: "asia",
   EUROPE: "europe",
@@ -276,12 +353,19 @@ export const LOGO_PATH = {
   MATERIAL: "/logo/material.svg",
 };
 
-export const PROJECT_STATUS = {
+export const PROJECT_STATUS: {
+  ARCHIVE: ProjectStatusValue;
+  LIVE: ProjectStatusValue;
+  ON_HOLD: ProjectStatusValue;
+} = {
   ARCHIVE: 1,
   LIVE: 2,
   ON_HOLD: 3,
 };
-export const PROJECT_STATUS_OPTIONS = [
+export const PROJECT_STATUS_OPTIONS: {
+  key: ProjectStatusKey;
+  value: ProjectStatusValue;
+}[] = [
   {
     key: "Live",
     value: PROJECT_STATUS.LIVE,
@@ -295,11 +379,17 @@ export const PROJECT_STATUS_OPTIONS = [
     value: PROJECT_STATUS.ARCHIVE,
   },
 ];
-export const MEASUREMENT_UNIT = {
+export const MEASUREMENT_UNIT: {
+  IMPERIAL: MeasurementUnitValue;
+  METRIC: MeasurementUnitValue;
+} = {
   IMPERIAL: 1,
   METRIC: 2,
 };
-export const MEASUREMENT_UNIT_OPTIONS = [
+export const MEASUREMENT_UNIT_OPTIONS: {
+  key: MeasurementUnitKey;
+  value: MeasurementUnitValue;
+}[] = [
   {
     key: "Metric",
     value: MEASUREMENT_UNIT.METRIC,
@@ -310,14 +400,23 @@ export const MEASUREMENT_UNIT_OPTIONS = [
   },
 ];
 
-export const INTERESTED_IN = {
+export const INTERESTED_IN: {
+  BRAND_FACTORY: InterestedInValue;
+  DESIGN_CONFERENCE: InterestedInValue;
+  INDUSTRY_EXHIBITION: InterestedInValue;
+  PRODUCT_LAUNCHES: InterestedInValue;
+  PRODUCT_RECOMMENDATION: InterestedInValue;
+} = {
   BRAND_FACTORY: 1,
   DESIGN_CONFERENCE: 2,
   INDUSTRY_EXHIBITION: 3,
   PRODUCT_LAUNCHES: 4,
   PRODUCT_RECOMMENDATION: 5,
 };
-export const INTERESTED_IN_OPTIONS = [
+export const INTERESTED_IN_OPTIONS: {
+  key: InterestedInKey;
+  value: InterestedInValue;
+}[] = [
   {
     key: "Brand Factory/Showroom Visits",
     value: INTERESTED_IN.BRAND_FACTORY,
@@ -340,13 +439,20 @@ export const INTERESTED_IN_OPTIONS = [
   },
 ];
 
-export const CONSIDERED_PRODUCT_STATUS = {
+export const CONSIDERED_PRODUCT_STATUS: {
+  CONSIDERED: ConsiderProductStatusValue;
+  RE_CONSIDERED: ConsiderProductStatusValue;
+  UNLISTED: ConsiderProductStatusValue;
+} = {
   CONSIDERED: 1,
   RE_CONSIDERED: 2,
   UNLISTED: 3,
 };
 
-export const CONSIDERED_PRODUCT_STATUS_OPTIONS = [
+export const CONSIDERED_PRODUCT_STATUS_OPTIONS: {
+  key: ConsiderProductStatusKey;
+  value: ConsiderProductStatusValue;
+}[] = [
   {
     key: "Considered",
     value: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
@@ -359,4 +465,20 @@ export const CONSIDERED_PRODUCT_STATUS_OPTIONS = [
     key: "Unlisted",
     value: CONSIDERED_PRODUCT_STATUS.UNLISTED,
   },
+];
+
+export const ORDER_METHOD: {
+  DIRECT_PURCHASE: OrderMethodValue;
+  CUSTOM_ORDER: OrderMethodValue;
+} = {
+  DIRECT_PURCHASE: 1,
+  CUSTOM_ORDER: 2,
+};
+
+export const ORDER_METHOD_OPTIONS: {
+  key: OrderMethodKey;
+  value: OrderMethodValue;
+}[] = [
+  { key: "Direct Purchase", value: ORDER_METHOD.DIRECT_PURCHASE },
+  { key: "Custom Order", value: ORDER_METHOD.CUSTOM_ORDER },
 ];

@@ -185,6 +185,12 @@ export const ROUTES = {
   GET_CONSIDERED_PRODUCT_STATUS: "/api/considered-product/status",
 
   GET_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/get-list-group-by-country",
+  SPECIFY_PRODUCT: "/api/specified-product/specify",
+  GET_REQUIREMENT_TYPES: "/api/requirement-type/get-list",
+  GET_INSTRUCTION_TYPES: "/api/instruction-type/get-list",
+  GET_UNIT_TYPES: "/api/unit-type/get-list",
+  GET_ONE_SPECIFIED_PRODUCT:
+    "/api/specified-product/get-one/{considered_product_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -362,4 +368,9 @@ export const ROUTE_IDS = {
   GET_CONSIDERED_PRODUCTS: "164",
   GET_CONSIDERED_PRODUCT_STATUS: "165",
   GET_TEAM_GROUP_BY_COUNTRY: "166",
+  SPECIFY_PRODUCT: "167",
+  GET_REQUIREMENT_TYPES: "168",
+  GET_INSTRUCTION_TYPES: "169",
+  GET_UNIT_TYPES: "170",
+  GET_ONE_SPECIFIED_PRODUCT: "171",
 };

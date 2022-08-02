@@ -66,4 +66,21 @@ export default class ProjectModel extends Model<IProjectAttributes> {
   constructor() {
     super("projects");
   }
+  public getExistedProject = async (
+    id: string,
+    project_code: string,
+    design_id: string
+  ) => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereNot("id", id)
+        .whereNot("is_deleted", true)
+        .where("code", project_code)
+        .where("design_id", design_id)
+        .first();
+      return result;
+    } catch (error) {
+      return false;
+    }
+  };
 }
