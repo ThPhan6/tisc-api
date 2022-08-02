@@ -55,6 +55,7 @@ const seed = async (db) => {
           { id: ROUTE_IDS.GET_LIST_BRAND_BY_ALPHABET, accessable: true },
           { id: ROUTE_IDS.UPDATE_BRAND, accessable: true },
           { id: ROUTE_IDS.SEND_EMAIL_INVITE_BRAND, accessable: true },
+          { id: ROUTE_IDS.GET_TEAM_GROUP_BY_COUNTRY, accessable: true },
         ],
       },
       {
@@ -370,6 +371,7 @@ const seed = async (db) => {
           { id: ROUTE_IDS.GET_LIST_BRAND_BY_ALPHABET, accessable: false },
           { id: ROUTE_IDS.UPDATE_BRAND, accessable: false },
           { id: ROUTE_IDS.SEND_EMAIL_INVITE_BRAND, accessable: false },
+          { id: ROUTE_IDS.GET_TEAM_GROUP_BY_COUNTRY, accessable: false },
         ],
       },
       {
