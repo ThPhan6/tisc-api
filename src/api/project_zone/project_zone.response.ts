@@ -64,7 +64,7 @@ export default {
       summary: Joi.array().items(
         Joi.object({
           name: Joi.string(),
-          value: Joi.number(),
+          value: Joi.any(),
         })
       ),
     }),
