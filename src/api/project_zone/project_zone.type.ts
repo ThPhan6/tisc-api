@@ -11,6 +11,21 @@ export interface IProjectZoneRequest {
     }[];
   }[];
 }
+export interface IUpdateProjectZoneRequest {
+  project_id: string;
+  name: string;
+  areas: {
+    id: string;
+    name: string;
+    rooms: {
+      id: string;
+      room_name: string;
+      room_id: string;
+      room_size: number;
+      quantity: number;
+    }[];
+  }[];
+}
 
 export interface IProjectZoneResponse {
   data: {
