@@ -21,20 +21,46 @@ export default {
       general_attribute_groups: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string().required(),
+            name: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "General attribute title is required"
+                )
+              ),
             attributes: Joi.array()
               .items({
-                id: Joi.string().required(),
-                basis_id: Joi.string().required(),
+                id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Attribute is required")
+                  ),
+                basis_id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "General attribute basis is required"
+                    )
+                  ),
                 basis_value_id: Joi.any(),
                 type: Joi.string()
                   .valid("Text", "Conversions", "Presets", "Options")
-                  .required(),
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "General attribute type is required"
+                    )
+                  ),
                 text: Joi.any(),
                 conversion_value_1: Joi.any(),
                 conversion_value_2: Joi.any(),
               })
-              .required(),
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "General attributes is required"
+                )
+              ),
           })
         )
         .required()
@@ -46,20 +72,46 @@ export default {
       feature_attribute_groups: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string().required(),
+            name: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Feature attribute title is required"
+                )
+              ),
             attributes: Joi.array()
               .items({
-                id: Joi.string().required(),
-                basis_id: Joi.string().required(),
+                id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Attribute is required")
+                  ),
+                basis_id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Feature attribute basis is required"
+                    )
+                  ),
                 basis_value_id: Joi.any(),
                 type: Joi.string()
                   .valid("Text", "Conversions", "Presets", "Options")
-                  .required(),
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Feature attribute type is required"
+                    )
+                  ),
                 text: Joi.any(),
                 conversion_value_1: Joi.any(),
                 conversion_value_2: Joi.any(),
               })
-              .required(),
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Feature attributes is required"
+                )
+              ),
           })
         )
         .required()
@@ -71,25 +123,53 @@ export default {
       specification_attribute_groups: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string().required(),
-            attributes: Joi.array().items({
-              id: Joi.string().required(),
-              basis_id: Joi.any().required(),
-              basis_value_id: Joi.any(),
-              type: Joi.string()
-                .valid("Text", "Conversions", "Presets", "Options")
-                .required(),
-              text: Joi.any(),
-              conversion_value_1: Joi.any(),
-              conversion_value_2: Joi.any(),
-              basis_options: [
-                Joi.array().items({
-                  id: Joi.string(),
-                  option_code: Joi.string(),
-                }),
-                Joi.any(),
-              ],
-            }),
+            name: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Specification attribute name is required"
+                )
+              ),
+            attributes: Joi.array()
+              .items({
+                id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Attribute is required")
+                  ),
+                basis_id: Joi.any()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Specification attribute basis is required"
+                    )
+                  ),
+                basis_value_id: Joi.any(),
+                type: Joi.string()
+                  .valid("Text", "Conversions", "Presets", "Options")
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Specification attribute type is required"
+                    )
+                  ),
+                text: Joi.any(),
+                conversion_value_1: Joi.any(),
+                conversion_value_2: Joi.any(),
+                basis_options: [
+                  Joi.array().items({
+                    id: Joi.string(),
+                    option_code: Joi.string(),
+                  }),
+                  Joi.any(),
+                ],
+              })
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Specification attributes is required"
+                )
+              ),
           })
         )
         .required()
