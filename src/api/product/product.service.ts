@@ -166,29 +166,29 @@ export default class ProductService {
           .join("-")
           .replace(/ /g, "-") || ""
       );
-      const imagePaths = await Promise.all(
-        payload.images.map(async (image, index) => {
-          const mediumBuffer = await toWebp(
-            Buffer.from(image, "base64"),
-            "medium"
-          );
-          const keywords = payload.keywords.map((item) => {
-            return item.trim().replace(/ /g, "-");
-          });
-          let fileName = `${brandName}-${keywords.join(
-            "-"
-          )}-${moment.now()}${index}`;
-          await upload(
-            mediumBuffer,
-            `product/${createdProduct.id}/${fileName}_medium.webp`,
-            "image/webp"
-          );
-          return `/product/${createdProduct.id}/${fileName}_medium.webp`;
-        })
-      );
-      await this.productModel.update(createdProduct.id, {
-        images: imagePaths,
-      });
+      // const imagePaths = await Promise.all(
+      //   payload.images.map(async (image, index) => {
+      //     const mediumBuffer = await toWebp(
+      //       Buffer.from(image, "base64"),
+      //       "medium"
+      //     );
+      //     const keywords = payload.keywords.map((item) => {
+      //       return item.trim().replace(/ /g, "-");
+      //     });
+      //     let fileName = `${brandName}-${keywords.join(
+      //       "-"
+      //     )}-${moment.now()}${index}`;
+      //     await upload(
+      //       mediumBuffer,
+      //       `product/${createdProduct.id}/${fileName}_medium.webp`,
+      //       "image/webp"
+      //     );
+      //     return `/product/${createdProduct.id}/${fileName}_medium.webp`;
+      //   })
+      // );
+      // await this.productModel.update(createdProduct.id, {
+      //   images: imagePaths,
+      // });
       return resolve(await this.get(createdProduct.id, user_id));
     });
   };
@@ -315,82 +315,82 @@ export default class ProductService {
         payload.specification_attribute_groups.map(mapAttributeFunction)
       );
 
-      let imagePaths: string[] = [];
-      let isValidImage = true;
-      let mediumBuffer: Buffer;
-      if (
-        payload.images.join("-") === product.images.join("-") &&
-        payload.keywords.join("") === product.keywords.join("")
-      ) {
-        imagePaths = product.images;
-      } else {
-        const bufferImages = await Promise.all(
-          payload.images.map(async (image) => {
-            const fileType = await getFileTypeFromBase64(image);
-            if (!fileType) {
-              const isExisted = await isExists(image.slice(1));
-              if (isExisted) {
-                return await getBufferFile(image.slice(1));
-              }
-              isValidImage = false;
-              return false;
-            }
-            if (
-              !VALID_IMAGE_TYPES.find(
-                (validType) => validType === fileType.mime
-              )
-            ) {
-              isValidImage = false;
-              return false;
-            }
-            return Buffer.from(image, "base64");
-          })
-        );
-        if (!isValidImage) {
-          return resolve({
-            message: MESSAGES.IMAGE_INVALID,
-            statusCode: 400,
-          });
-        }
-        await Promise.all(
-          product.images.map(async (item) => {
-            await deleteFile(item.slice(1));
-            return true;
-          })
-        );
-        imagePaths = await Promise.all(
-          bufferImages.map(async (image, index) => {
-            mediumBuffer = await toWebp(image, "medium");
+      // let imagePaths: string[] = [];
+      // let isValidImage = true;
+      // let mediumBuffer: Buffer;
+      // if (
+      //   payload.images.join("-") === product.images.join("-") &&
+      //   payload.keywords.join("") === product.keywords.join("")
+      // ) {
+      //   imagePaths = product.images;
+      // } else {
+      //   const bufferImages = await Promise.all(
+      //     payload.images.map(async (image) => {
+      //       const fileType = await getFileTypeFromBase64(image);
+      //       if (!fileType) {
+      //         const isExisted = await isExists(image.slice(1));
+      //         if (isExisted) {
+      //           return await getBufferFile(image.slice(1));
+      //         }
+      //         isValidImage = false;
+      //         return false;
+      //       }
+      //       if (
+      //         !VALID_IMAGE_TYPES.find(
+      //           (validType) => validType === fileType.mime
+      //         )
+      //       ) {
+      //         isValidImage = false;
+      //         return false;
+      //       }
+      //       return Buffer.from(image, "base64");
+      //     })
+      //   );
+      //   if (!isValidImage) {
+      //     return resolve({
+      //       message: MESSAGES.IMAGE_INVALID,
+      //       statusCode: 400,
+      //     });
+      //   }
+      //   await Promise.all(
+      //     product.images.map(async (item) => {
+      //       await deleteFile(item.slice(1));
+      //       return true;
+      //     })
+      //   );
+      //   imagePaths = await Promise.all(
+      //     bufferImages.map(async (image, index) => {
+      //       mediumBuffer = await toWebp(image, "medium");
 
-            const keywords = payload.keywords.map((item) => {
-              return item.trim().replace(/ /g, "-");
-            });
-            const brandName = removeSpecialChars(
-              brand?.name
-                .trim()
-                .toLowerCase()
-                .split(" ")
-                .join("-")
-                .replace(/ /g, "-") || ""
-            );
-            let fileName = `${brandName}-${keywords.join(
-              "-"
-            )}-${moment.now()}${index}`;
-            await upload(
-              mediumBuffer,
-              `product/${id}/${fileName}_medium.webp`,
-              "image/webp"
-            );
-            return `/product/${id}/${fileName}_medium.webp`;
-          })
-        );
-      }
+      //       const keywords = payload.keywords.map((item) => {
+      //         return item.trim().replace(/ /g, "-");
+      //       });
+      //       const brandName = removeSpecialChars(
+      //         brand?.name
+      //           .trim()
+      //           .toLowerCase()
+      //           .split(" ")
+      //           .join("-")
+      //           .replace(/ /g, "-") || ""
+      //       );
+      //       let fileName = `${brandName}-${keywords.join(
+      //         "-"
+      //       )}-${moment.now()}${index}`;
+      //       await upload(
+      //         mediumBuffer,
+      //         `product/${id}/${fileName}_medium.webp`,
+      //         "image/webp"
+      //       );
+      //       return `/product/${id}/${fileName}_medium.webp`;
+      //     })
+      //   );
+      // }
       const updatedProduct = await this.productModel.update(id, {
         ...payload,
         general_attribute_groups: saveGeneralAttributeGroups,
         feature_attribute_groups: saveFeatureAttributeGroups,
         specification_attribute_groups: saveSpecificationAttributeGroups,
-        images: imagePaths,
+        // images: imagePaths,
       });
       if (!updatedProduct) {
         return resolve({

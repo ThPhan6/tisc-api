@@ -113,7 +113,7 @@ export default {
       feature_attribute_groups: Joi.any(),
       specification_attribute_groups: Joi.any(),
       favorites: Joi.number(),
-      images: Joi.array().items(Joi.string()),
+      images: Joi.any(),
       keywords: Joi.array().items(Joi.string().allow("")),
       brand_location_id: Joi.any(),
       distributor_location_id: Joi.any(),
@@ -129,7 +129,7 @@ export default {
         id: Joi.string(),
         collection_id: Joi.string(),
         name: Joi.string(),
-        images: Joi.array().items(Joi.string()).allow(null),
+        images: Joi.any(),
         created_at: Joi.string(),
       })
     ),
