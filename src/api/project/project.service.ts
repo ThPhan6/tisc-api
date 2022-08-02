@@ -18,8 +18,7 @@ import ProjectTypeModel, {
 import BuildingTypeModel from "../../model/building_type.model";
 import UserModel from "../../model/user.model";
 import { IFunctionalTypesResponse } from "../location/location.type";
-import CountryStateCityService, {
-} from "../../service/country_state_city.service";
+import CountryStateCityService from "../../service/country_state_city.service";
 import { IMessageResponse } from "../../type/common.type";
 
 export default class ProjectService {
@@ -350,10 +349,11 @@ export default class ProjectService {
         });
       }
 
-      const project = await this.projectModel.findBy({
-        design_id: user.relation_id,
-        code: payload.code,
-      });
+      const project = await this.projectModel.getExistedProject(
+        id,
+        payload.code,
+        foundProject.design_id
+      );
 
       if (project) {
         return resolve({
