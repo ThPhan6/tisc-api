@@ -785,9 +785,10 @@ export default class ProductService {
     name?: string,
     sort?: string,
     order?: "ASC" | "DESC"
-  ): Promise<IMessageResponse | IDesignerProductsResponse> => {
+  ): Promise<IMessageResponse | any> => {
     return new Promise(async (resolve) => {
       let products: IProductAttributes[] = [];
+      let summary;
       let returnData: any[] = [];
       if (!category_id && !brand_id) {
         brand_id = "all";
@@ -823,6 +824,7 @@ export default class ProductService {
         });
       }
       if (brand_id) {
+        summary = await this.getBrandProductSummary(brand_id);
         products = await this.productModel.getAllByAndNameLike(
           {},
           undefined,
@@ -888,6 +890,17 @@ export default class ProductService {
             };
           })
       );
+      if (brand_id !== "all" && brand_id) {
+        return resolve({
+          data: returnData,
+          summary: {
+            collection_count: summary?.data.collection_count,
+            card_count: summary?.data.card_count,
+            product_count: summary?.data.product_count,
+          },
+          statusCode: 200,
+        });
+      }
       return resolve({
         data: returnData,
         statusCode: 200,

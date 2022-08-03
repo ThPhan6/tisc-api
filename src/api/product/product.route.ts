@@ -40,12 +40,12 @@ export default class ProductRoute implements IRoute {
             description: "Method that get list product for designer",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: ProductResponse.getListDesignerProducts,
-              },
-            },
+            // response: {
+            //   status: {
+            //     ...defaultRouteOptionResponseStatus,
+            //     200: ProductResponse.getListDesignerProducts,
+            //   },
+            // },
           },
         },
         {
