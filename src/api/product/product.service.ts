@@ -14,7 +14,7 @@ import {
   removeSpecialChars,
 } from "../../helper/common.helper";
 import { toWebp } from "../../helper/image.helper";
-import BrandModel from "../../model/brand.model";
+import BrandModel, { IBrandAttributes } from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
 import ProductModel, {
   IProductAttributes,
@@ -789,6 +789,7 @@ export default class ProductService {
     return new Promise(async (resolve) => {
       let products: IProductAttributes[] = [];
       let summary;
+      let foundBrand: IBrandAttributes | undefined;
       let returnData: any[] = [];
       if (!category_id && !brand_id) {
         brand_id = "all";
@@ -808,7 +809,7 @@ export default class ProductService {
 
         const brands = await this.brandModel.getManyOrder(
           brandIds,
-          ["id", "name"],
+          ["id", "name", "logo"],
           "name",
           "ASC"
         );
@@ -816,14 +817,17 @@ export default class ProductService {
           const brandProducts = products.filter(
             (item) => item.brand_id === brand.id
           );
+          const { logo, ...rest } = brand;
           return {
-            ...brand,
+            ...rest,
+            brand_logo: logo,
             count: brandProducts.length,
             products: brandProducts,
           };
         });
       }
       if (brand_id) {
+        foundBrand = await this.brandModel.find(brand_id);
         summary = await this.getBrandProductSummary(brand_id);
         products = await this.productModel.getAllByAndNameLike(
           {},
@@ -879,7 +883,6 @@ export default class ProductService {
                 return {
                   ...rest,
                   brand_name: brand?.name,
-                  brand_logo: brand?.logo,
                   favorites: product.favorites?.length,
                   is_liked: product.favorites?.includes(user_id),
                 };
@@ -894,7 +897,9 @@ export default class ProductService {
       if (brand_id !== "all" && brand_id) {
         return resolve({
           data: returnData,
-          summary: {
+          brand_summary: {
+            brand_name: foundBrand?.name,
+            brand_logo: foundBrand?.logo,
             collection_count: summary?.data.collection_count,
             card_count: summary?.data.card_count,
             product_count: summary?.data.product_count,
