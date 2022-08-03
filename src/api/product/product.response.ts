@@ -72,6 +72,7 @@ export default {
         ),
       })
     ),
+    summary: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
   brandProductSummary: Joi.object({
