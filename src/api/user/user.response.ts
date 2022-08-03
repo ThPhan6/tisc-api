@@ -95,10 +95,10 @@ export default {
             gender: Joi.boolean(),
             work_location: Joi.string(),
             department: Joi.string(),
-            position: Joi.string(),
+            position: Joi.string().allow(null),
             email: Joi.string(),
-            phone: Joi.string(),
-            mobile: Joi.string(),
+            phone: Joi.string().allow(null),
+            mobile: Joi.string().allow(null),
             access_level: Joi.string(),
             status: Joi.number(),
           })

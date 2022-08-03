@@ -650,6 +650,7 @@ export default class UserService {
         Object.values(temp).map(async (item) => {
           const removedFieldsOfUser = await Promise.all(
             item.users.map(async (user) => {
+              console.log(user, "[user]");
               const department = await this.departmentModel.find(
                 user.department_id
               );
