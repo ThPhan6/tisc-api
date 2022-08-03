@@ -606,6 +606,7 @@ export default class LocationService {
           return {
             id: location.id,
             business_name: location.business_name,
+            business_number: location.business_number,
             address: location.address,
             postal_code: location.postal_code,
             created_at: location.created_at,
@@ -617,6 +618,8 @@ export default class LocationService {
             city_id: location.city_id,
             phone_code: location.phone_code,
             functional_types: functionalTypes,
+            general_phone: location.general_phone,
+            general_email: location.general_email,
           };
         })
       );
