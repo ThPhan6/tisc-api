@@ -866,22 +866,28 @@ export default class ProductService {
           });
         }
       }
-      returnData = returnData
-        .filter((item) => item.products.length !== 0)
-        .map((item) => {
-          const returnProducts = item.products?.map((product: any) => {
-            const { is_deleted, ...rest } = product;
+      returnData = await Promise.all(
+        returnData
+          .filter((item) => item.products.length !== 0)
+          .map(async (item) => {
+            const returnProducts = await Promise.all(
+              item.products?.map(async (product: any) => {
+                const { is_deleted, ...rest } = product;
+                const brand = await this.brandModel.find(rest.band_id);
+                return {
+                  ...rest,
+                  brand_name: brand?.name,
+                  favorites: product.favorites?.length,
+                  is_liked: product.favorites?.includes(user_id),
+                };
+              })
+            );
             return {
-              ...rest,
-              favorites: product.favorites?.length,
-              is_liked: product.favorites?.includes(user_id),
+              ...item,
+              products: returnProducts,
             };
-          });
-          return {
-            ...item,
-            products: returnProducts,
-          };
-        });
+          })
+      );
       return resolve({
         data: returnData,
         statusCode: 200,

@@ -51,6 +51,7 @@ export default {
           Joi.object({
             id: Joi.string(),
             brand_id: Joi.string(),
+            brand_name: Joi.string(),
             collection_id: Joi.any(),
             category_ids: Joi.array().items(Joi.any()),
             name: Joi.string(),
