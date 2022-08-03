@@ -255,20 +255,20 @@ export default class ProjectZoneService {
 
       const summary = [
         {
-          name: "Zones",
+          name: "Zones:",
           value: projectZones.length,
         },
         {
-          name: "Areas",
+          name: "Areas:",
           value: countArea,
         },
         {
-          name: "Rooms",
+          name: "Rooms:",
           value: countRoom,
         },
         {
-          name: "TOTAL AREA",
-          value: totalArea,
+          name: "TOTAL AREA:",
+          value: `${totalArea} ${roomSizeUnit}`,
         },
       ];
 
