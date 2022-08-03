@@ -20,7 +20,7 @@ import {
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, SystemType } from "../../type/common.type";
 import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import CountryStateCityService from "../../service/country_state_city.service";
 import { ICityAttributes } from "../../model/city";
@@ -586,12 +586,13 @@ export default class LocationService {
         statusCode: 200,
       });
     });
-  public getBrandLocationGroupByCountry = (
-    brand_id: string
+  public getBrandOrDesignLocationGroupByCountry = (
+    relation_id: string,
+    type: SystemType
   ): Promise<LocationsWithGroupResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
       const locations = await this.locationModel.getAllBy(
-        { type: SYSTEM_TYPE.BRAND, relation_id: brand_id },
+        { type, relation_id: relation_id },
         undefined,
         "country_name",
         "ASC"
@@ -620,7 +621,7 @@ export default class LocationService {
         })
       );
       const distintCountries = await this.locationModel.getGroupBy(
-        { type: SYSTEM_TYPE.BRAND, relation_id: brand_id },
+        { type, relation_id: relation_id },
         "country_name",
         "count"
       );

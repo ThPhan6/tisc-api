@@ -27,6 +27,13 @@ export default {
         .error(commonFailValidatedMessageFunction("Brand id is required")),
     },
   },
+  getDesignLocationsCountryGroup: {
+    params: {
+      design_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design id is required")),
+    },
+  },
   getStates: {
     query: {
       country_id: Joi.string()

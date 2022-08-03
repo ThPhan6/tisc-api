@@ -1,4 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { SYSTEM_TYPE } from "../../constant/common.constant";
 import LocationService from "./location.service";
 import { ILocationRequest } from "./location.type";
 export default class LocationController {
@@ -99,8 +100,20 @@ export default class LocationController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
-    const response = await this.service.getBrandLocationGroupByCountry(
-      brand_id
+    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
+      brand_id,
+      SYSTEM_TYPE.BRAND
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getDesignLocationGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { design_id } = req.params;
+    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
+      design_id,
+      SYSTEM_TYPE.DESIGN
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

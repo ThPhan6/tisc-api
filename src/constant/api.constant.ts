@@ -189,6 +189,7 @@ export const ROUTES = {
   GET_UNIT_TYPES: "/api/unit-type/get-list",
   GET_ONE_SPECIFIED_PRODUCT:
     "/api/specified-product/get-one/{considered_product_id}",
+  GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "/api/location/design/{design_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -370,4 +371,5 @@ export const ROUTE_IDS = {
   GET_INSTRUCTION_TYPES: "168",
   GET_UNIT_TYPES: "169",
   GET_ONE_SPECIFIED_PRODUCT: "170",
+  GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "171",
 };
