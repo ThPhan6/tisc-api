@@ -65,17 +65,16 @@ export default class SpecifiedProductTipModel extends Model<ISpecifiedProductAtt
   constructor() {
     super("specified_products");
   }
-  public getManyByProduct = async (
+  public getManyByProduct = (
     product_ids: string[]
   ): Promise<ISpecifiedProductAttributes[]> => {
     try {
-      const result = await this.getBuilder()
+      return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereIn("product_id", product_ids)
         .select();
-      return result;
     } catch (error) {
-      return [];
+      return Promise.resolve([]);
     }
   };
 }

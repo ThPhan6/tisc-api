@@ -1,4 +1,3 @@
-import { PROJECT_ZONE_NULL_ATTRIBUTES } from "../../model/project_zone.model";
 import {
   MEASUREMENT_UNIT,
   MESSAGES,
@@ -13,7 +12,9 @@ import {
   IProjectZonesResponse,
   IUpdateProjectZoneRequest,
 } from "./project_zone.type";
-import ProjectZoneModel from "../../model/project_zone.model";
+import ProjectZoneModel, {
+  PROJECT_ZONE_NULL_ATTRIBUTES,
+} from "../../model/project_zone.model";
 import {
   isDuplicatedString,
   sortObjectArray,

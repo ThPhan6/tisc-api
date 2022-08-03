@@ -32,6 +32,23 @@ export default class MailService {
       }
     );
   };
+  public getTargetedFor = (type: number) => {
+    let result;
+    switch (type) {
+      case SYSTEM_TYPE.TISC:
+        result = TARGETED_FOR_TYPES.TISC_TEAM;
+        break;
+
+      case SYSTEM_TYPE.BRAND:
+        result = TARGETED_FOR_TYPES.BRAND;
+        break;
+
+      default:
+        result = TARGETED_FOR_TYPES.DESIGN_FIRM;
+        break;
+    }
+    return result;
+  };
   public async sendRegisterEmail(
     user: IUserAttributes | any
   ): Promise<boolean> {
@@ -94,12 +111,7 @@ export default class MailService {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
         title: "User password reset request.",
-        targeted_for:
-          user.type === SYSTEM_TYPE.TISC
-            ? TARGETED_FOR_TYPES.TISC_TEAM
-            : user.type === SYSTEM_TYPE.BRAND
-            ? TARGETED_FOR_TYPES.BRAND
-            : TARGETED_FOR_TYPES.DESIGN_FIRM,
+        targeted_for: this.getTargetedFor(user.type),
       });
       let userType = Object.keys(SYSTEM_TYPE)
         .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
@@ -138,12 +150,7 @@ export default class MailService {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
         title: "Welcome to the team!",
-        targeted_for:
-          inviteUser.type === SYSTEM_TYPE.TISC
-            ? TARGETED_FOR_TYPES.TISC_TEAM
-            : inviteUser.type === SYSTEM_TYPE.BRAND
-            ? TARGETED_FOR_TYPES.BRAND
-            : TARGETED_FOR_TYPES.DESIGN_FIRM,
+        targeted_for: this.getTargetedFor(inviteUser.type),
       });
       const html = await ejs.render(emailAutoResponder?.message || "", {
         firstname: inviteUser.firstname,

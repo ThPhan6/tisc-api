@@ -29,7 +29,7 @@ export default class InstructionTypeModel extends Model<IInstructionTypeAttribut
         .whereOrRevert(["id", "name"], id)
         .first();
     } catch (error) {
-      return new Promise((resolve) => resolve(false));
+      return Promise.resolve(false);
     }
   };
 }

@@ -112,7 +112,7 @@ type ConsideredProductStatus = "Considered" | "Re-considered" | "Unlist";
 export const getConsideredProductStatusName = (
   status: number
 ): ConsideredProductStatus => {
-  let result: ConsideredProductStatus = "Unlist";
+  let result: ConsideredProductStatus;
   switch (status) {
     case CONSIDERED_PRODUCT_STATUS.CONSIDERED:
       result = "Considered";

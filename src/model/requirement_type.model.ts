@@ -29,7 +29,7 @@ export default class RequirementTypeModel extends Model<IRequirementTypeAttribut
         .whereOrRevert(["id", "name"], id)
         .first();
     } catch (error) {
-      return new Promise((resolve) => resolve(false));
+      return Promise.resolve(false);
     }
   };
 }
