@@ -65,6 +65,22 @@ export default class DesignerRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_ALL_DESIGN_FIRM_SUMMARY,
+          options: {
+            handler: controller.getAllDesignSummary,
+            description: "Method that get all design summary",
+            tags: ["api", "Designer"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getAllDesignSummary,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
