@@ -51,6 +51,8 @@ export default {
           Joi.object({
             id: Joi.string(),
             brand_id: Joi.string(),
+            brand_name: Joi.string(),
+            brand_logo: Joi.string().allow(null),
             collection_id: Joi.any(),
             category_ids: Joi.array().items(Joi.any()),
             name: Joi.string(),
@@ -71,6 +73,7 @@ export default {
         ),
       })
     ),
+    summary: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
   brandProductSummary: Joi.object({

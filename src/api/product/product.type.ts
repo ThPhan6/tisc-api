@@ -98,6 +98,7 @@ export interface IProductsResponse {
 }
 export interface IDesignerProductsResponse {
   data: any[];
+  summary?: any;
   statusCode: number;
 }
 
