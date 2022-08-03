@@ -621,6 +621,7 @@ export default class UserService {
       } = {};
       await Promise.all(
         locations.map(async (location) => {
+          console.log(location, "[location]");
           const country = await this.countryStateCityService.getCountryDetail(
             location.country_id
           );
@@ -650,7 +651,6 @@ export default class UserService {
         Object.values(temp).map(async (item) => {
           const removedFieldsOfUser = await Promise.all(
             item.users.map(async (user) => {
-              console.log(user, "[user]");
               const department = await this.departmentModel.find(
                 user.department_id
               );
