@@ -114,4 +114,12 @@ export default {
         .error(commonFailValidatedMessageFunction("Id is required")),
     },
   },
+  getWithBrandId: {
+    query: {
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+  },
 };

@@ -18,7 +18,7 @@ export interface IUpdateMeRequest {
   personal_mobile?: string;
   zone_code?: string;
   linkedin?: string;
-  interested?: number[]
+  interested?: number[];
 }
 
 export interface IUser {
@@ -73,6 +73,27 @@ export interface IDepartmentsResponse {
   data: {
     id: string;
     name: string;
+  }[];
+  statusCode: number;
+}
+
+export interface IGetTeamsGroupByCountry {
+  data: {
+    country_name: string;
+    users: {
+      logo: string;
+      firstname: string;
+      lastname: string;
+      gender: boolean;
+      work_location: string | null;
+      department: string;
+      position: string | null;
+      email: string;
+      phone: string | null;
+      mobile: string | null;
+      access_level: string;
+      status: number;
+    }[];
   }[];
   statusCode: number;
 }

@@ -73,7 +73,7 @@ export interface IProjectZonesResponse {
     }[];
     summary: {
       name: string;
-      value: number;
+      value: any;
     }[];
   };
   statusCode: number;

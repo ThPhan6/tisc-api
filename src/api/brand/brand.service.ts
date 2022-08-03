@@ -38,6 +38,7 @@ import ProductModel from "../../model/product.model";
 import MarketAvailabilityService from "../market_availability/market_availability.service";
 import FunctionalTypeModel from "../../model/functional_type.model";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
+import { v4 as uuidv4 } from "uuid";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -623,7 +624,6 @@ export default class BrandService {
       await this.permissionService.createBrandPermission(createdBrand.id);
       return resolve(await this.getOne(createdBrand.id));
     });
-
   public getAllBrandSummary = (): Promise<any> =>
     new Promise(async (resolve) => {
       const allBrand = await this.brandModel.getAll();
@@ -643,10 +643,6 @@ export default class BrandService {
           return location?.country_id || "";
         })
       );
-      const distinctCountryIds = getDistinctArray(countryIds);
-      const countries = await this.marketAvailabilityService.getRegionCountries(
-        distinctCountryIds
-      );
       const cards = (
         await Promise.all(
           allBrand.map(async (brand) => {
@@ -660,7 +656,10 @@ export default class BrandService {
       const categoryIds = getDistinctArray(
         cards.map((product) => product.category_ids).flat()
       );
-
+      const distinctCountryIds = getDistinctArray(countryIds);
+      const countries = await this.marketAvailabilityService.getRegionCountries(
+        distinctCountryIds
+      );
       const products = cards.reduce((pre: number, cur) => {
         cur.specification_attribute_groups.forEach((group) => {
           group.attributes.forEach((attribute) => {
@@ -671,32 +670,96 @@ export default class BrandService {
         return pre;
       }, 0);
       return resolve({
-        data: {
-          brands: allBrand.length,
-          locations: locationIds.length,
-          teams: teamProfileIds.length,
-          countries: countries.length,
-          africa: countries.filter((item) => item.region === REGION_KEY.AFRICA)
-            .length,
-          asia: countries.filter((item) => item.region === REGION_KEY.ASIA)
-            .length,
-          europe: countries.filter((item) => item.region === REGION_KEY.EUROPE)
-            .length,
-          north_america: countries.filter(
-            (item) => item.region === REGION_KEY.NORTH_AMERICA
-          ).length,
-          oceania: countries.filter(
-            (item) => item.region === REGION_KEY.OCEANIA
-          ).length,
-          south_america: countries.filter(
-            (item) => item.region === REGION_KEY.SOUTH_AMERICA
-          ).length,
-          cards: cards.length,
-          collections: collectionIds.length,
-          categories: categoryIds.length,
-          products: products,
-        },
-        statusCode: 200,
+        data: [
+          {
+            id: uuidv4(),
+            quantity: allBrand.length,
+            label: "BRAND COMPANIES",
+            subs: [
+              {
+                id: uuidv4(),
+                quantity: locationIds.length,
+                label: "Locations",
+              },
+              {
+                id: uuidv4(),
+                quantity: teamProfileIds.length,
+                label: "Teams",
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            quantity: countries.length,
+            label: "COUNTRIES",
+            subs: [
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.AFRICA
+                ).length,
+                label: "Africa",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.ASIA
+                ).length,
+                label: "Asia",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.EUROPE
+                ).length,
+                label: "Europe",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.NORTH_AMERICA
+                ).length,
+                label: "N.America",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.OCEANIA
+                ).length,
+                label: "Oceania",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.SOUTH_AMERICA
+                ).length,
+                label: "S.America",
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            quantity: products,
+            label: "PRODUCTS",
+            subs: [
+              {
+                id: uuidv4(),
+                quantity: categoryIds.length,
+                label: "Categories",
+              },
+              {
+                id: uuidv4(),
+                quantity: collectionIds.length,
+                label: "Collections",
+              },
+              {
+                id: uuidv4(),
+                quantity: cards.length,
+                label: "Cards",
+              },
+            ],
+          },
+        ],
       });
     });
 }

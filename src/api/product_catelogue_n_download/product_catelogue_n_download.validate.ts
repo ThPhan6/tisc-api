@@ -7,19 +7,28 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Product id is required")),
-      contents: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          title: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Title is required")),
-          url: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Url required")),
-        })
-      ),
+      contents: Joi.array()
+        .items(
+          Joi.object({
+            id: Joi.any(),
+            title: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Catelogue name is required")
+              ),
+            url: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Catelogue Url is required")
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Catelogue contents is required")
+        ),
     },
   },
   update: {
@@ -29,19 +38,28 @@ export default {
         .error(commonFailValidatedMessageFunction("Product id is required")),
     },
     payload: {
-      contents: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          title: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Title is required")),
-          url: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Url required")),
-        })
-      ),
+      contents: Joi.array()
+        .items(
+          Joi.object({
+            id: Joi.any(),
+            title: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Catelogue name is required")
+              ),
+            url: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Catelogue Url is required")
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Catelogue contents is required")
+        ),
     },
   },
   getOne: {

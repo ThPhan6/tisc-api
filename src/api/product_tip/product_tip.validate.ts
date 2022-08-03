@@ -7,19 +7,32 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Product is required")),
-      contents: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          title: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Title is required")),
-          content: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Content required")),
-        })
-      ),
+      contents: Joi.array()
+        .items(
+          Joi.object({
+            id: Joi.any(),
+            title: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Product tip title is required"
+                )
+              ),
+            content: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Product tip content is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Product tip contents is required")
+        ),
     },
   },
   update: {
@@ -29,19 +42,32 @@ export default {
         .error(commonFailValidatedMessageFunction("Product is required")),
     },
     payload: {
-      contents: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          title: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Title is required")),
-          content: Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Content required")),
-        })
-      ),
+      contents: Joi.array()
+        .items(
+          Joi.object({
+            id: Joi.any(),
+            title: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Product tip title is required"
+                )
+              ),
+            content: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Product tip content is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Product tip contents is required")
+        ),
     },
   },
   getOne: {
