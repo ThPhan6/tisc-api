@@ -1,6 +1,10 @@
 import { getDistinctArray } from "./../../helper/common.helper";
 import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import {
+  IMessageResponse,
+  IPagination,
+  SystemType,
+} from "../../type/common.type";
 import UserModel, {
   IUserAttributes,
   USER_NULL_ATTRIBUTES,
@@ -595,29 +599,14 @@ export default class UserService {
     });
   };
 
-  public getTeamGroupByCountry = async (
-    user_id: string,
-    brand_id: string
-  ): Promise<IMessageResponse | IGetTeamsGroupByCountry> => {
+  public getBrandOrDesignTeamGroupByCountry = async (
+    relation_id: string,
+    type: SystemType
+  ): Promise<IMessageResponse | IGetTeamsGroupByCountry | any> => {
     return new Promise(async (resolve) => {
-      const brand = await this.brandModel.find(brand_id);
-      if (!brand) {
-        return resolve({
-          message: MESSAGES.BRAND_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-
       const users = await this.userModel.getBy({
-        type: user.type,
-        relation_id: user.relation_id,
+        type,
+        relation_id,
       });
       const locationIds = getDistinctArray(
         users.map((user) => user?.location_id || "")
@@ -635,29 +624,15 @@ export default class UserService {
           const country = await this.countryStateCityService.getCountryDetail(
             location.country_id
           );
-          const foundUser = users.find(
+          const foundUsers = users.filter(
             (item) => item.location_id === location.id
           );
-          if (!foundUser) {
+          if (!foundUsers) {
             return null;
           }
-          const removedFieldsOfUser = {
-            logo: foundUser.avatar,
-            firstname: foundUser.firstname,
-            lastname: foundUser.lastname,
-            gender: foundUser.gender,
-            work_location: foundUser.work_location?.replace(/^,/, "").trim(),
-            department: foundUser.department_id,
-            position: foundUser.position,
-            email: foundUser.email,
-            phone: foundUser.phone,
-            mobile: foundUser.mobile,
-            access_level: foundUser.access_level,
-            status: foundUser.status,
-          };
           const newUsers = temp[country.name]
-            ? temp[country.name].users.concat([removedFieldsOfUser])
-            : [removedFieldsOfUser];
+            ? temp[country.name].users.concat(foundUsers)
+            : foundUsers;
           temp = {
             ...temp,
             [country.name]: {
@@ -671,7 +646,35 @@ export default class UserService {
           return true;
         })
       );
-      const result = Object.values(temp);
+      const result = await Promise.all(
+        Object.values(temp).map(async (item) => {
+          const removedFieldsOfUser = await Promise.all(
+            item.users.map(async (user) => {
+              const department = await this.departmentModel.find(
+                user.department_id
+              );
+              return {
+                logo: user.avatar,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                gender: user.gender,
+                work_location: user.work_location?.replace(/^,/, "").trim(),
+                department: department?.name,
+                position: user.position,
+                email: user.email,
+                phone: user.phone,
+                mobile: user.mobile,
+                access_level: user.access_level,
+                status: user.status,
+              };
+            })
+          );
+          return {
+            ...item,
+            users: removedFieldsOfUser,
+          };
+        })
+      );
       return resolve({
         data: result,
         statusCode: 200,

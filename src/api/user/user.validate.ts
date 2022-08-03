@@ -115,11 +115,19 @@ export default {
     },
   },
   getWithBrandId: {
-    query: {
+    params: {
       brand_id: Joi.string()
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+  },
+  getWithDesignId: {
+    params: {
+      design_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
     },
   },
 };
