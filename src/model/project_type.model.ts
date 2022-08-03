@@ -22,15 +22,16 @@ export default class ProjectTypeModel extends Model<IProjectTypeAttributes> {
   constructor() {
     super("project_types");
   }
-  public findByNameOrId = async (id: string): Promise<any> => {
+  public findByNameOrId = (
+    id: string
+  ): Promise<IProjectTypeAttributes | false> => {
     try {
-      const result = await this.getBuilder()
+      return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereOrRevert(["id", "name"], id)
         .first();
-      return result;
     } catch (error) {
-      return false;
+      return new Promise((resolve) => resolve(false));
     }
   };
 }

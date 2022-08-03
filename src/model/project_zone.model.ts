@@ -48,15 +48,16 @@ export default class ProjectZoneModel extends Model<IProjectZoneAttributes> {
   constructor() {
     super("project_zones");
   }
-  public findByNameOrId = async (id: string): Promise<any> => {
+  public findByNameOrId = (
+    id: string
+  ): Promise<IProjectZoneAttributes | false> => {
     try {
-      const result = await this.getBuilder()
+      return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereOrRevert(["id", "name"], id)
         .first();
-      return result;
     } catch (error) {
-      return false;
+      return new Promise((resolve) => resolve(false));
     }
   };
 

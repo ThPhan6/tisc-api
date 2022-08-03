@@ -198,7 +198,7 @@ export default class SpecifiedProductService {
       const specifiedProduct = await this.specifiedProductModel.findBy({
         considered_product_id: payload.considered_product_id,
       });
-      let unitType = await this.unitTypeModel.findByNameOrId(
+      let unitType: any = await this.unitTypeModel.findByNameOrId(
         payload.unit_type_id
       );
       if (unitType === false) {
@@ -211,9 +211,8 @@ export default class SpecifiedProductService {
       }
       const requirementTypeIds = await Promise.all(
         payload.requirement_type_ids.map(async (requirement_type_id) => {
-          let requirementType = await this.requirementTypeModel.findByNameOrId(
-            requirement_type_id
-          );
+          let requirementType: any =
+            await this.requirementTypeModel.findByNameOrId(requirement_type_id);
           if (requirementType === false) {
             requirementType = await this.requirementTypeModel.create({
               ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,
@@ -226,9 +225,8 @@ export default class SpecifiedProductService {
       );
       const instructionTypeIds = await Promise.all(
         payload.instruction_type_ids.map(async (instruction_type_id) => {
-          let instructionType = await this.instructionTypeModel.findByNameOrId(
-            instruction_type_id
-          );
+          let instructionType: any =
+            await this.instructionTypeModel.findByNameOrId(instruction_type_id);
           if (instructionType === false) {
             instructionType = await this.instructionTypeModel.create({
               ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,

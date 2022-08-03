@@ -121,7 +121,7 @@ export default class ProjectService {
           statusCode: 400,
         });
       }
-      let projectType = await this.projectTypeModel.findByNameOrId(
+      let projectType: any = await this.projectTypeModel.findByNameOrId(
         payload.project_type_id
       );
       if (projectType === false) {
@@ -132,7 +132,7 @@ export default class ProjectService {
           relation_id: user.relation_id || "",
         });
       }
-      let buildingType = await this.buildingTypeModel.findByNameOrId(
+      let buildingType: any = await this.buildingTypeModel.findByNameOrId(
         payload.building_type_id
       );
       if (buildingType === false) {

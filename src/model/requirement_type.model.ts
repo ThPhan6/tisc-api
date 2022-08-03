@@ -20,15 +20,16 @@ export default class RequirementTypeModel extends Model<IRequirementTypeAttribut
   constructor() {
     super("requirement_types");
   }
-  public findByNameOrId = async (id: string): Promise<any> => {
+  public findByNameOrId = (
+    id: string
+  ): Promise<IRequirementTypeAttributes | false> => {
     try {
-      const result = await this.getBuilder()
+      return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereOrRevert(["id", "name"], id)
         .first();
-      return result;
     } catch (error) {
-      return false;
+      return new Promise((resolve) => resolve(false));
     }
   };
 }
