@@ -621,7 +621,6 @@ export default class UserService {
       } = {};
       await Promise.all(
         locations.map(async (location) => {
-          console.log(location, "[location]");
           const country = await this.countryStateCityService.getCountryDetail(
             location.country_id
           );
