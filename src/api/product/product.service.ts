@@ -879,6 +879,7 @@ export default class ProductService {
                 return {
                   ...rest,
                   brand_name: brand?.name,
+                  brand_logo: brand?.logo,
                   favorites: product.favorites?.length,
                   is_liked: product.favorites?.includes(user_id),
                 };
