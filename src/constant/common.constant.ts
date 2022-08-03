@@ -22,6 +22,7 @@ import {
   BasisType,
   AttributeType,
   DocumentationType,
+  SpecifiedProductStatusValue,
 } from "../type/common.type";
 export const EMAIL_TYPE = {
   VERIFICATION: "verification",
@@ -482,3 +483,13 @@ export const ORDER_METHOD_OPTIONS: {
   { key: "Direct Purchase", value: ORDER_METHOD.DIRECT_PURCHASE },
   { key: "Custom Order", value: ORDER_METHOD.CUSTOM_ORDER },
 ];
+
+export const SPECIFIED_PRODUCT_STATUS: {
+  CANCELLED: SpecifiedProductStatusValue;
+  RE_SPECIFIED: SpecifiedProductStatusValue;
+  SPECIFIED: SpecifiedProductStatusValue;
+} = {
+  CANCELLED: 1,
+  RE_SPECIFIED: 2,
+  SPECIFIED: 3,
+};

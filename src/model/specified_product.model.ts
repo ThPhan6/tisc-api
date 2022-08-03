@@ -3,6 +3,8 @@ import Model from "./index";
 export interface ISpecifiedProductAttributes {
   id: string;
   considered_product_id: string;
+  product_id: string;
+  project_id: string;
   specification: {
     is_refer_document: boolean;
     specification_attribute_groups: {
@@ -21,6 +23,7 @@ export interface ISpecifiedProductAttributes {
   project_zone_ids: string[];
 
   material_code_id: string;
+  material_code: string;
   suffix_code: string;
   description: string;
   quantity: number;
@@ -29,12 +32,15 @@ export interface ISpecifiedProductAttributes {
   requirement_type_ids: string[];
   instruction_type_ids: string[];
   created_at: string;
+  status: number;
   is_deleted: boolean;
 }
 
 export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   id: null,
   considered_product_id: null,
+  product_id: null,
+  project_id: null,
   specification: {
     is_refer_document: true,
   },
@@ -43,6 +49,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   is_entire: true,
   project_zone_ids: [],
   material_code_id: null,
+  material_code: null,
   suffix_code: null,
   description: null,
   quantity: 0,
@@ -50,6 +57,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   order_method: 0,
   requirement_type_ids: [],
   instruction_type_ids: [],
+  status: 0,
   created_at: null,
   is_deleted: false,
 };
@@ -57,4 +65,17 @@ export default class SpecifiedProductTipModel extends Model<ISpecifiedProductAtt
   constructor() {
     super("specified_products");
   }
+  public getManyByProduct = async (
+    product_ids: string[]
+  ): Promise<ISpecifiedProductAttributes[]> => {
+    try {
+      const result = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .whereIn("product_id", product_ids)
+        .select();
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
 }

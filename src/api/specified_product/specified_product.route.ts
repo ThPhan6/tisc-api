@@ -49,6 +49,57 @@ export default class SpecifiedProductRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.GET_SPECIFIED_PRODUCTS_BY_BRAND,
+          options: {
+            handler: controller.getListByBrand,
+            validate: validate.getListByBrand,
+            description: "Method that get specified products group by brand",
+            tags: ["api", "Specified Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_SPECIFIED_PRODUCTS_BY_MATERIAL,
+          options: {
+            handler: controller.getListByMaterial,
+            validate: validate.getListByMaterial,
+            description: "Method that get specified products group by material",
+            tags: ["api", "Specified Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_SPECIFIED_PRODUCTS_BY_ZONE,
+          options: {
+            handler: controller.getListByZone,
+            validate: validate.getListByZone,
+            description: "Method that get specified products group by zone",
+            tags: ["api", "Specified Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_REQUIREMENT_TYPES,
           options: {
             handler: controller.getRequirementTypes,

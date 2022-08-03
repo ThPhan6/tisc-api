@@ -75,3 +75,11 @@ export type DesignStatusKey = "Active" | "Inactive";
 export type BasisType = 1 | 2 | 3;
 export type AttributeType = 1 | 2 | 3;
 export type DocumentationType = 1 | 2 | 3 | 4;
+
+export type SpecifiedProductGetlistType = "brand" | "material" | "space";
+
+export type SpecifiedProductStatusValue = 1 | 2 | 3;
+export type SpecifiedProductStatusKey =
+  | "Cancelled"
+  | "Re-specified"
+  | "Specified";

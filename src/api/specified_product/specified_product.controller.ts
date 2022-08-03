@@ -22,6 +22,43 @@ export default class SpecifiedProductController {
     const response = await this.service.get(userId, considered_product_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListByBrand = async (req: Request, toolkit: ResponseToolkit) => {
+    const { project_id } = req.params;
+    const { brand_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListByBrand(
+      userId,
+      project_id,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getListByMaterial = async (req: Request, toolkit: ResponseToolkit) => {
+    const { project_id } = req.params;
+    const { brand_order, material_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListByMaterial(
+      userId,
+      project_id,
+      brand_order,
+      material_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getListByZone = async (req: Request, toolkit: ResponseToolkit) => {
+    const { project_id } = req.params;
+    const { brand_order, zone_order, area_order, room_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListByZone(
+      userId,
+      project_id,
+      zone_order,
+      area_order,
+      room_order,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getRequirementTypes = async (
     req: Request,
     toolkit: ResponseToolkit

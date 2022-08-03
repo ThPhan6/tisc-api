@@ -1,19 +1,30 @@
 import ProjectModel from "../../model/project.model";
+import ProductModel from "../../model/product.model";
+import BrandModel from "../../model/brand.model";
 import UserModel from "../../model/user.model";
-import ConsideredProductModel from "../../model/considered_product.model";
+import ConsideredProductModel, {
+  IConsideredProductAttributes,
+} from "../../model/considered_product.model";
+import ProjectZoneModel from "../../model/project_zone.model";
+import MaterialCodeModel from "../../model/material_code.model";
 import RequirementTypeModel, {
   REQUIREMENT_TYPE_NULL_ATTRIBUTES,
 } from "../../model/requirement_type.model";
 import InstructionTypeModel from "../../model/instruction_type.model";
+import CollectionModel from "../../model/collection.model";
 import UnitTypeModel, {
   UNIT_TYPE_NULL_ATTRIBUTES,
 } from "../../model/unit_type.model";
 import SpecifiedProductModel, {
+  ISpecifiedProductAttributes,
   SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/specified_product.model";
-import { MESSAGES } from "../../constant/common.constant";
+import {
+  MESSAGES,
+  SPECIFIED_PRODUCT_STATUS,
+} from "../../constant/common.constant";
 
-import { IMessageResponse } from "../../type/common.type";
+import { IMessageResponse, SortOrder } from "../../type/common.type";
 import {
   IInstructionTypesResponse,
   IRequirementTypesResponse,
@@ -21,6 +32,7 @@ import {
   ISpecifiedProductResponse,
   IUnitTypesResponse,
 } from "./specified_product.type";
+import { getDistinctArray, sortObjectArray } from "../../helper/common.helper";
 
 export default class SpecifiedProductService {
   private consideredProductModel: ConsideredProductModel;
@@ -30,6 +42,11 @@ export default class SpecifiedProductService {
   private unitTypeModel: UnitTypeModel;
   private projectModel: ProjectModel;
   private userModel: UserModel;
+  private productModel: ProductModel;
+  private brandModel: BrandModel;
+  private collectionModel: CollectionModel;
+  private materialCodeModel: MaterialCodeModel;
+  private projectZoneModel: ProjectZoneModel;
 
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
@@ -39,7 +56,39 @@ export default class SpecifiedProductService {
     this.unitTypeModel = new UnitTypeModel();
     this.projectModel = new ProjectModel();
     this.userModel = new UserModel();
+    this.productModel = new ProductModel();
+    this.brandModel = new BrandModel();
+    this.collectionModel = new CollectionModel();
+    this.materialCodeModel = new MaterialCodeModel();
+    this.projectZoneModel = new ProjectZoneModel();
   }
+  private getSpecifiedProducts = async (
+    foundConsideredProducts: IConsideredProductAttributes[],
+    brand_order: SortOrder,
+    specifiedProducts: ISpecifiedProductAttributes[]
+  ) => {
+    const products = await Promise.all(
+      foundConsideredProducts.map(async (foundConsideredProduct) => {
+        const specifiedProduct = specifiedProducts.find(
+          (item) => item.considered_product_id === foundConsideredProduct.id
+        );
+        const product = await this.productModel.find(
+          foundConsideredProduct.product_id
+        );
+        const brand = await this.brandModel.find(product?.brand_id || "");
+        return {
+          id: specifiedProduct?.id,
+          image: product?.images[0],
+          brand_name: brand?.name,
+          product_id: product?.name,
+          material_code: specifiedProduct?.material_code,
+          description: specifiedProduct?.description,
+          status: specifiedProduct?.status,
+        };
+      })
+    );
+    return sortObjectArray(products, "brand_name", brand_order);
+  };
   public getRequirementTypes = (
     user_id: string
   ): Promise<IRequirementTypesResponse> => {
@@ -190,6 +239,42 @@ export default class SpecifiedProductService {
           return instructionType.id;
         })
       );
+      const materialCodeGroups = await this.materialCodeModel.getBy({
+        design_id: user.relation_id,
+      });
+      const materialCodeSubList = materialCodeGroups.reduce(
+        (
+          pre: {
+            id: string;
+            name: string;
+            codes: {
+              id: string;
+              code: string;
+              description: string;
+            }[];
+          }[],
+          cur
+        ) => {
+          return pre.concat(cur.subs);
+        },
+        []
+      );
+      const materialCodes = materialCodeSubList.reduce(
+        (
+          pre: {
+            id: string;
+            code: string;
+            description: string;
+          }[],
+          cur
+        ) => {
+          return pre.concat(cur.codes);
+        },
+        []
+      );
+      const materialCode = materialCodes.find(
+        (item) => item.id === payload.material_code_id
+      );
       if (!specifiedProduct) {
         //create
         const createdSpecifiedProduct = await this.specifiedProductModel.create(
@@ -199,6 +284,10 @@ export default class SpecifiedProductService {
             unit_type_id: unitType.id,
             requirement_type_ids: requirementTypeIds,
             instruction_type_ids: instructionTypeIds,
+            status: SPECIFIED_PRODUCT_STATUS.SPECIFIED,
+            product_id: consideredProduct.product_id,
+            project_id: consideredProduct.project_id,
+            material_code: materialCode?.code + "-" + payload.suffix_code,
           }
         );
         if (!createdSpecifiedProduct) {
@@ -220,6 +309,10 @@ export default class SpecifiedProductService {
           unit_type_id: unitType.id,
           requirement_type_ids: requirementTypeIds,
           instruction_type_ids: instructionTypeIds,
+          status: SPECIFIED_PRODUCT_STATUS.SPECIFIED,
+          product_id: consideredProduct.product_id,
+          project_id: consideredProduct.project_id,
+          material_code: materialCode?.code + "-" + payload.suffix_code,
         }
       );
       if (!updatedSpecifiedProduct) {
@@ -278,6 +371,300 @@ export default class SpecifiedProductService {
       }
       return resolve({
         data: specifiedProduct,
+        statusCode: 200,
+      });
+    });
+  public getListByBrand = (
+    user_id: string,
+    project_id: string,
+    brand_order: SortOrder
+  ): Promise<any> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 200,
+        });
+      }
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 200,
+        });
+      }
+      const specifiedProducts = await this.specifiedProductModel.getBy({
+        project_id,
+      });
+      const productIds = getDistinctArray(
+        specifiedProducts.map((item) => item.product_id)
+      );
+      const products = await this.productModel.getMany(productIds);
+      const brandIds = getDistinctArray(products.map((item) => item.brand_id));
+      const brands = await this.brandModel.getManyOrder(
+        brandIds,
+        undefined,
+        "name",
+        brand_order
+      );
+      const specified = specifiedProducts.filter(
+        (item) => item.status === SPECIFIED_PRODUCT_STATUS.SPECIFIED
+      );
+      const cancelled = specifiedProducts.filter(
+        (item) => item.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
+      );
+      const result = await Promise.all(
+        brands.map(async (brand) => {
+          const brandProducts = products.filter(
+            (item) => item.brand_id === brand.id
+          );
+          const brandSpecifiedProducts =
+            await this.specifiedProductModel.getManyByProduct(
+              brandProducts.map((item) => item.id)
+            );
+          const returnSpecifiedProducts = await Promise.all(
+            brandSpecifiedProducts.map(async (specifiedProduct) => {
+              const product = brandProducts.find(
+                (item) => item.id === specifiedProduct.product_id
+              );
+              const collection = await this.collectionModel.find(
+                product?.collection_id || ""
+              );
+              return {
+                id: product?.id,
+                name: product?.name,
+                collection_name: collection?.name,
+                variant: "",
+                product_id: "",
+                image: product?.images[0],
+                status: specifiedProduct.status,
+              };
+            })
+          );
+          return {
+            id: brand.id,
+            name: brand.name,
+            products: returnSpecifiedProducts,
+            count: returnSpecifiedProducts.length,
+          };
+        })
+      );
+      return resolve({
+        data: {
+          data: result,
+          summary: [
+            {
+              name: "Specified",
+              value: specified.length,
+            },
+            {
+              name: "Cancelled",
+              value: cancelled.length,
+            },
+          ],
+        },
+        statusCode: 200,
+      });
+    });
+  public getListByMaterial = (
+    user_id: string,
+    project_id: string,
+    brand_order?: SortOrder,
+    material_code_order?: SortOrder
+  ): Promise<any> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 200,
+        });
+      }
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 200,
+        });
+      }
+      const specifiedProducts = await this.specifiedProductModel.getAllBy(
+        {
+          project_id,
+        },
+        undefined,
+        "material_code",
+        material_code_order
+      );
+
+      let returnSpecifiedProducts = await Promise.all(
+        specifiedProducts.map(async (specifiedProduct) => {
+          const product = await this.productModel.find(
+            specifiedProduct.product_id
+          );
+          const brand = await this.brandModel.find(product?.brand_id || "");
+          const unit = await this.unitTypeModel.find(
+            specifiedProduct.unit_type_id
+          );
+          return {
+            id: specifiedProduct.id,
+            material_code: specifiedProduct.material_code,
+            description: specifiedProduct.description,
+            image: product?.images[0],
+            brand_name: brand?.name,
+            product_name: product?.name,
+            quantity: specifiedProduct.quantity,
+            unit: unit?.code,
+            order_method: specifiedProduct.order_method,
+            status: specifiedProduct.status,
+          };
+        })
+      );
+      if (brand_order) {
+        returnSpecifiedProducts = sortObjectArray(
+          returnSpecifiedProducts,
+          "brand_name",
+          brand_order
+        );
+      }
+      const specified = specifiedProducts.filter(
+        (item) => item.status === SPECIFIED_PRODUCT_STATUS.SPECIFIED
+      );
+      const cancelled = specifiedProducts.filter(
+        (item) => item.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
+      );
+      return resolve({
+        data: {
+          data: returnSpecifiedProducts,
+          summary: [
+            {
+              name: "Specified",
+              value: specified.length,
+            },
+            {
+              name: "Cancelled",
+              value: cancelled.length,
+            },
+          ],
+        },
+        statusCode: 200,
+      });
+    });
+  public getListByZone = (
+    user_id: string,
+    project_id: string,
+    zone_order: SortOrder,
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder
+  ): Promise<any> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 200,
+        });
+      }
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 200,
+        });
+      }
+      const projectZones = await this.projectZoneModel.getAllBy(
+        {
+          project_id,
+        },
+        ["id", "name", "areas"],
+        "name",
+        zone_order
+      );
+      const specifiedProducts = await this.specifiedProductModel.getBy({
+        project_id,
+      });
+      const consideredProductIds = specifiedProducts.map(
+        (item) => item.considered_product_id
+      );
+      const consideredProducts = await this.consideredProductModel.getMany(
+        consideredProductIds
+      );
+
+      const newProjectZones = await Promise.all(
+        projectZones.map(async (zone) => {
+          const newAreas = await Promise.all(
+            zone.areas.map(async (area) => {
+              const newRooms = await Promise.all(
+                area.rooms.map(async (room) => {
+                  const foundConsideredProducts = consideredProducts.filter(
+                    (item) => item.project_zone_id === room.id
+                  );
+                  const products = await this.getSpecifiedProducts(
+                    foundConsideredProducts,
+                    brand_order,
+                    specifiedProducts
+                  );
+                  return {
+                    ...room,
+                    products,
+                    count: products.length,
+                  };
+                })
+              );
+              const sortedNewRooms = sortObjectArray(
+                newRooms,
+                "name",
+                room_order
+              );
+              return {
+                ...area,
+                rooms: sortedNewRooms,
+              };
+            })
+          );
+          const sortedAreas = sortObjectArray(newAreas, "name", area_order);
+          return {
+            ...zone,
+            areas: sortedAreas,
+          };
+        })
+      );
+      const entireConsideredProducts = consideredProducts.filter(
+        (item) => item.is_entire === true
+      );
+      const entireProducts = await this.getSpecifiedProducts(
+        entireConsideredProducts,
+        brand_order,
+        specifiedProducts
+      );
+      const specified = specifiedProducts.filter(
+        (item) => item.status === SPECIFIED_PRODUCT_STATUS.SPECIFIED
+      );
+      const cancelled = specifiedProducts.filter(
+        (item) => item.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
+      );
+      const result = [
+        {
+          name: "ENTIRE PROJECT",
+          products: entireProducts,
+          count: entireProducts.length,
+        },
+      ].concat(newProjectZones as any);
+      return resolve({
+        data: {
+          data: result,
+          summary: [
+            {
+              name: "Specified",
+              value: specified.length,
+            },
+            {
+              name: "Cancelled",
+              value: cancelled.length,
+            },
+          ],
+        },
         statusCode: 200,
       });
     });

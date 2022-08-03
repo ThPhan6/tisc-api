@@ -192,6 +192,12 @@ export const ROUTES = {
     "/api/specified-product/get-one/{considered_product_id}",
   GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "/api/location/design/{design_id}",
   GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
+  GET_SPECIFIED_PRODUCTS_BY_BRAND:
+    "/api/specified-product/get-list-brand/{project_id}",
+  GET_SPECIFIED_PRODUCTS_BY_MATERIAL:
+    "/api/specified-product/get-list-material/{project_id}",
+  GET_SPECIFIED_PRODUCTS_BY_ZONE:
+    "/api/specified-product/get-list-zone/{project_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

@@ -5,6 +5,16 @@ export default {
     statusCode: Joi.number(),
     data: Joi.any(),
   }) as any,
+  getList: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.object({
+      data: Joi.any(),
+      summary: Joi.array().items({
+        name: Joi.string(),
+        value: Joi.number(),
+      }),
+    }),
+  }) as any,
   getListRequirementType: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
