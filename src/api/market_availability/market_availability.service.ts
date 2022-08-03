@@ -6,6 +6,7 @@ import CountryStateCityService from "../../service/country_state_city.service";
 import CollectionModel from "../../model/collection.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
+  IMarketAvailabilityGroupByCollectionResponse,
   IMarketAvailabilityRequest,
   IMarketAvailabilityResponse,
   IUpdateMarketAvailabilityRequest,
@@ -13,6 +14,7 @@ import {
 import DistributorModel from "../../model/distributor.model";
 import BrandModel from "../../model/brand.model";
 import { getDistinctArray } from "../../helper/common.helper";
+import { resolve } from "path";
 export default class MarketAvailabilityService {
   private marketAvailabilityModel: MarketAvailabilityModel;
   private countryStateCityService: CountryStateCityService;
@@ -270,6 +272,27 @@ export default class MarketAvailabilityService {
           collections: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+
+  public getMarketAvailabilityGroupByCollection = (
+    brand_id: string
+  ): Promise<IMessageResponse | IMarketAvailabilityGroupByCollectionResponse> =>
+    new Promise(async (resolve) => {
+      const collection = await this.collectionModel.findBy({
+        brand_id,
+      });
+      if (!collection) {
+        return resolve({
+          message: MESSAGES.COLLECTION_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      const marketAvailability = await this.get(collection.id);
+      return resolve({
+        data: "",
         statusCode: 200,
       });
     });

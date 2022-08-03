@@ -31,4 +31,15 @@ export default class MarketAvailabilityController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getMarketAvailabilityGroupByCollection = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.query;
+    const response = await this.service.getMarketAvailabilityGroupByCollection(
+      brand_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

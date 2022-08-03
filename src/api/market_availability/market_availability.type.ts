@@ -9,3 +9,8 @@ export interface IMarketAvailabilityResponse {
   data: any;
   statusCode: number;
 }
+
+export interface IMarketAvailabilityGroupByCollectionResponse {
+  data: any;
+  statusCode: number;
+}

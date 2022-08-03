@@ -199,6 +199,8 @@ export const ROUTES = {
     "/api/specified-product/get-list-material/{project_id}",
   GET_SPECIFIED_PRODUCTS_BY_ZONE:
     "/api/specified-product/get-list-zone/{project_id}",
+  GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION:
+    "/api/market-availability/get-list-group-by-collection",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -387,4 +389,5 @@ export const ROUTE_IDS = {
   GET_SPECIFIED_PRODUCTS_BY_BRAND: "175",
   GET_SPECIFIED_PRODUCTS_BY_MATERIAL: "176",
   GET_SPECIFIED_PRODUCTS_BY_ZONE: "177",
+  GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION: "178",
 };
