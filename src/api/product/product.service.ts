@@ -785,7 +785,7 @@ export default class ProductService {
     name?: string,
     sort?: string,
     order?: "ASC" | "DESC"
-  ): Promise<IMessageResponse | any> => {
+  ): Promise<IMessageResponse | IDesignerProductsResponse> => {
     return new Promise(async (resolve) => {
       let products: IProductAttributes[] = [];
       let summary;
