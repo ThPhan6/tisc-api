@@ -191,6 +191,7 @@ export const MESSAGES = {
   PROJECT_ZONE_NOT_FOUND: "Project zone not found",
   MATERIAL_CODE_NOT_FOUND: "Material code not found",
   CONSIDERED_PRODUCT_NOT_FOUND: "Considered product not found",
+  DESIGN_NOT_FOUND: "Design not found",
 };
 
 export const BASIS_TYPES: {

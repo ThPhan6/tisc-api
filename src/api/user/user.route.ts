@@ -213,11 +213,28 @@ export default class UserRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_TEAM_GROUP_BY_COUNTRY,
+          path: ROUTES.GET_BRAND_TEAM_GROUP_BY_COUNTRY,
           options: {
-            handler: controller.getTeamGroupByCountry,
+            handler: controller.getBrandTeamGroupByCountry,
             validate: validate.getWithBrandId,
-            description: "Method that get list team group by country",
+            description: "Method that get list brand team group by country",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByCountry,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DESIGN_TEAM_GROUP_BY_COUNTRY,
+          options: {
+            handler: controller.getDesignTeamGroupByCountry,
+            validate: validate.getWithDesignId,
+            description: "Method that get list design team group by country",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
