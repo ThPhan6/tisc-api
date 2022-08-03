@@ -127,4 +127,12 @@ export default {
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
   },
+  getWithDesignId: {
+    query: {
+      design_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+  },
 };

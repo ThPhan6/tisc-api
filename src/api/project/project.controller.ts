@@ -81,4 +81,12 @@ export default class ProjectController {
     const response = await this.service.getProjectSummary(userId);
     return toolkit.response(response).code(200);
   };
+  public getProjectGroupByStatus = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { design_id } = req.query;
+    const response = await this.service.getProjectGroupByStatus(design_id);
+    return toolkit.response(response).code(200);
+  };
 }
