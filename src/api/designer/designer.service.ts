@@ -1,3 +1,4 @@
+import { MESSAGES } from "./../../constant/common.constant";
 import {
   DESIGN_STATUS_OPTIONS,
   PROJECT_STATUS,
@@ -9,6 +10,7 @@ import {
   IDesignerResponse,
   IDesignersResponse,
   IDesignSummary,
+  IUpdateDesignStatusRequest,
 } from "./designer.type";
 import UserModel from "../../model/user.model";
 import { v4 as uuidv4 } from "uuid";
@@ -96,7 +98,7 @@ export default class DesignerService {
       const designer = await this.designerModel.find(id);
       if (!designer) {
         return resolve({
-          message: "Not found desinger.",
+          message: "Not found designer.",
           statusCode: 404,
         });
       }
@@ -237,6 +239,41 @@ export default class DesignerService {
             ],
           },
         ],
+        statusCode: 200,
+      });
+    });
+  };
+
+  public updateDesignStatus = async (
+    design_id: string,
+    payload: IUpdateDesignStatusRequest
+  ): Promise<IDesignerResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const designer = await this.designerModel.find(design_id);
+      if (!designer) {
+        return resolve({
+          message: "Not found designer.",
+          statusCode: 404,
+        });
+      }
+      if (payload.status !== designer.status) {
+        const updatedDesignStatus = await this.designerModel.update(design_id, {
+          status: payload.status,
+        });
+        if (!updatedDesignStatus) {
+          return resolve({
+            message: MESSAGES.SOMETHING_WRONG_UPDATE,
+            statusCode: 400,
+          });
+        }
+
+        return resolve({
+          data: updatedDesignStatus,
+          statusCode: 200,
+        });
+      }
+      return resolve({
+        data: designer,
         statusCode: 200,
       });
     });

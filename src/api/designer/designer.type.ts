@@ -42,3 +42,7 @@ export interface IDesignSummary {
   }[];
   statusCode: number;
 }
+
+export interface IUpdateDesignStatusRequest {
+  status: number;
+}

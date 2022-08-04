@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { DESIGN_STATUSES } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -50,4 +51,19 @@ export default {
       };
     }),
   } as any,
+
+  updateDesignStatus: {
+    params: {
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(DESIGN_STATUSES.ACTIVE, DESIGN_STATUSES.INACTIVE)
+        .required()
+        .error(commonFailValidatedMessageFunction("Design status is required")),
+    },
+  },
 };
