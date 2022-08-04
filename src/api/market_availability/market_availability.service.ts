@@ -280,19 +280,35 @@ export default class MarketAvailabilityService {
     brand_id: string
   ): Promise<IMessageResponse | IMarketAvailabilityGroupByCollectionResponse> =>
     new Promise(async (resolve) => {
-      const collection = await this.collectionModel.findBy({
+      const collections = await this.collectionModel.getAllBy({
         brand_id,
       });
-      if (!collection) {
-        return resolve({
-          message: MESSAGES.COLLECTION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
+      const marketAvailabilities = await Promise.all(
+        collections.map(async (collection) => {
+          return await this.get(collection.id);
+        })
+      );
 
-      const marketAvailability = await this.get(collection.id);
+      const result = marketAvailabilities.map((marketAvailability: any) => {
+        const regions = marketAvailability?.data?.regions.map((region: any) => {
+          let region_country: string = "";
+          region.countries.forEach((country: any) => {
+            region_country += country.name + ", ";
+          });
+          return {
+            region_name: region.name,
+            count: region.countries.length,
+            region_country,
+          };
+        });
+        return {
+          collection_name: marketAvailability?.data?.collection_name,
+          count: 123,
+          regions,
+        };
+      });
       return resolve({
-        data: "",
+        data: result,
         statusCode: 200,
       });
     });

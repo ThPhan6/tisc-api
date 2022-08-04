@@ -29,3 +29,21 @@ export interface IProjectSummaryResponse {
   on_hold: number;
   archived: number;
 }
+
+export interface IProjectGroupByStatusResponse {
+  data: {
+    status_name: string;
+    count: number;
+    projects: {
+      code: string;
+      name: string;
+      location: string;
+      building_type: string;
+      type: string;
+      measurement_unit: number;
+      design_due: string;
+      construction_start: string;
+    }[];
+  }[];
+  statusCode: number;
+}

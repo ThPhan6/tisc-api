@@ -177,6 +177,23 @@ export default class ProjectRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_PROJECT_GROUP_BY_STATUS,
+          options: {
+            handler: controller.getProjectGroupByStatus,
+            validate: validate.getWithDesignId,
+            description: "Method that get list project group by status",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getProjectGroupByStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

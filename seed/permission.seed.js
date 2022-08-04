@@ -62,6 +62,7 @@ const seed = async (db) => {
             id: ROUTE_IDS.GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION,
             accessable: true,
           },
+          { id: ROUTE_IDS.GET_PROJECT_GROUP_BY_STATUS, accessable: true },
         ],
       },
       {
@@ -384,6 +385,7 @@ const seed = async (db) => {
             id: ROUTE_IDS.GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION,
             accessable: false,
           },
+          { id: ROUTE_IDS.GET_PROJECT_GROUP_BY_STATUS, accessable: false },
         ],
       },
       {
