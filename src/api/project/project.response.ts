@@ -53,4 +53,25 @@ export default {
     on_hold: Joi.number(),
     archived: Joi.number(),
   }) as any,
+  getProjectGroupByStatus: {
+    data: Joi.array().items(
+      Joi.object({
+        status_name: Joi.string(),
+        count: Joi.number(),
+        projects: Joi.array().items(
+          Joi.object({
+            code: Joi.string(),
+            name: Joi.string(),
+            location: Joi.string().allow(""),
+            building_type: Joi.string(),
+            type: Joi.string(),
+            measurement_unit: Joi.number(),
+            design_due: Joi.string(),
+            construction_start: Joi.string(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };

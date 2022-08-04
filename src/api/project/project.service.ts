@@ -1,12 +1,14 @@
 import {
   MESSAGES,
   PROJECT_STATUS,
+  PROJECT_STATUS_OPTIONS,
   SYSTEM_TYPE,
 } from "../../constant/common.constant";
 import ProjectModel, {
   PROJECT_NULL_ATTRIBUTES,
 } from "../../model/project.model";
 import {
+  IProjectGroupByStatusResponse,
   IProjectRequest,
   IProjectResponse,
   IProjectsResponse,
@@ -20,6 +22,7 @@ import UserModel from "../../model/user.model";
 import { IFunctionalTypesResponse } from "../location/location.type";
 import CountryStateCityService from "../../service/country_state_city.service";
 import { IMessageResponse } from "../../type/common.type";
+import DesignerModel from "../../model/designer.model";
 
 export default class ProjectService {
   private projectModel: ProjectModel;
@@ -27,12 +30,14 @@ export default class ProjectService {
   private buildingTypeModel: BuildingTypeModel;
   private userModel: UserModel;
   private countryStateCityService: CountryStateCityService;
+  private designModel: DesignerModel;
   constructor() {
     this.projectModel = new ProjectModel();
     this.projectTypeModel = new ProjectTypeModel();
     this.buildingTypeModel = new BuildingTypeModel();
     this.userModel = new UserModel();
     this.countryStateCityService = new CountryStateCityService();
+    this.designModel = new DesignerModel();
   }
   public getProjectTypes = (
     user_id: string
@@ -606,6 +611,58 @@ export default class ProjectService {
         archived: projects.filter(
           (project) => project.status === PROJECT_STATUS.ARCHIVE
         ).length,
+      });
+    });
+  };
+
+  public getProjectGroupByStatus = async (
+    design_id: string
+  ): Promise<IMessageResponse | IProjectGroupByStatusResponse> => {
+    return new Promise(async (resolve) => {
+      const design = await this.designModel.find(design_id);
+      if (!design) {
+        return resolve({
+          message: MESSAGES.DESIGN_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const user = await this.userModel.findBy({ relation_id: design.id });
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const projects = await this.projectModel.getAllBy({
+        design_id: user.relation_id,
+      });
+
+      const result = PROJECT_STATUS_OPTIONS.map((projectStatus) => {
+        const groupProjects = projects.filter(
+          (project) => project.status === projectStatus.value
+        );
+        const removedFieldsOfProject = groupProjects.map((groupProject) => {
+          return {
+            code: groupProject.code,
+            name: groupProject.name,
+            location: groupProject.location,
+            building_type: groupProject.building_type,
+            type: groupProject.project_type,
+            measurement_unit: groupProject.measurement_unit,
+            design_due: groupProject.design_due,
+            construction_start: groupProject.construction_start,
+          };
+        });
+        return {
+          status_name: projectStatus.key,
+          count: groupProjects.length,
+          projects: removedFieldsOfProject,
+        };
+      });
+
+      return resolve({
+        data: result,
+        statusCode: 200,
       });
     });
   };
