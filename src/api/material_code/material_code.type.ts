@@ -25,3 +25,22 @@ export interface IMaterialCodeResponse {
   };
   statusCode: number;
 }
+
+export interface IMaterialCodeGroupResponse {
+  data: {
+    id: string;
+    name: string;
+    count: number;
+    subs: {
+      id: string;
+      name: string;
+      count: number;
+      codes: {
+        code: string;
+        description: string;
+        id: string;
+      }[];
+    }[];
+  }[];
+  statusCode: number;
+}
