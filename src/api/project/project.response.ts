@@ -10,6 +10,14 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getAll: Joi.object({
+    data: Joi.array().items({
+      id: Joi.string(),
+      code: Joi.string(),
+      name: Joi.string(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
   getList: Joi.object({
     data: Joi.object({
       pagination: {

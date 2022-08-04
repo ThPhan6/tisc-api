@@ -49,6 +49,22 @@ export default class ProjectRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.GET_ALL_PROJECT,
+          options: {
+            handler: controller.getAll,
+            description: "Method that get all project",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getAll,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_PROJECT_TYPES,
           options: {
             handler: controller.getProjectTypes,

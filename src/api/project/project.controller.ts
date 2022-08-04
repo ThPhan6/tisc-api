@@ -26,6 +26,11 @@ export default class ProjectController {
     const response = await this.service.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getAll = async (req: Request, toolkit: ResponseToolkit) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getAll(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getProjectTypes = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getProjectTypes(userId);

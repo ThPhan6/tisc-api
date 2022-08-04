@@ -8,6 +8,7 @@ import ProjectModel, {
   PROJECT_NULL_ATTRIBUTES,
 } from "../../model/project.model";
 import {
+  IAllProjectResponse,
   IProjectGroupByStatusResponse,
   IProjectRequest,
   IProjectResponse,
@@ -320,6 +321,31 @@ export default class ProjectService {
           projects: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+  public getAll = (
+    user_id: string
+  ): Promise<IAllProjectResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          message: MESSAGES.USER_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const projects = await this.projectModel.getAllBy(
+        {
+          design_id: user.relation_id,
+        },
+        ["id", "code", "name"],
+        "created_at",
+        "DESC"
+      );
+
+      return resolve({
+        data: projects,
         statusCode: 200,
       });
     });
