@@ -36,7 +36,7 @@ export default class MarketAvailabilityController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { brand_id } = req.query;
+    const { brand_id } = req.params;
     const response = await this.service.getMarketAvailabilityGroupByCollection(
       brand_id
     );

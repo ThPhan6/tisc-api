@@ -200,7 +200,7 @@ export const ROUTES = {
   GET_SPECIFIED_PRODUCTS_BY_ZONE:
     "/api/specified-product/get-list-zone/{project_id}",
   GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION:
-    "/api/market-availability/get-list-group-by-collection",
+    "/api/market-availability/get-list-group-by-collection/{brand_id}",
   GET_PROJECT_GROUP_BY_STATUS: "/api/project/get-list-group-by-status",
   GET_DISTRIBUTOR_GROUP_BY_COUNTRY:
     "/api/distributor/get-list-group-by-country",

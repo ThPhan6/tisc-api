@@ -92,7 +92,7 @@ export default {
     }),
   } as any,
   getWithBrandId: {
-    query: {
+    params: {
       brand_id: Joi.string()
         .trim()
         .required()

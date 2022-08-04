@@ -77,7 +77,7 @@ export default class MarketAvailabilityRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getOne,
+                200: response.getMarketAvailabilityGroupByCollection,
               },
             },
           },
