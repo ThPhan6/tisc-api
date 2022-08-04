@@ -247,7 +247,7 @@ export default class DesignerService {
   public updateDesignStatus = async (
     design_id: string,
     payload: IUpdateDesignStatusRequest
-  ): Promise<IDesignerResponse | IMessageResponse> => {
+  ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const designer = await this.designerModel.find(design_id);
       if (!designer) {
@@ -268,12 +268,12 @@ export default class DesignerService {
         }
 
         return resolve({
-          data: updatedDesignStatus,
+          message: MESSAGES.SUCCESS,
           statusCode: 200,
         });
       }
       return resolve({
-        data: designer,
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

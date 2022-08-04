@@ -69,6 +69,7 @@ export default {
       room_id_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
+        project_id: value.project_id,
         zone_order: value.zone_order ? value.zone_order : "ASC",
         area_order: value.area_order ? value.area_order : "ASC",
         room_name_order: value.room_name_order ? value.room_name_order : "",

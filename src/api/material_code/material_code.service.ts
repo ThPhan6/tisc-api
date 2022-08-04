@@ -3,6 +3,7 @@ import MaterialCodeModel, {
 } from "../../model/material_code.model";
 import { IMessageResponse } from "../../type/common.type";
 import {
+  IMaterialCodeGroupResponse,
   IMaterialCodeRequest,
   IMaterialCodeResponse,
 } from "./material_code.type";
@@ -57,6 +58,35 @@ export default class MaterialCodeService {
       }
       return resolve({
         data: materialCode,
+        statusCode: 200,
+      });
+    });
+
+  public getMaterialCodeGroup = (
+    design_id: string
+  ): Promise<IMaterialCodeGroupResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const materialCodes = await this.materialCodeModel.getAllBy({
+        design_id,
+      });
+      const result = materialCodes.map((materialCode) => {
+        const mainList = materialCode.subs.map((mainList) => {
+          return {
+            id: mainList.id,
+            name: mainList.name,
+            count: mainList.codes.length,
+            codes: mainList.codes,
+          };
+        });
+        return {
+          id: materialCode.id,
+          name: materialCode.name,
+          count: mainList.length,
+          subs: mainList,
+        };
+      });
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

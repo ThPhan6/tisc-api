@@ -1,3 +1,4 @@
+import { ROUTES } from "./../../constant/api.constant";
 import * as Hapi from "@hapi/hapi";
 import MaterialCodeController from "./material_code.controller";
 import IRoute from "../../helper/route.helper";
@@ -43,6 +44,23 @@ export default class MaterialCodeRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: ProductResponse.get,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_MATERIAL_CODE_GROUP,
+          options: {
+            handler: controller.getMaterialCodeGroup,
+            validate: validate.getWithDesignId,
+            description: "Method that get list material code group",
+            tags: ["api", "Material code"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getMaterialCodeGroup,
               },
             },
           },
