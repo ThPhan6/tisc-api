@@ -49,4 +49,26 @@ export default {
       ),
     }),
   }) as any,
+
+  getDistributorGroupByCountry: {
+    data: Joi.array().items(
+      Joi.object({
+        country_name: Joi.string(),
+        count: Joi.number(),
+        distributors: Joi.array().items(
+          Joi.object({
+            address: Joi.string(),
+            person: Joi.string(),
+            gender: Joi.boolean(),
+            email: Joi.string(),
+            phone: Joi.string(),
+            mobile: Joi.string(),
+            authorized_country_name: Joi.string(),
+            coverage_beyond: Joi.boolean(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };
