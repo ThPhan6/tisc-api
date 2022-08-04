@@ -537,7 +537,9 @@ export default class DistributorService {
           );
           const removedFieldsOfDistributor = groupDistributors.map(
             (distributor) => {
+              console.log(distributor, "[distributor]");
               return {
+                name: distributor.name,
                 address: distributor.address,
                 person: distributor.first_name + " " + distributor.last_name,
                 gender: distributor.gender,

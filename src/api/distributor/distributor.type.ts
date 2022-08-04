@@ -70,6 +70,7 @@ export interface IDistributorGroupByCountryResponse {
     country_name: string;
     count: number;
     distributors: {
+      name: string;
       address: string;
       person: string;
       gender: boolean;
