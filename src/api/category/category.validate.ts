@@ -18,27 +18,27 @@ export default {
       name: Joi.string()
         .trim()
         .required()
-        .error(() => new Error("Main category is required")),
+        .error(() => new Error("Main category is missing")),
       subs: Joi.array()
         .items(
           Joi.object({
             name: Joi.string()
               .trim()
               .required()
-              .error(() => new Error("Subs category is required")),
+              .error(() => new Error("Subs category is missing")),
             subs: Joi.array()
               .items({
                 name: Joi.string()
                   .trim()
                   .required()
-                  .error(() => new Error("Category is required")),
+                  .error(() => new Error("Category is missing")),
               })
               .required()
-              .error(() => new Error("Category is required")),
+              .error(() => new Error("Category is missing")),
           })
         )
         .required()
-        .error(() => new Error("Subs category is required")),
+        .error(() => new Error("Subs category is missing")),
     },
   },
   update: {
@@ -51,7 +51,7 @@ export default {
       name: Joi.string()
         .trim()
         .required()
-        .error(() => new Error("Main category is required")),
+        .error(() => new Error("Main category is missing")),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -59,21 +59,21 @@ export default {
             name: Joi.string()
               .trim()
               .required()
-              .error(() => new Error("Subs category is required")),
+              .error(() => new Error("Subs category is missing")),
             subs: Joi.array()
               .items({
                 id: Joi.string().allow(null),
                 name: Joi.string()
                   .trim()
                   .required()
-                  .error(() => new Error("Category is required")),
+                  .error(() => new Error("Category is missing")),
               })
               .required()
-              .error(() => new Error("Category is required")),
+              .error(() => new Error("Category is missing")),
           })
         )
         .required()
-        .error(() => new Error("Subs category is required")),
+        .error(() => new Error("Subs category is missing")),
     },
   },
   getListCategory: {
