@@ -57,6 +57,7 @@ export default {
         count: Joi.number(),
         distributors: Joi.array().items(
           Joi.object({
+            name: Joi.string(),
             address: Joi.string(),
             person: Joi.string(),
             gender: Joi.boolean(),

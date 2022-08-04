@@ -204,6 +204,7 @@ export const ROUTES = {
   GET_PROJECT_GROUP_BY_STATUS: "/api/project/get-list-group-by-status",
   GET_DISTRIBUTOR_GROUP_BY_COUNTRY:
     "/api/distributor/get-list-group-by-country",
+  GET_ALL_PROJECT: "/api/project/get-all",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -395,4 +396,5 @@ export const ROUTE_IDS = {
   GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION: "178",
   GET_PROJECT_GROUP_BY_STATUS: "179",
   GET_DISTRIBUTOR_GROUP_BY_COUNTRY: "180",
+  GET_ALL_PROJECT: "181",
 };

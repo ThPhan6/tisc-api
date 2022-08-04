@@ -22,6 +22,14 @@ export interface IProjectsResponse {
   data: any;
   statusCode: number;
 }
+export interface IAllProjectResponse {
+  data: {
+    id: string;
+    code: string;
+    name: string;
+  }[];
+  statusCode: number;
+}
 
 export interface IProjectSummaryResponse {
   projects: number;
