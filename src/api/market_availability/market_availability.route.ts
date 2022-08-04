@@ -64,6 +64,24 @@ export default class MarketAvailabilityRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION,
+          options: {
+            handler: controller.getMarketAvailabilityGroupByCollection,
+            validate: validate.getWithBrandId,
+            description:
+              "Method that get list market availability group by collection",
+            tags: ["api", "MarketAvailability"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getMarketAvailabilityGroupByCollection,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });

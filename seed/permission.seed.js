@@ -58,6 +58,10 @@ const seed = async (db) => {
           { id: ROUTE_IDS.GET_BRAND_TEAM_GROUP_BY_COUNTRY, accessable: true },
           { id: ROUTE_IDS.GET_ALL_DESIGN_FIRM_SUMMARY, accessable: true },
           { id: ROUTE_IDS.GET_DESIGN_TEAM_GROUP_BY_COUNTRY, accessable: true },
+          {
+            id: ROUTE_IDS.GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION,
+            accessable: true,
+          },
           { id: ROUTE_IDS.GET_PROJECT_GROUP_BY_STATUS, accessable: true },
         ],
       },
@@ -377,6 +381,10 @@ const seed = async (db) => {
           { id: ROUTE_IDS.GET_BRAND_TEAM_GROUP_BY_COUNTRY, accessable: false },
           { id: ROUTE_IDS.GET_ALL_DESIGN_FIRM_SUMMARY, accessable: false },
           { id: ROUTE_IDS.GET_DESIGN_TEAM_GROUP_BY_COUNTRY, accessable: false },
+          {
+            id: ROUTE_IDS.GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION,
+            accessable: false,
+          },
           { id: ROUTE_IDS.GET_PROJECT_GROUP_BY_STATUS, accessable: false },
         ],
       },
