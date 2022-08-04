@@ -81,6 +81,22 @@ export default class DesignerRoute implements IRoute {
             },
           },
         },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_DESIGN_STATUS,
+          options: {
+            handler: controller.updateDesignStatus,
+            validate: validate.updateDesignStatus,
+            description: "Method that update design status",
+            tags: ["api", "Designer"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
