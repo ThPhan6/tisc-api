@@ -101,6 +101,7 @@ export default {
             mobile: Joi.string().allow(null),
             access_level: Joi.string(),
             status: Joi.number(),
+            phone_code: Joi.string(),
           })
         ),
       })
