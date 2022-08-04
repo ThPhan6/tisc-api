@@ -22,4 +22,12 @@ export default {
       }),
     },
   },
+  getWithDesignId: {
+    params: {
+      design_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+  },
 };
