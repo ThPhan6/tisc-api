@@ -19,6 +19,7 @@ import {
   IBrandResponse,
   IBrandsResponse,
   IUpdateBrandProfileRequest,
+  IUpdateBrandStatusRequest,
 } from "./brand.type";
 import MailService from "../../service/mail.service";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
@@ -760,6 +761,40 @@ export default class BrandService {
             ],
           },
         ],
+      });
+    });
+
+  public updateBrandStatus = (
+    brand_id: string,
+    payload: IUpdateBrandStatusRequest
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      if (brand.status !== payload.status) {
+        const updatedBrandStatus = await this.brandModel.update(brand_id, {
+          status: payload.status,
+        });
+        if (!updatedBrandStatus) {
+          return resolve({
+            message: MESSAGES.SOMETHING_WRONG_UPDATE,
+            statusCode: 400,
+          });
+        }
+        return resolve({
+          message: MESSAGES.SUCCESS,
+          statusCode: 200,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
       });
     });
 }
