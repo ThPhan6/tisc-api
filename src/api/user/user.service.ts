@@ -653,7 +653,9 @@ export default class UserService {
               const department = await this.departmentModel.find(
                 user.department_id
               );
+              const location = await this.locationModel.find(user.location_id);
               return {
+                phone_code: location?.phone_code,
                 logo: user.avatar,
                 firstname: user.firstname,
                 lastname: user.lastname,
