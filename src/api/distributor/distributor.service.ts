@@ -5,6 +5,7 @@ import DistributorModel, {
 } from "../../model/distributor.model";
 import { IMessageResponse, IPagination } from "./../../type/common.type";
 import {
+  IDistributorGroupByCountryResponse,
   IDistributorRequest,
   IDistributorResponse,
   IDistributorsResponse,
@@ -511,7 +512,7 @@ export default class DistributorService {
 
   public getDistributorGroupByCountry = async (
     brand_id: string
-  ): Promise<IMessageResponse | any> => {
+  ): Promise<IMessageResponse | IDistributorGroupByCountryResponse> => {
     return new Promise(async (resolve) => {
       const brand = await this.brandModel.find(brand_id);
       if (!brand) {

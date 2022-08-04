@@ -107,12 +107,12 @@ export default class DistributorRoute implements IRoute {
             description: "Method that get distributor group by country",
             tags: ["api", "Distributor"],
             auth: AUTH_NAMES.GENERAL,
-            // response: {
-            //   status: {
-            //     ...defaultRouteOptionResponseStatus,
-            //     200: response.getDistributorGroupByCountry,
-            //   },
-            // },
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getDistributorGroupByCountry,
+              },
+            },
           },
         },
       ]);
