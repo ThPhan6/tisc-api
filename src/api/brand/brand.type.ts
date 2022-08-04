@@ -104,3 +104,7 @@ export interface IBrandSummary {
   }[];
   statusCode: number;
 }
+
+export interface IUpdateBrandStatusRequest {
+  status: number;
+}

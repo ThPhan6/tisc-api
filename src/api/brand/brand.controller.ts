@@ -1,7 +1,11 @@
 import BrandService from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { BRAND_STATUS_OPTIONS } from "../../constant/common.constant";
-import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
+import {
+  IBrandRequest,
+  IUpdateBrandProfileRequest,
+  IUpdateBrandStatusRequest,
+} from "./brand.type";
 
 export default class BrandController {
   private service: BrandService;
@@ -72,6 +76,15 @@ export default class BrandController {
   ) => {
     const payload = req.payload;
     const response = await this.service.create(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public updateBrandStatus = async (
+    req: Request & { payload: IUpdateBrandStatusRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await this.service.updateBrandStatus(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

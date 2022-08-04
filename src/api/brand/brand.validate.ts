@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { BRAND_STATUSES } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
@@ -102,6 +103,24 @@ export default {
         .email()
         .required()
         .error(commonFailValidatedMessageFunction("Email is required")),
+    },
+  },
+  updateBrandStatus: {
+    params: {
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(
+          BRAND_STATUSES.ACTIVE,
+          BRAND_STATUSES.INACTIVE,
+          BRAND_STATUSES.PENDING
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status required")),
     },
   },
 };
