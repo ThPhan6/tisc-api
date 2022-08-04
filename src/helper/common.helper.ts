@@ -128,3 +128,17 @@ export const getConsideredProductStatusName = (
   }
   return result;
 };
+
+export const formatNumberDisplay = (
+  num: number | string,
+  locale: string = "en-us"
+) => {
+  let value = num;
+  if (typeof value !== "number") {
+    value = Number(value);
+  }
+  if (isNaN(value)) {
+    return "N/A";
+  }
+  return value.toLocaleString(locale);
+};

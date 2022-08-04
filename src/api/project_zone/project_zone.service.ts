@@ -16,6 +16,7 @@ import ProjectZoneModel, {
   PROJECT_ZONE_NULL_ATTRIBUTES,
 } from "../../model/project_zone.model";
 import {
+  formatNumberDisplay,
   isDuplicatedString,
   sortObjectArray,
 } from "../../helper/common.helper";
@@ -269,7 +270,7 @@ export default class ProjectZoneService {
         },
         {
           name: "TOTAL AREA:",
-          value: `${totalArea} ${roomSizeUnit}`,
+          value: `${formatNumberDisplay(totalArea)} ${roomSizeUnit}`,
         },
       ];
 

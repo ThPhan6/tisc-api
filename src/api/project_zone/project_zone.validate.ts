@@ -7,18 +7,18 @@ export default {
       project_id: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Project is required")),
+        .error(commonFailValidatedMessageFunction("Project is missing")),
       name: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Zone is required")),
+        .error(commonFailValidatedMessageFunction("Zone is missing")),
       areas: Joi.array()
         .items(
           Joi.object({
             name: Joi.string()
               .trim()
               .required()
-              .error(commonFailValidatedMessageFunction("Area is required")),
+              .error(commonFailValidatedMessageFunction("Area is missing")),
             rooms: Joi.array()
               .items(
                 Joi.object({
@@ -26,34 +26,32 @@ export default {
                     .trim()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction("Room is required")
+                      commonFailValidatedMessageFunction("Room is missing")
                     ),
                   room_id: Joi.string()
                     .trim()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction("Room ID is required")
+                      commonFailValidatedMessageFunction("Room ID is missing")
                     ),
                   room_size: Joi.number()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction(
-                        "Room Size is required"
-                      )
+                      commonFailValidatedMessageFunction("Room Size is missing")
                     ),
                   quantity: Joi.number()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction("Quantity is required")
+                      commonFailValidatedMessageFunction("Quantity is missing")
                     ),
                 })
               )
               .required()
-              .error(commonFailValidatedMessageFunction("Room is required")),
+              .error(commonFailValidatedMessageFunction("Room is missing")),
           })
         )
         .required()
-        .error(commonFailValidatedMessageFunction("Area is required")),
+        .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 
@@ -96,11 +94,11 @@ export default {
       project_id: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Project is required")),
+        .error(commonFailValidatedMessageFunction("Project is missing")),
       name: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Zone is required")),
+        .error(commonFailValidatedMessageFunction("Zone is missing")),
       areas: Joi.array()
         .items(
           Joi.object({
@@ -108,7 +106,7 @@ export default {
             name: Joi.string()
               .trim()
               .required()
-              .error(commonFailValidatedMessageFunction("Area is required")),
+              .error(commonFailValidatedMessageFunction("Area is missing")),
             rooms: Joi.array()
               .items(
                 Joi.object({
@@ -117,34 +115,32 @@ export default {
                     .trim()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction("Room is required")
+                      commonFailValidatedMessageFunction("Room is missing")
                     ),
                   room_id: Joi.string()
                     .trim()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction("Room ID is required")
+                      commonFailValidatedMessageFunction("Room ID is missing")
                     ),
                   room_size: Joi.number()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction(
-                        "Room Size is required"
-                      )
+                      commonFailValidatedMessageFunction("Room Size is missing")
                     ),
                   quantity: Joi.number()
                     .required()
                     .error(
-                      commonFailValidatedMessageFunction("Quantity is required")
+                      commonFailValidatedMessageFunction("Quantity is missing")
                     ),
                 })
               )
               .required()
-              .error(commonFailValidatedMessageFunction("Room is required")),
+              .error(commonFailValidatedMessageFunction("Room is missing")),
           })
         )
         .required()
-        .error(commonFailValidatedMessageFunction("Area is required")),
+        .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 };
