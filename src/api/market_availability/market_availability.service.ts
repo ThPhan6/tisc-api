@@ -6,6 +6,8 @@ import CountryStateCityService from "../../service/country_state_city.service";
 import CollectionModel from "../../model/collection.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
+  IMarketAvailabilitiesResponse,
+  IMarketAvailabilityGroupByCollectionResponse,
   IMarketAvailabilityRequest,
   IMarketAvailabilityResponse,
   IUpdateMarketAvailabilityRequest,
@@ -13,6 +15,7 @@ import {
 import DistributorModel from "../../model/distributor.model";
 import BrandModel from "../../model/brand.model";
 import { getDistinctArray } from "../../helper/common.helper";
+import { resolve } from "path";
 export default class MarketAvailabilityService {
   private marketAvailabilityModel: MarketAvailabilityModel;
   private countryStateCityService: CountryStateCityService;
@@ -220,7 +223,7 @@ export default class MarketAvailabilityService {
     offset: number,
     filter: any,
     sort: any
-  ): Promise<IMessageResponse | IMarketAvailabilityResponse> =>
+  ): Promise<IMessageResponse | IMarketAvailabilitiesResponse> =>
     new Promise(async (resolve) => {
       const collections = await this.collectionModel.list(
         limit,
@@ -270,6 +273,74 @@ export default class MarketAvailabilityService {
           collections: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+
+  public getMarketAvailabilityGroupByCollection = (
+    brand_id: string
+  ): Promise<IMessageResponse | IMarketAvailabilityGroupByCollectionResponse> =>
+    new Promise(async (resolve) => {
+      const collections = await this.collectionModel.getAllBy({
+        brand_id,
+      });
+      const marketAvailabilities = await Promise.all(
+        collections.map(async (collection) => {
+          const temp: any = await this.get(collection.id);
+          if (temp.statusCode !== 200) {
+            return {
+              data: {
+                collection_id: "",
+                collection_name: "",
+                total_available: 0,
+                total: 0,
+                regions: [
+                  {
+                    name: "",
+                    count: 0,
+                    countries: [
+                      {
+                        id: "",
+                        name: "",
+                        phone_code: "",
+                        region: "",
+                        available: false,
+                      },
+                    ],
+                  },
+                ],
+              },
+              statusCode: 200,
+            };
+          }
+          return temp as IMarketAvailabilityResponse;
+        })
+      );
+      const result = marketAvailabilities.map(
+        (marketAvailability: IMarketAvailabilityResponse) => {
+          let countRegion = 0;
+          const regions = marketAvailability.data.regions.map((region) => {
+            countRegion += region.count;
+            const regionCountry = region.countries
+              .map((country) => {
+                return country.name;
+              })
+              .join(", ");
+            return {
+              region_name: region.name,
+              count: region.countries.length,
+              region_country: regionCountry,
+            };
+          });
+          return {
+            collection_name: marketAvailability.data.collection_name,
+            count: countRegion,
+            regions,
+          };
+        }
+      );
+      return resolve({
+        data: result.filter((item) => item.collection_name !== ""),
         statusCode: 200,
       });
     });

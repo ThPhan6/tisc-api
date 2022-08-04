@@ -22,4 +22,20 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getMarketAvailabilityGroupByCollection: {
+    data: Joi.array().items(
+      Joi.object({
+        collection_name: Joi.string(),
+        count: Joi.number(),
+        regions: Joi.array().items(
+          Joi.object({
+            region_name: Joi.string(),
+            count: Joi.number(),
+            region_country: Joi.string().allow(""),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };
