@@ -64,3 +64,21 @@ export interface IDistributorsResponse {
   };
   statusCode: number;
 }
+
+export interface IDistributorGroupByCountryResponse {
+  data: {
+    country_name: string;
+    count: number;
+    distributors: {
+      address: string;
+      person: string;
+      gender: boolean;
+      email: string;
+      phone: string;
+      mobile: string;
+      authorized_country_name: string;
+      coverage_beyond: boolean;
+    }[];
+  }[];
+  statusCode: number;
+}

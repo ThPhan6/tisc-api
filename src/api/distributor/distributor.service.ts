@@ -5,6 +5,7 @@ import DistributorModel, {
 } from "../../model/distributor.model";
 import { IMessageResponse, IPagination } from "./../../type/common.type";
 import {
+  IDistributorGroupByCountryResponse,
   IDistributorRequest,
   IDistributorResponse,
   IDistributorsResponse,
@@ -17,18 +18,21 @@ import MarketAvailabilityModel from "../../model/market_availability.model";
 import CollectionModel from "../../model/collection.model";
 import { getDistinctArray } from "../../helper/common.helper";
 import { ICountryAttributes } from "../../model/country";
+import LocationModel from "../../model/location.model";
 export default class DistributorService {
   private distributorModel: DistributorModel;
   private countryStateCityService: CountryStateCityService;
   private brandModel: BrandModel;
   private marketAvailabilityModel: MarketAvailabilityModel;
   private collectionModel: CollectionModel;
+  private locationModel: LocationModel;
   constructor() {
     this.distributorModel = new DistributorModel();
     this.countryStateCityService = new CountryStateCityService();
     this.brandModel = new BrandModel();
     this.marketAvailabilityModel = new MarketAvailabilityModel();
     this.collectionModel = new CollectionModel();
+    this.locationModel = new LocationModel();
   }
 
   private updateMarkets = async (
@@ -501,6 +505,59 @@ export default class DistributorService {
           distributors: result,
           pagination,
         },
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getDistributorGroupByCountry = async (
+    brand_id: string
+  ): Promise<IMessageResponse | IDistributorGroupByCountryResponse> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const distributors = await this.distributorModel.getAllBy({ brand_id });
+      const countryIds = getDistinctArray(
+        distributors.map((distributor) => distributor.country_id)
+      );
+      const countries = await Promise.all(
+        countryIds.map(async (countryId) => {
+          return await this.countryStateCityService.getCountryDetail(countryId);
+        })
+      );
+      const result = countries
+        .map((country) => {
+          const groupDistributors = distributors.filter(
+            (item) => item.country_id === country.id
+          );
+          const removedFieldsOfDistributor = groupDistributors.map(
+            (distributor) => {
+              return {
+                address: distributor.address,
+                person: distributor.first_name + " " + distributor.last_name,
+                gender: distributor.gender,
+                email: distributor.email,
+                phone: distributor.phone,
+                mobile: distributor.mobile,
+                authorized_country_name: distributor.authorized_country_name,
+                coverage_beyond: distributor.coverage_beyond,
+              };
+            }
+          );
+          return {
+            country_name: country.name,
+            count: groupDistributors.length,
+            distributors: removedFieldsOfDistributor,
+          };
+        })
+        .flat();
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

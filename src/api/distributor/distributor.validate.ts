@@ -192,4 +192,12 @@ export default {
       };
     }),
   } as any,
+  getWithBrandId: {
+    query: {
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+  },
 };

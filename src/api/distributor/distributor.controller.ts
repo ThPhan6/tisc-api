@@ -50,4 +50,13 @@ export default class DistributorController {
     const response = await this.service.update(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getDistributorGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.query;
+    const response = await this.service.getDistributorGroupByCountry(brand_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
