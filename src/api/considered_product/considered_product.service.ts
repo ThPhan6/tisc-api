@@ -13,11 +13,10 @@ import {
 } from "../../constant/common.constant";
 import {
   getConsideredProductStatusName,
+  getDistinctArray,
   sortObjectArray,
 } from "../../helper/common.helper";
-import {
-  IConsideredProductsResponse,
-} from "./considered_product.type";
+import { IConsideredProductsResponse } from "./considered_product.type";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 
 export default class ConsideredProductService {
@@ -183,6 +182,76 @@ export default class ConsideredProductService {
             { name: "Unlisted", value: unlistedCount },
           ],
         },
+        statusCode: 200,
+      });
+    });
+
+  public getListAssignedProject = (
+    project_id: string,
+    product_id: string
+  ): Promise<any> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      const consideredProducts = await this.consideredProductModel.getBy({
+        product_id,
+        project_id,
+      });
+      const projectZoneIds = getDistinctArray(
+        consideredProducts
+          .map((item) => item.project_zone_id || "")
+          .filter((item) => {
+            if (item === "") return false;
+            return true;
+          })
+      );
+      const zones = await this.projectZoneModel.getBy({
+        project_id,
+      });
+      const entireSection = {
+        name: "ENTIRE PROJECT",
+        is_assigned: projectZoneIds.length === 0 ? true : false,
+      };
+      const returnZones = zones.map((zone) => {
+        const areas = zone.areas.map((area) => {
+          const rooms = area.rooms.map((room) => {
+            const foundRoom = projectZoneIds.find((item) => item === room.id);
+            if (foundRoom)
+              return {
+                ...room,
+                is_assigned: true,
+              };
+            return {
+              ...room,
+              is_assigned: false,
+            };
+          });
+          return {
+            ...area,
+            rooms,
+          };
+        });
+        return {
+          ...zone,
+          areas,
+        };
+      });
+      returnZones.unshift(entireSection as any);
+      return resolve({
+        data: returnZones,
         statusCode: 200,
       });
     });

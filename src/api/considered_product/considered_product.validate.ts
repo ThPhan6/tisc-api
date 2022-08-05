@@ -22,4 +22,14 @@ export default {
       };
     }),
   },
+  getListAssignedProject: {
+    params: {
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Prodcut id is required")),
+    },
+  },
 };

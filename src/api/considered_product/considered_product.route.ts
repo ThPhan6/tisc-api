@@ -32,6 +32,23 @@ export default class ConsideredProductRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.GET_LIST_ASSIGNED_PROJECT,
+          options: {
+            handler: controller.getListAssignedProject,
+            validate: validate.getListAssignedProject,
+            description: "Method that get list assigned by project and product",
+            tags: ["api", "Considered Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.getListAssignedProject,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_CONSIDERED_PRODUCT_STATUS,
           options: {
             handler: controller.getConsideredProductStatusOptions,
