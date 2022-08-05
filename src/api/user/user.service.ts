@@ -726,32 +726,38 @@ export default class UserService {
           statusCode: 404,
         });
       }
-      const usersTypeTisc = await this.userModel.getAllBy({
+      const users = await this.userModel.getAllBy({
         type: SYSTEM_TYPE.TISC,
       });
-      const users = usersTypeTisc.filter(
-        (user) =>
-          user.role_id === ROLES.TISC_ADMIN ||
-          user.role_id === ROLES.TISC_CONSULTANT_TEAM
+
+      const groupTiscTeams = users.filter(
+        (user) => user.role_id === ROLES.TISC_ADMIN
       );
-      const distinctRoleIds = getDistinctArray(
-        users.map((user) => user.role_id)
+      const groupConsultantTeams = users.filter(
+        (user) => user.role_id === ROLES.TISC_CONSULTANT_TEAM
       );
-      const result = ["TISC TEAM", "CONSULTANT TEAM"].map((name, index) => {
-        const groupUsers = users.filter(
-          (user) => user.role_id === distinctRoleIds[index]
-        );
-        const removedFieldsOfUser = groupUsers.map((groupUser) => {
-          const assignedTeam = brand.team_profile_ids.includes(groupUser.id);
+
+      const result = [
+        {
+          name: "TISC TEAMS",
+          users: groupTiscTeams,
+        },
+        {
+          name: "CONSULTANT TEAMS",
+          users: groupConsultantTeams,
+        },
+      ].map((item) => {
+        const removedFieldsOfUser = item.users.map((user) => {
+          const assignedTeam = brand.team_profile_ids.includes(user.id);
           return {
-            id: groupUser.id,
-            avatar: groupUser.avatar,
-            full_name: groupUser.firstname + " " + groupUser.lastname,
+            id: user.id,
+            avatar: user.avatar,
+            full_name: user.firstname + " " + user.lastname,
             assigned_team: assignedTeam,
           };
         });
         return {
-          name,
+          ...item,
           users: removedFieldsOfUser,
         };
       });
