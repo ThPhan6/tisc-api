@@ -19,7 +19,7 @@ import {
   IUsersResponse,
   IGetTeamsGroupByCountry,
   IAssignTeamRequest,
-  IGetTeamGroupByTypeResponse,
+  IGetTiscTeamsProfile,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
@@ -717,7 +717,7 @@ export default class UserService {
 
   public getTiscTeamsProfile = async (
     brand_id: string
-  ): Promise<IMessageResponse | IGetTeamGroupByTypeResponse> => {
+  ): Promise<IMessageResponse | IGetTiscTeamsProfile> => {
     return new Promise(async (resolve) => {
       const brand = await this.brandModel.find(brand_id);
       if (!brand) {

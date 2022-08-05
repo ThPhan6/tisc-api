@@ -103,7 +103,7 @@ export interface IAssignTeamRequest {
   user_ids: string[];
 }
 
-export interface IGetTeamGroupByTypeResponse {
+export interface IGetTiscTeamsProfile {
   data: {
     access_level: string;
     users: {
