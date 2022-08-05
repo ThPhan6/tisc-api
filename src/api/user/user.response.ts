@@ -108,4 +108,21 @@ export default {
     ),
     statusCode: Joi.number(),
   }),
+
+  getTiscTeamsProfile: {
+    data: Joi.array().items(
+      Joi.object({
+        name: Joi.string(),
+        users: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            avatar: Joi.string().allow(null),
+            full_name: Joi.string(),
+            is_assigned: Joi.boolean(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };

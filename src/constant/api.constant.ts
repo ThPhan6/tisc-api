@@ -9,7 +9,7 @@ export const ROUTES = {
   GET_BRAND_STATUSES: "/api/brand/statuses",
   SEND_EMAIL_INVITE_BRAND: "/api/brand/invite/{id}",
   GET_LIST_ASSIGN_TEAM: "/api/team/get-list",
-  ASSIGN_TEAM: "/api/team/assign/{id}",
+  ASSIGN_TEAM: "/api/team/assign/{brand_id}",
   GET_LIST_DESIGN_FIRM: "/api/design/get-list",
   GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
   UPDATE_DESIGN_FIRM: "/api/design/update/{id}",
@@ -210,6 +210,7 @@ export const ROUTES = {
   UPDATE_BRAND_STATUS: "/api/brand/update-status/{id}",
   GET_LIST_ASSIGNED_PROJECT:
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
+  GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-by-type/{brand_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -406,4 +407,5 @@ export const ROUTE_IDS = {
   UPDATE_DESIGN_STATUS: "183",
   UPDATE_BRAND_STATUS: "184",
   GET_LIST_ASSIGNED_PROJECT: "185",
+  GET_TISC_TEAM_PROFILE: "186",
 };

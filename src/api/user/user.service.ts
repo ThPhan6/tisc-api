@@ -18,6 +18,8 @@ import {
   IDepartmentsResponse,
   IUsersResponse,
   IGetTeamsGroupByCountry,
+  IAssignTeamRequest,
+  IGetTiscTeamsProfile,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
@@ -677,6 +679,88 @@ export default class UserService {
           };
         })
       );
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public assignTeam = async (
+    brand_id: string,
+    payload: IAssignTeamRequest
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const distinctUserIds = getDistinctArray(payload.user_ids);
+      const updatedBrand = await this.brandModel.update(brand_id, {
+        team_profile_ids: distinctUserIds,
+      });
+      if (!updatedBrand) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getTiscTeamsProfile = async (
+    brand_id: string
+  ): Promise<IMessageResponse | IGetTiscTeamsProfile> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const users = await this.userModel.getAllBy({
+        type: SYSTEM_TYPE.TISC,
+      });
+
+      const groupTiscTeams = users.filter(
+        (user) => user.role_id === ROLES.TISC_ADMIN
+      );
+      const groupConsultantTeams = users.filter(
+        (user) => user.role_id === ROLES.TISC_CONSULTANT_TEAM
+      );
+
+      const result = [
+        {
+          name: "TISC TEAMS",
+          users: groupTiscTeams,
+        },
+        {
+          name: "CONSULTANT TEAMS",
+          users: groupConsultantTeams,
+        },
+      ].map((item) => {
+        const removedFieldsOfUser = item.users.map((user) => {
+          const isAssigned = brand.team_profile_ids.includes(user.id);
+          return {
+            id: user.id,
+            avatar: user.avatar,
+            full_name: user.firstname + " " + user.lastname,
+            is_assigned: isAssigned,
+          };
+        });
+        return {
+          ...item,
+          users: removedFieldsOfUser,
+        };
+      });
       return resolve({
         data: result,
         statusCode: 200,

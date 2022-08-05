@@ -245,6 +245,39 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_TISC_TEAM_PROFILE,
+          options: {
+            handler: controller.getTiscTeamsProfile,
+            validate: validate.getWithBrandId,
+            description: "Method that get TISC teams profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTiscTeamsProfile,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.ASSIGN_TEAM,
+          options: {
+            handler: controller.assignTeam,
+            validate: validate.assignTeam,
+            description: "Method that assign team",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
