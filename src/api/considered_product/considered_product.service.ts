@@ -142,6 +142,7 @@ export default class ConsideredProductService {
               return {
                 ...area,
                 rooms: sortedNewRooms,
+                count: sortedNewRooms.length,
               };
             })
           );
@@ -149,6 +150,7 @@ export default class ConsideredProductService {
           return {
             ...zone,
             areas: sortedAreas,
+            count: sortedAreas.length,
           };
         })
       );
