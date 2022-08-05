@@ -112,7 +112,7 @@ export default {
   getTiscTeamsProfile: {
     data: Joi.array().items(
       Joi.object({
-        access_level: Joi.string(),
+        name: Joi.string(),
         users: Joi.array().items(
           Joi.object({
             id: Joi.string(),

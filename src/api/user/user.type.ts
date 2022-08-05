@@ -105,7 +105,7 @@ export interface IAssignTeamRequest {
 
 export interface IGetTiscTeamsProfile {
   data: {
-    access_level: string;
+    name: string;
     users: {
       id: string;
       avatar: string | null;

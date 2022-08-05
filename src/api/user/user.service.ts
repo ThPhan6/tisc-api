@@ -737,12 +737,9 @@ export default class UserService {
       const distinctRoleIds = getDistinctArray(
         users.map((user) => user.role_id)
       );
-      const arrAccessLevel = distinctRoleIds.map((roleId) => {
-        return getAccessLevel(roleId);
-      });
-      const result = arrAccessLevel.map((accessLevel) => {
+      const result = ["TISC TEAM", "CONSULTANT TEAM"].map((name, index) => {
         const groupUsers = users.filter(
-          (user) => user.access_level === accessLevel
+          (user) => user.role_id === distinctRoleIds[index]
         );
         const removedFieldsOfUser = groupUsers.map((groupUser) => {
           const assignedTeam = brand.team_profile_ids.includes(groupUser.id);
@@ -754,7 +751,7 @@ export default class UserService {
           };
         });
         return {
-          access_level: accessLevel,
+          name,
           users: removedFieldsOfUser,
         };
       });
