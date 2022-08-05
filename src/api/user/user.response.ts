@@ -108,4 +108,21 @@ export default {
     ),
     statusCode: Joi.number(),
   }),
+
+  getTeamGroupByType: {
+    data: Joi.array().items(
+      Joi.object({
+        access_level: Joi.string(),
+        users: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            avatar: Joi.string().allow(null),
+            full_name: Joi.string(),
+            assigned_team: Joi.boolean(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };

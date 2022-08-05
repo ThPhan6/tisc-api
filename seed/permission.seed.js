@@ -66,6 +66,8 @@ const seed = async (db) => {
           { id: ROUTE_IDS.UPDATE_DESIGN_STATUS, accessable: true },
           { id: ROUTE_IDS.GET_MATERIAL_CODE_GROUP, accessable: true },
           { id: ROUTE_IDS.UPDATE_BRAND_STATUS, accessable: true },
+          { id: ROUTE_IDS.GET_TEAM_GROUP_BY_TYPE, accessable: true },
+          { id: ROUTE_IDS.ASSIGN_TEAM, accessable: true },
         ],
       },
       {
@@ -392,6 +394,8 @@ const seed = async (db) => {
           { id: ROUTE_IDS.UPDATE_DESIGN_STATUS, accessable: false },
           { id: ROUTE_IDS.GET_MATERIAL_CODE_GROUP, accessable: false },
           { id: ROUTE_IDS.UPDATE_BRAND_STATUS, accessable: false },
+          { id: ROUTE_IDS.GET_TEAM_GROUP_BY_TYPE, accessable: false },
+          { id: ROUTE_IDS.ASSIGN_TEAM, accessable: false },
         ],
       },
       {

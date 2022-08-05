@@ -18,6 +18,8 @@ import {
   IDepartmentsResponse,
   IUsersResponse,
   IGetTeamsGroupByCountry,
+  IAssignTeamRequest,
+  IGetTeamGroupByTypeResponse,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
@@ -677,6 +679,87 @@ export default class UserService {
           };
         })
       );
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public assignTeam = async (
+    brand_id: string,
+    payload: IAssignTeamRequest
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      console.log(brand_id, "[band_id]");
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const userIds = payload.user_ids.concat(brand.team_profile_ids);
+      const distinctUserIds = getDistinctArray(userIds);
+      const updatedBrand = await this.brandModel.update(brand_id, {
+        team_profile_ids: distinctUserIds,
+      });
+      if (!updatedBrand) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getTeamGroupByType = async (
+    brand_id: string
+  ): Promise<IMessageResponse | IGetTeamGroupByTypeResponse> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const usersTypeTisc = await this.userModel.getAllBy({
+        type: SYSTEM_TYPE.TISC,
+      });
+      const users = usersTypeTisc.filter(
+        (user) =>
+          user.role_id === ROLES.TISC_ADMIN ||
+          user.role_id === ROLES.TISC_CONSULTANT_TEAM
+      );
+      const distinctRoleIds = getDistinctArray(
+        users.map((user) => user.role_id)
+      );
+      const arrAccessLevel = distinctRoleIds.map((roleId) => {
+        return getAccessLevel(roleId);
+      });
+      const result = arrAccessLevel.map((accessLevel) => {
+        const groupUsers = users.filter(
+          (user) => user.access_level === accessLevel
+        );
+        const removedFieldsOfUser = groupUsers.map((groupUser) => {
+          const assignedTeam = brand.team_profile_ids.includes(groupUser.id);
+          return {
+            id: groupUser.id,
+            avatar: groupUser.avatar,
+            full_name: groupUser.firstname + " " + groupUser.lastname,
+            assigned_team: assignedTeam,
+          };
+        });
+        return {
+          access_level: accessLevel,
+          users: removedFieldsOfUser,
+        };
+      });
       return resolve({
         data: result,
         statusCode: 200,

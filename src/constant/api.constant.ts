@@ -9,7 +9,7 @@ export const ROUTES = {
   GET_BRAND_STATUSES: "/api/brand/statuses",
   SEND_EMAIL_INVITE_BRAND: "/api/brand/invite/{id}",
   GET_LIST_ASSIGN_TEAM: "/api/team/get-list",
-  ASSIGN_TEAM: "/api/team/assign/{id}",
+  ASSIGN_TEAM: "/api/team/assign/{brand_id}",
   GET_LIST_DESIGN_FIRM: "/api/design/get-list",
   GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
   UPDATE_DESIGN_FIRM: "/api/design/update/{id}",
@@ -208,6 +208,7 @@ export const ROUTES = {
   GET_MATERIAL_CODE_GROUP: "/api/material-code/get-list-group/{design_id}",
   UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
   UPDATE_BRAND_STATUS: "/api/brand/update-status/{id}",
+  GET_TEAM_GROUP_BY_TYPE: "/api/team/get-list-group-by-type/{brand_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -403,4 +404,5 @@ export const ROUTE_IDS = {
   GET_MATERIAL_CODE_GROUP: "182",
   UPDATE_DESIGN_STATUS: "183",
   UPDATE_BRAND_STATUS: "184",
+  GET_TEAM_GROUP_BY_TYPE: "185",
 };

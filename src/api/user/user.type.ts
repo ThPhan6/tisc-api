@@ -98,3 +98,20 @@ export interface IGetTeamsGroupByCountry {
   }[];
   statusCode: number;
 }
+
+export interface IAssignTeamRequest {
+  user_ids: string[];
+}
+
+export interface IGetTeamGroupByTypeResponse {
+  data: {
+    access_level: string;
+    users: {
+      id: string;
+      avatar: string | null;
+      full_name: string;
+      assigned_team: boolean;
+    }[];
+  }[];
+  statusCode: number;
+}

@@ -245,6 +245,39 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_TEAM_GROUP_BY_TYPE,
+          options: {
+            handler: controller.getTeamGroupByType,
+            validate: validate.getWithBrandId,
+            description: "Method that get list team group by type",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByType,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.ASSIGN_TEAM,
+          options: {
+            handler: controller.assignTeam,
+            validate: validate.assignTeam,
+            description: "Method that assign team",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

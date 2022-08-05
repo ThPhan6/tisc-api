@@ -130,4 +130,24 @@ export default {
         .error(commonFailValidatedMessageFunction("Design is required")),
     },
   },
+
+  assignTeam: {
+    params: {
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+    payload: {
+      user_ids: Joi.array()
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(commonFailValidatedMessageFunction("Brand is required"))
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("User is required")),
+    },
+  },
 };
