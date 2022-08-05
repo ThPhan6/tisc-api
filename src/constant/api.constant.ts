@@ -208,6 +208,8 @@ export const ROUTES = {
   GET_MATERIAL_CODE_GROUP: "/api/material-code/get-list-group/{design_id}",
   UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
   UPDATE_BRAND_STATUS: "/api/brand/update-status/{id}",
+  GET_LIST_ASSIGNED_PROJECT:
+    "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
   GET_TEAM_GROUP_BY_TYPE: "/api/team/get-list-group-by-type/{brand_id}",
 };
 export const ROUTE_IDS = {
@@ -404,5 +406,6 @@ export const ROUTE_IDS = {
   GET_MATERIAL_CODE_GROUP: "182",
   UPDATE_DESIGN_STATUS: "183",
   UPDATE_BRAND_STATUS: "184",
-  GET_TEAM_GROUP_BY_TYPE: "185",
+  GET_LIST_ASSIGNED_PROJECT: "185",
+  GET_TEAM_GROUP_BY_TYPE: "186",
 };

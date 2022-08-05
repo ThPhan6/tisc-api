@@ -15,4 +15,8 @@ export default {
     key: Joi.string(),
     value: Joi.number(),
   }),
+  getListAssignedProject: Joi.object({
+    data: Joi.any(),
+    statusCode: Joi.number(),
+  }),
 };

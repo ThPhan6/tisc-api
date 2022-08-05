@@ -19,6 +19,17 @@ export default class ConsideredProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListAssignedProject = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { product_id, project_id } = req.params;
+    const response = await this.service.getListAssignedProject(
+      project_id,
+      product_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getConsideredProductStatusOptions = async (
     _req: Request,
     toolkit: ResponseToolkit
