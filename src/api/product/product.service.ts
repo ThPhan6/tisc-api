@@ -1072,33 +1072,55 @@ export default class ProductService {
           statusCode: 400,
         });
       }
+      const assigned = await this.consideredProductModel.findBy({
+        product_id: payload.product_id,
+        project_id: payload.project_id,
+      });
       if (
         payload.is_entire === false &&
         payload.project_zone_ids.length !== 0
       ) {
         await Promise.all(
           payload.project_zone_ids.map(async (project_zone_id) => {
-            await this.consideredProductModel.create({
-              ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-              product_id: payload.product_id,
-              project_id: payload.project_id,
-              assigned_by: user_id,
-              is_entire: false,
-              project_zone_id,
-              status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-            });
+            if (!assigned) {
+              await this.consideredProductModel.create({
+                ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+                product_id: payload.product_id,
+                project_id: payload.project_id,
+                assigned_by: user_id,
+                is_entire: false,
+                project_zone_id,
+                status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+              });
+            } else {
+              await this.consideredProductModel.update(assigned.id, {
+                product_id: payload.product_id,
+                project_id: payload.project_id,
+                is_entire: false,
+                project_zone_id,
+              });
+            }
             return true;
           })
         );
       } else {
-        await this.consideredProductModel.create({
-          ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-          product_id: payload.product_id,
-          project_id: payload.project_id,
-          assigned_by: user_id,
-          is_entire: true,
-          status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-        });
+        if (!assigned) {
+          await this.consideredProductModel.create({
+            ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+            product_id: payload.product_id,
+            project_id: payload.project_id,
+            assigned_by: user_id,
+            is_entire: true,
+            status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+          });
+        } else {
+          await this.consideredProductModel.update(assigned.id, {
+            product_id: payload.product_id,
+            project_id: payload.project_id,
+            assigned_by: user_id,
+            is_entire: true,
+          });
+        }
       }
       const newProductIds = project.product_ids
         ? project.product_ids.concat([payload.product_id])
