@@ -247,17 +247,17 @@ export default class UserRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_TEAM_GROUP_BY_TYPE,
+          path: ROUTES.GET_TISC_TEAM_PROFILE,
           options: {
-            handler: controller.getTeamGroupByType,
+            handler: controller.getTiscTeamsProfile,
             validate: validate.getWithBrandId,
-            description: "Method that get list team group by type",
+            description: "Method that get TISC teams profile",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getTeamGroupByType,
+                200: response.getTiscTeamsProfile,
               },
             },
           },

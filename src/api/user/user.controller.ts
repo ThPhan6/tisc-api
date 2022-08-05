@@ -133,12 +133,12 @@ export default class UserController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getTeamGroupByType = async (
+  public getTiscTeamsProfile = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
-    const response = await this.service.getTeamGroupByType(brand_id);
+    const response = await this.service.getTiscTeamsProfile(brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

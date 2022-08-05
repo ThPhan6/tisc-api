@@ -691,7 +691,6 @@ export default class UserService {
     payload: IAssignTeamRequest
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
-      console.log(brand_id, "[band_id]");
       const brand = await this.brandModel.find(brand_id);
       if (!brand) {
         return resolve({
@@ -699,8 +698,7 @@ export default class UserService {
           statusCode: 404,
         });
       }
-      const userIds = payload.user_ids.concat(brand.team_profile_ids);
-      const distinctUserIds = getDistinctArray(userIds);
+      const distinctUserIds = getDistinctArray(payload.user_ids);
       const updatedBrand = await this.brandModel.update(brand_id, {
         team_profile_ids: distinctUserIds,
       });
@@ -717,7 +715,7 @@ export default class UserService {
     });
   };
 
-  public getTeamGroupByType = async (
+  public getTiscTeamsProfile = async (
     brand_id: string
   ): Promise<IMessageResponse | IGetTeamGroupByTypeResponse> => {
     return new Promise(async (resolve) => {

@@ -109,7 +109,7 @@ export default {
     statusCode: Joi.number(),
   }),
 
-  getTeamGroupByType: {
+  getTiscTeamsProfile: {
     data: Joi.array().items(
       Joi.object({
         access_level: Joi.string(),
