@@ -110,7 +110,7 @@ export interface IGetTiscTeamsProfile {
       id: string;
       avatar: string | null;
       full_name: string;
-      assigned_team: boolean;
+      is_assigned: boolean;
     }[];
   }[];
   statusCode: number;

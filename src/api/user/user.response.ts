@@ -118,7 +118,7 @@ export default {
             id: Joi.string(),
             avatar: Joi.string().allow(null),
             full_name: Joi.string(),
-            assigned_team: Joi.boolean(),
+            is_assigned: Joi.boolean(),
           })
         ),
       })

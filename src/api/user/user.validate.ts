@@ -144,7 +144,7 @@ export default {
           Joi.string()
             .trim()
             .required()
-            .error(commonFailValidatedMessageFunction("Brand is required"))
+            .error(commonFailValidatedMessageFunction("User is required"))
         )
         .required()
         .error(commonFailValidatedMessageFunction("User is required")),

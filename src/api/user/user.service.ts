@@ -748,12 +748,12 @@ export default class UserService {
         },
       ].map((item) => {
         const removedFieldsOfUser = item.users.map((user) => {
-          const assignedTeam = brand.team_profile_ids.includes(user.id);
+          const isAssigned = brand.team_profile_ids.includes(user.id);
           return {
             id: user.id,
             avatar: user.avatar,
             full_name: user.firstname + " " + user.lastname,
-            assigned_team: assignedTeam,
+            is_assigned: isAssigned,
           };
         });
         return {
