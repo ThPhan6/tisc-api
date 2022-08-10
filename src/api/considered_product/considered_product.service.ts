@@ -146,7 +146,7 @@ export default class ConsideredProductService {
               );
               const sortedNewRooms = sortObjectArray(
                 newRooms,
-                "name",
+                "room_name",
                 room_order
               );
               return {

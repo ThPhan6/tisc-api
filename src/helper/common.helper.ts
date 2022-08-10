@@ -108,7 +108,7 @@ export const removeSpecialChars = (str: string, replaceStr: string = "") => {
   return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, replaceStr);
 };
 
-type ConsideredProductStatus = "Considered" | "Re-considered" | "Unlist";
+type ConsideredProductStatus = "Considered" | "Re-considered" | "Unlisted";
 export const getConsideredProductStatusName = (
   status: number
 ): ConsideredProductStatus => {
@@ -123,7 +123,7 @@ export const getConsideredProductStatusName = (
       break;
 
     default:
-      result = "Unlist";
+      result = "Unlisted";
       break;
   }
   return result;
