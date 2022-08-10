@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { CONSIDERED_PRODUCT_STATUS } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
@@ -29,7 +30,48 @@ export default {
         .error(commonFailValidatedMessageFunction("Project id is required")),
       product_id: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Prodcut id is required")),
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+    },
+  },
+
+  updateConsiderProductStatus: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Consider product id is required")
+        ),
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(
+          CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+          CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED,
+          CONSIDERED_PRODUCT_STATUS.UNLISTED
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status is required")),
+    },
+  },
+  deleteConsiderProduct: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Consider product id is required")
+        ),
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
     },
   },
 };

@@ -211,6 +211,10 @@ export const ROUTES = {
   GET_LIST_ASSIGNED_PROJECT:
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
   GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-by-type/{brand_id}",
+  UPDATE_STATUS_CONSIDER_PRODUCT:
+    "/api/considered-product/update-status/{id}/{project_id}/{product_id}",
+  DELETE_CONSIDER_PRODUCT:
+    "/api/considered-product/delete/{id}/{project_id}/{product_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -408,4 +412,6 @@ export const ROUTE_IDS = {
   UPDATE_BRAND_STATUS: "184",
   GET_LIST_ASSIGNED_PROJECT: "185",
   GET_TISC_TEAM_PROFILE: "186",
+  UPDATE_STATUS_CONSIDER_PRODUCT: "187",
+  DELETE_CONSIDER_PRODUCT: "188",
 };

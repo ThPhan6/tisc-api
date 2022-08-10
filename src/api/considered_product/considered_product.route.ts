@@ -6,6 +6,7 @@ import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import ProductResponse from "./considered_product.response";
 import validate from "./considered_product.validate";
+import commonValidate from "../../validate/common.validate";
 
 export default class ConsideredProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -59,6 +60,38 @@ export default class ConsideredProductRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: ProductResponse.getListStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "PATCH",
+          path: ROUTES.UPDATE_STATUS_CONSIDER_PRODUCT,
+          options: {
+            handler: controller.updateConsiderProductStatus,
+            validate: validate.updateConsiderProductStatus,
+            description: "Method that update  considered product status",
+            tags: ["api", "Considered Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_CONSIDER_PRODUCT,
+          options: {
+            handler: controller.deleteConsiderProduct,
+            validate: validate.deleteConsiderProduct,
+            description: "Method that delete  considered product",
+            tags: ["api", "Considered Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

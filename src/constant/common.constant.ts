@@ -193,6 +193,7 @@ export const MESSAGES = {
   MATERIAL_CODE_NOT_FOUND: "Material code not found",
   CONSIDERED_PRODUCT_NOT_FOUND: "Considered product not found",
   DESIGN_NOT_FOUND: "Design not found",
+  CONSIDER_PRODUCT_NOT_FOUND: "Consider product not found",
 };
 
 export const BASIS_TYPES: {
