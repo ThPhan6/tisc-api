@@ -293,10 +293,6 @@ export default class ConsideredProductService {
           statusCode: 404,
         });
       }
-
-      if (is_entire) {
-      }
-
       const considerProduct = await this.consideredProductModel.findBy({
         is_entire,
         project_zone_id,
@@ -354,8 +350,7 @@ export default class ConsideredProductService {
           product_id,
           project_id,
         });
-      }
-      if (project_zone_id) {
+      } else if (project_zone_id) {
         considerProduct = await this.consideredProductModel.findBy({
           project_zone_id,
           product_id,
