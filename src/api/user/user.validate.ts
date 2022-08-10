@@ -139,15 +139,7 @@ export default {
         .error(commonFailValidatedMessageFunction("Brand is required")),
     },
     payload: {
-      user_ids: Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("User is required"))
-        )
-        .required()
-        .error(commonFailValidatedMessageFunction("User is required")),
+      user_ids: Joi.array().items(Joi.string()),
     },
   },
 };
