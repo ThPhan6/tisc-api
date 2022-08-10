@@ -71,6 +71,7 @@ export default class ConsideredProductService {
           status_name: getConsideredProductStatusName(
             foundConsideredProduct.status
           ),
+          description: product.description,
         };
       })
     );
@@ -127,6 +128,7 @@ export default class ConsideredProductService {
                     foundConsideredProducts,
                     brand_order
                   );
+                  console.log(products, "[products]");
                   return {
                     ...room,
                     products,
