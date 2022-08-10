@@ -71,6 +71,7 @@ export default class ConsideredProductService {
           status_name: getConsideredProductStatusName(
             foundConsideredProduct.status
           ),
+          description: product.description,
         };
       })
     );
