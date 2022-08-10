@@ -128,7 +128,6 @@ export default class ConsideredProductService {
                     foundConsideredProducts,
                     brand_order
                   );
-                  console.log(products, "[products]");
                   return {
                     ...room,
                     products,
