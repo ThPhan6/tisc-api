@@ -42,10 +42,13 @@ export default class ConsideredProductController {
     req: Request & { payload: IUpdateConsiderProductStatusRequest },
     toolkit: ResponseToolkit
   ) => {
-    const { id } = req.params;
+    const { id, product_id, project_id } = req.params;
+
     const payload = req.payload;
     const response = await this.service.updateConsiderProductStatus(
       id,
+      project_id,
+      product_id,
       payload
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -55,8 +58,12 @@ export default class ConsideredProductController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { id } = req.params;
-    const response = await this.service.deleteConsiderProduct(id);
+    const { id, product_id, project_id } = req.params;
+    const response = await this.service.deleteConsiderProduct(
+      id,
+      project_id,
+      product_id
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

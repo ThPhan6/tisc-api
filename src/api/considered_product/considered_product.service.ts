@@ -264,12 +264,30 @@ export default class ConsideredProductService {
 
   public updateConsiderProductStatus = async (
     consider_product_id: string,
+    project_id: string,
+    product_id: string,
     payload: IUpdateConsiderProductStatusRequest
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
-      const considerProduct = await this.consideredProductModel.find(
-        consider_product_id
-      );
+      const product = await this.productModel.find(product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const considerProduct = await this.consideredProductModel.findBy({
+        id: consider_product_id,
+        product_id,
+        project_id,
+      });
       if (!considerProduct) {
         return resolve({
           message: MESSAGES.CONSIDER_PRODUCT_NOT_FOUND,
@@ -295,9 +313,25 @@ export default class ConsideredProductService {
     });
 
   public deleteConsiderProduct = async (
-    consider_product_id: string
+    consider_product_id: string,
+    project_id: string,
+    product_id: string
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
+      const product = await this.productModel.find(product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const project = await this.projectModel.find(project_id);
+      if (!project) {
+        return resolve({
+          message: MESSAGES.PROJECT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
       const considerProduct = await this.consideredProductModel.find(
         consider_product_id
       );

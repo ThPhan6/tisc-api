@@ -85,7 +85,7 @@ export default class ConsideredProductRoute implements IRoute {
           path: ROUTES.DELETE_CONSIDER_PRODUCT,
           options: {
             handler: controller.deleteConsiderProduct,
-            validate: commonValidate.getOne,
+            validate: validate.deleteConsiderProduct,
             description: "Method that delete  considered product",
             tags: ["api", "Considered Product"],
             auth: AUTH_NAMES.PERMISSION,
