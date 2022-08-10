@@ -293,6 +293,12 @@ export default class ConsideredProductService {
           statusCode: 404,
         });
       }
+      if (!is_entire && !project_zone_id) {
+        return resolve({
+          message: "Is entire or Project zone id is required, please check it",
+          statusCode: 400,
+        });
+      }
       const considerProduct = await this.consideredProductModel.findBy({
         is_entire,
         project_zone_id,
