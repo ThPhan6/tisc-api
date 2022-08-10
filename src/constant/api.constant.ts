@@ -212,9 +212,8 @@ export const ROUTES = {
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
   GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-by-type/{brand_id}",
   UPDATE_STATUS_CONSIDER_PRODUCT:
-    "/api/considered-product/update-status/{id}/{project_id}/{product_id}",
-  DELETE_CONSIDER_PRODUCT:
-    "/api/considered-product/delete/{id}/{project_id}/{product_id}",
+    "/api/considered-product/update-status/{product_id}",
+  DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{id}/{product_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

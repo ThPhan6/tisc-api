@@ -36,19 +36,16 @@ export default {
 
   updateConsiderProductStatus: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Consider product id is required")
-        ),
-      project_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project id is required")),
       product_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Product id is required")),
     },
     payload: {
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      project_zone_id: Joi.string(),
+      is_entire: Joi.boolean(),
       status: Joi.number()
         .valid(
           CONSIDERED_PRODUCT_STATUS.CONSIDERED,
@@ -61,17 +58,16 @@ export default {
   },
   deleteConsiderProduct: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Consider product id is required")
-        ),
-      project_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project id is required")),
       product_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Product id is required")),
+    },
+    payload: {
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
+      project_zone_id: Joi.string(),
+      is_entire: Joi.boolean(),
     },
   },
 };

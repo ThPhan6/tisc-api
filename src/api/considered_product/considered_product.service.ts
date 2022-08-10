@@ -18,7 +18,8 @@ import {
 } from "../../helper/common.helper";
 import {
   IConsideredProductsResponse,
-  IUpdateConsiderProductStatusRequest,
+  FindProductConsiderRequest,
+  AssigningStatus,
 } from "./considered_product.type";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 
@@ -133,7 +134,12 @@ export default class ConsideredProductService {
                   );
                   return {
                     ...room,
-                    products,
+                    products: products.map((product) => {
+                      return {
+                        ...product,
+                        project_zone_id: room.id,
+                      };
+                    }),
                     count: products.length,
                   };
                 })
@@ -168,7 +174,12 @@ export default class ConsideredProductService {
       const result = [
         {
           name: "ENTIRE PROJECT",
-          products: entireProducts,
+          products: entireProducts.map((entireProduct) => {
+            return {
+              ...entireProduct,
+              is_entire: true,
+            };
+          }),
           count: entireProducts.length,
         },
       ].concat(newProjectZones as any);
@@ -263,12 +274,11 @@ export default class ConsideredProductService {
     });
 
   public updateConsiderProductStatus = async (
-    consider_product_id: string,
-    project_id: string,
     product_id: string,
-    payload: IUpdateConsiderProductStatusRequest
+    payload: FindProductConsiderRequest & { status: AssigningStatus }
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
+      const { is_entire, status, project_zone_id, project_id } = payload;
       const product = await this.productModel.find(product_id);
       if (!product) {
         return resolve({
@@ -284,7 +294,8 @@ export default class ConsideredProductService {
         });
       }
       const considerProduct = await this.consideredProductModel.findBy({
-        id: consider_product_id,
+        is_entire,
+        project_zone_id,
         product_id,
         project_id,
       });
@@ -295,9 +306,9 @@ export default class ConsideredProductService {
         });
       }
       const updatedConsiderProduct = await this.consideredProductModel.update(
-        consider_product_id,
+        considerProduct.id,
         {
-          status: payload.status,
+          status,
         }
       );
       if (!updatedConsiderProduct) {
@@ -313,11 +324,11 @@ export default class ConsideredProductService {
     });
 
   public deleteConsiderProduct = async (
-    consider_product_id: string,
-    project_id: string,
-    product_id: string
+    product_id: string,
+    payload: FindProductConsiderRequest
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
+      const { is_entire, project_zone_id, project_id } = payload;
       const product = await this.productModel.find(product_id);
       if (!product) {
         return resolve({
@@ -332,9 +343,21 @@ export default class ConsideredProductService {
           statusCode: 404,
         });
       }
-      const considerProduct = await this.consideredProductModel.find(
-        consider_product_id
-      );
+      let considerProduct;
+      if (is_entire) {
+        considerProduct = await this.consideredProductModel.findBy({
+          is_entire,
+          product_id,
+          project_id,
+        });
+      } else if (project_zone_id) {
+        considerProduct = await this.consideredProductModel.findBy({
+          project_zone_id,
+          product_id,
+          project_id,
+        });
+      }
+
       if (!considerProduct) {
         return resolve({
           message: MESSAGES.CONSIDER_PRODUCT_NOT_FOUND,
@@ -342,7 +365,7 @@ export default class ConsideredProductService {
         });
       }
       const updatedConsiderProduct = await this.consideredProductModel.update(
-        consider_product_id,
+        considerProduct.id,
         {
           is_deleted: true,
         }
