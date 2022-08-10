@@ -146,7 +146,7 @@ export default class ConsideredProductService {
               );
               const sortedNewRooms = sortObjectArray(
                 newRooms,
-                "name",
+                "room_name",
                 room_order
               );
               return {
@@ -291,12 +291,6 @@ export default class ConsideredProductService {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
           statusCode: 404,
-        });
-      }
-      if (!is_entire && !project_zone_id) {
-        return resolve({
-          message: "Is entire or Project zone id is required, please check it",
-          statusCode: 400,
         });
       }
       const considerProduct = await this.consideredProductModel.findBy({
