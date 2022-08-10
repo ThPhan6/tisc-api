@@ -1,7 +1,10 @@
 import ConsideredProductService from "./considered_product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { CONSIDERED_PRODUCT_STATUS_OPTIONS } from "../../constant/common.constant";
-import { IUpdateConsiderProductStatusRequest } from "./considered_product.type";
+import {
+  AssigningStatus,
+  FindProductConsiderRequest,
+} from "./considered_product.type";
 
 export default class ConsideredProductController {
   private service: ConsideredProductService;
@@ -39,15 +42,15 @@ export default class ConsideredProductController {
   };
 
   public updateConsiderProductStatus = async (
-    req: Request & { payload: IUpdateConsiderProductStatusRequest },
+    req: Request & {
+      payload: FindProductConsiderRequest & { status: AssigningStatus };
+    },
     toolkit: ResponseToolkit
   ) => {
-    const { id, product_id, project_id } = req.params;
+    const { product_id } = req.params;
 
     const payload = req.payload;
     const response = await this.service.updateConsiderProductStatus(
-      id,
-      project_id,
       product_id,
       payload
     );
@@ -55,14 +58,15 @@ export default class ConsideredProductController {
   };
 
   public deleteConsiderProduct = async (
-    req: Request,
+    req: Request & { payload: FindProductConsiderRequest },
     toolkit: ResponseToolkit
   ) => {
-    const { id, product_id, project_id } = req.params;
+    const { product_id } = req.params;
+    const payload = req.payload;
+
     const response = await this.service.deleteConsiderProduct(
-      id,
-      project_id,
-      product_id
+      product_id,
+      payload
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
