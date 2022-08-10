@@ -16,7 +16,10 @@ import {
   getDistinctArray,
   sortObjectArray,
 } from "../../helper/common.helper";
-import { IConsideredProductsResponse } from "./considered_product.type";
+import {
+  IConsideredProductsResponse,
+  IUpdateConsiderProductStatusRequest,
+} from "./considered_product.type";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 
 export default class ConsideredProductService {
@@ -255,6 +258,69 @@ export default class ConsideredProductService {
       returnZones.unshift(entireSection as any);
       return resolve({
         data: returnZones,
+        statusCode: 200,
+      });
+    });
+
+  public updateConsiderProductStatus = async (
+    consider_product_id: string,
+    payload: IUpdateConsiderProductStatusRequest
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const considerProduct = await this.consideredProductModel.find(
+        consider_product_id
+      );
+      if (!considerProduct) {
+        return resolve({
+          message: MESSAGES.CONSIDER_PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const updatedConsiderProduct = await this.consideredProductModel.update(
+        consider_product_id,
+        {
+          status: payload.status,
+        }
+      );
+      if (!updatedConsiderProduct) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+
+  public deleteConsiderProduct = async (
+    consider_product_id: string
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const considerProduct = await this.consideredProductModel.find(
+        consider_product_id
+      );
+      if (!considerProduct) {
+        return resolve({
+          message: MESSAGES.CONSIDER_PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const updatedConsiderProduct = await this.consideredProductModel.update(
+        consider_product_id,
+        {
+          is_deleted: true,
+        }
+      );
+      if (!updatedConsiderProduct) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

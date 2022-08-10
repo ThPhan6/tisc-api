@@ -5,3 +5,6 @@ export interface IConsideredProductsResponse {
   };
   statusCode: number;
 }
+export interface IUpdateConsiderProductStatusRequest {
+  status: number;
+}

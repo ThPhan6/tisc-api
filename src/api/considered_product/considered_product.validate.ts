@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { CONSIDERED_PRODUCT_STATUS } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
@@ -30,6 +31,26 @@ export default {
       product_id: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Prodcut id is required")),
+    },
+  },
+
+  updateConsiderProductStatus: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Consider product id is required")
+        ),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(
+          CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+          CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED,
+          CONSIDERED_PRODUCT_STATUS.UNLISTED
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status is required")),
     },
   },
 };
