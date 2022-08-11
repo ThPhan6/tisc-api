@@ -109,7 +109,8 @@ export interface IGetTiscTeamsProfile {
     users: {
       id: string;
       avatar: string | null;
-      full_name: string;
+      first_name: string;
+      last_name: string;
       is_assigned: boolean;
     }[];
   }[];

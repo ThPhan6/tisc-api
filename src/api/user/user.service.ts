@@ -752,7 +752,8 @@ export default class UserService {
           return {
             id: user.id,
             avatar: user.avatar,
-            full_name: user.firstname + " " + user.lastname,
+            first_name: user.firstname,
+            last_name: user.lastname,
             is_assigned: isAssigned,
           };
         });
