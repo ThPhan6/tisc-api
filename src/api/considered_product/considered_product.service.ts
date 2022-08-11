@@ -240,7 +240,7 @@ export default class ConsideredProductService {
       });
       const entireSection = {
         name: "ENTIRE PROJECT",
-        is_assigned: projectZoneIds.length === 0 ? true : false,
+        is_assigned: projectZoneIds.flat(Infinity).length === 0 ? true : false,
       };
       const returnZones = zones.map((zone) => {
         const areas = zone.areas.map((area) => {
