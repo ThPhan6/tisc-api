@@ -85,15 +85,15 @@ export default class BrandService {
     limit: number,
     offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
+    sort: string,
+    order: "ASC" | "DESC"
   ): Promise<IBrandsResponse> => {
     return new Promise(async (resolve) => {
       const brands: IBrandAttributes[] = await this.brandModel.list(
         limit,
         offset,
         filter,
-        [sort_name, sort_order]
+        [sort, order]
       );
       const result = await Promise.all(
         brands.map(async (brand) => {

@@ -188,15 +188,15 @@ export default class Model<IModelData> {
   public getManyOrder = async (
     ids: string[],
     key?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC"
+    sort?: string,
+    order?: "ASC" | "DESC"
   ): Promise<IModelData[]> => {
     try {
       let result: any = this.getBuilder()
         .builder.whereIn("id", ids)
         .whereNot("is_deleted", true);
-      if (sort_name && sort_order) {
-        result = result.orderBy(sort_name, sort_order);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
       }
       result = await result.select(key);
       return result as IModelData[];
@@ -207,15 +207,15 @@ export default class Model<IModelData> {
 
   public getAll = async (
     keys?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC"
+    sort?: string,
+    order?: "ASC" | "DESC"
   ): Promise<IModelData[]> => {
     try {
       let result: any;
-      if (sort_name && sort_order) {
+      if (sort && order) {
         result = await this.getBuilder()
           .builder.whereNot("is_deleted", true)
-          .orderBy(sort_name, sort_order)
+          .orderBy(sort, order)
           .select(keys);
         return result;
       }
@@ -231,16 +231,16 @@ export default class Model<IModelData> {
   public getAllBy = async (
     params: any,
     keys?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC"
+    sort?: string,
+    order?: "ASC" | "DESC"
   ): Promise<IModelData[]> => {
     try {
       let result: any;
-      if (sort_name && sort_order) {
+      if (sort && order) {
         result = await this.getBuilder()
           .builder.whereNot("is_deleted", true)
           .where(params)
-          .orderBy(sort_name, sort_order)
+          .orderBy(sort, order)
           .select(keys);
         return result;
       }
