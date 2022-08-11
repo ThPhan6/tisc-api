@@ -210,7 +210,7 @@ export const ROUTES = {
   UPDATE_BRAND_STATUS: "/api/brand/update-status/{id}",
   GET_LIST_ASSIGNED_PROJECT:
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
-  GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-by-type/{brand_id}",
+  GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-team-profile/{brand_id}",
   UPDATE_STATUS_CONSIDER_PRODUCT:
     "/api/considered-product/update-status/{product_id}",
   DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{product_id}",

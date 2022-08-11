@@ -117,7 +117,8 @@ export default {
           Joi.object({
             id: Joi.string(),
             avatar: Joi.string().allow(null),
-            full_name: Joi.string(),
+            first_name: Joi.string(),
+            last_name: Joi.string(),
             is_assigned: Joi.boolean(),
           })
         ),
