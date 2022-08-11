@@ -9,13 +9,13 @@ export default class DesignerController {
     this.service = new DesignerService();
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort_name, sort_order } = req.query;
+    const { limit, offset, filter, sort, order } = req.query;
     const response = await this.service.getList(
       limit,
       offset,
       filter,
-      sort_name,
-      sort_order
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

@@ -168,16 +168,16 @@ export default class ProductModel extends Model<IProductAttributes> {
   public getAllByAndNameLike = async (
     params: any,
     keys?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC",
+    sort?: string,
+    order?: "ASC" | "DESC",
     name?: string
   ): Promise<IProductAttributes[]> => {
     try {
       let result: any = this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .where(params);
-      if (sort_name && sort_order) {
-        result = result.orderBy(sort_name, sort_order);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
       }
       if (name) {
         result = result.whereLike("name", name);
@@ -192,8 +192,8 @@ export default class ProductModel extends Model<IProductAttributes> {
     params: any,
     category_id: string,
     keys?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC",
+    sort?: string,
+    order?: "ASC" | "DESC",
     name?: string
   ): Promise<IProductAttributes[]> => {
     try {
@@ -201,8 +201,8 @@ export default class ProductModel extends Model<IProductAttributes> {
         .builder.whereNot("is_deleted", true)
         .where(params)
         .whereInRevert("category_ids", category_id);
-      if (sort_name && sort_order) {
-        result = result.orderBy(sort_name, sort_order);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
       }
       if (name) {
         result = result.whereLike("name", name);

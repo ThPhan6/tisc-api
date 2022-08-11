@@ -38,15 +38,15 @@ export default class DesignerService {
     limit: number,
     offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
+    sort: string,
+    order: "ASC" | "DESC"
   ): Promise<IDesignersResponse | any> => {
     return new Promise(async (resolve) => {
       const designers: IDesignerAttributes[] = await this.designerModel.list(
         limit,
         offset,
         filter,
-        [sort_name, sort_order]
+        [sort, order]
       );
       const result = await Promise.all(
         designers.map(async (designer) => {
