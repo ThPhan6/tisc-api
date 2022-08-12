@@ -20,7 +20,7 @@ const removeUnnecessaryArangoFields = (obj: any) => {
     const { _id, _key, _rev, ...rest } = obj;
     return rest;
   }
-  return {};
+  return obj;
 };
 
 export default class QueryBuilder {
