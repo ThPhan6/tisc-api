@@ -316,6 +316,7 @@ export default class ProjectService {
         })
       );
       const pagination = await this.projectModel.getPagination(limit, offset, {
+        ...filter,
         design_id: user.relation_id,
       });
       return resolve({
