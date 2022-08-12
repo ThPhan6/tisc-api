@@ -43,7 +43,8 @@ import ProjectModel from "../../model/project.model";
 import ConsideredProductModel, {
   CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/considered_product.model";
-
+import SpecifiedProductModel from "../../model/specified_product.model";
+import { x } from "joi";
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -55,6 +56,7 @@ export default class ProductService {
   private projectModel: ProjectModel;
   private attributeModel: AttributeModel;
   private consideredProductModel: ConsideredProductModel;
+  private specifiedProductModel: SpecifiedProductModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -67,6 +69,7 @@ export default class ProductService {
     this.projectModel = new ProjectModel();
     this.attributeModel = new AttributeModel();
     this.consideredProductModel = new ConsideredProductModel();
+    this.specifiedProductModel = new SpecifiedProductModel();
   }
   public create = (
     user_id: string,
@@ -1086,6 +1089,22 @@ export default class ProductService {
             statusCode: 200,
           });
         }
+        // DELETE records
+        const consideredRecords = await this.consideredProductModel.getAllBy({
+          product_id: payload.product_id,
+          project_id: payload.project_id,
+          is_entire: false,
+        });
+
+        const consideredIds = consideredRecords.map(
+          (consideredRecord) => consideredRecord.id
+        );
+        consideredIds.map(async (consideredId) => {
+          await this.consideredProductModel.update(consideredId, {
+            is_deleted: true,
+          });
+        });
+
         // create one
         await this.consideredProductModel.create({
           ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
@@ -1095,58 +1114,110 @@ export default class ProductService {
           is_entire: true,
           status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
         });
-        // DELETE records where project_zone_id
       } else {
-        // CREATE records with project_zone_id
-        // DELETE records (product_id + project_id)
+        //payload.is_entire = false
+        if (consideredRecord?.is_entire === false) {
+          // CREATE / DELETE / UPDATE records
+          // payload.zone_ids => [1,4,5]
+          // find By product_id + project_id ([1,2,3])
+          // FIND CREATE = 4 + 5
+          // FIND DELETE = 2 + 3
+          // FIND UPDATE = 1
+          const consideredRecords = await this.consideredProductModel.getAllBy({
+            product_id: payload.product_id,
+            project_id: payload.project_id,
+          });
+
+          const projectZoneIds = consideredRecords.map(
+            (consideredRecord) => consideredRecord.project_zone_id
+          );
+          const createIds = payload.project_zone_ids.filter(
+            (value) => !projectZoneIds.includes(value || "")
+          );
+          if (createIds.length) {
+            const createPromises = createIds.map(async (foundCreateId) =>
+              this.consideredProductModel.create({
+                ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+                product_id: payload.product_id,
+                project_id: payload.project_id,
+                assigned_by: user_id,
+                is_entire: false,
+                project_zone_id: foundCreateId,
+                status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+              })
+            );
+            await Promise.all(createPromises);
+          }
+
+          const UpdateIndices: any = [];
+          const UpdateIds: any = [];
+          payload.project_zone_ids.forEach((value, index) => {
+            if (projectZoneIds.includes(value || "")) {
+              UpdateIndices.push(index);
+              UpdateIds.push(value);
+            }
+          });
+          if (UpdateIndices.length) {
+            const updatePromises = UpdateIds.map(
+              async (updateId: any, index: any) =>
+                this.consideredProductModel.update(
+                  consideredRecords[index].id,
+                  {
+                    product_id: payload.product_id,
+                    project_id: payload.project_id,
+                    is_entire: false,
+                    project_zone_id: updateId,
+                  }
+                )
+            );
+            await Promise.all(updatePromises);
+          }
+          const deleteIndices: any = [];
+          const deleteIds: any = [];
+
+          projectZoneIds.forEach((value, index) => {
+            if (!payload.project_zone_ids.includes(value || "")) {
+              deleteIndices.push(index);
+              deleteIds.push(value);
+            }
+          });
+          if (deleteIndices.length) {
+            Promise.all(
+              deleteIndices.map(async (index: any) => {
+                const recordDelete = consideredRecords[index];
+                await this.consideredProductModel.update(recordDelete.id, {
+                  is_deleted: true,
+                });
+              })
+            );
+          }
+        } else {
+          // CREATE records with project_zone_id
+          const promises = payload.project_zone_ids.map((project_zone_id) =>
+            this.consideredProductModel.create({
+              ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+              product_id: payload.product_id,
+              project_id: payload.project_id,
+              assigned_by: user_id,
+              is_entire: false,
+              project_zone_id,
+              status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+            })
+          );
+          await Promise.all(promises);
+          if (consideredRecord?.is_entire) {
+            //DELETE specify by consideredRecord.id
+            await this.specifiedProductModel.update(consideredRecord.id, {
+              is_deleted: true,
+            });
+            // Delete record is_entire: consideredRecord
+            await this.consideredProductModel.update(consideredRecord.id, {
+              is_deleted: true,
+            });
+          }
+        }
       }
 
-      // if (
-      //   payload.is_entire === false &&
-      //   payload.project_zone_ids.length !== 0
-      // ) {
-      //   await Promise.all(
-      //     payload.project_zone_ids.map(async (project_zone_id) => {
-      //       if (!assigned) {
-      //         await this.consideredProductModel.create({
-      //           ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-      //           product_id: payload.product_id,
-      //           project_id: payload.project_id,
-      //           assigned_by: user_id,
-      //           is_entire: false,
-      //           project_zone_id,
-      //           status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-      //         });
-      //       } else {
-      //         await this.consideredProductModel.update(assigned.id, {
-      //           product_id: payload.product_id,
-      //           project_id: payload.project_id,
-      //           is_entire: false,
-      //           project_zone_id,
-      //         });
-      //       }
-      //       return true;
-      //     })
-      //   );
-      // } else {
-      //   if (!assigned) {
-      //     await this.consideredProductModel.create({
-      //       ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-      //       product_id: payload.product_id,
-      //       project_id: payload.project_id,
-      //       assigned_by: user_id,
-      //       is_entire: true,
-      //       status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-      //     });
-      //   } else {
-      //     await this.consideredProductModel.update(assigned.id, {
-      //       product_id: payload.product_id,
-      //       project_id: payload.project_id,
-      //       assigned_by: user_id,
-      //       is_entire: true,
-      //     });
-      //   }
-      // }
       const newProductIds = project.product_ids
         ? project.product_ids.concat([payload.product_id])
         : [payload.product_id];

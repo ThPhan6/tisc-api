@@ -119,51 +119,55 @@ export default class ConsideredProductService {
           "is_entire",
         ]
       );
-      const newProjectZones = await Promise.all(
-        projectZones.map(async (zone) => {
-          const newAreas = await Promise.all(
-            zone.areas.map(async (area) => {
-              const newRooms = await Promise.all(
-                area.rooms.map(async (room) => {
-                  const foundConsideredProducts = consideredProducts.filter(
-                    (item) => item.project_zone_id === room.id
-                  );
-                  const products = await this.getAssignProducts(
-                    foundConsideredProducts,
-                    brand_order
-                  );
-                  return {
-                    ...room,
-                    products: products.map((product) => {
-                      return {
-                        ...product,
-                        project_zone_id: room.id,
-                      };
-                    }),
-                    count: products.length,
-                  };
-                })
-              );
-              const sortedNewRooms = sortObjectArray(
-                newRooms,
-                "room_name",
-                room_order
-              );
-              return {
-                ...area,
-                rooms: sortedNewRooms,
-                count: sortedNewRooms.length,
-              };
-            })
+
+      const mappingZonePromises = projectZones.map(async (zone) => {
+        const mappingAreaPromises = zone.areas.map(async (area) => {
+          const mappingRoomPromises = area.rooms.map(async (room) => {
+            const foundConsideredProducts = consideredProducts.filter(
+              (item) => item.project_zone_id === room.id
+            );
+            const products = await this.getAssignProducts(
+              foundConsideredProducts,
+              brand_order
+            );
+            return {
+              ...room,
+              products: products.map((product) => {
+                return {
+                  ...product,
+                  project_zone_id: room.id,
+                };
+              }),
+              count: products.length,
+            };
+          });
+
+          const newRooms = await Promise.all(mappingRoomPromises);
+          const sortedNewRooms = sortObjectArray(
+            newRooms,
+            "room_name",
+            room_order
           );
-          const sortedAreas = sortObjectArray(newAreas, "name", area_order);
+
           return {
-            ...zone,
-            areas: sortedAreas,
-            count: sortedAreas.length,
+            ...area,
+            rooms: sortedNewRooms,
+            count: sortedNewRooms.length,
           };
-        })
-      );
+        });
+
+        const newAreas = await Promise.all(mappingAreaPromises);
+
+        const sortedAreas = sortObjectArray(newAreas, "name", area_order);
+        return {
+          ...zone,
+          areas: sortedAreas,
+          count: sortedAreas.length,
+        };
+      });
+
+      const newProjectZones = await Promise.all(mappingZonePromises);
+
       const entireConsideredProducts = consideredProducts.filter(
         (item) => item.is_entire === true
       );
