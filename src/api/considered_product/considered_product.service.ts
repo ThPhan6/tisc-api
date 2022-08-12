@@ -60,7 +60,6 @@ export default class ConsideredProductService {
         const user = await this.userModel.find(
           foundConsideredProduct.assigned_by
         );
-
         return {
           id: product.id,
           name: product.name,
@@ -70,7 +69,7 @@ export default class ConsideredProductService {
           collection_id: product.collection_id,
           collection_name: collection?.name,
           assigned_by: foundConsideredProduct.assigned_by,
-          assigned_name: user?.firstname + " " + user?.lastname,
+          assigned_name: user?.firstname,
           status: foundConsideredProduct.status,
           status_name: getConsideredProductStatusName(
             foundConsideredProduct.status
@@ -244,7 +243,7 @@ export default class ConsideredProductService {
       });
       const entireSection = {
         name: "ENTIRE PROJECT",
-        is_assigned: projectZoneIds.flat(Infinity).length === 0 ? true : false,
+        is_assigned: consideredProducts[0]?.is_entire ? true : false,
       };
       const returnZones = zones.map((zone) => {
         const areas = zone.areas.map((area) => {

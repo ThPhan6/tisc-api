@@ -16,8 +16,11 @@ const toObject = (keys: Array<string>, prefix: string) => {
 };
 
 const removeUnnecessaryArangoFields = (obj: any) => {
-  const { _id, _key, _rev, ...rest } = obj;
-  return rest;
+  if (obj) {
+    const { _id, _key, _rev, ...rest } = obj;
+    return rest;
+  }
+  return obj;
 };
 
 export default class QueryBuilder {

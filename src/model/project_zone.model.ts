@@ -49,12 +49,14 @@ export default class ProjectZoneModel extends Model<IProjectZoneAttributes> {
     super("project_zones");
   }
   public findByNameOrId = (
-    id: string
+    id: string,
+    relation_id: string,
   ): Promise<IProjectZoneAttributes | false> => {
     try {
       return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereOrRevert(["id", "name"], id)
+        .where("relation_id", relation_id)
         .first();
     } catch (error) {
       return Promise.resolve(false);
