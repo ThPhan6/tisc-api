@@ -199,21 +199,22 @@ export default class SpecifiedProductService {
         considered_product_id: payload.considered_product_id,
       });
       let unitType: any = await this.unitTypeModel.findByNameOrId(
-        payload.unit_type_id
+        payload.unit_type_id,
+        user.relation_id || ""
       );
-      if (unitType === false) {
+      if (!unitType) {
         unitType = await this.unitTypeModel.create({
           ...UNIT_TYPE_NULL_ATTRIBUTES,
           name: payload.unit_type_id,
           code: payload.unit_type_id.slice(2).toUpperCase(),
-          design_id: user.relation_id || "0",
+          design_id: user.relation_id || "",
         });
       }
       const requirementTypeIds = await Promise.all(
         payload.requirement_type_ids.map(async (requirement_type_id) => {
           let requirementType: any =
-            await this.requirementTypeModel.findByNameOrId(requirement_type_id);
-          if (requirementType === false) {
+            await this.requirementTypeModel.findByNameOrId(requirement_type_id, user.relation_id || "");
+          if (!requirementType) {
             requirementType = await this.requirementTypeModel.create({
               ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,
               name: requirement_type_id,
@@ -226,8 +227,8 @@ export default class SpecifiedProductService {
       const instructionTypeIds = await Promise.all(
         payload.instruction_type_ids.map(async (instruction_type_id) => {
           let instructionType: any =
-            await this.instructionTypeModel.findByNameOrId(instruction_type_id);
-          if (instructionType === false) {
+            await this.instructionTypeModel.findByNameOrId(instruction_type_id, user.relation_id || "");
+          if (!instructionType) {
             instructionType = await this.instructionTypeModel.create({
               ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,
               name: instruction_type_id,

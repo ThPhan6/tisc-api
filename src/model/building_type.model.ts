@@ -23,12 +23,14 @@ export default class BuildingTypeModel extends Model<IBuildingTypeAttributes> {
     super("building_types");
   }
   public findByNameOrId = (
-    id: string
+    id: string,
+    relation_id: string,
   ): Promise<IBuildingTypeAttributes | false> => {
     try {
       return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereOrRevert(["id", "name"], id)
+        .where("relation_id", relation_id)
         .first();
     } catch (error) {
       return Promise.resolve(false);

@@ -128,9 +128,10 @@ export default class ProjectService {
         });
       }
       let projectType: any = await this.projectTypeModel.findByNameOrId(
-        payload.project_type_id
+        payload.project_type_id,
+        user.relation_id || "",
       );
-      if (projectType === false) {
+      if (!projectType) {
         projectType = await this.projectTypeModel.create({
           ...PROJECT_TYPE_NULL_ATTRIBUTES,
           name: payload.project_type_id,
@@ -139,9 +140,10 @@ export default class ProjectService {
         });
       }
       let buildingType: any = await this.buildingTypeModel.findByNameOrId(
-        payload.building_type_id
+        payload.building_type_id,
+        user.relation_id || "",
       );
-      if (buildingType === false) {
+      if (!buildingType) {
         buildingType = await this.buildingTypeModel.create({
           ...PROJECT_TYPE_NULL_ATTRIBUTES,
           name: payload.building_type_id,
@@ -213,7 +215,7 @@ export default class ProjectService {
           payload.city_id,
           payload.state_id
         );
-      if (countryStateCity === false) {
+      if (!countryStateCity) {
         return resolve({
           message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
           statusCode: 400,
@@ -399,9 +401,10 @@ export default class ProjectService {
         payload.project_type_id !== foundProject.project_type
       ) {
         projectType = await this.projectTypeModel.findByNameOrId(
-          payload.project_type_id
+          payload.project_type_id,
+          user.relation_id || ""
         );
-        if (projectType === false) {
+        if (!projectType) {
           projectType = await this.projectTypeModel.create({
             ...PROJECT_TYPE_NULL_ATTRIBUTES,
             name: payload.project_type_id,
@@ -411,14 +414,16 @@ export default class ProjectService {
         }
       }
       let buildingType;
+
       if (
         payload.building_type_id !== foundProject.building_type_id &&
         payload.building_type_id !== foundProject.building_type
       ) {
         buildingType = await this.buildingTypeModel.findByNameOrId(
-          payload.building_type_id
+          payload.building_type_id,
+          user.relation_id || ""
         );
-        if (buildingType === false) {
+        if (!buildingType) {
           buildingType = await this.buildingTypeModel.create({
             ...PROJECT_TYPE_NULL_ATTRIBUTES,
             name: payload.building_type_id,
@@ -506,7 +511,7 @@ export default class ProjectService {
             payload.city_id,
             payload.state_id
           );
-        if (countryStateCity === false) {
+        if (!countryStateCity) {
           return resolve({
             message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
             statusCode: 400,
