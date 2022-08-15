@@ -90,4 +90,22 @@ export default class MaterialCodeService {
         statusCode: 200,
       });
     });
+
+  public getListCodeMaterialCode = (
+    design_id: string
+  ): Promise<IMaterialCodeGroupResponse | IMessageResponse | any> =>
+    new Promise(async (resolve) => {
+      const materialCodes = await this.materialCodeModel.getAllBy({
+        design_id,
+      });
+      const result = materialCodes.map((materialCode) => {
+        return materialCode.subs.map((mainList) => {
+          return mainList.codes.map((code) => code);
+        });
+      });
+      return resolve({
+        data: result.flat(Infinity),
+        statusCode: 200,
+      });
+    });
 }

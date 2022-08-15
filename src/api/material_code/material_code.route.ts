@@ -65,6 +65,23 @@ export default class MaterialCodeRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_CODE_MATERIAL_CODE,
+          options: {
+            handler: controller.getListCodeMaterialCode,
+            // validate: validate.getWithDesignId,
+            description: "Method that get list code of material code",
+            tags: ["api", "Material code"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                // 200: ProductResponse.getMaterialCodeGroup,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
