@@ -75,6 +75,7 @@ export default class ConsideredProductService {
             foundConsideredProduct.status
           ),
           description: product.description,
+          brand_logo: brand?.logo,
         };
       })
     );
