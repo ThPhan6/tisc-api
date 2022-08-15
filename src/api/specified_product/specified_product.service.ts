@@ -358,7 +358,7 @@ export default class SpecifiedProductService {
       });
       if (!specifiedProduct) {
         return resolve({
-          message: MESSAGES.CONSIDERED_PRODUCT_NOT_FOUND,
+          message: MESSAGES.SPECIFIED_PRODUCT_NOT_FOUND,
           statusCode: 404,
         });
       }
