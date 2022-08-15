@@ -211,9 +211,8 @@ export const ROUTES = {
   GET_LIST_ASSIGNED_PROJECT:
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
   GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-team-profile/{brand_id}",
-  UPDATE_STATUS_CONSIDER_PRODUCT:
-    "/api/considered-product/update-status/{product_id}",
-  DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{product_id}",
+  UPDATE_STATUS_CONSIDER_PRODUCT: "/api/considered-product/update-status/{id}",
+  DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{id}",
   GET_LIST_POLICY_LANDING_PAGE: "/api/documentation/get-list-policy",
   GET_LIST_CODE_MATERIAL_CODE: "/api/material-code/get-list-code",
 };
