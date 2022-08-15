@@ -30,8 +30,9 @@ export default class ContactService {
           statusCode: 400,
         });
       }
+      const { is_deleted, ...rest } = result;
       return resolve({
-        data: result,
+        data: rest,
         statusCode: 200,
       });
     });
