@@ -1,12 +1,3 @@
-import ConsideredProductModel, {
-  IConsideredProductAttributes,
-} from "../../model/considered_product.model";
-import ProjectZoneModel from "../../model/project_zone.model";
-import ProjectModel from "../../model/project.model";
-import ProductModel from "../../model/product.model";
-import BrandModel from "../../model/brand.model";
-import CollectionModel from "../../model/collection.model";
-import UserModel from "../../model/user.model";
 import {
   CONSIDERED_PRODUCT_STATUS,
   MESSAGES,
@@ -16,12 +7,20 @@ import {
   getDistinctArray,
   sortObjectArray,
 } from "../../helper/common.helper";
+import BrandModel from "../../model/brand.model";
+import CollectionModel from "../../model/collection.model";
+import ConsideredProductModel, {
+  IConsideredProductAttributes,
+} from "../../model/considered_product.model";
+import ProductModel from "../../model/product.model";
+import ProjectModel from "../../model/project.model";
+import ProjectZoneModel from "../../model/project_zone.model";
+import UserModel from "../../model/user.model";
+import { IMessageResponse, SortOrder } from "../../type/common.type";
 import {
   IConsideredProductsResponse,
-  FindProductConsiderRequest,
-  AssigningStatus,
+  StatusConsideredProductRequest,
 } from "./considered_product.type";
-import { IMessageResponse, SortOrder } from "../../type/common.type";
 
 export default class ConsideredProductService {
   private consideredProductModel: ConsideredProductModel;
@@ -76,6 +75,7 @@ export default class ConsideredProductService {
           ),
           description: product.description,
           brand_logo: brand?.logo,
+          considered_id: foundConsideredProduct.id,
         };
       })
     );
@@ -278,31 +278,13 @@ export default class ConsideredProductService {
     });
 
   public updateConsiderProductStatus = async (
-    product_id: string,
-    payload: FindProductConsiderRequest & { status: AssigningStatus }
+    considered_product_id: string,
+    payload: StatusConsideredProductRequest
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
-      const { is_entire, status, project_zone_id, project_id } = payload;
-      const product = await this.productModel.find(product_id);
-      if (!product) {
-        return resolve({
-          message: MESSAGES.PRODUCT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const project = await this.projectModel.find(project_id);
-      if (!project) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const considerProduct = await this.consideredProductModel.findBy({
-        is_entire,
-        project_zone_id,
-        product_id,
-        project_id,
-      });
+      const considerProduct = await this.consideredProductModel.find(
+        considered_product_id
+      );
       if (!considerProduct) {
         return resolve({
           message: MESSAGES.CONSIDER_PRODUCT_NOT_FOUND,
@@ -312,7 +294,7 @@ export default class ConsideredProductService {
       const updatedConsiderProduct = await this.consideredProductModel.update(
         considerProduct.id,
         {
-          status,
+          status: payload.status,
         }
       );
       if (!updatedConsiderProduct) {
@@ -328,48 +310,20 @@ export default class ConsideredProductService {
     });
 
   public deleteConsiderProduct = async (
-    product_id: string,
-    payload: FindProductConsiderRequest
+    considered_product_id: string
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
-      const { is_entire, project_zone_id, project_id } = payload;
-      const product = await this.productModel.find(product_id);
-      if (!product) {
-        return resolve({
-          message: MESSAGES.PRODUCT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const project = await this.projectModel.find(project_id);
-      if (!project) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      let considerProduct;
-      if (is_entire) {
-        considerProduct = await this.consideredProductModel.findBy({
-          is_entire,
-          product_id,
-          project_id,
-        });
-      } else if (project_zone_id) {
-        considerProduct = await this.consideredProductModel.findBy({
-          project_zone_id,
-          product_id,
-          project_id,
-        });
-      }
-
-      if (!considerProduct) {
+      const consideredProduct = await this.consideredProductModel.find(
+        considered_product_id
+      );
+      if (!consideredProduct) {
         return resolve({
           message: MESSAGES.CONSIDER_PRODUCT_NOT_FOUND,
           statusCode: 404,
         });
       }
       const updatedConsiderProduct = await this.consideredProductModel.update(
-        considerProduct.id,
+        considered_product_id,
         {
           is_deleted: true,
         }
