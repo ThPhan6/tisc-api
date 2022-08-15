@@ -31,6 +31,7 @@ export interface ISpecifiedProductAttributes {
   order_method: number;
   requirement_type_ids: string[];
   instruction_type_ids: string[];
+  special_instructions: string;
   created_at: string;
   status: number;
   is_deleted: boolean;
@@ -58,6 +59,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   requirement_type_ids: [],
   instruction_type_ids: [],
   status: 0,
+  special_instructions: null,
   created_at: null,
   is_deleted: false,
 };
