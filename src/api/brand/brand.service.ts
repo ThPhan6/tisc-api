@@ -74,7 +74,7 @@ export default class BrandService {
     originLocation: ILocationAttributes | false,
     headquarterLocation: ILocationAttributes | false
   ) => {
-    if (originLocation === false) {
+    if (!originLocation) {
       return "N/A";
     }
     return headquarterLocation
@@ -149,7 +149,7 @@ export default class BrandService {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            origin: originLocation === false ? "" : originLocation.country_name,
+            origin: !originLocation ? "" : originLocation.country_name,
             locations: locations.length,
             teams: users.length,
             distributors: distributors.length,

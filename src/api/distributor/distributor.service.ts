@@ -155,7 +155,7 @@ export default class DistributorService {
           payload.city_id,
           payload.state_id
         );
-      if (countryStateCity === false) {
+      if (!countryStateCity) {
         return resolve({
           message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
           statusCode: 400,
@@ -165,7 +165,7 @@ export default class DistributorService {
         await this.countryStateCityService.getCountries(
           payload.authorized_country_ids
         );
-      if (authorizedCountries === false) {
+      if (!authorizedCountries) {
         return resolve({
           message: "Not authorized countries, please check ids",
           statusCode: 400,
@@ -231,7 +231,7 @@ export default class DistributorService {
         await this.countryStateCityService.getCountries(
           distributor.authorized_country_ids
         );
-      if (authorizedCountries === false) {
+      if (!authorizedCountries) {
         return resolve({
           message: "Not authorized countries, please check ids",
           statusCode: 400,
@@ -356,7 +356,7 @@ export default class DistributorService {
             payload.city_id,
             payload.state_id
           );
-        if (countryStateCity === false) {
+        if (!countryStateCity) {
           return resolve({
             message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
             statusCode: 400,
@@ -382,7 +382,7 @@ export default class DistributorService {
         authorizedCountries = await this.countryStateCityService.getCountries(
           payload.authorized_country_ids
         );
-        if (authorizedCountries === false) {
+        if (!authorizedCountries) {
           return resolve({
             message: "Not authorized countries, please check ids",
             statusCode: 400,
