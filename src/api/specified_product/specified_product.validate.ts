@@ -135,6 +135,7 @@ export default {
             commonFailValidatedMessageFunction("Instruction type is required")
           )
       ),
+      special_instructions: Joi.string(),
     },
   },
 };

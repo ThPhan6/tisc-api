@@ -214,6 +214,8 @@ export const ROUTES = {
   UPDATE_STATUS_CONSIDER_PRODUCT:
     "/api/considered-product/update-status/{product_id}",
   DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{product_id}",
+  GET_LIST_POLICY_LANDING_PAGE: "/api/documentation/get-list-policy",
+  GET_LIST_CODE_MATERIAL_CODE: "/api/material-code/get-list-code",
   FAVOURITE: {
     SKIP: "/api/favourite/skip",
     RETRIEVE: "/api/favourite/retrieve",
@@ -419,4 +421,6 @@ export const ROUTE_IDS = {
   GET_TISC_TEAM_PROFILE: "186",
   UPDATE_STATUS_CONSIDER_PRODUCT: "187",
   DELETE_CONSIDER_PRODUCT: "188",
+  GET_LIST_POLICY_LANDING_PAGE: "189",
+  GET_LIST_CODE_MATERIAL_CODE: "190",
 };

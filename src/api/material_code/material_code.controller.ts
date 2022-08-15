@@ -29,4 +29,12 @@ export default class MaterialCodeController {
     const response = await this.service.getMaterialCodeGroup(design_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListCodeMaterialCode = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const design_id = req.auth.credentials.user_id as string;
+    const response = await this.service.getListCodeMaterialCode(design_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

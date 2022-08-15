@@ -213,7 +213,10 @@ export default class SpecifiedProductService {
       const requirementTypeIds = await Promise.all(
         payload.requirement_type_ids.map(async (requirement_type_id) => {
           let requirementType: any =
-            await this.requirementTypeModel.findByNameOrId(requirement_type_id, user.relation_id || "");
+            await this.requirementTypeModel.findByNameOrId(
+              requirement_type_id,
+              user.relation_id || ""
+            );
           if (!requirementType) {
             requirementType = await this.requirementTypeModel.create({
               ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,
@@ -224,20 +227,7 @@ export default class SpecifiedProductService {
           return requirementType.id;
         })
       );
-      const instructionTypeIds = await Promise.all(
-        payload.instruction_type_ids.map(async (instruction_type_id) => {
-          let instructionType: any =
-            await this.instructionTypeModel.findByNameOrId(instruction_type_id, user.relation_id || "");
-          if (!instructionType) {
-            instructionType = await this.instructionTypeModel.create({
-              ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,
-              name: instruction_type_id,
-              design_id: user.relation_id || "0",
-            });
-          }
-          return instructionType.id;
-        })
-      );
+
       const materialCodeGroups = await this.materialCodeModel.getBy({
         design_id: user.relation_id,
       });
@@ -282,11 +272,14 @@ export default class SpecifiedProductService {
             ...payload,
             unit_type_id: unitType.id,
             requirement_type_ids: requirementTypeIds,
-            instruction_type_ids: instructionTypeIds,
+            instruction_type_ids: getDistinctArray(
+              payload.instruction_type_ids
+            ),
             status: SPECIFIED_PRODUCT_STATUS.SPECIFIED,
             product_id: consideredProduct.product_id,
             project_id: consideredProduct.project_id,
             material_code: materialCode?.code + "-" + payload.suffix_code,
+            special_instructions: payload.special_instructions,
           }
         );
         if (!createdSpecifiedProduct) {
@@ -307,11 +300,12 @@ export default class SpecifiedProductService {
           ...payload,
           unit_type_id: unitType.id,
           requirement_type_ids: requirementTypeIds,
-          instruction_type_ids: instructionTypeIds,
+          instruction_type_ids: getDistinctArray(payload.instruction_type_ids),
           status: SPECIFIED_PRODUCT_STATUS.SPECIFIED,
           product_id: consideredProduct.product_id,
           project_id: consideredProduct.project_id,
           material_code: materialCode?.code + "-" + payload.suffix_code,
+          special_instructions: payload.special_instructions,
         }
       );
       if (!updatedSpecifiedProduct) {

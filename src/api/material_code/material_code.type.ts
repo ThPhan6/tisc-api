@@ -44,3 +44,12 @@ export interface IMaterialCodeGroupResponse {
   }[];
   statusCode: number;
 }
+
+export interface IGetListCodeMaterialCode {
+  data: {
+    code: string;
+    description: string;
+    id: string;
+  }[];
+  statusCode: number;
+}

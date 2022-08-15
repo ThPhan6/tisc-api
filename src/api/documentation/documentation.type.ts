@@ -44,3 +44,23 @@ export interface IDocumentationsResponse {
   };
   statusCode: number;
 }
+
+export interface IDocumentPolicy {
+  id: string;
+  title: string;
+  document: object;
+}
+export interface IGetPoliciesLandingPage {
+  data: [
+    {
+      terms_of_services: IDocumentPolicy;
+    },
+    {
+      privacy_policy: IDocumentPolicy;
+    },
+    {
+      cookie_policy: IDocumentPolicy;
+    }
+  ];
+  statusCode: number;
+}
