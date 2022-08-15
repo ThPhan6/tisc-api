@@ -160,7 +160,7 @@ export default class DocumentationRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.documentations,
+                200: response.getListPolicyForLandingPage,
               },
             },
           },

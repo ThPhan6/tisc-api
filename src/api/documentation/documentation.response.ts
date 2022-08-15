@@ -44,4 +44,26 @@ export default {
       design: Joi.any(),
     }),
   }) as any,
+  getListPolicyForLandingPage: {
+    data: Joi.array().items(
+      Joi.object({
+        terms_of_services: Joi.object({
+          id: Joi.string(),
+          title: Joi.string(),
+          document: Joi.object(),
+        }),
+        privacy_policy: Joi.object({
+          id: Joi.string(),
+          title: Joi.string(),
+          document: Joi.object(),
+        }),
+        cookie_policy: Joi.object({
+          id: Joi.string(),
+          title: Joi.string(),
+          document: Joi.object(),
+        }),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };
