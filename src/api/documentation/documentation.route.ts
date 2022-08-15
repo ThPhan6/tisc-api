@@ -149,6 +149,22 @@ export default class DocumentationRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_POLICY_LANDING_PAGE,
+          options: {
+            handler: controller.getListPolicyForLandingPage,
+            description: "Method that get list policy landing page",
+            tags: ["api", "Documentation"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListPolicyForLandingPage,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });
