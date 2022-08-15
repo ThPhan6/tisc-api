@@ -29,4 +29,14 @@ export default {
     ),
     statusCode: Joi.number(),
   },
+  getListCodeMaterialCode: {
+    data: Joi.array().items(
+      Joi.object({
+        code: Joi.string(),
+        description: Joi.string(),
+        id: Joi.string(),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };

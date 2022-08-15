@@ -3,6 +3,7 @@ import MaterialCodeModel, {
 } from "../../model/material_code.model";
 import { IMessageResponse } from "../../type/common.type";
 import {
+  IGetListCodeMaterialCode,
   IMaterialCodeGroupResponse,
   IMaterialCodeRequest,
   IMaterialCodeResponse,
@@ -93,18 +94,20 @@ export default class MaterialCodeService {
 
   public getListCodeMaterialCode = (
     design_id: string
-  ): Promise<IMaterialCodeGroupResponse | IMessageResponse | any> =>
+  ): Promise<IGetListCodeMaterialCode> =>
     new Promise(async (resolve) => {
       const materialCodes = await this.materialCodeModel.getAllBy({
         design_id,
       });
-      const result = materialCodes.map((materialCode) => {
-        return materialCode.subs.map((mainList) => {
-          return mainList.codes.map((code) => code);
-        });
-      });
+      const result = materialCodes
+        .map((materialCode) => {
+          return materialCode.subs.map((mainList) => {
+            return mainList.codes.map((code) => code);
+          });
+        })
+        .flat(Infinity);
       return resolve({
-        data: result.flat(Infinity),
+        data: result as IGetListCodeMaterialCode["data"],
         statusCode: 200,
       });
     });
