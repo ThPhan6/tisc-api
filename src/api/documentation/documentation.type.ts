@@ -1,4 +1,3 @@
-import { type } from "os";
 import { IPagination } from "./../../type/common.type";
 export interface IDocumentation {
   id: string;
@@ -46,11 +45,6 @@ export interface IDocumentationsResponse {
   statusCode: number;
 }
 
-export type DocumentPolicy = {
-  id: string;
-  title: string;
-  document: object;
-};
 export interface IDocumentPolicy {
   id: string;
   title: string;
@@ -59,13 +53,13 @@ export interface IDocumentPolicy {
 export interface IGetPoliciesLandingPage {
   data: [
     {
-      terms_of_services: DocumentPolicy;
+      terms_of_services: IDocumentPolicy;
     },
     {
-      privacy_policy: DocumentPolicy;
+      privacy_policy: IDocumentPolicy;
     },
     {
-      cookie_policy: DocumentPolicy;
+      cookie_policy: IDocumentPolicy;
     }
   ];
   statusCode: number;
