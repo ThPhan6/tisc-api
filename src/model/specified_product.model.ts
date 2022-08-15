@@ -44,6 +44,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   project_id: null,
   specification: {
     is_refer_document: true,
+    specification_attribute_groups: [],
   },
   brand_location_id: null,
   distributor_location_id: null,
