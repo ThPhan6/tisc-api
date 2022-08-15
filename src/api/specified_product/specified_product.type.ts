@@ -25,6 +25,7 @@ export interface ISpecifiedProductRequest {
   order_method: number;
   requirement_type_ids: string[];
   instruction_type_ids: string[];
+  special_instructions: string;
 }
 export interface ISpecifiedProductResponse {
   data: any;
