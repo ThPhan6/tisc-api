@@ -197,9 +197,12 @@ export const MESSAGES = {
   FAVOURITE: {
     ALREADY_SKIPPED: "You skipped already",
     ALREADY_RETRIEVED: "You retrieved already",
-    FAILED_TO_SKIP: "Something wrong when skip this action, please try again later!",
-    FAILED_TO_RETRIEVE: "Something wrong when retrieve your favourite, please try again later!",
-  }
+    FAILED_TO_SKIP:
+      "Something wrong when skip this action, please try again later!",
+    FAILED_TO_RETRIEVE:
+      "Something wrong when retrieve your favourite, please try again later!",
+  },
+  SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
 };
 
 export const BASIS_TYPES: {
