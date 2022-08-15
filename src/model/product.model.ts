@@ -1,6 +1,6 @@
 import { IAttributeGroupHasId } from "../api/product/product.type";
 import Model from "./index";
-
+import {removeUnnecessaryArangoFields} from '../query_builder';
 export interface IProductAttributes {
   id: string;
   brand_id: string;
@@ -213,4 +213,35 @@ export default class ProductModel extends Model<IProductAttributes> {
       return [];
     }
   };
+
+  public getUserFavouriteProducts = async (
+    userId: string,
+    brandId?: string,
+    categoryId?: string,
+  ): Promise<IProductAttributes[]> => {
+    const params = {userId} as any;
+    let rawQuery = `
+      FOR data IN products
+        FOR userId IN data.favorites
+          FILTER userId == @userId
+    `;
+    if (brandId) {
+      rawQuery += ` FILTER data.brand_id == @brandId `;
+      params.brandId = brandId;
+    }
+    if (categoryId) {
+      rawQuery += ` FOR categoryId IN data.category_ids
+        FILTER categoryId == @categoryId `;
+      params.categoryId = categoryId;
+    }
+
+    rawQuery += ` SORT data.name ASC return data`;
+    const result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result === false) {
+      return [];
+    }
+    return result._result.map((product: IProductAttributes) => {
+      return removeUnnecessaryArangoFields(product);
+    }) as IProductAttributes[];
+  }
 }

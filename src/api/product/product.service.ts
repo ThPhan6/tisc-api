@@ -34,6 +34,9 @@ import {
   IProductsResponse,
   IRestCollectionProductsResponse,
   IUpdateProductRequest,
+  FavouriteProductSummaryResponse,
+  FavouriteProductsResponse,
+  IProduct,
 } from "./product.type";
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
@@ -44,7 +47,7 @@ import ConsideredProductModel, {
   CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/considered_product.model";
 import SpecifiedProductModel from "../../model/specified_product.model";
-import { x } from "joi";
+// import { x } from "joi";
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -71,6 +74,49 @@ export default class ProductService {
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
   }
+
+  private getTotalVariantOfProducts = (products: IProductAttributes[]) => {
+    return products.reduce(
+      (pre: string[], cur) => {
+        let temp: any = [];
+        cur.specification_attribute_groups.forEach((group) => {
+          group.attributes.forEach((attribute) => {
+            attribute.basis_options?.forEach((basis_option) => {
+              temp.push(basis_option);
+            });
+          });
+        });
+        return pre.concat(temp);
+      },
+      []
+    );
+  }
+
+  private getTotalCategoryOfProducts = (products: IProductAttributes[]) => {
+    const rawCategoryIds = products.reduce((pre: string[], cur) => {
+        return pre.concat(cur.category_ids || []);
+      },
+      []
+    );
+    return getDistinctArray(rawCategoryIds);
+  }
+  private getTotalBrandOfProducts = (products: IProductAttributes[]) => {
+    const brandIds = products.reduce((pre: string[], cur) => {
+        return pre.concat(cur.brand_id || []);
+      },
+      []
+    );
+    return getDistinctArray(brandIds);
+  }
+  private getTotalCollectionOfProducts = (products: IProductAttributes[]) => {
+    const brandIds = products.reduce((pre: string[], cur) => {
+        return pre.concat(cur.collection_id || []);
+      },
+      []
+    );
+    return getDistinctArray(brandIds);
+  }
+
   public create = (
     user_id: string,
     payload: IProductRequest
@@ -169,29 +215,29 @@ export default class ProductService {
           .join("-")
           .replace(/ /g, "-") || ""
       );
-      // const imagePaths = await Promise.all(
-      //   payload.images.map(async (image, index) => {
-      //     const mediumBuffer = await toWebp(
-      //       Buffer.from(image, "base64"),
-      //       "medium"
-      //     );
-      //     const keywords = payload.keywords.map((item) => {
-      //       return item.trim().replace(/ /g, "-");
-      //     });
-      //     let fileName = `${brandName}-${keywords.join(
-      //       "-"
-      //     )}-${moment.now()}${index}`;
-      //     await upload(
-      //       mediumBuffer,
-      //       `product/${createdProduct.id}/${fileName}_medium.webp`,
-      //       "image/webp"
-      //     );
-      //     return `/product/${createdProduct.id}/${fileName}_medium.webp`;
-      //   })
-      // );
-      // await this.productModel.update(createdProduct.id, {
-      //   images: imagePaths,
-      // });
+      const imagePaths = await Promise.all(
+        payload.images.map(async (image, index) => {
+          const mediumBuffer = await toWebp(
+            Buffer.from(image, "base64"),
+            "medium"
+          );
+          const keywords = payload.keywords.map((item) => {
+            return item.trim().replace(/ /g, "-");
+          });
+          let fileName = `${brandName}-${keywords.join(
+            "-"
+          )}-${moment.now()}${index}`;
+          await upload(
+            mediumBuffer,
+            `product/${createdProduct.id}/${fileName}_medium.webp`,
+            "image/webp"
+          );
+          return `/product/${createdProduct.id}/${fileName}_medium.webp`;
+        })
+      );
+      await this.productModel.update(createdProduct.id, {
+        images: imagePaths,
+      });
       return resolve(await this.get(createdProduct.id, user_id));
     });
   };
@@ -318,76 +364,76 @@ export default class ProductService {
         payload.specification_attribute_groups.map(mapAttributeFunction)
       );
 
-      // let imagePaths: string[] = [];
-      // let isValidImage = true;
-      // let mediumBuffer: Buffer;
-      // if (
-      //   payload.images.join("-") === product.images.join("-") &&
-      //   payload.keywords.join("") === product.keywords.join("")
-      // ) {
-      //   imagePaths = product.images;
-      // } else {
-      //   const bufferImages = await Promise.all(
-      //     payload.images.map(async (image) => {
-      //       const fileType = await getFileTypeFromBase64(image);
-      //       if (!fileType) {
-      //         const isExisted = await isExists(image.slice(1));
-      //         if (isExisted) {
-      //           return await getBufferFile(image.slice(1));
-      //         }
-      //         isValidImage = false;
-      //         return false;
-      //       }
-      //       if (
-      //         !VALID_IMAGE_TYPES.find(
-      //           (validType) => validType === fileType.mime
-      //         )
-      //       ) {
-      //         isValidImage = false;
-      //         return false;
-      //       }
-      //       return Buffer.from(image, "base64");
-      //     })
-      //   );
-      //   if (!isValidImage) {
-      //     return resolve({
-      //       message: MESSAGES.IMAGE_INVALID,
-      //       statusCode: 400,
-      //     });
-      //   }
-      //   await Promise.all(
-      //     product.images.map(async (item) => {
-      //       await deleteFile(item.slice(1));
-      //       return true;
-      //     })
-      //   );
-      //   imagePaths = await Promise.all(
-      //     bufferImages.map(async (image, index) => {
-      //       mediumBuffer = await toWebp(image, "medium");
+      let imagePaths: string[] = [];
+      let isValidImage = true;
+      let mediumBuffer: Buffer;
+      if (
+        payload.images.join("-") === product.images.join("-") &&
+        payload.keywords.join("") === product.keywords.join("")
+      ) {
+        imagePaths = product.images;
+      } else {
+        const bufferImages = await Promise.all(
+          payload.images.map(async (image) => {
+            const fileType = await getFileTypeFromBase64(image);
+            if (!fileType) {
+              const isExisted = await isExists(image.slice(1));
+              if (isExisted) {
+                return await getBufferFile(image.slice(1));
+              }
+              isValidImage = false;
+              return false;
+            }
+            if (
+              !VALID_IMAGE_TYPES.find(
+                (validType) => validType === fileType.mime
+              )
+            ) {
+              isValidImage = false;
+              return false;
+            }
+            return Buffer.from(image, "base64");
+          })
+        );
+        if (!isValidImage) {
+          return resolve({
+            message: MESSAGES.IMAGE_INVALID,
+            statusCode: 400,
+          });
+        }
+        await Promise.all(
+          product.images.map(async (item) => {
+            await deleteFile(item.slice(1));
+            return true;
+          })
+        );
+        imagePaths = await Promise.all(
+          bufferImages.map(async (image, index) => {
+            mediumBuffer = await toWebp(image, "medium");
 
-      //       const keywords = payload.keywords.map((item) => {
-      //         return item.trim().replace(/ /g, "-");
-      //       });
-      //       const brandName = removeSpecialChars(
-      //         brand?.name
-      //           .trim()
-      //           .toLowerCase()
-      //           .split(" ")
-      //           .join("-")
-      //           .replace(/ /g, "-") || ""
-      //       );
-      //       let fileName = `${brandName}-${keywords.join(
-      //         "-"
-      //       )}-${moment.now()}${index}`;
-      //       await upload(
-      //         mediumBuffer,
-      //         `product/${id}/${fileName}_medium.webp`,
-      //         "image/webp"
-      //       );
-      //       return `/product/${id}/${fileName}_medium.webp`;
-      //     })
-      //   );
-      // }
+            const keywords = payload.keywords.map((item) => {
+              return item.trim().replace(/ /g, "-");
+            });
+            const brandName = removeSpecialChars(
+              brand?.name
+                .trim()
+                .toLowerCase()
+                .split(" ")
+                .join("-")
+                .replace(/ /g, "-") || ""
+            );
+            let fileName = `${brandName}-${keywords.join(
+              "-"
+            )}-${moment.now()}${index}`;
+            await upload(
+              mediumBuffer,
+              `product/${id}/${fileName}_medium.webp`,
+              "image/webp"
+            );
+            return `/product/${id}/${fileName}_medium.webp`;
+          })
+        );
+      }
       const updatedProduct = await this.productModel.update(id, {
         ...payload,
         general_attribute_groups: saveGeneralAttributeGroups,
@@ -617,18 +663,12 @@ export default class ProductService {
         statusCode: 200,
       });
     });
+
   public getBrandProductSummary = (
     brand_id: string
   ): Promise<IBrandProductSummary> =>
     new Promise(async (resolve) => {
-      const allProduct = await this.productModel.getAllBrandProduct(brand_id);
-      const rawCategoryIds = allProduct.reduce(
-        (pre: string[], cur: IProductAttributes) => {
-          return pre.concat(cur.category_ids || []);
-        },
-        []
-      );
-
+      const products = await this.productModel.getAllBrandProduct(brand_id);
       const collections = await this.collectionModel.getAllBy(
         { brand_id },
         ["id", "name"],
@@ -636,21 +676,8 @@ export default class ProductService {
         "ASC"
       );
 
-      const variants = allProduct.reduce(
-        (pre: string[], cur: IProductAttributes) => {
-          let temp: any = [];
-          cur.specification_attribute_groups.forEach((group) => {
-            group.attributes.forEach((attribute) => {
-              attribute.basis_options?.forEach((basis_option) => {
-                temp.push(basis_option);
-              });
-            });
-          });
-          return pre.concat(temp);
-        },
-        []
-      );
-      const categoryIds = getDistinctArray(rawCategoryIds);
+      const variants = this.getTotalVariantOfProducts(products);
+      const categoryIds = this.getTotalCategoryOfProducts(products);
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
@@ -660,7 +687,7 @@ export default class ProductService {
           collections,
           category_count: categories.length,
           collection_count: collections.length,
-          card_count: allProduct.length,
+          card_count: products.length,
           product_count: variants.length,
         },
         statusCode: 200,
@@ -674,7 +701,7 @@ export default class ProductService {
     user_id: string
   ): Promise<IMessageResponse | IProductsResponse> => {
     return new Promise(async (resolve) => {
-      let products: any[] = [];
+      let products: IProductAttributes[] = [];
       let returnData: any[] = [];
       if (!category_id && !collection_id) {
         collection_id = "all";
@@ -682,13 +709,7 @@ export default class ProductService {
       if (category_id) {
         if (category_id === "all") {
           products = await this.productModel.getAllBy({ brand_id });
-          const rawCategoryIds = products.reduce(
-            (pre: string[], cur: IProductAttributes) => {
-              return pre.concat(cur.category_ids || []);
-            },
-            []
-          );
-          const categoryIds = getDistinctArray(rawCategoryIds);
+          const categoryIds = this.getTotalCategoryOfProducts(products);
           const categories = await this.categoryService.getCategoryValues(
             categoryIds
           );
@@ -1235,4 +1256,93 @@ export default class ProductService {
         statusCode: 200,
       });
     });
+
+    public getFavoriteProductSummary = (userId: string): Promise<FavouriteProductSummaryResponse> =>
+      new Promise(async (resolve) => {
+        const products = await this.productModel.getUserFavouriteProducts(userId);
+        const categoryIds = this.getTotalCategoryOfProducts(products);
+        const brandIds = this.getTotalBrandOfProducts(products);
+        const categories = await this.categoryService.getCategoryValues(
+          categoryIds
+        );
+        const brands = await this.brandModel.getByIds(
+          brandIds
+        );
+        return resolve({
+          data: {
+            categories,
+            brands,
+            category_count: categories.length,
+            brand_count: brands.length,
+            card_count: products.length,
+          },
+          statusCode: 200,
+        });
+      });
+
+      public getFavouriteList = (
+        userId: string,
+        brandId?: string,
+        categoryId?: string,
+      ): Promise<IMessageResponse | FavouriteProductsResponse> => {
+        return new Promise(async (resolve) => {
+          const products = await this.productModel.getUserFavouriteProducts(userId, brandId, categoryId);
+          /// collection
+          const collectionIds = this.getTotalCollectionOfProducts(products);
+          const collections = await this.collectionModel.getByIds(
+            collectionIds
+          );
+          /// category
+          const categoryIds = this.getTotalCategoryOfProducts(products);
+          const categories = await this.categoryService.getCategoryValues(
+            categoryIds
+          );
+          /// brand
+          const brandIds = this.getTotalBrandOfProducts(products);
+          const brands = await this.brandModel.getByIds(
+            brandIds
+          );
+
+          const result = await Promise.all(collections.map(async (collection) => {
+            let collectionProducts = products.filter((item) =>
+              item.collection_id === collection.id
+            );
+
+            /// format product data
+            const responseProducts = await Promise.all(collectionProducts.map(async (product) => {
+              const {
+                is_deleted, collection_id,
+                brand_id, category_ids,
+                ...rest
+              } = product;
+              const productBrand = brands.find((brand) => brand.id === brand_id);
+              const productCategories: {id: string; name:string}[] = [];
+              category_ids.forEach((categoryId) => {
+                const category = categories.find((cat) => cat.id === categoryId);
+                if (category) {
+                  productCategories.push(category);
+                }
+              });
+              return {
+                ...rest,
+                favorites: product.favorites.length,
+                is_liked: true,
+                brand: productBrand,
+                collection,
+                categories: productCategories,
+              }
+            }));
+            //// grouped by collection
+            return {
+              ...collection,
+              count: collectionProducts.length,
+              products: responseProducts,
+            };
+          }));
+          return resolve({
+            data: result,
+            statusCode: 200,
+          });
+        });
+      };
 }

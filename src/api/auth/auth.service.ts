@@ -405,6 +405,7 @@ class AuthService {
         status: USER_STATUSES.PENDING,
         type: SYSTEM_TYPE.DESIGN,
         relation_id: createdDesign.id,
+        retrieve_favourite: false,
       });
       if (!createdUser) {
         return resolve({

@@ -214,6 +214,12 @@ export const ROUTES = {
   UPDATE_STATUS_CONSIDER_PRODUCT:
     "/api/considered-product/update-status/{product_id}",
   DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{product_id}",
+  FAVOURITE: {
+    SKIP: "/api/favourite/skip",
+    RETRIEVE: "/api/favourite/retrieve",
+    LIST: "/api/favourite/product-list",
+    SUMMARY: "/api/favourite/product-summary",
+  }
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

@@ -49,4 +49,17 @@ export default class BrandModel extends Model<IBrandAttributes> {
       return false;
     }
   };
+
+  public getByIds = async (
+    ids: string[]
+  ): Promise<Pick<IBrandAttributes, 'id' | 'name'>[]> => {
+    try {
+      const result = await this.getBuilder()
+        .builder.whereIn("id", ids)
+        .select(['id', 'name']);
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
 }

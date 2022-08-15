@@ -130,6 +130,33 @@ export interface IBrandProductSummary {
   };
   statusCode: number;
 }
+export interface FavouriteProductSummaryResponse {
+  data: {
+    categories: {
+      id: string;
+      name: string;
+    }[];
+    brands: {
+      id: string;
+      name: string;
+    }[];
+    category_count: number;
+    brand_count: number;
+    card_count: number;
+  };
+  statusCode: number;
+}
+
+export interface FavouriteProductsResponse {
+  data: {
+    id: string;
+    name: string;
+    count: number;
+    products: IProduct[]
+  }[];
+  statusCode: number;
+
+}
 
 export interface IProductOption {
   id: string;

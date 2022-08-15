@@ -15,7 +15,7 @@ const toObject = (keys: Array<string>, prefix: string) => {
   return JSON.stringify(obj).replace(/"/gi, "");
 };
 
-const removeUnnecessaryArangoFields = (obj: any) => {
+export const removeUnnecessaryArangoFields = (obj: any) => {
   if (obj) {
     const { _id, _key, _rev, ...rest } = obj;
     return rest;
