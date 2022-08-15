@@ -57,19 +57,41 @@ export default class DesignerService {
             designer.team_profile_ids,
             ["id", "firstname", "lastname", "role_id", "email", "avatar"]
           );
+          const originLocation = await this.locationModel.find(
+            designer.location_ids[0] || ""
+          );
+          let countLive = 0;
+          let countOnHold = 0;
+          let countArchived = 0;
+          for (const projectId of designer.project_ids) {
+            const project = await this.projectModel.find(projectId);
+            switch (project?.status) {
+              case 1:
+                countLive += 1;
+                break;
+              case 2:
+                countOnHold += 1;
+                break;
+              case 3:
+                countArchived += 1;
+                break;
+              default:
+                break;
+            }
+          }
           return {
             id: designer.id,
             name: designer.name,
             logo: designer.logo,
-            origin: "",
+            origin: originLocation?.country_name || "",
             main_office: "",
             satellites: 1,
-            designers: 1,
+            designers: designer.team_profile_ids.length,
             capacities: 1,
-            projects: 1,
-            live: 1,
-            on_hold: 1,
-            archived: 1,
+            projects: designer.project_ids.length,
+            live: countLive,
+            on_hold: countOnHold,
+            archived: countArchived,
             status: designer.status,
             status_key: foundStatus?.key,
             assign_team: users,
@@ -81,7 +103,6 @@ export default class DesignerService {
         limit,
         offset
       );
-
       return resolve({
         data: {
           designers: result,
