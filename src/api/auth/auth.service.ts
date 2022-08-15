@@ -348,33 +348,33 @@ class AuthService {
         });
       }
       //create design firm
-      let createdDesign;
-      const lastDeletedDesign = await this.designModel.getLastDeleted(
-        payload.email
-      );
-      if (lastDeletedDesign !== false) {
-        createdDesign = await this.designModel.create({
-          ...DESIGN_NULL_ATTRIBUTES,
-          name: lastDeletedDesign.name,
-          parent_company: lastDeletedDesign.parent_company,
-          logo: lastDeletedDesign.logo,
-          slogan: lastDeletedDesign.slogan,
-          profile_n_philosophy: lastDeletedDesign.profile_n_philosophy,
-          official_website: lastDeletedDesign.official_website,
-          design_capabilities: lastDeletedDesign.design_capabilities,
-          team_profile_ids: lastDeletedDesign.team_profile_ids,
-          location_ids: lastDeletedDesign.location_ids,
-          material_code_ids: lastDeletedDesign.material_code_ids,
-          project_ids: lastDeletedDesign.project_ids,
-          status: DESIGN_STATUSES.ACTIVE,
-        });
-      } else {
-        createdDesign = await this.designModel.create({
-          ...DESIGN_NULL_ATTRIBUTES,
-          name: payload.company_name || payload.firstname + "Design Firm",
-          status: DESIGN_STATUSES.ACTIVE,
-        });
-      }
+      // let createdDesign;
+      // const lastDeletedDesign = await this.designModel.getLastDeleted(
+      //   payload.email
+      // );
+      // if (lastDeletedDesign !== false) {
+      //   createdDesign = await this.designModel.create({
+      //     ...DESIGN_NULL_ATTRIBUTES,
+      //     name: lastDeletedDesign.name,
+      //     parent_company: lastDeletedDesign.parent_company,
+      //     logo: lastDeletedDesign.logo,
+      //     slogan: lastDeletedDesign.slogan,
+      //     profile_n_philosophy: lastDeletedDesign.profile_n_philosophy,
+      //     official_website: lastDeletedDesign.official_website,
+      //     design_capabilities: lastDeletedDesign.design_capabilities,
+      //     team_profile_ids: lastDeletedDesign.team_profile_ids,
+      //     location_ids: lastDeletedDesign.location_ids,
+      //     material_code_ids: lastDeletedDesign.material_code_ids,
+      //     project_ids: lastDeletedDesign.project_ids,
+      //     status: DESIGN_STATUSES.ACTIVE,
+      //   });
+      // } else {
+      const createdDesign = await this.designModel.create({
+        ...DESIGN_NULL_ATTRIBUTES,
+        name: payload.company_name || payload.firstname + "Design Firm",
+        status: DESIGN_STATUSES.ACTIVE,
+      });
+      // }
       if (!createdDesign) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
