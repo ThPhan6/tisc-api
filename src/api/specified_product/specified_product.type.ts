@@ -21,7 +21,10 @@ export interface ISpecifiedProductRequest {
   suffix_code: string;
   description: string;
   quantity: number;
-  unit_type_id: string;
+  unit_type: {
+    id: string;
+    code: string;
+  };
   order_method: number;
   requirement_type_ids: string[];
   instruction_type_ids: string[];
