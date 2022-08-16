@@ -204,14 +204,14 @@ export default class SpecifiedProductService {
         considered_product_id: payload.considered_product_id,
       });
       let unitType: any = await this.unitTypeModel.findByNameOrId(
-        payload.unit_type_id,
+        payload.unit_type.id,
         user.relation_id || ""
       );
       if (!unitType) {
         unitType = await this.unitTypeModel.create({
           ...UNIT_TYPE_NULL_ATTRIBUTES,
-          name: payload.unit_type_id,
-          code: payload.unit_type_id.slice(2).toUpperCase(),
+          name: payload.unit_type.id,
+          code: payload.unit_type.code.toUpperCase(),
           design_id: user.relation_id || "",
         });
       }
