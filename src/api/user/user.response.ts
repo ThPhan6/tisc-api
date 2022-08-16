@@ -35,6 +35,7 @@ export default {
       brand: Joi.any(),
       design: Joi.any(),
       interested: Joi.any(),
+      retrieve_favourite: Joi.bool(),
     }),
     statusCode: Joi.number(),
   }) as any,

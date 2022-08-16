@@ -206,6 +206,7 @@ export default class UserService {
         phone_code: location?.phone_code || "",
         permissions,
         interested: user.interested || [],
+        retrieve_favourite: user.retrieve_favourite
       };
       /// combine work_location
       if (location) {
