@@ -617,6 +617,7 @@ export default class SpecifiedProductService {
               );
               return {
                 ...area,
+                count: area.rooms.length,
                 rooms: sortedNewRooms,
               };
             })
@@ -624,6 +625,7 @@ export default class SpecifiedProductService {
           const sortedAreas = sortObjectArray(newAreas, "name", area_order);
           return {
             ...zone,
+            count: zone.areas.length,
             areas: sortedAreas,
           };
         })
