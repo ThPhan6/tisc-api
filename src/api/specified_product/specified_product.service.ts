@@ -1,29 +1,31 @@
-import ProjectModel from "../../model/project.model";
-import ProductModel from "../../model/product.model";
-import BrandModel from "../../model/brand.model";
-import UserModel from "../../model/user.model";
-import ConsideredProductModel, {
-  IConsideredProductAttributes,
-} from "../../model/considered_product.model";
-import ProjectZoneModel from "../../model/project_zone.model";
-import MaterialCodeModel from "../../model/material_code.model";
-import RequirementTypeModel, {
-  REQUIREMENT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/requirement_type.model";
-import InstructionTypeModel from "../../model/instruction_type.model";
-import CollectionModel from "../../model/collection.model";
-import UnitTypeModel, {
-  UNIT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/unit_type.model";
-import SpecifiedProductModel, {
-  ISpecifiedProductAttributes,
-  SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-} from "../../model/specified_product.model";
 import {
   MESSAGES,
   SPECIFIED_PRODUCT_STATUS,
 } from "../../constant/common.constant";
-
+import { getDistinctArray, sortObjectArray } from "../../helper/common.helper";
+import AttributeModel from "../../model/attribute.model";
+import BasisModel from "../../model/basis.model";
+import BrandModel from "../../model/brand.model";
+import CollectionModel from "../../model/collection.model";
+import ConsideredProductModel, {
+  IConsideredProductAttributes,
+} from "../../model/considered_product.model";
+import InstructionTypeModel from "../../model/instruction_type.model";
+import MaterialCodeModel from "../../model/material_code.model";
+import ProductModel from "../../model/product.model";
+import ProjectModel from "../../model/project.model";
+import ProjectZoneModel from "../../model/project_zone.model";
+import RequirementTypeModel, {
+  REQUIREMENT_TYPE_NULL_ATTRIBUTES,
+} from "../../model/requirement_type.model";
+import SpecifiedProductModel, {
+  ISpecifiedProductAttributes,
+  SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
+} from "../../model/specified_product.model";
+import UnitTypeModel, {
+  UNIT_TYPE_NULL_ATTRIBUTES,
+} from "../../model/unit_type.model";
+import UserModel from "../../model/user.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 import {
   IInstructionTypesResponse,
@@ -32,7 +34,6 @@ import {
   ISpecifiedProductResponse,
   IUnitTypesResponse,
 } from "./specified_product.type";
-import { getDistinctArray, sortObjectArray } from "../../helper/common.helper";
 
 export default class SpecifiedProductService {
   private consideredProductModel: ConsideredProductModel;
@@ -47,6 +48,8 @@ export default class SpecifiedProductService {
   private collectionModel: CollectionModel;
   private materialCodeModel: MaterialCodeModel;
   private projectZoneModel: ProjectZoneModel;
+  private attributeModel: AttributeModel;
+  private basisModel: BasisModel;
 
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
@@ -61,6 +64,8 @@ export default class SpecifiedProductService {
     this.collectionModel = new CollectionModel();
     this.materialCodeModel = new MaterialCodeModel();
     this.projectZoneModel = new ProjectZoneModel();
+    this.attributeModel = new AttributeModel();
+    this.basisModel = new BasisModel();
   }
   private getSpecifiedProducts = async (
     foundConsideredProducts: IConsideredProductAttributes[],
@@ -264,6 +269,11 @@ export default class SpecifiedProductService {
       const materialCode = materialCodes.find(
         (item) => item.id === payload.material_code_id
       );
+
+      const product = await this.productModel.find(
+        consideredProduct.product_id
+      );
+
       if (!specifiedProduct) {
         //create
         const createdSpecifiedProduct = await this.specifiedProductModel.create(
@@ -289,7 +299,15 @@ export default class SpecifiedProductService {
           });
         }
         return resolve({
-          data: createdSpecifiedProduct,
+          data: {
+            ...createdSpecifiedProduct,
+            specification: {
+              is_refer_document:
+                createdSpecifiedProduct.specification.is_refer_document,
+              specification_attribute_groups:
+                product?.specification_attribute_groups,
+            },
+          },
           statusCode: 200,
         });
       }
@@ -315,7 +333,15 @@ export default class SpecifiedProductService {
         });
       }
       return resolve({
-        data: updatedSpecifiedProduct,
+        data: {
+          ...updatedSpecifiedProduct,
+          specification: {
+            is_refer_document:
+              updatedSpecifiedProduct.specification.is_refer_document,
+            specification_attribute_groups:
+              product?.specification_attribute_groups,
+          },
+        },
         statusCode: 200,
       });
     });

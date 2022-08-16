@@ -65,9 +65,10 @@ export default {
   specify: {
     payload: {
       considered_product_id: Joi.string()
+        .trim()
         .required()
         .error(
-          commonFailValidatedMessageFunction("Considered Product is required")
+          commonFailValidatedMessageFunction("Considered Product is missing")
         ),
       specification: Joi.object({
         is_refer_document: Joi.boolean()
@@ -75,7 +76,7 @@ export default {
           .required()
           .error(
             commonFailValidatedMessageFunction(
-              "Is refer to document is required"
+              "Is refer to document is missing"
             )
           ),
         specification_attribute_groups: Joi.array().items({
@@ -87,55 +88,70 @@ export default {
         }),
       }),
       brand_location_id: Joi.string()
+        .trim()
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Brand location is required")
-        ),
+        .error(commonFailValidatedMessageFunction("Brand location is missing")),
       distributor_location_id: Joi.string()
+        .trim()
         .required()
         .error(
-          commonFailValidatedMessageFunction("Distributor location is required")
+          commonFailValidatedMessageFunction("Distributor location is missing")
         ),
 
       is_entire: Joi.boolean()
         .valid(true, false)
         .required()
         .error(
-          commonFailValidatedMessageFunction("Distributor location is required")
+          commonFailValidatedMessageFunction("Distributor location is missing")
         ),
-      project_zone_ids: Joi.array().items(Joi.string()),
+      project_zone_ids: Joi.array().items(Joi.string().allow("")),
       material_code_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Material code is required")),
+        .error(commonFailValidatedMessageFunction("Material code is missing")),
       suffix_code: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Suffix code is required")),
-      description: Joi.string(),
+        .error(commonFailValidatedMessageFunction("Suffix code is missing")),
+      description: Joi.string().allow(""),
       quantity: Joi.number()
         .required()
-        .error(commonFailValidatedMessageFunction("Quantity is required")),
+        .error(commonFailValidatedMessageFunction("Quantity is missing")),
       unit_type_id: Joi.string()
+        .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Unit type is required")),
+        .error(commonFailValidatedMessageFunction("Unit type is missing")),
       order_method: Joi.number()
         .valid(ORDER_METHOD.DIRECT_PURCHASE, ORDER_METHOD.CUSTOM_ORDER)
         .required()
-        .error(commonFailValidatedMessageFunction("Order method is required")),
-      requirement_type_ids: Joi.array().items(
-        Joi.string()
-          .required()
-          .error(
-            commonFailValidatedMessageFunction("Requirement type is required")
-          )
-      ),
-      instruction_type_ids: Joi.array().items(
-        Joi.string()
-          .required()
-          .error(
-            commonFailValidatedMessageFunction("Instruction type is required")
-          )
-      ),
-      special_instructions: Joi.string(),
+        .error(commonFailValidatedMessageFunction("Order method is missing")),
+      requirement_type_ids: Joi.array()
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Requirement type is missing")
+            )
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Requirement type is missing")
+        ),
+      instruction_type_ids: Joi.array()
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Instruction type is missing")
+            )
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Instruction type is missing")
+        ),
+      special_instructions: Joi.string().allow(""),
     },
   },
 };
