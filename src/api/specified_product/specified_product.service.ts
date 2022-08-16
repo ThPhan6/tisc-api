@@ -274,12 +274,13 @@ export default class SpecifiedProductService {
         consideredProduct.product_id
       );
 
+      const { unit_type, ...restPayload } = payload;
       if (!specifiedProduct) {
         //create
         const createdSpecifiedProduct = await this.specifiedProductModel.create(
           {
             ...SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-            ...payload,
+            ...restPayload,
             unit_type_id: unitType.id,
             requirement_type_ids: requirementTypeIds,
             instruction_type_ids: getDistinctArray(
@@ -315,7 +316,7 @@ export default class SpecifiedProductService {
       const updatedSpecifiedProduct = await this.specifiedProductModel.update(
         specifiedProduct.id,
         {
-          ...payload,
+          ...restPayload,
           unit_type_id: unitType.id,
           requirement_type_ids: requirementTypeIds,
           instruction_type_ids: getDistinctArray(payload.instruction_type_ids),
