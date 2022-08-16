@@ -117,13 +117,10 @@ export default {
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is missing")),
-      unit_type: Joi.object({
-        id: Joi.string()
-          .trim()
-          .required()
-          .error(commonFailValidatedMessageFunction("Unit type is missing")),
-        code: Joi.string().allow(""),
-      }),
+      unit_type_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Unit type is missing")),
       order_method: Joi.number()
         .valid(ORDER_METHOD.DIRECT_PURCHASE, ORDER_METHOD.CUSTOM_ORDER)
         .required()

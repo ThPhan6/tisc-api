@@ -204,14 +204,14 @@ export default class SpecifiedProductService {
         considered_product_id: payload.considered_product_id,
       });
       let unitType: any = await this.unitTypeModel.findByNameOrId(
-        payload.unit_type.id,
+        payload.unit_type_id,
         user.relation_id || ""
       );
       if (!unitType) {
         unitType = await this.unitTypeModel.create({
           ...UNIT_TYPE_NULL_ATTRIBUTES,
-          name: payload.unit_type.id,
-          code: payload.unit_type.code.toUpperCase(),
+          name: payload.unit_type_id,
+          code: payload.unit_type_id.slice(2).toUpperCase(),
           design_id: user.relation_id || "",
         });
       }
@@ -274,13 +274,12 @@ export default class SpecifiedProductService {
         consideredProduct.product_id
       );
 
-      const { unit_type, ...restPayload } = payload;
       if (!specifiedProduct) {
         //create
         const createdSpecifiedProduct = await this.specifiedProductModel.create(
           {
             ...SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-            ...restPayload,
+            ...payload,
             unit_type_id: unitType.id,
             requirement_type_ids: requirementTypeIds,
             instruction_type_ids: getDistinctArray(
@@ -316,7 +315,7 @@ export default class SpecifiedProductService {
       const updatedSpecifiedProduct = await this.specifiedProductModel.update(
         specifiedProduct.id,
         {
-          ...restPayload,
+          ...payload,
           unit_type_id: unitType.id,
           requirement_type_ids: requirementTypeIds,
           instruction_type_ids: getDistinctArray(payload.instruction_type_ids),
