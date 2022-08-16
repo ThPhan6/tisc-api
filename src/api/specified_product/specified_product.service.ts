@@ -269,11 +269,6 @@ export default class SpecifiedProductService {
       const materialCode = materialCodes.find(
         (item) => item.id === payload.material_code_id
       );
-
-      const product = await this.productModel.find(
-        consideredProduct.product_id
-      );
-
       if (!specifiedProduct) {
         //create
         const createdSpecifiedProduct = await this.specifiedProductModel.create(
@@ -299,15 +294,7 @@ export default class SpecifiedProductService {
           });
         }
         return resolve({
-          data: {
-            ...createdSpecifiedProduct,
-            specification: {
-              is_refer_document:
-                createdSpecifiedProduct.specification.is_refer_document,
-              specification_attribute_groups:
-                product?.specification_attribute_groups,
-            },
-          },
+          data: createdSpecifiedProduct,
           statusCode: 200,
         });
       }
@@ -333,15 +320,7 @@ export default class SpecifiedProductService {
         });
       }
       return resolve({
-        data: {
-          ...updatedSpecifiedProduct,
-          specification: {
-            is_refer_document:
-              updatedSpecifiedProduct.specification.is_refer_document,
-            specification_attribute_groups:
-              product?.specification_attribute_groups,
-          },
-        },
+        data: updatedSpecifiedProduct,
         statusCode: 200,
       });
     });
