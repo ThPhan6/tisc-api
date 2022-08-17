@@ -1,3 +1,6 @@
+import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
+import ProductService from "../../api/product/product.service";
 import {
   BRAND_STATUSES,
   BRAND_STATUS_OPTIONS,
@@ -6,11 +9,32 @@ import {
   SYSTEM_TYPE,
   VALID_IMAGE_TYPES,
 } from "../../constant/common.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
+import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
+import { toWebp } from "../../helper/image.helper";
+import { createResetPasswordToken } from "../../helper/password.helper";
 import BrandModel, {
-  IBrandAttributes,
   BRAND_NULL_ATTRIBUTES,
+  IBrandAttributes,
 } from "../../model/brand.model";
+import CollectionModel, {
+  ICollectionAttributes,
+} from "../../model/collection.model";
+import DistributorModel from "../../model/distributor.model";
+import FunctionalTypeModel from "../../model/functional_type.model";
+import LocationModel, { ILocationAttributes } from "../../model/location.model";
+import ProductModel, { IProductAttributes } from "../../model/product.model";
+import UserModel, {
+  IUserAttributes,
+  USER_NULL_ATTRIBUTES,
+} from "../../model/user.model";
+import { deleteFile, upload } from "../../service/aws.service";
+import CountryStateCityService from "../../service/country_state_city_v1.service";
+import MailService from "../../service/mail.service";
 import { IMessageResponse, IPagination } from "../../type/common.type";
+import MarketAvailabilityService from "../market_availability/market_availability.service";
+import PermissionService from "../permission/permission.service";
+import { IAvatarResponse } from "../user/user.type";
 import {
   IBrandByAlphabetResponse,
   IBrandCardsResponse,
@@ -21,25 +45,6 @@ import {
   IUpdateBrandProfileRequest,
   IUpdateBrandStatusRequest,
 } from "./brand.type";
-import MailService from "../../service/mail.service";
-import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
-import LocationModel, { ILocationAttributes } from "../../model/location.model";
-import ProductService from "../../api/product/product.service";
-import { IAvatarResponse } from "../user/user.type";
-import { upload, deleteFile } from "../../service/aws.service";
-import { toWebp } from "../../helper/image.helper";
-import moment from "moment";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
-import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
-import { createResetPasswordToken } from "../../helper/password.helper";
-import PermissionService from "../permission/permission.service";
-import DistributorModel from "../../model/distributor.model";
-import CollectionModel from "../../model/collection.model";
-import ProductModel from "../../model/product.model";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
-import FunctionalTypeModel from "../../model/functional_type.model";
-import CountryStateCityService from "../../service/country_state_city_v1.service";
-import { v4 as uuidv4 } from "uuid";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -628,48 +633,67 @@ export default class BrandService {
   public getAllBrandSummary = (): Promise<any> =>
     new Promise(async (resolve) => {
       const allBrand = await this.brandModel.getAll();
-      const locationIds = getDistinctArray(
-        allBrand.reduce((pre: string[], cur) => {
-          return pre.concat(cur.location_ids);
-        }, [])
-      );
-      const teamProfileIds = getDistinctArray(
-        allBrand.reduce((pre: string[], cur) => {
-          return pre.concat(cur.team_profile_ids);
-        }, [])
-      );
-      const countryIds = await Promise.all(
-        locationIds.map(async (locationId) => {
-          const location = await this.locationModel.find(locationId);
-          return location?.country_id || "";
-        })
-      );
-      const cards = (
-        await Promise.all(
-          allBrand.map(async (brand) => {
-            return await this.productModel.getBy({ brand_id: brand.id });
-          })
-        )
-      ).flat();
-      const collectionIds = getDistinctArray(
-        cards.map((product) => product.collection_id || "")
-      );
-      const categoryIds = getDistinctArray(
-        cards.map((product) => product.category_ids).flat()
-      );
-      const distinctCountryIds = getDistinctArray(countryIds);
-      const countries = await this.marketAvailabilityService.getRegionCountries(
-        distinctCountryIds
-      );
-      const products = cards.reduce((pre: number, cur) => {
-        cur.specification_attribute_groups.forEach((group) => {
-          group.attributes.forEach((attribute) => {
-            if (attribute.type === "Options")
-              pre = pre + (attribute.basis_options?.length || 0);
-          });
+      let locations: ILocationAttributes[] = [];
+      let users: IUserAttributes[] = [];
+      let countries: {
+        id: string;
+        name: string;
+        phone_code: string;
+        region: string;
+      }[] = [];
+      let collections: ICollectionAttributes[] = [];
+      let cards: IProductAttributes[] = [];
+      let categories: any[] = [];
+      let products: number = 0;
+      for (const brand of allBrand) {
+        users = await this.userModel.getMany(brand.team_profile_ids, [
+          "id",
+          "firstname",
+          "lastname",
+          "role_id",
+          "email",
+          "avatar",
+        ]);
+        const findLocation = await this.locationModel.findBy({
+          type: SYSTEM_TYPE.BRAND,
+          relation_id: brand.id,
         });
-        return pre;
-      }, 0);
+        if (findLocation) {
+          locations.push(findLocation);
+        }
+        const locationIds = locations.map((location) => location.id);
+        const countryIds = await Promise.all(
+          locationIds.map(async (locationId) => {
+            const location = await this.locationModel.find(locationId);
+            return location?.country_id || "";
+          })
+        );
+        const distinctCountryIds = getDistinctArray(countryIds);
+        countries = await this.marketAvailabilityService.getRegionCountries(
+          distinctCountryIds
+        );
+
+        collections = await this.collectionModel.getBy({
+          brand_id: brand.id,
+        });
+        cards = await this.productModel.getBy({
+          brand_id: brand.id,
+        });
+        categories = getDistinctArray(
+          cards.reduce((pre: string[], cur) => {
+            return pre.concat(cur.category_ids);
+          }, [])
+        );
+        products = cards.reduce((pre: number, cur) => {
+          cur.specification_attribute_groups.forEach((group) => {
+            group.attributes.forEach((attribute) => {
+              if (attribute.type === "Options")
+                pre = pre + (attribute.basis_options?.length || 0);
+            });
+          });
+          return pre;
+        }, 0);
+      }
       return resolve({
         data: [
           {
@@ -679,12 +703,12 @@ export default class BrandService {
             subs: [
               {
                 id: uuidv4(),
-                quantity: locationIds.length,
+                quantity: locations.length,
                 label: "Locations",
               },
               {
                 id: uuidv4(),
-                quantity: teamProfileIds.length,
+                quantity: users.length,
                 label: "Teams",
               },
             ],
@@ -745,12 +769,12 @@ export default class BrandService {
             subs: [
               {
                 id: uuidv4(),
-                quantity: categoryIds.length,
+                quantity: categories.length,
                 label: "Categories",
               },
               {
                 id: uuidv4(),
-                quantity: collectionIds.length,
+                quantity: collections.length,
                 label: "Collections",
               },
               {
@@ -761,6 +785,7 @@ export default class BrandService {
             ],
           },
         ],
+        statusCode: 200,
       });
     });
 
