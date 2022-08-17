@@ -1,24 +1,26 @@
-import { MESSAGES } from "./../../constant/common.constant";
+import { v4 as uuidv4 } from "uuid";
 import {
   DESIGN_STATUS_OPTIONS,
   PROJECT_STATUS,
   REGION_KEY,
 } from "../../constant/common.constant";
+import { getDistinctArray } from "../../helper/common.helper";
 import DesignerModel, { IDesignerAttributes } from "../../model/designer.model";
+import LocationModel from "../../model/location.model";
+import ProjectModel from "../../model/project.model";
+import UserModel from "../../model/user.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
+import MarketAvailabilityService from "../market_availability/market_availability.service";
+import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
+import { ILocationAttributes } from "./../../model/location.model";
+import { IProjectAttributes } from "./../../model/project.model";
+import { IUserAttributes } from "./../../model/user.model";
 import {
   IDesignerResponse,
   IDesignersResponse,
   IDesignSummary,
   IUpdateDesignStatusRequest,
 } from "./designer.type";
-import UserModel from "../../model/user.model";
-import { v4 as uuidv4 } from "uuid";
-import { getDistinctArray } from "../../helper/common.helper";
-import MarketAvailabilityModel from "../../model/market_availability.model";
-import LocationModel from "../../model/location.model";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
-import ProjectModel from "../../model/project.model";
 
 export default class DesignerService {
   private designerModel: DesignerModel;
@@ -133,31 +135,46 @@ export default class DesignerService {
   public getAllDesignSummary = (): Promise<IDesignSummary> => {
     return new Promise(async (resolve) => {
       const allDesignFirm = await this.designerModel.getAll();
-      const locationIds = getDistinctArray(
-        allDesignFirm.reduce((pre: string[], cur) => {
-          return pre.concat(cur.location_ids);
-        }, [])
-      );
-      const teamProfileIds = getDistinctArray(
-        allDesignFirm.reduce((pre: string[], cur) => {
-          return pre.concat(cur.team_profile_ids);
-        }, [])
-      );
-      const countryIds = await Promise.all(
-        locationIds.map(async (locationId) => {
-          const location = await this.locationModel.find(locationId);
-          return location?.country_id || "";
-        })
-      );
-      const distinctCountryIds = getDistinctArray(countryIds);
-      const countries = await this.marketAvailabilityService.getRegionCountries(
-        distinctCountryIds
-      );
-      const projects = await Promise.all(
-        allDesignFirm.map(async (designFirm) => {
-          return await this.projectModel.getBy({ design_id: designFirm.id });
-        })
-      );
+      let users: IUserAttributes[] = [];
+      let locations: ILocationAttributes[] = [];
+      let countries: {
+        id: string;
+        name: string;
+        phone_code: string;
+        region: string;
+      }[] = [];
+      let projects: IProjectAttributes[] = [];
+      for (const designFirm of allDesignFirm) {
+        users = await this.userModel.getMany(designFirm.team_profile_ids, [
+          "id",
+          "firstname",
+          "lastname",
+          "role_id",
+          "email",
+          "avatar",
+        ]);
+
+        const findLocation = await this.locationModel.findBy({
+          type: SYSTEM_TYPE.DESIGN,
+          relation_id: designFirm.id,
+        });
+        if (findLocation) {
+          locations.push(findLocation);
+        }
+
+        const locationIds = locations.map((location) => location.id);
+        const countryIds = await Promise.all(
+          locationIds.map(async (locationId) => {
+            const location = await this.locationModel.find(locationId);
+            return location?.country_id || "";
+          })
+        );
+        const distinctCountryIds = getDistinctArray(countryIds);
+        countries = await this.marketAvailabilityService.getRegionCountries(
+          distinctCountryIds
+        );
+        projects = await this.projectModel.getMany(designFirm.project_ids);
+      }
       return resolve({
         data: [
           {
@@ -167,12 +184,12 @@ export default class DesignerService {
             subs: [
               {
                 id: uuidv4(),
-                quantity: locationIds.length,
+                quantity: locations.length,
                 label: "Locations",
               },
               {
                 id: uuidv4(),
-                quantity: teamProfileIds.length,
+                quantity: users.length,
                 label: "Designers",
               },
             ],
@@ -228,33 +245,28 @@ export default class DesignerService {
           },
           {
             id: uuidv4(),
-            quantity: projects.flat(Infinity).length,
+            quantity: projects.length,
             label: "PROJECTS",
             subs: [
               {
                 id: uuidv4(),
-                quantity: projects
-                  .flat()
-                  .filter((project) => project.status === PROJECT_STATUS.LIVE)
-                  .length,
+                quantity: projects.filter(
+                  (project) => project.status === PROJECT_STATUS.LIVE
+                ).length,
                 label: "Live",
               },
               {
                 id: uuidv4(),
-                quantity: projects
-                  .flat()
-                  .filter(
-                    (project) => project.status === PROJECT_STATUS.ON_HOLD
-                  ).length,
+                quantity: projects.filter(
+                  (project) => project.status === PROJECT_STATUS.ON_HOLD
+                ).length,
                 label: "On Hold",
               },
               {
                 id: uuidv4(),
-                quantity: projects
-                  .flat()
-                  .filter(
-                    (project) => project.status === PROJECT_STATUS.ARCHIVE
-                  ).length,
+                quantity: projects.filter(
+                  (project) => project.status === PROJECT_STATUS.ARCHIVE
+                ).length,
                 label: "Archived",
               },
             ],
