@@ -28,7 +28,7 @@ export default class RequirementTypeModel extends Model<IRequirementTypeAttribut
       return this.getBuilder()
         .builder.whereNot("is_deleted", true)
         .whereOrRevert(["id", "name"], id)
-        .where("design_id", relation_id)
+        .whereOr("design_id", [relation_id, "0"])
         .first();
     } catch (error) {
       return Promise.resolve(false);
