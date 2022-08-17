@@ -19,8 +19,9 @@ export interface ISpecifiedProductAttributes {
   brand_location_id: string;
   distributor_location_id: string;
 
-  is_entire: boolean;
-  project_zone_ids: string[];
+  project_zone_id: string;
+  // is_entire: boolean;
+  // project_zone_ids: string[];
 
   material_code_id: string;
   material_code: string;
@@ -48,8 +49,11 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   },
   brand_location_id: null,
   distributor_location_id: null,
-  is_entire: true,
-  project_zone_ids: [],
+
+  project_zone_id: null,
+
+  // is_entire: true,
+  // project_zone_ids: [],
   material_code_id: null,
   material_code: null,
   suffix_code: null,
