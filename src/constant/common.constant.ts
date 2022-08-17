@@ -203,6 +203,7 @@ export const MESSAGES = {
       "Something wrong when retrieve your favourite, please try again later!",
   },
   SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
+  UNIT_TYPE_NOT_FOUND: "Unit type not found",
 };
 
 export const BASIS_TYPES: {

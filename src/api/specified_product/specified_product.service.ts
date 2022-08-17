@@ -152,7 +152,9 @@ export default class SpecifiedProductService {
       });
     });
   };
-  public getUnitTypes = (user_id: string): Promise<IUnitTypesResponse> => {
+  public getUnitTypes = (
+    user_id: string
+  ): Promise<IUnitTypesResponse | IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       if (!user) {
@@ -203,16 +205,12 @@ export default class SpecifiedProductService {
       const specifiedProduct = await this.specifiedProductModel.findBy({
         considered_product_id: payload.considered_product_id,
       });
-      let unitType: any = await this.unitTypeModel.findByNameOrId(
-        payload.unit_type_id,
-        user.relation_id || ""
-      );
+
+      const unitType = await this.unitTypeModel.find(payload.unit_type_id);
       if (!unitType) {
-        unitType = await this.unitTypeModel.create({
-          ...UNIT_TYPE_NULL_ATTRIBUTES,
-          name: payload.unit_type_id,
-          code: payload.unit_type_id.slice(2).toUpperCase(),
-          design_id: user.relation_id || "",
+        return resolve({
+          message: MESSAGES.UNIT_TYPE_NOT_FOUND,
+          statusCode: 404,
         });
       }
       const requirementTypeIds = await Promise.all(
