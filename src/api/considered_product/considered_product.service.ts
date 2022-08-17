@@ -76,6 +76,7 @@ export default class ConsideredProductService {
           description: product.description,
           brand_logo: brand?.logo,
           considered_id: foundConsideredProduct.id,
+          project_zone_id: foundConsideredProduct.project_zone_id,
         };
       })
     );
