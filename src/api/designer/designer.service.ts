@@ -68,13 +68,13 @@ export default class DesignerService {
           for (const projectId of designer.project_ids) {
             const project = await this.projectModel.find(projectId);
             switch (project?.status) {
-              case 1:
+              case 2:
                 countLive += 1;
                 break;
-              case 2:
+              case 3:
                 countOnHold += 1;
                 break;
-              case 3:
+              case 1:
                 countArchived += 1;
                 break;
               default:
