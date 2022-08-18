@@ -131,12 +131,16 @@ export default {
             .trim()
             .required()
             .error(
-              commonFailValidatedMessageFunction("Requirement type is missing")
+              commonFailValidatedMessageFunction(
+                "Approval requirements prior to fabrication is missing"
+              )
             )
         )
         .required()
         .error(
-          commonFailValidatedMessageFunction("Requirement type is missing")
+          commonFailValidatedMessageFunction(
+            "Approval requirements prior to fabrication is missing"
+          )
         ),
       instruction_type_ids: Joi.array()
         .items(
@@ -144,12 +148,14 @@ export default {
             .trim()
             .required()
             .error(
-              commonFailValidatedMessageFunction("Instruction type is missing")
+              commonFailValidatedMessageFunction(
+                "General instructions is missing"
+              )
             )
         )
         .required()
         .error(
-          commonFailValidatedMessageFunction("Instruction type is missing")
+          commonFailValidatedMessageFunction("General instructions is missing")
         ),
       special_instructions: Joi.string().allow(""),
     },
