@@ -1095,7 +1095,6 @@ export default class ProductService {
         product_id: payload.product_id,
         project_id: payload.project_id,
       });
-
       if (payload.is_entire) {
         if (consideredRecord?.is_entire) {
           // skip
@@ -1252,49 +1251,53 @@ export default class ProductService {
         } else {
           //consideredRecord?.is_entire === true
           // CREATE records with project_zone_id
-          const promises = payload.project_zone_ids.map((project_zone_id) =>
-            this.consideredProductModel.create({
-              ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-              product_id: payload.product_id,
-              project_id: payload.project_id,
-              assigned_by: user_id,
-              is_entire: false,
-              project_zone_id,
-              status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-            })
+          const createConsiderPromises = payload.project_zone_ids.map(
+            async (project_zone_id) =>
+              await this.consideredProductModel.create({
+                ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+                product_id: payload.product_id,
+                project_id: payload.project_id,
+                assigned_by: user_id,
+                is_entire: false,
+                project_zone_id,
+                status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+              })
           );
-          await Promise.all(promises);
-          if (consideredRecord?.is_entire) {
-            // Delete record is_entire: consideredRecord
-            //DELETE specify by consideredRecord.id
-            const foundSpecifiedProduct =
-              await this.specifiedProductModel.findBy({
-                considered_product_id: consideredRecord.id,
-              });
+          const createdConsiders = await Promise.all(createConsiderPromises);
+          // Delete record is_entire: consideredRecord
+          //DELETE specify by consideredRecord.id
+          const foundSpecifiedProduct = await this.specifiedProductModel.findBy(
+            { considered_product_id: consideredRecord?.id }
+          );
 
-            if (payload.considered_product_id && foundSpecifiedProduct) {
-              const { id, is_deleted, created_at, ...restSpecifiedProduct } =
-                foundSpecifiedProduct;
-              for (const projectZoneId of payload.project_zone_ids) {
-                await this.specifiedProductModel.create({
-                  ...SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-                  ...restSpecifiedProduct,
-                  considered_product_id: payload.considered_product_id,
-                  project_zone_id: projectZoneId,
-                });
-              }
-            }
+          if (
+            payload.considered_product_id &&
+            foundSpecifiedProduct &&
+            createdConsiders
+          ) {
+            const { id, is_deleted, created_at, ...restSpecifiedProduct } =
+              foundSpecifiedProduct;
 
-            await this.specifiedProductModel.update(
-              foundSpecifiedProduct?.id || "",
-              {
-                is_deleted: true,
-              }
+            const cloneSpecifyPromises = createdConsiders.map((consider) =>
+              consider
+                ? this.specifiedProductModel.create({
+                    ...SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
+                    ...restSpecifiedProduct,
+                    considered_product_id: consider.id,
+                    project_zone_id: consider.project_zone_id || "",
+                  })
+                : undefined
             );
-            await this.consideredProductModel.update(consideredRecord.id, {
-              is_deleted: true,
-            });
+            await Promise.all(cloneSpecifyPromises);
           }
+
+          await this.specifiedProductModel.update(
+            foundSpecifiedProduct?.id || "",
+            { is_deleted: true }
+          );
+          await this.consideredProductModel.update(consideredRecord?.id || "", {
+            is_deleted: true,
+          });
         }
       }
 
