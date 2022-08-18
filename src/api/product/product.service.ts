@@ -1272,10 +1272,7 @@ export default class ProductService {
                 considered_product_id: consideredRecord.id,
               });
 
-            if (payload.considered_product_id) {
-              if (!foundSpecifiedProduct) {
-                return false;
-              }
+            if (payload.considered_product_id && foundSpecifiedProduct) {
               const { id, is_deleted, created_at, ...restSpecifiedProduct } =
                 foundSpecifiedProduct;
               for (const projectZoneId of payload.project_zone_ids) {
