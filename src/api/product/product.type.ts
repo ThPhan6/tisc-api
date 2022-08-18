@@ -152,10 +152,9 @@ export interface FavouriteProductsResponse {
     id: string;
     name: string;
     count: number;
-    products: IProduct[]
+    products: IProduct[];
   }[];
   statusCode: number;
-
 }
 
 export interface IProductOption {
@@ -173,6 +172,7 @@ export interface IProductOptionResponse {
 }
 
 export interface IProductAssignToProject {
+  considered_product_id?: string;
   is_entire: boolean;
   product_id: string;
   project_id: string;

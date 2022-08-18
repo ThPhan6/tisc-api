@@ -14,8 +14,9 @@ export interface ISpecifiedProductRequest {
   brand_location_id: string;
   distributor_location_id: string;
 
-  is_entire: boolean;
-  project_zone_ids: string[];
+  // is_entire: boolean;
+  // project_zone_ids: string[];
+  project_zone_id: string;
 
   material_code_id: string;
   suffix_code: string;

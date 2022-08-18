@@ -46,7 +46,9 @@ import ProjectModel from "../../model/project.model";
 import ConsideredProductModel, {
   CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/considered_product.model";
-import SpecifiedProductModel from "../../model/specified_product.model";
+import SpecifiedProductModel, {
+  SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
+} from "../../model/specified_product.model";
 // import { x } from "joi";
 export default class ProductService {
   private productModel: ProductModel;
@@ -76,46 +78,37 @@ export default class ProductService {
   }
 
   private getTotalVariantOfProducts = (products: IProductAttributes[]) => {
-    return products.reduce(
-      (pre: string[], cur) => {
-        let temp: any = [];
-        cur.specification_attribute_groups.forEach((group) => {
-          group.attributes.forEach((attribute) => {
-            attribute.basis_options?.forEach((basis_option) => {
-              temp.push(basis_option);
-            });
+    return products.reduce((pre: string[], cur) => {
+      let temp: any = [];
+      cur.specification_attribute_groups.forEach((group) => {
+        group.attributes.forEach((attribute) => {
+          attribute.basis_options?.forEach((basis_option) => {
+            temp.push(basis_option);
           });
         });
-        return pre.concat(temp);
-      },
-      []
-    );
-  }
+      });
+      return pre.concat(temp);
+    }, []);
+  };
 
   private getTotalCategoryOfProducts = (products: IProductAttributes[]) => {
     const rawCategoryIds = products.reduce((pre: string[], cur) => {
-        return pre.concat(cur.category_ids || []);
-      },
-      []
-    );
+      return pre.concat(cur.category_ids || []);
+    }, []);
     return getDistinctArray(rawCategoryIds);
-  }
+  };
   private getTotalBrandOfProducts = (products: IProductAttributes[]) => {
     const brandIds = products.reduce((pre: string[], cur) => {
-        return pre.concat(cur.brand_id || []);
-      },
-      []
-    );
+      return pre.concat(cur.brand_id || []);
+    }, []);
     return getDistinctArray(brandIds);
-  }
+  };
   private getTotalCollectionOfProducts = (products: IProductAttributes[]) => {
     const brandIds = products.reduce((pre: string[], cur) => {
-        return pre.concat(cur.collection_id || []);
-      },
-      []
-    );
+      return pre.concat(cur.collection_id || []);
+    }, []);
     return getDistinctArray(brandIds);
-  }
+  };
 
   public create = (
     user_id: string,
@@ -1028,6 +1021,7 @@ export default class ProductService {
         statusCode: 200,
       });
     });
+  /* Getting the product options for a product. */
   public getProductOptions = (
     product_id: string,
     attribute_id: string
@@ -1110,6 +1104,18 @@ export default class ProductService {
             statusCode: 200,
           });
         }
+
+        // create one
+        const createdConsideredProduct =
+          await this.consideredProductModel.create({
+            ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
+            product_id: payload.product_id,
+            project_id: payload.project_id,
+            assigned_by: user_id,
+            is_entire: true,
+            status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
+          });
+
         // DELETE records
         const consideredRecords = await this.consideredProductModel.getAllBy({
           product_id: payload.product_id,
@@ -1120,21 +1126,43 @@ export default class ProductService {
         const consideredIds = consideredRecords.map(
           (consideredRecord) => consideredRecord.id
         );
-        consideredIds.map(async (consideredId) => {
-          await this.consideredProductModel.update(consideredId, {
-            is_deleted: true,
-          });
-        });
+        const deleteConsideredPromise = consideredIds.map(
+          async (consideredId) => {
+            await this.consideredProductModel.update(consideredId, {
+              is_deleted: true,
+            });
 
-        // create one
-        await this.consideredProductModel.create({
-          ...CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-          product_id: payload.product_id,
-          project_id: payload.project_id,
-          assigned_by: user_id,
-          is_entire: true,
-          status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-        });
+            const foundSpecifiedProduct =
+              await this.specifiedProductModel.findBy({
+                considered_product_id: consideredId,
+              });
+
+            if (!foundSpecifiedProduct) {
+              return;
+            }
+
+            if (
+              payload.considered_product_id &&
+              consideredId === payload.considered_product_id &&
+              createdConsideredProduct
+            ) {
+              await this.specifiedProductModel.update(
+                foundSpecifiedProduct.id,
+                {
+                  considered_product_id: createdConsideredProduct.id,
+                }
+              );
+            } else {
+              await this.specifiedProductModel.update(
+                foundSpecifiedProduct.id,
+                {
+                  is_deleted: true,
+                }
+              );
+            }
+          }
+        );
+        await Promise.all(deleteConsideredPromise);
       } else {
         //payload.is_entire = false
         if (consideredRecord?.is_entire === false) {
@@ -1202,10 +1230,19 @@ export default class ProductService {
               deleteIds.push(value);
             }
           });
+
           if (deleteIndices.length) {
             Promise.all(
               deleteIndices.map(async (index: any) => {
                 const recordDelete = consideredRecords[index];
+                const foundSpecifiedProductDelete =
+                  await this.specifiedProductModel.findBy({
+                    considered_product_id: recordDelete.id,
+                  });
+                await this.specifiedProductModel.update(
+                  foundSpecifiedProductDelete?.id || "",
+                  { is_deleted: true }
+                );
                 await this.consideredProductModel.update(recordDelete.id, {
                   is_deleted: true,
                 });
@@ -1213,6 +1250,7 @@ export default class ProductService {
             );
           }
         } else {
+          //consideredRecord?.is_entire === true
           // CREATE records with project_zone_id
           const promises = payload.project_zone_ids.map((project_zone_id) =>
             this.consideredProductModel.create({
@@ -1227,11 +1265,35 @@ export default class ProductService {
           );
           await Promise.all(promises);
           if (consideredRecord?.is_entire) {
-            //DELETE specify by consideredRecord.id
-            await this.specifiedProductModel.update(consideredRecord.id, {
-              is_deleted: true,
-            });
             // Delete record is_entire: consideredRecord
+            //DELETE specify by consideredRecord.id
+            const foundSpecifiedProduct =
+              await this.specifiedProductModel.findBy({
+                considered_product_id: consideredRecord.id,
+              });
+
+            if (payload.considered_product_id) {
+              if (!foundSpecifiedProduct) {
+                return false;
+              }
+              const { id, is_deleted, created_at, ...restSpecifiedProduct } =
+                foundSpecifiedProduct;
+              for (const projectZoneId of payload.project_zone_ids) {
+                await this.specifiedProductModel.create({
+                  ...SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
+                  ...restSpecifiedProduct,
+                  considered_product_id: payload.considered_product_id,
+                  project_zone_id: projectZoneId,
+                });
+              }
+            }
+
+            await this.specifiedProductModel.update(
+              foundSpecifiedProduct?.id || "",
+              {
+                is_deleted: true,
+              }
+            );
             await this.consideredProductModel.update(consideredRecord.id, {
               is_deleted: true,
             });
@@ -1257,68 +1319,76 @@ export default class ProductService {
       });
     });
 
-    public getFavoriteProductSummary = (userId: string): Promise<FavouriteProductSummaryResponse> =>
-      new Promise(async (resolve) => {
-        const products = await this.productModel.getUserFavouriteProducts(userId);
-        const categoryIds = this.getTotalCategoryOfProducts(products);
-        const brandIds = this.getTotalBrandOfProducts(products);
-        const categories = await this.categoryService.getCategoryValues(
-          categoryIds
-        );
-        const brands = await this.brandModel.getByIds(
-          brandIds
-        );
-        return resolve({
-          data: {
-            categories,
-            brands,
-            category_count: categories.length,
-            brand_count: brands.length,
-            card_count: products.length,
-          },
-          statusCode: 200,
-        });
+  public getFavoriteProductSummary = (
+    userId: string
+  ): Promise<FavouriteProductSummaryResponse> =>
+    new Promise(async (resolve) => {
+      const products = await this.productModel.getUserFavouriteProducts(userId);
+      const categoryIds = this.getTotalCategoryOfProducts(products);
+      const brandIds = this.getTotalBrandOfProducts(products);
+      const categories = await this.categoryService.getCategoryValues(
+        categoryIds
+      );
+      const brands = await this.brandModel.getByIds(brandIds);
+      return resolve({
+        data: {
+          categories,
+          brands,
+          category_count: categories.length,
+          brand_count: brands.length,
+          card_count: products.length,
+        },
+        statusCode: 200,
       });
+    });
 
-      public getFavouriteList = (
-        userId: string,
-        brandId?: string,
-        categoryId?: string,
-      ): Promise<IMessageResponse | FavouriteProductsResponse> => {
-        return new Promise(async (resolve) => {
-          const products = await this.productModel.getUserFavouriteProducts(userId, brandId, categoryId);
-          /// collection
-          const collectionIds = this.getTotalCollectionOfProducts(products);
-          const collections = await this.collectionModel.getByIds(
-            collectionIds
-          );
-          /// category
-          const categoryIds = this.getTotalCategoryOfProducts(products);
-          const categories = await this.categoryService.getCategoryValues(
-            categoryIds
-          );
-          /// brand
-          const brandIds = this.getTotalBrandOfProducts(products);
-          const brands = await this.brandModel.getByIds(
-            brandIds
+  public getFavouriteList = (
+    userId: string,
+    brandId?: string,
+    categoryId?: string
+  ): Promise<IMessageResponse | FavouriteProductsResponse> => {
+    return new Promise(async (resolve) => {
+      const products = await this.productModel.getUserFavouriteProducts(
+        userId,
+        brandId,
+        categoryId
+      );
+      /// collection
+      const collectionIds = this.getTotalCollectionOfProducts(products);
+      const collections = await this.collectionModel.getByIds(collectionIds);
+      /// category
+      const categoryIds = this.getTotalCategoryOfProducts(products);
+      const categories = await this.categoryService.getCategoryValues(
+        categoryIds
+      );
+      /// brand
+      const brandIds = this.getTotalBrandOfProducts(products);
+      const brands = await this.brandModel.getByIds(brandIds);
+
+      const result = await Promise.all(
+        collections.map(async (collection) => {
+          let collectionProducts = products.filter(
+            (item) => item.collection_id === collection.id
           );
 
-          const result = await Promise.all(collections.map(async (collection) => {
-            let collectionProducts = products.filter((item) =>
-              item.collection_id === collection.id
-            );
-
-            /// format product data
-            const responseProducts = await Promise.all(collectionProducts.map(async (product) => {
+          /// format product data
+          const responseProducts = await Promise.all(
+            collectionProducts.map(async (product) => {
               const {
-                is_deleted, collection_id,
-                brand_id, category_ids,
+                is_deleted,
+                collection_id,
+                brand_id,
+                category_ids,
                 ...rest
               } = product;
-              const productBrand = brands.find((brand) => brand.id === brand_id);
-              const productCategories: {id: string; name:string}[] = [];
+              const productBrand = brands.find(
+                (brand) => brand.id === brand_id
+              );
+              const productCategories: { id: string; name: string }[] = [];
               category_ids.forEach((categoryId) => {
-                const category = categories.find((cat) => cat.id === categoryId);
+                const category = categories.find(
+                  (cat) => cat.id === categoryId
+                );
                 if (category) {
                   productCategories.push(category);
                 }
@@ -1330,19 +1400,21 @@ export default class ProductService {
                 brand: productBrand,
                 collection,
                 categories: productCategories,
-              }
-            }));
-            //// grouped by collection
-            return {
-              ...collection,
-              count: collectionProducts.length,
-              products: responseProducts,
-            };
-          }));
-          return resolve({
-            data: result,
-            statusCode: 200,
-          });
-        });
-      };
+              };
+            })
+          );
+          //// grouped by collection
+          return {
+            ...collection,
+            count: collectionProducts.length,
+            products: responseProducts,
+          };
+        })
+      );
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
 }

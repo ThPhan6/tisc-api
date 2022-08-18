@@ -98,13 +98,13 @@ export default {
           commonFailValidatedMessageFunction("Distributor location is missing")
         ),
 
-      is_entire: Joi.boolean()
-        .valid(true, false)
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Distributor location is missing")
-        ),
-      project_zone_ids: Joi.array().items(Joi.string().allow("")),
+      // is_entire: Joi.boolean()
+      //   .valid(true, false)
+      //   .required()
+      //   .error(
+      //     commonFailValidatedMessageFunction("Distributor location is missing")
+      //   ),
+      // project_zone_ids: Joi.array().items(Joi.string().allow("")),
       material_code_id: Joi.string()
         .trim()
         .required()
