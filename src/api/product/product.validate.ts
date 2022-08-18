@@ -329,13 +329,7 @@ export default {
   },
   assign: {
     payload: {
-      considered_product_id: Joi.string()
-        .optional()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Considered product id is required"
-          )
-        ),
+      considered_product_id: Joi.string().optional(),
       is_entire: Joi.boolean().required(),
       product_id: Joi.string()
         .required()
