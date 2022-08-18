@@ -1,5 +1,5 @@
 import { IDistributorAttributes } from "./../../model/distributor.model";
-import { MESSAGES } from "./../../constant/common.constant";
+import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import DistributorModel, {
   DISTRIBUTOR_NULL_ATTRIBUTES,
 } from "../../model/distributor.model";
@@ -9,6 +9,8 @@ import {
   IDistributorRequest,
   IDistributorResponse,
   IDistributorsResponse,
+  MarketDistributorGroupByCountry,
+  MarketDistributorGroupByCountryResponse,
 } from "./distributor.type";
 import CountryStateCityService, {
   ICountryStateCity,
@@ -16,23 +18,23 @@ import CountryStateCityService, {
 import BrandModel from "../../model/brand.model";
 import MarketAvailabilityModel from "../../model/market_availability.model";
 import CollectionModel from "../../model/collection.model";
+import ProductModel from "../../model/product.model";
 import { getDistinctArray } from "../../helper/common.helper";
 import { ICountryAttributes } from "../../model/country";
-import LocationModel from "../../model/location.model";
 export default class DistributorService {
   private distributorModel: DistributorModel;
   private countryStateCityService: CountryStateCityService;
   private brandModel: BrandModel;
   private marketAvailabilityModel: MarketAvailabilityModel;
   private collectionModel: CollectionModel;
-  private locationModel: LocationModel;
+  private productModel: ProductModel;
   constructor() {
     this.distributorModel = new DistributorModel();
     this.countryStateCityService = new CountryStateCityService();
     this.brandModel = new BrandModel();
     this.marketAvailabilityModel = new MarketAvailabilityModel();
     this.collectionModel = new CollectionModel();
-    this.locationModel = new LocationModel();
+    this.productModel = new ProductModel();
   }
 
   private updateMarkets = async (
@@ -563,4 +565,57 @@ export default class DistributorService {
       });
     });
   };
+
+  public getMarketDistributorGroupByCountry = async (
+    product_id: string
+  ): Promise<IMessageResponse | MarketDistributorGroupByCountryResponse> => {
+    return new Promise(async (resolve) => {
+      const product = await this.productModel.find(product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const market = await this.marketAvailabilityModel.findBy({
+        collection_id: product.collection_id,
+      });
+      if (!market) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+
+      const distributors = await this.distributorModel.getMarketDistributor(
+        product.brand_id,
+        market.country_ids
+      );
+      const result: MarketDistributorGroupByCountry[] = [];
+      distributors.forEach((distributor) => {
+        const groupIndex = result.findIndex((country) => country.country_name === distributor.country_name);
+        if (groupIndex === -1) {
+          result.push({
+            country_name: distributor.country_name,
+            count: 1,
+            distributors: [distributor],
+          })
+        } else {
+          result[groupIndex] = {
+            ...result[groupIndex],
+            count: result[groupIndex].count + 1,
+            distributors: [
+              ...result[groupIndex].distributors,
+              distributor
+            ],
+          }
+        }
+      });
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+
 }

@@ -134,6 +134,7 @@ export const ROUTES = {
   DELETE_DISTRIBUTOR: "/api/distributor/delete/{id}",
   GET_LIST_DISTRIBUTOR: "/api/distributor/get-list",
   GET_ONE_DISTRIBUTOR: "/api/distributor/get-one/{id}",
+  GET_MARKET_DISTRIBUTOR_COUNTRY_GROUP: "/api/distributor/market/{product_id}",
   CREATE_MARKET_AVAILABILITY: "/api/market-availability/create",
   UPDATE_MARKET_AVAILABILITY: "/api/market-availability/update/{id}",
   DELETE_MARKET_AVAILABILITY: "/api/market-availability/delete/{id}",

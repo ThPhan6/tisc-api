@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import Joi from "joi";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -198,6 +198,13 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+  },
+  getMarketDistributorGroupByCountry: {
+    params: {
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
     },
   },
 };

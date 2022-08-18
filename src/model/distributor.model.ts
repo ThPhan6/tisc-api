@@ -56,6 +56,7 @@ export default class DistributorModel extends Model<IDistributorAttributes> {
   constructor() {
     super("distributors");
   }
+
   public getExistedBrandDistributor = async (
     id: string,
     brand_id: string,
@@ -73,4 +74,20 @@ export default class DistributorModel extends Model<IDistributorAttributes> {
       return false;
     }
   };
+
+  public getMarketDistributor = async (
+    brand_id: string,
+    countries: string[],
+  ): Promise<IDistributorAttributes[]> => {
+    try {
+      const result: any = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where("brand_id", brand_id)
+        .whereIn("country_id", countries)
+        .select();
+      return result;
+    } catch (error) {
+      return [];
+    }
+  }
 }

@@ -115,6 +115,24 @@ export default class DistributorRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_MARKET_DISTRIBUTOR_COUNTRY_GROUP,
+          options: {
+            handler: controller.getMarketDistributorGroupByCountry,
+            validate: validate.getMarketDistributorGroupByCountry,
+            description:
+              "Method that get market availability locations group by country",
+            tags: ["api", "Distributor"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListWithGroup,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
