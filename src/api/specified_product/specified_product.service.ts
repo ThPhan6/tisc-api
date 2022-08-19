@@ -252,7 +252,7 @@ export default class SpecifiedProductService {
       );
 
       const materialCodeGroups = await this.materialCodeModel.getBy({
-        design_id: user.relation_id,
+        design_id: user.id,
       });
       const materialCodeSubList = materialCodeGroups.reduce(
         (
@@ -303,6 +303,7 @@ export default class SpecifiedProductService {
             project_id: consideredProduct.project_id,
             material_code: materialCode?.code + "-" + payload.suffix_code,
             special_instructions: payload.special_instructions,
+            variant: payload.variant,
           }
         );
         if (!createdSpecifiedProduct) {
@@ -329,6 +330,7 @@ export default class SpecifiedProductService {
           project_id: consideredProduct.project_id,
           material_code: materialCode?.code + "-" + payload.suffix_code,
           special_instructions: payload.special_instructions,
+          variant: payload.variant,
         }
       );
       if (!updatedSpecifiedProduct) {
@@ -455,7 +457,7 @@ export default class SpecifiedProductService {
                 name: product?.name,
                 collection_id: product?.collection_id,
                 collection_name: collection?.name,
-                variant: "abc-xyz",
+                variant: specifiedProduct.variant,
                 product_id: "XXX-000",
                 image: product?.images[0],
                 status: specifiedProduct.status,

@@ -35,6 +35,7 @@ export interface ISpecifiedProductAttributes {
   special_instructions: string;
   created_at: string;
   status: number;
+  variant: string;
   is_deleted: boolean;
 }
 
@@ -66,6 +67,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   status: 0,
   special_instructions: null,
   created_at: null,
+  variant: null,
   is_deleted: false,
 };
 export default class SpecifiedProductTipModel extends Model<ISpecifiedProductAttributes> {

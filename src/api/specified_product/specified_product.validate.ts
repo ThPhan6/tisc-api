@@ -161,6 +161,7 @@ export default {
           commonFailValidatedMessageFunction("General instructions is missing")
         ),
       special_instructions: Joi.string().allow(""),
+      variant: Joi.string().allow(""),
     },
   },
   updateStatusProductSpecified: {
