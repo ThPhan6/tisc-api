@@ -85,6 +85,8 @@ export default class SpecifiedProductService {
           id: specifiedProduct?.id,
           image: product?.images[0],
           brand_name: brand?.name,
+          brand_id: brand?.id,
+          brand_logo: brand?.logo,
           product_id: product?.name,
           material_code: specifiedProduct?.material_code,
           description: specifiedProduct?.description,
@@ -435,6 +437,11 @@ export default class SpecifiedProductService {
                 product_id: "",
                 image: product?.images[0],
                 status: specifiedProduct.status,
+                specified_product_id: specifiedProduct.id,
+                considered_product_id: specifiedProduct.considered_product_id,
+                brand_id: brand.id,
+                brand_name: brand.name,
+                brand_logo: brand.logo,
               };
             })
           );
@@ -513,6 +520,10 @@ export default class SpecifiedProductService {
             unit: unit?.code,
             order_method: specifiedProduct.order_method,
             status: specifiedProduct.status,
+            specified_product_id: specifiedProduct.id,
+            considered_product_id: specifiedProduct.considered_product_id,
+            brand_id: brand?.id,
+            brand_logo: brand?.logo,
           };
         })
       );
