@@ -6,6 +6,7 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./specified_product.response";
 import validate from "./specified_product.validate";
 import { ROUTES } from "../../constant/api.constant";
+import commonValidate from "../../validate/common.validate";
 
 export default class SpecifiedProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -142,6 +143,38 @@ export default class SpecifiedProductRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getListUnitType,
+              },
+            },
+          },
+        },
+        {
+          method: "PATCH",
+          path: ROUTES.UPDATE_PRODUCT_SPECIFIED_STATUS,
+          options: {
+            handler: controller.updateStatusProductSpecified,
+            validate: validate.updateStatusProductSpecified,
+            description: "Method that update product specified status",
+            tags: ["api", "Specified Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_PRODUCT_SPECIFIED_STATUS,
+          options: {
+            handler: controller.deleteProductSpecified,
+            validate: commonValidate.getOne,
+            description: "Method that delete specified product",
+            tags: ["api", "Specified Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

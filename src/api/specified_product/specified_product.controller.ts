@@ -1,6 +1,9 @@
 import SpecifiedProductService from "./specified_product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { ISpecifiedProductRequest } from "./specified_product.type";
+import {
+  ISpecifiedProductRequest,
+  StatusSpecifiedProductRequest,
+} from "./specified_product.type";
 
 export default class SpecifiedProductController {
   private service: SpecifiedProductService;
@@ -78,6 +81,26 @@ export default class SpecifiedProductController {
   public getUnitTypes = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getUnitTypes(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public updateStatusProductSpecified = async (
+    req: Request & { payload: StatusSpecifiedProductRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await this.service.updateStatusProductSpecified(
+      id,
+      payload
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public deleteProductSpecified = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const response = await this.service.deleteProductSpecified(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

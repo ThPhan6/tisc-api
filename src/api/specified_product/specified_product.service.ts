@@ -33,6 +33,7 @@ import {
   ISpecifiedProductRequest,
   ISpecifiedProductResponse,
   IUnitTypesResponse,
+  StatusSpecifiedProductRequest,
 } from "./specified_product.type";
 
 export default class SpecifiedProductService {
@@ -431,10 +432,12 @@ export default class SpecifiedProductService {
                 id: product?.id,
                 name: product?.name,
                 collection_name: collection?.name,
-                variant: "",
-                product_id: "",
+                variant: "abc-xyz",
+                product_id: "XXX-000",
                 image: product?.images[0],
                 status: specifiedProduct.status,
+                specified_product_id: specifiedProduct.id,
+                considered_product_id: specifiedProduct.considered_product_id,
               };
             })
           );
@@ -513,6 +516,8 @@ export default class SpecifiedProductService {
             unit: unit?.code,
             order_method: specifiedProduct.order_method,
             status: specifiedProduct.status,
+            specified_product_id: specifiedProduct.id,
+            considered_product_id: specifiedProduct.considered_product_id,
           };
         })
       );
@@ -663,6 +668,70 @@ export default class SpecifiedProductService {
             },
           ],
         },
+        statusCode: 200,
+      });
+    });
+
+  public updateStatusProductSpecified = (
+    specified_product_id: string,
+    payload: StatusSpecifiedProductRequest
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const specifiedProduct = await this.specifiedProductModel.find(
+        specified_product_id
+      );
+      if (!specifiedProduct) {
+        return resolve({
+          message: MESSAGES.SPECIFIED_PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const updatedSpecifiedProduct = await this.specifiedProductModel.update(
+        specifiedProduct.id,
+        {
+          status: payload.status,
+        }
+      );
+      if (!updatedSpecifiedProduct) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public deleteProductSpecified = async (
+    specified_product_id: string
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const specifiedProduct = await this.specifiedProductModel.find(
+        specified_product_id
+      );
+      if (!specifiedProduct) {
+        return resolve({
+          message: MESSAGES.SPECIFIED_PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const updatedSpecifiedProduct = await this.specifiedProductModel.update(
+        specified_product_id,
+        {
+          is_deleted: true,
+        }
+      );
+      if (!updatedSpecifiedProduct) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_DELETE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

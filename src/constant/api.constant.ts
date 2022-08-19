@@ -221,7 +221,9 @@ export const ROUTES = {
     RETRIEVE: "/api/favourite/retrieve",
     LIST: "/api/favourite/product-list",
     SUMMARY: "/api/favourite/product-summary",
-  }
+  },
+  UPDATE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/update-status/{id}",
+  DELETE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/delete/{id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -423,4 +425,6 @@ export const ROUTE_IDS = {
   DELETE_CONSIDER_PRODUCT: "188",
   GET_LIST_POLICY_LANDING_PAGE: "189",
   GET_LIST_CODE_MATERIAL_CODE: "190",
+  UPDATE_PRODUCT_SPECIFIED_STATUS: "191",
+  DELETE_PRODUCT_SPECIFIED_STATUS: "192",
 };
