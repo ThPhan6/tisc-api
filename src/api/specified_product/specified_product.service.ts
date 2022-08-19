@@ -2,7 +2,11 @@ import {
   MESSAGES,
   SPECIFIED_PRODUCT_STATUS,
 } from "../../constant/common.constant";
-import { getDistinctArray, sortObjectArray } from "../../helper/common.helper";
+import {
+  getDistinctArray,
+  getSpecifiedProductStatusName,
+  sortObjectArray,
+} from "../../helper/common.helper";
 import AttributeModel from "../../model/attribute.model";
 import BasisModel from "../../model/basis.model";
 import BrandModel from "../../model/brand.model";
@@ -82,14 +86,29 @@ export default class SpecifiedProductService {
           foundConsideredProduct.product_id
         );
         const brand = await this.brandModel.find(product?.brand_id || "");
+        const collection = await this.collectionModel.find(
+          product?.collection_id || ""
+        );
+        const consideredProduct = await this.consideredProductModel.find(
+          specifiedProduct?.considered_product_id || ""
+        );
         return {
           id: specifiedProduct?.id,
           image: product?.images[0],
           brand_name: brand?.name,
+          brand_id: brand?.id,
+          brand_logo: brand?.logo,
           product_id: product?.name,
           material_code: specifiedProduct?.material_code,
-          description: specifiedProduct?.description,
+          specified_description: specifiedProduct?.description,
           status: specifiedProduct?.status,
+          status_name: getSpecifiedProductStatusName(specifiedProduct?.status),
+          description: product?.description,
+          considered_id: specifiedProduct?.considered_product_id,
+          project_zone_id: specifiedProduct?.project_zone_id,
+          is_entire: consideredProduct?.is_entire,
+          collection_id: product?.collection_id,
+          collection_name: collection?.name,
         };
       })
     );
@@ -428,9 +447,13 @@ export default class SpecifiedProductService {
               const collection = await this.collectionModel.find(
                 product?.collection_id || ""
               );
+              const consideredProduct = await this.consideredProductModel.find(
+                specifiedProduct.considered_product_id
+              );
               return {
                 id: product?.id,
                 name: product?.name,
+                collection_id: product?.collection_id,
                 collection_name: collection?.name,
                 variant: "abc-xyz",
                 product_id: "XXX-000",
@@ -438,6 +461,16 @@ export default class SpecifiedProductService {
                 status: specifiedProduct.status,
                 specified_product_id: specifiedProduct.id,
                 considered_product_id: specifiedProduct.considered_product_id,
+                brand_id: brand.id,
+                brand_name: brand.name,
+                brand_logo: brand.logo,
+                status_name: getSpecifiedProductStatusName(
+                  specifiedProduct.status
+                ),
+                description: product?.description,
+                considered_id: specifiedProduct.considered_product_id,
+                project_zone_id: specifiedProduct.project_zone_id,
+                is_entire: consideredProduct?.is_entire,
               };
             })
           );
@@ -505,10 +538,16 @@ export default class SpecifiedProductService {
           const unit = await this.unitTypeModel.find(
             specifiedProduct.unit_type_id
           );
+          const consideredProduct = await this.consideredProductModel.find(
+            specifiedProduct.considered_product_id
+          );
+          const collection = await this.collectionModel.find(
+            product?.collection_id || ""
+          );
           return {
             id: specifiedProduct.id,
             material_code: specifiedProduct.material_code,
-            description: specifiedProduct.description,
+            specified_description: specifiedProduct.description,
             image: product?.images[0],
             brand_name: brand?.name,
             product_name: product?.name,
@@ -518,6 +557,15 @@ export default class SpecifiedProductService {
             status: specifiedProduct.status,
             specified_product_id: specifiedProduct.id,
             considered_product_id: specifiedProduct.considered_product_id,
+            brand_id: brand?.id,
+            brand_logo: brand?.logo,
+            status_name: getSpecifiedProductStatusName(specifiedProduct.status),
+            description: product?.description,
+            considered_id: specifiedProduct.considered_product_id,
+            project_zone_id: specifiedProduct.project_zone_id,
+            is_entire: consideredProduct?.is_entire,
+            collection_id: product?.collection_id,
+            collection_name: collection?.name,
           };
         })
       );

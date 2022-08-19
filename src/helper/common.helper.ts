@@ -1,3 +1,4 @@
+import { SPECIFIED_PRODUCT_STATUS } from "./../constant/common.constant";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
 import { CONSIDERED_PRODUCT_STATUS } from "../constant/common.constant";
@@ -124,6 +125,26 @@ export const getConsideredProductStatusName = (
 
     default:
       result = "Unlisted";
+      break;
+  }
+  return result;
+};
+type SpecifiedProductStatus = "Cancelled" | "Specified" | "Re-specified";
+export const getSpecifiedProductStatusName = (
+  status?: number
+): SpecifiedProductStatus => {
+  let result: SpecifiedProductStatus;
+  switch (status) {
+    case SPECIFIED_PRODUCT_STATUS.RE_SPECIFIED:
+      result = "Re-specified";
+      break;
+
+    case SPECIFIED_PRODUCT_STATUS.SPECIFIED:
+      result = "Specified";
+      break;
+
+    default:
+      result = "Cancelled";
       break;
   }
   return result;
