@@ -49,14 +49,14 @@ export default class FavouriteController {
     req: Request & { query: FavouriteListRequestQuery },
     toolkit: ResponseToolkit
   ) => {
-    const { brandId, categoryId, order } = req.query;
+    const { brand_id, category_id, order } = req.query;
     //
-    let filterBrandId = brandId;
+    let filterBrandId = brand_id;
     if (filterBrandId === "all") {
       filterBrandId = undefined;
     }
     //
-    let filterCategoryId = categoryId;
+    let filterCategoryId = category_id;
     if (filterCategoryId === "all") {
       filterCategoryId = undefined;
     }
