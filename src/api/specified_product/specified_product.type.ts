@@ -55,3 +55,6 @@ export interface IUnitTypesResponse {
   }[];
   statusCode: number;
 }
+export interface StatusSpecifiedProductRequest {
+  status: number;
+}

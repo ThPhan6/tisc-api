@@ -1,5 +1,8 @@
 import * as Joi from "joi";
-import { ORDER_METHOD } from "../../constant/common.constant";
+import {
+  ORDER_METHOD,
+  SPECIFIED_PRODUCT_STATUS,
+} from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
@@ -158,6 +161,25 @@ export default {
           commonFailValidatedMessageFunction("General instructions is missing")
         ),
       special_instructions: Joi.string().allow(""),
+    },
+  },
+  updateStatusProductSpecified: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Specified product is required")
+        ),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(
+          SPECIFIED_PRODUCT_STATUS.CANCELLED,
+          SPECIFIED_PRODUCT_STATUS.RE_SPECIFIED,
+          SPECIFIED_PRODUCT_STATUS.SPECIFIED
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status is required")),
     },
   },
 };
