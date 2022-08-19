@@ -1344,12 +1344,14 @@ export default class ProductService {
 
   public getFavouriteList = (
     userId: string,
+    order: "ASC" | "DESC" = "ASC",
     brandId?: string,
     categoryId?: string
   ): Promise<IMessageResponse | FavouriteProductsResponse> => {
     return new Promise(async (resolve) => {
       const products = await this.productModel.getUserFavouriteProducts(
         userId,
+        order,
         brandId,
         categoryId
       );

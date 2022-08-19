@@ -14,22 +14,27 @@ import { commonFailValidatedMessageFunction } from "../../validate/common.valida
 // };
 export default {
   retrieve: {
-      payload: {
-        personal_email: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Personal Email is required")),
-        mobile: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Mobile Number is required")),
-        phone_code: Joi.string()
-          .required()
-          .error(commonFailValidatedMessageFunction("Mobile Country Code is required")),
-      },
+    payload: {
+      personal_email: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Personal Email is required")
+        ),
+      mobile: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Mobile Number is required")),
+      phone_code: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Mobile Country Code is required")
+        ),
     },
+  },
   getProductList: {
-      query: {
-        brandId: Joi.string(),
-        categoryId: Joi.string(),
-      },
+    query: {
+      brand_id: Joi.string(),
+      category_id: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
     },
+  },
 };
