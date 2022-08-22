@@ -230,6 +230,54 @@ export default class ProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "POST",
+          path: ROUTES.SHARE_PRODUCT_BY_EMAIL,
+          options: {
+            handler: controller.shareByEmail,
+            validate: validate.shareByEmail,
+            description: "Method that share product via email",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_SHARING_GROUPS,
+          options: {
+            handler: controller.getSharingGroups,
+            description: "Method that share product via email",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.commonTypes
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_SHARING_PURPOSES,
+          options: {
+            handler: controller.getSharingPurposes,
+            description: "Method that share product via email",
+            tags: ["api", "Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: ProductResponse.commonTypes
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

@@ -7,15 +7,18 @@ import {
   CONSIDERED_PRODUCT_STATUS,
   MESSAGES,
   VALID_IMAGE_TYPES,
+  COMMON_TYPES,
 } from "../../constant/common.constant";
 import {
   getDistinctArray,
   getFileTypeFromBase64,
   removeSpecialChars,
 } from "../../helper/common.helper";
-import { toWebp } from "../../helper/image.helper";
+import { toWebp, getFileURI } from "../../helper/image.helper";
 import BrandModel, { IBrandAttributes } from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
+import UserModel from "../../model/user.model";
+import CommonTypeModel, {DEFAULT_COMMON_TYPE} from "../../model/common_type.model";
 import ProductModel, {
   IProductAttributes,
   PRODUCT_NULL_ATTRIBUTES,
@@ -36,7 +39,8 @@ import {
   IUpdateProductRequest,
   FavouriteProductSummaryResponse,
   FavouriteProductsResponse,
-  IProduct,
+  ShareProductBodyRequest,
+  CommonTypeResponse,
 } from "./product.type";
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
@@ -49,7 +53,8 @@ import ConsideredProductModel, {
 import SpecifiedProductModel, {
   SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/specified_product.model";
-// import { x } from "joi";
+import MailService from "../../service/mail.service";
+
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -62,6 +67,9 @@ export default class ProductService {
   private attributeModel: AttributeModel;
   private consideredProductModel: ConsideredProductModel;
   private specifiedProductModel: SpecifiedProductModel;
+  private mailService: MailService;
+  private userModel: UserModel;
+  private commonTypeModel: CommonTypeModel;
 
   constructor() {
     this.productModel = new ProductModel();
@@ -75,6 +83,9 @@ export default class ProductService {
     this.attributeModel = new AttributeModel();
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
+    this.mailService = new MailService();
+    this.userModel = new UserModel();
+    this.commonTypeModel = new CommonTypeModel();
   }
 
   private getTotalVariantOfProducts = (products: IProductAttributes[]) => {
@@ -1421,6 +1432,121 @@ export default class ProductService {
       );
       return resolve({
         data: result,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public shareByEmail = (payload: ShareProductBodyRequest, user_id: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          statusCode: 404,
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
+        });
+      }
+      const product = await this.productModel.find(payload.product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 400,
+        });
+      }
+
+      // save common types
+      const sharingGroup = await this.commonTypeModel.findByNameOrId(
+        payload.sharing_group,
+        user.relation_id || "",
+        COMMON_TYPES.SHARING_GROUP
+      );
+      if (!sharingGroup) {
+        await this.commonTypeModel.create({
+          ...DEFAULT_COMMON_TYPE,
+          name: payload.sharing_group,
+          type: COMMON_TYPES.SHARING_GROUP,
+          relation_id: user.relation_id || "",
+        });
+      }
+      const sharingPurpose = await this.commonTypeModel.findByNameOrId(
+        payload.sharing_purpose,
+        user.relation_id || "",
+        COMMON_TYPES.SHARING_PURPOSE
+      );
+      if (!sharingPurpose) {
+        await this.commonTypeModel.create({
+          ...DEFAULT_COMMON_TYPE,
+          name: payload.sharing_purpose,
+          type: COMMON_TYPES.SHARING_PURPOSE,
+          relation_id: user.relation_id || "",
+        });
+      }
+      // end save common types
+
+      const brand = await this.brandModel.find(product.brand_id);
+      const collection = await this.collectionModel.find(product.collection_id ?? '');
+      const sent = await this.mailService.sendShareProductViaEmail(
+        payload.to_email,
+        user.email,
+        payload.title,
+        payload.message,
+        getFileURI(product.images[0]) ?? '',
+        brand?.name ?? 'N/A',
+        getFileURI(brand?.logo) ?? '',
+        collection?.name ?? 'N/A',
+        product.name ?? 'N/A'
+      );
+      if (!sent) {
+        return resolve({
+          message: MESSAGES.SEND_EMAIL_WRONG,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.EMAIL_SENT,
+        statusCode: 200,
+      });
+    });
+  }
+
+  public getSharingGroups = (
+    user_id: string
+  ): Promise<CommonTypeResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const sharingGroups = await this.commonTypeModel.getAllByRelationAndType(
+        user.relation_id ?? '',
+        COMMON_TYPES.SHARING_GROUP
+      );
+      return resolve({
+        data: sharingGroups,
+        statusCode: 200,
+      });
+    });
+  };
+  public getSharingPurposes = (
+    user_id: string
+  ): Promise<CommonTypeResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const sharingPurposes = await this.commonTypeModel.getAllByRelationAndType(
+        user.relation_id ?? '',
+        COMMON_TYPES.SHARING_PURPOSE
+      );
+      return resolve({
+        data: sharingPurposes,
         statusCode: 200,
       });
     });

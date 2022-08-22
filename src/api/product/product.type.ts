@@ -178,3 +178,20 @@ export interface IProductAssignToProject {
   project_id: string;
   project_zone_ids: string[];
 }
+
+export interface ShareProductBodyRequest {
+  product_id: string;
+  sharing_group: string;
+  sharing_purpose: string;
+  to_email: string;
+  title: string;
+  message: string;
+}
+
+export interface CommonTypeResponse {
+  data: {
+    id: string;
+    name: string;
+  }[];
+  statusCode: number;
+}

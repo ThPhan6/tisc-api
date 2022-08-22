@@ -204,6 +204,7 @@ export const MESSAGES = {
   },
   SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
   UNIT_TYPE_NOT_FOUND: "Unit type not found",
+  EMAIL_SENT: "Email sent!",
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
@@ -508,3 +509,8 @@ export const SPECIFIED_PRODUCT_STATUS: {
   RE_SPECIFIED: 2,
   SPECIFIED: 3,
 };
+
+export const COMMON_TYPES = {
+  SHARING_GROUP: 1,
+  SHARING_PURPOSE: 2,
+}

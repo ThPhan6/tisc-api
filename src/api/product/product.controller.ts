@@ -4,6 +4,7 @@ import {
   IProductAssignToProject,
   IProductRequest,
   IUpdateProductRequest,
+  ShareProductBodyRequest,
 } from "./product.type";
 
 export default class ProductController {
@@ -109,6 +110,31 @@ export default class ProductController {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.assign(userId, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public shareByEmail = async (
+    req: Request & { payload: ShareProductBodyRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.shareByEmail(payload, userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getSharingGroups = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getSharingGroups(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getSharingPurposes = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getSharingPurposes(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
