@@ -204,6 +204,7 @@ export const MESSAGES = {
   },
   SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
   UNIT_TYPE_NOT_FOUND: "Unit type not found",
+  ACCOUNT_BLOCKED: "Sorry! Your account was blocked.",
 };
 
 export const BASIS_TYPES: {
