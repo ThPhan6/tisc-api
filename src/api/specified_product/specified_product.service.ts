@@ -93,12 +93,12 @@ export default class SpecifiedProductService {
           specifiedProduct?.considered_product_id || ""
         );
         return {
-          id: specifiedProduct?.id,
+          id: product?.id,
           image: product?.images[0],
           brand_name: brand?.name,
           brand_id: brand?.id,
           brand_logo: brand?.logo,
-          product_id: product?.name,
+          specified_product_id: specifiedProduct?.id,
           material_code: specifiedProduct?.material_code,
           specified_description: specifiedProduct?.description,
           status: specifiedProduct?.status,
