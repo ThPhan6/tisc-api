@@ -341,6 +341,7 @@ export default class ProjectService {
       const projects = await this.projectModel.getAllBy(
         {
           design_id: user.relation_id,
+          status: PROJECT_STATUS.LIVE
         },
         ["id", "code", "name"],
         "created_at",
