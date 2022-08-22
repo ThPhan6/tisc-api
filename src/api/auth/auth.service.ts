@@ -51,14 +51,19 @@ class AuthService {
     this.permissionService = new PermissionService();
   }
 
-  private findAccountBrandOrDesignBlocked = async (relation_id: string) => {
-    const foundBrand = await this.brandModel.find(relation_id);
-    const foundDesign = await this.designModel.find(relation_id);
-    if (
-      (foundBrand && foundBrand.status === BRAND_STATUSES.INACTIVE) ||
-      (foundDesign && foundDesign.status === DESIGN_STATUSES.INACTIVE)
-    ) {
-      return true;
+  private findBrandOrDesignInactive = async (
+    type: number,
+    relation_id: string
+  ) => {
+    if (type === SYSTEM_TYPE.BRAND) {
+      const foundBrand = await this.brandModel.find(relation_id);
+      if (foundBrand && foundBrand.status === BRAND_STATUSES.INACTIVE)
+        return MESSAGES.BRAND_INACTIVE_LOGIN;
+    } else {
+      const foundDesign = await this.designModel.find(relation_id);
+      if (foundDesign && foundDesign.status === DESIGN_STATUSES.INACTIVE) {
+        return MESSAGES.DESIGN_INACTIVE_LOGIN;
+      }
     }
     return false;
   };
@@ -135,12 +140,13 @@ class AuthService {
           statusCode: 404,
         });
       }
-      const accountBlocked = await this.findAccountBrandOrDesignBlocked(
+      const brandOrDesignInactive = await this.findBrandOrDesignInactive(
+        user.type,
         user?.relation_id || ""
       );
-      if (accountBlocked) {
+      if (brandOrDesignInactive) {
         return resolve({
-          message: MESSAGES.ACCOUNT_BLOCKED,
+          message: brandOrDesignInactive,
           statusCode: 401,
         });
       }
