@@ -321,6 +321,7 @@ const seed = async (db) => {
           { id: ROUTE_IDS.EDIT_QUOTATION, accessable: true },
           { id: ROUTE_IDS.DELETE_QUOTATION, accessable: true },
           { id: ROUTE_IDS.CREATE_QUOTATION, accessable: true },
+          { id: ROUTE_IDS.GET_LIST_QUOTATION_NOT_AUTH, accessable: true },
         ],
       },
       {
@@ -651,6 +652,7 @@ const seed = async (db) => {
           { id: ROUTE_IDS.EDIT_QUOTATION, accessable: false },
           { id: ROUTE_IDS.DELETE_QUOTATION, accessable: false },
           { id: ROUTE_IDS.CREATE_QUOTATION, accessable: false },
+          { id: ROUTE_IDS.GET_LIST_QUOTATION_NOT_AUTH, accessable: false },
         ],
       },
       {
