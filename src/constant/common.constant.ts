@@ -204,6 +204,7 @@ export const MESSAGES = {
   },
   SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
   UNIT_TYPE_NOT_FOUND: "Unit type not found",
+  EMAIL_SENT: "Email sent!"
 };
 
 export const BASIS_TYPES: {
@@ -505,3 +506,8 @@ export const SPECIFIED_PRODUCT_STATUS: {
   RE_SPECIFIED: 2,
   SPECIFIED: 3,
 };
+
+export const COMMON_TYPES = {
+  SHARING_GROUP: 1,
+  SHARING_PURPOSE: 2,
+}

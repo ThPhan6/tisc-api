@@ -147,6 +147,13 @@ export default {
       option_code: Joi.any(),
       image: Joi.any(),
     }),
-    statusCode: Joi.number(),
+
   }) as any,
+  commonTypes: Joi.object({
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+    }),
+    statusCode: Joi.number(),
+  }),
 };

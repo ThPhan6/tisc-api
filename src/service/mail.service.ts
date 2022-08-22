@@ -202,4 +202,47 @@ export default class MailService {
         .then(() => this.exeAfterSend(resolve));
     });
   }
+
+  public async sendShareProductViaEmail(
+    to: string,
+    from: string,
+    subject: string,
+    message: string,
+    product_image: string,
+    brand_name: string,
+    brand_logo: string,
+    collection_name: string,
+    product_description: string,
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const html = await ejs.renderFile(
+        `${process.cwd()}/src/templates/product-share-by-email.ejs`,
+        {
+          to,
+          from,
+          subject,
+          message,
+          product_image,
+          brand_name,
+          brand_logo,
+          collection_name,
+          product_description,
+        }
+      );
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Global" },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: subject,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
 }

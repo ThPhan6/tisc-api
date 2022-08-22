@@ -595,6 +595,20 @@ const BUILDING_TYPE_NULL_ATTRIBUTES = {
   type: 0,
   relation_id: "",
 };
+
+const COMMON_TYPES_ATTRIBUTES = {
+  id: "",
+  name: "",
+  created_at: "",
+  is_deleted: false,
+  type: 0,
+  relation_id: "",
+};
+const COMMON_TYPES = {
+  SHARING_GROUP: 1,
+  SHARING_PURPOSE: 2,
+};
+
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -622,4 +636,6 @@ module.exports = {
   BUILDING_TYPE_NULL_ATTRIBUTES,
   UNIT_TYPE_NULL_ATTRIBUTES,
   REQUIREMENT_TYPE_NULL_ATTRIBUTES,
+  COMMON_TYPES_ATTRIBUTES,
+  COMMON_TYPES,
 };

@@ -178,6 +178,9 @@ export const ROUTES = {
   GET_BUILDING_TYPES: "/api/project/building-types",
   GET_PRODUCT_OPTIONS: "/api/product/{id}/attribute/{attribute_id}/get-options",
   ASSIGN_PRODUCT_TO_PROJECT: "/api/product/assign",
+  SHARE_PRODUCT_BY_EMAIL: "/api/product/share-via-email",
+  GET_SHARING_GROUPS: "/api/product/sharing-groups",
+  GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",

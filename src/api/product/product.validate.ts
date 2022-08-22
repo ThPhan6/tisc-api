@@ -340,4 +340,26 @@ export default {
       project_zone_ids: Joi.array().items(Joi.string()),
     },
   },
+  shareByEmail: {
+    payload: {
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+      sharing_group: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Sharing Group is required")),
+      sharing_purpose: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Sharing Purpose is required")),
+      to_email: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      title: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Title is required")),
+      message: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Message is required")),
+    },
+  },
 };
