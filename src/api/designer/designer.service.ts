@@ -173,8 +173,9 @@ export default class DesignerService {
         countries = await this.marketAvailabilityService.getRegionCountries(
           distinctCountryIds
         );
-        projects = await this.projectModel.getMany(designFirm.project_ids);
       }
+      projects = await this.projectModel.getAll();
+      
       return resolve({
         data: [
           {
