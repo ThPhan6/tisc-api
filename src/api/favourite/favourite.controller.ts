@@ -24,11 +24,12 @@ export default class FavouriteController {
     req: Request & { payload: RetrieveRequestBody },
     toolkit: ResponseToolkit
   ) => {
-    const { personal_email, mobile } = req.payload;
+    const { personal_email, mobile, phone_code } = req.payload;
     const userId = req.auth.credentials.user_id as string;
     const response = await this.favoriteService.retrieve(
       personal_email,
       mobile,
+      phone_code,
       userId
     );
     return toolkit.response(response).code(response.statusCode ?? 200);

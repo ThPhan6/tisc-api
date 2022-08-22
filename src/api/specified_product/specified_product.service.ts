@@ -31,6 +31,7 @@ import UnitTypeModel, {
 } from "../../model/unit_type.model";
 import UserModel from "../../model/user.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
+import ProductService from "../product/product.service";
 import {
   IInstructionTypesResponse,
   IRequirementTypesResponse,
@@ -39,7 +40,6 @@ import {
   IUnitTypesResponse,
   StatusSpecifiedProductRequest,
 } from "./specified_product.type";
-
 export default class SpecifiedProductService {
   private consideredProductModel: ConsideredProductModel;
   private specifiedProductModel: SpecifiedProductModel;
@@ -55,6 +55,7 @@ export default class SpecifiedProductService {
   private projectZoneModel: ProjectZoneModel;
   private attributeModel: AttributeModel;
   private basisModel: BasisModel;
+  private productService: ProductService;
 
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
@@ -71,6 +72,7 @@ export default class SpecifiedProductService {
     this.projectZoneModel = new ProjectZoneModel();
     this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
+    this.productService = new ProductService();
   }
   private getSpecifiedProducts = async (
     foundConsideredProducts: IConsideredProductAttributes[],
@@ -333,6 +335,17 @@ export default class SpecifiedProductService {
           variant: payload.variant,
         }
       );
+      const assign = await this.productService.assign(user_id, {
+        considered_product_id: payload.considered_product_id,
+        is_entire: payload.is_entire,
+        product_id: consideredProduct.product_id,
+        project_id: consideredProduct.project_id,
+        project_zone_ids: payload.project_zone_ids,
+      });
+      if (assign.statusCode >= 400) {
+        return resolve(assign);
+      }
+
       if (!updatedSpecifiedProduct) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_UPDATE,
