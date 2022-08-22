@@ -216,7 +216,7 @@ export default class ProductModel extends Model<IProductAttributes> {
 
   public getUserFavouriteProducts = async (
     userId: string,
-    order?: "ASC" | "DESC",
+    order: "ASC" | "DESC" = "ASC",
     brandId?: string,
     categoryId?: string
   ): Promise<IProductAttributes[]> => {
