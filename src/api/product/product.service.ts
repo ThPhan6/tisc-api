@@ -1076,6 +1076,12 @@ export default class ProductService {
     payload: IProductAssignToProject
   ): Promise<IMessageResponse> =>
     new Promise(async (resolve) => {
+      if (!payload.is_entire && !payload.project_zone_ids.length) {
+        return resolve({
+          message: MESSAGES.PROJECT_ZONE_MISSING,
+          statusCode: 400,
+        });
+      }
       const product = await this.productModel.find(payload.product_id);
       if (!product) {
         return resolve({
