@@ -27,10 +27,7 @@ import {
   signDesignAdminToken,
   signDesignTeamToken,
 } from "../../helper/jwt.helper";
-import {
-  ROLES,
-  USER_STATUSES,
-} from "../../constant/user.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
 import BrandModel from "../../model/brand.model";
@@ -53,6 +50,23 @@ class AuthService {
     this.designModel = new DesignModel();
     this.permissionService = new PermissionService();
   }
+
+  private findBrandOrDesignInactive = async (
+    type: number,
+    relation_id: string
+  ) => {
+    if (type === SYSTEM_TYPE.BRAND) {
+      const foundBrand = await this.brandModel.find(relation_id);
+      if (foundBrand && foundBrand.status === BRAND_STATUSES.INACTIVE)
+        return MESSAGES.BRAND_INACTIVE_LOGIN;
+    } else {
+      const foundDesign = await this.designModel.find(relation_id);
+      if (foundDesign && foundDesign.status === DESIGN_STATUSES.INACTIVE) {
+        return MESSAGES.DESIGN_INACTIVE_LOGIN;
+      }
+    }
+    return false;
+  };
 
   public tiscLogin = (
     payload: IAdminLoginRequest,
@@ -124,6 +138,16 @@ class AuthService {
         return resolve({
           message: MESSAGES.ACCOUNT_NOT_EXIST,
           statusCode: 404,
+        });
+      }
+      const brandOrDesignInactive = await this.findBrandOrDesignInactive(
+        user.type,
+        user?.relation_id || ""
+      );
+      if (brandOrDesignInactive) {
+        return resolve({
+          message: brandOrDesignInactive,
+          statusCode: 401,
         });
       }
       if (!user.is_verified) {

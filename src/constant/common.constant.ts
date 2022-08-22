@@ -204,6 +204,8 @@ export const MESSAGES = {
   },
   SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
   UNIT_TYPE_NOT_FOUND: "Unit type not found",
+  BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
+  DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
 };
 
 export const BASIS_TYPES: {
