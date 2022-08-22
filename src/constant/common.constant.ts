@@ -206,7 +206,7 @@ export const MESSAGES = {
   UNIT_TYPE_NOT_FOUND: "Unit type not found",
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
-  ASSIGN_MISS_ZONE: "Select space before assigning.",
+  PROJECT_ZONE_MISSING: "Project zone is missing",
 };
 
 export const BASIS_TYPES: {

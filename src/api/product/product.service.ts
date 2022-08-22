@@ -1078,7 +1078,7 @@ export default class ProductService {
     new Promise(async (resolve) => {
       if (!payload.is_entire && !payload.project_zone_ids.length) {
         return resolve({
-          message: MESSAGES.ASSIGN_MISS_ZONE,
+          message: MESSAGES.PROJECT_ZONE_MISSING,
           statusCode: 400,
         });
       }
