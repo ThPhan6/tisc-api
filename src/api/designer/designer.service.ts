@@ -65,9 +65,12 @@ export default class DesignerService {
           let countLive = 0;
           let countOnHold = 0;
           let countArchived = 0;
-          for (const projectId of designer.project_ids) {
-            const project = await this.projectModel.find(projectId);
-            switch (project?.status) {
+
+          const projects = await this.projectModel.getBy({
+            design_id: designer.id,
+          });
+          projects.forEach((project) => {
+            switch (project.status) {
               case PROJECT_STATUS.LIVE:
                 countLive += 1;
                 break;
@@ -80,7 +83,7 @@ export default class DesignerService {
               default:
                 break;
             }
-          }
+          });
           return {
             id: designer.id,
             name: designer.name,
@@ -90,7 +93,7 @@ export default class DesignerService {
             satellites: 1,
             designers: designer.team_profile_ids.length,
             capacities: 1,
-            projects: designer.project_ids.length,
+            projects: projects.length,
             live: countLive,
             on_hold: countOnHold,
             archived: countArchived,
@@ -175,7 +178,7 @@ export default class DesignerService {
         );
       }
       projects = await this.projectModel.getAll();
-      
+
       return resolve({
         data: [
           {
