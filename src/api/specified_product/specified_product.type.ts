@@ -52,7 +52,6 @@ export interface IUnitTypesResponse {
   data: {
     id: string;
     name: string;
-    code: string;
   }[];
   statusCode: number;
 }
