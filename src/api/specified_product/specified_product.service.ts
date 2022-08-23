@@ -228,7 +228,7 @@ export default class SpecifiedProductService {
         considered_product_id: payload.considered_product_id,
       });
 
-      let unitType: any = await this.unitTypeModel.findByNameOrId(
+      let unitType = await this.unitTypeModel.findByNameOrId(
         payload.unit_type_id,
         user.relation_id || ""
       );
@@ -299,7 +299,7 @@ export default class SpecifiedProductService {
           {
             ...SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
             ...payload,
-            unit_type_id: unitType.id,
+            unit_type_id: unitType?.id || "",
             requirement_type_ids: requirementTypeIds,
             instruction_type_ids: getDistinctArray(
               payload.instruction_type_ids
@@ -328,7 +328,7 @@ export default class SpecifiedProductService {
         specifiedProduct.id,
         {
           ...payload,
-          unit_type_id: unitType.id,
+          unit_type_id: unitType?.id,
           requirement_type_ids: requirementTypeIds,
           instruction_type_ids: getDistinctArray(payload.instruction_type_ids),
           status: SPECIFIED_PRODUCT_STATUS.SPECIFIED,

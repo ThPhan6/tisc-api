@@ -23,7 +23,7 @@ export default class UnitTypeModel extends Model<IUnitTypeAttributes> {
   public findByNameOrId = (
     id: string,
     relation_id: string
-  ): Promise<IUnitTypeAttributes | false> => {
+  ): Promise<Partial<IUnitTypeAttributes> | undefined> => {
     try {
       return this.getBuilder()
         .builder.whereNot("is_deleted", true)
@@ -31,7 +31,7 @@ export default class UnitTypeModel extends Model<IUnitTypeAttributes> {
         .whereOr("design_id", [relation_id, ""])
         .first();
     } catch (error) {
-      return Promise.resolve(false);
+      return Promise.resolve(undefined);
     }
   };
 }
