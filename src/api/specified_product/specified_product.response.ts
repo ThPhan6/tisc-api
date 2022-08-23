@@ -33,7 +33,6 @@ export default {
     data: Joi.array().items({
       id: Joi.string(),
       name: Joi.string(),
-      code: Joi.string().allow(""),
     }),
     statusCode: Joi.number(),
   }),

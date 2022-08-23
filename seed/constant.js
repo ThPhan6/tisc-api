@@ -473,7 +473,6 @@ const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
 const UNIT_TYPE_NULL_ATTRIBUTES = {
   id: null,
   name: null,
-  code: null,
   created_at: null,
   is_deleted: false,
   design_id: "0",

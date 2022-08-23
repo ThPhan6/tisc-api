@@ -186,14 +186,14 @@ export default class SpecifiedProductService {
         });
       }
       const rawTypes = await this.unitTypeModel.getAllBy(
-        { design_id: "0" },
-        ["id", "name", "code"],
+        { design_id: "" },
+        ["id", "name"],
         "created_at",
         "ASC"
       );
       const types = await this.unitTypeModel.getAllBy(
         { design_id: user.relation_id },
-        ["id", "name", "code"],
+        ["id", "name"],
         "created_at",
         "ASC"
       );
@@ -228,11 +228,15 @@ export default class SpecifiedProductService {
         considered_product_id: payload.considered_product_id,
       });
 
-      const unitType = await this.unitTypeModel.find(payload.unit_type_id);
+      let unitType: any = await this.unitTypeModel.findByNameOrId(
+        payload.unit_type_id,
+        user.relation_id || ""
+      );
       if (!unitType) {
-        return resolve({
-          message: MESSAGES.UNIT_TYPE_NOT_FOUND,
-          statusCode: 404,
+        unitType = await this.unitTypeModel.create({
+          ...UNIT_TYPE_NULL_ATTRIBUTES,
+          name: payload.unit_type_id,
+          design_id: user.relation_id || "",
         });
       }
       const requirementTypeIds = await Promise.all(
@@ -566,7 +570,7 @@ export default class SpecifiedProductService {
             brand_name: brand?.name,
             product_name: product?.name,
             quantity: specifiedProduct.quantity,
-            unit: unit?.code,
+            unit: unit?.name,
             order_method: specifiedProduct.order_method,
             status: specifiedProduct.status,
             specified_product_id: specifiedProduct.id,
