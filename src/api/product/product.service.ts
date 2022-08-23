@@ -15,7 +15,7 @@ import {
   removeSpecialChars,
 } from "../../helper/common.helper";
 import { toWebp, getFileURI } from "../../helper/image.helper";
-import BrandModel, { IBrandAttributes } from "../../model/brand.model";
+import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
 import UserModel from "../../model/user.model";
 import CommonTypeModel, {DEFAULT_COMMON_TYPE} from "../../model/common_type.model";
@@ -42,7 +42,6 @@ import {
   FavouriteProductsResponse,
   ShareProductBodyRequest,
   CommonTypeResponse,
-  ProductListResponse,
 } from "./product.type";
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
@@ -114,18 +113,6 @@ export default class ProductService {
     }, []);
     return getDistinctArray(rawCategoryIds);
   };
-  private getTotalBrandOfProducts = (products: IProductAttributes[]) => {
-    const brandIds = products.reduce((pre: string[], cur) => {
-      return pre.concat(cur.brand_id || []);
-    }, []);
-    return getDistinctArray(brandIds);
-  };
-  private getTotalCollectionOfProducts = (products: IProductAttributes[]) => {
-    const brandIds = products.reduce((pre: string[], cur) => {
-      return pre.concat(cur.collection_id || []);
-    }, []);
-    return getDistinctArray(brandIds);
-  };
 
   private getUniqueBrands = (products: ProductWithCollectionAndBrand[]) => {
     return products.reduce((res: ProductWithCollectionAndBrand['brand'][], cur) => {
@@ -136,13 +123,12 @@ export default class ProductService {
     }, []);
   }
   private getUniqueCollections = (products: ProductWithCollectionAndBrand[]) => {
-    const collections = products.reduce((res: ProductWithCollectionAndBrand['collection'][], cur) => {
+    return products.reduce((res: ProductWithCollectionAndBrand['collection'][], cur) => {
       if (!res.find((collection) => collection.id === cur.collection.id)) {
         res = res.concat(cur.collection);
       }
       return res;
     }, []);
-    return collections;
   }
 
   public create = (
