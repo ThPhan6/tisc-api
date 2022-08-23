@@ -19,7 +19,7 @@ export default {
         .trim()
         .required()
         .max(250)
-        .error(commonFailValidatedMessageFunction("Message invalid")),
+        .error(commonFailValidatedMessageFunction("Message is missing")),
     },
   },
   getById: {
