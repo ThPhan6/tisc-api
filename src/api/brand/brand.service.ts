@@ -634,7 +634,6 @@ export default class BrandService {
     new Promise(async (resolve) => {
       const allBrand = await this.brandModel.getAll();
       let locations: ILocationAttributes[] = [];
-      let users: IUserAttributes[] = [];
       let countries: {
         id: string;
         name: string;
@@ -645,22 +644,20 @@ export default class BrandService {
       let cards: IProductAttributes[] = [];
       let categories: any[] = [];
       let products: number = 0;
+      let countUser: number = 0;
       for (const brand of allBrand) {
-        users = await this.userModel.getMany(brand.team_profile_ids, [
-          "id",
-          "firstname",
-          "lastname",
-          "role_id",
-          "email",
-          "avatar",
-        ]);
+        const foundUsers = await this.userModel.getMany(
+          brand.team_profile_ids,
+          ["id"]
+        );
+        countUser += foundUsers.length;
+
         const findLocation = await this.locationModel.findBy({
           type: SYSTEM_TYPE.BRAND,
           relation_id: brand.id,
         });
-        if (findLocation) {
-          locations.push(findLocation);
-        }
+        if (findLocation) locations = locations.concat(findLocation);
+
         const locationIds = locations.map((location) => location.id);
         const countryIds = await Promise.all(
           locationIds.map(async (locationId) => {
@@ -673,27 +670,32 @@ export default class BrandService {
           distinctCountryIds
         );
 
-        collections = await this.collectionModel.getBy({
+        const foundCollections = await this.collectionModel.getAllBy({
           brand_id: brand.id,
         });
-        cards = await this.productModel.getBy({
+        if (foundCollections.length)
+          collections = collections.concat(foundCollections);
+
+        const foundCards = await this.productModel.getBy({
           brand_id: brand.id,
         });
-        categories = getDistinctArray(
-          cards.reduce((pre: string[], cur) => {
-            return pre.concat(cur.category_ids);
-          }, [])
-        );
-        products = cards.reduce((pre: number, cur) => {
-          cur.specification_attribute_groups.forEach((group) => {
-            group.attributes.forEach((attribute) => {
-              if (attribute.type === "Options")
-                pre = pre + (attribute.basis_options?.length || 0);
-            });
-          });
-          return pre;
-        }, 0);
+        if (foundCards) cards = cards.concat(foundCards);
       }
+      categories = getDistinctArray(
+        cards.reduce((pre: string[], cur) => {
+          return pre.concat(cur.category_ids);
+        }, [])
+      );
+
+      products = cards.reduce((pre: number, cur) => {
+        cur.specification_attribute_groups.forEach((group) => {
+          group.attributes.forEach((attribute) => {
+            if (attribute.type === "Options")
+              pre = pre + (attribute.basis_options?.length || 0);
+          });
+        });
+        return pre;
+      }, 0);
       return resolve({
         data: [
           {
@@ -708,7 +710,7 @@ export default class BrandService {
               },
               {
                 id: uuidv4(),
-                quantity: users.length,
+                quantity: countUser,
                 label: "Teams",
               },
             ],
@@ -769,7 +771,7 @@ export default class BrandService {
             subs: [
               {
                 id: uuidv4(),
-                quantity: categories.length,
+                quantity: getDistinctArray(categories).length,
                 label: "Categories",
               },
               {
