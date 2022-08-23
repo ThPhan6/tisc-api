@@ -74,6 +74,20 @@ export default class SpecifiedProductService {
     this.basisModel = new BasisModel();
     this.productService = new ProductService();
   }
+  private countStatusSpecifiedProduct = (
+    specified_products: ISpecifiedProductAttributes[]
+  ) => {
+    const countCancelled = specified_products.reduce((result, value) => {
+      return value.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
+        ? result + 1
+        : result;
+    }, 0);
+    const countSpecified = specified_products.length - countCancelled;
+    return {
+      count_cancelled: countCancelled,
+      count_specified: countSpecified,
+    };
+  };
   private getSpecifiedProducts = async (
     foundConsideredProducts: IConsideredProductAttributes[],
     brand_order: SortOrder,
@@ -111,6 +125,8 @@ export default class SpecifiedProductService {
           is_entire: consideredProduct?.is_entire,
           collection_id: product?.collection_id,
           collection_name: collection?.name,
+          product_name: product?.name,
+          product_code: product?.code,
         };
       })
     );
@@ -439,12 +455,8 @@ export default class SpecifiedProductService {
         "name",
         brand_order
       );
-      const specified = specifiedProducts.filter(
-        (item) => item.status === SPECIFIED_PRODUCT_STATUS.SPECIFIED
-      );
-      const cancelled = specifiedProducts.filter(
-        (item) => item.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
-      );
+      const countStatusSpecified =
+        this.countStatusSpecifiedProduct(specifiedProducts);
       const result = await Promise.all(
         brands.map(async (brand) => {
           const brandProducts = products.filter(
@@ -502,11 +514,11 @@ export default class SpecifiedProductService {
           summary: [
             {
               name: "Specified",
-              value: specified.length,
+              value: countStatusSpecified.count_specified,
             },
             {
               name: "Cancelled",
-              value: cancelled.length,
+              value: countStatusSpecified.count_cancelled,
             },
           ],
         },
@@ -559,7 +571,7 @@ export default class SpecifiedProductService {
             product?.collection_id || ""
           );
           return {
-            id: specifiedProduct.id,
+            id: product?.id,
             material_code: specifiedProduct.material_code,
             specified_description: specifiedProduct.description,
             image: product?.images[0],
@@ -589,23 +601,19 @@ export default class SpecifiedProductService {
           brand_order
         );
       }
-      const specified = specifiedProducts.filter(
-        (item) => item.status === SPECIFIED_PRODUCT_STATUS.SPECIFIED
-      );
-      const cancelled = specifiedProducts.filter(
-        (item) => item.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
-      );
+      const countStatusSpecified =
+        this.countStatusSpecifiedProduct(specifiedProducts);
       return resolve({
         data: {
           data: returnSpecifiedProducts,
           summary: [
             {
               name: "Specified",
-              value: specified.length,
+              value: countStatusSpecified.count_specified,
             },
             {
               name: "Cancelled",
-              value: cancelled.length,
+              value: countStatusSpecified.count_cancelled,
             },
           ],
         },
@@ -702,12 +710,8 @@ export default class SpecifiedProductService {
         brand_order,
         specifiedProducts
       );
-      const specified = specifiedProducts.filter(
-        (item) => item.status === SPECIFIED_PRODUCT_STATUS.SPECIFIED
-      );
-      const cancelled = specifiedProducts.filter(
-        (item) => item.status === SPECIFIED_PRODUCT_STATUS.CANCELLED
-      );
+      const countStatusSpecified =
+        this.countStatusSpecifiedProduct(specifiedProducts);
       const result = [
         {
           name: "ENTIRE PROJECT",
@@ -721,11 +725,11 @@ export default class SpecifiedProductService {
           summary: [
             {
               name: "Specified",
-              value: specified.length,
+              value: countStatusSpecified.count_specified,
             },
             {
               name: "Cancelled",
-              value: cancelled.length,
+              value: countStatusSpecified.count_cancelled,
             },
           ],
         },
