@@ -1,4 +1,4 @@
-import { IAttributeGroupHasId, ProductListResponse } from "../api/product/product.type";
+import { IAttributeGroupHasId } from "../api/product/product.type";
 import Model from "./index";
 import { removeUnnecessaryArangoFields } from "../query_builder";
 export interface IProductAttributes {
@@ -231,7 +231,7 @@ export default class ProductModel extends Model<IProductAttributes> {
     order: "ASC" | "DESC" = "ASC",
     brandId?: string,
     categoryId?: string
-  ): Promise<IProductAttributes[]> => {
+  ): Promise<ProductWithCollectionAndBrand[]> => {
     const params = { userId } as any;
     let rawQuery = `
       FOR data IN products
@@ -248,15 +248,33 @@ export default class ProductModel extends Model<IProductAttributes> {
       params.categoryId = categoryId;
     }
 
-    rawQuery += ` SORT data.name ${order} return data`;
+    /// join brands
+    rawQuery += ` FOR brand IN brands
+      FILTER data.brand_id == brand.id
+      FOR collection IN collections
+      FILTER data.collection_id == collection.id
+      SORT data.name ${order}
+      RETURN merge(data, {
+        brand: {
+          id: brand.id,
+          name: brand.name,
+          logo: brand.logo
+        },
+        collection: {
+          id: collection.id,
+          name: collection.name
+        }
+      })
+    `;
+
     let result: any = await this.getBuilder().raw(rawQuery, params);
 
     if (result === false) {
       return [];
     }
-    return result._result.map((product: IProductAttributes) => {
+    return result._result.map((product: ProductWithCollectionAndBrand) => {
       return removeUnnecessaryArangoFields(product);
-    }) as IProductAttributes[];
+    }) as ProductWithCollectionAndBrand[];
   };
 
   public getCustomList = async (

@@ -18,6 +18,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
+          logo: Joi.string(),
         })
       ),
       category_count: Joi.number(),
@@ -35,7 +36,11 @@ export default {
         products: Joi.array().items(
           Joi.object({
             id: Joi.string(),
-            brand: Joi.any(),
+            brand: Joi.object({
+              id: Joi.string(),
+              name: Joi.string(),
+              logo: Joi.string(),
+            }),
             collection: {
               id: Joi.string(),
               name: Joi.string(),

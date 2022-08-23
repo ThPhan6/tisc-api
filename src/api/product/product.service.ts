@@ -1316,11 +1316,10 @@ export default class ProductService {
     new Promise(async (resolve) => {
       const products = await this.productModel.getUserFavouriteProducts(userId);
       const categoryIds = this.getTotalCategoryOfProducts(products);
-      const brandIds = this.getTotalBrandOfProducts(products);
+      const brands = this.getUniqueBrands(products);
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
-      const brands = await this.brandModel.getByIds(brandIds);
       return resolve({
         data: {
           categories,
@@ -1346,27 +1345,24 @@ export default class ProductService {
         brandId,
         categoryId
       );
-      /// collection
-      const collectionIds = this.getTotalCollectionOfProducts(products);
-      const collections = await this.collectionModel.getByIds(collectionIds);
       /// category
-      const categoryIds = this.getTotalCategoryOfProducts(products);
+      let categoryIds = this.getTotalCategoryOfProducts(products);
+      if (categoryId) {
+        categoryIds = [categoryId];
+      }
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
       /// brand
-      const brandIds = this.getTotalBrandOfProducts(products);
-      const brands = await this.brandModel.getByIds(brandIds);
-
       const result = await Promise.all(
-        collections.map(async (collection) => {
-          let collectionProducts = products.filter(
-            (item) => item.collection_id === collection.id
+        categories.map(async (category) => {
+          let categoryProducts = products.filter(
+            (item) => item.category_ids.includes(category.id)
           );
 
           /// format product data
           const responseProducts = await Promise.all(
-            collectionProducts.map(async (product) => {
+            categoryProducts.map(async (product) => {
               const {
                 is_deleted,
                 collection_id,
@@ -1374,9 +1370,6 @@ export default class ProductService {
                 category_ids,
                 ...rest
               } = product;
-              const productBrand = brands.find(
-                (brand) => brand.id === brand_id
-              );
               const productCategories: { id: string; name: string }[] = [];
               category_ids.forEach((categoryId) => {
                 const category = categories.find(
@@ -1390,16 +1383,14 @@ export default class ProductService {
                 ...rest,
                 favorites: product.favorites.length,
                 is_liked: true,
-                brand: productBrand,
-                collection,
                 categories: productCategories,
               };
             })
           );
           //// grouped by collection
           return {
-            ...collection,
-            count: collectionProducts.length,
+            ...category,
+            count: categoryProducts.length,
             products: responseProducts,
           };
         })
