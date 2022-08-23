@@ -80,15 +80,27 @@ export default class UserService {
       }
       // check role id
       if (
-        (currentUser.type === SYSTEM_TYPE.TISC &&
-          (payload.role_id !== ROLES.TISC_ADMIN ||
-            payload.role_id !== ROLES.TISC_CONSULTANT_TEAM)) ||
-        (currentUser.type === SYSTEM_TYPE.BRAND &&
-          (payload.role_id !== ROLES.BRAND_ADMIN ||
-            payload.role_id !== ROLES.BRAND_TEAM)) ||
-        (currentUser.type === SYSTEM_TYPE.DESIGN &&
-          (payload.role_id !== ROLES.DESIGN_ADMIN ||
-            payload.role_id !== ROLES.DESIGN_TEAM))
+        (
+          currentUser.type === SYSTEM_TYPE.TISC &&
+          (
+            payload.role_id !== ROLES.TISC_ADMIN &&
+            payload.role_id !== ROLES.TISC_CONSULTANT_TEAM
+          )
+        ) ||
+        (
+          currentUser.type === SYSTEM_TYPE.BRAND &&
+          (
+            payload.role_id !== ROLES.BRAND_ADMIN &&
+            payload.role_id !== ROLES.BRAND_TEAM
+          )
+        ) ||
+        (
+          currentUser.type === SYSTEM_TYPE.DESIGN &&
+          (
+            payload.role_id !== ROLES.DESIGN_ADMIN &&
+            payload.role_id !== ROLES.DESIGN_TEAM
+          )
+        )
       ) {
         return resolve({
           message: MESSAGES.CANNOT_UPDATE_TO_OTHER_ROLE,
