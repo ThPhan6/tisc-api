@@ -1,4 +1,4 @@
-import { IAttributeGroupHasId } from "../api/product/product.type";
+import { IAttributeGroupHasId, ProductListResponse } from "../api/product/product.type";
 import Model from "./index";
 import { removeUnnecessaryArangoFields } from "../query_builder";
 export interface IProductAttributes {
@@ -20,6 +20,18 @@ export interface IProductAttributes {
   created_at: string;
   created_by: string;
   is_deleted: boolean;
+}
+
+export interface ProductWithCollectionAndBrand extends IProductAttributes {
+  collection: {
+    id: string;
+    name: string;
+  };
+  brand: {
+    id: string;
+    name: string;
+    logo: string;
+  }
 }
 
 export const PRODUCT_NULL_ATTRIBUTES = {
@@ -245,5 +257,56 @@ export default class ProductModel extends Model<IProductAttributes> {
     return result._result.map((product: IProductAttributes) => {
       return removeUnnecessaryArangoFields(product);
     }) as IProductAttributes[];
+  };
+
+  public getCustomList = async (
+    keyword?: string,
+    sort_name?: string,
+    sort_order: "ASC" | "DESC" = "ASC",
+    brandId?: string,
+    categoryId?: string
+  ): Promise<ProductWithCollectionAndBrand[]> => {
+    const params = {} as any;
+    let rawQuery = ` FOR data IN products `;
+    if (brandId) {
+      rawQuery += ` FILTER data.brand_id == @brandId `;
+      params.brandId = brandId;
+    }
+    if (categoryId) {
+      rawQuery += ` FOR categoryId IN data.category_ids
+        FILTER categoryId == @categoryId `;
+      params.categoryId = categoryId;
+    }
+    if (keyword) {
+      rawQuery += ` FILTER data.name like concat('%',@${keyword}, '%') `;
+      params.keyword = keyword;
+    }
+    if (sort_name && sort_order) {
+      rawQuery += ` SORT data.${sort_name} ${sort_order} `;
+    }
+    /// join brands
+    rawQuery += ` FOR brand IN brands
+      FILTER data.brand_id == brand.id
+      FOR collection IN collections
+      FILTER data.collection_id == collection.id
+      RETURN merge(data, {
+        brand: {
+          id: brand.id,
+          name: brand.name,
+          logo: brand.logo
+        },
+        collection: {
+          id: collection.id,
+          name: collection.name
+        }
+      })
+    `;
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result === false) {
+      return [];
+    }
+    return result._result.map((product: ProductWithCollectionAndBrand) => {
+      return removeUnnecessaryArangoFields(product);
+    }) as ProductWithCollectionAndBrand[];
   };
 }

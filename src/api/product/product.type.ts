@@ -1,3 +1,4 @@
+import {ProductWithCollectionAndBrand} from '../../model/product.model';
 export interface IProduct {
   id: string;
   brand: any;
@@ -96,11 +97,6 @@ export interface IProductsResponse {
   };
   statusCode: number;
 }
-export interface IDesignerProductsResponse {
-  data: any[];
-  brand_summary?: any;
-  statusCode: number;
-}
 
 export interface IRestCollectionProductsResponse {
   data: {
@@ -193,5 +189,29 @@ export interface CommonTypeResponse {
     id: string;
     name: string;
   }[];
+  statusCode: number;
+}
+
+
+export interface ProductListResponse extends Omit<ProductWithCollectionAndBrand, 'favorites'| 'is_deleted'> {
+  is_liked: boolean;
+  favorites: number;
+}
+
+export interface IDesignerProductsResponse {
+  data: {
+    id?: string;
+    name?: string;
+    brand_logo?: string;
+    count: number;
+    products: ProductListResponse[];
+  }[];
+  brand_summary?: {
+    brand_name: string;
+    brand_logo: string;
+    collection_count: number;
+    card_count: number;
+    product_count: number;
+  };
   statusCode: number;
 }

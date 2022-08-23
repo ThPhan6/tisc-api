@@ -21,6 +21,7 @@ import UserModel from "../../model/user.model";
 import CommonTypeModel, {DEFAULT_COMMON_TYPE} from "../../model/common_type.model";
 import ProductModel, {
   IProductAttributes,
+  ProductWithCollectionAndBrand,
   PRODUCT_NULL_ATTRIBUTES,
 } from "../../model/product.model";
 import { deleteFile, isExists, upload } from "../../service/aws.service";
@@ -41,6 +42,7 @@ import {
   FavouriteProductsResponse,
   ShareProductBodyRequest,
   CommonTypeResponse,
+  ProductListResponse,
 } from "./product.type";
 import BasisService from "../../api/basis/basis.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
@@ -88,8 +90,12 @@ export default class ProductService {
     this.commonTypeModel = new CommonTypeModel();
   }
 
-  private getTotalVariantOfProducts = (products: IProductAttributes[]) => {
-    return products.reduce((pre: string[], cur) => {
+  private getTotalVariantOfProducts = (
+    products: IProductAttributes[] | ProductWithCollectionAndBrand[] = []
+  ) => {
+    return [...products].reduce(
+      (pre: string[], cur
+    ) => {
       let temp: any = [];
       cur.specification_attribute_groups.forEach((group) => {
         group.attributes.forEach((attribute) => {
@@ -120,6 +126,24 @@ export default class ProductService {
     }, []);
     return getDistinctArray(brandIds);
   };
+
+  private getUniqueBrands = (products: ProductWithCollectionAndBrand[]) => {
+    return products.reduce((res: ProductWithCollectionAndBrand['brand'][], cur) => {
+      if (!res.find((brand) => brand.id === cur.brand.id)) {
+        res = res.concat(cur.brand);
+      }
+      return res;
+    }, []);
+  }
+  private getUniqueCollections = (products: ProductWithCollectionAndBrand[]) => {
+    const collections = products.reduce((res: ProductWithCollectionAndBrand['collection'][], cur) => {
+      if (!res.find((collection) => collection.id === cur.collection.id)) {
+        res = res.concat(cur.collection);
+      }
+      return res;
+    }, []);
+    return collections;
+  }
 
   public create = (
     user_id: string,
@@ -806,141 +830,91 @@ export default class ProductService {
       });
     });
   };
+
   public getListDesignerBrandProducts = (
     user_id: string,
-    brand_id: any,
-    category_id: any,
-    name?: string,
+    brand_id?: string,
+    category_id?: string,
+    keyword?: string,
     sort?: string,
-    order?: "ASC" | "DESC"
+    order: "ASC" | "DESC" = 'ASC'
   ): Promise<IMessageResponse | IDesignerProductsResponse> => {
     return new Promise(async (resolve) => {
-      let products: IProductAttributes[] = [];
-      let summary;
-      let foundBrand: IBrandAttributes | undefined;
-      let returnData: any[] = [];
-      if (!category_id && !brand_id) {
-        brand_id = "all";
-      }
-      if (category_id) {
-        products = await this.productModel.getAllByAndNameLikeAndCategory(
-          {},
-          category_id,
-          undefined,
-          sort,
-          order,
-          name
-        );
-        const brandIds = getDistinctArray(
-          products.map((product) => product.brand_id)
-        );
-
-        const brands = await this.brandModel.getManyOrder(
-          brandIds,
-          ["id", "name", "logo"],
-          "name",
-          "ASC"
-        );
+      let returnData: IDesignerProductsResponse['data'] = [];
+      const products = await this.productModel.getCustomList(
+        keyword,
+        sort,
+        order,
+        brand_id,
+        category_id
+      );
+      const brands = this.getUniqueBrands(products);
+      const collections = this.getUniqueCollections(products);
+      if (category_id || !brand_id) {
         returnData = brands.map((brand) => {
-          const brandProducts = products.filter(
-            (item) => item.brand_id === brand.id
-          );
+          const brandProducts = products.filter((item) => item.brand_id === brand.id);
           const { logo, ...rest } = brand;
           return {
             ...rest,
             brand_logo: logo,
             count: brandProducts.length,
-            products: brandProducts,
+            products: brandProducts.map((product) => {
+              const { is_deleted, ...rest } = product;
+              return {
+                ...rest,
+                brand_name: product.brand.name,
+                favorites: product.favorites?.length ?? 0,
+                is_liked: product.favorites?.includes(user_id) ?? false,
+              }
+            }),
           };
         });
       }
+
       if (brand_id) {
-        foundBrand = await this.brandModel.find(brand_id);
-        summary = await this.getBrandProductSummary(brand_id);
-        products = await this.productModel.getAllByAndNameLike(
-          {},
-          undefined,
-          sort,
-          order,
-          name
-        );
-        if (brand_id === "all") {
-          const brands = await this.brandModel.getAllBy(
-            {},
-            ["id", "name"],
-            "created_at",
-            "ASC"
+        returnData = collections.map((collection) => {
+          const collectionProducts = products.filter(
+            (item) => item.collection_id === collection.id
           );
-          returnData = brands.map((brand) => {
-            const brandProducts = products.filter(
-              (item) => item.brand_id === brand.id
-            );
-            return {
-              ...brand,
-              count: brandProducts.length,
-              products: brandProducts,
-            };
-          });
-        } else {
-          const collections = await this.collectionModel.getAllBy(
-            { brand_id },
-            ["id", "name"],
-            "name",
-            "ASC"
-          );
-          returnData = collections.map((collection) => {
-            const collectionProducts = products.filter(
-              (item) => item.collection_id === collection.id
-            );
-            return {
-              ...collection,
-              count: collectionProducts.length,
-              products: collectionProducts,
-            };
-          });
-        }
-      }
-      returnData = await Promise.all(
-        returnData
-          .filter((item) => item.products.length !== 0)
-          .map(async (item) => {
-            const returnProducts = await Promise.all(
-              item.products?.map(async (product: any) => {
-                const { is_deleted, ...rest } = product;
-                const brand = await this.brandModel.find(rest.band_id);
-                return {
-                  ...rest,
-                  brand_name: brand?.name,
-                  favorites: product.favorites?.length,
-                  is_liked: product.favorites?.includes(user_id),
-                };
-              })
-            );
-            return {
-              ...item,
-              products: returnProducts,
-            };
-          })
-      );
-      if (brand_id !== "all" && brand_id) {
-        return resolve({
-          data: returnData,
-          brand_summary: {
-            brand_name: foundBrand?.name,
-            brand_logo: foundBrand?.logo,
-            collection_count: summary?.data.collection_count,
-            card_count: summary?.data.card_count,
-            product_count: summary?.data.product_count,
-          },
-          statusCode: 200,
+          return {
+            ...collection,
+            count: collectionProducts.length,
+            products: collectionProducts.map((product) => {
+              const { is_deleted, ...rest } = product;
+              return {
+                ...rest,
+                brand_name: product.brand.name,
+                favorites: product.favorites?.length ?? 0,
+                is_liked: product.favorites?.includes(user_id) ?? false,
+              }
+            }),
+          };
         });
       }
-      return resolve({
-        data: returnData,
+      const response: IDesignerProductsResponse = {
+        data: returnData
+          .filter((item) => item.products.length !== 0),
         statusCode: 200,
-      });
+      }
+
+      if (brand_id) { /// brand summary
+        const variants = this.getTotalVariantOfProducts(products);
+        const brand = await this.brandModel.find(brand_id);
+        if (brand) {
+          response.brand_summary =  {
+            brand_name: brand.name,
+            brand_logo: brand.logo ?? '',
+            collection_count: collections.length,
+            card_count: products.length,
+            product_count: variants.length,
+          };
+        }
+      }
+      return resolve(response);
     });
   };
+
+
   public delete = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const product = await this.productModel.find(id);
