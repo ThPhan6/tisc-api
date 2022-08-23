@@ -135,49 +135,23 @@ export default class DesignerService {
     });
   };
 
-  public getAllDesignSummary = (): Promise<IDesignSummary> => {
+  public getAllDesignSummary = (): Promise<IDesignSummary | any> => {
     return new Promise(async (resolve) => {
       const allDesignFirm = await this.designerModel.getAll();
-      let users: IUserAttributes[] = [];
-      let locations: ILocationAttributes[] = [];
-      let countries: {
-        id: string;
-        name: string;
-        phone_code: string;
-        region: string;
-      }[] = [];
-      let projects: IProjectAttributes[] = [];
-      for (const designFirm of allDesignFirm) {
-        users = await this.userModel.getMany(designFirm.team_profile_ids, [
-          "id",
-          "firstname",
-          "lastname",
-          "role_id",
-          "email",
-          "avatar",
-        ]);
 
-        const findLocation = await this.locationModel.findBy({
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: designFirm.id,
-        });
-        if (findLocation) {
-          locations.push(findLocation);
-        }
+      const countDesigner = allDesignFirm.reduce((pre: number, cur) => {
+        return cur.team_profile_ids ? pre + cur.team_profile_ids.length : pre;
+      }, 0);
 
-        const locationIds = locations.map((location) => location.id);
-        const countryIds = await Promise.all(
-          locationIds.map(async (locationId) => {
-            const location = await this.locationModel.find(locationId);
-            return location?.country_id || "";
-          })
-        );
-        const distinctCountryIds = getDistinctArray(countryIds);
-        countries = await this.marketAvailabilityService.getRegionCountries(
-          distinctCountryIds
-        );
-      }
-      projects = await this.projectModel.getAll();
+      const locations = await this.locationModel.getLocationDesign();
+
+      const originLocationIds = await this.locationModel.getOriginCountry();
+
+      const countries = await this.marketAvailabilityService.getRegionCountries(
+        getDistinctArray(originLocationIds)
+      );
+
+      const projects = await this.projectModel.getAll();
 
       return resolve({
         data: [
@@ -193,7 +167,7 @@ export default class DesignerService {
               },
               {
                 id: uuidv4(),
-                quantity: users.length,
+                quantity: countDesigner,
                 label: "Designers",
               },
             ],
