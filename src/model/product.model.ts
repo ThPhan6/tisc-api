@@ -235,6 +235,7 @@ export default class ProductModel extends Model<IProductAttributes> {
     const params = { userId } as any;
     let rawQuery = `
       FOR data IN products
+        FILTER data.is_deleted == false
         FOR userId IN data.favorites
           FILTER userId == @userId
     `;
@@ -285,7 +286,7 @@ export default class ProductModel extends Model<IProductAttributes> {
     categoryId?: string
   ): Promise<ProductWithCollectionAndBrand[]> => {
     const params = {} as any;
-    let rawQuery = ` FOR data IN products `;
+    let rawQuery = ` FOR data IN products FILTER data.is_deleted == false `;
     if (brandId) {
       rawQuery += ` FILTER data.brand_id == @brandId `;
       params.brandId = brandId;
