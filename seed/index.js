@@ -1,8 +1,13 @@
 const { Database } = require("arangojs");
 const dotenv = require("dotenv");
-// const seedUnitType = require("./unit_type.seed").seed;
-// const seedRequirementType = require("./requirement_type.seed").seed;
+const seedUnitType = require("./unit_type.seed").seed;
+const seedRequirementType = require("./requirement_type.seed").seed;
 const commonTypes = require("./common_type.seed").seed;
+const seedRole = require("./role.seed").seed;
+const seedDocument = require("./documentation.seed").seed;
+const seedInstructionType = require("./instruction_type.seed").seed;
+const seedAutoEmail = require("./auto_email").seed;
+const seedCategory = require("./category.seed").seed;
 
 dotenv.config();
 
@@ -14,8 +19,13 @@ db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
   await commonTypes(db);
-  // await seedRequirementType(db);
-  // await seedInstructionType(db);
+  await seedRequirementType(db);
+  await seedInstructionType(db);
+  await seedUnitType(db);
+  await seedRole(db);
+  await seedDocument(db);
+  await seedAutoEmail(db);
+  await seedCategory(db);
 };
 
 seed();
