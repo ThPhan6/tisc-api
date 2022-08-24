@@ -50,6 +50,6 @@
     "create_db": "node migration/create_database",
     "seed": "node seed/index",
     "migrate": "node migration/index",
-    "test": "nyc -x \"**/tests/**\" --reporter=html mocha test"
+    "test": "nyc -x \"**/tests/test phase /**\" --reporter=html mocha test"
   }
 }
