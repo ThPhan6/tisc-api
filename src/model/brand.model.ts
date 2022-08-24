@@ -62,4 +62,35 @@ export default class BrandModel extends Model<IBrandAttributes> {
       return [];
     }
   };
+
+  public summaryUserAndLocation = async (
+    brand_id?: string | null,
+    type?: 'user' | 'location'
+  ) => {
+    const params = {} as any;
+    let rawQuery = `FOR brand in brands `;
+    if (brand_id) {
+      rawQuery += ` FILTER brand.id == @brandId `;
+      params.brandId = brand_id;
+    }
+
+    if (type === 'user') {
+      rawQuery += ` FOR user in users
+        FILTER user.relation_id == brand.id
+        FILTER user.is_deleted == false `;
+    }
+    if (type === 'location') {
+      rawQuery += ` FOR location in locations
+        FILTER location.relation_id == brand.id
+        FILTER location.is_deleted == false `;
+    }
+    // FILTER LOWER(country.region) == 'asia'
+    rawQuery += `COLLECT WITH COUNT INTO length RETURN {count: length}`;
+
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result._result && result._result[0] && result._result[0].count) {
+      return result._result[0].count as number;
+    }
+    return 0;
+  }
 }
