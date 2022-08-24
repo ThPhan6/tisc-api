@@ -213,6 +213,8 @@ export default class MailService {
     brand_logo: string,
     collection_name: string,
     product_description: string,
+    sender: string,
+    product_url: string,
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
@@ -227,6 +229,8 @@ export default class MailService {
           brand_logo,
           collection_name,
           product_description,
+          sender,
+          product_url,
         }
       );
       this.sendSmtpEmail = {

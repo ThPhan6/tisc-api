@@ -1,9 +1,10 @@
-import { SPECIFIED_PRODUCT_STATUS } from "./../constant/common.constant";
+import {
+  SPECIFIED_PRODUCT_STATUS,
+  CONSIDERED_PRODUCT_STATUS
+} from "./../constant/common.constant";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { CONSIDERED_PRODUCT_STATUS } from "../constant/common.constant";
 import { ROLES } from "../constant/user.constant";
-
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
     return values.indexOf(item) != idx;

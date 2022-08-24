@@ -1391,6 +1391,9 @@ export default class ProductService {
   public shareByEmail = (payload: ShareProductBodyRequest, user_id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
+      // const toUser = await this.userModel.findBy({
+      //   email: payload.to_email,
+      // })
       if (!user) {
         return resolve({
           statusCode: 404,
@@ -1445,7 +1448,9 @@ export default class ProductService {
         brand?.name ?? 'N/A',
         getFileURI(brand?.logo) ?? '',
         collection?.name ?? 'N/A',
-        product.name ?? 'N/A'
+        product.name ?? 'N/A',
+        `${user.firstname ?? ''} ${user.lastname ?? ''}`,
+        ''
       );
       if (!sent) {
         return resolve({
