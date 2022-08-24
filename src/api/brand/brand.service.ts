@@ -102,10 +102,15 @@ export default class BrandService {
           const foundStatus = BRAND_STATUS_OPTIONS.find(
             (item) => item.value === brand.status
           );
-          const users = await this.userModel.getBy({
+          const users = await this.userModel.getAllBy({
             type: SYSTEM_TYPE.BRAND,
             relation_id: brand.id,
-          });
+          }, ["id", "firstname", "lastname", "role_id", "email", "avatar"]);
+          const assignTeams = await this.userModel.getMany(
+            brand.team_profile_ids,
+            ["id", "firstname", "lastname", "role_id", "email", "avatar"]
+          );
+
           const locations = await this.locationModel.getBy({
             type: SYSTEM_TYPE.BRAND,
             relation_id: brand.id,
@@ -156,7 +161,7 @@ export default class BrandService {
             collections: collections.length,
             cards: cards.length,
             products: products,
-            assign_team: users,
+            assign_team: assignTeams,
             status: brand.status,
             status_key: foundStatus?.key,
             created_at: brand.created_at,
