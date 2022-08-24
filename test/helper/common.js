@@ -20,6 +20,34 @@ function designBrandLogin(email, password) {
   });
 }
 
+// async function insertCollection(brandId) {
+//   return new Promise(resolve => {
+//     const collection = await db.query({
+//       query: `INSERT ({
+//                   id : "${uuid()}",
+//                   name: "Collection",
+//                   brand_id: "${brandId}"
+//                 }) INTO @@model RETURN NEW`,
+//       bindVars: {
+//         "@model": "collections",
+//       },
+//     });
+//      resolve( collection._result[0].id);
+//   })
+// }
+
+// (async function getBrandId() {
+//   const brand = await db.query({
+//     query: `FOR data in @@model return data`,
+//     bindVars: {
+//       "@model": "brands",
+//     },
+//   });
+//   brandId = brand._result[0].id;
+//   insertCollection(brandId);
+//   return true;
+// })();
+
 module.exports = {
   designBrandLogin,
 };

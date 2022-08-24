@@ -1,10 +1,13 @@
-const dotenv = require("dotenv");
-dotenv.config();
-const chai = require("chai");
-const chaiHttp = require("chai-http");
-const should = chai.should();
-chai.use(chaiHttp);
-const HOST_URL = process.env.API_URL;
+const {
+  chaiResponse,
+  chai,
+  chaiHttp,
+  should,
+  HOST_URL,
+  tiscAdminToken,
+  Database,
+  db,
+} = require("./utils/utils");
 
 let email = "unit-test-phase3@yopmail.com";
 let password = "Unittest@123";
