@@ -8,6 +8,7 @@ const seedDocument = require("./documentation.seed").seed;
 const seedInstructionType = require("./instruction_type.seed").seed;
 const seedAutoEmail = require("./auto_email").seed;
 const seedCategory = require("./category.seed").seed;
+const seedBasis = require("./category.seed").seed;
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ const seed = async () => {
   await seedDocument(db);
   await seedAutoEmail(db);
   await seedCategory(db);
+  await seedBasis(db);
 };
 
 seed();
