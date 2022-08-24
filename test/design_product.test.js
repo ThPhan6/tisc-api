@@ -27,7 +27,7 @@ async function insertProduct() {
           "222e3a92-7718-4977-b9b4-7a4d2b964aeb",
           "29cc80fc-16c7-433c-9572-99e70dd327eb"
         ],
-        "name": "Product stuck - copy - copy - copy",
+        "name": "Product Unit Test",
         "code": "random",
         "description": "product for green group ",
         "general_attribute_groups": [
