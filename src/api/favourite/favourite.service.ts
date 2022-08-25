@@ -53,19 +53,24 @@ export default class FavouriteService {
     userId: string
   ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
-      const user = await this.userModel.getInactiveDesignFirmByBackupData(
+      const backupUser = await this.userModel.getInactiveDesignFirmByBackupData(
         backupEmail,
         personalMobile
       );
-      const location = await this.locationModel.find(user?.location_id || "");
+      const currentUser = await this.userModel.find(userId);
+      const location = await this.locationModel.find(backupUser?.location_id || "");
 
-      if (!user || (location && location.phone_code !== phone_code)) {
+      if (
+        !backupUser ||
+        !currentUser ||
+        (location && location.phone_code !== phone_code)
+      ) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 400,
         });
       }
-      if (user.retrieve_favourite) {
+      if (currentUser.retrieve_favourite) {
         return resolve({
           message: MESSAGES.FAVOURITE.ALREADY_RETRIEVED,
           statusCode: 400,
@@ -73,7 +78,7 @@ export default class FavouriteService {
       }
       ///
       const previousLikedProducts =
-        await this.productModel.getUserFavouriteProducts(user.id);
+        await this.productModel.getUserFavouriteProducts(backupUser.id);
       ///
       await Promise.all(
         previousLikedProducts.map(async (product) => {

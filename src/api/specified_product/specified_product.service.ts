@@ -201,20 +201,16 @@ export default class SpecifiedProductService {
           statusCode: 200,
         });
       }
-      const rawTypes = await this.unitTypeModel.getAllBy(
-        { design_id: "" },
-        ["id", "name"],
-        "created_at",
-        "ASC"
-      );
-      const types = await this.unitTypeModel.getAllBy(
-        { design_id: user.relation_id },
-        ["id", "name"],
-        "created_at",
-        "ASC"
-      );
+      const types = await this.unitTypeModel.getCustomList(user.relation_id ?? '');
+      /// not applicable alway on top
+      const notApplicableIndex = types.findIndex((type) => type.name === 'Not Applicable');
+      let notApplicable = [] as {id: string; name: string}[];
+      if (notApplicableIndex > -1) {
+        notApplicable = types.splice(notApplicableIndex, 1);
+      }
+      //
       return resolve({
-        data: rawTypes.concat(types),
+        data: [...notApplicable, ...types],
         statusCode: 200,
       });
     });

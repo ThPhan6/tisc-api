@@ -189,7 +189,12 @@ export default class ConsideredProductService {
         },
       ].concat(newProjectZones as any);
       const consideredCount = consideredProducts.reduce((pre, cur) => {
-        if (cur.status === CONSIDERED_PRODUCT_STATUS.CONSIDERED) return pre + 1;
+        if (
+          cur.status === CONSIDERED_PRODUCT_STATUS.CONSIDERED ||
+          cur.status === CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED
+        ) {
+          return pre + 1;
+        };
         return pre;
       }, 0);
       const unlistedCount = consideredProducts.reduce((pre, cur) => {
