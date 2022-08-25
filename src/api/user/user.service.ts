@@ -741,6 +741,7 @@ export default class UserService {
       }
       const users = await this.userModel.getAllBy({
         type: SYSTEM_TYPE.TISC,
+        status: USER_STATUSES.ACTIVE
       });
 
       const groupTiscTeams = users.filter(
