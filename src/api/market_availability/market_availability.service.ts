@@ -15,8 +15,6 @@ import {
 import DistributorModel from "../../model/distributor.model";
 import BrandModel from "../../model/brand.model";
 import { getDistinctArray } from "../../helper/common.helper";
-import { resolve } from "path";
-import { x } from "joi";
 export default class MarketAvailabilityService {
   private marketAvailabilityModel: MarketAvailabilityModel;
   private countryStateCityService: CountryStateCityService;
@@ -320,16 +318,18 @@ export default class MarketAvailabilityService {
       const result = marketAvailabilities.map(
         (marketAvailability: IMarketAvailabilityResponse) => {
           let countRegion = 0;
-          const regions = marketAvailability.data.regions.map((region) => {
-            countRegion += region.count;
-            const regionCountry = region.countries
+          const regions = marketAvailability.data.regions
+          .map((region) => {
+            const availableCountries = region.countries.filter((country) => country.available === true);
+            countRegion += availableCountries.length;
+            const regionCountry = availableCountries
               .map((country) => {
                 return country.name;
               })
               .join(", ");
             return {
               region_name: region.name,
-              count: region.countries.length,
+              count: availableCountries.length,
               region_country: regionCountry,
             };
           });
