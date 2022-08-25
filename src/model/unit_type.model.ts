@@ -34,4 +34,17 @@ export default class UnitTypeModel extends Model<IUnitTypeAttributes> {
       return Promise.resolve(undefined);
     }
   };
+  public getCustomList = (
+    relation_id: string
+  ): Promise<Pick<IUnitTypeAttributes, 'id' | 'name'>[]> => {
+    try {
+      return this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .whereOr("design_id", [relation_id, ""])
+        .orderBy('name', 'ASC')
+        .select(['id', 'name']);
+    } catch (error) {
+      return Promise.resolve([]);
+    }
+  };
 }
