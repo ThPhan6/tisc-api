@@ -194,6 +194,7 @@ export const MESSAGES = {
   CONSIDERED_PRODUCT_NOT_FOUND: "Considered product not found",
   DESIGN_NOT_FOUND: "Design not found",
   CONSIDER_PRODUCT_NOT_FOUND: "Consider product not found",
+  PRODUCT_WAS_SPECIFIED_ALREADY: "Can not remove because product was specified",
   FAVOURITE: {
     ALREADY_SKIPPED: "You skipped already",
     ALREADY_RETRIEVED: "You retrieved already",

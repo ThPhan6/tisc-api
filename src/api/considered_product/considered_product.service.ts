@@ -16,6 +16,7 @@ import ProductModel from "../../model/product.model";
 import ProjectModel from "../../model/project.model";
 import ProjectZoneModel from "../../model/project_zone.model";
 import UserModel from "../../model/user.model";
+import SpecifiedProductModel from "../../model/specified_product.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 import {
   IConsideredProductsResponse,
@@ -30,9 +31,11 @@ export default class ConsideredProductService {
   private brandModel: BrandModel;
   private collectionModel: CollectionModel;
   private userModel: UserModel;
+  private specifiedProductModel: SpecifiedProductModel;
 
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
+    this.specifiedProductModel = new SpecifiedProductModel();
     this.projectZoneModel = new ProjectZoneModel();
     this.projectModel = new ProjectModel();
     this.productModel = new ProductModel();
@@ -328,6 +331,16 @@ export default class ConsideredProductService {
           statusCode: 404,
         });
       }
+      const specifiedProduct = await this.specifiedProductModel.find(
+        considered_product_id
+      );
+      if (specifiedProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_WAS_SPECIFIED_ALREADY,
+          statusCode: 400,
+        });
+      }
+
       const updatedConsiderProduct = await this.consideredProductModel.update(
         considered_product_id,
         {
