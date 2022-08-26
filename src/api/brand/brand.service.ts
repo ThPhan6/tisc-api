@@ -24,7 +24,7 @@ import DistributorModel from "../../model/distributor.model";
 import FunctionalTypeModel from "../../model/functional_type.model";
 import LocationModel, { ILocationAttributes } from "../../model/location.model";
 import ProductModel, { IProductAttributes } from "../../model/product.model";
-import UserModel, {USER_NULL_ATTRIBUTES} from "../../model/user.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import { deleteFile, upload } from "../../service/aws.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
 import MailService from "../../service/mail.service";
@@ -102,10 +102,13 @@ export default class BrandService {
           const foundStatus = BRAND_STATUS_OPTIONS.find(
             (item) => item.value === brand.status
           );
-          const users = await this.userModel.getAllBy({
-            type: SYSTEM_TYPE.BRAND,
-            relation_id: brand.id,
-          }, ["id", "firstname", "lastname", "role_id", "email", "avatar"]);
+          const users = await this.userModel.getAllBy(
+            {
+              type: SYSTEM_TYPE.BRAND,
+              relation_id: brand.id,
+            },
+            ["id", "firstname", "lastname", "role_id", "email", "avatar"]
+          );
           const assignTeams = await this.userModel.getMany(
             brand.team_profile_ids,
             ["id", "firstname", "lastname", "role_id", "email", "avatar"]
@@ -333,7 +336,10 @@ export default class BrandService {
       });
     });
   };
-  public invite = (id: string): Promise<IMessageResponse> => {
+  public invite = (
+    current_user_id: string,
+    id: string
+  ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const brand = await this.brandModel.find(id);
       if (!brand) {
@@ -348,14 +354,15 @@ export default class BrandService {
           statusCode: 400,
         });
       }
+      const inviteUser = await this.userModel.find(current_user_id);
       const user = await this.userModel.getFirstBrandAdmin(brand.id);
-      if (!user) {
+      if (!user || !inviteUser) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
-      await this.mailService.sendRegisterEmail(user);
+      await this.mailService.sendInviteEmailTeamProfile(inviteUser, user);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
@@ -389,10 +396,13 @@ export default class BrandService {
           const brandSummary = await this.productService.getBrandProductSummary(
             brand.id
           );
-          const teamProfiles = await this.userModel.getAllBy({
-            type: SYSTEM_TYPE.BRAND,
-            relation_id: brand.id
-          }, ["id", "firstname", "lastname", "avatar"]);
+          const teamProfiles = await this.userModel.getAllBy(
+            {
+              type: SYSTEM_TYPE.BRAND,
+              relation_id: brand.id,
+            },
+            ["id", "firstname", "lastname", "avatar"]
+          );
 
           return {
             id: brand.id,
@@ -581,7 +591,7 @@ export default class BrandService {
       });
       if (user) {
         return resolve({
-          message: MESSAGES.USER_EXISTED,
+          message: MESSAGES.EMAIL_ALREADY_USED,
           statusCode: 400,
         });
       }
@@ -644,8 +654,11 @@ export default class BrandService {
       let categories: any[] = [];
       let products: number = 0;
 
-      const brands = await this.brandModel.getAll(['id']);
-      const userCount = await this.brandModel.summaryUserAndLocation(null, 'user');
+      const brands = await this.brandModel.getAll(["id"]);
+      const userCount = await this.brandModel.summaryUserAndLocation(
+        null,
+        "user"
+      );
       for (const brand of brands) {
         /// need improve
         const brandLocations = await this.locationModel.getBy({
@@ -664,7 +677,6 @@ export default class BrandService {
           brand_id: brand.id,
         });
         if (foundCards) cards = cards.concat(foundCards);
-
       }
       ///
       const countryIds = await Promise.all(

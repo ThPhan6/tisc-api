@@ -109,7 +109,8 @@ export const MESSAGES = {
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
-  EMAIL_ALREADY_USED: "Email is already used, please use other email.",
+  EMAIL_ALREADY_USED:
+    "This email address is already taken. Please try another.",
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_NOT_IN_WORKSPACE: "User not in this work space",
   AVATAR_NOT_VALID: "Avatar not valid",
@@ -514,4 +515,4 @@ export const SPECIFIED_PRODUCT_STATUS: {
 export const COMMON_TYPES = {
   SHARING_GROUP: 1,
   SHARING_PURPOSE: 2,
-}
+};
