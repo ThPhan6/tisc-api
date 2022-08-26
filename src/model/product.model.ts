@@ -297,8 +297,8 @@ export default class ProductModel extends Model<IProductAttributes> {
       params.categoryId = categoryId;
     }
     if (keyword) {
-      rawQuery += ` FILTER data.name like concat('%',@${keyword}, '%') `;
-      params.keyword = keyword;
+      rawQuery += ` FILTER LOWER(data.name) like concat('%',@keyword, '%') `;
+      params.keyword = keyword.toLowerCase();
     }
     if (sort_name && sort_order) {
       rawQuery += ` SORT data.${sort_name} ${sort_order} `;
