@@ -34,7 +34,9 @@ const chaiResponse = (
   if (callback) {
     callback();
   } else {
-    done();
+    if (done) {
+      done();
+    }
   }
 }
 module.exports = {
