@@ -67,9 +67,7 @@ export default class MaterialCodeService {
     design_id: string
   ): Promise<IMaterialCodeGroupResponse | IMessageResponse> =>
     new Promise(async (resolve) => {
-      const materialCodes = await this.materialCodeModel.getAllBy({
-        design_id,
-      });
+      const materialCodes = await this.materialCodeModel.getAllMaterialCodeByDesignId(design_id);
       const result = materialCodes.map((materialCode) => {
         const mainList = materialCode.subs.map((mainList) => {
           return {
@@ -96,9 +94,7 @@ export default class MaterialCodeService {
     design_id: string
   ): Promise<IGetListCodeMaterialCode> =>
     new Promise(async (resolve) => {
-      const materialCodes = await this.materialCodeModel.getAllBy({
-        design_id,
-      });
+      const materialCodes = await this.materialCodeModel.getAllMaterialCodeByDesignId(design_id);
       const result = materialCodes
         .map((materialCode) => {
           return materialCode.subs.map((mainList) => {

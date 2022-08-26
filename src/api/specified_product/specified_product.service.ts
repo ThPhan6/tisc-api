@@ -269,42 +269,8 @@ export default class SpecifiedProductService {
         })
       );
 
-      const materialCodeGroups = await this.materialCodeModel.getBy({
-        design_id: user.id,
-      });
-      const materialCodeSubList = materialCodeGroups.reduce(
-        (
-          pre: {
-            id: string;
-            name: string;
-            codes: {
-              id: string;
-              code: string;
-              description: string;
-            }[];
-          }[],
-          cur
-        ) => {
-          return pre.concat(cur.subs);
-        },
-        []
-      );
-      const materialCodes = materialCodeSubList.reduce(
-        (
-          pre: {
-            id: string;
-            code: string;
-            description: string;
-          }[],
-          cur
-        ) => {
-          return pre.concat(cur.codes);
-        },
-        []
-      );
-      const materialCode = materialCodes.find(
-        (item) => item.id === payload.material_code_id
-      );
+      const materialCode = await this.materialCodeModel.getSubMaterialCodeById(payload.material_code_id);
+
       if (!specifiedProduct) {
         //create
         const createdSpecifiedProduct = await this.specifiedProductModel.create(
