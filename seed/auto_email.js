@@ -684,7 +684,7 @@ const seed = async (db) => {
 
         </html>
         `,
-        is_deleted: true,
+        is_deleted: false,
         created_at: moment(),
       },
       {
