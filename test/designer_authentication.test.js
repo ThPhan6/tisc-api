@@ -7,6 +7,7 @@ const {
   Database,
   db,
 } = require("./utils/utils");
+const helperCommon = require("./helper/common");
 
 let email = "unit-test-phase3@yopmail.com";
 let password = "Unittest@123";
@@ -27,15 +28,16 @@ describe("Design authentication", () => {
           confirmed_password: password,
         })
         .end((_err, res) => {
-          // res.should.have.status(200);
-          // res.body.should.have.property("statusCode", 200);
-          // res.body.should.have.property("message");
+          res.should.have.status(200);
+          res.body.should.have.property("statusCode", 200);
+          res.body.should.have.property("message");
           done();
         });
     });
   });
   describe("Login", () => {
     it("Login with account sign up", (done) => {
+      helperCommon.verifyUser();
       chai
         .request(HOST_URL)
         .post("/auth/brand-design/login")

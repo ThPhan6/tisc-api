@@ -201,10 +201,14 @@ export default class SpecifiedProductService {
           statusCode: 200,
         });
       }
-      const types = await this.unitTypeModel.getCustomList(user.relation_id ?? '');
+      const types = await this.unitTypeModel.getCustomList(
+        user.relation_id ?? ""
+      );
       /// not applicable alway on top
-      const notApplicableIndex = types.findIndex((type) => type.name === 'Not Applicable');
-      let notApplicable = [] as {id: string; name: string}[];
+      const notApplicableIndex = types.findIndex(
+        (type) => type.name === "Not Applicable"
+      );
+      let notApplicable = [] as { id: string; name: string }[];
       if (notApplicableIndex > -1) {
         notApplicable = types.splice(notApplicableIndex, 1);
       }
@@ -380,7 +384,7 @@ export default class SpecifiedProductService {
       if (!user) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 200,
+          statusCode: 404,
         });
       }
       const consideredProduct = await this.consideredProductModel.find(
@@ -425,7 +429,7 @@ export default class SpecifiedProductService {
     user_id: string,
     project_id: string,
     brand_order: SortOrder
-  ): Promise<any> =>
+  ): Promise<IMessageResponse | any> =>
     new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       if (!user) {
@@ -438,7 +442,7 @@ export default class SpecifiedProductService {
       if (!project) {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 200,
+          statusCode: 404,
         });
       }
       const specifiedProducts = await this.specifiedProductModel.getBy({
@@ -536,14 +540,14 @@ export default class SpecifiedProductService {
       if (!user) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 200,
+          statusCode: 404,
         });
       }
       const project = await this.projectModel.find(project_id);
       if (!project) {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 200,
+          statusCode: 404,
         });
       }
       const specifiedProducts = await this.specifiedProductModel.getAllBy(
@@ -633,14 +637,14 @@ export default class SpecifiedProductService {
       if (!user) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 200,
+          statusCode: 404,
         });
       }
       const project = await this.projectModel.find(project_id);
       if (!project) {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 200,
+          statusCode: 404,
         });
       }
       const projectZones = await this.projectZoneModel.getAllBy(

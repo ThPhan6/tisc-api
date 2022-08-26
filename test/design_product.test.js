@@ -18,7 +18,9 @@ describe("Design firms product", () => {
   let sharingGroup;
   let sharingPurpose;
   let project;
-
+  helperCommon.getUserUnitTest().then((user) => {
+    helperCommon.insertProject(user.relation_id);
+  });
   beforeEach((done) => {
     helperCommon.designBrandLogin(email, password).then((token) => {
       designAdminToken = token;
@@ -51,10 +53,10 @@ describe("Design firms product", () => {
       done();
     });
   });
-  beforeEach((done) => {
-    helperCommon.insertProject();
-    done();
-  });
+  // beforeEach((done) => {
+  //   helperCommon.insertProject();
+  //   done();
+  // });
   beforeEach((done) => {
     helperCommon.getProject().then((data) => {
       project = data;

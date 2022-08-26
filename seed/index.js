@@ -12,6 +12,7 @@ const seedBasis = require("./basis.seed").seed;
 const seedBrand = require("./brand.seed").seed;
 const seedBuildingType = require("./building_type.seed").seed;
 const seedProjectType = require("./project_type.seed").seed;
+const seedUser = require("./user.seed").seed;
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ const seed = async () => {
   await seedBrand(db);
   await seedBuildingType(db);
   await seedProjectType(db);
+  await seedUser(db);
 };
 
 seed();

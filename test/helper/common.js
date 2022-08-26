@@ -13,7 +13,8 @@ const {
   imageTest_3,
 } = require("../test_files/image.test");
 const uuid = require("uuid").v4;
-
+let email = "unit-test-phase3@yopmail.com";
+let password = "Unittest@123";
 function randomName(n) {
   return randomBytes(n).toString("hex");
 }
@@ -219,11 +220,27 @@ function getProduct() {
   });
 }
 
-async function insertProject() {
+function getUserUnitTest() {
+  return new Promise(async (resolve) => {
+    const user = await db.query({
+      query: `FOR data in @@model
+              FILTER data.is_deleted == false
+              FILTER data.email == "${email}"
+              return data`,
+      bindVars: {
+        "@model": "users",
+      },
+    });
+    resolve(user._result[0]);
+  });
+}
+
+getUserUnitTest().then(async (user) => await insertProduct(user.relation_id));
+async function insertProject(relationId = "") {
   const project = await db.query({
     query: `INSERT ({
       id: "7015f7e2-d563-44f4-8844-9b40d0221e43",
-      code: "3",
+      code: "${Math.random()}",
       name: "1",
       location: "Vietnam",
       country_id: "240",
@@ -243,7 +260,7 @@ async function insertProject() {
       design_due: "string",
       construction_start: "string",
       team_profile_ids: [],
-      design_id: "6579cf6b-0392-4679-9c5f-0a10da6814d6",
+      design_id: "${relationId}",
       status: 2,
       created_at: "2022-07-27T09:46:03.184Z",
       is_deleted: false
@@ -254,8 +271,6 @@ async function insertProject() {
     },
   });
 }
-insertProject();
-
 function getProject() {
   return new Promise(async (resolve) => {
     const product = await db.query({
@@ -266,7 +281,9 @@ function getProject() {
         "@model": "projects",
       },
     });
-    resolve(product._result[0]);
+
+    const response = product._result.filter((item) => item.design_id !== "");
+    resolve(response[0]);
   });
 }
 function getDesign() {
@@ -284,6 +301,35 @@ function getDesign() {
   });
 }
 
+function getConsideredProduct() {
+  return new Promise(async (resolve) => {
+    const consideredProduct = await db.query({
+      query: `FOR data in @@model
+              FILTER data.is_deleted == false
+              return data`,
+      bindVars: {
+        "@model": "considered_products",
+      },
+    });
+    resolve(consideredProduct._result[0]);
+  });
+}
+
+function verifyUser() {
+  return new Promise(async (resolve) => {
+    const user = await db.query({
+      query: `FOR u IN @@model 
+      FILTER u.is_deleted == false 
+      FILTER u.email == "${email}" 
+      UPDATE u WITH {is_verified : true } IN @@model`,
+      bindVars: {
+        "@model": "users",
+      },
+    });
+    resolve(user._result[0]);
+  });
+}
+
 module.exports = {
   designBrandLogin,
   insertCollection,
@@ -295,4 +341,7 @@ module.exports = {
   getProject,
   getDesign,
   randomName,
+  getConsideredProduct,
+  getUserUnitTest,
+  verifyUser,
 };
