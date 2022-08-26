@@ -1,19 +1,18 @@
 const { Database } = require("arangojs");
 const dotenv = require("dotenv");
-const seed1 = require("./permission_route.seed").seed;
-const seed2 = require("./permission.seed").seed;
-
+const seedUnitType = require("./unit_type.seed").seed;
+const seedRequirementType = require("./requirement_type.seed").seed;
+const commonTypes = require("./common_type.seed").seed;
 const seedRole = require("./role.seed").seed;
-const seedUser = require("./user.seed").seed;
-const seedPermission = require("./permission.seed").seed;
-const seedBrand = require("./brand.seed").seed;
-const seedBasis = require("./basis.seed").seed;
-const seedPermissionRoute = require("./permission_route.seed").seed;
+const seedDocument = require("./documentation.seed").seed;
+const seedInstructionType = require("./instruction_type.seed").seed;
 const seedAutoEmail = require("./auto_email").seed;
-const seedFunctionalType = require("./functional_type.seed").seed;
-const seedDocumentation = require("./documentation.seed").seed;
-const seedDepartment = require("./department.seed").seed;
-const seedDesigner = require("./designer.seed").seed;
+const seedCategory = require("./category.seed").seed;
+const seedBasis = require("./basis.seed").seed;
+const seedBrand = require("./brand.seed").seed;
+const seedBuildingType = require("./building_type.seed").seed;
+const seedProjectType = require("./project_type.seed").seed;
+const seedUser = require("./user.seed").seed;
 
 dotenv.config();
 
@@ -24,19 +23,19 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  // await seedDocumentation(db);
-  // await seedRole(db);
-  // await seedUser(db);
-  // await seedPermission(db);
-  // await seedPermissionRoute(db);
-  // await seedBrand(db);
-  // await seedBasis(db);
+  await commonTypes(db);
+  await seedRequirementType(db);
+  await seedInstructionType(db);
+  await seedUnitType(db);
+  await seedRole(db);
+  await seedDocument(db);
   await seedAutoEmail(db);
-  // await seedFunctionalType(db);
-  // await seedDepartment(db);
-  // await seedDesigner(db);
-  // await seed1(db);
-  // await seed2(db);
+  await seedCategory(db);
+  await seedBasis(db);
+  await seedBrand(db);
+  await seedBuildingType(db);
+  await seedProjectType(db);
+  await seedUser(db);
 };
 
 seed();

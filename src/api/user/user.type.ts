@@ -18,6 +18,7 @@ export interface IUpdateMeRequest {
   personal_mobile?: string;
   zone_code?: string;
   linkedin?: string;
+  interested?: number[];
 }
 
 export interface IUser {
@@ -35,6 +36,7 @@ export interface IUser {
   personal_mobile: string | null;
   linkedin: string | null;
   brand?: any;
+  design?: any;
 }
 
 export interface IUserResponse {
@@ -71,6 +73,46 @@ export interface IDepartmentsResponse {
   data: {
     id: string;
     name: string;
+  }[];
+  statusCode: number;
+}
+
+export interface IGetTeamsGroupByCountry {
+  data: {
+    country_name: string;
+    users: {
+      logo: string;
+      firstname: string;
+      lastname: string;
+      gender: boolean;
+      work_location: string | null;
+      department: string;
+      position: string | null;
+      email: string;
+      phone: string | null;
+      mobile: string | null;
+      access_level: string;
+      status: number;
+      phone_code: string;
+    }[];
+  }[];
+  statusCode: number;
+}
+
+export interface IAssignTeamRequest {
+  user_ids: string[];
+}
+
+export interface IGetTiscTeamsProfile {
+  data: {
+    name: string;
+    users: {
+      id: string;
+      avatar: string | null;
+      first_name: string;
+      last_name: string;
+      is_assigned: boolean;
+    }[];
   }[];
   statusCode: number;
 }

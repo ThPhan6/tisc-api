@@ -1,6 +1,14 @@
 import UserService from "./user.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IUpdateMeRequest, IUserRequest } from "./user.type";
+import {
+  IAssignTeamRequest,
+  IUpdateMeRequest,
+  IUserRequest,
+} from "./user.type";
+import {
+  INTERESTED_IN_OPTIONS,
+  SYSTEM_TYPE,
+} from "../../constant/common.constant";
 
 export default class UserController {
   private service: UserService;
@@ -83,6 +91,54 @@ export default class UserController {
     const currentUserId = req.auth.credentials.user_id as string;
     const userId = req.params.id;
     const response = await this.service.delete(userId, currentUserId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getInterestedOptions = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    return toolkit.response(INTERESTED_IN_OPTIONS).code(200);
+  };
+
+  public getBrandTeamGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.params;
+    const response = await this.service.getBrandOrDesignTeamGroupByCountry(
+      brand_id,
+      SYSTEM_TYPE.BRAND
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getDesignTeamGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { design_id } = req.params;
+    const response = await this.service.getBrandOrDesignTeamGroupByCountry(
+      design_id,
+      SYSTEM_TYPE.DESIGN
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public assignTeam = async (
+    req: Request & { payload: IAssignTeamRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.params;
+    const payload = req.payload;
+    const response = await this.service.assignTeam(brand_id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getTiscTeamsProfile = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.params;
+    const response = await this.service.getTiscTeamsProfile(brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -13,6 +13,27 @@ const customFilter = (value: any, helpers: any) => {
   }
 };
 export default {
+  getMarketLocationsCountryGroup: {
+    params: {
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+    },
+  },
+  getBrandLocationsCountryGroup: {
+    params: {
+      brand_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand id is required")),
+    },
+  },
+  getDesignLocationsCountryGroup: {
+    params: {
+      design_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design id is required")),
+    },
+  },
   getStates: {
     query: {
       country_id: Joi.string()

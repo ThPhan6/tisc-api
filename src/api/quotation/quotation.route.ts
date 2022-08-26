@@ -99,6 +99,24 @@ export default class QuotationRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_QUOTATION_NOT_AUTH,
+          options: {
+            handler: controller.getList,
+            validate: commonValidate.getList,
+            description:
+              "Method that get list inspirational quotation for landing page",
+            tags: ["api", "Inspirational Quotation"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

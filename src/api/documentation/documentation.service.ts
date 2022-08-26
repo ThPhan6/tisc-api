@@ -9,6 +9,8 @@ import {
   IDocumentationRequest,
   IDocumentationResponse,
   IDocumentationsResponse,
+  IDocumentPolicy,
+  IGetPoliciesLandingPage,
   IHowto,
   IHowtosResponse,
 } from "./documentation.type";
@@ -214,7 +216,7 @@ class DocumentationService {
     data: IHowto[];
   }): Promise<IHowtosResponse> =>
     new Promise(async (resolve) => {
-      const updatedHowtos = await Promise.all(
+      await Promise.all(
         payload.data.map(async (howto) => {
           return await this.documentationModel.update(howto.id, {
             title: howto.title,
@@ -268,6 +270,70 @@ class DocumentationService {
       }
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getListPolicyForLandingPage = async (): Promise<
+    IMessageResponse | IGetPoliciesLandingPage
+  > => {
+    return new Promise(async (resolve) => {
+      const documentations = await this.documentationModel.getAllBy({
+        type: DOCUMENTATION_TYPES.GENERAL,
+      });
+
+      let termsOfServices: IDocumentPolicy = {
+        id: "",
+        title: "",
+        document: {},
+      };
+      let privacyPolicy: IDocumentPolicy = {
+        id: "",
+        title: "",
+        document: {},
+      };
+      let cookiePolicy: IDocumentPolicy = {
+        id: "",
+        title: "",
+        document: {},
+      };
+      documentations.forEach((documentation) => {
+        switch (documentation.number) {
+          case 1:
+            return (privacyPolicy = {
+              id: documentation.id,
+              title: documentation.title,
+              document: documentation.document,
+            });
+          case 2:
+            return (termsOfServices = {
+              id: documentation.id,
+              title: documentation.title,
+              document: documentation.document,
+            });
+          case 3:
+            return (cookiePolicy = {
+              id: documentation.id,
+              title: documentation.title,
+              document: documentation.document,
+            });
+          default:
+            break;
+        }
+      });
+      return resolve({
+        data: [
+          {
+            terms_of_services: termsOfServices,
+          },
+          {
+            privacy_policy: privacyPolicy,
+          },
+          {
+            cookie_policy: cookiePolicy,
+          },
+        ],
         statusCode: 200,
       });
     });

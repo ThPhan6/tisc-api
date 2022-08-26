@@ -34,7 +34,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/login/brand`,
+          path: `${PREFIX}/brand-design/login`,
           options: {
             handler: controller.brandLogin,
             validate: validate.login,
@@ -174,6 +174,23 @@ export default class AuthRoute implements IRoute {
             handler: controller.resendEmail,
             validate: validate.resendEmail,
             description: "Method that resend email",
+            tags: ["api", "Authentication"],
+            auth: false,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: `${PREFIX}/check-email/{email}`,
+          options: {
+            handler: controller.checkEmail,
+            validate: validate.checkEmail,
+            description: "Method that check email is available or not.",
             tags: ["api", "Authentication"],
             auth: false,
             response: {

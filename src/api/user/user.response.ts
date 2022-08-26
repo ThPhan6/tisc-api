@@ -33,6 +33,9 @@ export default {
       relation_id: Joi.any(),
       permissions: Joi.any(),
       brand: Joi.any(),
+      design: Joi.any(),
+      interested: Joi.any(),
+      retrieve_favourite: Joi.bool(),
     }),
     statusCode: Joi.number(),
   }) as any,
@@ -75,4 +78,53 @@ export default {
       name: Joi.string(),
     }),
   }) as any,
+  getInterestedOptions: Joi.array().items({
+    key: Joi.string(),
+    value: Joi.number(),
+  }),
+
+  getTeamGroupByCountry: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        country_name: Joi.string(),
+        count: Joi.number(),
+        users: Joi.array().items(
+          Joi.object({
+            logo: Joi.string().allow(null),
+            firstname: Joi.string(),
+            lastname: Joi.string(),
+            gender: Joi.boolean(),
+            work_location: Joi.string(),
+            department: Joi.string(),
+            position: Joi.string().allow(null),
+            email: Joi.string(),
+            phone: Joi.string().allow(null),
+            mobile: Joi.string().allow(null),
+            access_level: Joi.string(),
+            status: Joi.number(),
+            phone_code: Joi.string(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
+
+  getTiscTeamsProfile: {
+    data: Joi.array().items(
+      Joi.object({
+        name: Joi.string(),
+        users: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            avatar: Joi.string().allow(null),
+            first_name: Joi.string(),
+            last_name: Joi.string(),
+            is_assigned: Joi.boolean(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };

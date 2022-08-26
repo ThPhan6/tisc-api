@@ -20,7 +20,10 @@ export default class AuthController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.authService.tiscLogin(payload, SYSTEM_TYPE.TISC);
+    const response = await this.authService.tiscLogin(
+      payload,
+      SYSTEM_TYPE.TISC
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public brandLogin = async (
@@ -108,6 +111,11 @@ export default class AuthController {
   ) => {
     const { token } = req.params;
     const response = await this.authService.isValidResetPasswordToken(token);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public checkEmail = async (req: Request, toolkit: ResponseToolkit) => {
+    const { email } = req.params;
+    const response = await this.authService.checkEmail(email);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

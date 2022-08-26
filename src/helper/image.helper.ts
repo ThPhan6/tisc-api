@@ -1,4 +1,6 @@
 import sharp from "sharp";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export const toWebp = async (
   image: any,
@@ -27,3 +29,10 @@ export const toWebp = async (
   }
   return await sharp(image).resize(width, height).toBuffer();
 };
+
+export const getFileURI = (filename?: string | null) => {
+  if (!filename) {
+    return filename;
+  }
+  return `${process.env.SPACES_ENDPOINT}/${process.env.SPACES_BUCKET}${filename}`;
+}

@@ -1,6 +1,11 @@
 import ProductService from "./product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IProductRequest, IUpdateProductRequest } from "./product.type";
+import {
+  IProductAssignToProject,
+  IProductRequest,
+  IUpdateProductRequest,
+  ShareProductBodyRequest,
+} from "./product.type";
 
 export default class ProductController {
   private service: ProductService;
@@ -15,6 +20,22 @@ export default class ProductController {
       category_id,
       collection_id,
       userId
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getListDesignerBrandProducts = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { category_id, brand_id, name, sort, order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListDesignerBrandProducts(
+      userId,
+      brand_id,
+      category_id,
+      name,
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -75,6 +96,45 @@ export default class ProductController {
   ) => {
     const { id } = req.params;
     const response = await this.service.getListRestCollectionProduct(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getProductOptions = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id, attribute_id } = req.params;
+    const response = await this.service.getProductOptions(id, attribute_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public assign = async (
+    req: Request & { payload: IProductAssignToProject },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.assign(userId, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public shareByEmail = async (
+    req: Request & { payload: ShareProductBodyRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.shareByEmail(payload, userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getSharingGroups = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getSharingGroups(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getSharingPurposes = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getSharingPurposes(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -15,12 +15,15 @@ const toObject = (keys: Array<string>, prefix: string) => {
   return JSON.stringify(obj).replace(/"/gi, "");
 };
 
-const removeUnnecessaryArangoFields = (obj: any) => {
-  const { _id, _key, _rev, ...rest } = obj;
-  return rest;
+export const removeUnnecessaryArangoFields = (obj: any) => {
+  if (obj) {
+    const { _id, _key, _rev, ...rest } = obj;
+    return rest;
+  }
+  return obj;
 };
 
-export default class Builder {
+export default class QueryBuilder {
   private modelName: string;
   private prefix: string;
   private query: string;

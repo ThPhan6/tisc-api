@@ -1,6 +1,6 @@
 import { IAttributeGroupHasId } from "../api/product/product.type";
 import Model from "./index";
-
+import { removeUnnecessaryArangoFields } from "../query_builder";
 export interface IProductAttributes {
   id: string;
   brand_id: string;
@@ -15,9 +15,23 @@ export interface IProductAttributes {
   favorites: string[];
   images: string[];
   keywords: string[];
+  brand_location_id: string;
+  distributor_location_id: string;
   created_at: string;
   created_by: string;
   is_deleted: boolean;
+}
+
+export interface ProductWithCollectionAndBrand extends IProductAttributes {
+  collection: {
+    id: string;
+    name: string;
+  };
+  brand: {
+    id: string;
+    name: string;
+    logo: string;
+  }
 }
 
 export const PRODUCT_NULL_ATTRIBUTES = {
@@ -34,6 +48,8 @@ export const PRODUCT_NULL_ATTRIBUTES = {
   favorites: [],
   images: [],
   keywords: [],
+  brand_location_id: null,
+  distributor_location_id: null,
   created_at: null,
   created_by: null,
   is_deleted: false,
@@ -43,11 +59,16 @@ export default class ProductModel extends Model<IProductAttributes> {
   constructor() {
     super("products");
   }
-  public getDuplicatedProduct = async (id: string, name: string) => {
+  public getDuplicatedProduct = async (
+    id: string,
+    name: string,
+    brand_id: string
+  ) => {
     try {
       const result: any = await this.getBuilder()
         .builder.whereNot("id", id)
         .whereNot("is_deleted", true)
+        .where("brand_id", brand_id)
         .where("name", name.toLowerCase())
         .first();
       return result;
@@ -123,25 +144,21 @@ export default class ProductModel extends Model<IProductAttributes> {
   };
   public getAllByCategoryId = async (
     category_id: string,
-    brand_id?: string
-  ) => {
+    brand_id?: string,
+    name?: string
+  ): Promise<IProductAttributes[]> => {
     try {
-      let result: IProductAttributes[] = [];
+      let result: any = this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .whereInRevert("category_ids", category_id);
       if (brand_id) {
-        result = await this.getBuilder()
-          .builder.whereNot("is_deleted", true)
-          .where("brand_id", brand_id)
-          .whereInRevert("category_ids", category_id)
-          .orderBy("created_at", "DESC")
-          .select();
-      } else {
-        result = await this.getBuilder()
-          .builder.whereNot("is_deleted", true)
-          .whereInRevert("category_ids", category_id)
-          .orderBy("created_at", "DESC")
-          .select();
+        result = result.where("brand_id", brand_id);
       }
-      return result;
+      if (name) {
+        result = result.whereLike("name", name);
+      }
+      result = await result.orderBy("created_at", "DESC").select();
+      return result as IProductAttributes[];
     } catch (error) {
       return [];
     }
@@ -159,5 +176,156 @@ export default class ProductModel extends Model<IProductAttributes> {
     } catch (error) {
       return [];
     }
+  };
+  public getAllByAndNameLike = async (
+    params: any,
+    keys?: string[],
+    sort?: string,
+    order?: "ASC" | "DESC",
+    name?: string
+  ): Promise<IProductAttributes[]> => {
+    try {
+      let result: any = this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
+      }
+      if (name) {
+        result = result.whereLike("name", name);
+      }
+      result = await result.select(keys);
+      return result as IProductAttributes[];
+    } catch (error) {
+      return [];
+    }
+  };
+  public getAllByAndNameLikeAndCategory = async (
+    params: any,
+    category_id: string,
+    keys?: string[],
+    sort?: string,
+    order?: "ASC" | "DESC",
+    name?: string
+  ): Promise<IProductAttributes[]> => {
+    try {
+      let result: any = this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params)
+        .whereInRevert("category_ids", category_id);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
+      }
+      if (name) {
+        result = result.whereLike("name", name);
+      }
+      result = await result.select(keys);
+      return result as IProductAttributes[];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  public getUserFavouriteProducts = async (
+    userId: string,
+    order: "ASC" | "DESC" = "ASC",
+    brandId?: string,
+    categoryId?: string
+  ): Promise<ProductWithCollectionAndBrand[]> => {
+    const params = { userId } as any;
+    let rawQuery = `
+      FOR data IN products
+        FILTER data.is_deleted == false
+        FOR userId IN data.favorites
+          FILTER userId == @userId
+    `;
+    if (brandId) {
+      rawQuery += ` FILTER data.brand_id == @brandId `;
+      params.brandId = brandId;
+    }
+    if (categoryId) {
+      rawQuery += ` FOR categoryId IN data.category_ids
+        FILTER categoryId == @categoryId `;
+      params.categoryId = categoryId;
+    }
+
+    /// join brands
+    rawQuery += ` FOR brand IN brands
+      FILTER data.brand_id == brand.id
+      FOR collection IN collections
+      FILTER data.collection_id == collection.id
+      SORT data.name ${order}
+      RETURN merge(data, {
+        brand: {
+          id: brand.id,
+          name: brand.name,
+          logo: brand.logo
+        },
+        collection: {
+          id: collection.id,
+          name: collection.name
+        }
+      })
+    `;
+
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+
+    if (result === false) {
+      return [];
+    }
+    return result._result.map((product: ProductWithCollectionAndBrand) => {
+      return removeUnnecessaryArangoFields(product);
+    }) as ProductWithCollectionAndBrand[];
+  };
+
+  public getCustomList = async (
+    keyword?: string,
+    sort_name?: string,
+    sort_order: "ASC" | "DESC" = "ASC",
+    brandId?: string,
+    categoryId?: string
+  ): Promise<ProductWithCollectionAndBrand[]> => {
+    const params = {} as any;
+    let rawQuery = ` FOR data IN products FILTER data.is_deleted == false `;
+    if (brandId) {
+      rawQuery += ` FILTER data.brand_id == @brandId `;
+      params.brandId = brandId;
+    }
+    if (categoryId) {
+      rawQuery += ` FOR categoryId IN data.category_ids
+        FILTER categoryId == @categoryId `;
+      params.categoryId = categoryId;
+    }
+    if (keyword) {
+      rawQuery += ` FILTER LOWER(data.name) like concat('%',@keyword, '%') `;
+      params.keyword = keyword.toLowerCase();
+    }
+    if (sort_name && sort_order) {
+      rawQuery += ` SORT data.${sort_name} ${sort_order} `;
+    }
+    /// join brands
+    rawQuery += ` FOR brand IN brands
+      FILTER data.brand_id == brand.id
+      FOR collection IN collections
+      FILTER data.collection_id == collection.id
+      RETURN merge(data, {
+        brand: {
+          id: brand.id,
+          name: brand.name,
+          logo: brand.logo
+        },
+        collection: {
+          id: collection.id,
+          name: collection.name
+        }
+      })
+    `;
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result === false) {
+      return [];
+    }
+    return result._result.map((product: ProductWithCollectionAndBrand) => {
+      return removeUnnecessaryArangoFields(product);
+    }) as ProductWithCollectionAndBrand[];
   };
 }

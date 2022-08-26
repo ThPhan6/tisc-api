@@ -27,11 +27,7 @@ import {
   signDesignAdminToken,
   signDesignTeamToken,
 } from "../../helper/jwt.helper";
-import {
-  ROLES,
-  TISC_ADMIN_USER_ID,
-  USER_STATUSES,
-} from "../../constant/user.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
 import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
 import BrandModel from "../../model/brand.model";
@@ -39,18 +35,38 @@ import { getAccessLevel } from "../../helper/common.helper";
 import DesignModel, {
   DESIGN_NULL_ATTRIBUTES,
 } from "../../model/designer.model";
+import PermissionService from "../permission/permission.service";
 
 class AuthService {
   private userModel: UserModel;
   private mailService: MailService;
   private brandModel: BrandModel;
   private designModel: DesignModel;
+  private permissionService: PermissionService;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
     this.brandModel = new BrandModel();
     this.designModel = new DesignModel();
+    this.permissionService = new PermissionService();
   }
+
+  private findBrandOrDesignInactive = async (
+    type: number,
+    relation_id: string
+  ) => {
+    if (type === SYSTEM_TYPE.BRAND) {
+      const foundBrand = await this.brandModel.find(relation_id);
+      if (foundBrand && foundBrand.status === BRAND_STATUSES.INACTIVE)
+        return MESSAGES.BRAND_INACTIVE_LOGIN;
+    } else {
+      const foundDesign = await this.designModel.find(relation_id);
+      if (foundDesign && foundDesign.status === DESIGN_STATUSES.INACTIVE) {
+        return MESSAGES.DESIGN_INACTIVE_LOGIN;
+      }
+    }
+    return false;
+  };
 
   public tiscLogin = (
     payload: IAdminLoginRequest,
@@ -124,6 +140,16 @@ class AuthService {
           statusCode: 404,
         });
       }
+      const brandOrDesignInactive = await this.findBrandOrDesignInactive(
+        user.type,
+        user?.relation_id || ""
+      );
+      if (brandOrDesignInactive) {
+        return resolve({
+          message: brandOrDesignInactive,
+          statusCode: 401,
+        });
+      }
       if (!user.is_verified) {
         return resolve({
           message: MESSAGES.VERIFY_ACCOUNT_FIRST,
@@ -190,6 +216,22 @@ class AuthService {
           statusCode: 404,
         });
       }
+      if (
+        (
+          payload.type === SYSTEM_TYPE.TISC &&
+          user.type !== SYSTEM_TYPE.TISC
+        ) ||
+        (
+          payload.type !== SYSTEM_TYPE.TISC &&
+          user.type === SYSTEM_TYPE.TISC
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
+          statusCode: 404,
+        });
+      }
+
       let reset_password_token: string;
       let isDuplicated = true;
       do {
@@ -346,33 +388,33 @@ class AuthService {
         });
       }
       //create design firm
-      let createdDesign;
-      const lastDeletedDesign = await this.designModel.getLastDeleted(
-        payload.email
-      );
-      if (lastDeletedDesign !== false) {
-        createdDesign = await this.designModel.create({
-          ...DESIGN_NULL_ATTRIBUTES,
-          name: lastDeletedDesign.name,
-          parent_company: lastDeletedDesign.parent_company,
-          logo: lastDeletedDesign.logo,
-          slogan: lastDeletedDesign.slogan,
-          profile_n_philosophy: lastDeletedDesign.profile_n_philosophy,
-          official_website: lastDeletedDesign.official_website,
-          design_capabilities: lastDeletedDesign.design_capabilities,
-          team_profile_ids: lastDeletedDesign.team_profile_ids,
-          location_ids: lastDeletedDesign.location_ids,
-          material_code_ids: lastDeletedDesign.material_code_ids,
-          project_ids: lastDeletedDesign.project_ids,
-          status: DESIGN_STATUSES.ACTIVE,
-        });
-      } else {
-        createdDesign = await this.designModel.create({
-          ...DESIGN_NULL_ATTRIBUTES,
-          name: payload.company_name || payload.firstname + "Design Firm",
-          status: DESIGN_STATUSES.ACTIVE,
-        });
-      }
+      // let createdDesign;
+      // const lastDeletedDesign = await this.designModel.getLastDeleted(
+      //   payload.email
+      // );
+      // if (lastDeletedDesign !== false) {
+      //   createdDesign = await this.designModel.create({
+      //     ...DESIGN_NULL_ATTRIBUTES,
+      //     name: lastDeletedDesign.name,
+      //     parent_company: lastDeletedDesign.parent_company,
+      //     logo: lastDeletedDesign.logo,
+      //     slogan: lastDeletedDesign.slogan,
+      //     profile_n_philosophy: lastDeletedDesign.profile_n_philosophy,
+      //     official_website: lastDeletedDesign.official_website,
+      //     design_capabilities: lastDeletedDesign.design_capabilities,
+      //     team_profile_ids: lastDeletedDesign.team_profile_ids,
+      //     location_ids: lastDeletedDesign.location_ids,
+      //     material_code_ids: lastDeletedDesign.material_code_ids,
+      //     project_ids: lastDeletedDesign.project_ids,
+      //     status: DESIGN_STATUSES.ACTIVE,
+      //   });
+      // } else {
+      const createdDesign = await this.designModel.create({
+        ...DESIGN_NULL_ATTRIBUTES,
+        name: payload.company_name || payload.firstname + "Design Firm",
+        status: DESIGN_STATUSES.ACTIVE,
+      });
+      // }
       if (!createdDesign) {
         return resolve({
           message: MESSAGES.SOMETHING_WRONG_CREATE,
@@ -403,6 +445,7 @@ class AuthService {
         status: USER_STATUSES.PENDING,
         type: SYSTEM_TYPE.DESIGN,
         relation_id: createdDesign.id,
+        retrieve_favourite: false,
       });
       if (!createdUser) {
         return resolve({
@@ -410,12 +453,8 @@ class AuthService {
           statusCode: 400,
         });
       }
-      const tiscAdminUser = await this.userModel.find(TISC_ADMIN_USER_ID);
-      await this.mailService.sendInviteEmailTeamProfile(
-        createdUser,
-        tiscAdminUser
-      );
-
+      await this.mailService.sendDesignRegisterEmail(createdUser);
+      await this.permissionService.createDesignPermission(createdDesign.id);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
@@ -490,6 +529,24 @@ class AuthService {
       }
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+  public checkEmail = (email: string): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.findBy({
+        email,
+      });
+      if (user) {
+        return resolve({
+          message: MESSAGES.EMAIL_ALREADY_USED,
+          statusCode: 400,
+        });
+      }
+
+      return resolve({
+        message: MESSAGES.AVAILABLE,
         statusCode: 200,
       });
     });

@@ -15,7 +15,6 @@ import {
   IAttributeRequest,
   IAttributeResponse,
   IAttributesResponse,
-  IContentType,
   IContentTypesResponse,
   IGetAllAttributeResponse,
   ISubAttribute,

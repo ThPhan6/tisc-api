@@ -5,13 +5,14 @@ name: TISC CI
 
 on:
   push:
-    branches: [ master, dev, staging ]
+    branches: [ master, dev, staging, bugs/sonar ]
   pull_request:
     branches: [ master, dev, staging ]
 
 jobs:
   quality-control:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' # run this job only for the dev branch
     steps:
     - uses: actions/checkout@v3
     - name: Quality Control with Sonar

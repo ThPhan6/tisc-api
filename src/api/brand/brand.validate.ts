@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { BRAND_STATUSES } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
@@ -36,8 +37,8 @@ export default {
           return customFilter(value, helpers);
         }, "custom filter validation")
         .error(commonFailValidatedMessageFunction("Invalid filter")),
-      sort_name: Joi.string(),
-      sort_order: Joi.string().valid("ASC", "DESC"),
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
@@ -46,8 +47,8 @@ export default {
             ? 0
             : (value.page - 1) * value.pageSize,
         filter: value.filter,
-        sort_name: value.sort_name ? value.sort_name : "created_at",
-        sort_order: value.sort_order ? value.sort_order : "ASC",
+        sort: value.sort ? value.sort : "created_at",
+        order: value.order ? value.order : "ASC",
       };
     }),
   } as any,
@@ -102,6 +103,24 @@ export default {
         .email()
         .required()
         .error(commonFailValidatedMessageFunction("Email is required")),
+    },
+  },
+  updateBrandStatus: {
+    params: {
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(
+          BRAND_STATUSES.ACTIVE,
+          BRAND_STATUSES.INACTIVE,
+          BRAND_STATUSES.PENDING
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status required")),
     },
   },
 };

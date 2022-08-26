@@ -1,4 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { SYSTEM_TYPE } from "../../constant/common.constant";
 import LocationService from "./location.service";
 import { ILocationRequest } from "./location.type";
 export default class LocationController {
@@ -30,7 +31,7 @@ export default class LocationController {
     const response = await this.service.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllCountry = async (req: Request, toolkit: ResponseToolkit) => {
+  public getAllCountry = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await this.service.getAllCountry();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -50,7 +51,7 @@ export default class LocationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAllCountryWithRegionGroup = async (
-    req: Request,
+    _req: Request,
     toolkit: ResponseToolkit
   ) => {
     const response = await this.service.getListCountryWithRegionGroup();
@@ -82,6 +83,38 @@ export default class LocationController {
   public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getListWithGroup(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getMarketLocationGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { product_id } = req.params;
+    const response = await this.service.getMarketLocationGroupByCountry(
+      product_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getBrandLocationGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { brand_id } = req.params;
+    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
+      brand_id,
+      SYSTEM_TYPE.BRAND
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getDesignLocationGroupByCountry = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { design_id } = req.params;
+    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
+      design_id,
+      SYSTEM_TYPE.DESIGN
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {

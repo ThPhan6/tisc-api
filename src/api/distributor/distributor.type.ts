@@ -1,3 +1,5 @@
+import {IDistributorAttributes} from '../../model/distributor.model';
+
 export interface IDistributorRequest {
   brand_id: string;
   name: string;
@@ -62,5 +64,35 @@ export interface IDistributorsResponse {
     }[];
     pagination: any;
   };
+  statusCode: number;
+}
+
+export interface IDistributorGroupByCountryResponse {
+  data: {
+    country_name: string;
+    count: number;
+    distributors: {
+      name: string;
+      address: string;
+      person: string;
+      gender: boolean;
+      email: string;
+      phone: string;
+      mobile: string;
+      authorized_country_name: string;
+      coverage_beyond: boolean;
+    }[];
+  }[];
+  statusCode: number;
+}
+
+export interface MarketDistributorGroupByCountry {
+  country_name: string;
+  count: number;
+  distributors: IDistributorAttributes[];
+}
+
+export interface MarketDistributorGroupByCountryResponse {
+  data: MarketDistributorGroupByCountry[],
   statusCode: number;
 }

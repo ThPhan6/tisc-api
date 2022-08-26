@@ -1,4 +1,5 @@
 import { SYSTEM_TYPE } from "../constant/common.constant";
+import { removeUnnecessaryArangoFields } from "../query_builder";
 import Model from "./index";
 
 export interface ILocationAttributes {
@@ -80,5 +81,38 @@ export default class LocationModel extends Model<ILocationAttributes> {
     } catch (error) {
       return false;
     }
+  };
+
+  public getLocationDesign = async (is_origin: boolean = false) => {
+    const params = {} as any;
+    let rawQuery = `
+      FOR designer in designers
+        FOR location in locations
+          FOR locationDesign in designer.location_ids
+          FILTER locationDesign == location.id
+          RETURN location
+    `;
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result === false) {
+      return [];
+    }
+    return result._result.map((location: any) => {
+      return removeUnnecessaryArangoFields(location);
+    });
+  };
+
+  public getOriginCountry = async () => {
+    const params = {} as any;
+    let rawQuery = `
+      FOR designer in designers
+        FOR location in locations
+          FILTER designer.location_ids[0] == location.id
+          RETURN location.country_id
+    `;
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result === false) {
+      return [];
+    }
+    return result._result;
   };
 }

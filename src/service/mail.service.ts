@@ -32,6 +32,23 @@ export default class MailService {
       }
     );
   };
+  public getTargetedFor = (type: number) => {
+    let result;
+    switch (type) {
+      case SYSTEM_TYPE.TISC:
+        result = TARGETED_FOR_TYPES.TISC_TEAM;
+        break;
+
+      case SYSTEM_TYPE.BRAND:
+        result = TARGETED_FOR_TYPES.BRAND;
+        break;
+
+      default:
+        result = TARGETED_FOR_TYPES.DESIGN_FIRM;
+        break;
+    }
+    return result;
+  };
   public async sendRegisterEmail(
     user: IUserAttributes | any
   ): Promise<boolean> {
@@ -94,20 +111,19 @@ export default class MailService {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
         title: "User password reset request.",
-        targeted_for:
-          user.type === SYSTEM_TYPE.TISC
-            ? TARGETED_FOR_TYPES.TISC_TEAM
-            : user.type === SYSTEM_TYPE.BRAND
-            ? TARGETED_FOR_TYPES.BRAND
-            : TARGETED_FOR_TYPES.DESIGN_FIRM,
+        targeted_for: this.getTargetedFor(user.type),
       });
-      const userType = Object.keys(SYSTEM_TYPE)
+      let userType = Object.keys(SYSTEM_TYPE)
         .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
         ?.toLowerCase();
+      userType = userType === "design" ? "design-firms" : userType;
       const html = await ejs.render(emailAutoResponder?.message || "", {
         operating_system: os.type(),
         browser_name: browserName,
-        fullname: user.firstname + " " + user.lastname,
+        fullname:
+          user.type === SYSTEM_TYPE.DESIGN
+            ? user.firstname
+            : user.firstname + " " + user.lastname,
         reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
       });
       this.sendSmtpEmail = {
@@ -134,12 +150,7 @@ export default class MailService {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
         title: "Welcome to the team!",
-        targeted_for:
-          inviteUser.type === SYSTEM_TYPE.TISC
-            ? TARGETED_FOR_TYPES.TISC_TEAM
-            : inviteUser.type === SYSTEM_TYPE.BRAND
-            ? TARGETED_FOR_TYPES.BRAND
-            : TARGETED_FOR_TYPES.DESIGN_FIRM,
+        targeted_for: this.getTargetedFor(inviteUser.type),
       });
       const html = await ejs.render(emailAutoResponder?.message || "", {
         firstname: inviteUser.firstname,
@@ -155,6 +166,81 @@ export default class MailService {
           },
         ],
         subject: "Welcome to the team!",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
+  public async sendDesignRegisterEmail(
+    user: IUserAttributes | any
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+        title: "Successfully signed-up!",
+      });
+      const html = await ejs.render(emailAutoResponder?.message || "", {
+        firstname: user.firstname,
+        email: user.email,
+        verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}&email=${user.email}`,
+      });
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: "Welcome to the team!",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
+
+  public async sendShareProductViaEmail(
+    to: string,
+    from: string,
+    subject: string,
+    message: string,
+    product_image: string,
+    brand_name: string,
+    brand_logo: string,
+    collection_name: string,
+    product_description: string,
+    sender: string,
+    product_url: string,
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const html = await ejs.renderFile(
+        `${process.cwd()}/src/templates/product-share-by-email.ejs`,
+        {
+          to,
+          from,
+          subject,
+          message,
+          product_image,
+          brand_name,
+          brand_logo,
+          collection_name,
+          product_description,
+          sender,
+          product_url,
+        }
+      );
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Global" },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: subject,
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
       };

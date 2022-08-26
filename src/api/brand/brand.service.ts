@@ -1,3 +1,6 @@
+import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
+import ProductService from "../../api/product/product.service";
 import {
   BRAND_STATUSES,
   BRAND_STATUS_OPTIONS,
@@ -6,11 +9,29 @@ import {
   SYSTEM_TYPE,
   VALID_IMAGE_TYPES,
 } from "../../constant/common.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
+import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
+import { toWebp } from "../../helper/image.helper";
+import { createResetPasswordToken } from "../../helper/password.helper";
 import BrandModel, {
-  IBrandAttributes,
   BRAND_NULL_ATTRIBUTES,
+  IBrandAttributes,
 } from "../../model/brand.model";
+import CollectionModel, {
+  ICollectionAttributes,
+} from "../../model/collection.model";
+import DistributorModel from "../../model/distributor.model";
+import FunctionalTypeModel from "../../model/functional_type.model";
+import LocationModel, { ILocationAttributes } from "../../model/location.model";
+import ProductModel, { IProductAttributes } from "../../model/product.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
+import { deleteFile, upload } from "../../service/aws.service";
+import CountryStateCityService from "../../service/country_state_city_v1.service";
+import MailService from "../../service/mail.service";
 import { IMessageResponse, IPagination } from "../../type/common.type";
+import MarketAvailabilityService from "../market_availability/market_availability.service";
+import PermissionService from "../permission/permission.service";
+import { IAvatarResponse } from "../user/user.type";
 import {
   IBrandByAlphabetResponse,
   IBrandCardsResponse,
@@ -19,25 +40,8 @@ import {
   IBrandResponse,
   IBrandsResponse,
   IUpdateBrandProfileRequest,
+  IUpdateBrandStatusRequest,
 } from "./brand.type";
-import MailService from "../../service/mail.service";
-import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
-import LocationModel from "../../model/location.model";
-import ProductService from "../../api/product/product.service";
-import { IAvatarResponse } from "../user/user.type";
-import { upload, deleteFile } from "../../service/aws.service";
-import { toWebp } from "../../helper/image.helper";
-import moment from "moment";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
-import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
-import { createResetPasswordToken } from "../../helper/password.helper";
-import PermissionService from "../permission/permission.service";
-import DistributorModel from "../../model/distributor.model";
-import CollectionModel from "../../model/collection.model";
-import ProductModel from "../../model/product.model";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
-import FunctionalTypeModel from "../../model/functional_type.model";
-import CountryStateCityService from "../../service/country_state_city_v1.service";
 
 export default class BrandService {
   private brandModel: BrandModel;
@@ -68,33 +72,48 @@ export default class BrandService {
     this.countryStateCityService = new CountryStateCityService();
   }
 
+  private getCountryName = (
+    originLocation: ILocationAttributes | false,
+    headquarterLocation: ILocationAttributes | false
+  ) => {
+    if (!originLocation) {
+      return "N/A";
+    }
+    return headquarterLocation
+      ? headquarterLocation.country_name
+      : originLocation.country_name;
+  };
   public getList = (
     limit: number,
     offset: number,
     filter: any,
-    sort_name: string,
-    sort_order: "ASC" | "DESC"
+    sort: string,
+    order: "ASC" | "DESC"
   ): Promise<IBrandsResponse> => {
     return new Promise(async (resolve) => {
       const brands: IBrandAttributes[] = await this.brandModel.list(
         limit,
         offset,
         filter,
-        [sort_name, sort_order]
+        [sort, order]
       );
       const result = await Promise.all(
         brands.map(async (brand) => {
           const foundStatus = BRAND_STATUS_OPTIONS.find(
             (item) => item.value === brand.status
           );
-          const users = await this.userModel.getMany(brand.team_profile_ids, [
-            "id",
-            "firstname",
-            "lastname",
-            "role_id",
-            "email",
-            "avatar",
-          ]);
+          const users = await this.userModel.getAllBy(
+            {
+              type: SYSTEM_TYPE.BRAND,
+              relation_id: brand.id,
+            },
+            ["id", "firstname", "lastname", "role_id", "email", "avatar"]
+          );
+          const assignTeams = await this.userModel.getMany(
+            brand.team_profile_ids,
+            ["id", "firstname", "lastname", "role_id", "email", "avatar"]
+          );
+
           const locations = await this.locationModel.getBy({
             type: SYSTEM_TYPE.BRAND,
             relation_id: brand.id,
@@ -136,7 +155,7 @@ export default class BrandService {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            origin: originLocation === false ? "" : originLocation.country_name,
+            origin: !originLocation ? "" : originLocation.country_name,
             locations: locations.length,
             teams: users.length,
             distributors: distributors.length,
@@ -145,7 +164,7 @@ export default class BrandService {
             collections: collections.length,
             cards: cards.length,
             products: products,
-            assign_team: users,
+            assign_team: assignTeams,
             status: brand.status,
             status_key: foundStatus?.key,
             created_at: brand.created_at,
@@ -317,7 +336,10 @@ export default class BrandService {
       });
     });
   };
-  public invite = (id: string): Promise<IMessageResponse> => {
+  public invite = (
+    current_user_id: string,
+    id: string
+  ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const brand = await this.brandModel.find(id);
       if (!brand) {
@@ -332,14 +354,15 @@ export default class BrandService {
           statusCode: 400,
         });
       }
+      const inviteUser = await this.userModel.find(current_user_id);
       const user = await this.userModel.getFirstBrandAdmin(brand.id);
-      if (!user) {
+      if (!user || !inviteUser) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
         });
       }
-      await this.mailService.sendRegisterEmail(user);
+      await this.mailService.sendInviteEmailTeamProfile(inviteUser, user);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
@@ -373,20 +396,19 @@ export default class BrandService {
           const brandSummary = await this.productService.getBrandProductSummary(
             brand.id
           );
-          const teamProfiles = await this.userModel.getMany(
-            brand.team_profile_ids,
+          const teamProfiles = await this.userModel.getAllBy(
+            {
+              type: SYSTEM_TYPE.BRAND,
+              relation_id: brand.id,
+            },
             ["id", "firstname", "lastname", "avatar"]
           );
+
           return {
             id: brand.id,
             name: brand.name,
             logo: brand.logo,
-            country:
-              originLocation === false
-                ? "N/A"
-                : headquarterLocation
-                ? headquarterLocation.country_name
-                : originLocation.country_name,
+            country: this.getCountryName(originLocation, headquarterLocation),
             category_count: brandSummary.data.category_count,
             collection_count: brandSummary.data.collection_count,
             card_count: brandSummary.data.card_count,
@@ -569,7 +591,7 @@ export default class BrandService {
       });
       if (user) {
         return resolve({
-          message: MESSAGES.USER_EXISTED,
+          message: MESSAGES.EMAIL_ALREADY_USED,
           statusCode: 400,
         });
       }
@@ -620,42 +642,60 @@ export default class BrandService {
 
   public getAllBrandSummary = (): Promise<any> =>
     new Promise(async (resolve) => {
-      const allBrand = await this.brandModel.getAll();
-      const locationIds = getDistinctArray(
-        allBrand.reduce((pre: string[], cur) => {
-          return pre.concat(cur.location_ids);
-        }, [])
+      let locations: ILocationAttributes[] = [];
+      let countries: {
+        id: string;
+        name: string;
+        phone_code: string;
+        region: string;
+      }[] = [];
+      let collections: ICollectionAttributes[] = [];
+      let cards: IProductAttributes[] = [];
+      let categories: any[] = [];
+      let products: number = 0;
+
+      const brands = await this.brandModel.getAll(["id"]);
+      const userCount = await this.brandModel.summaryUserAndLocation(
+        null,
+        "user"
       );
-      const teamProfileIds = getDistinctArray(
-        allBrand.reduce((pre: string[], cur) => {
-          return pre.concat(cur.team_profile_ids);
-        }, [])
-      );
+      for (const brand of brands) {
+        /// need improve
+        const brandLocations = await this.locationModel.getBy({
+          type: SYSTEM_TYPE.BRAND,
+          relation_id: brand.id,
+        });
+        locations = locations.concat(brandLocations);
+
+        const foundCollections = await this.collectionModel.getAllBy({
+          brand_id: brand.id,
+        });
+        if (foundCollections.length)
+          collections = collections.concat(foundCollections);
+
+        const foundCards = await this.productModel.getBy({
+          brand_id: brand.id,
+        });
+        if (foundCards) cards = cards.concat(foundCards);
+      }
+      ///
       const countryIds = await Promise.all(
-        locationIds.map(async (locationId) => {
-          const location = await this.locationModel.find(locationId);
-          return location?.country_id || "";
+        locations.map(async (location) => {
+          return location.country_id;
         })
       );
       const distinctCountryIds = getDistinctArray(countryIds);
-      const countries = await this.marketAvailabilityService.getRegionCountries(
+      countries = await this.marketAvailabilityService.getRegionCountries(
         distinctCountryIds
       );
-      const cards = (
-        await Promise.all(
-          allBrand.map(async (brand) => {
-            return await this.productModel.getBy({ brand_id: brand.id });
-          })
-        )
-      ).flat();
-      const collectionIds = getDistinctArray(
-        cards.map((product) => product.collection_id || "")
-      );
-      const categoryIds = getDistinctArray(
-        cards.map((product) => product.category_ids).flat()
+
+      categories = getDistinctArray(
+        cards.reduce((pre: string[], cur) => {
+          return pre.concat(cur.category_ids);
+        }, [])
       );
 
-      const products = cards.reduce((pre: number, cur) => {
+      products = cards.reduce((pre: number, cur) => {
         cur.specification_attribute_groups.forEach((group) => {
           group.attributes.forEach((attribute) => {
             if (attribute.type === "Options")
@@ -665,31 +705,130 @@ export default class BrandService {
         return pre;
       }, 0);
       return resolve({
-        data: {
-          brands: allBrand.length,
-          locations: locationIds.length,
-          teams: teamProfileIds.length,
-          countries: countries.length,
-          africa: countries.filter((item) => item.region === REGION_KEY.AFRICA)
-            .length,
-          asia: countries.filter((item) => item.region === REGION_KEY.ASIA)
-            .length,
-          europe: countries.filter((item) => item.region === REGION_KEY.EUROPE)
-            .length,
-          north_america: countries.filter(
-            (item) => item.region === REGION_KEY.NORTH_AMERICA
-          ).length,
-          oceania: countries.filter(
-            (item) => item.region === REGION_KEY.OCEANIA
-          ).length,
-          south_america: countries.filter(
-            (item) => item.region === REGION_KEY.SOUTH_AMERICA
-          ).length,
-          cards: cards.length,
-          collections: collectionIds.length,
-          categories: categoryIds.length,
-          products: products,
-        },
+        data: [
+          {
+            id: uuidv4(),
+            quantity: brands.length,
+            label: "BRAND COMPANIES",
+            subs: [
+              {
+                id: uuidv4(),
+                quantity: locations.length,
+                label: "Locations",
+              },
+              {
+                id: uuidv4(),
+                quantity: userCount,
+                label: "Teams",
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            quantity: countries.length,
+            label: "COUNTRIES",
+            subs: [
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.AFRICA
+                ).length,
+                label: "Africa",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.ASIA
+                ).length,
+                label: "Asia",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.EUROPE
+                ).length,
+                label: "Europe",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.NORTH_AMERICA
+                ).length,
+                label: "N.America",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.OCEANIA
+                ).length,
+                label: "Oceania",
+              },
+              {
+                id: uuidv4(),
+                quantity: countries.filter(
+                  (item) => item.region === REGION_KEY.SOUTH_AMERICA
+                ).length,
+                label: "S.America",
+              },
+            ],
+          },
+          {
+            id: uuidv4(),
+            quantity: products,
+            label: "PRODUCTS",
+            subs: [
+              {
+                id: uuidv4(),
+                quantity: getDistinctArray(categories).length,
+                label: "Categories",
+              },
+              {
+                id: uuidv4(),
+                quantity: collections.length,
+                label: "Collections",
+              },
+              {
+                id: uuidv4(),
+                quantity: cards.length,
+                label: "Cards",
+              },
+            ],
+          },
+        ],
+        statusCode: 200,
+      });
+    });
+
+  public updateBrandStatus = (
+    brand_id: string,
+    payload: IUpdateBrandStatusRequest
+  ): Promise<IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+
+      if (brand.status !== payload.status) {
+        const updatedBrandStatus = await this.brandModel.update(brand_id, {
+          status: payload.status,
+        });
+        if (!updatedBrandStatus) {
+          return resolve({
+            message: MESSAGES.SOMETHING_WRONG_UPDATE,
+            statusCode: 400,
+          });
+        }
+        return resolve({
+          message: MESSAGES.SUCCESS,
+          statusCode: 200,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
         statusCode: 200,
       });
     });

@@ -195,6 +195,89 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: "/api/user/get-interested-options",
+          options: {
+            handler: controller.getInterestedOptions,
+            description: "Method that get interested options",
+            tags: ["api", "User profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getInterestedOptions,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_TEAM_GROUP_BY_COUNTRY,
+          options: {
+            handler: controller.getBrandTeamGroupByCountry,
+            validate: validate.getWithBrandId,
+            description: "Method that get list brand team group by country",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByCountry,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DESIGN_TEAM_GROUP_BY_COUNTRY,
+          options: {
+            handler: controller.getDesignTeamGroupByCountry,
+            validate: validate.getWithDesignId,
+            description: "Method that get list design team group by country",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByCountry,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_TISC_TEAM_PROFILE,
+          options: {
+            handler: controller.getTiscTeamsProfile,
+            validate: validate.getWithBrandId,
+            description: "Method that get TISC teams profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTiscTeamsProfile,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.ASSIGN_TEAM,
+          options: {
+            handler: controller.assignTeam,
+            validate: validate.assignTeam,
+            description: "Method that assign team",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

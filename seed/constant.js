@@ -41,7 +41,7 @@ const ROUTES = {
   GET_BRAND_STATUSES: "/api/brand/statuses",
   SEND_EMAIL_INVITE_BRAND: "/api/brand/invite/{id}",
   GET_LIST_ASSIGN_TEAM: "/api/team/get-list",
-  ASSIGN_TEAM: "/api/team/assign/{id}",
+  ASSIGN_TEAM: "/api/team/assign/{brand_id}",
   GET_LIST_DESIGN_FIRM: "/api/design/get-list",
   GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
   UPDATE_DESIGN_FIRM: "/api/design/update/{id}",
@@ -172,11 +172,11 @@ const ROUTES = {
   GET_LIST_MARKET_AVAILABILITY: "/api/market-availability/get-list",
   GET_ONE_MARKET_AVAILABILITY: "/api/market-availability/get-one/{id}",
   UPDATE_DESIGN_PROFILE: "/api/design/update-profile",
-  CREATE_PROJECT_SPACE: "/api/project-space/create",
-  UPDATE_PROJECT_SPACE: "/api/project-space/update/{id}",
-  DELETE_PROJECT_SPACE: "/api/project-space/delete/{id}",
-  GET_LIST_PROJECT_SPACE: "/api/project-space/get-list",
-  GET_ONE_PROJECT_SPACE: "/api/project-space/get-one/{id}",
+  CREATE_PROJECT_ZONE: "/api/project-zone/create",
+  UPDATE_PROJECT_ZONE: "/api/project-zone/update/{id}",
+  DELETE_PROJECT_ZONE: "/api/project-zone/delete/{id}",
+  GET_LIST_PROJECT_ZONE: "/api/project-zone/get-list",
+  GET_ONE_PROJECT_ZONE: "/api/project-zone/get-one/{id}",
   CREATE_MATERIAL_CODE: "/api/material-code/create",
   UPDATE_MATERIAL_CODE: "/api/material-code/update/{id}",
   DELETE_MATERIAL_CODE: "/api/material-code/delete/{id}",
@@ -204,6 +204,10 @@ const ROUTES = {
   GET_ALL_HOWTO: "/api/documentation/howto/get-all",
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
   DELETE_COLLECTION: "/api/collection/delete/{id}",
+  GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
+  GET_PROJECT_TYPES: "/api/project/project-types",
+  GET_BUILDING_TYPES: "/api/project/building-types",
+  GET_PROJECT_SUMMARY: "/api/project/get-summary",
 };
 const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -344,11 +348,11 @@ const ROUTE_IDS = {
   GET_LIST_MARKET_AVAILABILITY: "130",
   GET_ONE_MARKET_AVAILABILITY: "131",
   UPDATE_DESIGN_PROFILE: "132",
-  CREATE_PROJECT_SPACE: "133",
-  UPDATE_PROJECT_SPACE: "134",
-  DELETE_PROJECT_SPACE: "135",
-  GET_LIST_PROJECT_SPACE: "136",
-  GET_ONE_PROJECT_SPACE: "137",
+  CREATE_PROJECT_ZONE: "133",
+  UPDATE_PROJECT_ZONE: "134",
+  DELETE_PROJECT_ZONE: "135",
+  GET_LIST_PROJECT_ZONE: "136",
+  GET_ONE_PROJECT_ZONE: "137",
   CREATE_MATERIAL_CODE: "138",
   UPDATE_MATERIAL_CODE: "139",
   DELETE_MATERIAL_CODE: "140",
@@ -373,6 +377,10 @@ const ROUTE_IDS = {
   GET_ALL_HOWTO: "155",
   GET_ALL_BRAND_SUMMARY: "156",
   DELETE_COLLECTION: "157",
+  GET_LIST_DESIGNER_BRAND_PRODUCTS: "158",
+  GET_PROJECT_TYPES: "159",
+  GET_BUILDING_TYPES: "160",
+  GET_PROJECT_SUMMARY: "161",
 };
 
 const USER_STATUSES = {
@@ -461,6 +469,28 @@ const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
   created_at: null,
   is_deleted: false,
   type: 0,
+};
+const UNIT_TYPE_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  created_at: null,
+  is_deleted: false,
+  design_id: "0",
+};
+const REQUIREMENT_TYPE_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  created_at: null,
+  is_deleted: false,
+  design_id: "0",
+};
+const PROJECT_TYPE_NULL_ATTRIBUTES = {
+  id: "",
+  name: "",
+  created_at: "",
+  is_deleted: false,
+  type: 0,
+  relation_id: "",
 };
 const BASIS_NULL_ATTRIBUTES = {
   id: null,
@@ -556,6 +586,28 @@ const LOGO_PATH = {
   OFFICE: "/logo/office.svg",
   MATERIAL: "/logo/material.svg",
 };
+const BUILDING_TYPE_NULL_ATTRIBUTES = {
+  id: "",
+  name: "",
+  created_at: "",
+  is_deleted: false,
+  type: 0,
+  relation_id: "",
+};
+
+const COMMON_TYPES_ATTRIBUTES = {
+  id: "",
+  name: "",
+  created_at: "",
+  is_deleted: false,
+  type: 0,
+  relation_id: "",
+};
+const COMMON_TYPES = {
+  SHARING_GROUP: 1,
+  SHARING_PURPOSE: 2,
+};
+
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -579,4 +631,10 @@ module.exports = {
   DOCUMENTATION_NULL_ATTRIBUTES,
   DOCUMENTATION_TYPES,
   LOGO_PATH,
+  PROJECT_TYPE_NULL_ATTRIBUTES,
+  BUILDING_TYPE_NULL_ATTRIBUTES,
+  UNIT_TYPE_NULL_ATTRIBUTES,
+  REQUIREMENT_TYPE_NULL_ATTRIBUTES,
+  COMMON_TYPES_ATTRIBUTES,
+  COMMON_TYPES,
 };

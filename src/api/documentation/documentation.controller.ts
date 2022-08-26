@@ -61,4 +61,11 @@ export default class DocumentationController {
     const response = await this.service.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListPolicyForLandingPage = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await this.service.getListPolicyForLandingPage();
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

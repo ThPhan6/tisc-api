@@ -66,6 +66,56 @@ export default class Model<IModelData> {
     }
   };
 
+  public listV2 = async (
+    limit: number,
+    offset: number,
+    filter: any,
+    sort?: any,
+    join?: {
+      key: string;
+      collection: string;
+    }
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any;
+      if (sort) {
+        if (join) {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .join(join.key, join.collection)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select();
+      } else {
+        if (join) {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .join(join.key, join.collection)
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .paginate(limit, offset)
+            .select();
+        }
+      }
+      return result;
+    } catch (err) {
+      return [];
+    }
+  };
+
   public create = async (params: Omit<IModelData, "id" | "created_at">) => {
     try {
       const id = uuidv4();
@@ -135,17 +185,37 @@ export default class Model<IModelData> {
     }
   };
 
+  public getManyOrder = async (
+    ids: string[],
+    key?: string[],
+    sort?: string,
+    order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any = this.getBuilder()
+        .builder.whereIn("id", ids)
+        .whereNot("is_deleted", true);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
+      }
+      result = await result.select(key);
+      return result as IModelData[];
+    } catch (error) {
+      return [] as IModelData[];
+    }
+  };
+
   public getAll = async (
     keys?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC"
+    sort?: string,
+    order?: "ASC" | "DESC"
   ): Promise<IModelData[]> => {
     try {
       let result: any;
-      if (sort_name && sort_order) {
+      if (sort && order) {
         result = await this.getBuilder()
           .builder.whereNot("is_deleted", true)
-          .orderBy(sort_name, sort_order)
+          .orderBy(sort, order)
           .select(keys);
         return result;
       }
@@ -161,16 +231,16 @@ export default class Model<IModelData> {
   public getAllBy = async (
     params: any,
     keys?: string[],
-    sort_name?: string,
-    sort_order?: "ASC" | "DESC"
+    sort?: string,
+    order?: "ASC" | "DESC"
   ): Promise<IModelData[]> => {
     try {
       let result: any;
-      if (sort_name && sort_order) {
+      if (sort && order) {
         result = await this.getBuilder()
           .builder.whereNot("is_deleted", true)
           .where(params)
-          .orderBy(sort_name, sort_order)
+          .orderBy(sort, order)
           .select(keys);
         return result;
       }

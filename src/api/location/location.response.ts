@@ -179,6 +179,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           business_name: Joi.string(),
+          business_number: Joi.string(),
           functional_types: Joi.array().items({
             id: Joi.string(),
             name: Joi.string(),

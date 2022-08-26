@@ -90,3 +90,21 @@ export interface IBrandRequest {
   last_name: string;
   email: string;
 }
+
+export interface IBrandSummary {
+  data: {
+    id: string;
+    quantity: number;
+    label: string;
+    subs: {
+      id: string;
+      quantity: number;
+      label: string;
+    }[];
+  }[];
+  statusCode: number;
+}
+
+export interface IUpdateBrandStatusRequest {
+  status: number;
+}

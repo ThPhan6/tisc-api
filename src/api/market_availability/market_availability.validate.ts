@@ -91,4 +91,12 @@ export default {
       };
     }),
   } as any,
+  getWithBrandId: {
+    params: {
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Collection is required")),
+    },
+  },
 };

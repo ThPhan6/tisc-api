@@ -1,5 +1,10 @@
+import { getDistinctArray } from "./../../helper/common.helper";
 import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import {
+  IMessageResponse,
+  IPagination,
+  SystemType,
+} from "../../type/common.type";
 import UserModel, {
   IUserAttributes,
   USER_NULL_ATTRIBUTES,
@@ -12,9 +17,12 @@ import {
   IUserResponse,
   IDepartmentsResponse,
   IUsersResponse,
+  IGetTeamsGroupByCountry,
+  IAssignTeamRequest,
+  IGetTiscTeamsProfile,
 } from "./user.type";
 import { createResetPasswordToken } from "../../helper/password.helper";
-import { USER_STATUSES } from "../../constant/user.constant";
+import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
 import { upload, deleteFile } from "../../service/aws.service";
 import moment from "moment";
@@ -26,6 +34,8 @@ import LocationModel from "../../model/location.model";
 import { getAccessLevel } from "../../helper/common.helper";
 import PermissionService from "../../api/permission/permission.service";
 import BrandModel from "../../model/brand.model";
+import DesignModel from "../../model/designer.model";
+import CountryStateCityService from "../../service/country_state_city.service";
 
 export default class UserService {
   private userModel: UserModel;
@@ -34,6 +44,8 @@ export default class UserService {
   private locationModel: LocationModel;
   private permissionService: PermissionService;
   private brandModel: BrandModel;
+  private designModel: DesignModel;
+  private countryStateCityService: CountryStateCityService;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
@@ -41,6 +53,8 @@ export default class UserService {
     this.locationModel = new LocationModel();
     this.permissionService = new PermissionService();
     this.brandModel = new BrandModel();
+    this.designModel = new DesignModel();
+    this.countryStateCityService = new CountryStateCityService();
   }
 
   public create = (
@@ -62,6 +76,35 @@ export default class UserService {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+      // check role id
+      if (
+        (
+          currentUser.type === SYSTEM_TYPE.TISC &&
+          (
+            payload.role_id !== ROLES.TISC_ADMIN &&
+            payload.role_id !== ROLES.TISC_CONSULTANT_TEAM
+          )
+        ) ||
+        (
+          currentUser.type === SYSTEM_TYPE.BRAND &&
+          (
+            payload.role_id !== ROLES.BRAND_ADMIN &&
+            payload.role_id !== ROLES.BRAND_TEAM
+          )
+        ) ||
+        (
+          currentUser.type === SYSTEM_TYPE.DESIGN &&
+          (
+            payload.role_id !== ROLES.DESIGN_ADMIN &&
+            payload.role_id !== ROLES.DESIGN_TEAM
+          )
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.CANNOT_UPDATE_TO_OTHER_ROLE,
+          statusCode: 400,
         });
       }
       let verificationToken: string;
@@ -157,7 +200,7 @@ export default class UserService {
         fullname: `${user.firstname} ${user.lastname}`,
         gender: user.gender,
         location_id: user.location_id,
-        work_location: '',
+        work_location: "",
         department_id: user.department_id,
         position: user.position,
         email: user.email,
@@ -168,13 +211,14 @@ export default class UserService {
         personal_mobile: user.personal_mobile,
         linkedin: user.linkedin,
         created_at: user.created_at,
-        access_level: user.access_level,
+        access_level: getAccessLevel(user.role_id),
         status: user.status,
         type: user.type,
         relation_id: user.relation_id,
         phone_code: location?.phone_code || "",
         permissions,
-
+        interested: user.interested || [],
+        retrieve_favourite: user.retrieve_favourite
       };
       /// combine work_location
       if (location) {
@@ -188,8 +232,9 @@ export default class UserService {
 
       if (user.type === SYSTEM_TYPE.BRAND) {
         const brand = await this.brandModel.find(user.relation_id || "");
+        const design = await this.designModel.find(user.relation_id || "");
         return resolve({
-          data: { ...result, brand },
+          data: { ...result, brand, design },
           statusCode: 200,
         });
       }
@@ -287,6 +332,7 @@ export default class UserService {
         backup_email: payload.backup_email,
         personal_mobile: payload.personal_mobile,
         linkedin: payload.linkedin,
+        interested: payload.interested,
       });
       if (!updatedUser) {
         return resolve({
@@ -467,7 +513,7 @@ export default class UserService {
           );
 
           /// combine work_location
-          let workLocation = '';
+          let workLocation = "";
           if (location) {
             if (location.city_name) {
               workLocation = `${location.city_name}, `;
@@ -476,7 +522,7 @@ export default class UserService {
               workLocation += location.country_name.toUpperCase();
             }
           }
-          
+
           return {
             id: userItem.id,
             firstname: userItem.firstname,
@@ -486,7 +532,7 @@ export default class UserService {
             position: userItem.position,
             email: userItem.email,
             phone: userItem.phone,
-            access_level: userItem.access_level,
+            access_level: getAccessLevel(userItem.role_id),
             status: userItem.status,
             avatar: userItem.avatar,
             created_at: userItem.created_at,
@@ -563,6 +609,175 @@ export default class UserService {
       await this.mailService.sendInviteEmailTeamProfile(user, currentUser);
       return resolve({
         message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getBrandOrDesignTeamGroupByCountry = async (
+    relation_id: string,
+    type: SystemType
+  ): Promise<IMessageResponse | IGetTeamsGroupByCountry | any> => {
+    return new Promise(async (resolve) => {
+      const users = await this.userModel.getBy({
+        type,
+        relation_id,
+      });
+      const locationIds = getDistinctArray(
+        users.map((user) => user?.location_id || "")
+      );
+      const locations = await this.locationModel.getMany(locationIds);
+      let temp: {
+        [key: string]: {
+          country_name: string;
+          count: number;
+          users: any[];
+        };
+      } = {};
+      await Promise.all(
+        locations.map(async (location) => {
+          const country = await this.countryStateCityService.getCountryDetail(
+            location.country_id
+          );
+          const foundUsers = users.filter(
+            (item) => item.location_id === location.id
+          );
+          if (!foundUsers) {
+            return null;
+          }
+          const newUsers = temp[country.name]
+            ? temp[country.name].users.concat(foundUsers)
+            : foundUsers;
+          temp = {
+            ...temp,
+            [country.name]: {
+              ...temp[country.name],
+              country_name:
+                location.country_id === "-1" ? "Global" : country.name,
+              users: newUsers,
+              count: newUsers.length,
+            },
+          };
+          return true;
+        })
+      );
+      const result = await Promise.all(
+        Object.values(temp).map(async (item) => {
+          const removedFieldsOfUser = await Promise.all(
+            item.users.map(async (user) => {
+              const department = await this.departmentModel.find(
+                user.department_id
+              );
+              const location = await this.locationModel.find(user.location_id);
+              return {
+                phone_code: location?.phone_code,
+                logo: user.avatar,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                gender: user.gender,
+                work_location: user.work_location?.replace(/^,/, "").trim(),
+                department: department?.name,
+                position: user.position,
+                email: user.email,
+                phone: user.phone,
+                mobile: user.mobile,
+                access_level: user.access_level,
+                status: user.status,
+              };
+            })
+          );
+          return {
+            ...item,
+            users: removedFieldsOfUser,
+          };
+        })
+      );
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public assignTeam = async (
+    brand_id: string,
+    payload: IAssignTeamRequest
+  ): Promise<IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const distinctUserIds = getDistinctArray(payload.user_ids);
+      const updatedBrand = await this.brandModel.update(brand_id, {
+        team_profile_ids: distinctUserIds,
+      });
+      if (!updatedBrand) {
+        return resolve({
+          message: MESSAGES.SOMETHING_WRONG_UPDATE,
+          statusCode: 400,
+        });
+      }
+      return resolve({
+        message: MESSAGES.SUCCESS,
+        statusCode: 200,
+      });
+    });
+  };
+
+  public getTiscTeamsProfile = async (
+    brand_id: string
+  ): Promise<IMessageResponse | IGetTiscTeamsProfile> => {
+    return new Promise(async (resolve) => {
+      const brand = await this.brandModel.find(brand_id);
+      if (!brand) {
+        return resolve({
+          message: MESSAGES.BRAND_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const users = await this.userModel.getAllBy({
+        type: SYSTEM_TYPE.TISC,
+        status: USER_STATUSES.ACTIVE
+      });
+
+      const groupTiscTeams = users.filter(
+        (user) => user.role_id === ROLES.TISC_ADMIN
+      );
+      const groupConsultantTeams = users.filter(
+        (user) => user.role_id === ROLES.TISC_CONSULTANT_TEAM
+      );
+
+      const result = [
+        {
+          name: "TISC TEAMS",
+          users: groupTiscTeams,
+        },
+        {
+          name: "CONSULTANT TEAMS",
+          users: groupConsultantTeams,
+        },
+      ].map((item) => {
+        const removedFieldsOfUser = item.users.map((user) => {
+          const isAssigned = brand.team_profile_ids.includes(user.id);
+          return {
+            id: user.id,
+            avatar: user.avatar,
+            first_name: user.firstname,
+            last_name: user.lastname,
+            is_assigned: isAssigned,
+          };
+        });
+        return {
+          ...item,
+          users: removedFieldsOfUser,
+        };
+      });
+      return resolve({
+        data: result,
         statusCode: 200,
       });
     });

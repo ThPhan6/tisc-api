@@ -10,8 +10,8 @@ import path from "path";
 dotenv.config();
 const swaggerOptions = {
   info: {
-    title: "Test API Documentation",
-    version: "2.0.0",
+    title: "API Documentation",
+    version: "3.0.0",
   },
   grouping: "tags",
   sortEndpoints: "ordered",

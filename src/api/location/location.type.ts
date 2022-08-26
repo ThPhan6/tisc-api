@@ -90,6 +90,7 @@ export interface LocationsWithGroupResponse {
     locations: {
       id: string;
       business_name: string;
+      business_number?: string;
       functional_types: {
         id: string;
         name: string;
@@ -104,6 +105,8 @@ export interface LocationsWithGroupResponse {
       state_name: string | null;
       city_name: string;
       phone_code: string;
+      general_phone?: string;
+      general_email?: string;
     }[];
   }[];
   statusCode: number;

@@ -50,6 +50,7 @@ export default {
       personal_mobile: Joi.string().allow(""),
       zone_code: Joi.string().allow(""),
       linkedin: Joi.string().allow(""),
+      interested: Joi.array().items(Joi.number()),
     },
   },
   updateAvatar: {
@@ -111,6 +112,34 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Id is required")),
+    },
+  },
+  getWithBrandId: {
+    params: {
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+  },
+  getWithDesignId: {
+    params: {
+      design_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+  },
+
+  assignTeam: {
+    params: {
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
+    },
+    payload: {
+      user_ids: Joi.array().items(Joi.string()),
     },
   },
 };

@@ -11,11 +11,11 @@ export default class AutoEmailController {
   constructor() {
     this.service = new AutoEmailService();
   }
-  public getListTopic = async (req: Request, toolkit: ResponseToolkit) => {
+  public getListTopic = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(TOPIC_OPTIONS).code(200);
   };
   public getListTargetedFor = async (
-    req: Request,
+    _req: Request,
     toolkit: ResponseToolkit
   ) => {
     return toolkit.response(TARGETED_FOR_OPTIONS).code(200);

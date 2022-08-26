@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { DESIGN_STATUSES } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -35,8 +36,8 @@ export default {
           return customFilter(value, helpers);
         }, "custom filter validation")
         .error(commonFailValidatedMessageFunction("Invalid filter")),
-      sort_name: Joi.string(),
-      sort_order: Joi.string().valid("ASC", "DESC"),
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
@@ -45,9 +46,24 @@ export default {
             ? 0
             : (value.page - 1) * value.pageSize,
         filter: value.filter,
-        sort_name: value.sort_name ? value.sort_name : "created_at",
-        sort_order: value.sort_order ? value.sort_order : "ASC",
+        sort: value.sort ? value.sort : "created_at",
+        order: value.order ? value.order : "ASC",
       };
     }),
   } as any,
+
+  updateDesignStatus: {
+    params: {
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+    payload: {
+      status: Joi.number()
+        .valid(DESIGN_STATUSES.ACTIVE, DESIGN_STATUSES.INACTIVE)
+        .required()
+        .error(commonFailValidatedMessageFunction("Design status is required")),
+    },
+  },
 };

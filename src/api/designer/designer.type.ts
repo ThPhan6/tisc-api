@@ -28,3 +28,21 @@ export interface IDesignerResponse {
   data: any;
   statusCode: number;
 }
+
+export interface IDesignSummary {
+  data: {
+    id: string;
+    quantity: number;
+    label: string;
+    subs: {
+      id: string;
+      quantity: number;
+      label: string;
+    }[];
+  }[];
+  statusCode: number;
+}
+
+export interface IUpdateDesignStatusRequest {
+  status: number;
+}

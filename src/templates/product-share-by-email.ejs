@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Shared Product</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style media="screen"></style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+  <style></style>
+  <style>
+    .wrapper {
+      font-family: "Inter";
+      background-color: #f0f8ff;
+      padding: 32px 0;
+    }
+    .wrapper p {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .content {
+      width: 50%;
+      max-width: 584px;
+      margin: 0 auto;
+      background: #fff;
+      min-height: 732px;
+    }
+    .message {
+      padding: 0 16px 16px;
+    }
+    .tisc-table-content {
+      width: 100%;
+      border-spacing: 0;
+    }
+    .tisc-table-content td {
+      height: 32px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.3);
+      padding-top: 16px;
+      font-size: 14px;
+    }
+    .tisc-table-content td p {
+      font-size: 12px;
+    }
+    .tisc-message-text {
+      margin: 0;
+      padding: 16px 16px 32px;
+    }
+    .tisc-table-product {
+      width: 100%;
+      border-spacing: 0;
+      padding: 7px 0;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.3);
+    }
+    .tisc-table-product td {
+      height: 28px;
+    }
+    .tisc-table-product td p {
+      font-size: 12px;
+    }
+    .tisc-footer-text {
+      padding: 8px 0px;
+      font-size: 12px !important;
+    }
+    .tisc-footer-text-2 {
+      padding: 0px 0px;
+      font-size: 12px !important;
+    }
+    .tisc-footer-text a {
+      color: #2B39D4;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="content">
+      <div class="message">
+        <table class="tisc-table-content">
+          <tbody>
+            <tr>
+              <td> To: </td>
+              <td> <%= to %> </td>
+            </tr>
+            <tr>
+              <td> From: </td>
+              <td> <%= from %> </td>
+            </tr>
+            <tr>
+              <td> Subject: </td>
+              <td> <%= subject %> </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <p class="tisc-message-text">
+                  Message
+                  <br />
+                  <br />
+                  <%= message %>
+                  <br />
+                  <br />
+                  <%= sender %>
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="tisc-table-product">
+          <tbody>
+            <tr>
+                <td rowspan="3" width="82" style="padding-right: 12px;">
+                  <img src="<%= product_image %>" width="70" style="border: 0.3px solid #000000;" />
+                </td>
+                <td width="100%">
+                  <p><%= brand_name %></p>
+                </td>
+                <td>
+                  <img src="<%= brand_logo %>" width="24" style="display:block" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" width="100%">
+                  <p><%= collection_name %></p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" width="100%">
+                  <p><%= product_description %></p>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="tisc-footer-text">
+          <span>Information provided by </span>
+          <a href="mailto:support@tisc.global">tisc.global</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

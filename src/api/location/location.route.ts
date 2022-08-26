@@ -231,6 +231,58 @@ export default class LocationRoute implements IRoute {
           },
         },
         {
+          method: "GET",
+          path: ROUTES.GET_MARKET_LOCATIONS_COUNTRY_GROUP,
+          options: {
+            handler: controller.getMarketLocationGroupByCountry,
+            validate: validate.getMarketLocationsCountryGroup,
+            description:
+              "Method that get market availability locations group by country",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListWithGroup,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_LOCATIONS_COUNTRY_GROUP,
+          options: {
+            handler: controller.getBrandLocationGroupByCountry,
+            validate: validate.getBrandLocationsCountryGroup,
+            description: "Method that get brand locations group by country",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListWithGroup,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DESIGN_LOCATIONS_COUNTRY_GROUP,
+          options: {
+            handler: controller.getDesignLocationGroupByCountry,
+            validate: validate.getDesignLocationsCountryGroup,
+            description: "Method that get design locations group by country",
+            tags: ["api", "Location"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListWithGroup,
+              },
+            },
+          },
+        },
+        {
           method: "DELETE",
           path: ROUTES.DELETE_LOCATION,
           options: {

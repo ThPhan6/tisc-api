@@ -20,22 +20,31 @@ import {
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
-import { IMessageResponse } from "../../type/common.type";
-import { MESSAGES } from "../../constant/common.constant";
+import { IMessageResponse, SystemType } from "../../type/common.type";
+import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import CountryStateCityService from "../../service/country_state_city.service";
 import { ICityAttributes } from "../../model/city";
 import { getDistinctArray } from "../../helper/common.helper";
+import ProductModel from "../../model/product.model";
+import CollectionModel from "../../model/collection.model";
+import MarketAvailabilityModel from "../../model/market_availability.model";
 
 export default class LocationService {
   private locationModel: LocationModel;
   private functionalTypeModel: FunctionalTypeModel;
   private countryStateCityService: CountryStateCityService;
   private userModel: UserModel;
+  private productModel: ProductModel;
+  private collectionModel: CollectionModel;
+  private marketAvailabilityModel: MarketAvailabilityModel;
   constructor() {
     this.locationModel = new LocationModel();
     this.functionalTypeModel = new FunctionalTypeModel();
     this.countryStateCityService = new CountryStateCityService();
     this.userModel = new UserModel();
+    this.productModel = new ProductModel();
+    this.collectionModel = new CollectionModel();
+    this.marketAvailabilityModel = new MarketAvailabilityModel();
   }
 
   private getRegionName = (key: string) => {
@@ -87,15 +96,18 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      if (!country) {
-        return resolve({
-          message: MESSAGES.COUNTRY_NOT_FOUND,
-          statusCode: 404,
-        });
+      if (payload.country_id != '-1') {
+        const country = await this.countryStateCityService.getCountryDetail(
+          payload.country_id
+        );
+        if (!country.id) {
+          return resolve({
+            message: MESSAGES.COUNTRY_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
       }
+
       const states = await this.countryStateCityService.getStatesByCountry(
         payload.country_id
       );
@@ -116,7 +128,7 @@ export default class LocationService {
         const state = await this.countryStateCityService.getStateDetail(
           payload.state_id
         );
-        if (!state) {
+        if (!state.id) {
           return resolve({
             message: MESSAGES.STATE_NOT_FOUND,
             statusCode: 404,
@@ -218,15 +230,18 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      if (!country) {
-        return resolve({
-          message: MESSAGES.COUNTRY_NOT_FOUND,
-          statusCode: 404,
-        });
+      if (payload.country_id != '-1') {
+        const country = await this.countryStateCityService.getCountryDetail(
+          payload.country_id
+        );
+        if (!country.id) {
+          return resolve({
+            message: MESSAGES.COUNTRY_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
       }
+
       const states = await this.countryStateCityService.getStatesByCountry(
         payload.country_id
       );
@@ -247,7 +262,7 @@ export default class LocationService {
         const state = await this.countryStateCityService.getStateDetail(
           payload.state_id
         );
-        if (!state) {
+        if (!state.id) {
           return resolve({
             message: MESSAGES.STATE_NOT_FOUND,
             statusCode: 404,
@@ -364,7 +379,6 @@ export default class LocationService {
         location.functional_type_ids,
         ["id", "name"]
       );
-      // console.log(location.functional_type_ids, functionalTypes);
       const result = {
         id: location.id,
         business_name: location.business_name,
@@ -573,6 +587,133 @@ export default class LocationService {
           locations: groupLocations,
         };
       });
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getBrandOrDesignLocationGroupByCountry = (
+    relation_id: string,
+    type: SystemType
+  ): Promise<LocationsWithGroupResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const locations = await this.locationModel.getAllBy(
+        { type, relation_id: relation_id },
+        undefined,
+        "country_name",
+        "ASC"
+      );
+      const removedFields = await Promise.all(
+        locations.map(async (location: ILocationAttributes) => {
+          const functionalTypes = await this.functionalTypeModel.getMany(
+            location.functional_type_ids,
+            ["id", "name"]
+          );
+          return {
+            id: location.id,
+            business_name: location.business_name,
+            business_number: location.business_number,
+            address: location.address,
+            postal_code: location.postal_code,
+            created_at: location.created_at,
+            country_name: location.country_name,
+            state_name: location.state_name,
+            city_name: location.city_name,
+            country_id: location.country_id,
+            state_id: location.state_id,
+            city_id: location.city_id,
+            phone_code: location.phone_code,
+            functional_types: functionalTypes,
+            general_phone: location.general_phone,
+            general_email: location.general_email,
+          };
+        })
+      );
+      const distintCountries = await this.locationModel.getGroupBy(
+        { type, relation_id: relation_id },
+        "country_name",
+        "count"
+      );
+      const result = distintCountries.map((distintCountry: any) => {
+        const groupLocations = removedFields.filter(
+          (item) => item.country_name === distintCountry.country_name
+        );
+        return {
+          ...distintCountry,
+          locations: groupLocations,
+        };
+      });
+      return resolve({
+        data: result,
+        statusCode: 200,
+      });
+    });
+  public getMarketLocationGroupByCountry = (
+    product_id: string
+  ): Promise<LocationsWithGroupResponse | IMessageResponse> =>
+    new Promise(async (resolve) => {
+      const product = await this.productModel.find(product_id);
+      if (!product) {
+        return resolve({
+          message: MESSAGES.PRODUCT_NOT_FOUND,
+          statusCode: 404,
+        });
+      }
+      const market = await this.marketAvailabilityModel.findBy({
+        collection_id: product.collection_id,
+      });
+      if (!market) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const countryLocations = await Promise.all(
+        market.country_ids.map(async (country_id) => {
+          const locations = await this.locationModel.getAllBy(
+            {
+              type: SYSTEM_TYPE.BRAND,
+              relation_id: product.brand_id,
+              country_id,
+            },
+            undefined,
+            "country_name",
+            "ASC"
+          );
+          const removedFields = await Promise.all(
+            locations.map(async (location: ILocationAttributes) => {
+              const functionalTypes = await this.functionalTypeModel.getMany(
+                location.functional_type_ids,
+                ["id", "name"]
+              );
+              return {
+                id: location.id,
+                business_name: location.business_name,
+                address: location.address,
+                postal_code: location.postal_code,
+                created_at: location.created_at,
+                country_name: location.country_name,
+                state_name: location.state_name,
+                city_name: location.city_name,
+                country_id: location.country_id,
+                state_id: location.state_id,
+                city_id: location.city_id,
+                phone_code: location.phone_code,
+                functional_types: functionalTypes,
+              };
+            })
+          );
+          return {
+            country_name: locations[0]?.country_name || "",
+            count: locations.length,
+            locations: removedFields,
+          };
+        })
+      );
+      const result = countryLocations.filter(
+        (item) => item.locations && item.locations[0]
+      );
+
       return resolve({
         data: result,
         statusCode: 200,

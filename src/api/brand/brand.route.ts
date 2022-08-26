@@ -199,6 +199,22 @@ export default class BrandRoute implements IRoute {
             },
           },
         },
+        {
+          method: "PUT",
+          path: ROUTES.UPDATE_BRAND_STATUS,
+          options: {
+            handler: controller.updateBrandStatus,
+            validate: validate.updateBrandStatus,
+            description: "Method that update brand status",
+            tags: ["api", "Brand"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
