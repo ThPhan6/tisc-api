@@ -127,6 +127,7 @@ export default {
         .email()
         .required()
         .error(commonFailValidatedMessageFunction("Email is required")),
+      type: Joi.number(),
     },
   },
   checkEmail: {

@@ -216,6 +216,22 @@ class AuthService {
           statusCode: 404,
         });
       }
+      if (
+        (
+          payload.type === SYSTEM_TYPE.TISC &&
+          user.type !== SYSTEM_TYPE.TISC
+        ) ||
+        (
+          payload.type !== SYSTEM_TYPE.TISC &&
+          user.type === SYSTEM_TYPE.TISC
+        )
+      ) {
+        return resolve({
+          message: MESSAGES.ACCOUNT_NOT_EXIST,
+          statusCode: 404,
+        });
+      }
+
       let reset_password_token: string;
       let isDuplicated = true;
       do {
