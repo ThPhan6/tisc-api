@@ -1,62 +1,84 @@
-import sgMail from "@sendgrid/mail";
+import { ISystemType } from "./../type/common.type";
 import * as DotEnv from "dotenv";
 import * as ejs from "ejs";
 import { IUserAttributes } from "../model/user.model";
-import { IMessageResponse } from "../type/common.type";
-
+import os from "os";
+import { SYSTEM_TYPE, TARGETED_FOR_TYPES } from "./../constant/common.constant";
+import EmailAutoResponderModel from "../model/auto_email.model";
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 export default class MailService {
   private fromAddress: string;
   private frontpageURL: string;
+  private apiInstance: any;
+  private sendSmtpEmail: object;
+  private emailAutoResponderModel: EmailAutoResponderModel;
   public constructor() {
     DotEnv.config({ path: `${process.cwd()}/.env` });
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
-    this.fromAddress = process.env.SENDGRID_FROM || "";
+    this.fromAddress = process.env.SENDINBLUE_FROM || "";
     this.frontpageURL = process.env.FE_URL || "";
+    SibApiV3Sdk.ApiClient.instance.authentications["api-key"].apiKey =
+      process.env.SENDINBLUE_API_KEY;
+    this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    this.sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    this.emailAutoResponderModel = new EmailAutoResponderModel();
   }
+  private exeAfterSend = (resolve: any) => {
+    return (
+      resolve(true),
+      (error: any) => {
+        if (error.response) {
+          return resolve(false);
+        }
+      }
+    );
+  };
+  public getTargetedFor = (type: number) => {
+    let result;
+    switch (type) {
+      case SYSTEM_TYPE.TISC:
+        result = TARGETED_FOR_TYPES.TISC_TEAM;
+        break;
 
+      case SYSTEM_TYPE.BRAND:
+        result = TARGETED_FOR_TYPES.BRAND;
+        break;
+
+      default:
+        result = TARGETED_FOR_TYPES.DESIGN_FIRM;
+        break;
+    }
+    return result;
+  };
   public async sendRegisterEmail(
     user: IUserAttributes | any
-  ): Promise<IMessageResponse | any> {
+  ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/register.ejs`,
         {
-          fullname: user.fullname,
+          email: user.email,
+          firstname: user.firstname,
           verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}`,
         }
       );
-      const msg = {
-        from: {
-          name: "Tisc Team",
-          email: this.fromAddress,
-        },
-        to: user.email,
-        subject: "Tisc - Registration",
-        text: "and easy to do anywhere, even with Node.js",
-        html,
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: "Successfully signed-up!",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
       };
-      sgMail.send(msg).then(
-        () => {
-          resolve({
-            message: "Success",
-            statusCode: 200,
-          });
-        },
-        (error: any) => {
-          if (error.response) {
-            resolve({
-              message: "An error occurred",
-              statusCode: 400,
-            });
-          }
-        }
-      );
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
     });
   }
 
-  public async sendInviteEmail(
-    user: IUserAttributes | any
-  ): Promise<IMessageResponse | any> {
+  public async sendInviteEmail(user: IUserAttributes | any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/invite.ejs`,
@@ -65,72 +87,166 @@ export default class MailService {
           verify_link: `${this.frontpageURL}/create-password?verification_token=${user.verification_token}`,
         }
       );
-      const msg = {
-        from: {
-          name: "Tisc Team",
-          email: this.fromAddress,
-        },
-        to: user.email,
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
         subject: "Tisc - Invitation",
-        text: "and easy to do anywhere, even with Node.js",
-        html,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
       };
-      sgMail.send(msg).then(
-        () => {
-          resolve({
-            message: "Success",
-            statusCode: 200,
-          });
-        },
-        (error: any) => {
-          if (error.response) {
-            resolve({
-              message: "An error occurred",
-              statusCode: 400,
-            });
-          }
-        }
-      );
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
     });
   }
 
   public async sendResetPasswordEmail(
-    user: IUserAttributes
-  ): Promise<IMessageResponse | any> {
+    user: IUserAttributes,
+    browserName: string
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+        title: "User password reset request.",
+        targeted_for: this.getTargetedFor(user.type),
+      });
+      let userType = Object.keys(SYSTEM_TYPE)
+        .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
+        ?.toLowerCase();
+      userType = userType === "design" ? "design-firms" : userType;
+      const html = await ejs.render(emailAutoResponder?.message || "", {
+        operating_system: os.type(),
+        browser_name: browserName,
+        fullname:
+          user.type === SYSTEM_TYPE.DESIGN
+            ? user.firstname
+            : user.firstname + " " + user.lastname,
+        reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
+      });
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: "User password reset request.",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
+
+  public async sendInviteEmailTeamProfile(
+    inviteUser: IUserAttributes | any,
+    senderUser: IUserAttributes | any
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+        title: "Welcome to the team!",
+        targeted_for: this.getTargetedFor(inviteUser.type),
+      });
+      const html = await ejs.render(emailAutoResponder?.message || "", {
+        firstname: inviteUser.firstname,
+        email: inviteUser.email,
+        sender_first_name: senderUser.firstname + " " + senderUser.lastname,
+        url: `${this.frontpageURL}/create-password?verification_token=${inviteUser.verification_token}&email=${inviteUser.email}`,
+      });
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: inviteUser.email,
+          },
+        ],
+        subject: "Welcome to the team!",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
+  public async sendDesignRegisterEmail(
+    user: IUserAttributes | any
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+        title: "Successfully signed-up!",
+      });
+      const html = await ejs.render(emailAutoResponder?.message || "", {
+        firstname: user.firstname,
+        email: user.email,
+        verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}&email=${user.email}`,
+      });
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: "Welcome to the team!",
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
+
+  public async sendShareProductViaEmail(
+    to: string,
+    from: string,
+    subject: string,
+    message: string,
+    product_image: string,
+    brand_name: string,
+    brand_logo: string,
+    collection_name: string,
+    product_description: string,
+    sender: string,
+    product_url: string,
+  ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
-        `${process.cwd()}/src/templates/forgot-password.ejs`,
+        `${process.cwd()}/src/templates/product-share-by-email.ejs`,
         {
-          fullname: user.firstname + " " + user.lastname,
-          reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}`,
+          to,
+          from,
+          subject,
+          message,
+          product_image,
+          brand_name,
+          brand_logo,
+          collection_name,
+          product_description,
+          sender,
+          product_url,
         }
       );
-      const msg = {
-        from: {
-          name: "Tisc Team",
-          email: this.fromAddress,
-        },
-        to: user.email,
-        subject: "Tisc - Password Reset Request",
-        text: "Click to reset your password",
-        html,
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Global" },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: subject,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
       };
-      sgMail.send(msg).then(
-        () => {
-          resolve({
-            message: "Success",
-            statusCode: 200,
-          });
-        },
-        (error: any) => {
-          if (error.response) {
-            resolve({
-              message: "An error occurred",
-              statusCode: 400,
-            });
-          }
-        }
-      );
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
     });
   }
 }

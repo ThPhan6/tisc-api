@@ -34,6 +34,8 @@ export const DESIGN_PERMISSION_TITLE = {
   MY_WORKSPACE: "MY WORKSPACE",
   MY_FAVOURITE: "MY FAVOURITE",
   PRODUCT: "PRODUCTS",
+  BRAND_PRODUCT: "Brand Products",
+  CUSTOM_LIBRARY: "Custom Library",
   PROJECT: "PROJECTS",
   PROJECT_LIST: "Overall Listing",
   PROJECT_BASIC: "Basic Information",

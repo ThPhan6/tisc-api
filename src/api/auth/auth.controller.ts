@@ -7,6 +7,7 @@ import {
   IRegisterRequest,
   IResetPasswordRequest,
 } from "./auth.type";
+import { SYSTEM_TYPE } from "../../constant/common.constant";
 
 export default class AuthController {
   private authService: AuthService;
@@ -19,7 +20,18 @@ export default class AuthController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.authService.login(payload);
+    const response = await this.authService.tiscLogin(
+      payload,
+      SYSTEM_TYPE.TISC
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public brandLogin = async (
+    req: Request & { payload: IAdminLoginRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.authService.login(payload, SYSTEM_TYPE.BRAND);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -27,8 +39,12 @@ export default class AuthController {
     req: Request & { payload: IForgotPasswordRequest },
     toolkit: ResponseToolkit
   ) => {
+    const currentBrowser = req.headers["user-agent"];
     const payload = req.payload;
-    const response = await this.authService.forgotPassword(payload);
+    const response = await this.authService.forgotPassword(
+      payload,
+      currentBrowser
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -38,6 +54,15 @@ export default class AuthController {
   ) => {
     const payload = req.payload;
     const response = await this.authService.resetPassword(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public resetPasswordAndLogin = async (
+    req: Request & { payload: IResetPasswordRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await this.authService.resetPasswordAndLogin(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -70,8 +95,27 @@ export default class AuthController {
   };
 
   public resendEmail = async (req: Request, toolkit: ResponseToolkit) => {
+    const currentBrowser = req.headers["user-agent"];
     const { type, email } = req.params;
-    const response = await this.authService.resendEmail(type, email);
+    const response = await this.authService.resendEmail(
+      type,
+      email,
+      currentBrowser
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public isValidResetPasswordToken = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { token } = req.params;
+    const response = await this.authService.isValidResetPasswordToken(token);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public checkEmail = async (req: Request, toolkit: ResponseToolkit) => {
+    const { email } = req.params;
+    const response = await this.authService.checkEmail(email);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

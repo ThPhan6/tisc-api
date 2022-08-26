@@ -6,13 +6,17 @@ const Joi = HapiJoi.defaults((schema) =>
 );
 
 export default {
-  getUser: Joi.object({
+  getOne: Joi.object({
     data: Joi.object({
+      id: Joi.string(),
+      role_id: Joi.string(),
       firstname: Joi.string(),
       lastname: Joi.string(),
+      fullname: Joi.string(),
       gender: Joi.any(),
-      location: Joi.string(),
-      position: Joi.string(),
+      location_id: Joi.string().allow(null),
+      department_id: Joi.string().allow(null),
+      position: Joi.string().allow(null),
       email: Joi.string(),
       phone: Joi.any(),
       mobile: Joi.any(),
@@ -20,7 +24,107 @@ export default {
       backup_email: Joi.any(),
       personal_mobile: Joi.any(),
       linkedin: Joi.any(),
+      created_at: Joi.any(),
+      phone_code: Joi.string().allow(""),
+      work_location: Joi.any(),
+      access_level: Joi.any(),
+      status: Joi.number(),
+      type: Joi.number(),
+      relation_id: Joi.any(),
+      permissions: Joi.any(),
+      brand: Joi.any(),
+      design: Joi.any(),
+      interested: Joi.any(),
+      retrieve_favourite: Joi.bool(),
     }),
     statusCode: Joi.number(),
   }) as any,
+  getList: Joi.object({
+    data: Joi.object({
+      users: Joi.array().items({
+        id: Joi.string(),
+        firstname: Joi.string(),
+        lastname: Joi.string(),
+        fullname: Joi.string(),
+        work_location: Joi.any(),
+        position: Joi.any(),
+        email: Joi.string(),
+        phone: Joi.any(),
+        avatar: Joi.any(),
+        access_level: Joi.any(),
+        created_at: Joi.any(),
+        status: Joi.any(),
+        phone_code: Joi.string().allow(""),
+      }),
+      pagination: Joi.object({
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      }),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
+  avatar: Joi.object({
+    data: Joi.object({
+      url: Joi.string(),
+    }),
+    statusCode: Joi.number(),
+  }) as any,
+  getListDepartment: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+    }),
+  }) as any,
+  getInterestedOptions: Joi.array().items({
+    key: Joi.string(),
+    value: Joi.number(),
+  }),
+
+  getTeamGroupByCountry: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        country_name: Joi.string(),
+        count: Joi.number(),
+        users: Joi.array().items(
+          Joi.object({
+            logo: Joi.string().allow(null),
+            firstname: Joi.string(),
+            lastname: Joi.string(),
+            gender: Joi.boolean(),
+            work_location: Joi.string(),
+            department: Joi.string(),
+            position: Joi.string().allow(null),
+            email: Joi.string(),
+            phone: Joi.string().allow(null),
+            mobile: Joi.string().allow(null),
+            access_level: Joi.string(),
+            status: Joi.number(),
+            phone_code: Joi.string(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
+
+  getTiscTeamsProfile: {
+    data: Joi.array().items(
+      Joi.object({
+        name: Joi.string(),
+        users: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            avatar: Joi.string().allow(null),
+            first_name: Joi.string(),
+            last_name: Joi.string(),
+            is_assigned: Joi.boolean(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  },
 };

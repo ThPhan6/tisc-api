@@ -5,6 +5,7 @@ export interface IAdminLoginRequest {
 
 export interface IForgotPasswordRequest {
   email: string;
+  type: number;
 }
 
 export interface IResetPasswordRequest {
@@ -21,6 +22,7 @@ export interface IForgotPasswordResponse {
 
 export interface ILoginResponse {
   token: string;
+  type?: string;
   message: string;
   statusCode?: number;
 }

@@ -7,22 +7,34 @@ const Joi = HapiJoi.defaults((schema) =>
 
 export default {
   getList: Joi.object({
-    data: Joi.array().items({
-      id: Joi.string(),
-      name: Joi.string(),
-      logo: Joi.string(),
-      origin: Joi.string(),
-      main_office: Joi.string(),
-      satellites: Joi.number(),
-      designers: Joi.number(),
-      capacities: Joi.number(),
-      projects: Joi.number(),
-      live: Joi.number(),
-      on_hold: Joi.number(),
-      archived: Joi.number(),
-      status: Joi.number(),
-      assign_team: Joi.any(),
-      created_at: Joi.string(),
+    data: Joi.object({
+      designers: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          logo: Joi.string().allow(null),
+          origin: Joi.any(),
+          main_office: Joi.any(),
+          satellites: Joi.number(),
+          designers: Joi.number(),
+          capacities: Joi.number(),
+          projects: Joi.number(),
+          live: Joi.number(),
+          on_hold: Joi.number(),
+          archived: Joi.number(),
+          status: Joi.number(),
+          status_key: Joi.any(),
+          assign_team: Joi.any(),
+          created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
+        })
+      ),
+      pagination: Joi.object({
+        page: Joi.number(),
+        page_size: Joi.number(),
+        total: Joi.number(),
+        page_count: Joi.number(),
+      }),
     }),
     statusCode: Joi.number(),
   }) as any,
@@ -30,4 +42,21 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
+  getAllDesignSummary: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        quantity: Joi.number(),
+        label: Joi.string(),
+        subs: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            quantity: Joi.number(),
+            label: Joi.string(),
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
 };

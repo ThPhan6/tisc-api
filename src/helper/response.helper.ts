@@ -29,3 +29,8 @@ export const defaultRouteOptionResponseStatus = {
   401: errorMessageResponse,
   500: errorMessageResponse,
 };
+
+export const statuses = Joi.array().items({
+  key: Joi.string(),
+  value: Joi.number(),
+});

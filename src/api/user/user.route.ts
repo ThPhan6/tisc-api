@@ -2,15 +2,13 @@ import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
 import IRoute from "../../helper/route.helper";
-import {
-  defaultRouteOptionResponseStatus,
-  generalMessageResponse,
-} from "../../helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
-import UserResponse from "./user.response";
+import response from "./user.response";
+import commonValidate from "../../validate/common.validate";
 
-export default class UserRoutes implements IRoute {
+export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
       const controller = new UserController();
@@ -28,7 +26,7 @@ export default class UserRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse,
+                200: response.getOne,
               },
             },
           },
@@ -39,12 +37,29 @@ export default class UserRoutes implements IRoute {
           options: {
             handler: controller.getMe,
             description: "Method that get current user",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_TEAM_PROFILE,
+          options: {
+            handler: controller.getList,
+            validate: commonValidate.getList,
+            description: "Method that get list user",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
               },
             },
           },
@@ -57,11 +72,11 @@ export default class UserRoutes implements IRoute {
             validate: validate.getOne,
             description: "Method that get one user",
             tags: ["api", "Team profile"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: response.getOne,
               },
             },
           },
@@ -73,12 +88,12 @@ export default class UserRoutes implements IRoute {
             handler: controller.updateMe,
             validate: validate.updateMe,
             description: "Method that update current user profile",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: response.getOne,
               },
             },
           },
@@ -95,7 +110,7 @@ export default class UserRoutes implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: UserResponse.getUser,
+                200: response.getOne,
               },
             },
           },
@@ -107,7 +122,7 @@ export default class UserRoutes implements IRoute {
             handler: controller.updateAvatar,
             validate: validate.updateAvatar,
             description: "Method that update user avatar",
-            tags: ["api", "Team profile"],
+            tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
             payload: {
               maxBytes: 1024 * 1024 * 5,
@@ -115,7 +130,147 @@ export default class UserRoutes implements IRoute {
                 output: "stream",
               },
               parse: true,
+              failAction: (_request, _h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `Can not upload file size greater than 5MB`;
+                  }
+                }
+                throw err;
+              },
             },
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.avatar,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DEPARTMENTS,
+          options: {
+            handler: controller.getDepartments,
+            description: "Method that get departments",
+            tags: ["api", "Department"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListDepartment,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.SEND_INVITE_TEAM_PROFILE,
+          options: {
+            handler: controller.invite,
+            validate: commonValidate.getOne,
+            description: "Method that invite team profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_TEAM_PROFILE,
+          options: {
+            handler: controller.delete,
+            validate: commonValidate.getOne,
+            description: "Method that delete team profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: "/api/user/get-interested-options",
+          options: {
+            handler: controller.getInterestedOptions,
+            description: "Method that get interested options",
+            tags: ["api", "User profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getInterestedOptions,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_TEAM_GROUP_BY_COUNTRY,
+          options: {
+            handler: controller.getBrandTeamGroupByCountry,
+            validate: validate.getWithBrandId,
+            description: "Method that get list brand team group by country",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByCountry,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DESIGN_TEAM_GROUP_BY_COUNTRY,
+          options: {
+            handler: controller.getDesignTeamGroupByCountry,
+            validate: validate.getWithDesignId,
+            description: "Method that get list design team group by country",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTeamGroupByCountry,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_TISC_TEAM_PROFILE,
+          options: {
+            handler: controller.getTiscTeamsProfile,
+            validate: validate.getWithBrandId,
+            description: "Method that get TISC teams profile",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getTiscTeamsProfile,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.ASSIGN_TEAM,
+          options: {
+            handler: controller.assignTeam,
+            validate: validate.assignTeam,
+            description: "Method that assign team",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

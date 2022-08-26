@@ -1,217 +1,4 @@
-// import { Database } from "arangojs";
-// import { v4 as uuidv4 } from "uuid";
-// import moment from "moment";
-// import dotenv from "dotenv";
-// import Builder from "./builder";
-// dotenv.config();
-
-// const db = new Database({
-//   url: process.env.DATABASE_HOSTNAME,
-// });
-// db.useDatabase(process.env.DATABASE_NAME || "");
-// db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-
-// const filterToAql = (filter: any, prefix: string) => {
-//   const keys = Object.keys(filter ? filter : {});
-//   return keys.reduce((pre, cur) => {
-//     if (typeof filter[cur] === "string") {
-//       return pre + `filter ${prefix}.${cur} == "${filter[cur]}" `;
-//     }
-//     return pre + `filter ${prefix}.${cur} == ${filter[cur]} `;
-//   }, "");
-// };
-
-// export default class Model<IModelData> {
-//   private modelName: string;
-//   private builder: Builder;
-//   public constructor(modelName: string) {
-//     this.modelName = modelName;
-//     this.builder = new Builder(this.modelName);
-//   }
-
-//   public list = async (
-//     limit: number,
-//     offset: number,
-//     filter: any,
-//     sort?: any
-//   ): Promise<any> => {
-//     try {
-//       let result: any;
-//       if (sort) {
-//         result = await db.query({
-//           query: `
-//           FOR data IN @@model
-//           ${filterToAql(filter, "data")}
-//           limit @offset,@limit
-//           sort data.${sort[0]} @direction
-//           RETURN data
-//         `,
-//           bindVars: {
-//             offset: offset,
-//             limit: limit,
-//             "@model": this.modelName,
-//             direction: sort[1],
-//           },
-//         });
-//       } else {
-//         result = await db.query({
-//           query: `
-//           FOR data IN @@model
-//           ${filterToAql(filter, "data")}
-//           limit @offset,@limit
-//           sort data._key asc
-//           RETURN data
-//         `,
-//           bindVars: {
-//             offset: offset,
-//             limit: limit,
-//             "@model": this.modelName,
-//           },
-//         });
-//       }
-//       return result._result;
-//     } catch (err) {
-//       return undefined;
-//     }
-//   };
-
-//   public create = async (params: Omit<IModelData, "id" | "created_at">) => {
-//     try {
-//       const id = uuidv4();
-//       const created_at = moment().toISOString();
-//       const record = {
-//         ...params,
-//         id,
-//         created_at,
-//       };
-//       const result = await db.query({
-//         query: `insert ${JSON.stringify(record)} into @@model`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       if (result) {
-//         return record;
-//       }
-//       return undefined;
-//     } catch (err) {
-//       console.log(err);
-//       return undefined;
-//     }
-//   };
-
-//   public find = async (id: string): Promise<IModelData | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model filter data.id == @id return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//           id,
-//         },
-//       });
-//       return result._result[0];
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public findBy = async (params: any): Promise<IModelData | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model ${filterToAql(params, "data")} return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       return result._result[0];
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public getBy = async (params: any): Promise<IModelData[] | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model ${filterToAql(params, "data")} return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       return result._result;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public getAll = async (): Promise<IModelData[] | false> => {
-//     try {
-//       const result: any = await db.query({
-//         query: `for data in @@model return data`,
-//         bindVars: {
-//           "@model": this.modelName,
-//         },
-//       });
-//       return result._result;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public update = async (
-//     id: string,
-//     params: object
-//   ): Promise<IModelData | false> => {
-//     try {
-//       const record = await this.find(id);
-//       if (record) {
-//         const isUpdated = await db.query({
-//           query: `for data in @@model filter data.id == @id update data with ${JSON.stringify(
-//             params
-//           )} in @@model`,
-//           bindVars: { "@model": this.modelName, id },
-//         });
-//         if (isUpdated) {
-//           return {
-//             ...record,
-//             ...params,
-//           };
-//         }
-//       }
-//       return undefined;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public delete = async (id: string): Promise<boolean> => {
-//     try {
-//       const record = await this.find(id);
-//       if (record) {
-//         await db.query({
-//           query: `for data in @@model filter data.id == @id remove data in @@model`,
-//           bindVars: { "@model": this.modelName, id },
-//         });
-//         return true;
-//       }
-//       return undefined;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-
-//   public deleteMany = async (ids: string[]): Promise<boolean> => {
-//     try {
-//       await db.query({
-//         query: `for data in @@model filter data.id in @ids remove data in @@model`,
-//         bindVars: { "@model": this.modelName, ids },
-//       });
-//       return true;
-//     } catch (error) {
-//       return undefined;
-//     }
-//   };
-// }
-
+import { IPagination } from "./../type/common.type";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import Builder from "../query_builder";
@@ -223,6 +10,11 @@ export default class Model<IModelData> {
     this.modelName = modelName;
     this.builder = new Builder(this.modelName);
   }
+
+  public getBuilder = () => {
+    this.builder = new Builder(this.modelName);
+    return this;
+  };
 
   public list = async (
     limit: number,
@@ -238,31 +30,31 @@ export default class Model<IModelData> {
       let result: any;
       if (sort) {
         if (join) {
-          result = await this.builder
-            .where("is_deleted", false)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
-            .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
             .select(undefined, true);
         } else
-          result = await this.builder
-            .where("is_deleted", false)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
-            .paginate(limit, offset)
             .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
             .select();
       } else {
         if (join) {
-          result = await this.builder
-            .where("is_deleted", false)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .join(join.key, join.collection)
             .paginate(limit, offset)
             .select(undefined, true);
         } else {
-          result = await this.builder
-            .where("is_deleted", false)
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
             .where(filter)
             .paginate(limit, offset)
             .select();
@@ -271,6 +63,56 @@ export default class Model<IModelData> {
       return result;
     } catch (err) {
       return undefined;
+    }
+  };
+
+  public listV2 = async (
+    limit: number,
+    offset: number,
+    filter: any,
+    sort?: any,
+    join?: {
+      key: string;
+      collection: string;
+    }
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any;
+      if (sort) {
+        if (join) {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .join(join.key, join.collection)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .orderBy(sort[0], sort[1])
+            .paginate(limit, offset)
+            .select();
+      } else {
+        if (join) {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .join(join.key, join.collection)
+            .paginate(limit, offset)
+            .select(undefined, true);
+        } else {
+          result = await this.getBuilder()
+            .builder.whereNot("is_deleted", true)
+            .where(filter)
+            .paginate(limit, offset)
+            .select();
+        }
+      }
+      return result;
+    } catch (err) {
+      return [];
     }
   };
 
@@ -283,7 +125,7 @@ export default class Model<IModelData> {
         id,
         created_at,
       };
-      const result = await this.builder.insert(record);
+      const result = await this.getBuilder().builder.insert(record);
       if (result) {
         return record;
       }
@@ -295,8 +137,10 @@ export default class Model<IModelData> {
 
   public find = async (id: string): Promise<IModelData | undefined> => {
     try {
-      const result = await this.builder.where("id", id).first();
-      return result;
+      return await this.getBuilder()
+        .builder.where("id", id)
+        .whereNot("is_deleted", true)
+        .first();
     } catch (error) {
       return undefined;
     }
@@ -304,28 +148,109 @@ export default class Model<IModelData> {
 
   public findBy = async (params: any): Promise<IModelData | undefined> => {
     try {
-      const result: any = await this.builder.where(params).first();
+      const result: any = await this.getBuilder()
+        .builder.where(params)
+        .whereNot("is_deleted", true)
+        .first();
       return result;
     } catch (error) {
       return undefined;
     }
   };
 
-  public getBy = async (params: any): Promise<IModelData[] | undefined> => {
+  public getBy = async (params: any): Promise<IModelData[]> => {
     try {
-      const result: any = await this.builder.where(params).select();
+      const result: any = await this.getBuilder()
+        .builder.where(params)
+        .whereNot("is_deleted", true)
+        .select();
       return result;
     } catch (error) {
-      return undefined;
+      return [];
     }
   };
 
-  public getAll = async (): Promise<IModelData[] | undefined> => {
+  public getMany = async (
+    ids: string[],
+    key?: string[]
+  ): Promise<IModelData[]> => {
     try {
-      const result: any = await this.builder.select();
+      const result: any = await this.getBuilder()
+        .builder.whereIn("id", ids)
+        .whereNot("is_deleted", true)
+        .select(key);
       return result;
     } catch (error) {
-      return undefined;
+      return [];
+    }
+  };
+
+  public getManyOrder = async (
+    ids: string[],
+    key?: string[],
+    sort?: string,
+    order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any = this.getBuilder()
+        .builder.whereIn("id", ids)
+        .whereNot("is_deleted", true);
+      if (sort && order) {
+        result = result.orderBy(sort, order);
+      }
+      result = await result.select(key);
+      return result as IModelData[];
+    } catch (error) {
+      return [] as IModelData[];
+    }
+  };
+
+  public getAll = async (
+    keys?: string[],
+    sort?: string,
+    order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any;
+      if (sort && order) {
+        result = await this.getBuilder()
+          .builder.whereNot("is_deleted", true)
+          .orderBy(sort, order)
+          .select(keys);
+        return result;
+      }
+      result = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .select(keys);
+      return result;
+    } catch (error) {
+      return [];
+    }
+  };
+
+  public getAllBy = async (
+    params: any,
+    keys?: string[],
+    sort?: string,
+    order?: "ASC" | "DESC"
+  ): Promise<IModelData[]> => {
+    try {
+      let result: any;
+      if (sort && order) {
+        result = await this.getBuilder()
+          .builder.whereNot("is_deleted", true)
+          .where(params)
+          .orderBy(sort, order)
+          .select(keys);
+        return result;
+      }
+      result = await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params)
+        .select(keys);
+      return result;
+    } catch (error) {
+      return [];
     }
   };
 
@@ -336,10 +261,11 @@ export default class Model<IModelData> {
     try {
       const record = await this.find(id);
       if (record) {
-        const isUpdated = await this.builder.where("id", id).update(params);
+        const isUpdated = await this.getBuilder()
+          .builder.where("id", id)
+          .update(params);
         if (isUpdated) {
-          const result = await this.find(id);
-          return result;
+          return isUpdated;
         }
       }
       return undefined;
@@ -348,27 +274,27 @@ export default class Model<IModelData> {
     }
   };
 
-  public delete = async (id: string): Promise<boolean> => {
-    try {
-      const record = await this.find(id);
-      if (record) {
-        await this.builder.where("id", id).delete();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      return false;
-    }
-  };
+  // public delete = async (id: string): Promise<boolean> => {
+  //   try {
+  //     const record = await this.find(id);
+  //     if (record) {
+  //       await this.builder.where("id", id).delete();
+  //       return true;
+  //     }
+  //     return false;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // };
 
-  public deleteMany = async (ids: string[]): Promise<boolean> => {
-    try {
-      await this.builder.whereIn("id", ids).delete();
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
+  // public deleteMany = async (ids: string[]): Promise<boolean> => {
+  //   try {
+  //     await this.builder.whereIn("id", ids).delete();
+  //     return true;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // };
 
   public join = async (
     key: string,
@@ -376,10 +302,48 @@ export default class Model<IModelData> {
     custom_key: string[]
   ) => {
     try {
-      const result = await this.builder
-        .join(key, collection)
+      return await this.getBuilder()
+        .builder.join(key, collection)
         .select(custom_key, true);
-      return result;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  public getPagination = async (
+    limit: number,
+    offset: number,
+    params?: any
+  ): Promise<IPagination> => {
+    let total;
+    if (params) {
+      total = (await this.getAllBy(params)).length;
+    } else {
+      total = (await this.getAll()).length;
+    }
+    const page = offset / limit + 1;
+    const pageCount = Math.ceil(total / limit);
+    return {
+      page,
+      page_size: limit,
+      total,
+      page_count: pageCount,
+    };
+  };
+
+  public getGroupBy = async (params: any, key: string, count_key?: string) => {
+    try {
+      return await this.getBuilder()
+        .builder.whereNot("is_deleted", true)
+        .where(params)
+        .groupBy(key, count_key);
+    } catch (error) {
+      return [];
+    }
+  };
+  public raw = async (raw_string: string, bindObj: any) => {
+    try {
+      return await this.builder.raw(raw_string, bindObj);
     } catch (error) {
       return false;
     }

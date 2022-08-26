@@ -1,5 +1,19 @@
 import * as Joi from "joi";
+const customFilter = (value: any, helpers: any) => {
+  try {
+    const filter = JSON.parse(decodeURIComponent(value));
+    if (typeof filter === "object") {
+      return filter;
+    }
+    return helpers.error("any.invalid");
+  } catch (error) {
+    return helpers.error("any.invalid");
+  }
+};
 
+export const commonFailValidatedMessageFunction = (message: string) => {
+  return new Error(message);
+};
 export default {
   getList: {
     query: Joi.object({
@@ -9,34 +23,25 @@ export default {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page must be an integer",
-        }),
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
+
       pageSize: Joi.number()
         .min(1)
         .custom((value, helpers) => {
           if (!Number.isInteger(value)) return helpers.error("any.invalid");
           return value;
         })
-        .messages({
-          "any.invalid": "Page Size must be an integer",
-        }),
-      sort: Joi.string().valid("ASC", "DESC"),
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
+
+      sort: Joi.string(),
+      order: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
-          try {
-            const filter = JSON.parse(decodeURIComponent(value));
-            if (typeof filter === "object") {
-              return filter;
-            }
-            return helpers.error("any.invalid");
-          } catch (error) {
-            return helpers.error("any.invalid");
-          }
+          return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
     }).custom((value) => {
       return {
         limit: !value.page || !value.pageSize ? 10 : value.pageSize,
@@ -68,9 +73,7 @@ export default {
             return helpers.error("any.invalid");
           }
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
     },
   },
   getAll: {
@@ -79,23 +82,48 @@ export default {
       order: Joi.string().valid("ASC", "DESC"),
       filter: Joi.string()
         .custom((value, helpers) => {
-          try {
-            const filter = JSON.parse(decodeURIComponent(value));
-            if (typeof filter === "object") {
-              return filter;
-            }
-            return helpers.error("any.invalid");
-          } catch (error) {
-            return helpers.error("any.invalid");
-          }
+          return customFilter(value, helpers);
         }, "custom filter validation")
-        .messages({
-          "any.invalid": "Invalid filter",
-        }),
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
     }).custom((value) => {
       return {
         filter: value.filter,
         sort: value.sort ? [value.sort, value.order] : undefined,
+      };
+    }),
+  } as any,
+  getOne: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id can not be empty")),
+    },
+  },
+  getListJustWithLimitOffset: {
+    query: Joi.object({
+      page: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
+      pageSize: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
+    }).custom((value) => {
+      return {
+        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
+        offset:
+          !value.page || !value.pageSize
+            ? 0
+            : (value.page - 1) * value.pageSize,
       };
     }),
   } as any,

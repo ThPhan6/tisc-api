@@ -1,23 +1,46 @@
-const roleMigrate = require("./20220530051914_create_role_table").migrate;
-const userMigrate = require("./20220530051954_create_user_table").migrate;
-const permissionMigrate =
-  require("./20220530052011_create_permission_table").migrate;
-const permissionDetailMigrate =
-  require("./20220530052027_create_permission_detail_table").migrate;
-const documentationMigrate =
-  require("./20220530052049_create_documentation_table").migrate;
-const brandMigrate = require("./20220530052103_create_brand_table").migrate;
-const designerMigrate =
-  require("./20220530052115_create_designer_table").migrate;
+const migrate_table = require("./migrate_template").migrate;
 
 const migrate = async () => {
-  await roleMigrate();
-  await userMigrate();
-  await permissionMigrate();
-  await permissionDetailMigrate();
-  await documentationMigrate();
-  await brandMigrate();
-  await designerMigrate();
+  await migrate_table("roles");
+  await migrate_table("users");
+  await migrate_table("permission_routes");
+  await migrate_table("permissions");
+  await migrate_table("documentations");
+  await migrate_table("brands");
+  await migrate_table("designers");
+  await migrate_table("categories");
+  await migrate_table("bases");
+  await migrate_table("attributes");
+  await migrate_table("collections");
+  await migrate_table("products");
+  await migrate_table("functional_types");
+  await migrate_table("departments");
+  await migrate_table("locations");
+  await migrate_table("product_downloads");
+  await migrate_table("product_tips");
+  await migrate_table("inspirational_quotations");
+  await migrate_table("email_autoresponders");
+  await migrate_table("distributors");
+  await migrate_table("market_availabilities");
+  await migrate_table("product_catelogue_n_downloads");
+
+  await migrate_table("countries");
+  await migrate_table("states");
+  await migrate_table("cities");
+
+  await migrate_table("projects");
+  await migrate_table("project_types");
+  await migrate_table("building_types");
+  await migrate_table("project_zones");
+
+  await migrate_table("considered_products");
+  await migrate_table("material_codes");
+  await migrate_table("unit_types");
+  await migrate_table("requirement_types");
+  await migrate_table("instruction_types");
+  await migrate_table("specified_products");
+  await migrate_table("contacts");
+  await migrate_table("common_types");
 };
 
 migrate();

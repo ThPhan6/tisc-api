@@ -5,13 +5,14 @@ name: TISC CI
 
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, staging, bugs/sonar ]
   pull_request:
-    branches: [ master, dev ]
+    branches: [ master, dev, staging ]
 
 jobs:
   quality-control:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' # run this job only for the dev branch
     steps:
     - uses: actions/checkout@v3
     - name: Quality Control with Sonar
@@ -35,5 +36,18 @@ jobs:
         username: ${{ secrets.DEV_SERVER_USERNAME }}
         key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DEV_SERVER_PORT }}
-        script: /var/www/cdScript.sh dev
-      
+        script: /var/www/dev/cdScript.sh dev
+  deploy-staging-server:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' # run this job only for the staging branch
+    steps:
+    # DigitalOcean Droplet already have deploy files
+    - uses: actions/checkout@v3
+    - name: Deploy TISC API to DigitalOcean Droplet
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEV_SERVER_IP }}
+        username: ${{ secrets.DEV_SERVER_USERNAME }}
+        key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.DEV_SERVER_PORT }}
+        script: /var/www/cdScript.sh staging

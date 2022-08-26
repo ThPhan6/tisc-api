@@ -1,17 +1,8 @@
-const { Database } = require("arangojs");
-const dotenv = require("dotenv");
 const moment = require("moment");
-const ROLES = require('./constant').ROLES
-dotenv.config();
+const ROLES = require("./constant").ROLES;
 
-const db = new Database({
-  url: process.env.DATABASE_HOSTNAME,
-});
-db.useDatabase(process.env.DATABASE_NAME || "");
-db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-
-const seed = async () => {
-  const collection = await db.collection("roles");
+const seed = async (db) => {
+  const roleCollection = await db.collection("roles");
   const createAndSeed = async (collection) => {
     await collection.create();
     await collection.get();
@@ -59,15 +50,15 @@ const seed = async () => {
     console.log("success seed role data");
   };
   try {
-    await createAndSeed(collection);
+    await createAndSeed(roleCollection);
   } catch (error) {
     if (error.message === "duplicate name") {
-      await collection.drop();
-      await createAndSeed(collection);
+      await roleCollection.drop();
+      await createAndSeed(roleCollection);
     }
   }
 };
 
 module.exports = {
-  seedRole: seed,
+  seed,
 };
