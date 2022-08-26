@@ -96,15 +96,18 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      if (!country.id) {
-        return resolve({
-          message: MESSAGES.COUNTRY_NOT_FOUND,
-          statusCode: 404,
-        });
+      if (payload.country_id != '-1') {
+        const country = await this.countryStateCityService.getCountryDetail(
+          payload.country_id
+        );
+        if (!country.id) {
+          return resolve({
+            message: MESSAGES.COUNTRY_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
       }
+
       const states = await this.countryStateCityService.getStatesByCountry(
         payload.country_id
       );
@@ -227,15 +230,18 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const country = await this.countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      if (!country.id) {
-        return resolve({
-          message: MESSAGES.COUNTRY_NOT_FOUND,
-          statusCode: 404,
-        });
+      if (payload.country_id != '-1') {
+        const country = await this.countryStateCityService.getCountryDetail(
+          payload.country_id
+        );
+        if (!country.id) {
+          return resolve({
+            message: MESSAGES.COUNTRY_NOT_FOUND,
+            statusCode: 404,
+          });
+        }
       }
+
       const states = await this.countryStateCityService.getStatesByCountry(
         payload.country_id
       );
