@@ -421,6 +421,7 @@ export default class ProductService {
             return true;
           })
         );
+
         imagePaths = await Promise.all(
           bufferImages.map(async (image, index) => {
             mediumBuffer = await toWebp(image, "medium");
@@ -453,7 +454,7 @@ export default class ProductService {
         general_attribute_groups: saveGeneralAttributeGroups,
         feature_attribute_groups: saveFeatureAttributeGroups,
         specification_attribute_groups: saveSpecificationAttributeGroups,
-        // images: imagePaths,
+        images: imagePaths,
       });
       if (!updatedProduct) {
         return resolve({
