@@ -4,7 +4,6 @@ const {
   chaiHttp,
   should,
   HOST_URL,
-  tiscAdminToken,
   Database,
   db,
 } = require("./utils/utils");
