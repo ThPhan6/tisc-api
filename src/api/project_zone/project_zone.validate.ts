@@ -51,7 +51,7 @@ export default {
           })
         )
         .required()
-        .error(commonFailValidatedMessageFunction("Area is missing")),
+        // .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 
@@ -140,7 +140,7 @@ export default {
           })
         )
         .required()
-        .error(commonFailValidatedMessageFunction("Area is missing")),
+        // .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 };
