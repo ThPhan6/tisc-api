@@ -331,8 +331,8 @@ export default class ConsideredProductService {
           statusCode: 404,
         });
       }
-      const specifiedProduct = await this.specifiedProductModel.find(
-        considered_product_id
+      const specifiedProduct = await this.specifiedProductModel.findBy(
+        {considered_product_id: considered_product_id}
       );
       if (specifiedProduct) {
         return resolve({
