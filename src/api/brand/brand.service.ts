@@ -354,8 +354,8 @@ export default class BrandService {
           statusCode: 400,
         });
       }
-      const inviteUser = await this.userModel.find(current_user_id);
-      const user = await this.userModel.getFirstBrandAdmin(brand.id);
+      const user = await this.userModel.find(current_user_id);
+      const inviteUser = await this.userModel.getFirstBrandAdmin(brand.id);
       if (!user || !inviteUser) {
         return resolve({
           message: MESSAGES.USER_NOT_FOUND,
