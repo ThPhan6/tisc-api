@@ -453,8 +453,8 @@ class AuthService {
           statusCode: 400,
         });
       }
-      await this.mailService.sendDesignRegisterEmail(createdUser);
       await this.permissionService.createDesignPermission(createdDesign.id);
+      await this.mailService.sendDesignRegisterEmail(createdUser);
       return resolve({
         message: MESSAGES.SUCCESS,
         statusCode: 200,
