@@ -661,6 +661,16 @@ export default class UserService {
           return true;
         })
       );
+      // empty locations
+      const userWithNoLocation = users.filter(
+        (item) => !item.location_id
+      );
+      temp['Empty Location'] = {
+        country_name: 'Empty Location',
+        users: userWithNoLocation,
+        count: userWithNoLocation.length,
+      }
+      ///
       const result = await Promise.all(
         Object.values(temp).map(async (item) => {
           const removedFieldsOfUser = await Promise.all(
