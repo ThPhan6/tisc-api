@@ -93,7 +93,7 @@ export default {
             logo: Joi.string().allow(null),
             firstname: Joi.string(),
             lastname: Joi.string(),
-            gender: Joi.boolean(),
+            gender: Joi.boolean().allow(null),
             work_location: Joi.string(),
             department: Joi.string(),
             position: Joi.string().allow(null),
