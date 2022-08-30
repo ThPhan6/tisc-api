@@ -50,8 +50,8 @@ export default {
               .error(commonFailValidatedMessageFunction("Room is missing")),
           })
         )
-        .required()
-        // .error(commonFailValidatedMessageFunction("Area is missing")),
+        .required(),
+      // .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 
@@ -139,8 +139,8 @@ export default {
               .error(commonFailValidatedMessageFunction("Room is missing")),
           })
         )
-        .required()
-        // .error(commonFailValidatedMessageFunction("Area is missing")),
+        .required(),
+      // .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 };
