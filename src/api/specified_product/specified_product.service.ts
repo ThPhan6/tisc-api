@@ -414,6 +414,7 @@ export default class SpecifiedProductService {
       const specifiedProducts = await this.specifiedProductModel.getBy({
         project_id,
       });
+
       const productIds = getDistinctArray(
         specifiedProducts.map((item) => item.product_id)
       );
@@ -432,12 +433,8 @@ export default class SpecifiedProductService {
           const brandProducts = products.filter(
             (item) => item.brand_id === brand.id
           );
-          const brandSpecifiedProducts =
-            await this.specifiedProductModel.getManyByProduct(
-              brandProducts.map((item) => item.id)
-            );
           const returnSpecifiedProducts = await Promise.all(
-            brandSpecifiedProducts.map(async (specifiedProduct) => {
+            specifiedProducts.map(async (specifiedProduct) => {
               const product = brandProducts.find(
                 (item) => item.id === specifiedProduct.product_id
               );
