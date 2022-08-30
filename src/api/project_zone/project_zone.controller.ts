@@ -27,7 +27,6 @@ export default class ProjectZoneController {
       area_order,
       room_name_order,
       room_id_order,
-      sort,
     } = req.query;
     const response = await this.service.getList(
       userId,
@@ -35,8 +34,7 @@ export default class ProjectZoneController {
       zone_order,
       area_order,
       room_name_order,
-      room_id_order,
-      sort
+      room_id_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

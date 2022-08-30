@@ -172,8 +172,7 @@ export default class ProjectZoneService {
     zone_order: "ASC" | "DESC",
     area_order: "ASC" | "DESC",
     room_name_order: "ASC" | "DESC",
-    room_id_order: "ASC" | "DESC",
-    sort: "room_name" | "room_id"
+    room_id_order: "ASC" | "DESC"
   ): Promise<IMessageResponse | IProjectZonesResponse> => {
     return new Promise(async (resolve) => {
       const foundUser = await this.userModel.find(userId);
@@ -243,8 +242,8 @@ export default class ProjectZoneService {
             count: area.rooms.length,
             rooms: sortObjectArray(
               rooms,
-              sort,
-              sort === "room_name" ? room_name_order : room_id_order
+              room_name_order ? "room_name" : room_id_order ? "room_id" : "",
+              room_name_order ? room_name_order : room_id_order
             ),
           };
         });

@@ -63,7 +63,6 @@ export default {
         .error(commonFailValidatedMessageFunction("Project is required")),
       zone_order: Joi.string().valid("ASC", "DESC"),
       area_order: Joi.string().valid("ASC", "DESC"),
-      sort: Joi.string().valid("room_name", "room_id"),
       room_name_order: Joi.string().valid("ASC", "DESC"),
       room_id_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
@@ -71,9 +70,8 @@ export default {
         project_id: value.project_id,
         zone_order: value.zone_order ? value.zone_order : "ASC",
         area_order: value.area_order ? value.area_order : "ASC",
-        sort: value.sort ? value.sort : "room_name",
-        room_name_order: value.room_name_order ? value.room_name_order : "ASC",
-        room_id_order: value.room_id_order ? value.room_id_order : "ASC",
+        room_name_order: value.room_name_order ? value.room_name_order : "",
+        room_id_order: value.room_id_order ? value.room_id_order : "",
       };
     }),
   },
