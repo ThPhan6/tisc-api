@@ -433,8 +433,11 @@ export default class SpecifiedProductService {
           const brandProducts = products.filter(
             (item) => item.brand_id === brand.id
           );
+          const specifiedProductsByBrand = specifiedProducts.filter((item) => {
+            return brandProducts.find((product) => product.id === item.product_id);
+          });
           const returnSpecifiedProducts = await Promise.all(
-            specifiedProducts.map(async (specifiedProduct) => {
+            specifiedProductsByBrand.map(async (specifiedProduct) => {
               const product = brandProducts.find(
                 (item) => item.id === specifiedProduct.product_id
               );
