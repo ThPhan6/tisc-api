@@ -56,7 +56,7 @@ export default {
             brand: Joi.object({
               id: Joi.string(),
               name: Joi.string(),
-              logo: Joi.string(),
+              logo: Joi.any(),
             }),
             collection: Joi.object({
               id: Joi.string(),
