@@ -242,7 +242,7 @@ export default class ProjectZoneService {
             count: area.rooms.length,
             rooms: sortObjectArray(
               rooms,
-              room_name_order ? "room_name" : "room_id",
+              room_name_order ? "room_name" : room_id_order ? "room_id" : "",
               room_name_order ? room_name_order : room_id_order
             ),
           };
