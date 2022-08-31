@@ -210,6 +210,8 @@ export const MESSAGES = {
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
+  NOT_ALLOW_DELETE_PROJECT_ZONE:
+    "Space is currently considered or specified, you can not delete it!",
 };
 
 export const BASIS_TYPES: {

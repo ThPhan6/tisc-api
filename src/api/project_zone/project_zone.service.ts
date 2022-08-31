@@ -21,14 +21,20 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import { v4 as uuidv4 } from "uuid";
+import ConsideredProductModel from "../../model/considered_product.model";
+import SpecifiedProductModel from "../../model/specified_product.model";
 export default class ProjectZoneService {
   private projectModel: ProjectModel;
   private userModel: UserModel;
   private projectZoneModel: ProjectZoneModel;
+  private consideredProductModel: ConsideredProductModel;
+  private specifiedProductModel: SpecifiedProductModel;
   constructor() {
     this.projectZoneModel = new ProjectZoneModel();
     this.projectModel = new ProjectModel();
     this.userModel = new UserModel();
+    this.consideredProductModel = new ConsideredProductModel();
+    this.specifiedProductModel = new SpecifiedProductModel();
   }
   public create = async (
     userId: string,
@@ -377,6 +383,29 @@ export default class ProjectZoneService {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+
+      let roomId: string = "";
+
+      projectZone.areas.forEach((area) => {
+        area.rooms.forEach((room) => {
+          roomId = room.id;
+        });
+      });
+
+      const foundConsideredProduct = await this.consideredProductModel.findBy({
+        project_zone_id: roomId,
+      });
+
+      const foundSpecifiedProduct = await this.specifiedProductModel.findBy({
+        project_zone_id: roomId,
+      });
+
+      if (foundConsideredProduct || foundSpecifiedProduct) {
+        return resolve({
+          message: MESSAGES.NOT_ALLOW_DELETE_PROJECT_ZONE,
+          statusCode: 400,
         });
       }
 
