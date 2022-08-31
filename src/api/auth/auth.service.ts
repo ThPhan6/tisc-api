@@ -411,7 +411,7 @@ class AuthService {
       // } else {
       const createdDesign = await this.designModel.create({
         ...DESIGN_NULL_ATTRIBUTES,
-        name: payload.company_name || payload.firstname + "Design Firm",
+        name: payload.company_name || payload.firstname + " Design Firm",
         status: DESIGN_STATUSES.ACTIVE,
       });
       // }
