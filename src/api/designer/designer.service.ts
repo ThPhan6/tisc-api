@@ -60,7 +60,7 @@ export default class DesignerService {
             ["id", "firstname", "lastname", "role_id", "email", "avatar"]
           );
           let originLocation: ILocationAttributes | undefined;
-          if (designer.location_ids.length > 0) {
+          if (designer.location_ids && designer.location_ids.length > 0) {
             originLocation = await this.locationModel.find(
               designer.location_ids[0] || ""
             );
