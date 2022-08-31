@@ -911,6 +911,25 @@ export default class ProductService {
           statusCode: 404,
         });
       }
+      const consideredProduct = await this.consideredProductModel.findBy({
+        product_id: product.id
+      });
+      if (consideredProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_WAS_CONSIDERED,
+          statusCode: 400,
+        });
+      }
+      const specifiedProduct = await this.specifiedProductModel.findBy({
+        product_id: product.id
+      });
+      if (specifiedProduct) {
+        return resolve({
+          message: MESSAGES.PRODUCT_WAS_SPECIFIED,
+          statusCode: 400,
+        });
+      }
+
       await this.productModel.update(id, { is_deleted: true });
       return resolve({
         message: MESSAGES.SUCCESS,
