@@ -391,14 +391,20 @@ export default class ProjectZoneService {
           projectZoneId
         );
 
+      if (foundConsideredProduct.total > 0) {
+        return resolve({
+          message: MESSAGES.ZONE_WAS_CONSIDERED,
+          statusCode: 400,
+        });
+      }
       const foundSpecifiedProduct =
         await this.specifiedProductModel.findSpecifiedProductByZone(
           projectZoneId
         );
 
-      if (foundConsideredProduct.total > 0 || foundSpecifiedProduct.total > 0) {
+      if (foundSpecifiedProduct.total > 0) {
         return resolve({
-          message: MESSAGES.NOT_ALLOW_DELETE_PROJECT_ZONE,
+          message: MESSAGES.ZONE_WAS_SPECIFIED,
           statusCode: 400,
         });
       }
