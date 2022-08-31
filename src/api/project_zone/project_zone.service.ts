@@ -21,14 +21,20 @@ import {
   sortObjectArray,
 } from "../../helper/common.helper";
 import { v4 as uuidv4 } from "uuid";
+import ConsideredProductModel from "../../model/considered_product.model";
+import SpecifiedProductModel from "../../model/specified_product.model";
 export default class ProjectZoneService {
   private projectModel: ProjectModel;
   private userModel: UserModel;
   private projectZoneModel: ProjectZoneModel;
+  private consideredProductModel: ConsideredProductModel;
+  private specifiedProductModel: SpecifiedProductModel;
   constructor() {
     this.projectZoneModel = new ProjectZoneModel();
     this.projectModel = new ProjectModel();
     this.userModel = new UserModel();
+    this.consideredProductModel = new ConsideredProductModel();
+    this.specifiedProductModel = new SpecifiedProductModel();
   }
   public create = async (
     userId: string,
@@ -377,6 +383,29 @@ export default class ProjectZoneService {
         return resolve({
           message: MESSAGES.PROJECT_NOT_FOUND,
           statusCode: 404,
+        });
+      }
+
+      const foundConsideredProduct =
+        await this.consideredProductModel.findConsideredProductByZone(
+          projectZoneId
+        );
+
+      if (foundConsideredProduct.total > 0) {
+        return resolve({
+          message: MESSAGES.ZONE_WAS_CONSIDERED,
+          statusCode: 400,
+        });
+      }
+      const foundSpecifiedProduct =
+        await this.specifiedProductModel.findSpecifiedProductByZone(
+          projectZoneId
+        );
+
+      if (foundSpecifiedProduct.total > 0) {
+        return resolve({
+          message: MESSAGES.ZONE_WAS_SPECIFIED,
+          statusCode: 400,
         });
       }
 
