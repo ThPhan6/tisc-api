@@ -59,9 +59,13 @@ export default class DesignerService {
             designer.team_profile_ids,
             ["id", "firstname", "lastname", "role_id", "email", "avatar"]
           );
-          const originLocation = await this.locationModel.find(
-            designer.location_ids[0] || ""
-          );
+          let originLocation: ILocationAttributes | undefined;
+          if (designer.location_ids.length > 0) {
+            originLocation = await this.locationModel.find(
+              designer.location_ids[0] || ""
+            );
+          }
+
           let countLive = 0;
           let countOnHold = 0;
           let countArchived = 0;
