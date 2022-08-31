@@ -12,8 +12,8 @@ import UserModel from "../../model/user.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import MarketAvailabilityService from "../market_availability/market_availability.service";
 import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
+import { USER_STATUSES } from "./../../constant/user.constant";
 import { ILocationAttributes } from "./../../model/location.model";
-import { IProjectAttributes } from "./../../model/project.model";
 import { IUserAttributes } from "./../../model/user.model";
 import {
   IDesignerResponse,
@@ -55,13 +55,27 @@ export default class DesignerService {
           const foundStatus = DESIGN_STATUS_OPTIONS.find(
             (item) => item.value === designer.status
           );
-          const users = await this.userModel.getMany(
-            designer.team_profile_ids,
+          const users = await this.userModel.getAllBy(
+            {
+              relation_id: designer.id,
+            },
             ["id", "firstname", "lastname", "role_id", "email", "avatar"]
           );
-          const originLocation = await this.locationModel.find(
-            designer.location_ids[0] || ""
-          );
+          let assign_team: IUserAttributes[] = [];
+          if (designer.team_profile_ids) {
+            assign_team = await this.userModel.getMany(
+              designer.team_profile_ids,
+              ["id", "firstname", "lastname", "role_id", "email", "avatar"]
+            );
+          }
+
+          let originLocation: ILocationAttributes | undefined;
+          if (designer.location_ids) {
+            originLocation = await this.locationModel.find(
+              designer.location_ids[0] ?? ""
+            );
+          }
+
           let countLive = 0;
           let countOnHold = 0;
           let countArchived = 0;
@@ -91,7 +105,7 @@ export default class DesignerService {
             origin: originLocation?.country_name || "",
             main_office: "",
             satellites: 1,
-            designers: designer.team_profile_ids.length,
+            designers: users.length,
             capacities: 1,
             projects: projects.length,
             live: countLive,
@@ -99,7 +113,7 @@ export default class DesignerService {
             archived: countArchived,
             status: designer.status,
             status_key: foundStatus?.key,
-            assign_team: users,
+            assign_team: assign_team,
             created_at: designer.created_at,
           };
         })
