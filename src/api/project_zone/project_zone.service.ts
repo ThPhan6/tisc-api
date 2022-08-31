@@ -386,23 +386,17 @@ export default class ProjectZoneService {
         });
       }
 
-      let roomId: string = "";
+      const foundConsideredProduct =
+        await this.consideredProductModel.findConsideredProductByZone(
+          projectZoneId
+        );
 
-      projectZone.areas.forEach((area) => {
-        area.rooms.forEach((room) => {
-          roomId = room.id;
-        });
-      });
+      const foundSpecifiedProduct =
+        await this.specifiedProductModel.findSpecifiedProductByZone(
+          projectZoneId
+        );
 
-      const foundConsideredProduct = await this.consideredProductModel.findBy({
-        project_zone_id: roomId,
-      });
-
-      const foundSpecifiedProduct = await this.specifiedProductModel.findBy({
-        project_zone_id: roomId,
-      });
-
-      if (foundConsideredProduct || foundSpecifiedProduct) {
+      if (foundConsideredProduct.total > 0 || foundSpecifiedProduct.total > 0) {
         return resolve({
           message: MESSAGES.NOT_ALLOW_DELETE_PROJECT_ZONE,
           statusCode: 400,
