@@ -1,10 +1,11 @@
 import {
   SPECIFIED_PRODUCT_STATUS,
-  CONSIDERED_PRODUCT_STATUS
+  CONSIDERED_PRODUCT_STATUS,
 } from "./../constant/common.constant";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
 import { ROLES } from "../constant/user.constant";
+import { template } from "lodash";
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
     return values.indexOf(item) != idx;
@@ -163,4 +164,13 @@ export const formatNumberDisplay = (
     return "N/A";
   }
   return value.toLocaleString(locale);
+};
+
+export const replaceTemplate = (
+  templateReplace: string,
+  key: string,
+  value: string
+) => {
+  const compiled = template(templateReplace);
+  return compiled({ [key]: value });
 };

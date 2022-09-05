@@ -15,6 +15,8 @@ import {
   IHowtosResponse,
 } from "./documentation.type";
 import UserModel from "../../model/user.model";
+import { replaceTemplate } from "../../helper/common.helper";
+
 class DocumentationService {
   private documentationModel: DocumentationModel;
   private userModel: UserModel;
@@ -299,24 +301,38 @@ class DocumentationService {
         document: {},
       };
       documentations.forEach((documentation) => {
+        const document = replaceTemplate(
+          documentation.document.document,
+          "last_revised",
+          moment(documentation.updated_at).format("YYYY-MM-DD") || ""
+        );
         switch (documentation.number) {
           case 1:
             return (privacyPolicy = {
               id: documentation.id,
               title: documentation.title,
-              document: documentation.document,
+              document: {
+                ...documentation.document,
+                document,
+              },
             });
           case 2:
             return (termsOfServices = {
               id: documentation.id,
               title: documentation.title,
-              document: documentation.document,
+              document: {
+                ...documentation.document,
+                document,
+              },
             });
           case 3:
             return (cookiePolicy = {
               id: documentation.id,
               title: documentation.title,
-              document: documentation.document,
+              document: {
+                ...documentation.document,
+                document,
+              },
             });
           default:
             break;
