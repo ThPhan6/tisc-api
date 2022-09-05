@@ -1,3 +1,4 @@
+import { IDocument } from "../api/documentation/documentation.type";
 import Model from "./index";
 
 export interface IDocumentationAttributes {
@@ -5,13 +6,7 @@ export interface IDocumentationAttributes {
   logo: string | null;
   type: number | null;
   title: string;
-  document: {
-    document: string;
-    question_and_answer: {
-      question: string;
-      answer: string;
-    }[];
-  };
+  document: IDocument;
   created_at: string | null;
   created_by: string;
   updated_at: string | null;

@@ -1,10 +1,18 @@
 import { IPagination } from "./../../type/common.type";
+
+export interface IDocument {
+  document: string;
+  question_and_answer: {
+    question: string;
+    answer: string;
+  }[];
+}
 export interface IDocumentation {
   id: string;
   logo: string | null;
   type: number | null;
   title: string;
-  document: object;
+  document: IDocument;
   created_at: string | null;
   created_by: string;
   updated_at: string | null;
@@ -13,13 +21,7 @@ export interface IDocumentation {
 
 export interface IDocumentationRequest {
   title: string;
-  document: {
-    document: string;
-    question_and_answer: {
-      question: string;
-      answer: string;
-    }[];
-  };
+  document: IDocument;
 }
 export interface IHowto {
   id: string;

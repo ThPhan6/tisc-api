@@ -15,7 +15,7 @@ import {
   IHowtosResponse,
 } from "./documentation.type";
 import UserModel from "../../model/user.model";
-import _ from "lodash";
+import { replaceTemplate } from "../../helper/common.helper";
 
 class DocumentationService {
   private documentationModel: DocumentationModel;
@@ -24,14 +24,6 @@ class DocumentationService {
     this.documentationModel = new DocumentationModel();
     this.userModel = new UserModel();
   }
-
-  private replaceLastRevisedDocumentation = (
-    template: string,
-    value: string
-  ) => {
-    const compiled = _.template(template);
-    return compiled({ last_revised: value });
-  };
 
   public create = (
     payload: IDocumentationRequest,
@@ -309,8 +301,9 @@ class DocumentationService {
         document: {},
       };
       documentations.forEach((documentation) => {
-        const document = this.replaceLastRevisedDocumentation(
+        const document = replaceTemplate(
           documentation.document.document,
+          "last_revised",
           moment(documentation.updated_at).format("YYYY-MM-DD") || ""
         );
         switch (documentation.number) {
