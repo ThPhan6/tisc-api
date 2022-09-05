@@ -13,7 +13,13 @@ export interface IDocumentation {
 
 export interface IDocumentationRequest {
   title: string;
-  document: object;
+  document: {
+    document: string;
+    question_and_answer: {
+      question: string;
+      answer: string;
+    }[];
+  };
 }
 export interface IHowto {
   id: string;

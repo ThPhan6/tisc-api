@@ -5,7 +5,13 @@ export interface IDocumentationAttributes {
   logo: string | null;
   type: number | null;
   title: string;
-  document: object;
+  document: {
+    document: string;
+    question_and_answer: {
+      question: string;
+      answer: string;
+    }[];
+  };
   created_at: string | null;
   created_by: string;
   updated_at: string | null;
