@@ -608,6 +608,13 @@ const COMMON_TYPES = {
   SHARING_PURPOSE: 2,
 };
 
+const FINISH_SCHEDULE_FOR_NULL_ATTRIBUTES = {
+  id: null,
+  name: null,
+  created_at: null,
+  is_deleted: false,
+};
+
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -637,4 +644,5 @@ module.exports = {
   REQUIREMENT_TYPE_NULL_ATTRIBUTES,
   COMMON_TYPES_ATTRIBUTES,
   COMMON_TYPES,
+  FINISH_SCHEDULE_FOR_NULL_ATTRIBUTES,
 };

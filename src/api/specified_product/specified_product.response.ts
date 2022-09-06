@@ -36,4 +36,11 @@ export default {
     }),
     statusCode: Joi.number(),
   }),
+  getListFinishScheduleFor: Joi.object({
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+    }),
+    statusCode: Joi.number(),
+  }),
 };

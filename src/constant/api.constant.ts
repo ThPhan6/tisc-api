@@ -228,6 +228,7 @@ export const ROUTES = {
   UPDATE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/update-status/{id}",
   DELETE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/delete/{id}",
   GET_LIST_QUOTATION_NOT_AUTH: "/api/quotation/landing-page/get-list",
+  GET_LIST_FINISH_SCHEDULE_FOR: "/api/finish-schedule-for/get-list",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -432,4 +433,5 @@ export const ROUTE_IDS = {
   UPDATE_PRODUCT_SPECIFIED_STATUS: "191",
   DELETE_PRODUCT_SPECIFIED_STATUS: "192",
   GET_LIST_QUOTATION_NOT_AUTH: "193",
+  GET_LIST_FINISH_SCHEDULE_FOR: "194",
 };

@@ -106,55 +106,32 @@ export default {
       material_code_id: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Material code is missing")),
+        .error(commonFailValidatedMessageFunction("Material code is required")),
       suffix_code: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Suffix code is missing")),
-      description: Joi.string().allow(""),
+        .error(commonFailValidatedMessageFunction("Suffix code is required")),
+      description: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Description is required")),
+      finish_schedule_for_ids: Joi.array().items(
+        Joi.string().trim().allow(null)
+      ),
       quantity: Joi.number()
         .required()
-        .error(commonFailValidatedMessageFunction("Quantity is missing")),
+        .error(commonFailValidatedMessageFunction("Quantity is required")),
       unit_type_id: Joi.string()
         .trim()
         .required()
-        .error(commonFailValidatedMessageFunction("Unit type is missing")),
-      order_method: Joi.number()
-        .valid(ORDER_METHOD.DIRECT_PURCHASE, ORDER_METHOD.CUSTOM_ORDER)
-        .required()
-        .error(commonFailValidatedMessageFunction("Order method is missing")),
-      requirement_type_ids: Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Approval requirements prior to fabrication is missing"
-              )
-            )
-        )
-        .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Approval requirements prior to fabrication is missing"
-          )
-        ),
-      instruction_type_ids: Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "General instructions is missing"
-              )
-            )
-        )
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("General instructions is missing")
-        ),
+        .error(commonFailValidatedMessageFunction("Unit type is required")),
+      order_method: Joi.number().valid(
+        ORDER_METHOD.DIRECT_PURCHASE,
+        ORDER_METHOD.CUSTOM_ORDER
+      ),
+      requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
+      instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
+
       special_instructions: Joi.string().allow(""),
       variant: Joi.string().allow(""),
     },
