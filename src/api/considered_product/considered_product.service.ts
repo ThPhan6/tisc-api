@@ -19,7 +19,7 @@ import UserModel from "../../model/user.model";
 import SpecifiedProductModel from "../../model/specified_product.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 import {
-  IArea,
+  IRoom,
   IConsideredProductsResponse,
   StatusConsideredProductRequest,
 } from "./considered_product.type";
@@ -169,7 +169,7 @@ export default class ConsideredProductService {
           ...zone,
           areas: sortedAreas,
           count: sortedAreas.reduce((pre, cur) => {
-            cur.rooms.forEach((item: IArea) => {
+            cur.rooms.forEach((item: IRoom) => {
               pre += item.products.length;
             });
             return pre;

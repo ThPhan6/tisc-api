@@ -31,7 +31,7 @@ import UnitTypeModel, {
 } from "../../model/unit_type.model";
 import UserModel from "../../model/user.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
-import { IArea } from "../considered_product/considered_product.type";
+import { IRoom } from "../considered_product/considered_product.type";
 import ProductService from "../product/product.service";
 import {
   IInstructionTypesResponse,
@@ -675,7 +675,7 @@ export default class SpecifiedProductService {
           return {
             ...zone,
             count: sortedAreas.reduce((pre, cur) => {
-              cur.rooms.forEach((item: IArea) => {
+              cur.rooms.forEach((item: IRoom) => {
                 pre += item.products.length;
               });
               return pre;

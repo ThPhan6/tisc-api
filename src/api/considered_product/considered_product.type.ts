@@ -9,7 +9,7 @@ export interface StatusConsideredProductRequest {
   status: number;
 }
 
-export interface IArea {
+export interface IRoom {
   room_name: string;
   room_id: string;
   room_size: number;
