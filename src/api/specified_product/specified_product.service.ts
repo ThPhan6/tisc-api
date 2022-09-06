@@ -31,6 +31,7 @@ import UnitTypeModel, {
 } from "../../model/unit_type.model";
 import UserModel from "../../model/user.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
+import { IRoom } from "../considered_product/considered_product.type";
 import ProductService from "../product/product.service";
 import {
   IInstructionTypesResponse,
@@ -273,7 +274,9 @@ export default class SpecifiedProductService {
         })
       );
 
-      const materialCode = await this.materialCodeModel.getSubMaterialCodeById(payload.material_code_id);
+      const materialCode = await this.materialCodeModel.getSubMaterialCodeById(
+        payload.material_code_id
+      );
 
       if (!specifiedProduct) {
         //create
@@ -434,7 +437,9 @@ export default class SpecifiedProductService {
             (item) => item.brand_id === brand.id
           );
           const specifiedProductsByBrand = specifiedProducts.filter((item) => {
-            return brandProducts.find((product) => product.id === item.product_id);
+            return brandProducts.find(
+              (product) => product.id === item.product_id
+            );
           });
           const returnSpecifiedProducts = await Promise.all(
             specifiedProductsByBrand.map(async (specifiedProduct) => {
@@ -659,7 +664,9 @@ export default class SpecifiedProductService {
               );
               return {
                 ...area,
-                count: area.rooms.length,
+                count: sortedNewRooms.reduce((pre, cur) => {
+                  return cur.products.length ? pre + cur.products.length : pre;
+                }, 0),
                 rooms: sortedNewRooms,
               };
             })
@@ -667,7 +674,12 @@ export default class SpecifiedProductService {
           const sortedAreas = sortObjectArray(newAreas, "name", area_order);
           return {
             ...zone,
-            count: zone.areas.length,
+            count: sortedAreas.reduce((pre, cur) => {
+              cur.rooms.forEach((item: IRoom) => {
+                pre += item.products.length;
+              });
+              return pre;
+            }, 0),
             areas: sortedAreas,
           };
         })
