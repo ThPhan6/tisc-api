@@ -56,6 +56,12 @@ import SpecifiedProductModel, {
 } from "../../model/specified_product.model";
 import MailService from "../../service/mail.service";
 
+import {
+  mappingByBrand,
+  mappingByCategory,
+} from './product.mapping';
+
+
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -1360,51 +1366,19 @@ export default class ProductService {
         categoryIds
       );
       /// brand
-      const result = await Promise.all(
-        categories.map(async (category) => {
-          let categoryProducts = products.filter(
-            (item) => item.category_ids.includes(category.id)
-          );
+      const brands = this.getUniqueBrands(products);
 
-          /// format product data
-          const responseProducts = await Promise.all(
-            categoryProducts.map(async (product) => {
-              const {
-                is_deleted,
-                collection_id,
-                brand_id,
-                category_ids,
-                ...rest
-              } = product;
-              const productCategories: { id: string; name: string }[] = [];
-              category_ids.forEach((categoryId) => {
-                const category = categories.find(
-                  (cat) => cat.id === categoryId
-                );
-                if (category) {
-                  productCategories.push(category);
-                }
-              });
-              return {
-                ...rest,
-                favorites: product.favorites.length,
-                is_liked: true,
-                categories: productCategories,
-              };
-            })
-          );
-          //// grouped by collection
-          return {
-            ...category,
-            count: categoryProducts.length,
-            products: responseProducts,
-          };
-        })
-      );
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+      if (categoryId) {
+        return resolve({
+          data: mappingByCategory(products, categories),
+          statusCode: 200,
+        });
+      } else { /// default group by brand
+        return resolve({
+          data: mappingByBrand(products, categories, brands),
+          statusCode: 200,
+        });
+      }
     });
   };
 

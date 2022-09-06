@@ -7,6 +7,11 @@ export interface ICategoryAttributes {
   is_deleted: boolean;
 }
 
+export interface CategoryValue {
+  id: string;
+  name: string;
+}
+
 export interface ICategoryRequest {
   name: string;
   subs: any;
