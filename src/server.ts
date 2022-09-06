@@ -6,6 +6,22 @@ import * as Vision from "@hapi/vision";
 import * as HapiSwagger from "hapi-swagger";
 import AuthMiddleware from "./middleware/auth.middleware";
 import path from "path";
+import Model from './Database/Model';
+
+(async () => {
+  interface TestInterface {id: string; name: string};
+  class Test extends Model<TestInterface> {
+    protected table = 'users';
+    protected softDelete = true;
+
+    public role = () => {
+      return this
+    }
+  }
+  const data = await (new Test()).all();
+  console.log(data);
+})();
+
 
 dotenv.config();
 const swaggerOptions = {
