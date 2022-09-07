@@ -14,6 +14,7 @@ const seedBuildingType = require("./building_type.seed").seed;
 const seedProjectType = require("./project_type.seed").seed;
 const seedFunctionType = require("./functional_type.seed").seed;
 const seedUser = require("./user.seed").seed;
+const seedFinishScheduleFor = require("./finish_schedule_for.seed").seed;
 
 dotenv.config();
 
@@ -24,20 +25,21 @@ db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
-  await commonTypes(db);
-  await seedRequirementType(db);
-  await seedInstructionType(db);
-  await seedUnitType(db);
-  await seedRole(db);
-  await seedDocument(db);
-  await seedAutoEmail(db);
-  await seedCategory(db);
-  await seedPermission(db);
-  await seedPermissionRoute(db);
-  await seedFunctionType(db);
-  await seedBuildingType(db);
-  await seedProjectType(db);
-  await seedUser(db);
+  // await commonTypes(db);
+  // await seedRequirementType(db);
+  // await seedInstructionType(db);
+  // await seedUnitType(db);
+  // await seedRole(db);
+  // await seedDocument(db);
+  // await seedAutoEmail(db);
+  // await seedCategory(db);
+  // await seedPermission(db);
+  // await seedPermissionRoute(db);
+  // await seedFunctionType(db);
+  // await seedBuildingType(db);
+  // await seedProjectType(db);
+  // await seedUser(db);
+  await seedFinishScheduleFor(db);
 };
 
 seed();
