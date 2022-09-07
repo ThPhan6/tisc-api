@@ -32,6 +32,7 @@ export interface ISpecifiedProductAttributes {
   unit_type_id: string;
   order_method: number;
   requirement_type_ids: string[];
+  finish_schedules: string[];
   instruction_type_ids: string[];
   special_instructions: string;
   created_at: string;
@@ -60,6 +61,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   material_code: null,
   suffix_code: null,
   description: null,
+  finish_schedules: [],
   quantity: 0,
   unit_type_id: null,
   order_method: 0,

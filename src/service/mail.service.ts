@@ -5,6 +5,7 @@ import { IUserAttributes } from "../model/user.model";
 import os from "os";
 import { SYSTEM_TYPE, TARGETED_FOR_TYPES } from "./../constant/common.constant";
 import EmailAutoResponderModel from "../model/auto_email.model";
+import {unescape} from 'lodash';
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 export default class MailService {
   private fromAddress: string;
@@ -117,7 +118,7 @@ export default class MailService {
         .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
         ?.toLowerCase();
       userType = userType === "design" ? "design-firms" : userType;
-      const html = await ejs.render(emailAutoResponder?.message || "", {
+      const html = await ejs.render(unescape(emailAutoResponder?.message || ""), {
         operating_system: os.type(),
         browser_name: browserName,
         fullname:
@@ -125,7 +126,7 @@ export default class MailService {
             ? user.firstname
             : user.firstname + " " + user.lastname,
         reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
-      });
+      }, {async: true});
       this.sendSmtpEmail = {
         sender: { email: this.fromAddress, name: "TISC Team" },
         to: [
@@ -152,12 +153,12 @@ export default class MailService {
         title: "Welcome to the team!",
         targeted_for: this.getTargetedFor(inviteUser.type),
       });
-      const html = await ejs.render(emailAutoResponder?.message || "", {
+      const html = await ejs.render(unescape(emailAutoResponder?.message || ""), {
         firstname: inviteUser.firstname,
         email: inviteUser.email,
         sender_first_name: senderUser.firstname + " " + senderUser.lastname,
         url: `${this.frontpageURL}/create-password?verification_token=${inviteUser.verification_token}&email=${inviteUser.email}`,
-      });
+      }, {async: true});
       this.sendSmtpEmail = {
         sender: { email: this.fromAddress, name: "TISC Team" },
         to: [
@@ -181,11 +182,11 @@ export default class MailService {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
         title: "Successfully signed-up!",
       });
-      const html = await ejs.render(emailAutoResponder?.message || "", {
+      const html = await ejs.render(unescape(emailAutoResponder?.message || ""), {
         firstname: user.firstname,
         email: user.email,
         verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}&email=${user.email}`,
-      });
+      }, {async: true});
       this.sendSmtpEmail = {
         sender: { email: this.fromAddress, name: "TISC Team" },
         to: [
