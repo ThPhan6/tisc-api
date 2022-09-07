@@ -14,6 +14,7 @@ import CollectionModel from "../../model/collection.model";
 import ConsideredProductModel, {
   IConsideredProductAttributes,
 } from "../../model/considered_product.model";
+import FinishScheduleModel from "../../model/finish_schedule_for.model";
 import InstructionTypeModel from "../../model/instruction_type.model";
 import MaterialCodeModel from "../../model/material_code.model";
 import ProductModel from "../../model/product.model";
@@ -57,7 +58,7 @@ export default class SpecifiedProductService {
   private attributeModel: AttributeModel;
   private basisModel: BasisModel;
   private productService: ProductService;
-
+  private finishScheduleModel: FinishScheduleModel;
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
@@ -74,6 +75,7 @@ export default class SpecifiedProductService {
     this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
     this.productService = new ProductService();
+    this.finishScheduleModel = new FinishScheduleModel();
   }
   private countStatusSpecifiedProduct = (
     specified_products: ISpecifiedProductAttributes[]
@@ -256,6 +258,27 @@ export default class SpecifiedProductService {
           design_id: user.relation_id || "",
         });
       }
+      let finishSchedulesPromise;
+      if (payload.finish_schedules && payload.finish_schedules.length) {
+        finishSchedulesPromise = payload.finish_schedules.map(
+          async (finish_schedule_for_id) => {
+            let requirementType: any =
+              await this.finishScheduleModel.findByNameOrId(
+                finish_schedule_for_id,
+                user.relation_id || ""
+              );
+            if (!requirementType) {
+              requirementType = await this.finishScheduleModel.create({
+                ...REQUIREMENT_TYPE_NULL_ATTRIBUTES,
+                name: finish_schedule_for_id,
+                design_id: user.relation_id || "0",
+              });
+            }
+            return requirementType.id;
+          }
+        );
+      }
+      const finishSchedules = await Promise.all(finishSchedulesPromise || "");
       const requirementTypeIds = await Promise.all(
         payload.requirement_type_ids.map(async (requirement_type_id) => {
           let requirementType: any =
@@ -286,6 +309,7 @@ export default class SpecifiedProductService {
             ...payload,
             unit_type_id: unitType?.id || "",
             requirement_type_ids: requirementTypeIds,
+            finish_schedules: finishSchedules,
             instruction_type_ids: getDistinctArray(
               payload.instruction_type_ids
             ),
@@ -315,6 +339,7 @@ export default class SpecifiedProductService {
           ...payload,
           unit_type_id: unitType?.id,
           requirement_type_ids: requirementTypeIds,
+          finish_schedules: finishSchedules,
           instruction_type_ids: getDistinctArray(payload.instruction_type_ids),
           status: SPECIFIED_PRODUCT_STATUS.SPECIFIED,
           product_id: consideredProduct.product_id,
@@ -782,4 +807,24 @@ export default class SpecifiedProductService {
         statusCode: 200,
       });
     });
+  public getListFinishScheduleFor = (
+    user_id: string
+  ): Promise<IUnitTypesResponse | IMessageResponse> => {
+    return new Promise(async (resolve) => {
+      const user = await this.userModel.find(user_id);
+      if (!user) {
+        return resolve({
+          data: [],
+          statusCode: 200,
+        });
+      }
+      const finishSchedulesFor = await this.finishScheduleModel.getCustomList(
+        user.relation_id ?? ""
+      );
+      return resolve({
+        data: finishSchedulesFor,
+        statusCode: 200,
+      });
+    });
+  };
 }

@@ -179,6 +179,22 @@ export default class SpecifiedProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_LIST_FINISH_SCHEDULE_FOR,
+          options: {
+            handler: controller.getListFinishScheduleFor,
+            description: "Method that get list finish schedules for",
+            tags: ["api", "Specified Product"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListFinishScheduleFor,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
