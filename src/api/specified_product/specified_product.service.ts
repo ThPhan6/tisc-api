@@ -258,7 +258,6 @@ export default class SpecifiedProductService {
           design_id: user.relation_id || "",
         });
       }
-      console.log(payload, "[payload]");
       let finishSchedulesPromise;
       if (payload.finish_schedules && payload.finish_schedules.length) {
         finishSchedulesPromise = payload.finish_schedules.map(
