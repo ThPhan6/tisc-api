@@ -41,6 +41,7 @@ const migrate = async () => {
   await migrate_table("specified_products");
   await migrate_table("contacts");
   await migrate_table("common_types");
+  await migrate_table("finish_schedules");
 };
 
 migrate();

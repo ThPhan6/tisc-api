@@ -18,7 +18,9 @@ import { toWebp, getFileURI } from "../../helper/image.helper";
 import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
 import UserModel from "../../model/user.model";
-import CommonTypeModel, {DEFAULT_COMMON_TYPE} from "../../model/common_type.model";
+import CommonTypeModel, {
+  DEFAULT_COMMON_TYPE,
+} from "../../model/common_type.model";
 import ProductModel, {
   IProductAttributes,
   ProductWithCollectionAndBrand,
@@ -56,6 +58,8 @@ import SpecifiedProductModel, {
 } from "../../model/specified_product.model";
 import MailService from "../../service/mail.service";
 
+import { mappingByBrand, mappingByCategory } from "./product.mapping";
+
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -92,9 +96,7 @@ export default class ProductService {
   private getTotalVariantOfProducts = (
     products: IProductAttributes[] | ProductWithCollectionAndBrand[] = []
   ) => {
-    return [...products].reduce(
-      (pre: string[], cur
-    ) => {
+    return [...products].reduce((pre: string[], cur) => {
       let temp: any = [];
       cur.specification_attribute_groups.forEach((group) => {
         group.attributes.forEach((attribute) => {
@@ -115,21 +117,29 @@ export default class ProductService {
   };
 
   private getUniqueBrands = (products: ProductWithCollectionAndBrand[]) => {
-    return products.reduce((res: ProductWithCollectionAndBrand['brand'][], cur) => {
-      if (!res.find((brand) => brand.id === cur.brand.id)) {
-        res = res.concat(cur.brand);
-      }
-      return res;
-    }, []);
-  }
-  private getUniqueCollections = (products: ProductWithCollectionAndBrand[]) => {
-    return products.reduce((res: ProductWithCollectionAndBrand['collection'][], cur) => {
-      if (!res.find((collection) => collection.id === cur.collection.id)) {
-        res = res.concat(cur.collection);
-      }
-      return res;
-    }, []);
-  }
+    return products.reduce(
+      (res: ProductWithCollectionAndBrand["brand"][], cur) => {
+        if (!res.find((brand) => brand.id === cur.brand.id)) {
+          res = res.concat(cur.brand);
+        }
+        return res;
+      },
+      []
+    );
+  };
+  private getUniqueCollections = (
+    products: ProductWithCollectionAndBrand[]
+  ) => {
+    return products.reduce(
+      (res: ProductWithCollectionAndBrand["collection"][], cur) => {
+        if (!res.find((collection) => collection.id === cur.collection.id)) {
+          res = res.concat(cur.collection);
+        }
+        return res;
+      },
+      []
+    );
+  };
 
   public create = (
     user_id: string,
@@ -824,10 +834,10 @@ export default class ProductService {
     category_id?: string,
     keyword?: string,
     sort?: string,
-    order: "ASC" | "DESC" = 'ASC'
+    order: "ASC" | "DESC" = "ASC"
   ): Promise<IMessageResponse | IDesignerProductsResponse> => {
     return new Promise(async (resolve) => {
-      let returnData: IDesignerProductsResponse['data'] = [];
+      let returnData: IDesignerProductsResponse["data"] = [];
       const products = await this.productModel.getCustomList(
         keyword,
         sort,
@@ -839,7 +849,9 @@ export default class ProductService {
       const collections = this.getUniqueCollections(products);
       if (category_id || !brand_id) {
         returnData = brands.map((brand) => {
-          const brandProducts = products.filter((item) => item.brand_id === brand.id);
+          const brandProducts = products.filter(
+            (item) => item.brand_id === brand.id
+          );
           const { logo, ...rest } = brand;
           return {
             ...rest,
@@ -852,7 +864,7 @@ export default class ProductService {
                 brand_name: product.brand.name,
                 favorites: product.favorites?.length ?? 0,
                 is_liked: product.favorites?.includes(user_id) ?? false,
-              }
+              };
             }),
           };
         });
@@ -873,24 +885,24 @@ export default class ProductService {
                 brand_name: product.brand.name,
                 favorites: product.favorites?.length ?? 0,
                 is_liked: product.favorites?.includes(user_id) ?? false,
-              }
+              };
             }),
           };
         });
       }
       const response: IDesignerProductsResponse = {
-        data: returnData
-          .filter((item) => item.products.length !== 0),
+        data: returnData.filter((item) => item.products.length !== 0),
         statusCode: 200,
-      }
+      };
 
-      if (brand_id) { /// brand summary
+      if (brand_id) {
+        /// brand summary
         const variants = this.getTotalVariantOfProducts(products);
         const brand = await this.brandModel.find(brand_id);
         if (brand) {
-          response.brand_summary =  {
+          response.brand_summary = {
             brand_name: brand.name,
-            brand_logo: brand.logo ?? '',
+            brand_logo: brand.logo ?? "",
             collection_count: collections.length,
             card_count: products.length,
             product_count: variants.length,
@@ -900,7 +912,6 @@ export default class ProductService {
       return resolve(response);
     });
   };
-
 
   public delete = async (id: string): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
@@ -912,7 +923,7 @@ export default class ProductService {
         });
       }
       const consideredProduct = await this.consideredProductModel.findBy({
-        product_id: product.id
+        product_id: product.id,
       });
       if (consideredProduct) {
         return resolve({
@@ -921,7 +932,7 @@ export default class ProductService {
         });
       }
       const specifiedProduct = await this.specifiedProductModel.findBy({
-        product_id: product.id
+        product_id: product.id,
       });
       if (specifiedProduct) {
         return resolve({
@@ -1326,6 +1337,14 @@ export default class ProductService {
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
+      const a = {
+        categories,
+        brands,
+        category_count: categories.length,
+        brand_count: brands.length,
+        card_count: products.length,
+      };
+
       return resolve({
         data: {
           categories,
@@ -1360,55 +1379,27 @@ export default class ProductService {
         categoryIds
       );
       /// brand
-      const result = await Promise.all(
-        categories.map(async (category) => {
-          let categoryProducts = products.filter(
-            (item) => item.category_ids.includes(category.id)
-          );
+      const brands = this.getUniqueBrands(products);
 
-          /// format product data
-          const responseProducts = await Promise.all(
-            categoryProducts.map(async (product) => {
-              const {
-                is_deleted,
-                collection_id,
-                brand_id,
-                category_ids,
-                ...rest
-              } = product;
-              const productCategories: { id: string; name: string }[] = [];
-              category_ids.forEach((categoryId) => {
-                const category = categories.find(
-                  (cat) => cat.id === categoryId
-                );
-                if (category) {
-                  productCategories.push(category);
-                }
-              });
-              return {
-                ...rest,
-                favorites: product.favorites.length,
-                is_liked: true,
-                categories: productCategories,
-              };
-            })
-          );
-          //// grouped by collection
-          return {
-            ...category,
-            count: categoryProducts.length,
-            products: responseProducts,
-          };
-        })
-      );
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+      if (categoryId) {
+        return resolve({
+          data: mappingByCategory(products, categories),
+          statusCode: 200,
+        });
+      } else {
+        /// default group by brand
+        return resolve({
+          data: mappingByBrand(products, categories, brands),
+          statusCode: 200,
+        });
+      }
     });
   };
 
-  public shareByEmail = (payload: ShareProductBodyRequest, user_id: string): Promise<IMessageResponse> => {
+  public shareByEmail = (
+    payload: ShareProductBodyRequest,
+    user_id: string
+  ): Promise<IMessageResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       // const toUser = await this.userModel.findBy({
@@ -1458,19 +1449,21 @@ export default class ProductService {
       // end save common types
 
       const brand = await this.brandModel.find(product.brand_id);
-      const collection = await this.collectionModel.find(product.collection_id ?? '');
+      const collection = await this.collectionModel.find(
+        product.collection_id ?? ""
+      );
       const sent = await this.mailService.sendShareProductViaEmail(
         payload.to_email,
         user.email,
         payload.title,
         payload.message,
-        getFileURI(product.images[0]) ?? '',
-        brand?.name ?? 'N/A',
-        getFileURI(brand?.logo) ?? '',
-        collection?.name ?? 'N/A',
-        product.name ?? 'N/A',
-        `${user.firstname ?? ''} ${user.lastname ?? ''}`,
-        ''
+        getFileURI(product.images[0]) ?? "",
+        brand?.name ?? "N/A",
+        getFileURI(brand?.logo) ?? "",
+        collection?.name ?? "N/A",
+        product.name ?? "N/A",
+        `${user.firstname ?? ""} ${user.lastname ?? ""}`,
+        ""
       );
       if (!sent) {
         return resolve({
@@ -1483,11 +1476,9 @@ export default class ProductService {
         statusCode: 200,
       });
     });
-  }
+  };
 
-  public getSharingGroups = (
-    user_id: string
-  ): Promise<CommonTypeResponse> => {
+  public getSharingGroups = (user_id: string): Promise<CommonTypeResponse> => {
     return new Promise(async (resolve) => {
       const user = await this.userModel.find(user_id);
       if (!user) {
@@ -1497,7 +1488,7 @@ export default class ProductService {
         });
       }
       const sharingGroups = await this.commonTypeModel.getAllByRelationAndType(
-        user.relation_id ?? '',
+        user.relation_id ?? "",
         COMMON_TYPES.SHARING_GROUP
       );
       return resolve({
@@ -1517,10 +1508,11 @@ export default class ProductService {
           statusCode: 200,
         });
       }
-      const sharingPurposes = await this.commonTypeModel.getAllByRelationAndType(
-        user.relation_id ?? '',
-        COMMON_TYPES.SHARING_PURPOSE
-      );
+      const sharingPurposes =
+        await this.commonTypeModel.getAllByRelationAndType(
+          user.relation_id ?? "",
+          COMMON_TYPES.SHARING_PURPOSE
+        );
       return resolve({
         data: sharingPurposes,
         statusCode: 200,

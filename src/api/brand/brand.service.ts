@@ -396,11 +396,9 @@ export default class BrandService {
           const brandSummary = await this.productService.getBrandProductSummary(
             brand.id
           );
-          const teamProfiles = await this.userModel.getAllBy(
-            {
-              type: SYSTEM_TYPE.BRAND,
-              relation_id: brand.id,
-            },
+
+          const teamProfiles = await this.userModel.getMany(
+            brand.team_profile_ids,
             ["id", "firstname", "lastname", "avatar"]
           );
 

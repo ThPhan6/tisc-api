@@ -103,4 +103,12 @@ export default class SpecifiedProductController {
     const response = await this.service.deleteProductSpecified(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getListFinishScheduleFor = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const userId = req.auth.credentials.user_id as string;
+    const response = await this.service.getListFinishScheduleFor(userId);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
