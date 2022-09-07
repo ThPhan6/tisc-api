@@ -1,6 +1,6 @@
 import Model from "./index";
 
-export interface IFinishScheduleForAttributes {
+export interface IFinishScheduleAttributes {
   id: string;
   name: string;
   created_at: string;
@@ -8,7 +8,7 @@ export interface IFinishScheduleForAttributes {
   design_id: string;
 }
 
-export const FINISH_SCHEDULE_FOR_NULL_ATTRIBUTES = {
+export const FINISH_SCHEDULE_NULL_ATTRIBUTES = {
   id: null,
   name: null,
   created_at: null,
@@ -16,14 +16,14 @@ export const FINISH_SCHEDULE_FOR_NULL_ATTRIBUTES = {
   design_id: null,
 };
 
-export default class FinishScheduleForModel extends Model<IFinishScheduleForAttributes> {
+export default class FinishScheduleModel extends Model<IFinishScheduleAttributes> {
   constructor() {
-    super("finish_schedules_for");
+    super("finish_schedules");
   }
   public findByNameOrId = (
     id: string,
     relation_id: string
-  ): Promise<Partial<IFinishScheduleForAttributes> | undefined> => {
+  ): Promise<Partial<IFinishScheduleAttributes> | undefined> => {
     try {
       return this.getBuilder()
         .builder.whereNot("is_deleted", true)
@@ -36,7 +36,7 @@ export default class FinishScheduleForModel extends Model<IFinishScheduleForAttr
   };
   public getCustomList = (
     relation_id: string
-  ): Promise<Pick<IFinishScheduleForAttributes, "id" | "name">[]> => {
+  ): Promise<Pick<IFinishScheduleAttributes, "id" | "name">[]> => {
     try {
       return this.getBuilder()
         .builder.whereNot("is_deleted", true)

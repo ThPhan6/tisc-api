@@ -115,9 +115,7 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Description is required")),
-      finish_schedule_for_ids: Joi.array().items(
-        Joi.string().trim().allow(null)
-      ),
+      finish_schedules: Joi.array().items(Joi.string().trim().allow(null)),
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is required")),
