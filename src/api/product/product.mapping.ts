@@ -53,7 +53,9 @@ export const mappingByBrand = (
   brands: ProductWithCollectionAndBrand["brand"][]
 ) => {
   return brands.map((brand) => {
-    let categoryProducts = products.filter((item) => item.brand_id == brand.id);
+    let categoryProducts = products.filter(
+      (item) => item.brand_id === brand.id
+    );
 
     /// format product data
     const responseProducts = categoryProducts.map((product) => {
