@@ -195,11 +195,7 @@ class DocumentationService {
       const updatedDocumentation =
         documentation.type === DOCUMENTATION_TYPES.GENERAL
           ? await this.documentationModel.update(id, {
-              title: payload.title,
-              document: {
-                ...payload.document,
-                document: unescape(payload.document.document),
-              },
+              ...payload,
               created_by: userId,
               updated_at: moment(),
             })
@@ -307,7 +303,7 @@ class DocumentationService {
       };
       documentations.forEach((documentation) => {
         const document = replaceTemplate(
-          documentation.document.document,
+          unescape(documentation.document.document),
           "last_revised",
           moment(documentation.updated_at).format("YYYY-MM-DD") || ""
         );
