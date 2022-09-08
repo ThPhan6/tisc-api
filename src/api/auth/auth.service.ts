@@ -371,7 +371,7 @@ class AuthService {
         await this.login({
           email: user.email,
           password: payload.password,
-        })
+        }, user.type)
       );
     });
   };
