@@ -96,7 +96,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      if (payload.country_id != '-1') {
+      if (payload.country_id != "-1") {
         const country = await this.countryStateCityService.getCountryDetail(
           payload.country_id
         );
@@ -230,7 +230,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      if (payload.country_id != '-1') {
+      if (payload.country_id != "-1") {
         const country = await this.countryStateCityService.getCountryDetail(
           payload.country_id
         );

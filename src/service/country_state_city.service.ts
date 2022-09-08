@@ -22,7 +22,7 @@ export default class CountryStateCityService {
   public getAllCountry = (): Promise<ICountryAttributes[]> =>
     new Promise(async (resolve) => {
       try {
-        const result = await this.countryModel.getAll();
+        const result = await this.countryModel.getAll(undefined, "name", "ASC");
         return resolve(result);
       } catch (error) {
         return resolve([]);
@@ -57,9 +57,14 @@ export default class CountryStateCityService {
   ): Promise<IStateAttributes[]> =>
     new Promise(async (resolve) => {
       try {
-        const states = await this.stateModel.getBy({
-          country_id,
-        });
+        const states = await this.stateModel.getAllBy(
+          {
+            country_id,
+          },
+          undefined,
+          "name",
+          "ASC"
+        );
         return resolve(states);
       } catch (error) {
         return resolve([]);
@@ -80,10 +85,15 @@ export default class CountryStateCityService {
   ): Promise<ICityAttributes[]> =>
     new Promise(async (resolve) => {
       try {
-        const result = await this.cityModel.getBy({
-          country_id,
-          state_id,
-        });
+        const result = await this.cityModel.getAllBy(
+          {
+            country_id,
+            state_id,
+          },
+          undefined,
+          "name",
+          "ASC"
+        );
         return resolve(result);
       } catch (error) {
         return resolve([]);
