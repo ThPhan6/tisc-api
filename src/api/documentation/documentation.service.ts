@@ -16,6 +16,7 @@ import {
 } from "./documentation.type";
 import UserModel from "../../model/user.model";
 import { replaceTemplate } from "../../helper/common.helper";
+import { unescape } from "lodash";
 
 class DocumentationService {
   private documentationModel: DocumentationModel;
@@ -194,7 +195,11 @@ class DocumentationService {
       const updatedDocumentation =
         documentation.type === DOCUMENTATION_TYPES.GENERAL
           ? await this.documentationModel.update(id, {
-              ...payload,
+              title: payload.title,
+              document: {
+                ...payload.document,
+                document: unescape(payload.document.document),
+              },
               created_by: userId,
               updated_at: moment(),
             })
