@@ -80,27 +80,15 @@ export default class UserService {
       }
       // check role id
       if (
-        (
-          currentUser.type === SYSTEM_TYPE.TISC &&
-          (
-            payload.role_id !== ROLES.TISC_ADMIN &&
-            payload.role_id !== ROLES.TISC_CONSULTANT_TEAM
-          )
-        ) ||
-        (
-          currentUser.type === SYSTEM_TYPE.BRAND &&
-          (
-            payload.role_id !== ROLES.BRAND_ADMIN &&
-            payload.role_id !== ROLES.BRAND_TEAM
-          )
-        ) ||
-        (
-          currentUser.type === SYSTEM_TYPE.DESIGN &&
-          (
-            payload.role_id !== ROLES.DESIGN_ADMIN &&
-            payload.role_id !== ROLES.DESIGN_TEAM
-          )
-        )
+        (currentUser.type === SYSTEM_TYPE.TISC &&
+          payload.role_id !== ROLES.TISC_ADMIN &&
+          payload.role_id !== ROLES.TISC_CONSULTANT_TEAM) ||
+        (currentUser.type === SYSTEM_TYPE.BRAND &&
+          payload.role_id !== ROLES.BRAND_ADMIN &&
+          payload.role_id !== ROLES.BRAND_TEAM) ||
+        (currentUser.type === SYSTEM_TYPE.DESIGN &&
+          payload.role_id !== ROLES.DESIGN_ADMIN &&
+          payload.role_id !== ROLES.DESIGN_TEAM)
       ) {
         return resolve({
           message: MESSAGES.CANNOT_UPDATE_TO_OTHER_ROLE,
@@ -218,7 +206,7 @@ export default class UserService {
         phone_code: location?.phone_code || "",
         permissions,
         interested: user.interested || [],
-        retrieve_favourite: user.retrieve_favourite
+        retrieve_favourite: user.retrieve_favourite,
       };
       /// combine work_location
       if (location) {
@@ -662,21 +650,19 @@ export default class UserService {
         })
       );
       // empty locations
-      const userWithNoLocation = users.filter(
-        (item) => !item.location_id
-      );
-      temp['Empty Location'] = {
-        country_name: 'Empty Location',
+      const userWithNoLocation = users.filter((item) => !item.location_id);
+      temp["Empty Location"] = {
+        country_name: "Empty Location",
         users: userWithNoLocation,
         count: userWithNoLocation.length,
-      }
+      };
       ///
       const result = await Promise.all(
         Object.values(temp).map(async (item) => {
           const removedFieldsOfUser = await Promise.all(
             item.users.map(async (user) => {
               const department = await this.departmentModel.find(
-                user.department_id
+                user.department_id || ""
               );
               const location = await this.locationModel.find(user.location_id);
               return {
@@ -686,7 +672,7 @@ export default class UserService {
                 lastname: user.lastname,
                 gender: user.gender,
                 work_location: user.work_location?.replace(/^,/, "").trim(),
-                department: department?.name,
+                department: department?.name || null,
                 position: user.position,
                 email: user.email,
                 phone: user.phone,
@@ -751,7 +737,7 @@ export default class UserService {
       }
       const users = await this.userModel.getAllBy({
         type: SYSTEM_TYPE.TISC,
-        status: USER_STATUSES.ACTIVE
+        status: USER_STATUSES.ACTIVE,
       });
 
       const groupTiscTeams = users.filter(
