@@ -16,6 +16,7 @@ import {
 } from "./documentation.type";
 import UserModel from "../../model/user.model";
 import { replaceTemplate } from "../../helper/common.helper";
+import { unescape } from "lodash";
 
 class DocumentationService {
   private documentationModel: DocumentationModel;
@@ -302,7 +303,7 @@ class DocumentationService {
       };
       documentations.forEach((documentation) => {
         const document = replaceTemplate(
-          documentation.document.document,
+          unescape(documentation.document.document),
           "last_revised",
           moment(documentation.updated_at).format("YYYY-MM-DD") || ""
         );
