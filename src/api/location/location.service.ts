@@ -24,7 +24,7 @@ import { IMessageResponse, SystemType } from "../../type/common.type";
 import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import CountryStateCityService from "../../service/country_state_city.service";
 import { ICityAttributes } from "../../model/city";
-import { getDistinctArray } from "../../helper/common.helper";
+import { getDistinctArray, sortObjectArray } from "../../helper/common.helper";
 import ProductModel from "../../model/product.model";
 import CollectionModel from "../../model/collection.model";
 import MarketAvailabilityModel from "../../model/market_availability.model";
@@ -96,7 +96,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      if (payload.country_id != '-1') {
+      if (payload.country_id != "-1") {
         const country = await this.countryStateCityService.getCountryDetail(
           payload.country_id
         );
@@ -230,7 +230,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      if (payload.country_id != '-1') {
+      if (payload.country_id != "-1") {
         const country = await this.countryStateCityService.getCountryDetail(
           payload.country_id
         );
@@ -409,7 +409,7 @@ export default class LocationService {
       const result = await this.countryStateCityService.getAllCountry();
 
       return resolve({
-        data: result,
+        data: sortObjectArray(result, "name", "ASC"),
         statusCode: 200,
       });
     });
@@ -446,7 +446,7 @@ export default class LocationService {
         country_id
       );
       return resolve({
-        data: result,
+        data: sortObjectArray(result, "name", "ASC"),
         statusCode: 200,
       });
     });
@@ -467,7 +467,7 @@ export default class LocationService {
         );
       }
       return resolve({
-        data: cities,
+        data: sortObjectArray(cities, "name", "ASC"),
         statusCode: 200,
       });
     });
