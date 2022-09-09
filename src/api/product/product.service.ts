@@ -58,7 +58,18 @@ import SpecifiedProductModel, {
 } from "../../model/specified_product.model";
 import MailService from "../../service/mail.service";
 
-import { mappingByBrand, mappingByCategory } from "./product.mapping";
+import {
+  mappingByBrand,
+  mappingByCategory,
+  getTotalVariantOfProducts,
+  getTotalCategoryOfProducts,
+  getUniqueBrands,
+  getUniqueCollections,
+  mappingAttribute,
+  uploadImagesProduct,
+  mappingAttributeOrBasis,
+  mappingSpecificationGroups,
+} from "./product.mapping";
 
 export default class ProductService {
   private productModel: ProductModel;
@@ -93,52 +104,13 @@ export default class ProductService {
     this.commonTypeModel = new CommonTypeModel();
   }
 
-  private getTotalVariantOfProducts = (
-    products: IProductAttributes[] | ProductWithCollectionAndBrand[] = []
-  ) => {
-    return [...products].reduce((pre: string[], cur) => {
-      let temp: any = [];
-      cur.specification_attribute_groups.forEach((group) => {
-        group.attributes.forEach((attribute) => {
-          attribute.basis_options?.forEach((basis_option) => {
-            temp.push(basis_option);
-          });
-        });
-      });
-      return pre.concat(temp);
+  private getAllBasisConversion = async () => {
+    const allBasisConversion = await this.basisModel.getAllBy({
+      type: BASIS_TYPES.CONVERSION,
+    });
+    return allBasisConversion.reduce((pre, cur) => {
+      return pre.concat(cur.subs);
     }, []);
-  };
-
-  private getTotalCategoryOfProducts = (products: IProductAttributes[]) => {
-    const rawCategoryIds = products.reduce((pre: string[], cur) => {
-      return pre.concat(cur.category_ids || []);
-    }, []);
-    return getDistinctArray(rawCategoryIds);
-  };
-
-  private getUniqueBrands = (products: ProductWithCollectionAndBrand[]) => {
-    return products.reduce(
-      (res: ProductWithCollectionAndBrand["brand"][], cur) => {
-        if (!res.find((brand) => brand.id === cur.brand.id)) {
-          res = res.concat(cur.brand);
-        }
-        return res;
-      },
-      []
-    );
-  };
-  private getUniqueCollections = (
-    products: ProductWithCollectionAndBrand[]
-  ) => {
-    return products.reduce(
-      (res: ProductWithCollectionAndBrand["collection"][], cur) => {
-        if (!res.find((collection) => collection.id === cur.collection.id)) {
-          res = res.concat(cur.collection);
-        }
-        return res;
-      },
-      []
-    );
   };
 
   public create = (
@@ -156,38 +128,32 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const mapAttributeFunction = async (item: any) => {
-        const newAttributes = await Promise.all(
-          item.attributes.map(async (attribute: any) => {
-            if (attribute.type === "Conversions") {
-              const conversion = await this.basisService.getConversion(
-                attribute.basis_id
-              );
-              const value1 = parseFloat(attribute.conversion_value_1 || "0");
-              const value2 = value1 / parseFloat(conversion?.formula_1 || "1");
-              return {
-                ...attribute,
-                conversion_value_1: value1.toFixed(2),
-                conversion_value_2: value2.toFixed(2),
-              };
-            }
-            return attribute;
-          })
-        );
-        return {
-          ...item,
-          id: uuid(),
-          attributes: newAttributes,
-        };
-      };
+
+      const allConversion: {
+        id: string;
+        name_1: string;
+        name_2: string;
+        formula_1: string;
+        formula_2: string;
+        unit_1: string;
+        unit_2: string;
+      }[] = await this.getAllBasisConversion();
+
       const saveGeneralAttributeGroups = await Promise.all(
-        payload.general_attribute_groups.map(mapAttributeFunction)
+        payload.general_attribute_groups.map((generalAttributeGroup) =>
+          mappingAttribute(generalAttributeGroup, allConversion)
+        )
       );
       const saveFeatureAttributeGroups = await Promise.all(
-        payload.feature_attribute_groups.map(mapAttributeFunction)
+        payload.feature_attribute_groups.map((featureAttributeGroup) =>
+          mappingAttribute(featureAttributeGroup, allConversion)
+        )
       );
       const saveSpecificationAttributeGroups = await Promise.all(
-        payload.specification_attribute_groups.map(mapAttributeFunction)
+        payload.specification_attribute_groups.map(
+          (specificationAttributeGroup) =>
+            mappingAttribute(specificationAttributeGroup, allConversion)
+        )
       );
 
       let isValidImage = true;
@@ -231,34 +197,15 @@ export default class ProductService {
         });
       }
       const brand = await this.brandModel.find(payload.brand_id);
-      const brandName = removeSpecialChars(
-        brand?.name
-          .trim()
-          .toLowerCase()
-          .split(" ")
-          .join("-")
-          .replace(/ /g, "-") || ""
-      );
       const imagePaths = await Promise.all(
-        payload.images.map(async (image, index) => {
-          const mediumBuffer = await toWebp(
-            Buffer.from(image, "base64"),
-            "medium"
-          );
-          const keywords = payload.keywords.map((item) => {
-            return item.trim().replace(/ /g, "-");
-          });
-          let fileName = `${brandName}-${keywords.join(
-            "-"
-          )}-${moment.now()}${index}`;
-          await upload(
-            mediumBuffer,
-            `product/${createdProduct.id}/${fileName}_medium.webp`,
-            "image/webp"
-          );
-          return `/product/${createdProduct.id}/${fileName}_medium.webp`;
-        })
+        uploadImagesProduct(
+          payload.images,
+          payload.keywords,
+          brand?.name || "",
+          createdProduct.id
+        )
       );
+
       await this.productModel.update(createdProduct.id, {
         images: imagePaths,
       });
@@ -278,35 +225,18 @@ export default class ProductService {
         });
       }
       const brand = await this.brandModel.find(product.brand_id);
-      const brandName = removeSpecialChars(
-        brand?.name
-          .trim()
-          .toLowerCase()
-          .split(" ")
-          .join("-")
-          .replace(/ /g, "-") || ""
-      );
       const imageBuffers = await Promise.all(
         product.images.map(
           async (image: string) => await getBufferFile(image.slice(1))
         )
       );
       const imagePaths = await Promise.all(
-        imageBuffers.map(async (image, index) => {
-          const mediumBuffer = await toWebp(image, "medium");
-          const keywords = product.keywords.map((item) => {
-            return item.trim().replace(/ /g, "-");
-          });
-          let fileName = `${brandName}-${keywords
-            .concat(["copy"])
-            .join("-")}-${moment.now()}${index}`;
-          await upload(
-            mediumBuffer,
-            `product/${id}/${fileName}_medium.webp`,
-            "image/webp"
-          );
-          return `/product/${id}/${fileName}_medium.webp`;
-        })
+        uploadImagesProduct(
+          imageBuffers as string[],
+          product.keywords,
+          brand?.name || "",
+          id
+        )
       );
       const created = await this.productModel.create({
         ...product,
@@ -348,49 +278,35 @@ export default class ProductService {
           statusCode: 400,
         });
       }
-      const mapAttributeFunction = async (item: any) => {
-        const newAttributes = await Promise.all(
-          item.attributes.map(async (attribute: any) => {
-            if (attribute.type === "Conversions") {
-              const conversion = await this.basisService.getConversion(
-                attribute.basis_id
-              );
-              const value1 = parseFloat(attribute.conversion_value_1 || "0");
-              const value2 = value1 / parseFloat(conversion?.formula_1 || "1");
-              return {
-                ...attribute,
-                conversion_value_1: value1.toFixed(2),
-                conversion_value_2: value2.toFixed(2),
-              };
-            }
-            return attribute;
-          })
-        );
-        if (item.id) {
-          return {
-            ...item,
-            attributes: newAttributes,
-          };
-        }
-        return {
-          ...item,
-          id: uuid(),
-          attributes: newAttributes,
-        };
-      };
+      const allConversion: {
+        id: string;
+        name_1: string;
+        name_2: string;
+        formula_1: string;
+        formula_2: string;
+        unit_1: string;
+        unit_2: string;
+      }[] = await this.getAllBasisConversion();
+
       const saveGeneralAttributeGroups = await Promise.all(
-        payload.general_attribute_groups.map(mapAttributeFunction)
+        payload.general_attribute_groups.map((generalAttributeGroup) =>
+          mappingAttribute(generalAttributeGroup, allConversion)
+        )
       );
       const saveFeatureAttributeGroups = await Promise.all(
-        payload.feature_attribute_groups.map(mapAttributeFunction)
+        payload.feature_attribute_groups.map((featureAttributeGroup) =>
+          mappingAttribute(featureAttributeGroup, allConversion)
+        )
       );
       const saveSpecificationAttributeGroups = await Promise.all(
-        payload.specification_attribute_groups.map(mapAttributeFunction)
+        payload.specification_attribute_groups.map(
+          (specificationAttributeGroup) =>
+            mappingAttribute(specificationAttributeGroup, allConversion)
+        )
       );
 
       let imagePaths: string[] = [];
       let isValidImage = true;
-      let mediumBuffer: Buffer;
       if (
         payload.images.join("-") === product.images.join("-") &&
         payload.keywords.join("") === product.keywords.join("")
@@ -433,30 +349,12 @@ export default class ProductService {
         );
 
         imagePaths = await Promise.all(
-          bufferImages.map(async (image, index) => {
-            mediumBuffer = await toWebp(image, "medium");
-
-            const keywords = payload.keywords.map((item) => {
-              return item.trim().replace(/ /g, "-");
-            });
-            const brandName = removeSpecialChars(
-              brand?.name
-                .trim()
-                .toLowerCase()
-                .split(" ")
-                .join("-")
-                .replace(/ /g, "-") || ""
-            );
-            let fileName = `${brandName}-${keywords.join(
-              "-"
-            )}-${moment.now()}${index}`;
-            await upload(
-              mediumBuffer,
-              `product/${id}/${fileName}_medium.webp`,
-              "image/webp"
-            );
-            return `/product/${id}/${fileName}_medium.webp`;
-          })
+          uploadImagesProduct(
+            bufferImages as string[],
+            payload.keywords,
+            brand?.name || "",
+            id
+          )
         );
       }
       const updatedProduct = await this.productModel.update(id, {
@@ -514,148 +412,66 @@ export default class ProductService {
         await this.categoryService.getCategoryValues(
           product.category_ids || []
         );
+
       const allFeatureAttributeGroup = await this.attributeModel.getAllBy({
         type: ATTRIBUTE_TYPES.FEATURE,
       });
-      const allFeatureAttribute: any[] = allFeatureAttributeGroup.reduce(
-        (pre: any, cur) => {
-          return pre.concat(cur.subs);
-        },
-        []
+      const allFeatureAttribute: any[] = mappingAttributeOrBasis(
+        allFeatureAttributeGroup
       );
+
       const allGeneralAttributeGroup = await this.attributeModel.getAllBy({
         type: ATTRIBUTE_TYPES.GENERAL,
       });
-      const allGeneralAttribute: any[] = allGeneralAttributeGroup.reduce(
-        (pre: any, cur) => {
-          return pre.concat(cur.subs);
-        },
-        []
+      const allGeneralAttribute: any[] = mappingAttributeOrBasis(
+        allGeneralAttributeGroup
       );
       const allSpecificationAttributeGroup = await this.attributeModel.getAllBy(
         {
           type: ATTRIBUTE_TYPES.SPECIFICATION,
         }
       );
-      const allSpecificationAttribute: any[] =
-        allSpecificationAttributeGroup.reduce((pre: any, cur) => {
-          return pre.concat(cur.subs);
-        }, []);
+      const allSpecificationAttribute: any[] = mappingAttributeOrBasis(
+        allSpecificationAttributeGroup
+      );
 
       const allBasisOptionGroup = await this.basisModel.getAllBy({
         type: BASIS_TYPES.OPTION,
       });
-      const allBasisOption = allBasisOptionGroup.reduce((pre, cur) => {
-        return pre.concat(cur.subs);
-      }, []);
 
-      const allBasisOptionValue: any[] = allBasisOption.reduce(
-        (pre: any, cur: any) => {
-          return pre.concat(cur.subs);
-        },
-        []
-      );
+      const allBasisOptionValue: any[] =
+        mappingAttributeOrBasis(allBasisOptionGroup);
+
       const allBasisConversionGroup = await this.basisModel.getAllBy({
         type: BASIS_TYPES.CONVERSION,
       });
-      const allBasisConversion = allBasisConversionGroup.reduce((pre, cur) => {
-        return pre.concat(cur.subs);
-      }, []);
+      const allBasisConversion = mappingAttributeOrBasis(
+        allBasisConversionGroup
+      );
+
       const newSpecificationGroups = await Promise.all(
-        product.specification_attribute_groups.map(async (group) => {
-          const newAttributes = await Promise.all(
-            group.attributes.map(async (attribute) => {
-              const foundAttribute = allSpecificationAttribute.find(
-                (item) => item.id === attribute.id
-              );
-              let newBasisOptions: any = attribute.basis_options;
-              if (attribute.basis_options) {
-                newBasisOptions = attribute.basis_options.map((basisOption) => {
-                  const foundBasisOption = allBasisOptionValue.find(
-                    (item) => item.id === basisOption.id
-                  );
-                  return {
-                    ...basisOption,
-                    value_1: foundBasisOption?.value_1,
-                    value_2: foundBasisOption?.value_2,
-                    unit_1: foundBasisOption?.unit_1,
-                    unit_2: foundBasisOption?.unit_2,
-                    image: foundBasisOption?.image,
-                  };
-                });
-              }
-              if (attribute.type === "Conversions") {
-                const conversion = allBasisConversion.find(
-                  (item: any) => item.id === attribute.basis_id
-                );
-                return {
-                  ...attribute,
-                  name: foundAttribute?.name,
-                  basis_options: newBasisOptions,
-                  conversion,
-                };
-              }
-              return {
-                ...attribute,
-                name: foundAttribute?.name,
-                basis_options: newBasisOptions,
-              };
-            })
-          );
-          return { ...group, attributes: newAttributes };
-        })
+        mappingSpecificationGroups(
+          product.specification_attribute_groups,
+          allSpecificationAttribute,
+          allBasisConversion,
+          allBasisOptionValue
+        )
       );
+
       const newGeneralGroups = await Promise.all(
-        product.general_attribute_groups.map(async (group) => {
-          const newAttributes = await Promise.all(
-            group.attributes.map(async (attribute) => {
-              const foundAttribute = allGeneralAttribute.find(
-                (item) => item.id === attribute.id
-              );
-              if (attribute.type === "Conversions") {
-                const conversion = allBasisConversion.find(
-                  (item: any) => item.id === attribute.basis_id
-                );
-                return {
-                  ...attribute,
-                  name: foundAttribute?.name,
-                  conversion,
-                };
-              }
-              return {
-                ...attribute,
-                name: foundAttribute?.name,
-              };
-            })
-          );
-          return { ...group, attributes: newAttributes };
-        })
+        mappingSpecificationGroups(
+          product.general_attribute_groups,
+          allGeneralAttribute,
+          allBasisConversion
+        )
       );
+
       const newFeatureGroups = await Promise.all(
-        product.feature_attribute_groups.map(async (group) => {
-          const newAttributes = await Promise.all(
-            group.attributes.map(async (attribute) => {
-              const foundAttribute = allFeatureAttribute.find(
-                (item) => item.id === attribute.id
-              );
-              if (attribute.type === "Conversions") {
-                const conversion = allBasisConversion.find(
-                  (item: any) => item.id === attribute.basis_id
-                );
-                return {
-                  ...attribute,
-                  name: foundAttribute?.name,
-                  conversion,
-                };
-              }
-              return {
-                ...attribute,
-                name: foundAttribute?.name,
-              };
-            })
-          );
-          return { ...group, attributes: newAttributes };
-        })
+        mappingSpecificationGroups(
+          product.feature_attribute_groups,
+          allFeatureAttribute,
+          allBasisConversion
+        )
       );
 
       return resolve({
@@ -701,8 +517,8 @@ export default class ProductService {
         "ASC"
       );
 
-      const variants = this.getTotalVariantOfProducts(products);
-      const categoryIds = this.getTotalCategoryOfProducts(products);
+      const variants = getTotalVariantOfProducts(products);
+      const categoryIds = getTotalCategoryOfProducts(products);
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
@@ -734,7 +550,7 @@ export default class ProductService {
       if (category_id) {
         if (category_id === "all") {
           products = await this.productModel.getAllBy({ brand_id });
-          const categoryIds = this.getTotalCategoryOfProducts(products);
+          const categoryIds = getTotalCategoryOfProducts(products);
           const categories = await this.categoryService.getCategoryValues(
             categoryIds
           );
@@ -845,8 +661,8 @@ export default class ProductService {
         brand_id,
         category_id
       );
-      const brands = this.getUniqueBrands(products);
-      const collections = this.getUniqueCollections(products);
+      const brands = getUniqueBrands(products);
+      const collections = getUniqueCollections(products);
       if (category_id || !brand_id) {
         returnData = brands.map((brand) => {
           const brandProducts = products.filter(
@@ -897,7 +713,7 @@ export default class ProductService {
 
       if (brand_id) {
         /// brand summary
-        const variants = this.getTotalVariantOfProducts(products);
+        const variants = getTotalVariantOfProducts(products);
         const brand = await this.brandModel.find(brand_id);
         if (brand) {
           response.brand_summary = {
@@ -1332,19 +1148,11 @@ export default class ProductService {
   ): Promise<FavouriteProductSummaryResponse> =>
     new Promise(async (resolve) => {
       const products = await this.productModel.getUserFavouriteProducts(userId);
-      const categoryIds = this.getTotalCategoryOfProducts(products);
-      const brands = this.getUniqueBrands(products);
+      const categoryIds = getTotalCategoryOfProducts(products);
+      const brands = getUniqueBrands(products);
       const categories = await this.categoryService.getCategoryValues(
         categoryIds
       );
-      const a = {
-        categories,
-        brands,
-        category_count: categories.length,
-        brand_count: brands.length,
-        card_count: products.length,
-      };
-
       return resolve({
         data: {
           categories,
@@ -1371,7 +1179,7 @@ export default class ProductService {
         categoryId
       );
       /// category
-      let categoryIds = this.getTotalCategoryOfProducts(products);
+      let categoryIds = getTotalCategoryOfProducts(products);
       if (categoryId) {
         categoryIds = [categoryId];
       }
@@ -1379,7 +1187,7 @@ export default class ProductService {
         categoryIds
       );
       /// brand
-      const brands = this.getUniqueBrands(products);
+      const brands = getUniqueBrands(products);
 
       if (categoryId) {
         return resolve({
