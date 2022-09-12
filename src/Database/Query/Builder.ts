@@ -1,14 +1,20 @@
 import Connection from "../Connections/ArangoConnection";
 import ArangoGrammar from "../Grammars/ArangoGrammar";
+import DataParser from "../Parsers/DataParser";
+import {QUERY_TYPE} from '../Constants/QueryConstant';
+import {getTimestamps} from '../Utils/Time';
+import {head, isEmpty} from 'lodash';
 import {
   BuilderBinding,
   Operator,
   GeneralOperator,
   Sequence,
   ValueBinding,
+  QueryType,
+  WhereInverse,
 } from '../Interfaces';
 
-class Builder<DataType> {
+class Builder {
   public connection: Connection;
   public table: string;
   public softDelete: boolean;
@@ -28,7 +34,6 @@ class Builder<DataType> {
       select: [],
       join: [],
       where: [],
-      rawFilter: [],
       order: [],
     };
     this.grammar = new ArangoGrammar();
@@ -46,7 +51,7 @@ class Builder<DataType> {
     column: string,
     operator: Operator,
     value: ValueBinding,
-    inverse: boolean = false,
+    inverse: WhereInverse = false,
     and: boolean = true
   ){
     ///
@@ -63,10 +68,10 @@ class Builder<DataType> {
   public whereNotLike(column: string, value: ValueBinding ) {
     return this.where(column, 'not like', value);
   }
-  public whereIn(column: string, value: ValueBinding, inverse: boolean = false ) {
+  public whereIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
     return this.where(column, 'in', value, inverse);
   }
-  public whereNotIn(column: string, value: ValueBinding, inverse: boolean = false ) {
+  public whereNotIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
     return this.where(column, 'not in', value, inverse);
   }
   public whereNull(column: string) {
@@ -75,7 +80,7 @@ class Builder<DataType> {
   public whereNotNull(column: string) {
     return this.where(column, '!=', null);
   }
-  public orWhere(column: string, operator: Operator, value: ValueBinding, inverse: boolean = false) {
+  public orWhere(column: string, operator: Operator, value: ValueBinding, inverse: WhereInverse = false) {
     return this.where(column, operator, value, inverse, false);
   }
 
@@ -100,15 +105,81 @@ class Builder<DataType> {
     return this;
   }
 
+  public limit(limit: number, offset: number = 0) {
+    this.bindings = {
+      ...this.bindings,
+      pagination: { limit, offset }
+    }
+    return this;
+  };
+
   public async get() {
-    const da = this.grammar.compileQuery(this.bindings);
-    console.log('da', da);
-    const data = await this.connection.query(
-      da
-    );
-    console.log('data', data.all());
-    return [] as DataType[];
+    return await this.query();
   }
+
+  public async first() {
+    return head(await this.limit(1).get());
+  }
+
+  public async count(type: QueryType = QUERY_TYPE.COUNT) {
+    return (head(await this.query(type)) ?? 0) as number;
+  }
+
+  public async paginate(
+    limit: number = this.bindings.pagination?.limit ?? 10,
+    offset: number = this.bindings.pagination?.offset ?? 0
+  ) {
+    const totalRecords = await this.count(QUERY_TYPE.COUNT_WITHOUT_PAGINATION);
+    const data = await this.limit(limit, offset).get();
+    return {
+      pagination: {
+        page: (offset / limit) + 1,
+        page_size: limit,
+        total: totalRecords,
+        page_count: Math.ceil(totalRecords / limit),
+      },
+      data,
+    }
+  }
+
+  public async delete() {
+    if (isEmpty(this.bindings.where)) {
+      return false;
+    }
+    try {
+      if (this.softDelete) {
+        await this.update({delete_at: getTimestamps()});
+      }
+      await this.query(QUERY_TYPE.DELETE);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public async update(dataUpdate: Object) {
+    const newData =  await this.query(QUERY_TYPE.UPDATE, {
+      ...dataUpdate,
+      updated_at: getTimestamps(),
+    });
+    return DataParser.removeDocumentKey(newData);
+  }
+
+  public async rawQuery(query: string, bindVars: Object) {
+    const response = await this.connection.query({
+      query: `FOR ${this.table} FROM ${this.table} ${query}`,
+      bindVars
+    });
+    return await response.all();
+  }
+
+  private async query(type: QueryType = QUERY_TYPE.SELECT, dataUpdate: Object = {}) {
+    const response = await this.connection.query(
+      this.grammar.compileQuery(this.bindings, type, dataUpdate)
+    );
+    return await response.all();
+  }
+
 }
 
 export default Builder;

@@ -1,9 +1,11 @@
 import Connection from "./Connections/ArangoConnection";
 import Builder from './Query/Builder';
+import DataParser from './Parsers/DataParser';
 import {
   Operator,
   ValueBinding,
-  // DynamicValueBinding,
+  DynamicValueBinding,
+  WhereInverse
 } from './Interfaces';
 
 class Model<DataType> {
@@ -15,16 +17,12 @@ class Model<DataType> {
     this.connection = new Connection();
   }
 
-  private newQueryBuilder() {
-    return new Builder<DataType>( this.connection, this.table, this.softDelete );
-  }
-
-  public query<DataType>() {
-      return (new Model<DataType>()).newQueryBuilder();
+  private getQuery() {
+      return new Builder( this.connection, this.table, this.softDelete );
   }
 
   public select(...columns: string[]) {
-    return this.query<DataType>().select(columns);
+    return this.getQuery().select(columns);
   }
 
   public all(...columns: string[]) {
@@ -35,9 +33,9 @@ class Model<DataType> {
     column: string,
     operator: Operator,
     value: ValueBinding,
-    inverse: boolean = false
+    inverse: WhereInverse = false
   ) {
-    return this.query<DataType>().where(column, operator, value, inverse);
+    return this.getQuery().where(column, operator, value, inverse);
   }
 
   public whereLike(column: string, value: ValueBinding ) {
@@ -46,10 +44,10 @@ class Model<DataType> {
   public whereNotLike(column: string, value: ValueBinding ) {
     return this.where(column, 'not like', value);
   }
-  public whereIn(column: string, value: ValueBinding, inverse: boolean = false ) {
+  public whereIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
     return this.where(column, 'in', value, inverse);
   }
-  public whereNotIn(column: string, value: ValueBinding, inverse: boolean = false ) {
+  public whereNotIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
     return this.where(column, 'not in', value, inverse);
   }
   public whereNull(column: string) {
@@ -58,35 +56,28 @@ class Model<DataType> {
   public whereNotNull(column: string) {
     return this.where(column, '!=', null);
   }
+  public count() {
+    return this.getQuery().count();
+  }
+  public paginate(limit?: number, offset?: number) {
+    return this.getQuery().paginate(limit, offset);
+  }
 
-  // public static raw(query: string, bindVars: DynamicValueBinding) {
-  //   this.connection
-  // }
+  public async insert(data: Partial<DataType> | Partial<DataType>[]) {
+    return await this.connection.insert(
+      this.table,
+      DataParser.combineInsertData(data)
+    ) as DataType | DataType[];
+  }
+  public async delete(id: string) {
+    if (this.softDelete) {
+      return await this.getQuery().where('id', '==', id).delete();
+    }
+  }
 
-  //
-  // public get = (): DataType[] => {
-  //   // if (keys) {
-  //   //   this.query += isMerge
-  //   //     ? ` return merge( ${toObject(keys, this.prefix)}, {@key: item })`
-  //   //     : ` return ${toObject(keys, this.prefix)}`;
-  //   // } else {
-  //   //   this.query += isMerge
-  //   //     ? ` return merge(  ${this.prefix}, {@key: item })`
-  //   //     : ` return  ${this.prefix}`;
-  //   // }
-  //   // const executedData: any = await DB.query({
-  //   //   query: this.query,
-  //   //   bindVars: this.bindObj,
-  //   // });
-  //   // // reset query
-  //   // this.query = this.temp;
-  //   // this.bindObj = this.tempBindObj;
-  //   // return executedData._result.map((item: any) => {
-  //   //   return removeUnnecessaryArangoFields(item);
-  //   // });
-  // }
-  //
-  // // private parse
+  public async rawQuery(query: string, bindVars: DynamicValueBinding) {
+    return await this.getQuery().rawQuery(query, bindVars);
+  }
 }
 //
 export default Model;
