@@ -1,6 +1,7 @@
+import { IProductAttributes } from "@/types/product.type";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
-import ProductService from "../../api/product/product.service";
+import ProductService from "@/api/product/product.service";
 import {
   BRAND_STATUSES,
   BRAND_STATUS_OPTIONS,
@@ -8,27 +9,27 @@ import {
   REGION_KEY,
   SYSTEM_TYPE,
   VALID_IMAGE_TYPES,
-} from "../../constant/common.constant";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
-import { getAccessLevel, getDistinctArray } from "../../helper/common.helper";
-import { toWebp } from "../../helper/image.helper";
-import { createResetPasswordToken } from "../../helper/password.helper";
+} from "@/constant/common.constant";
+import { ROLES, USER_STATUSES } from "@/constant/user.constant";
+import { getAccessLevel, getDistinctArray } from "@/helper/common.helper";
+import { toWebp } from "@/helper/image.helper";
+import { createResetPasswordToken } from "@/helper/password.helper";
 import BrandModel, {
   BRAND_NULL_ATTRIBUTES,
   IBrandAttributes,
-} from "../../model/brand.model";
+} from "@/model/brand.model";
 import CollectionModel, {
   ICollectionAttributes,
-} from "../../model/collection.model";
-import DistributorModel from "../../model/distributor.model";
-import FunctionalTypeModel from "../../model/functional_type.model";
-import LocationModel, { ILocationAttributes } from "../../model/location.model";
-import ProductModel, { IProductAttributes } from "../../model/product.model";
-import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
-import { deleteFile, upload } from "../../service/aws.service";
-import CountryStateCityService from "../../service/country_state_city_v1.service";
-import MailService from "../../service/mail.service";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+} from "@/model/collection.model";
+import DistributorModel from "@/model/distributor.model";
+import FunctionalTypeModel from "@/model/functional_type.model";
+import LocationModel, { ILocationAttributes } from "@/model/location.model";
+import ProductModel from "@/model/product.model";
+import UserModel, { USER_NULL_ATTRIBUTES } from "@/model/user.model";
+import { deleteFile, upload } from "@/service/aws.service";
+import CountryStateCityService from "@/service/country_state_city_v1.service";
+import MailService from "@/service/mail.service";
+import { IMessageResponse, IPagination } from "@/type/common.type";
 import MarketAvailabilityService from "../market_availability/market_availability.service";
 import PermissionService from "../permission/permission.service";
 import { IAvatarResponse } from "../user/user.type";

@@ -1,19 +1,22 @@
-import {
-  getDistinctArray,
-  removeSpecialChars,
-} from "../../helper/common.helper";
+import { getDistinctArray, removeSpecialChars } from "@/helper/common.helper";
+import { toWebp } from "@/helper/image.helper";
+import { IAttributeAttributes } from "@/model/attribute.model";
+import { IBasisAttributes } from "@/model/basis.model";
+import { upload } from "@/service/aws.service";
 import {
   IProductAttributes,
   ProductWithCollectionAndBrand,
-} from "../../model/product.model";
-import { CategoryValue } from "../category/category.type";
-import { v4 as uuid } from "uuid";
+} from "@/types/product.type";
 import moment from "moment";
-import { upload } from "../../service/aws.service";
-import { toWebp } from "../../helper/image.helper";
-import { IAttributeAttributes } from "../../model/attribute.model";
-import { IAttributeGroupHasId } from "./product.type";
-import { IBasisAttributes } from "../../model/basis.model";
+import { v4 as uuid } from "uuid";
+import { ISubBasisConversion } from "../basis/basis.type";
+import { CategoryValue } from "../category/category.type";
+import {
+  IAttributeGroupWithOptionalId,
+  IAttributeGroupWithOptionId,
+  IProductOption,
+  IProductOptionAttribute,
+} from "./product.type";
 
 export const getProductCategories = (
   categoryIds: string[] = [],
@@ -97,8 +100,8 @@ export const mappingByBrand = (
 export const getTotalVariantOfProducts = (
   products: IProductAttributes[] | ProductWithCollectionAndBrand[] = []
 ) => {
-  return [...products].reduce((pre: string[], cur) => {
-    let temp: any = [];
+  return [...products].reduce((pre: IProductOption[], cur) => {
+    let temp: IProductOption[] = [];
     cur.specification_attribute_groups.forEach((group) => {
       group.attributes.forEach((attribute) => {
         attribute.basis_options?.forEach((basis_option) => {
@@ -144,8 +147,8 @@ export const getUniqueCollections = (
 };
 
 export const mappingAttribute = (
-  attributeGroup: any,
-  allBasisConversion: any
+  attributeGroup: IAttributeGroupWithOptionalId,
+  allBasisConversion: ISubBasisConversion[]
 ) => {
   const newAttributes = attributeGroup.attributes.map((attribute: any) => {
     if (attribute.type === "Conversions") {
@@ -210,13 +213,13 @@ export const mappingAttributeOrBasis = (
   }, []);
 };
 
-export const mappingSpecificationGroups = (
-  specification_attribute_groups: IAttributeGroupHasId[],
+export const mappingAttributeGroups = (
+  attribute_groups: IAttributeGroupWithOptionId[],
   all_specification_attribute: IAttributeAttributes[],
   all_basis_conversion: IBasisAttributes[],
   all_basis_option_value?: IBasisAttributes[]
 ) => {
-  return specification_attribute_groups.map(async (group) => {
+  return attribute_groups.map(async (group) => {
     {
       const newAttributes = await Promise.all(
         group.attributes.map(async (attribute) => {
@@ -243,7 +246,7 @@ export const mappingSpecificationGroups = (
           }
           if (attribute.type === "Conversions") {
             const conversion = all_basis_conversion.find(
-              (item: any) => item.id === attribute.basis_id
+              (item: IBasisAttributes) => item.id === attribute.basis_id
             );
             return {
               ...attribute,
@@ -262,4 +265,22 @@ export const mappingSpecificationGroups = (
       return { ...group, attributes: newAttributes };
     }
   });
+};
+
+export const mappingSaveAttributeGroup = () => {
+  const saveGeneralAttributeGroups = await Promise.all(
+    payload.general_attribute_groups.map((generalAttributeGroup) =>
+      mappingAttribute(generalAttributeGroup, allConversion)
+    )
+  );
+  const saveFeatureAttributeGroups = await Promise.all(
+    payload.feature_attribute_groups.map((featureAttributeGroup) =>
+      mappingAttribute(featureAttributeGroup, allConversion)
+    )
+  );
+  const saveSpecificationAttributeGroups = await Promise.all(
+    payload.specification_attribute_groups.map((specificationAttributeGroup) =>
+      mappingAttribute(specificationAttributeGroup, allConversion)
+    )
+  );
 };

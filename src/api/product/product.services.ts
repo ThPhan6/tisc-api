@@ -1,7 +1,7 @@
 import ProductRepository from "@/repositories/product.repository";
 import { IProductAttributes } from "@/types/product.type";
-import BasisService from "../../api/basis/basis.service";
-import CategoryService from "../../api/category/category.service";
+import BasisService from "../basis/basis.service";
+import CategoryService from "../category/category.service";
 import {
   ATTRIBUTE_TYPES,
   BASIS_TYPES,
@@ -9,35 +9,33 @@ import {
   CONSIDERED_PRODUCT_STATUS,
   MESSAGES,
   VALID_IMAGE_TYPES,
-} from "../../constant/common.constant";
+} from "@/constant/common.constant";
 import {
   getDistinctArray,
   getFileTypeFromBase64,
-} from "../../helper/common.helper";
-import { getFileURI } from "../../helper/image.helper";
-import AttributeModel from "../../model/attribute.model";
-import BasisModel from "../../model/basis.model";
-import BrandModel from "../../model/brand.model";
-import CollectionModel from "../../model/collection.model";
+} from "@/helper/common.helper";
+import { getFileURI } from "@/helper/image.helper";
+import AttributeModel from "@/model/attribute.model";
+import BasisModel from "@/model/basis.model";
+import BrandModel from "@/model/brand.model";
+import CollectionModel from "@/model/collection.model";
 import CommonTypeModel, {
   DEFAULT_COMMON_TYPE,
-} from "../../model/common_type.model";
+} from "@/model/common_type.model";
 import ConsideredProductModel, {
   CONSIDERED_PRODUCT_NULL_ATTRIBUTES,
-} from "../../model/considered_product.model";
-import ProductModel, {
-  PRODUCT_NULL_ATTRIBUTES,
-} from "../../model/product.model";
-import ProjectModel from "../../model/project.model";
+} from "@/model/considered_product.model";
+import ProductModel, { PRODUCT_NULL_ATTRIBUTES } from "@/model/product.model";
+import ProjectModel from "@/model/project.model";
 import SpecifiedProductModel, {
   SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-} from "../../model/specified_product.model";
-import UserModel from "../../model/user.model";
-import { deleteFile, isExists } from "../../service/aws.service";
-import CountryStateCityService from "../../service/country_state_city_v1.service";
-import MailService from "../../service/mail.service";
-import { IMessageResponse } from "../../type/common.type";
-import { getBufferFile } from "./../../service/aws.service";
+} from "@/model/specified_product.model";
+import UserModel from "@/model/user.model";
+import { deleteFile, isExists } from "@/service/aws.service";
+import CountryStateCityService from "@/service/country_state_city_v1.service";
+import MailService from "@/service/mail.service";
+import { IMessageResponse } from "@/type/common.type";
+import { getBufferFile } from "@/service/aws.service";
 import {
   getTotalCategoryOfProducts,
   getTotalVariantOfProducts,
@@ -66,6 +64,7 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
+import { ISubBasisConversion } from "../basis/basis.type";
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -109,105 +108,92 @@ export default class ProductService {
     }, []);
   };
 
-  public create = (
-    user_id: string,
-    payload: IProductRequest
-  ): Promise<IMessageResponse | IProductResponse> => {
-    return new Promise(async (resolve) => {
-      const product = await this.productModel.findBy({
-        name: payload.name,
-        brand_id: payload.brand_id,
-      });
-      if (product) {
-        return resolve({
-          message: MESSAGES.PRODUCT_EXISTED,
-          statusCode: 400,
-        });
-      }
-
-      const allConversion: {
-        id: string;
-        name_1: string;
-        name_2: string;
-        formula_1: string;
-        formula_2: string;
-        unit_1: string;
-        unit_2: string;
-      }[] = await this.getAllBasisConversion();
-
-      const saveGeneralAttributeGroups = await Promise.all(
-        payload.general_attribute_groups.map((generalAttributeGroup) =>
-          mappingAttribute(generalAttributeGroup, allConversion)
-        )
-      );
-      const saveFeatureAttributeGroups = await Promise.all(
-        payload.feature_attribute_groups.map((featureAttributeGroup) =>
-          mappingAttribute(featureAttributeGroup, allConversion)
-        )
-      );
-      const saveSpecificationAttributeGroups = await Promise.all(
-        payload.specification_attribute_groups.map(
-          (specificationAttributeGroup) =>
-            mappingAttribute(specificationAttributeGroup, allConversion)
-        )
-      );
-
-      let isValidImage = true;
-      for (const image of payload.images) {
-        const fileType = await getFileTypeFromBase64(image);
-        if (
-          !fileType ||
-          !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
-        ) {
-          isValidImage = false;
-        }
-      }
-      if (!isValidImage) {
-        return resolve({
-          message: MESSAGES.IMAGE_INVALID,
-          statusCode: 400,
-        });
-      }
-
-      const createdProduct = await this.productModel.create({
-        ...PRODUCT_NULL_ATTRIBUTES,
-        brand_id: payload.brand_id,
-        collection_id: payload.collection_id,
-        category_ids: payload.category_ids,
-        name: payload.name,
-        code: "random",
-        description: payload.description,
-        general_attribute_groups: saveGeneralAttributeGroups,
-        feature_attribute_groups: saveFeatureAttributeGroups,
-        specification_attribute_groups: saveSpecificationAttributeGroups,
-        created_by: user_id,
-        images: [],
-        keywords: payload.keywords,
-        brand_location_id: payload.brand_location_id,
-        distributor_location_id: payload.distributor_location_id,
-      });
-      if (!createdProduct) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      const brand = await this.brandModel.find(payload.brand_id);
-      const imagePaths = await Promise.all(
-        uploadImagesProduct(
-          payload.images,
-          payload.keywords,
-          brand?.name || "",
-          createdProduct.id
-        )
-      );
-
-      await this.productModel.update(createdProduct.id, {
-        images: imagePaths,
-      });
-      return resolve(await this.get(createdProduct.id, user_id));
+  public async create_(user_id: string, payload: IProductRequest) {
+    const product = await this.productRepository.findBy({
+      name: payload.name,
+      brand_id: payload.brand_id,
     });
-  };
+    if (product) {
+      return {
+        message: MESSAGES.PRODUCT_EXISTED,
+        statusCode: 400,
+      };
+    }
+
+    const allConversion: ISubBasisConversion[] =
+      await this.getAllBasisConversion();
+
+    const saveGeneralAttributeGroups = await Promise.all(
+      payload.general_attribute_groups.map((generalAttributeGroup) =>
+        mappingAttribute(generalAttributeGroup, allConversion)
+      )
+    );
+    const saveFeatureAttributeGroups = await Promise.all(
+      payload.feature_attribute_groups.map((featureAttributeGroup) =>
+        mappingAttribute(featureAttributeGroup, allConversion)
+      )
+    );
+    const saveSpecificationAttributeGroups = await Promise.all(
+      payload.specification_attribute_groups.map(
+        (specificationAttributeGroup) =>
+          mappingAttribute(specificationAttributeGroup, allConversion)
+      )
+    );
+    let isValidImage = true;
+    for (const image of payload.images) {
+      const fileType = await getFileTypeFromBase64(image);
+      if (
+        !fileType ||
+        !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+      ) {
+        isValidImage = false;
+      }
+    }
+    if (!isValidImage) {
+      return {
+        message: MESSAGES.IMAGE_INVALID,
+        statusCode: 400,
+      };
+    }
+
+    const createdProduct = await this.productRepository.create({
+      brand_id: payload.brand_id,
+      collection_id: payload.collection_id,
+      category_ids: payload.category_ids,
+      name: payload.name,
+      code: "random",
+      description: payload.description,
+      general_attribute_groups: saveGeneralAttributeGroups,
+      feature_attribute_groups: saveFeatureAttributeGroups,
+      specification_attribute_groups: saveSpecificationAttributeGroups,
+      created_by: user_id,
+      images: [],
+      keywords: payload.keywords,
+      brand_location_id: payload.brand_location_id,
+      distributor_location_id: payload.distributor_location_id,
+    });
+    if (!createdProduct) {
+      return {
+        message: MESSAGES.SOMETHING_WRONG_CREATE,
+        statusCode: 400,
+      };
+    }
+    const brand = await this.brandModel.find(payload.brand_id);
+    const imagePaths = await Promise.all(
+      uploadImagesProduct(
+        payload.images,
+        payload.keywords,
+        brand?.name || "",
+        createdProduct.id
+      )
+    );
+
+    await this.productModel.update(createdProduct.id, {
+      images: imagePaths,
+    });
+    return await this.get(createdProduct.id, user_id);
+  }
+
   public duplicate = (
     id: string,
     user_id: string
@@ -313,7 +299,6 @@ export default class ProductService {
         const bufferImages = await Promise.all(
           payload.images.map(async (image) => {
             const fileType = await getFileTypeFromBase64(image);
-            console.log(fileType, "[fileType]");
             if (!fileType) {
               const isExisted = await isExists(image.slice(1));
               console.log(isExisted, "[isExisted]");

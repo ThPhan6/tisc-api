@@ -1,4 +1,4 @@
-import {ProductWithCollectionAndBrand} from '../../model/product.model';
+import { ProductWithCollectionAndBrand } from "@/types/product.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -192,8 +192,8 @@ export interface CommonTypeResponse {
   statusCode: number;
 }
 
-
-export interface ProductListResponse extends Omit<ProductWithCollectionAndBrand, 'favorites'| 'is_deleted'> {
+export interface ProductListResponse
+  extends Omit<ProductWithCollectionAndBrand, "favorites" | "is_deleted"> {
   is_liked: boolean;
   favorites: number;
 }
@@ -214,4 +214,14 @@ export interface IDesignerProductsResponse {
     product_count: number;
   };
   statusCode: number;
+}
+
+export interface IAttributeGroupWithOptionalId extends IAttributeGroup {
+  id?: string;
+}
+
+export interface IAttributeGroupWithOptionId {
+  id?: string;
+  name: string;
+  attributes: IProductOptionAttribute[];
 }

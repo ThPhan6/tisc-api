@@ -1,8 +1,7 @@
-import Model from '../Database/Model';
-import {head, isEmpty, forEach} from 'lodash';
+import { head, isEmpty, forEach } from "lodash";
+import Model from "../Database/Model";
 
 class BaseRepository<DataType> {
-
   protected model: Model<DataType>;
   protected DEFAULT_ATTRIBUTE: Partial<DataType> = {};
 
@@ -19,7 +18,7 @@ class BaseRepository<DataType> {
    * @return DataType[]
    */
   public async getAll() {
-    return await this.model.all() as DataType[];
+    return (await this.model.all()) as DataType[];
   }
 
   /**
@@ -28,7 +27,9 @@ class BaseRepository<DataType> {
    * @return DataType | undefined
    */
   public async find(id: string) {
-    return await this.model.where('id', '==', id).first() as DataType | undefined;
+    return (await this.model.where("id", "==", id).first()) as
+      | DataType
+      | undefined;
   }
 
   /**
@@ -36,12 +37,12 @@ class BaseRepository<DataType> {
    * @param params Partial<DataType>
    * @return DataType | undefined
    */
-  public async findBy(params: {[key: string]: string | number | null}) {
+  public async findBy(params: { [key: string]: string | number | null }) {
     let query = this.model.getQuery();
     forEach(params, (value, column) => {
-      query = query.where(column, '==', value);
+      query = query.where(column, "==", value);
     });
-    return await query.first() as DataType | undefined;
+    return (await query.first()) as DataType | undefined;
   }
 
   /**
@@ -49,11 +50,11 @@ class BaseRepository<DataType> {
    * @param attributes Partial<DataType>
    * @return DataType | DataType[]
    */
-  public async create(attributes: Partial<DataType> | Partial<DataType>[]) {
-    return await this.model.insert({
+  public async create(attributes: Partial<DataType>) {
+    return (await this.model.insert({
       ...this.DEFAULT_ATTRIBUTE,
-      attributes
-    });
+      attributes,
+    })) as DataType;
   }
 
   /**
@@ -62,8 +63,10 @@ class BaseRepository<DataType> {
    * @param attributes Partial<DataType>
    * @return DataType | false
    */
-  public async update(id: string, attributes:  Partial<DataType>) {
-    const updatedData = await this.model.where('id', '==', id).update(attributes);
+  public async update(id: string, attributes: Partial<DataType>) {
+    const updatedData = await this.model
+      .where("id", "==", id)
+      .update(attributes);
     if (!isEmpty(updatedData)) {
       return head(updatedData) as DataType;
     }
@@ -76,7 +79,7 @@ class BaseRepository<DataType> {
    * @return boolean
    */
   public async delete(id: string) {
-    return await this.model.where('id', '==', id).delete();
+    return this.model.where("id", "==", id).delete();
   }
 }
 export default BaseRepository;
