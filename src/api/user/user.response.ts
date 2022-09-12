@@ -95,7 +95,7 @@ export default {
             lastname: Joi.string(),
             gender: Joi.boolean().allow(null),
             work_location: Joi.string(),
-            department: Joi.string(),
+            department: Joi.string().allow(null),
             position: Joi.string().allow(null),
             email: Joi.string(),
             phone: Joi.string().allow(null),

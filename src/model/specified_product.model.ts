@@ -1,3 +1,4 @@
+import { removeUnnecessaryArangoFields } from "../query_builder";
 import Model from "./index";
 
 export interface ISpecifiedProductAttributes {
@@ -31,6 +32,7 @@ export interface ISpecifiedProductAttributes {
   unit_type_id: string;
   order_method: number;
   requirement_type_ids: string[];
+  finish_schedules: string[];
   instruction_type_ids: string[];
   special_instructions: string;
   created_at: string;
@@ -59,6 +61,7 @@ export const SPECIFIED_PRODUCT_NULL_ATTRIBUTES = {
   material_code: null,
   suffix_code: null,
   description: null,
+  finish_schedules: [],
   quantity: 0,
   unit_type_id: null,
   order_method: 0,
@@ -85,5 +88,27 @@ export default class SpecifiedProductTipModel extends Model<ISpecifiedProductAtt
     } catch (error) {
       return Promise.resolve([]);
     }
+  };
+
+  public findSpecifiedProductByZone = async (project_zone_id: string) => {
+    const params = {} as any;
+    params.zone_id = project_zone_id;
+    let rawQuery = `
+    for u in specified_products
+    for project_zone_id in u.project_zone_ids
+        for zone in project_zones
+            filter zone.id == @zone_id
+            for area in zone.areas
+                for room in area.rooms
+                    filter project_zone_id == room.id
+COLLECT WITH COUNT INTO length
+RETURN merge({total: length})
+
+    `;
+    let result: any = await this.getBuilder().raw(rawQuery, params);
+    if (result === false) {
+      return false;
+    }
+    return result._result[0];
   };
 }

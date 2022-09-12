@@ -21,6 +21,7 @@ export interface ISpecifiedProductRequest {
   material_code_id: string;
   suffix_code: string;
   description: string;
+  finish_schedules: string[];
   quantity: number;
   unit_type_id: string;
   order_method: number;

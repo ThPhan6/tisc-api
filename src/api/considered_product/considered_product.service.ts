@@ -19,6 +19,7 @@ import UserModel from "../../model/user.model";
 import SpecifiedProductModel from "../../model/specified_product.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 import {
+  IRoom,
   IConsideredProductsResponse,
   StatusConsideredProductRequest,
 } from "./considered_product.type";
@@ -123,7 +124,6 @@ export default class ConsideredProductService {
           "is_entire",
         ]
       );
-
       const mappingZonePromises = projectZones.map(async (zone) => {
         const mappingAreaPromises = zone.areas.map(async (area) => {
           const mappingRoomPromises = area.rooms.map(async (room) => {
@@ -134,6 +134,7 @@ export default class ConsideredProductService {
               foundConsideredProducts,
               brand_order
             );
+
             return {
               ...room,
               products: products.map((product) => {
@@ -152,11 +153,12 @@ export default class ConsideredProductService {
             "room_name",
             room_order
           );
-
           return {
             ...area,
             rooms: sortedNewRooms,
-            count: sortedNewRooms.length,
+            count: sortedNewRooms.reduce((pre, cur) => {
+              return cur.products.length ? pre + cur.products.length : pre;
+            }, 0),
           };
         });
 
@@ -166,7 +168,12 @@ export default class ConsideredProductService {
         return {
           ...zone,
           areas: sortedAreas,
-          count: sortedAreas.length,
+          count: sortedAreas.reduce((pre, cur) => {
+            cur.rooms.forEach((item: IRoom) => {
+              pre += item.products.length;
+            });
+            return pre;
+          }, 0),
         };
       });
 
@@ -197,7 +204,7 @@ export default class ConsideredProductService {
           cur.status === CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED
         ) {
           return pre + 1;
-        };
+        }
         return pre;
       }, 0);
       const unlistedCount = consideredProducts.reduce((pre, cur) => {
@@ -331,9 +338,9 @@ export default class ConsideredProductService {
           statusCode: 404,
         });
       }
-      const specifiedProduct = await this.specifiedProductModel.findBy(
-        {considered_product_id: considered_product_id}
-      );
+      const specifiedProduct = await this.specifiedProductModel.findBy({
+        considered_product_id: considered_product_id,
+      });
       if (specifiedProduct) {
         return resolve({
           message: MESSAGES.PRODUCT_WAS_SPECIFIED_ALREADY,

@@ -330,11 +330,19 @@ class AuthService {
           statusCode: 400,
         });
       }
+      if (user.type === SYSTEM_TYPE.TISC) {
+        return resolve(
+          await this.tiscLogin({
+            email: user.email,
+            password: payload.password,
+          }, user.type)
+        );
+      }
       return resolve(
         await this.login({
           email: user.email,
           password: payload.password,
-        })
+        }, user.type)
       );
     });
   };
