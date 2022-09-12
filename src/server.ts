@@ -69,20 +69,10 @@ const server: hapi.Server = new hapi.Server({
 
 async function start() {
   try {
-    await server.validator(require("joi"));
+    server.validator(require("joi"));
     await server.register(plugins);
     AuthMiddleware.registerAll(server);
     await Router.loadRoute(server);
-    server.route({
-      method: "GET",
-      path: "/public/{param*}",
-      options: {
-        auth: false,
-        handler(request, h) {
-          return h.file(request.path.slice(8));
-        },
-      },
-    });
     await server.start();
   } catch (err) {
     console.log(err);

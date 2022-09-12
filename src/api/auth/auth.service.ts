@@ -2,6 +2,7 @@ import {
   BRAND_STATUSES,
   DESIGN_STATUSES,
   MESSAGES,
+  EMAIL_TYPE, SYSTEM_TYPE,
 } from "./../../constant/common.constant";
 import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
 import {
@@ -20,22 +21,17 @@ import {
   createHashWithSalt,
 } from "../../helper/password.helper";
 import {
-  signAdminToken,
-  signBrandAdminToken,
-  signBrandTeamToken,
-  signConsultantTeamToken,
-  signDesignAdminToken,
-  signDesignTeamToken,
+  signJwtToken,
 } from "../../helper/jwt.helper";
 import { ROLES, USER_STATUSES } from "../../constant/user.constant";
 import MailService from "../../service/mail.service";
-import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
 import BrandModel from "../../model/brand.model";
 import { getAccessLevel } from "../../helper/common.helper";
 import DesignModel, {
   DESIGN_NULL_ATTRIBUTES,
 } from "../../model/designer.model";
 import PermissionService from "../permission/permission.service";
+import {getRoleType} from '@/constant/role.constant';
 
 class AuthService {
   private userModel: UserModel;
@@ -67,6 +63,22 @@ class AuthService {
     }
     return false;
   };
+
+  private reponseWithToken = (userId: string, type?: string) => {
+    const response = {
+      token: signJwtToken(userId),
+      message: MESSAGES.SUCCESS,
+      statusCode: 200,
+    }
+    if (type) {
+      return {
+        ...response,
+        type
+      }
+    }
+    return response;
+  }
+
 
   public tiscLogin = (
     payload: IAdminLoginRequest,
@@ -100,24 +112,8 @@ class AuthService {
           statusCode: 400,
         });
       }
-      if (user.role_id === ROLES.TISC_ADMIN) {
-        return resolve({
-          token: signAdminToken(user.id),
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.TISC_CONSULTANT_TEAM) {
-        return resolve({
-          token: signConsultantTeamToken(user.id),
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      return resolve({
-        message: MESSAGES.USER_ROLE_NOT_FOUND,
-        statusCode: 404,
-      });
+
+      return resolve(this.reponseWithToken(user.id));
     });
   };
   public login = (
@@ -162,42 +158,9 @@ class AuthService {
           statusCode: 400,
         });
       }
-      if (user.role_id === ROLES.BRAND_ADMIN) {
-        return resolve({
-          token: signBrandAdminToken(user.id),
-          type: "brand",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.BRAND_TEAM) {
-        return resolve({
-          token: signBrandTeamToken(user.id),
-          type: "brand",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.DESIGN_ADMIN) {
-        return resolve({
-          token: signDesignAdminToken(user.id),
-          type: "design",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.DESIGN_TEAM) {
-        return resolve({
-          token: signDesignTeamToken(user.id),
-          type: "design",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      return resolve({
-        message: MESSAGES.USER_ROLE_NOT_FOUND,
-        statusCode: 404,
-      });
+      return resolve(
+        this.reponseWithToken(user.id, getRoleType(user.role_id)),
+      );
     });
   };
 
