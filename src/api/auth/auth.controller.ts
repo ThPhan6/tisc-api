@@ -1,4 +1,4 @@
-import AuthService from "./auth.service";
+import AuthService from "./auth.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   IAdminLoginRequest,

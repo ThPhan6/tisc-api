@@ -1,7 +1,7 @@
 export type GeneralOperator = '==' | '!=';
 export type Operator = '==' | '!=' | '<' | '>' | '<=' | '>=' | 'like' | 'not like' | 'in' | 'not in';
 export type Sequence = 'ASC' | 'DESC';
-export type ValueBinding = string | number | string[] | number[] | null;
+export type ValueBinding = string | number | string[] | number[] | null | boolean;
 export type WhereInverse = false | 'inverse';
 
 export interface WhereBinding {

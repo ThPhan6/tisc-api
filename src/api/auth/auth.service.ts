@@ -31,7 +31,7 @@ import DesignModel, {
   DESIGN_NULL_ATTRIBUTES,
 } from "../../model/designer.model";
 import PermissionService from "../permission/permission.service";
-import {getRoleType} from '@/constant/role.constant';
+import {getRoleType} from '@/constants';
 
 class AuthService {
   private userModel: UserModel;

@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import Joi from "joi";
 
 export const validationMessageResponse = Joi.object({
   statusCode: Joi.number(),
@@ -18,7 +18,7 @@ export const generalMessageResponse = Joi.object({
   message: Joi.string(),
 }) as any;
 
-export const errorMessageResponse = Joi.object({
+export const ErrorMessageResponse = Joi.object({
   statusCode: Joi.number(),
   message: Joi.string(),
   error: Joi.string(),
@@ -26,11 +26,24 @@ export const errorMessageResponse = Joi.object({
 
 export const defaultRouteOptionResponseStatus = {
   400: validationMessageResponse,
-  401: errorMessageResponse,
-  500: errorMessageResponse,
+  401: ErrorMessageResponse,
+  500: ErrorMessageResponse,
 };
 
 export const statuses = Joi.array().items({
   key: Joi.string(),
   value: Joi.number(),
 });
+
+export const errorMessageResponse = (
+  message: string = '',
+  statusCode: 400 | 401 | 403 | 404 = 400,
+) => {
+  return { message, statusCode };
+}
+export const successMessageResponse = ( message: string = '' ) => {
+  return { message, statusCode: 200 };
+}
+export const successResponse = (res: {[key: string]: any} = {}) => {
+  return { ...res, statusCode: 200 };
+}
