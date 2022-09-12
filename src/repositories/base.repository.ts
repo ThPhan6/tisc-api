@@ -1,9 +1,10 @@
 import Model from '../Database/Model';
-import {head, isEmpty} from 'lodash';
+import {head, isEmpty, forEach} from 'lodash';
 
 class BaseRepository<DataType> {
 
   protected model: Model<DataType>;
+  protected DEFAULT_ATTRIBUTE: Partial<DataType> = {};
 
   constructor() {
     this.model = new Model<DataType>();
@@ -31,12 +32,28 @@ class BaseRepository<DataType> {
   }
 
   /**
+   * Get one by object params
+   * @param params Partial<DataType>
+   * @return DataType | undefined
+   */
+  public async findBy(params: {[key: string]: string | number | null}) {
+    let query = this.model.getQuery();
+    forEach(params, (value, column) => {
+      query = query.where(column, '==', value);
+    });
+    return await query.first() as DataType | undefined;
+  }
+
+  /**
    * Create
    * @param attributes Partial<DataType>
    * @return DataType | DataType[]
    */
   public async create(attributes: Partial<DataType> | Partial<DataType>[]) {
-    return await this.model.insert(attributes);
+    return await this.model.insert({
+      ...this.DEFAULT_ATTRIBUTE,
+      attributes
+    });
   }
 
   /**
