@@ -1,4 +1,10 @@
-export type BrandStatusValue = 1 | 2 | 3;
+export interface BrandStatus {
+  ACTIVE: 1,
+  INACTIVE: 2,
+  PENDING: 3,
+}
+
+export type BrandStatusValue = BrandStatus[keyof BrandStatus];
 export type BrandStatusKey = "Active" | "Pending" | "Inactive";
 
 export interface BrandOfficialWebsite {

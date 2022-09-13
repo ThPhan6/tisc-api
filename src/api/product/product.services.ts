@@ -65,6 +65,10 @@ import {
   ShareProductBodyRequest,
 } from "./product.type";
 import { ISubBasisConversion } from "../basis/basis.type";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
 export default class ProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
@@ -114,10 +118,7 @@ export default class ProductService {
       brand_id: payload.brand_id,
     });
     if (product) {
-      return {
-        message: MESSAGES.PRODUCT_EXISTED,
-        statusCode: 400,
-      };
+      return errorMessageResponse(MESSAGES.PRODUCT_EXISTED);
     }
 
     const allConversion: ISubBasisConversion[] =
@@ -150,10 +151,7 @@ export default class ProductService {
       }
     }
     if (!isValidImage) {
-      return {
-        message: MESSAGES.IMAGE_INVALID,
-        statusCode: 400,
-      };
+      return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
 
     const createdProduct = await this.productRepository.create({
@@ -173,10 +171,7 @@ export default class ProductService {
       distributor_location_id: payload.distributor_location_id,
     });
     if (!createdProduct) {
-      return {
-        message: MESSAGES.SOMETHING_WRONG_CREATE,
-        statusCode: 400,
-      };
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
     const brand = await this.brandModel.find(payload.brand_id);
     const imagePaths = await Promise.all(
@@ -197,10 +192,7 @@ export default class ProductService {
   public async duplicate(id: string, user_id: string) {
     const product = await this.productRepository.find(id);
     if (!product) {
-      return {
-        message: MESSAGES.PRODUCT_NOT_FOUND,
-        statusCode: 404,
-      };
+      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
     const brand = await this.brandModel.find(product.brand_id);
     const imageBuffers = await Promise.all(
@@ -224,10 +216,7 @@ export default class ProductService {
       favorites: [],
     });
     if (!created) {
-      return {
-        message: MESSAGES.SOMETHING_WRONG_CREATE,
-        statusCode: 400,
-      };
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
     return await this.get(created.id, user_id);
   }
@@ -239,10 +228,7 @@ export default class ProductService {
   ) {
     const product = await this.productRepository.find(id);
     if (!product) {
-      return {
-        message: MESSAGES.PRODUCT_NOT_FOUND,
-        statusCode: 404,
-      };
+      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
     const brand = await this.brandModel.find(payload.brand_id);
     const duplicatedProduct = await this.productRepository.getDuplicatedProduct(
@@ -251,10 +237,7 @@ export default class ProductService {
       payload.brand_id
     );
     if (duplicatedProduct) {
-      return {
-        message: MESSAGES.PRODUCT_DUPLICATED,
-        statusCode: 400,
-      };
+      return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
     const allConversion: ISubBasisConversion[] =
       await this.getAllBasisConversion();
@@ -304,10 +287,7 @@ export default class ProductService {
         })
       );
       if (!isValidImage) {
-        return {
-          message: MESSAGES.IMAGE_INVALID,
-          statusCode: 400,
-        };
+        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
       await Promise.all(
         product.images.map(async (item) => {
@@ -333,10 +313,7 @@ export default class ProductService {
       images: imagePaths,
     });
     if (!updatedProduct) {
-      return {
-        message: MESSAGES.SOMETHING_WRONG_CREATE,
-        statusCode: 400,
-      };
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
     return await this.get(id, user_id);
   }
@@ -368,6 +345,95 @@ export default class ProductService {
         };
       })
     );
+
+    const collection = await this.collectionModel.find(
+      product.collection_id || ""
+    );
+    const categories: { id: string; name: string }[] =
+      await this.categoryService.getCategoryValues(product.category_ids || []);
+
+    const allFeatureAttributeGroup = await this.attributeModel.getAllBy({
+      type: ATTRIBUTE_TYPES.FEATURE,
+    });
+    const allFeatureAttribute: any[] = mappingAttributeOrBasis(
+      allFeatureAttributeGroup
+    );
+
+    const allGeneralAttributeGroup = await this.attributeModel.getAllBy({
+      type: ATTRIBUTE_TYPES.GENERAL,
+    });
+    const allGeneralAttribute: any[] = mappingAttributeOrBasis(
+      allGeneralAttributeGroup
+    );
+    const allSpecificationAttributeGroup = await this.attributeModel.getAllBy({
+      type: ATTRIBUTE_TYPES.SPECIFICATION,
+    });
+    const allSpecificationAttribute: any[] = mappingAttributeOrBasis(
+      allSpecificationAttributeGroup
+    );
+
+    const allBasisOptionGroup = await this.basisModel.getAllBy({
+      type: BASIS_TYPES.OPTION,
+    });
+
+    const allBasisOptionValue: any[] =
+      mappingAttributeOrBasis(allBasisOptionGroup);
+
+    const allBasisConversionGroup = await this.basisModel.getAllBy({
+      type: BASIS_TYPES.CONVERSION,
+    });
+    const allBasisConversion = mappingAttributeOrBasis(allBasisConversionGroup);
+
+    const newSpecificationGroups = await Promise.all(
+      mappingAttributeGroups(
+        product.specification_attribute_groups,
+        allSpecificationAttribute,
+        allBasisConversion,
+        allBasisOptionValue
+      )
+    );
+
+    const newGeneralGroups = await Promise.all(
+      mappingAttributeGroups(
+        product.general_attribute_groups,
+        allGeneralAttribute,
+        allBasisConversion
+      )
+    );
+
+    const newFeatureGroups = await Promise.all(
+      mappingAttributeGroups(
+        product.feature_attribute_groups,
+        allFeatureAttribute,
+        allBasisConversion
+      )
+    );
+    return successResponse({
+      id: product.id,
+      brand: {
+        ...foundBrand,
+        official_websites: officialWebsites,
+      },
+      collection: {
+        id: collection?.id || "",
+        name: collection?.name || "",
+      },
+      categories: categories,
+      name: product.name,
+      code: product.code,
+      description: product.description,
+      general_attribute_groups: newGeneralGroups,
+      feature_attribute_groups: newFeatureGroups,
+      specification_attribute_groups: newSpecificationGroups,
+      created_at: product.created_at,
+      created_by: product.created_by,
+      favorites: product.favorites?.length || 0,
+      images: product.images,
+      keywords: product.keywords,
+      brand_location_id: product.brand_location_id || "",
+      distributor_location_id: product.distributor_location_id || "",
+      is_liked: product.favorites.includes(user_id),
+    });
   }
 
   public get = (
