@@ -29,7 +29,8 @@ export default class CollectionRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: CollectionResponse.getList,
+                //missing fields is_deleted, open it after updated DB
+                // 200: CollectionResponse.getList,
               },
             },
           },

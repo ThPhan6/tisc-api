@@ -24,7 +24,14 @@ export default {
     statusCode: Joi.number(),
   }) as any,
   getOne: Joi.object({
-    data: Joi.any(),
+    data: Joi.object({
+      id: Joi.string(),
+      brand_id: Joi.string(),
+      name: Joi.string(),
+      created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
+      delete_at: Joi.string().allow(null),
+    }),
     statusCode: Joi.number(),
   }) as any,
 };

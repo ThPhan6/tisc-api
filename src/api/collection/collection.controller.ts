@@ -1,4 +1,4 @@
-import CollectionService from "./collection.service";
+import CollectionService from "./collection.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ICollectionRequest } from "./collection.type";
 
