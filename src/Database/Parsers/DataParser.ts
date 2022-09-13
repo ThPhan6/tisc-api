@@ -10,9 +10,10 @@ class DataParser {
     if (isArray(data)) {
       return data.map((item) => this.removeDocumentKey(item));
     }
-    const { _key, _id, _rev, ...oldData } = data;
+    const { _key, _id, _rev, deleted_at, deleted_by, ...oldData } = data;
     if (oldData.new) {
-      const { _key, _id, _rev, ...newData } = oldData.new;
+      const { _key, _id, _rev, deleted_at, deleted_by, ...newData } =
+        oldData.new;
       return newData;
     }
     return oldData;

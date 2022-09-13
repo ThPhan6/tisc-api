@@ -47,6 +47,7 @@ export default class CollectionService {
         item.id.toLowerCase()
       ),
     });
+    console.log(createdCollection, "[createdCollection]");
     return successResponse({ data: createdCollection });
   }
 

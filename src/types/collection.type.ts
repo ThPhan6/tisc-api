@@ -14,7 +14,7 @@ export interface ListCollectionPaginate {
     total: number;
     page_count: number;
   };
-  data: any;
+  data: Omit<ICollectionAttributes, "deleted_at">[];
 }
 
 export interface ICollection {
