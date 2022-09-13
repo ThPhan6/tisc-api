@@ -12,6 +12,7 @@ import { v4 as uuid } from "uuid";
 import { ISubBasisConversion } from "../basis/basis.type";
 import { CategoryValue } from "../category/category.type";
 import {
+  IAttributeGroup,
   IAttributeGroupWithOptionalId,
   IAttributeGroupWithOptionId,
   IProductOption,
@@ -265,22 +266,4 @@ export const mappingAttributeGroups = (
       return { ...group, attributes: newAttributes };
     }
   });
-};
-
-export const mappingSaveAttributeGroup = () => {
-  const saveGeneralAttributeGroups = await Promise.all(
-    payload.general_attribute_groups.map((generalAttributeGroup) =>
-      mappingAttribute(generalAttributeGroup, allConversion)
-    )
-  );
-  const saveFeatureAttributeGroups = await Promise.all(
-    payload.feature_attribute_groups.map((featureAttributeGroup) =>
-      mappingAttribute(featureAttributeGroup, allConversion)
-    )
-  );
-  const saveSpecificationAttributeGroups = await Promise.all(
-    payload.specification_attribute_groups.map((specificationAttributeGroup) =>
-      mappingAttribute(specificationAttributeGroup, allConversion)
-    )
-  );
 };

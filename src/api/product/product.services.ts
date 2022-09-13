@@ -108,7 +108,7 @@ export default class ProductService {
     }, []);
   };
 
-  public async create_(user_id: string, payload: IProductRequest) {
+  public async create(user_id: string, payload: IProductRequest) {
     const product = await this.productRepository.findBy({
       name: payload.name,
       brand_id: payload.brand_id,
@@ -188,176 +188,188 @@ export default class ProductService {
       )
     );
 
-    await this.productModel.update(createdProduct.id, {
+    await this.productRepository.update(createdProduct.id, {
       images: imagePaths,
     });
     return await this.get(createdProduct.id, user_id);
   }
 
-  public duplicate = (
+  public async duplicate(id: string, user_id: string) {
+    const product = await this.productRepository.find(id);
+    if (!product) {
+      return {
+        message: MESSAGES.PRODUCT_NOT_FOUND,
+        statusCode: 404,
+      };
+    }
+    const brand = await this.brandModel.find(product.brand_id);
+    const imageBuffers = await Promise.all(
+      product.images.map(
+        async (image: string) => await getBufferFile(image.slice(1))
+      )
+    );
+    const imagePaths = await Promise.all(
+      uploadImagesProduct(
+        imageBuffers as string[],
+        product.keywords,
+        brand?.name || "",
+        id
+      )
+    );
+    const created = await this.productRepository.create({
+      ...product,
+      name: product.name + " - copy",
+      keywords: product.keywords.concat(["copy"]),
+      images: imagePaths,
+      favorites: [],
+    });
+    if (!created) {
+      return {
+        message: MESSAGES.SOMETHING_WRONG_CREATE,
+        statusCode: 400,
+      };
+    }
+    return await this.get(created.id, user_id);
+  }
+
+  public async update(
     id: string,
+    payload: IUpdateProductRequest,
     user_id: string
-  ): Promise<IMessageResponse | IProductResponse> =>
-    new Promise(async (resolve) => {
-      const product = await this.productModel.find(id);
-      if (!product) {
-        return resolve({
-          message: MESSAGES.PRODUCT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const brand = await this.brandModel.find(product.brand_id);
-      const imageBuffers = await Promise.all(
-        product.images.map(
-          async (image: string) => await getBufferFile(image.slice(1))
-        )
+  ) {
+    const product = await this.productRepository.find(id);
+    if (!product) {
+      return {
+        message: MESSAGES.PRODUCT_NOT_FOUND,
+        statusCode: 404,
+      };
+    }
+    const brand = await this.brandModel.find(payload.brand_id);
+    const duplicatedProduct = await this.productRepository.getDuplicatedProduct(
+      id,
+      payload.name,
+      payload.brand_id
+    );
+    if (duplicatedProduct) {
+      return {
+        message: MESSAGES.PRODUCT_DUPLICATED,
+        statusCode: 400,
+      };
+    }
+    const allConversion: ISubBasisConversion[] =
+      await this.getAllBasisConversion();
+
+    const saveGeneralAttributeGroups = await Promise.all(
+      payload.general_attribute_groups.map((generalAttributeGroup) =>
+        mappingAttribute(generalAttributeGroup, allConversion)
+      )
+    );
+    const saveFeatureAttributeGroups = await Promise.all(
+      payload.feature_attribute_groups.map((featureAttributeGroup) =>
+        mappingAttribute(featureAttributeGroup, allConversion)
+      )
+    );
+    const saveSpecificationAttributeGroups = await Promise.all(
+      payload.specification_attribute_groups.map(
+        (specificationAttributeGroup) =>
+          mappingAttribute(specificationAttributeGroup, allConversion)
+      )
+    );
+    let imagePaths: string[] = [];
+    let isValidImage = true;
+    if (
+      payload.images.join("-") === product.images.join("-") &&
+      payload.keywords.join("") === product.keywords.join("")
+    ) {
+      imagePaths = product.images;
+    } else {
+      const bufferImages = await Promise.all(
+        payload.images.map(async (image) => {
+          const fileType = await getFileTypeFromBase64(image);
+          if (!fileType) {
+            const isExisted = await isExists(image.slice(1));
+            if (isExisted) {
+              return await getBufferFile(image.slice(1));
+            }
+            isValidImage = false;
+            return false;
+          }
+          if (
+            !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+          ) {
+            isValidImage = false;
+            return false;
+          }
+          return Buffer.from(image, "base64");
+        })
       );
-      const imagePaths = await Promise.all(
+      if (!isValidImage) {
+        return {
+          message: MESSAGES.IMAGE_INVALID,
+          statusCode: 400,
+        };
+      }
+      await Promise.all(
+        product.images.map(async (item) => {
+          await deleteFile(item.slice(1));
+          return true;
+        })
+      );
+
+      imagePaths = await Promise.all(
         uploadImagesProduct(
-          imageBuffers as string[],
-          product.keywords,
+          bufferImages as string[],
+          payload.keywords,
           brand?.name || "",
           id
         )
       );
-      const created = await this.productModel.create({
-        ...product,
-        name: product.name + " - copy",
-        keywords: product.keywords.concat(["copy"]),
-        images: imagePaths,
-        favorites: [],
-      });
-      if (!created) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(created.id, user_id));
+    }
+    const updatedProduct = await this.productRepository.update(id, {
+      ...payload,
+      general_attribute_groups: saveGeneralAttributeGroups,
+      feature_attribute_groups: saveFeatureAttributeGroups,
+      specification_attribute_groups: saveSpecificationAttributeGroups,
+      images: imagePaths,
     });
-  public update = (
-    id: string,
-    payload: IUpdateProductRequest,
-    user_id: string
-  ): Promise<IMessageResponse | IProductResponse> => {
-    return new Promise(async (resolve) => {
-      const product = await this.productModel.find(id);
-      if (!product) {
-        return resolve({
-          message: MESSAGES.PRODUCT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const brand = await this.brandModel.find(payload.brand_id);
-      const duplicatedProduct =
-        await this.productRepository.getDuplicatedProduct(
-          id,
-          payload.name,
-          payload.brand_id
-        );
-      if (duplicatedProduct) {
-        return resolve({
-          message: MESSAGES.PRODUCT_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-      const allConversion: {
-        id: string;
-        name_1: string;
-        name_2: string;
-        formula_1: string;
-        formula_2: string;
-        unit_1: string;
-        unit_2: string;
-      }[] = await this.getAllBasisConversion();
+    if (!updatedProduct) {
+      return {
+        message: MESSAGES.SOMETHING_WRONG_CREATE,
+        statusCode: 400,
+      };
+    }
+    return await this.get(id, user_id);
+  }
 
-      const saveGeneralAttributeGroups = await Promise.all(
-        payload.general_attribute_groups.map((generalAttributeGroup) =>
-          mappingAttribute(generalAttributeGroup, allConversion)
-        )
-      );
-      const saveFeatureAttributeGroups = await Promise.all(
-        payload.feature_attribute_groups.map((featureAttributeGroup) =>
-          mappingAttribute(featureAttributeGroup, allConversion)
-        )
-      );
-      const saveSpecificationAttributeGroups = await Promise.all(
-        payload.specification_attribute_groups.map(
-          (specificationAttributeGroup) =>
-            mappingAttribute(specificationAttributeGroup, allConversion)
-        )
-      );
+  public async get_(id: string, user_id: string) {
+    const product = await this.productRepository.find(id);
+    if (!product) {
+      return {
+        message: MESSAGES.PRODUCT_NOT_FOUND,
+        statusCode: 404,
+      };
+    }
+    const foundBrand = await this.brandModel.find(product.brand_id);
+    if (!foundBrand) {
+      return {
+        message: MESSAGES.BRAND_NOT_FOUND,
+        statusCode: 404,
+      };
+    }
+    const officialWebsites = await Promise.all(
+      foundBrand.official_websites.map(async (officialWebsite) => {
+        const country = await this.countryStateCityService.getCountryDetail(
+          officialWebsite.country_id
+        );
+        return {
+          ...officialWebsite,
+          country_name:
+            officialWebsite.country_id === "-1" ? "Global" : country.name,
+        };
+      })
+    );
+  }
 
-      let imagePaths: string[] = [];
-      let isValidImage = true;
-      if (
-        payload.images.join("-") === product.images.join("-") &&
-        payload.keywords.join("") === product.keywords.join("")
-      ) {
-        imagePaths = product.images;
-      } else {
-        const bufferImages = await Promise.all(
-          payload.images.map(async (image) => {
-            const fileType = await getFileTypeFromBase64(image);
-            if (!fileType) {
-              const isExisted = await isExists(image.slice(1));
-              console.log(isExisted, "[isExisted]");
-              if (isExisted) {
-                return await getBufferFile(image.slice(1));
-              }
-              isValidImage = false;
-              return false;
-            }
-            if (
-              !VALID_IMAGE_TYPES.find(
-                (validType) => validType === fileType.mime
-              )
-            ) {
-              isValidImage = false;
-              return false;
-            }
-            return Buffer.from(image, "base64");
-          })
-        );
-        if (!isValidImage) {
-          return resolve({
-            message: MESSAGES.IMAGE_INVALID,
-            statusCode: 400,
-          });
-        }
-        await Promise.all(
-          product.images.map(async (item) => {
-            await deleteFile(item.slice(1));
-            return true;
-          })
-        );
-        console.log(bufferImages, "[bufferImages]");
-
-        imagePaths = await Promise.all(
-          uploadImagesProduct(
-            bufferImages as string[],
-            payload.keywords,
-            brand?.name || "",
-            id
-          )
-        );
-      }
-      const updatedProduct = await this.productModel.update(id, {
-        ...payload,
-        general_attribute_groups: saveGeneralAttributeGroups,
-        feature_attribute_groups: saveFeatureAttributeGroups,
-        specification_attribute_groups: saveSpecificationAttributeGroups,
-        images: imagePaths,
-      });
-      if (!updatedProduct) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(id, user_id));
-    });
-  };
   public get = (
     id: string,
     user_id: string
