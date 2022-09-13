@@ -1,16 +1,19 @@
-import {ArangoDocument} from '../Interfaces';
-import {isArray} from 'lodash';
-import {getTimestamps} from '../Utils/Time';
-import {v4 as uuid} from 'uuid';
+import { ArangoDocument } from "../Interfaces";
+import { isArray } from "lodash";
+import { getTimestamps } from "../Utils/Time";
+import { v4 as uuid } from "uuid";
 
 class DataParser {
-  public static removeDocumentKey(data: ArangoDocument | ArangoDocument[]): any {
+  public static removeDocumentKey(
+    data: ArangoDocument | ArangoDocument[]
+  ): any {
     if (isArray(data)) {
       return data.map((item) => this.removeDocumentKey(item));
     }
-    const { _key, _id, _rev, ...oldData } = data;
+    const { _key, _id, _rev, deleted_at, deleted_by, ...oldData } = data;
     if (oldData.new) {
-      const { _key, _id, _rev, ...newData } = oldData.new;
+      const { _key, _id, _rev, deleted_at, deleted_by, ...newData } =
+        oldData.new;
       return newData;
     }
     return oldData;
@@ -25,8 +28,8 @@ class DataParser {
       id: uuid(),
       created_at: getTimestamps(),
       updated_at: null,
-      delete_at: null,
-    }
+      deleted_at: null,
+    };
   }
 }
 export default DataParser;
