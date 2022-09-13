@@ -1,7 +1,6 @@
 export interface ICollectionAttributes {
   brand_id: string;
   created_at: string;
-  deleted_at: string | null;
   id: string;
   name: string;
   updated_at: string | null;
@@ -14,7 +13,7 @@ export interface ListCollectionPaginate {
     total: number;
     page_count: number;
   };
-  data: Omit<ICollectionAttributes, "deleted_at">[];
+  data: ICollectionAttributes[];
 }
 
 export interface ICollection {

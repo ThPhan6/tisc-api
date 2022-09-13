@@ -8,7 +8,6 @@ import BaseRepository from "./base.repository";
 class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   protected model: CollectionModel;
   protected DEFAULT_ATTRIBUTE: Partial<ICollectionAttributes> = {
-    id: "",
     brand_id: "",
     name: "",
   };
