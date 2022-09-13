@@ -13,6 +13,7 @@ export default {
         brand_id: Joi.any(),
         name: Joi.string(),
         created_at: Joi.string(),
+        updated_at: Joi.string().allow(null),
       }),
       pagination: Joi.object({
         page: Joi.number(),
@@ -30,7 +31,6 @@ export default {
       name: Joi.string(),
       created_at: Joi.string(),
       updated_at: Joi.string().allow(null),
-      delete_at: Joi.string().allow(null),
     }),
     statusCode: Joi.number(),
   }) as any,

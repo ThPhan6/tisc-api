@@ -25,6 +25,7 @@ export default class CollectionService {
   public async create(payload: ICollectionRequest) {
     const collection = await this.collectionRepository.findBy({
       name: payload.name,
+      brand_id: payload.brand_id,
     });
     if (collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_EXISTED);

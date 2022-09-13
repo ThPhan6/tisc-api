@@ -1,9 +1,10 @@
 export interface ICollectionAttributes {
-  id: string;
   brand_id: string;
-  name: string;
   created_at: string;
-  is_deleted: boolean;
+  deleted_at: string | null;
+  id: string;
+  name: string;
+  updated_at: string | null;
 }
 
 export interface ListCollectionPaginate {
