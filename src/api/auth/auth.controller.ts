@@ -1,4 +1,4 @@
-import AuthService from "./auth.services";
+import AuthService from "./auth.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   IAdminLoginRequest,
@@ -7,7 +7,7 @@ import {
   IRegisterRequest,
   IResetPasswordRequest,
 } from "./auth.type";
-import { SYSTEM_TYPE } from "../../constant/common.constant";
+import { SYSTEM_TYPE } from "@/constant/common.constant";
 
 export default class AuthController {
   private authService: AuthService;
