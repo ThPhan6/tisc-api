@@ -14,41 +14,34 @@ import {
   ICategoryResponse,
 } from "./category.type";
 import ProductModel from "../../model/product.model";
+import { mappingCategoryGroup } from "./category.mapping";
+import CategoryRepository from "@/repositories/category.repository";
 const uuid = require("uuid").v4;
 
 export default class CategoryService {
   private categoryModel: CategoryModel;
   private productModel: ProductModel;
+  private categoryRepository: CategoryRepository;
   constructor() {
     this.categoryModel = new CategoryModel();
     this.productModel = new ProductModel();
+    this.categoryRepository = new CategoryRepository();
   }
 
-  public getCategoryValues = (
-    ids: string[]
-  ): Promise<{ id: string; name: string }[]> =>
-    new Promise(async (resolve) => {
-      const allCategoryGroup = await this.categoryModel.getAll();
-      const allValue = allCategoryGroup.reduce((pre, cur) => {
-        const temp: any = cur.subs.reduce((pre1: any[], cur1: any) => {
-          return pre1.concat(cur1.subs);
-        }, []);
-        return pre.concat(temp);
-      }, []);
-      const values: { id: string; name: string }[] = ids.map(
-        (id) =>
-          allValue.find(
-            (item: { id: string; name: string }) => item.id === id
-          ) || { id: "", name: "" }
-      );
-      return resolve(values);
-    });
+  public async getCategoryValues(ids: string[]) {
+    const allCategoryGroup = await this.categoryRepository.getAll();
+    return mappingCategoryGroup(allCategoryGroup, ids);
+  }
+
+  public async create_(payload: ICategoryRequest) {}
+
   public create = async (
     payload: ICategoryRequest
   ): Promise<IMessageResponse | ICategoryResponse> => {
     return new Promise(async (resolve) => {
+      payload.name = tosingleSpace(payload.name);
       const mainCategory = await this.categoryModel.findBy({
-        name: tosingleSpace(payload.name.toLowerCase()),
+        name: payload.name.toLowerCase(),
       });
       if (mainCategory) {
         return resolve({
@@ -56,7 +49,6 @@ export default class CategoryService {
           statusCode: 400,
         });
       }
-      payload.name = tosingleSpace(payload.name);
       if (
         isDuplicatedString(
           payload.subs.map((item: any) => {

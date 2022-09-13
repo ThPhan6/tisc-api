@@ -12,5 +12,5 @@ export interface ICategoryAttributes {
   name: string;
   subs: SubCategoryAttributes[];
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
 }
