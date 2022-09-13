@@ -4,15 +4,15 @@ export interface UserAttributes {
   firstname: string;
   lastname: string;
   gender: boolean;
-  location_id: string;
-  work_location: string;
-  department_id: string;
+  location_id: string | null;
+  work_location: string | null;
+  department_id: string | null;
   position: string;
   email: string;
   phone: string;
   mobile: string;
   password: string;
-  avatar: string;
+  avatar: string | null;
   backup_email: string;
   personal_mobile: string;
   is_verified: boolean;
@@ -23,5 +23,5 @@ export interface UserAttributes {
   updated_at: string | null;
   type: number;
   relation_id: string | null;
-  retrieve_favourite?: boolean;
+  retrieve_favourite: boolean;
 }

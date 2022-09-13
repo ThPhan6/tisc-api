@@ -36,7 +36,7 @@ class BaseRepository<DataType> {
    * @param params Partial<DataType>
    * @return DataType | undefined
    */
-  public async findBy(params: {[key: string]: string | number | null}) {
+  public async findBy(params: {[key: string]: string | number | null | boolean}) {
     let query = this.model.getQuery();
     forEach(params, (value, column) => {
       query = query.where(column, '==', value);
@@ -49,11 +49,15 @@ class BaseRepository<DataType> {
    * @param attributes Partial<DataType>
    * @return DataType | DataType[]
    */
-  public async create(attributes: Partial<DataType> | Partial<DataType>[]) {
-    return await this.model.insert({
+  public async create(attributes: Partial<DataType>) {
+    const newData = await this.model.insert({
       ...this.DEFAULT_ATTRIBUTE,
-      attributes
+      ...attributes
     });
+    if (isEmpty(newData)) {
+      return undefined;
+    }
+    return newData as DataType;
   }
 
   /**

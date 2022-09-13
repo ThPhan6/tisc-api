@@ -1,7 +1,6 @@
 import { ISystemType } from "./../type/common.type";
 import * as DotEnv from "dotenv";
 import * as ejs from "ejs";
-import { IUserAttributes } from "../model/user.model";
 import os from "os";
 import { SYSTEM_TYPE, TARGETED_FOR_TYPES } from "./../constant/common.constant";
 import EmailAutoResponderModel from "../model/auto_email.model";
@@ -51,7 +50,7 @@ export default class MailService {
     return result;
   };
   public async sendRegisterEmail(
-    user: IUserAttributes | any
+    user: any
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
@@ -79,7 +78,7 @@ export default class MailService {
     });
   }
 
-  public async sendInviteEmail(user: IUserAttributes | any): Promise<boolean> {
+  public async sendInviteEmail(user: any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/invite.ejs`,
@@ -106,7 +105,7 @@ export default class MailService {
   }
 
   public async sendResetPasswordEmail(
-    user: IUserAttributes,
+    user: any,
     browserName: string
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
@@ -149,8 +148,8 @@ export default class MailService {
   }
 
   public async sendInviteEmailTeamProfile(
-    inviteUser: IUserAttributes | any,
-    senderUser: IUserAttributes | any
+    inviteUser: any,
+    senderUser: any
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
@@ -184,7 +183,7 @@ export default class MailService {
     });
   }
   public async sendDesignRegisterEmail(
-    user: IUserAttributes | any
+    user: any
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
