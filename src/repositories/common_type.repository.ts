@@ -15,9 +15,25 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
     this.model = new CommonTypeModel();
   }
 
+  public async findOrCreate(
+    keyword: string,
+    relationId: string | null,
+    type: CommonTypeValue
+  ) {
+    let commonType = await this.findByNameOrId(keyword, relationId, type);
+    if (!commonType) {
+      commonType = await this.create({
+        name: keyword,
+        type,
+        relation_id: relationId
+      });
+    }
+    return commonType;
+  }
+
   public async findByNameOrId(
     keyword: string,
-    relationId: string,
+    relationId: string | null,
     type: CommonTypeValue
   ) {
     return await this.model
@@ -30,7 +46,7 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
   }
 
   public async getAllByRelationAndType(
-    relationId: string,
+    relationId: string | null,
     type: CommonTypeValue
   ) {
     return await this.model
