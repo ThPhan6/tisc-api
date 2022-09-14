@@ -18,7 +18,7 @@ class ProductFavouriteRepository extends BaseRepository<ProductFavouriteAttribut
     return this.create({ product_id: productId, created_by: createdBy });
   }
 
-  public async unlink(productId: string, createdBy: string) {
+  public async unlike(productId: string, createdBy: string) {
     return this.model
       .where('product_id', '==', productId)
       .where('created_by', '==', createdBy)

@@ -5,5 +5,6 @@ export * from "./role.type";
 export * from "./design.type";
 export * from "./common.type";
 export * from "./product_favourite.type";
+export * from "./product.type";
 export * from "./collection.type";
 export * from "./category.type";
