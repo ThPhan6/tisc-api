@@ -1,5 +1,5 @@
-import {isEmpty, isUndefined} from 'lodash';
-import {QUERY_TYPE} from '../Constants/QueryConstant';
+import { isEmpty, isUndefined } from "lodash";
+import { QUERY_TYPE } from "../Constants/QueryConstant";
 import {
   FromBinding,
   JoinBinding,
@@ -9,19 +9,19 @@ import {
   BuilderBinding,
   PaginationBinding,
   QueryType,
-} from '../Interfaces';
+} from "../Interfaces";
 
 class ArangoGrammar {
-  protected query: string = '';
+  protected query: string = "";
   protected bindVars: DynamicValueBinding = {};
   private unQueryFields = ['_id', '_key', '_rev', 'deleted_at', 'deleted_by'];
 
   public compileQuery(
     bindings: BuilderBinding,
     type: QueryType = QUERY_TYPE.SELECT,
-    dataUpdate: Object = {},
+    dataUpdate: Object = {}
   ) {
-    const {from, select, join, where, order, pagination} = bindings;
+    const { from, select, join, where, order, pagination } = bindings;
     const query = this.compileFrom(from)
       .compileJoins(join)
       .compileWhere(from.alias, where)
@@ -36,7 +36,10 @@ class ArangoGrammar {
       query.compileSelect(from.alias, select);
     }
     /// combine query count | pagination
-    if (type === QUERY_TYPE.COUNT || type === QUERY_TYPE.COUNT_WITHOUT_PAGINATION) {
+    if (
+      type === QUERY_TYPE.COUNT ||
+      type === QUERY_TYPE.COUNT_WITHOUT_PAGINATION
+    ) {
       query.compileCount();
     }
     /// compile query delete
@@ -56,7 +59,6 @@ class ArangoGrammar {
     return this;
   }
 
-
   protected compileJoins(joins: JoinBinding[]) {
     joins.forEach((join) => {
       this.query += ` FOR ${join.table} IN ${join.table} FILTER ${join.first} ${join.operator} ${join.second} `;
@@ -73,18 +75,23 @@ class ArangoGrammar {
       const valueAlias = `filter${filterIndex}`;
       //
       let column = filter.column;
-      if (filter.column.indexOf('.') === -1) { /// not found alias
+      if (filter.column.indexOf(".") === -1) {
+        /// not found alias
         column = `${primaryAlias}.${filter.column}`;
       }
       //
-      if (filter.inverse) { // value | condition | column
-        if (!filter.and) { // condition or where
+      if (filter.inverse) {
+        // value | condition | column
+        if (!filter.and) {
+          // condition or where
           this.query += ` OR @${valueAlias} ${filter.operator} ${column} `;
         } else {
           this.query += ` FILTER @${valueAlias} ${filter.operator} ${column} `;
         }
-      } else { // column | condition | value
-        if (!filter.and) { // condition or where
+      } else {
+        // column | condition | value
+        if (!filter.and) {
+          // condition or where
           this.query += ` OR ${column} ${filter.operator} @${valueAlias} `;
         } else {
           this.query += ` FILTER ${column} ${filter.operator} @${valueAlias} `;
@@ -104,7 +111,8 @@ class ArangoGrammar {
     sorts.forEach((sort, sortIndex) => {
       const sortDirection = `sort${sortIndex}`;
       let column = sort.column;
-      if (sort.column.indexOf('.') === -1) { /// not found alias
+      if (sort.column.indexOf(".") === -1) {
+        /// not found alias
         column = `${primaryAlias}.${sort.column}`;
       }
       this.query += ` SORT ${column} @${sortDirection}`;
@@ -124,27 +132,28 @@ class ArangoGrammar {
   protected compileSelect(primaryAlias: string, selects: string[]) {
     if (
       isEmpty(selects) ||
-      (selects.length === 1 && selects[0].indexOf('*') > 0)
-    ) { // select * from ...
+      (selects.length === 1 && selects[0].indexOf("*") > 0)
+    ) {
+      // select * from ...
       this.query += ` RETURN ${this.unQueryField(primaryAlias)}`;
     } else {
-      let aliases = selects.filter((select) => select.indexOf('.*') > -1);
-      let fields = selects.filter((select) => select.indexOf('.*') === -1);
+      let aliases = selects.filter((select) => select.indexOf(".*") > -1);
+      let fields = selects.filter((select) => select.indexOf(".*") === -1);
       this.query += ` RETURN merge(`;
       ///
       /// table select
       aliases = aliases.map((field) => {
-        let [alias] = field.split('.');
+        let [alias] = field.split(".");
         return this.unQueryField(alias);
       });
-      this.query += aliases.join(', ');
+      this.query += aliases.join(", ");
       /// custom select
       this.query += `{`;
       fields = fields.map((field) => {
         /// get column and alias of field
-        let [column, alias] = field.replace(' AS ', ' as ').split(' as ');
+        let [column, alias] = field.replace(" AS ", " as ").split(" as ");
         /// get table name and field name of column
-        let [table, fieldName] = column.split('.');
+        let [table, fieldName] = column.split(".");
 
         if (isUndefined(fieldName)) {
           fieldName = table;
@@ -155,7 +164,7 @@ class ArangoGrammar {
         }
         return `${alias ?? fieldName}: ${table}.${fieldName}`;
       });
-      this.query += fields.join(', ');
+      this.query += fields.join(", ");
       this.query += `})`;
     }
     return this;
@@ -172,23 +181,25 @@ class ArangoGrammar {
   }
 
   protected compileUpdate(alias: string, table: string, newData: Object) {
-    this.query += ` UPDATE ${alias} with ${JSON.stringify(newData)} IN ${table} RETURN NEW`;
+    this.query += ` UPDATE ${alias} with ${JSON.stringify(
+      newData
+    )} IN ${table} RETURN NEW`;
     return this;
   }
 
   protected filterDeleteAt(alias: string) {
-    this.query += ` FILTER ${alias}.delete_at == null `;
+    this.query += ` FILTER ${alias}.deleted_at == null `;
   }
 
   protected getQuery() {
     return {
       query: this.query,
-      bindVars: this.bindVars
-    }
+      bindVars: this.bindVars,
+    };
   }
 
-  private unQueryField(alias: string){
-    return `UNSET(${alias}, ${JSON.stringify(this.unQueryFields)})`;;
+  private unQueryField(alias: string) {
+    return `UNSET(${alias}, ${JSON.stringify(this.unQueryFields)})`;
   }
 }
 
