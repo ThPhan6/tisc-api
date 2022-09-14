@@ -37,7 +37,6 @@ export default class ProductController {
       sort,
       order
     );
-    console.log(response, "[response]");
     return toolkit.response(response).code(response?.statusCode ?? 200);
   };
   public getBrandProductSummary = async (
