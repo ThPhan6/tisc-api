@@ -14,7 +14,9 @@ import {
   IProductOption,
 } from "./product.type";
 
-export const getUniqueProductCategories = (products: ProductWithRelationData[]) => {
+export const getUniqueProductCategories = (
+  products: ProductWithRelationData[]
+) => {
   return products.reduce(
     (res: ProductWithRelationData["categories"], product) => {
       product.categories.forEach((category) => {
@@ -26,23 +28,18 @@ export const getUniqueProductCategories = (products: ProductWithRelationData[]) 
     },
     []
   );
-}
-
-export const getUniqueBrands = (products: ProductWithRelationData[]) => {
-  return products.reduce(
-    (res: ProductWithRelationData["brand"][], cur) => {
-      if (!res.find((brand) => brand.id === cur.brand.id)) {
-        res = res.concat(cur.brand);
-      }
-      return res;
-    },
-    []
-  );
 };
 
-export const getUniqueCollections = (
-  products: ProductWithRelationData[]
-) => {
+export const getUniqueBrands = (products: ProductWithRelationData[]) => {
+  return products.reduce((res: ProductWithRelationData["brand"][], cur) => {
+    if (!res.find((brand) => brand.id === cur.brand.id)) {
+      res = res.concat(cur.brand);
+    }
+    return res;
+  }, []);
+};
+
+export const getUniqueCollections = (products: ProductWithRelationData[]) => {
   return products.reduce(
     (res: ProductWithRelationData["collection"][], cur) => {
       if (!res.find((collection) => collection.id === cur.collection.id)) {
@@ -54,11 +51,7 @@ export const getUniqueCollections = (
   );
 };
 
-
-
-export const mappingByCategory = (
-  products: ProductWithRelationData[]
-) => {
+export const mappingByCategory = (products: ProductWithRelationData[]) => {
   const categories = getUniqueProductCategories(products);
   return categories.map((category) => {
     let categoryProducts = products.filter((item) =>
@@ -73,14 +66,10 @@ export const mappingByCategory = (
   });
 };
 
-export const mappingByBrand = (
-  products: ProductWithRelationData[],
-) => {
+export const mappingByBrand = (products: ProductWithRelationData[]) => {
   const brands = getUniqueBrands(products);
   return brands.map((brand) => {
-    let brandProducts = products.filter(
-      (item) => item.brand_id === brand.id
-    );
+    let brandProducts = products.filter((item) => item.brand_id === brand.id);
     return {
       id: brand.id,
       name: brand.name,
@@ -90,9 +79,7 @@ export const mappingByBrand = (
   });
 };
 
-export const mappingByCollections = (
-  products: ProductWithRelationData[],
-) => {
+export const mappingByCollections = (products: ProductWithRelationData[]) => {
   const colletions = getUniqueCollections(products);
   return colletions.map((collection) => {
     let categoryProducts = products.filter(

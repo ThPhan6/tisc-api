@@ -1,5 +1,5 @@
 import FavouriteService from "./favourite.service";
-import ProductService from "../product/product.service";
+import ProductService from "../product/product.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   RetrieveRequestBody,

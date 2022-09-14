@@ -33,7 +33,7 @@ import UnitTypeModel, {
 import UserModel from "../../model/user.model";
 import { IMessageResponse, SortOrder } from "../../type/common.type";
 import { IRoom } from "../considered_product/considered_product.type";
-import ProductService from "../product/product.service";
+import ProductService from "../product/product.services";
 import {
   IInstructionTypesResponse,
   IRequirementTypesResponse,

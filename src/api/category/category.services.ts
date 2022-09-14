@@ -1,21 +1,21 @@
-import { MESSAGES } from "../../constant/common.constant";
-import CategoryModel, {
-  CATEGORY_NULL_ATTRIBUTES,
-} from "../../model/category.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import { MESSAGES } from "@/constant/common.constant";
+import { getSummaryTable, tosingleSpace } from "@/helper/common.helper";
 import {
-  isDuplicatedString,
-  sortObjectArray,
-  tosingleSpace,
-} from "./../../helper/common.helper";
-import {
-  ICategoriesResponse,
-  ICategoryRequest,
-  ICategoryResponse,
-} from "./category.type";
-import ProductModel from "../../model/product.model";
-import { mappingCategoryGroup } from "./category.mapping";
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import CategoryModel from "@/model/category.model";
+import ProductModel from "@/model/product.model";
 import CategoryRepository from "@/repositories/category.repository";
+import { successMessageResponse } from "./../../helper/response.helper";
+import {
+  checkCategoryDuplicateByName,
+  mappingCategoriesUpdate,
+  mappingCategoryGroup,
+  mappingSortCategory,
+  mappingSubCategories,
+} from "./category.mapping";
+import { ICategoryRequest } from "./category.type";
 const uuid = require("uuid").v4;
 
 export default class CategoryService {
@@ -33,307 +33,140 @@ export default class CategoryService {
     return mappingCategoryGroup(allCategoryGroup, ids);
   }
 
-  public async create_(payload: ICategoryRequest) {}
-
-  public create = async (
-    payload: ICategoryRequest
-  ): Promise<IMessageResponse | ICategoryResponse> => {
-    return new Promise(async (resolve) => {
-      payload.name = tosingleSpace(payload.name);
-      const mainCategory = await this.categoryModel.findBy({
-        name: payload.name.toLowerCase(),
-      });
-      if (mainCategory) {
-        return resolve({
-          message: MESSAGES.CATEGORY_EXISTED,
-          statusCode: 400,
-        });
-      }
-      if (
-        isDuplicatedString(
-          payload.subs.map((item: any) => {
-            return item.name;
-          })
-        )
-      ) {
-        return resolve({
-          message: MESSAGES.SUB_CATEGORY_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-
-      const categoryNames = payload.subs.map((item: any) => {
-        return item.subs.map((element: any) => {
-          return element.name;
-        });
-      });
-      let isDuplicatedCategory = false;
-      categoryNames.forEach((item: any) => {
-        if (isDuplicatedString(item)) {
-          isDuplicatedCategory = true;
-        }
-      });
-
-      if (isDuplicatedCategory) {
-        return resolve({
-          message: MESSAGES.CATEGORY_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-
-      const subCategories = payload.subs.map((item: any) => {
-        const categories = item.subs.map((element: any) => {
-          return {
-            id: uuid(),
-            name: element.name,
-          };
-        });
-        return {
-          id: uuid(),
-          name: item.name,
-          subs: categories,
-        };
-      });
-
-      const createdCategory = await this.categoryModel.create({
-        ...CATEGORY_NULL_ATTRIBUTES,
-        name: payload.name,
-        subs: subCategories,
-      });
-      if (!createdCategory) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = createdCategory;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  public async create(payload: ICategoryRequest) {
+    payload.name = tosingleSpace(payload.name);
+    const mainCategory = await this.categoryRepository.findBy({
+      name: payload.name,
     });
-  };
+    if (mainCategory) {
+      return errorMessageResponse(MESSAGES.CATEGORY_EXISTED);
+    }
 
-  public getList = async (
+    const categoryDuplicate = checkCategoryDuplicateByName(payload);
+    if (categoryDuplicate) return errorMessageResponse(categoryDuplicate);
+
+    const subCategories = mappingSubCategories(payload);
+
+    const createdCategory = await this.categoryRepository.create({
+      name: payload.name,
+      subs: subCategories,
+    });
+    if (!createdCategory) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+    return successResponse({ data: createdCategory });
+  }
+
+  public async getList(
     limit: number,
     offset: number,
     filter: any,
-    main_category_order: "ASC" | "DESC",
-    sub_category_order: "ASC" | "DESC",
-    category_order: "ASC" | "DESC"
-  ): Promise<IMessageResponse | ICategoriesResponse> => {
-    return new Promise(async (resolve) => {
-      const categories = await this.categoryModel.list(limit, offset, filter, [
-        "name",
-        main_category_order,
-      ]);
+    mainCategoryOrder: "ASC" | "DESC",
+    subCategoryOrder: "ASC" | "DESC",
+    categoryOrder: "ASC" | "DESC"
+  ) {
+    const categories = await this.categoryRepository.getAllCategoriesSortByName(
+      limit,
+      offset,
+      filter,
+      mainCategoryOrder
+    );
 
-      const returnedCategories = categories.map((item: any) => {
-        const { is_deleted, ...rest } = item;
-        const sortedSubCategories = sortObjectArray(
-          item.subs,
-          "name",
-          sub_category_order
-        );
-        const returnedSubCategories = sortedSubCategories.map((sub) => {
-          return {
-            ...sub,
-            count: sub.subs.length,
-            subs: sortObjectArray(sub.subs, "name", category_order),
-          };
-        });
-        return {
-          ...rest,
-          count: item.subs.length,
-          subs: returnedSubCategories,
-        };
-      });
-      const pagination: IPagination = await this.categoryModel.getPagination(
-        limit,
-        offset
-      );
-
-      const allCategory = await this.categoryModel.getAll();
-      const mainCategoryCount = allCategory.length;
-      let subCategoryCount = 0;
-      let categoryCount = 0;
-
-      allCategory.forEach((item) => {
-        if (item.subs) {
-          item.subs.forEach((subCategory: any) => {
-            categoryCount += subCategory.subs.length;
-          });
-        }
-        subCategoryCount += item.subs.length;
-      });
-
-      const summary = [
-        {
-          name: "Main Category",
-          value: mainCategoryCount,
-        },
-        {
-          name: "Subcategory",
-          value: subCategoryCount,
-        },
-        {
-          name: "Category",
-          value: categoryCount,
-        },
-      ];
-      return resolve({
-        data: {
-          categories: returnedCategories,
-          summary,
-          pagination,
-        },
-        statusCode: 200,
-      });
+    const sortedCategories = mappingSortCategory(
+      categories.data,
+      subCategoryOrder,
+      categoryOrder
+    );
+    const allCategory = await this.categoryModel.getAll();
+    const summaryTable = getSummaryTable(allCategory);
+    const summary = [
+      {
+        name: "Main Category",
+        value: summaryTable.countGroup,
+      },
+      {
+        name: "Subcategory",
+        value: summaryTable.countSub,
+      },
+      {
+        name: "Category",
+        value: summaryTable.countItem,
+      },
+    ];
+    return successResponse({
+      data: {
+        categories: sortedCategories,
+        summary,
+        pagination: categories.pagination,
+      },
     });
-  };
+  }
 
-  public getById = async (
-    id: string
-  ): Promise<IMessageResponse | ICategoryResponse> => {
-    return new Promise(async (resolve) => {
-      const category = await this.categoryModel.find(id);
-      if (!category) {
-        return resolve({
-          message: MESSAGES.CATEGORY_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const { is_deleted, ...rest } = category;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  public async getById(id: string) {
+    const category = await this.categoryRepository.find(id);
+    if (!category) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
+    }
+    return successResponse({
+      data: category,
     });
-  };
+  }
 
-  public update = async (
-    id: string,
-    payload: ICategoryRequest
-  ): Promise<IMessageResponse | ICategoryResponse> => {
-    return new Promise(async (resolve) => {
-      const mainCategory = await this.categoryModel.find(id);
-      if (!mainCategory) {
-        return resolve({
-          message: MESSAGES.CATEGORY_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
+  public async update(id: string, payload: ICategoryRequest) {
+    const mainCategory = await this.categoryRepository.find(id);
+    if (!mainCategory) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
+    }
+    const duplicatedCategory =
+      await this.categoryRepository.getDuplicatedCategory(id, payload.name);
+    if (duplicatedCategory) {
+      return errorMessageResponse(MESSAGES.MAIN_CATEGORY_DUPLICATED);
+    }
 
-      const duplicatedCategory = await this.categoryModel.getDuplicatedCategory(
-        id,
-        payload.name
-      );
-      if (duplicatedCategory) {
-        return resolve({
-          message: MESSAGES.MAIN_CATEGORY_DUPLICATED,
-          statusCode: 400,
-        });
-      }
+    const categoryDuplicate = checkCategoryDuplicateByName(payload);
+    if (categoryDuplicate) return errorMessageResponse(categoryDuplicate);
 
-      if (
-        isDuplicatedString(
-          payload.subs.map((item: any) => {
-            return item.name;
-          })
-        )
-      ) {
-        return resolve({
-          message: MESSAGES.SUB_CATEGORY_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-      const categoryNames = payload.subs.map((item: any) => {
-        return item.subs.map((element: any) => {
-          return element.name;
-        });
-      });
-      let isDuplicatedCategory = false;
-      categoryNames.forEach((item: any) => {
-        if (isDuplicatedString(item)) {
-          isDuplicatedCategory = true;
-        }
-      });
+    const subCategories = mappingCategoriesUpdate(payload);
 
-      if (isDuplicatedCategory) {
-        return resolve({
-          message: MESSAGES.CATEGORY_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-
-      const subCategories = payload.subs.map((item: any) => {
-        const categories = item.subs.map((element: any) => {
-          if (element.id) {
-            return {
-              ...element,
-              name: element.name,
-            };
-          }
-          return {
-            ...element,
-            id: uuid(),
-            name: element.name,
-          };
-        });
-        if (item.id) {
-          return {
-            ...item,
-            name: item.name,
-            subs: categories,
-          };
-        }
-        return {
-          ...item,
-          id: uuid(),
-          name: item.name,
-          subs: categories,
-        };
-      });
-      const updatedCategory = await this.categoryModel.update(id, {
-        id,
-        name: payload.name,
-        subs: subCategories,
-      });
-      if (!updatedCategory) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = updatedCategory;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+    const updatedCategory = await this.categoryRepository.update(id, {
+      name: payload.name,
+      subs: subCategories,
     });
-  };
+    if (!updatedCategory) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+    return successResponse({ data: updatedCategory });
+  }
 
-  public delete = async (id: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const category = await this.categoryModel.find(id);
-      if (!category) {
-        return resolve({
-          message: MESSAGES.CATEGORY_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const products = await this.productModel.getAllByCategoryId(id);
-      if (products.length === 0) {
-        return resolve({
-          message: MESSAGES.CATEGORY_IN_PRODUCT,
-          statusCode: 400,
-        });
-      }
-      await this.categoryModel.update(id, { is_deleted: true });
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
-    });
-  };
+  public async delete(id: string) {
+    const deletedCategory = await this.categoryRepository.findAndDelete(id);
+    if (!deletedCategory) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  // public delete = async (id: string): Promise<IMessageResponse> => {
+  //   return new Promise(async (resolve) => {
+  //     const category = await this.categoryModel.find(id);
+  //     if (!category) {
+  //       return resolve({
+  //         message: MESSAGES.CATEGORY_NOT_FOUND,
+  //         statusCode: 404,
+  //       });
+  //     }
+  //     const products = await this.productModel.getAllByCategoryId(id);
+  //     if (products.length === 0) {
+  //       return resolve({
+  //         message: MESSAGES.CATEGORY_IN_PRODUCT,
+  //         statusCode: 400,
+  //       });
+  //     }
+  //     await this.categoryModel.update(id, { is_deleted: true });
+  //     return resolve({
+  //       message: MESSAGES.SUCCESS,
+  //       statusCode: 200,
+  //     });
+  //   });
+  // };
 }

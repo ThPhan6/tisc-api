@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import CategoryService from "./category.service";
+import CategoryService from "./category.services";
 import { ICategoryRequest } from "./category.type";
 export default class CategoryController {
   private service: CategoryService;

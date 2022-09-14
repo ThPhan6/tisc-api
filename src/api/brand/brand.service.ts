@@ -1,7 +1,7 @@
 import { IProductAttributes } from "@/types/product.type";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
-import ProductService from "@/api/product/product.service";
+import ProductService from "@/api/product/product.services";
 import {
   BRAND_STATUSES,
   BRAND_STATUS_OPTIONS,
@@ -394,9 +394,8 @@ export default class BrandService {
               brand.id,
               headquarter?.id || ""
             );
-          const brandSummary = await this.productService.getBrandProductSummary(
-            brand.id
-          );
+          const brandSummary: any =
+            await this.productService.getBrandProductSummary(brand.id);
 
           const teamProfiles = await this.userModel.getMany(
             brand.team_profile_ids,
@@ -672,7 +671,7 @@ export default class BrandService {
         if (foundCollections.length)
           collections = collections.concat(foundCollections);
 
-        const foundCards = await this.productModel.getBy({
+        const foundCards: any = await this.productModel.getBy({
           brand_id: brand.id,
         });
         if (foundCards) cards = cards.concat(foundCards);

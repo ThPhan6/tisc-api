@@ -1,4 +1,7 @@
-import { ICategoryAttributes } from "@/types/category.type";
+import {
+  ICategoryAttributes,
+  ListCategoryWithPaginate,
+} from "@/types/category.type";
 import CategoryModel from "@/model/category.models";
 import BaseRepository from "./base.repository";
 
@@ -13,17 +16,28 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     super();
     this.model = new CategoryModel();
   }
-  public getDuplicatedCategory = async (id: string, name: string) => {
+  public async getDuplicatedCategory(id: string, name: string) {
     try {
-      const result: any = await this.model
+      return await this.model
         .where("id", "!=", id)
         .where("name", "==", name.toLowerCase())
         .first();
-      return result;
     } catch (error) {
       return false;
     }
-  };
+  }
+
+  public async getAllCategoriesSortByName(
+    limit: number,
+    offset: number,
+    filter: any,
+    mainCategoryOrder: "ASC" | "DESC"
+  ) {
+    return (await this.model
+      .select()
+      .order("name", mainCategoryOrder)
+      .paginate(limit, offset)) as ListCategoryWithPaginate;
+  }
 }
 
 export default CategoryRepository;
