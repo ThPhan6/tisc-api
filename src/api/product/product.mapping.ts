@@ -1,99 +1,109 @@
-import { getDistinctArray, removeSpecialChars } from "@/helper/common.helper";
-import { toWebp } from "@/helper/image.helper";
+import { getDistinctArray } from "@/helper/common.helper";
 import { IAttributeAttributes } from "@/model/attribute.model";
 import { IBasisAttributes } from "@/model/basis.model";
-import { upload } from "@/service/aws.service";
 import {
   IProductAttributes,
+  ProductWithRelationData,
   ProductWithCollectionAndBrand,
 } from "@/types/product.type";
-import moment from "moment";
 import { v4 as uuid } from "uuid";
 import { ISubBasisConversion } from "../basis/basis.type";
-import { CategoryValue } from "../category/category.type";
 import {
-  IAttributeGroup,
   IAttributeGroupWithOptionalId,
   IAttributeGroupWithOptionId,
   IProductOption,
-  IProductOptionAttribute,
 } from "./product.type";
 
-export const getProductCategories = (
-  categoryIds: string[] = [],
-  categories: CategoryValue[]
-) => {
-  const productCategories: CategoryValue[] = [];
-  ///
-  categoryIds.forEach((categoryId) => {
-    const category = categories.find((cat) => cat.id === categoryId);
-    if (category) {
-      productCategories.push(category);
-    }
-  });
-  return productCategories;
+export const getUniqueProductCategories = (products: ProductWithRelationData[]) => {
+  return products.reduce(
+    (res: ProductWithRelationData["categories"], product) => {
+      product.categories.forEach((category) => {
+        if (!res.find((cat) => cat.id === category.id)) {
+          res = res.concat(category);
+        }
+      });
+      return res;
+    },
+    []
+  );
+}
+
+export const getUniqueBrands = (products: ProductWithRelationData[]) => {
+  return products.reduce(
+    (res: ProductWithRelationData["brand"][], cur) => {
+      if (!res.find((brand) => brand.id === cur.brand.id)) {
+        res = res.concat(cur.brand);
+      }
+      return res;
+    },
+    []
+  );
 };
 
-export const mappingByCategory = (
-  products: ProductWithCollectionAndBrand[],
-  categories: CategoryValue[]
+export const getUniqueCollections = (
+  products: ProductWithRelationData[]
 ) => {
+  return products.reduce(
+    (res: ProductWithRelationData["collection"][], cur) => {
+      if (!res.find((collection) => collection.id === cur.collection.id)) {
+        res = res.concat(cur.collection);
+      }
+      return res;
+    },
+    []
+  );
+};
+
+
+
+export const mappingByCategory = (
+  products: ProductWithRelationData[]
+) => {
+  const categories = getUniqueProductCategories(products);
   return categories.map((category) => {
     let categoryProducts = products.filter((item) =>
       item.category_ids.includes(category.id)
     );
-
-    /// format product data
-    const responseProducts = categoryProducts.map((product) => {
-      const { is_deleted, collection_id, brand_id, category_ids, ...rest } =
-        product;
-      //
-      ///
-      return {
-        ...rest,
-        favorites: product.favorites.length,
-        is_liked: true,
-        categories: getProductCategories(category_ids, categories),
-      };
-    });
     ///
     return {
       ...category,
       count: categoryProducts.length,
-      products: responseProducts,
+      products: categoryProducts,
     };
   });
 };
 
 export const mappingByBrand = (
-  products: ProductWithCollectionAndBrand[],
-  categories: CategoryValue[],
-  brands: ProductWithCollectionAndBrand["brand"][]
+  products: ProductWithRelationData[],
 ) => {
+  const brands = getUniqueBrands(products);
   return brands.map((brand) => {
-    let categoryProducts = products.filter(
+    let brandProducts = products.filter(
       (item) => item.brand_id === brand.id
     );
-
-    /// format product data
-    const responseProducts = categoryProducts.map((product) => {
-      const { is_deleted, collection_id, brand_id, category_ids, ...rest } =
-        product;
-
-      ///
-      return {
-        ...rest,
-        favorites: product.favorites.length,
-        is_liked: true,
-        categories: getProductCategories(category_ids, categories),
-      };
-    });
-    ///
     return {
       id: brand.id,
       name: brand.name,
+      count: brandProducts.length,
+      products: brandProducts,
+    };
+  });
+};
+
+export const mappingByCollections = (
+  products: ProductWithRelationData[],
+) => {
+  const colletions = getUniqueCollections(products);
+  return colletions.map((collection) => {
+    let categoryProducts = products.filter(
+      (item) => item.collection_id === collection.id
+    );
+    ///
+    return {
+      id: collection.id,
+      name: collection.name,
       count: categoryProducts.length,
-      products: responseProducts,
+      products: categoryProducts,
     };
   });
 };
@@ -119,32 +129,6 @@ export const getTotalCategoryOfProducts = (products: IProductAttributes[]) => {
     return pre.concat(cur.category_ids || []);
   }, []);
   return getDistinctArray(rawCategoryIds);
-};
-
-export const getUniqueBrands = (products: ProductWithCollectionAndBrand[]) => {
-  return products.reduce(
-    (res: ProductWithCollectionAndBrand["brand"][], cur) => {
-      if (!res.find((brand) => brand.id === cur.brand.id)) {
-        res = res.concat(cur.brand);
-      }
-      return res;
-    },
-    []
-  );
-};
-
-export const getUniqueCollections = (
-  products: ProductWithCollectionAndBrand[]
-) => {
-  return products.reduce(
-    (res: ProductWithCollectionAndBrand["collection"][], cur) => {
-      if (!res.find((collection) => collection.id === cur.collection.id)) {
-        res = res.concat(cur.collection);
-      }
-      return res;
-    },
-    []
-  );
 };
 
 export const mappingAttribute = (
@@ -177,33 +161,6 @@ export const mappingAttribute = (
     id: uuid(),
     attributes: newAttributes,
   };
-};
-
-export const uploadImagesProduct = (
-  images: string[],
-  keywords: string[],
-  brand_name: string,
-  productId: string
-) => {
-  const brandName = removeSpecialChars(
-    brand_name.trim().toLowerCase().split(" ").join("-").replace(/ /g, "-") ||
-      ""
-  );
-  return images.map(async (image, index) => {
-    const mediumBuffer = await toWebp(Buffer.from(image, "base64"), "medium");
-    const cleanKeywords = keywords.map((item) => {
-      return item.trim().replace(/ /g, "-");
-    });
-    let fileName = `${brandName}-${cleanKeywords.join(
-      "-"
-    )}-${moment.now()}${index}`;
-    await upload(
-      mediumBuffer,
-      `product/${productId}/${fileName}_medium.webp`,
-      "image/webp"
-    );
-    return `/product/${productId}/${fileName}_medium.webp`;
-  });
 };
 
 export const mappingAttributeOrBasis = (

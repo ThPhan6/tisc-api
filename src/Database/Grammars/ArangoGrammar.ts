@@ -14,7 +14,7 @@ import {
 class ArangoGrammar {
   protected query: string = '';
   protected bindVars: DynamicValueBinding = {};
-  private unQueryFields = ['_id', '_key', '_rev', 'delete_at', 'delete_by'];
+  private unQueryFields = ['_id', '_key', '_rev', 'deleted_at', 'deleted_by'];
 
   public compileQuery(
     bindings: BuilderBinding,
