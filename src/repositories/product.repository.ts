@@ -344,6 +344,17 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     }
     return result._result as ProductWithCollectionAndBrand[];
   };
+
+  public async getProductByBrand(brandId: string) {
+    const result: IProductAttributes[] = await this.model
+      .select()
+      .where("brand_id", "==", brandId)
+      .get();
+    if (!result) {
+      return [];
+    }
+    return result;
+  }
 }
 
 export default ProductRepository;

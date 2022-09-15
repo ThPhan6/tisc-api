@@ -4,8 +4,6 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import CategoryModel from "@/model/category.model";
-import ProductModel from "@/model/product.model";
 import CategoryRepository from "@/repositories/category.repository";
 import { successMessageResponse } from "./../../helper/response.helper";
 import {
@@ -19,12 +17,8 @@ import { ICategoryRequest } from "./category.type";
 const uuid = require("uuid").v4;
 
 export default class CategoryService {
-  private categoryModel: CategoryModel;
-  private productModel: ProductModel;
   private categoryRepository: CategoryRepository;
   constructor() {
-    this.categoryModel = new CategoryModel();
-    this.productModel = new ProductModel();
     this.categoryRepository = new CategoryRepository();
   }
 
@@ -77,7 +71,7 @@ export default class CategoryService {
       subCategoryOrder,
       categoryOrder
     );
-    const allCategory = await this.categoryModel.getAll();
+    const allCategory = await this.categoryRepository.getAll();
     const summaryTable = getSummaryTable(allCategory);
     const summary = [
       {
@@ -145,28 +139,4 @@ export default class CategoryService {
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }
-
-  // public delete = async (id: string): Promise<IMessageResponse> => {
-  //   return new Promise(async (resolve) => {
-  //     const category = await this.categoryModel.find(id);
-  //     if (!category) {
-  //       return resolve({
-  //         message: MESSAGES.CATEGORY_NOT_FOUND,
-  //         statusCode: 404,
-  //       });
-  //     }
-  //     const products = await this.productModel.getAllByCategoryId(id);
-  //     if (products.length === 0) {
-  //       return resolve({
-  //         message: MESSAGES.CATEGORY_IN_PRODUCT,
-  //         statusCode: 400,
-  //       });
-  //     }
-  //     await this.categoryModel.update(id, { is_deleted: true });
-  //     return resolve({
-  //       message: MESSAGES.SUCCESS,
-  //       statusCode: 200,
-  //     });
-  //   });
-  // };
 }
