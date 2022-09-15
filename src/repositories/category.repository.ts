@@ -20,7 +20,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     try {
       return await this.model
         .where("id", "!=", id)
-        .where("name", "==", name.toLowerCase())
+        .where("name", "==", name)
         .first();
     } catch (error) {
       return false;
