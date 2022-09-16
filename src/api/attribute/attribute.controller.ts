@@ -1,4 +1,4 @@
-import AttributeService from "./attribute.service";
+import AttributeService from "./attribute.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
