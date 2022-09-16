@@ -87,5 +87,13 @@ class BaseRepository<DataType> {
   public async delete(id: string) {
     return this.model.where("id", "==", id).delete();
   }
+
+  public async findAndDelete(id: string) {
+    const foundItem: any = await this.model.where("id", "==", id).first();
+    if (!foundItem) {
+      return false;
+    }
+    return this.model.where("id", "==", foundItem.id).delete();
+  }
 }
 export default BaseRepository;

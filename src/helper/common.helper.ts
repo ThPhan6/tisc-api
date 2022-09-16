@@ -174,3 +174,24 @@ export const replaceTemplate = (
   const compiled = template(templateReplace);
   return compiled({ [key]: value });
 };
+
+export const getSummaryTable = (dataSummary: any) => {
+  const countGroup = dataSummary.length;
+  let countSub = 0;
+  let countItem = 0;
+
+  dataSummary.forEach((item: any) => {
+    if (item.subs) {
+      item.subs.forEach((subCategory: any) => {
+        countItem += subCategory.subs.length;
+      });
+    }
+    countSub += item.subs.length;
+  });
+
+  return {
+    countGroup,
+    countSub,
+    countItem,
+  };
+};

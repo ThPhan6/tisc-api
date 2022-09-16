@@ -1,25 +1,22 @@
 import { MESSAGES } from "@/constant/common.constant";
-// import { ProductRepository } from "@/repositories/product.repository";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import ProductModel from "@/model/product.model";
 import CollectionRepository from "@/repositories/collection.repository";
+import ProductRepository from "@/repositories/product.repository";
 import MarketAvailabilityService from "../market_availability/market_availability.service";
 import { successMessageResponse } from "./../../helper/response.helper";
 import { ICollectionRequest } from "./collection.type";
 
 export default class CollectionService {
   private marketAvailabilityService: MarketAvailabilityService;
-  private productModel: ProductModel;
   private collectionRepository: CollectionRepository;
-  // private productRepository: ProductRepository;
+  private productRepository: ProductRepository;
   constructor() {
     this.marketAvailabilityService = new MarketAvailabilityService();
-    this.productModel = new ProductModel();
     this.collectionRepository = new CollectionRepository();
-    // this.productRepository = new ProductRepository();
+    this.productRepository = new ProductRepository();
   }
 
   public async create(payload: ICollectionRequest) {
@@ -70,8 +67,7 @@ export default class CollectionService {
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
     }
-    // note: change productModel to productRepository
-    const product = await this.productModel.findBy({
+    const product = await this.productRepository.findBy({
       collection_id: id,
     });
     if (product) {

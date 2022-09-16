@@ -1,9 +1,9 @@
 import Connection from "../Connections/ArangoConnection";
 import ArangoGrammar from "../Grammars/ArangoGrammar";
 import DataParser from "../Parsers/DataParser";
-import {QUERY_TYPE} from '../Constants/QueryConstant';
-import {getTimestamps} from '../Utils/Time';
-import {head, isEmpty} from 'lodash';
+import { QUERY_TYPE } from "../Constants/QueryConstant";
+import { getTimestamps } from "../Utils/Time";
+import { head, isEmpty } from "lodash";
 import {
   BuilderBinding,
   Operator,
@@ -12,7 +12,7 @@ import {
   ValueBinding,
   QueryType,
   WhereInverse,
-} from '../Interfaces';
+} from "../Interfaces";
 
 class Builder {
   public connection: Connection;
@@ -24,7 +24,7 @@ class Builder {
   constructor(
     connection: Connection,
     table: string,
-    softDelete: boolean = false,
+    softDelete: boolean = false
   ) {
     this.connection = connection;
     this.table = table;
@@ -39,11 +39,11 @@ class Builder {
     this.grammar = new ArangoGrammar();
   }
 
-  public select(columns: string[] = ['*']){
+  public select(columns: string[] = ["*"]) {
     this.bindings = {
       ...this.bindings,
-      select: columns
-    }
+      select: columns,
+    };
     return this;
   }
 
@@ -53,7 +53,7 @@ class Builder {
     value: ValueBinding,
     inverse: WhereInverse = false,
     and: boolean = true
-  ){
+  ) {
     ///
     const newWhere = this.bindings.where;
     newWhere.push({ column, operator, value, inverse, and });
@@ -62,25 +62,38 @@ class Builder {
     return this;
   }
 
-  public whereLike(column: string, value: ValueBinding ) {
-    return this.where(column, 'like', value);
+  public whereLike(column: string, value: ValueBinding) {
+    return this.where(column, "like", value);
   }
-  public whereNotLike(column: string, value: ValueBinding ) {
-    return this.where(column, 'not like', value);
+  public whereNotLike(column: string, value: ValueBinding) {
+    return this.where(column, "not like", value);
   }
-  public whereIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
-    return this.where(column, 'in', value, inverse);
+  public whereIn(
+    column: string,
+    value: ValueBinding,
+    inverse: WhereInverse = false
+  ) {
+    return this.where(column, "in", value, inverse);
   }
-  public whereNotIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
-    return this.where(column, 'not in', value, inverse);
+  public whereNotIn(
+    column: string,
+    value: ValueBinding,
+    inverse: WhereInverse = false
+  ) {
+    return this.where(column, "not in", value, inverse);
   }
   public whereNull(column: string) {
-    return this.where(column, '==', null);
+    return this.where(column, "==", null);
   }
   public whereNotNull(column: string) {
-    return this.where(column, '!=', null);
+    return this.where(column, "!=", null);
   }
-  public orWhere(column: string, operator: Operator, value: ValueBinding, inverse: WhereInverse = false) {
+  public orWhere(
+    column: string,
+    operator: Operator,
+    value: ValueBinding,
+    inverse: WhereInverse = false
+  ) {
     return this.where(column, operator, value, inverse, false);
   }
 
@@ -89,7 +102,7 @@ class Builder {
     first: string,
     operator: GeneralOperator,
     second: string
-  ){
+  ) {
     const newJoin = this.bindings.join;
     newJoin.push({ table, first, operator, second });
     ///
@@ -97,7 +110,7 @@ class Builder {
     return this;
   }
 
-  public order(column: string, order: Sequence = 'ASC'){
+  public order(column: string, order: Sequence = "ASC") {
     const newOrder = this.bindings.order;
     newOrder.push({ column, order });
     ///
@@ -108,10 +121,10 @@ class Builder {
   public limit(limit: number, offset: number = 0) {
     this.bindings = {
       ...this.bindings,
-      pagination: { limit, offset }
-    }
+      pagination: { limit, offset },
+    };
     return this;
-  };
+  }
 
   public async get() {
     return await this.query();
@@ -133,13 +146,13 @@ class Builder {
     const data = await this.limit(limit, offset).get();
     return {
       pagination: {
-        page: (offset / limit) + 1,
+        page: offset / limit + 1,
         page_size: limit,
         total: totalRecords,
         page_count: Math.ceil(totalRecords / limit),
       },
       data,
-    }
+    };
   }
 
   public async delete() {
@@ -148,7 +161,8 @@ class Builder {
     }
     try {
       if (this.softDelete) {
-        await this.update({delete_at: getTimestamps()});
+        await this.update({ deleted_at: getTimestamps() });
+        return true;
       }
       await this.query(QUERY_TYPE.DELETE);
       return true;
@@ -158,7 +172,7 @@ class Builder {
   }
 
   public async update(dataUpdate: Object) {
-    const newData =  await this.query(QUERY_TYPE.UPDATE, {
+    const newData = await this.query(QUERY_TYPE.UPDATE, {
       ...dataUpdate,
       updated_at: getTimestamps(),
     });
@@ -167,19 +181,21 @@ class Builder {
 
   public async rawQuery(query: string, bindVars: Object) {
     const response = await this.connection.query({
-      query: `FOR ${this.table} FROM ${this.table} ${query}`,
-      bindVars
+      query: `FOR ${this.table} IN ${this.table} ${query}`,
+      bindVars,
     });
     return await response.all();
   }
 
-  private async query(type: QueryType = QUERY_TYPE.SELECT, dataUpdate: Object = {}) {
+  private async query(
+    type: QueryType = QUERY_TYPE.SELECT,
+    dataUpdate: Object = {}
+  ) {
     const response = await this.connection.query(
       this.grammar.compileQuery(this.bindings, type, dataUpdate)
     );
     return await response.all();
   }
-
 }
 
 export default Builder;

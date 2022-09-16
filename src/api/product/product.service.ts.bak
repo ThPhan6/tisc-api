@@ -1,7 +1,7 @@
 import ProductRepository from "@/repositories/product.repository";
 import { IProductAttributes } from "@/types/product.type";
-import BasisService from "../../api/basis/basis.service";
-import CategoryService from "../../api/category/category.service";
+import BasisService from "../basis/basis.service";
+import CategoryService from "../category/category.service";
 import {
   ATTRIBUTE_TYPES,
   BASIS_TYPES,
@@ -37,7 +37,7 @@ import { deleteFile, isExists } from "../../service/aws.service";
 import CountryStateCityService from "../../service/country_state_city_v1.service";
 import MailService from "../../service/mail.service";
 import { IMessageResponse } from "../../type/common.type";
-import { getBufferFile } from "./../../service/aws.service";
+import { getBufferFile } from "../../service/aws.service";
 import {
   getTotalCategoryOfProducts,
   getTotalVariantOfProducts,
@@ -48,8 +48,9 @@ import {
   mappingAttributeOrBasis,
   mappingByBrand,
   mappingByCategory,
-  uploadImagesProduct,
 } from "./product.mapping";
+import { uploadImagesProduct } from "@/service/image.service";
+
 import {
   CommonTypeResponse,
   FavouriteProductsResponse,
@@ -193,13 +194,11 @@ export default class ProductService {
         });
       }
       const brand = await this.brandModel.find(payload.brand_id);
-      const imagePaths = await Promise.all(
-        uploadImagesProduct(
-          payload.images,
-          payload.keywords,
-          brand?.name || "",
-          createdProduct.id
-        )
+      const imagePaths = await uploadImagesProduct(
+        payload.images,
+        payload.keywords,
+        brand?.name || "",
+        createdProduct.id
       );
 
       await this.productModel.update(createdProduct.id, {
@@ -226,13 +225,11 @@ export default class ProductService {
           async (image: string) => await getBufferFile(image.slice(1))
         )
       );
-      const imagePaths = await Promise.all(
-        uploadImagesProduct(
-          imageBuffers as string[],
-          product.keywords,
-          brand?.name || "",
-          id
-        )
+      const imagePaths = await uploadImagesProduct(
+        imageBuffers as string[],
+        product.keywords,
+        brand?.name || "",
+        id
       );
       const created = await this.productModel.create({
         ...product,
@@ -348,13 +345,11 @@ export default class ProductService {
         );
         console.log(bufferImages, "[bufferImages]");
 
-        imagePaths = await Promise.all(
-          uploadImagesProduct(
-            bufferImages as string[],
-            payload.keywords,
-            brand?.name || "",
-            id
-          )
+        imagePaths = await uploadImagesProduct(
+          bufferImages as string[],
+          payload.keywords,
+          brand?.name || "",
+          id
         );
       }
       const updatedProduct = await this.productModel.update(id, {

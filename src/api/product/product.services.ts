@@ -44,10 +44,9 @@ import UserRepository from "@/repositories/user.repository";
 import CommonTypeRepository from "@/repositories/common_type.repository";
 import ProductFavouriteRepository from "@/repositories/product_favourite.repository";
 
-import {COMMON_TYPES} from '@/constants';
+import { COMMON_TYPES } from "@/constants";
 
-
-import {difference} from 'lodash';
+import { difference } from "lodash";
 
 export default class ProductService {
   private countryStateCityService: CountryStateCityService;
@@ -60,7 +59,6 @@ export default class ProductService {
   private brandRepository: BrandRepository;
   private commonTypeRepository: CommonTypeRepository;
   private productFavouriteRepository: ProductFavouriteRepository;
-
 
   constructor() {
     this.countryStateCityService = new CountryStateCityService();
@@ -126,7 +124,7 @@ export default class ProductService {
       payload.images,
       payload.keywords,
       brand.name,
-      brand.id,
+      brand.id
     );
 
     const createdProduct = await this.productRepository.create({
@@ -161,7 +159,7 @@ export default class ProductService {
     if (!created) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(created.id, user_id);
+    return successResponse(await this.get(created.id, user_id));
   }
 
   public async update(
@@ -169,7 +167,10 @@ export default class ProductService {
     payload: IUpdateProductRequest,
     userId: string
   ) {
-    const product = await this.productRepository.findWithRelationData(id, userId);
+    const product = await this.productRepository.findWithRelationData(
+      id,
+      userId
+    );
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -226,7 +227,10 @@ export default class ProductService {
   }
 
   public async get(id: string, userId: string) {
-    const product = await this.productRepository.findWithRelationData(id, userId);
+    const product = await this.productRepository.findWithRelationData(
+      id,
+      userId
+    );
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -300,20 +304,26 @@ export default class ProductService {
         allBasisConversion
       )
     );
+
     return successResponse({
-      ...product,
-      brand: {
-        ...product.brand,
-        official_websites: officialWebsites,
+      data: {
+        ...product,
+        brand: {
+          ...product.brand,
+          official_websites: officialWebsites,
+        },
+        general_attribute_groups: newGeneralGroups,
+        feature_attribute_groups: newFeatureGroups,
+        specification_attribute_groups: newSpecificationGroups,
       },
-      general_attribute_groups: newGeneralGroups,
-      feature_attribute_groups: newFeatureGroups,
-      specification_attribute_groups: newSpecificationGroups,
     });
   }
 
   public getBrandProductSummary = async (brandId: string) => {
-    const products = await this.productRepository.getProductBy(undefined, brandId);
+    const products = await this.productRepository.getProductBy(
+      undefined,
+      brandId
+    );
     const collections = getUniqueCollections(products);
     const categories = getUniqueProductCategories(products);
     const variants = getTotalVariantOfProducts(products);
@@ -326,8 +336,8 @@ export default class ProductService {
         card_count: products.length,
         product_count: variants.length,
       },
-    })
-  }
+    });
+  };
   public getList = async (
     userId: string,
     brandId: string,
@@ -338,15 +348,23 @@ export default class ProductService {
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
     const products = await this.productRepository.getProductBy(
-      userId, brandId, categoryId, collectionId, keyword, sortName, orderBy
+      userId,
+      brandId,
+      categoryId,
+      collectionId,
+      keyword,
+      sortName,
+      orderBy
     );
 
     return successResponse({
       data: {
-        data: categoryId ? mappingByBrand(products) : mappingByCategory(products),
-        brand: await this.brandRepository.find(brandId)
-      }
-    })
+        data: categoryId
+          ? mappingByBrand(products)
+          : mappingByCategory(products),
+        brand: await this.brandRepository.find(brandId),
+      },
+    });
   };
 
   public getListDesignerBrandProducts = async (
@@ -358,11 +376,17 @@ export default class ProductService {
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
     const products = await this.productRepository.getProductBy(
-      userId, brandId, categoryId, undefined, keyword, sortName, orderBy
+      userId,
+      brandId,
+      categoryId,
+      undefined,
+      keyword,
+      sortName,
+      orderBy
     );
     if (categoryId || !brandId) {
       return successResponse({
-        data: mappingByBrand(products)
+        data: mappingByBrand(products),
       });
     }
     if (brandId) {
@@ -372,12 +396,12 @@ export default class ProductService {
       return successResponse({
         data: mappingByCollections(products),
         brand_summary: {
-          brand_name: brand?.name ?? '',
+          brand_name: brand?.name ?? "",
           brand_logo: brand?.logo ?? "",
           collection_count: collections.length,
           card_count: products.length,
           product_count: variants.length,
-        }
+        },
       });
     }
   };
@@ -408,25 +432,31 @@ export default class ProductService {
     return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
   };
 
-
   public getListRestCollectionProduct = async (productId: string) => {
-    const product = await this.productRepository.findWithRelationData(productId);
+    const product = await this.productRepository.findWithRelationData(
+      productId
+    );
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const products = await this.productRepository.getRelatedCollection(product.id, product.collection_id);
-    return successResponse(products.map((item) => {
-      return {
-        id: item.id,
-        collection_id: item.collection_id,
-        name: item.name,
-        images: item.images,
-        created_at: item.created_at,
-      };
-    }));
+    const products = await this.productRepository.getRelatedCollection(
+      product.id,
+      product.collection_id
+    );
+    return successResponse({
+      data: products.map((item) => {
+        return {
+          id: item.id,
+          collection_id: item.collection_id,
+          name: item.name,
+          images: item.images,
+          created_at: item.created_at,
+        };
+      }),
+    });
   };
 
-  public likeOrUnlike = async ( productId: string, userId: string ) => {
+  public likeOrUnlike = async (productId: string, userId: string) => {
     const favourite = await this.productFavouriteRepository.findBy({
       product_id: productId,
       user_id: userId,
@@ -437,13 +467,13 @@ export default class ProductService {
       await this.productFavouriteRepository.unlike(productId, userId);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
-  }
+  };
 
   /* Getting the product options for a product. */
-  public getProductOptions = async (productId: string, attributeId: string ) => {
+  public getProductOptions = async (productId: string, attributeId: string) => {
     const product = await this.productRepository.find(productId);
     if (!product) {
-      return successResponse({data: []});
+      return successResponse({ data: [] });
     }
     let attributes: IProductOptionAttribute[] = [];
     product.specification_attribute_groups.forEach((item) => {
@@ -451,10 +481,12 @@ export default class ProductService {
     });
     const attribute = attributes.find((item) => item.id === attributeId);
     if (!attribute) {
-      return successResponse({data: []});
+      return successResponse({ data: [] });
     }
     //
-    const optionGroups = await this.basisModel.getAllBy({ type: BASIS_TYPES.OPTION });
+    const optionGroups = await this.basisModel.getAllBy({
+      type: BASIS_TYPES.OPTION,
+    });
 
     //
     const options = optionGroups.reduce((pre: any, cur: any) => {
@@ -475,16 +507,12 @@ export default class ProductService {
         image: foundValue.image,
       };
     });
-    return successResponse({data: result ?? []});
-  }
+    return successResponse({ data: result ?? [] });
+  };
 
-
-  public assign = (
-    _userId: string,
-    _payload: IProductAssignToProject
-  ) => {
+  public assign = (_userId: string, _payload: IProductAssignToProject) => {
     return successMessageResponse(MESSAGES.SUCCESS);
-  }
+  };
 
   public getFavoriteProductSummary = async (userId: string) => {
     const products = await this.productRepository.getFavouriteProducts(userId);
@@ -497,10 +525,9 @@ export default class ProductService {
         category_count: categories.length,
         brand_count: brands.length,
         card_count: products.length,
-      }
-    })
-  }
-
+      },
+    });
+  };
 
   public getFavouriteList = async (
     userId: string,
@@ -508,7 +535,11 @@ export default class ProductService {
     brandId?: string,
     categoryId?: string
   ) => {
-    const products = await this.productRepository.getFavouriteProducts(userId, brandId, order);
+    const products = await this.productRepository.getFavouriteProducts(
+      userId,
+      brandId,
+      order
+    );
     if (categoryId) {
       return successResponse({
         data: mappingByCategory(products),
@@ -528,7 +559,9 @@ export default class ProductService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
     }
-    const product = await this.productRepository.findWithRelationData(payload.product_id);
+    const product = await this.productRepository.findWithRelationData(
+      payload.product_id
+    );
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND);
     }
@@ -563,26 +596,28 @@ export default class ProductService {
     return successMessageResponse(MESSAGES.EMAIL_SENT);
   };
 
-  public getSharingGroups = async(userId: string) => {
+  public getSharingGroups = async (userId: string) => {
     const user = await this.userRepository.find(userId);
     if (!user) {
-      return successResponse({data: []});
+      return successResponse({ data: [] });
     }
     return successResponse({
-      data: this.commonTypeRepository.getAllByRelationAndType(
-        user.relation_id, COMMON_TYPES.SHARING_GROUP
-      )
+      data: await this.commonTypeRepository.getAllByRelationAndType(
+        user.relation_id,
+        COMMON_TYPES.SHARING_GROUP
+      ),
     });
   };
-  public getSharingPurposes = async ( userId: string ) => {
+  public getSharingPurposes = async (userId: string) => {
     const user = await this.userRepository.find(userId);
     if (!user) {
-      return successResponse({data: []});
+      return successResponse({ data: [] });
     }
     return successResponse({
-      data: this.commonTypeRepository.getAllByRelationAndType(
-        user.relation_id, COMMON_TYPES.SHARING_PURPOSE
-      )
+      data: await this.commonTypeRepository.getAllByRelationAndType(
+        user.relation_id,
+        COMMON_TYPES.SHARING_PURPOSE
+      ),
     });
   };
 }

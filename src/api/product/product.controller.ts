@@ -1,4 +1,4 @@
-import ProductService from "./product.service";
+import ProductService from "./product.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   IProductAssignToProject,
@@ -16,10 +16,10 @@ export default class ProductController {
     const { category_id, collection_id, brand_id } = req.query;
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getList(
+      userId,
       brand_id,
       category_id,
-      collection_id,
-      userId
+      collection_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -37,7 +37,7 @@ export default class ProductController {
       sort,
       order
     );
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    return toolkit.response(response).code(response?.statusCode ?? 200);
   };
   public getBrandProductSummary = async (
     req: Request,
@@ -121,10 +121,7 @@ export default class ProductController {
     const response = await this.service.shareByEmail(payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getSharingGroups = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
+  public getSharingGroups = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
     const response = await this.service.getSharingGroups(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);

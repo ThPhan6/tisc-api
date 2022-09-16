@@ -1,5 +1,5 @@
 import { IAttributeGroupWithOptionalId } from "@/api/product/product.type";
-import {BrandOfficialWebsite} from '@/types';
+import { BrandOfficialWebsite } from "@/types";
 
 export interface IProductAttributes {
   id: string;

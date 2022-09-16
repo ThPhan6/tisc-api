@@ -1,16 +1,16 @@
 import Connection from "./Connections/ArangoConnection";
-import Builder from './Query/Builder';
-import DataParser from './Parsers/DataParser';
+import Builder from "./Query/Builder";
+import DataParser from "./Parsers/DataParser";
 import {
   Operator,
   ValueBinding,
   DynamicValueBinding,
-  WhereInverse
-} from './Interfaces';
+  WhereInverse,
+} from "./Interfaces";
 
 class Model<DataType> {
   protected connection: Connection;
-  protected table: string = '';
+  protected table: string = "";
   protected softDelete: boolean = false;
 
   constructor() {
@@ -18,7 +18,7 @@ class Model<DataType> {
   }
 
   public getQuery() {
-      return new Builder( this.connection, this.table, this.softDelete );
+    return new Builder(this.connection, this.table, this.softDelete);
   }
 
   public select(...columns: string[]) {
@@ -38,23 +38,31 @@ class Model<DataType> {
     return this.getQuery().where(column, operator, value, inverse);
   }
 
-  public whereLike(column: string, value: ValueBinding ) {
-    return this.where(column, 'like', value);
+  public whereLike(column: string, value: ValueBinding) {
+    return this.where(column, "like", value);
   }
-  public whereNotLike(column: string, value: ValueBinding ) {
-    return this.where(column, 'not like', value);
+  public whereNotLike(column: string, value: ValueBinding) {
+    return this.where(column, "not like", value);
   }
-  public whereIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
-    return this.where(column, 'in', value, inverse);
+  public whereIn(
+    column: string,
+    value: ValueBinding,
+    inverse: WhereInverse = false
+  ) {
+    return this.where(column, "in", value, inverse);
   }
-  public whereNotIn(column: string, value: ValueBinding, inverse: WhereInverse = false ) {
-    return this.where(column, 'not in', value, inverse);
+  public whereNotIn(
+    column: string,
+    value: ValueBinding,
+    inverse: WhereInverse = false
+  ) {
+    return this.where(column, "not in", value, inverse);
   }
   public whereNull(column: string) {
-    return this.where(column, '==', null);
+    return this.where(column, "==", null);
   }
   public whereNotNull(column: string) {
-    return this.where(column, '!=', null);
+    return this.where(column, "!=", null);
   }
   public count() {
     return this.getQuery().count();
@@ -64,14 +72,14 @@ class Model<DataType> {
   }
 
   public async insert(data: Partial<DataType> | Partial<DataType>[]) {
-    return await this.connection.insert(
+    return (await this.connection.insert(
       this.table,
       DataParser.combineInsertData(data)
-    ) as DataType | DataType[];
+    )) as DataType | DataType[];
   }
   public async delete(id: string) {
     if (this.softDelete) {
-      return await this.getQuery().where('id', '==', id).delete();
+      return await this.getQuery().where("id", "==", id).delete();
     }
   }
 

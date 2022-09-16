@@ -1,19 +1,19 @@
-import { MESSAGES } from "../../constant/common.constant";
+import { MESSAGES } from "@/constant/common.constant";
 import CategoryModel, {
   CATEGORY_NULL_ATTRIBUTES,
-} from "../../model/category.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+} from "@/model/category.model";
+import { IMessageResponse, IPagination } from "@/type/common.type";
 import {
   isDuplicatedString,
   sortObjectArray,
   tosingleSpace,
-} from "./../../helper/common.helper";
+} from "@/helper/common.helper";
 import {
   ICategoriesResponse,
   ICategoryRequest,
   ICategoryResponse,
 } from "./category.type";
-import ProductModel from "../../model/product.model";
+import ProductModel from "@/model/product.model";
 const uuid = require("uuid").v4;
 
 export default class CategoryService {

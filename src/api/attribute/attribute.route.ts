@@ -1,11 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import AttributeController from "./attribute.controller";
-import commonValidate from "../../validate/common.validate";
+import commonValidate from "@/validate/common.validate";
 import validate from "./attribute.validate";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import IRoute from "@/helper/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import { ROUTES } from "@/constant/api.constant";
+import { AUTH_NAMES } from "@/constant/auth.constant";
 import response from "./attribute.response";
 
 export default class AttributeRoute implements IRoute {
