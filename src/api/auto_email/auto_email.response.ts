@@ -1,3 +1,4 @@
+import { paginationResponseValidate } from "@/helper/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -5,38 +6,27 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const autoEmailResponse = {
+  id: Joi.string(),
+  topic: Joi.number(),
+  targeted_for: Joi.number(),
+  topic_key: Joi.string().allow(null),
+  targeted_for_key: Joi.string().allow(null),
+  title: Joi.string(),
+  message: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string().allow(null),
+};
+
 export default {
   getOne: Joi.object({
-    data: Joi.object({
-      id: Joi.string(),
-      topic: Joi.number(),
-      targeted_for: Joi.number(),
-      title: Joi.string(),
-      message: Joi.string(),
-      created_at: Joi.string(),
-    }),
+    data: Joi.object(autoEmailResponse),
     statusCode: Joi.number(),
   }) as any,
   getList: Joi.object({
     data: Joi.object({
-      auto_emails: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          topic: Joi.number(),
-          targeted_for: Joi.number(),
-          topic_key: Joi.string(),
-          targeted_for_key: Joi.string(),
-          title: Joi.string(),
-          message: Joi.string(),
-          created_at: Joi.string(),
-        })
-      ),
-      pagination: Joi.object({
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      }),
+      auto_emails: Joi.array().items(Joi.object(autoEmailResponse)),
+      pagination: Joi.object(paginationResponseValidate),
     }),
     statusCode: Joi.number(),
   }),

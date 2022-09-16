@@ -4,7 +4,7 @@ import {
 } from "../../constant/common.constant";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IUpdateAutoEmailRequest } from "./auto_email.type";
-import AutoEmailService from "./auto_email.service";
+import AutoEmailService from "./auto_email.services";
 
 export default class AutoEmailController {
   private service: AutoEmailService;

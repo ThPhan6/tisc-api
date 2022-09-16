@@ -36,14 +36,21 @@ export const statuses = Joi.array().items({
 });
 
 export const errorMessageResponse = (
-  message: string = '',
-  statusCode: 400 | 401 | 403 | 404 = 400,
+  message: string = "",
+  statusCode: 400 | 401 | 403 | 404 = 400
 ) => {
   return { message, statusCode };
-}
-export const successMessageResponse = ( message: string = '' ) => {
+};
+export const successMessageResponse = (message: string = "") => {
   return { message, statusCode: 200 };
-}
-export const successResponse = (res: {[key: string]: any} = {}) => {
+};
+export const successResponse = (res: { [key: string]: any } = {}) => {
   return { ...res, statusCode: 200 };
-}
+};
+
+export const paginationResponseValidate = {
+  page: Joi.number(),
+  page_size: Joi.number(),
+  total: Joi.number(),
+  page_count: Joi.number(),
+};
