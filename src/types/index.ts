@@ -9,3 +9,4 @@ export * from "./product.type";
 export * from "./collection.type";
 export * from "./category.type";
 export * from "./auto_email.type";
+export * from "./attribute.type";

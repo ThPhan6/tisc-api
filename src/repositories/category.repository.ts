@@ -4,6 +4,7 @@ import {
 } from "@/types/category.type";
 import CategoryModel from "@/model/category.models";
 import BaseRepository from "./base.repository";
+import { IProductAttributes } from "@/types/product.type";
 
 class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   protected model: CategoryModel;
@@ -20,7 +21,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     try {
       return await this.model
         .where("id", "!=", id)
-        .where("name", "==", name.toLowerCase())
+        .where("name", "==", name)
         .first();
     } catch (error) {
       return false;
@@ -37,6 +38,26 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
       .select()
       .order("name", mainCategoryOrder)
       .paginate(limit, offset)) as ListCategoryWithPaginate;
+  }
+
+  public async findProductByMainCategoryId(mainCategoryId: string) {
+    const params = {
+      mainCategoryId,
+    } as any;
+
+    const rawQuery = `
+    FILTER categories.id == @mainCategoryId
+    FOR subCategory in categories.subs
+    FOR category in subCategory.subs
+    FOR products in products 
+    FOR productCategoryId in products.category_ids
+    FILTER category.id == productCategoryId
+    RETURN UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by'])
+    `;
+    return (await this.model.rawQuery(
+      rawQuery,
+      params
+    )) as IProductAttributes[];
   }
 }
 

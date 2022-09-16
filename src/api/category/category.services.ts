@@ -6,6 +6,7 @@ import {
   successMessageResponse,
 } from "@/helper/response.helper";
 import CategoryRepository from "@/repositories/category.repository";
+import ProductRepository from "@/repositories/product.repository";
 import {
   checkCategoryDuplicateByName,
   mappingCategoriesUpdate,
@@ -17,8 +18,10 @@ import { ICategoryRequest } from "./category.type";
 
 export default class CategoryService {
   private categoryRepository: CategoryRepository;
+  private productRepository: ProductRepository;
   constructor() {
     this.categoryRepository = new CategoryRepository();
+    this.productRepository = new ProductRepository();
   }
 
   public async getCategoryValues(ids: string[]) {
@@ -135,6 +138,12 @@ export default class CategoryService {
     const deletedCategory = await this.categoryRepository.findAndDelete(id);
     if (!deletedCategory) {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
+    }
+    const products = await this.categoryRepository.findProductByMainCategoryId(
+      id
+    );
+    if (products.length) {
+      return errorMessageResponse(MESSAGES.CATEGORY_IN_PRODUCT);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }

@@ -7,7 +7,6 @@ import {
   getSpecifiedProductStatusName,
   sortObjectArray,
 } from "../../helper/common.helper";
-import AttributeModel from "../../model/attribute.model";
 import BasisModel from "../../model/basis.model";
 import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
@@ -55,7 +54,6 @@ export default class SpecifiedProductService {
   private collectionModel: CollectionModel;
   private materialCodeModel: MaterialCodeModel;
   private projectZoneModel: ProjectZoneModel;
-  private attributeModel: AttributeModel;
   private basisModel: BasisModel;
   private productService: ProductService;
   private finishScheduleModel: FinishScheduleModel;
@@ -72,7 +70,6 @@ export default class SpecifiedProductService {
     this.collectionModel = new CollectionModel();
     this.materialCodeModel = new MaterialCodeModel();
     this.projectZoneModel = new ProjectZoneModel();
-    this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
     this.productService = new ProductService();
     this.finishScheduleModel = new FinishScheduleModel();

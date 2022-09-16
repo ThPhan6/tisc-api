@@ -54,3 +54,8 @@ export const paginationResponseValidate = {
   total: Joi.number(),
   page_count: Joi.number(),
 };
+
+export const summaryTableResponseValidate = {
+  name: Joi.string(),
+  value: Joi.number(),
+};
