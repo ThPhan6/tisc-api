@@ -5,15 +5,15 @@ import {
   ATTRIBUTE_TYPES,
   BASIS_TYPES,
   MESSAGES,
-} from "../../constant/common.constant";
-import { getSummaryTable } from "../../helper/common.helper";
-import BasisModel from "../../model/basis.model";
-import { IMessageResponse } from "../../type/common.type";
+} from "@/constant/common.constant";
+import { getSummaryTable } from "@/helper/common.helper";
+import BasisModel from "@/model/basis.model";
+import { IMessageResponse } from "@/type/common.type";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "./../../helper/response.helper";
+} from "@/helper/response.helper";
 import {
   checkAttributeDuplicateByName,
   getBasisType,

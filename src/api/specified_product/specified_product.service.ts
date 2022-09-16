@@ -1,36 +1,33 @@
-import {
-  MESSAGES,
-  SPECIFIED_PRODUCT_STATUS,
-} from "../../constant/common.constant";
+import { MESSAGES, SPECIFIED_PRODUCT_STATUS } from "@/constant/common.constant";
 import {
   getDistinctArray,
   getSpecifiedProductStatusName,
   sortObjectArray,
-} from "../../helper/common.helper";
-import BasisModel from "../../model/basis.model";
-import BrandModel from "../../model/brand.model";
-import CollectionModel from "../../model/collection.model";
+} from "@/helper/common.helper";
+import BasisModel from "@/model/basis.model";
+import BrandModel from "@/model/brand.model";
+import CollectionModel from "@/model/collection.model";
 import ConsideredProductModel, {
   IConsideredProductAttributes,
-} from "../../model/considered_product.model";
-import FinishScheduleModel from "../../model/finish_schedule_for.model";
-import InstructionTypeModel from "../../model/instruction_type.model";
-import MaterialCodeModel from "../../model/material_code.model";
-import ProductModel from "../../model/product.model";
-import ProjectModel from "../../model/project.model";
-import ProjectZoneModel from "../../model/project_zone.model";
+} from "@/model/considered_product.model";
+import FinishScheduleModel from "@/model/finish_schedule_for.model";
+import InstructionTypeModel from "@/model/instruction_type.model";
+import MaterialCodeModel from "@/model/material_code.model";
+import ProductModel from "@/model/product.model";
+import ProjectModel from "@/model/project.model";
+import ProjectZoneModel from "@/model/project_zone.model";
 import RequirementTypeModel, {
   REQUIREMENT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/requirement_type.model";
+} from "@/model/requirement_type.model";
 import SpecifiedProductModel, {
   ISpecifiedProductAttributes,
   SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-} from "../../model/specified_product.model";
+} from "@/model/specified_product.model";
 import UnitTypeModel, {
   UNIT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/unit_type.model";
-import UserModel from "../../model/user.model";
-import { IMessageResponse, SortOrder } from "../../type/common.type";
+} from "@/model/unit_type.model";
+import UserModel from "@/model/user.model";
+import { IMessageResponse, SortOrder } from "@/type/common.type";
 import { IRoom } from "../considered_product/considered_product.type";
 import ProductService from "../product/product.services";
 import {
