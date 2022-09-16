@@ -125,7 +125,7 @@ export default class AttributeRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getAllAttribute,
+                200: response.getAllAttribute,
               },
             },
           },
