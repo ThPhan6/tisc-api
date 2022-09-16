@@ -3,9 +3,9 @@ import { getSummaryTable, tosingleSpace } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successResponse,
+  successMessageResponse,
 } from "@/helper/response.helper";
 import CategoryRepository from "@/repositories/category.repository";
-import { successMessageResponse } from "./../../helper/response.helper";
 import {
   checkCategoryDuplicateByName,
   mappingCategoriesUpdate,
@@ -14,7 +14,6 @@ import {
   mappingSubCategories,
 } from "./category.mapping";
 import { ICategoryRequest } from "./category.type";
-const uuid = require("uuid").v4;
 
 export default class CategoryService {
   private categoryRepository: CategoryRepository;
