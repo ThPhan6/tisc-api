@@ -1,4 +1,4 @@
-import MaterialCodeService from "./material_code.service";
+import MaterialCodeService from "./material_code.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IMaterialCodeRequest } from "./material_code.type";
 
