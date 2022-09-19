@@ -7,7 +7,7 @@ export interface IMaterialCodeAttributes {
     codes: ICodeAttribute[];
   }[];
   created_at: string;
-  is_deleted: boolean;
+  updated_at: string | null;
   design_id: string;
 }
 

@@ -1,11 +1,11 @@
 import {
   IQuotationAttributes,
   QUOTATION_NULL_ATTRIBUTES,
-} from "./../../model/quotation.model";
+} from "../../model/quotation.model";
 import { MESSAGES } from "../../constant/common.constant";
 import { countWord } from "../../helper/common.helper";
 import QuotationModel from "../../model/quotation.model";
-import { IMessageResponse, IPagination } from "./../../type/common.type";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IQuotationRequest,
   IQuotationResponse,
