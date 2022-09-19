@@ -1,3 +1,4 @@
+import MaterialCodeRepository from "@/repositories/material_code.repository";
 import {
   MESSAGES,
   SPECIFIED_PRODUCT_STATUS,
@@ -7,7 +8,6 @@ import {
   getSpecifiedProductStatusName,
   sortObjectArray,
 } from "../../helper/common.helper";
-import AttributeModel from "../../model/attribute.model";
 import BasisModel from "../../model/basis.model";
 import BrandModel from "../../model/brand.model";
 import CollectionModel from "../../model/collection.model";
@@ -16,7 +16,6 @@ import ConsideredProductModel, {
 } from "../../model/considered_product.model";
 import FinishScheduleModel from "../../model/finish_schedule_for.model";
 import InstructionTypeModel from "../../model/instruction_type.model";
-import MaterialCodeModel from "../../model/material_code.model";
 import ProductModel from "../../model/product.model";
 import ProjectModel from "../../model/project.model";
 import ProjectZoneModel from "../../model/project_zone.model";
@@ -53,12 +52,11 @@ export default class SpecifiedProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
   private collectionModel: CollectionModel;
-  private materialCodeModel: MaterialCodeModel;
   private projectZoneModel: ProjectZoneModel;
-  private attributeModel: AttributeModel;
   private basisModel: BasisModel;
   private productService: ProductService;
   private finishScheduleModel: FinishScheduleModel;
+  private materialCodeRepository: MaterialCodeRepository;
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
@@ -70,12 +68,11 @@ export default class SpecifiedProductService {
     this.productModel = new ProductModel();
     this.brandModel = new BrandModel();
     this.collectionModel = new CollectionModel();
-    this.materialCodeModel = new MaterialCodeModel();
     this.projectZoneModel = new ProjectZoneModel();
-    this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
     this.productService = new ProductService();
     this.finishScheduleModel = new FinishScheduleModel();
+    this.materialCodeRepository = new MaterialCodeRepository();
   }
   private countStatusSpecifiedProduct = (
     specified_products: ISpecifiedProductAttributes[]
@@ -297,9 +294,10 @@ export default class SpecifiedProductService {
         })
       );
 
-      const materialCode = await this.materialCodeModel.getSubMaterialCodeById(
-        payload.material_code_id
-      );
+      const materialCode =
+        await this.materialCodeRepository.getSubMaterialCodeById(
+          payload.material_code_id
+        );
 
       if (!specifiedProduct) {
         //create

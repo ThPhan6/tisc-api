@@ -3,11 +3,28 @@ import {
   BASIS_TYPES,
   MESSAGES,
 } from "@/constant/common.constant";
+import { COMMON_TYPES } from "@/constants";
 import { getFileURI } from "@/helper/image.helper";
-import AttributeModel from "@/model/attribute.model";
+import {
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
 import BasisModel from "@/model/basis.model";
+import AttributeRepository from "@/repositories/attribute.repository";
+import BrandRepository from "@/repositories/brand.repository";
+import CommonTypeRepository from "@/repositories/common_type.repository";
+import ProductRepository from "@/repositories/product.repository";
+import ProductFavouriteRepository from "@/repositories/product_favourite.repository";
+import UserRepository from "@/repositories/user.repository";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
+import {
+  uploadImagesProduct,
+  validateImageType,
+} from "@/service/image.service";
 import MailService from "@/service/mail.service";
+import { difference } from "lodash";
+import { ISubBasisConversion } from "../basis/basis.type";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -27,31 +44,10 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { ISubBasisConversion } from "../basis/basis.type";
-import {
-  errorMessageResponse,
-  successResponse,
-  successMessageResponse,
-} from "@/helper/response.helper";
-import {
-  validateImageType,
-  uploadImagesProduct,
-} from "@/service/image.service";
-
-import ProductRepository from "@/repositories/product.repository";
-import BrandRepository from "@/repositories/brand.repository";
-import UserRepository from "@/repositories/user.repository";
-import CommonTypeRepository from "@/repositories/common_type.repository";
-import ProductFavouriteRepository from "@/repositories/product_favourite.repository";
-
-import { COMMON_TYPES } from "@/constants";
-
-import { difference } from "lodash";
 
 export default class ProductService {
   private countryStateCityService: CountryStateCityService;
   private basisModel: BasisModel;
-  private attributeModel: AttributeModel;
   private mailService: MailService;
 
   private productRepository: ProductRepository;
@@ -59,11 +55,11 @@ export default class ProductService {
   private brandRepository: BrandRepository;
   private commonTypeRepository: CommonTypeRepository;
   private productFavouriteRepository: ProductFavouriteRepository;
+  private attributeRepository: AttributeRepository;
 
   constructor() {
     this.countryStateCityService = new CountryStateCityService();
     this.basisModel = new BasisModel();
-    this.attributeModel = new AttributeModel();
     this.mailService = new MailService();
 
     this.productRepository = new ProductRepository();
@@ -71,6 +67,7 @@ export default class ProductService {
     this.brandRepository = new BrandRepository();
     this.commonTypeRepository = new CommonTypeRepository();
     this.productFavouriteRepository = new ProductFavouriteRepository();
+    this.attributeRepository = new AttributeRepository();
   }
 
   private getAllBasisConversion = async () => {
@@ -248,22 +245,21 @@ export default class ProductService {
       })
     );
 
-    const allFeatureAttributeGroup = await this.attributeModel.getAllBy({
-      type: ATTRIBUTE_TYPES.FEATURE,
-    });
+    const allFeatureAttributeGroup = await this.attributeRepository.getByType(
+      ATTRIBUTE_TYPES.FEATURE
+    );
     const allFeatureAttribute: any[] = mappingAttributeOrBasis(
       allFeatureAttributeGroup
     );
 
-    const allGeneralAttributeGroup = await this.attributeModel.getAllBy({
-      type: ATTRIBUTE_TYPES.GENERAL,
-    });
+    const allGeneralAttributeGroup = await this.attributeRepository.getByType(
+      ATTRIBUTE_TYPES.GENERAL
+    );
     const allGeneralAttribute: any[] = mappingAttributeOrBasis(
       allGeneralAttributeGroup
     );
-    const allSpecificationAttributeGroup = await this.attributeModel.getAllBy({
-      type: ATTRIBUTE_TYPES.SPECIFICATION,
-    });
+    const allSpecificationAttributeGroup =
+      await this.attributeRepository.getByType(ATTRIBUTE_TYPES.SPECIFICATION);
     const allSpecificationAttribute: any[] = mappingAttributeOrBasis(
       allSpecificationAttributeGroup
     );

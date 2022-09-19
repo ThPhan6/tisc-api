@@ -1,6 +1,6 @@
 import { getDistinctArray } from "@/helper/common.helper";
-import { IAttributeAttributes } from "@/model/attribute.model";
 import { IBasisAttributes } from "@/model/basis.model";
+import { IAttributeAttributes } from "@/types/attribute.type";
 import {
   IProductAttributes,
   ProductWithRelationData,
@@ -151,9 +151,10 @@ export const mappingAttribute = (
 };
 
 export const mappingAttributeOrBasis = (
-  all_attribute: IAttributeAttributes[]
+  //change any when update basis
+  all_attribute: IAttributeAttributes[] | any
 ) => {
-  return all_attribute.reduce((pre: any, cur) => {
+  return all_attribute.reduce((pre: any, cur: any) => {
     return pre.concat(cur.subs);
   }, []);
 };

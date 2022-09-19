@@ -5,24 +5,26 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const subsAttribute = {
+  id: Joi.string(),
+  name: Joi.string(),
+  basis_id: Joi.string(),
+  description: Joi.any(),
+  description_1: Joi.any(),
+  description_2: Joi.any(),
+  content_type: Joi.string().allow(""),
+  basis: Joi.any(),
+};
+
 export default {
   getOne: Joi.object({
     data: Joi.object({
       id: Joi.string(),
       name: Joi.string(),
       count: Joi.number(),
-      subs: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-          basis_id: Joi.string(),
-          description: Joi.any(),
-          description_1: Joi.any(),
-          description_2: Joi.any(),
-          content_type: Joi.string().allow(""),
-        })
-      ),
+      subs: Joi.array().items(Joi.object(subsAttribute)),
       created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
     }),
     statusCode: Joi.number(),
   }) as any,
@@ -33,18 +35,9 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           count: Joi.number(),
-          subs: Joi.array().items(
-            Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-              basis_id: Joi.string(),
-              description: Joi.any(),
-              description_1: Joi.any(),
-              description_2: Joi.any(),
-              content_type: Joi.string().allow(""),
-            })
-          ),
+          subs: Joi.array().items(Joi.object(subsAttribute)),
           created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
         })
       ),
       summary: Joi.array().items(
@@ -78,19 +71,9 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           type: Joi.number(),
-          subs: Joi.array().items(
-            Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-              basis_id: Joi.string(),
-              description: Joi.string(),
-              description_1: Joi.string(),
-              description_2: Joi.string(),
-              content_type: Joi.string(),
-              basis: Joi.any(),
-            })
-          ),
+          subs: Joi.array().items(Joi.object(subsAttribute)),
           created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
         })
       ),
       feature: Joi.array().items(
@@ -98,19 +81,9 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           type: Joi.number(),
-          subs: Joi.array().items(
-            Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-              basis_id: Joi.string(),
-              description: Joi.string(),
-              description_1: Joi.string(),
-              description_2: Joi.string(),
-              content_type: Joi.string(),
-              basis: Joi.any(),
-            })
-          ),
+          subs: Joi.array().items(Joi.object(subsAttribute)),
           created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
         })
       ),
       specification: Joi.array().items(
@@ -118,19 +91,9 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           type: Joi.number(),
-          subs: Joi.array().items(
-            Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-              basis_id: Joi.string(),
-              description: Joi.string(),
-              description_1: Joi.string(),
-              description_2: Joi.string(),
-              content_type: Joi.string(),
-              basis: Joi.any(),
-            })
-          ),
+          subs: Joi.array().items(Joi.object(subsAttribute)),
           created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
         })
       ),
     }),

@@ -182,13 +182,12 @@ export const getSummaryTable = (dataSummary: any) => {
 
   dataSummary.forEach((item: any) => {
     if (item.subs) {
+      countSub += item.subs.length;
       item.subs.forEach((subCategory: any) => {
-        countItem += subCategory.subs.length;
+        if (subCategory.subs) countItem += subCategory.subs.length;
       });
     }
-    countSub += item.subs.length;
   });
-
   return {
     countGroup,
     countSub,

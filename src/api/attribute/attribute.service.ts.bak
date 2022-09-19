@@ -1,5 +1,5 @@
-import { ATTRIBUTE_TYPES } from "./../../constant/common.constant";
-import { IPagination } from "./../../type/common.type";
+import { ATTRIBUTE_TYPES } from "../../constant/common.constant";
+import { IPagination } from "../../type/common.type";
 import {
   BASIS_TYPES,
   LONG_TEXT_ID,
