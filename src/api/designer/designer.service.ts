@@ -122,6 +122,10 @@ export default class DesignerService {
         limit,
         offset
       );
+      console.log(
+        JSON.stringify(result, null, 2),
+        "[JSON.stringify(result, null, 2)]"
+      );
       return resolve({
         data: {
           designers: result,
