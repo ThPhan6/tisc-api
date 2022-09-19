@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import BasisService from "./basis.service";
+import BasisService from "./basis.services";
 import {
   IBasisConversionRequest,
   IBasisOptionRequest,

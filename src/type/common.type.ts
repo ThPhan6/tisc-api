@@ -83,3 +83,8 @@ export type SpecifiedProductStatusKey =
   | "Cancelled"
   | "Re-specified"
   | "Specified";
+
+export interface ISummaryTale {
+  name: string;
+  value: number;
+}

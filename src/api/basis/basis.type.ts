@@ -1,44 +1,25 @@
-import { IPagination } from "./../../type/common.type";
+import { BasisConversion } from "@/types/basis.type";
+import { IPagination, ISummaryTale } from "@/type/common.type";
 export interface IBasisConversionRequest {
   name: string;
-  subs: {
-    name_1: string;
-    name_2: string;
-    formula_1: string;
-    formula_2: string;
-    unit_1: string;
-    unit_2: string;
-  }[];
+  subs: Omit<BasisConversion, "id">[];
 }
 export interface IBasisConversionUpdateRequest {
   name: string;
-  subs: {
-    id?: string;
-    name_1: string;
-    name_2: string;
-    formula_1: string;
-    formula_2: string;
-    unit_1: string;
-    unit_2: string;
-  }[];
+  subs: BasisConversion[];
+}
+
+export interface SubBasisConversionResponse extends BasisConversion {
+  conversion_between: string;
+  first_formula: string;
+  second_formula: string;
 }
 
 export interface IBasisConversionResponse {
   data: {
     id: string;
     name: string;
-    subs: {
-      id: string;
-      conversion_between: string;
-      first_formula: string;
-      second_formula: string;
-      name_1: string;
-      name_2: string;
-      formula_1: string;
-      formula_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
+    subs: SubBasisConversionResponse[];
     created_at: string;
   };
   statusCode: number;
@@ -50,23 +31,10 @@ export interface IBasisConversionsResponse {
       id: string;
       name: string;
       count: number;
-      subs: {
-        conversion_between: string;
-        first_formula: string;
-        second_formula: string;
-        name_1: string;
-        name_2: string;
-        formula_1: string;
-        formula_2: string;
-        unit_1: string;
-        unit_2: string;
-      }[];
+      subs: SubBasisConversionResponse[];
       created_at: string;
     }[];
-    summary: {
-      name: string;
-      value: number;
-    }[];
+    summary: ISummaryTale[];
     pagination: IPagination;
   };
   statusCode: number;
@@ -195,14 +163,4 @@ export interface IUpdateBasisPresetRequest {
       unit_2: string;
     }[];
   }[];
-}
-
-export interface ISubBasisConversion {
-  id: string;
-  name_1: string;
-  name_2: string;
-  formula_1: string;
-  formula_2: string;
-  unit_1: string;
-  unit_2: string;
 }

@@ -3,18 +3,18 @@ import {
   BASIS_OPTION_STORE,
   MESSAGES,
   VALID_IMAGE_TYPES,
-} from "../../constant/common.constant";
+} from "@/constant/common.constant";
 import {
   getFileTypeFromBase64,
   isDuplicatedString,
   randomName,
   sortObjectArray,
-} from "../../helper/common.helper";
-import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
-import { deleteFile, isExists, upload } from "../../service/aws.service";
-import { BASIS_TYPES } from "./../../constant/common.constant";
-import { IBasisAttributes } from "./../../model/basis.model";
-import { IMessageResponse, IPagination } from "./../../type/common.type";
+} from "@/helper/common.helper";
+import BasisModel, { BASIS_NULL_ATTRIBUTES } from "@/model/basis.model";
+import { deleteFile, isExists, upload } from "@/service/aws.service";
+import { BASIS_TYPES } from "@/constant/common.constant";
+import { IBasisAttributes } from "@/model/basis.model";
+import { IMessageResponse, IPagination } from "@/type/common.type";
 import {
   IBasisConversionRequest,
   IBasisConversionResponse,
@@ -29,11 +29,14 @@ import {
   IUpdateBasisOptionRequest,
   IUpdateBasisPresetRequest,
 } from "./basis.type";
+import BasisRepository from "@/repositories/basis.repository";
 
 export default class BasisService {
   private basisModel: BasisModel;
+  private basisRepository: BasisRepository;
   constructor() {
     this.basisModel = new BasisModel();
+    this.basisRepository = new BasisRepository();
   }
 
   private isDuplicatedConversion = (payload: any) => {
@@ -53,6 +56,7 @@ export default class BasisService {
     }
     return false;
   };
+
   public getConversion = async (
     id: string
   ): Promise<
