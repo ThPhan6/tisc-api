@@ -3,7 +3,7 @@ import MaterialCodeRepository from "@/repositories/material_code.repository";
 import {
   errorMessageResponse,
   successResponse,
-} from "./../../helper/response.helper";
+} from "@/helper/response.helper";
 import { mappingDataCreate } from "./material_code.mapping";
 import { IMaterialCodeRequest } from "./material_code.type";
 
