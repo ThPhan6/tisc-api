@@ -1,3 +1,5 @@
+import { ICodeAttribute } from "@/types/material_code.type";
+
 export interface IMaterialCodeRequest {
   name: string;
   subs: {
@@ -16,11 +18,7 @@ export interface IMaterialCodeResponse {
     subs: {
       id: string;
       name: string;
-      codes: {
-        id: string;
-        code: string;
-        description: string;
-      }[];
+      codes: ICodeAttribute[];
     }[];
   };
   statusCode: number;
@@ -35,21 +33,13 @@ export interface IMaterialCodeGroupResponse {
       id: string;
       name: string;
       count: number;
-      codes: {
-        code: string;
-        description: string;
-        id: string;
-      }[];
+      codes: ICodeAttribute[];
     }[];
   }[];
   statusCode: number;
 }
 
 export interface IGetListCodeMaterialCode {
-  data: {
-    code: string;
-    description: string;
-    id: string;
-  }[];
+  data: ICodeAttribute[];
   statusCode: number;
 }
