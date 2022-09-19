@@ -223,10 +223,11 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     try {
       let result: any = this.model.where(
         "category_ids",
-        "==",
+        "in",
         category_id,
         "inverse"
       );
+
       if (brand_id) {
         result = result.where("brand_id", "==", brand_id);
       }
@@ -234,6 +235,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         result = result.whereLike("name", name);
       }
       result = await result.order("created_at", "DESC").select().get();
+
       return result as IProductAttributes[];
     } catch (error) {
       return [];
