@@ -22,7 +22,7 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     return (await this.model
       .select()
       .where("design_id", "==", designId)
-      .where("design_id", "==", "")
+      .orWhere("design_id", "==", "")
       .get()) as IMaterialCodeAttributes[];
   }
 
@@ -41,7 +41,47 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     return result?._result[0] ?? null;
   }
 
-  public async getMaterialCodeGroup() {}
+  public async getMaterialCodeWithCountByDesignId(designId: string) {
+    const params = {
+      designId,
+    };
+    const rawQuery = `
+    FILTER material_codes.design_id == @designId
+    FOR sub IN material_codes.subs
+    LET subMaterialCode = []
+    RETURN {
+      id: material_codes.id,
+      name: material_codes.name,
+      count: count(material_codes.subs),
+      subs: push(subMaterialCode,{
+        id: sub.id,
+        name: sub.name,
+        count: count(sub.codes),
+        codes: sub.codes,
+      }),
+    }
+    `;
+    return (
+      ((await this.model.rawQuery(
+        rawQuery,
+        params
+      )) as IMaterialCodeAttributes[]) ?? []
+    );
+  }
+
+  public async getCodesByDesignId(designId: string) {
+    const params = {
+      designId,
+    };
+    const rawQuery = `
+    FILTER material_codes.design_id == @designId
+    FOR sub in material_codes.subs
+    RETURN sub.codes
+     `;
+    const result =
+      ((await this.model.rawQuery(rawQuery, params)) as ICodeAttribute[]) ?? [];
+    return result.flat(Infinity);
+  }
 }
 
 export default MaterialCodeRepository;

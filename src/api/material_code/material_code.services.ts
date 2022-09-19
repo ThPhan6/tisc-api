@@ -1,27 +1,15 @@
+import { MESSAGES } from "@/constant/common.constant";
+import MaterialCodeRepository from "@/repositories/material_code.repository";
 import {
   errorMessageResponse,
   successResponse,
 } from "./../../helper/response.helper";
-import MaterialCodeModel, {
-  MATERIAL_CODE_NULL_ATTRIBUTES,
-} from "@/model/material_code.model";
-import { IMessageResponse } from "@/type/common.type";
-import {
-  IGetListCodeMaterialCode,
-  IMaterialCodeGroupResponse,
-  IMaterialCodeRequest,
-  IMaterialCodeResponse,
-} from "./material_code.type";
-import { v4 as uuid } from "uuid";
-import { MESSAGES } from "@/constant/common.constant";
-import MaterialCodeRepository from "@/repositories/material_code.repository";
 import { mappingDataCreate } from "./material_code.mapping";
+import { IMaterialCodeRequest } from "./material_code.type";
 
 export default class MaterialCodeService {
-  private materialCodeModel: MaterialCodeModel;
   private materialCodeRepository: MaterialCodeRepository;
   constructor() {
-    this.materialCodeModel = new MaterialCodeModel();
     this.materialCodeRepository = new MaterialCodeRepository();
   }
 
@@ -47,51 +35,20 @@ export default class MaterialCodeService {
     });
   }
 
-  public getMaterialCodeGroup = (
-    design_id: string
-  ): Promise<IMaterialCodeGroupResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const materialCodes =
-        await this.materialCodeModel.getAllMaterialCodeByDesignId(design_id);
+  public async getMaterialCodeGroup(design_id: string) {
+    const materialCodes =
+      await this.materialCodeRepository.getMaterialCodeWithCountByDesignId(
+        design_id
+      );
+    return successResponse({ data: materialCodes });
+  }
 
-      const result = materialCodes.map((materialCode) => {
-        const mainList = materialCode.subs.map((mainList) => {
-          return {
-            id: mainList.id,
-            name: mainList.name,
-            count: mainList.codes.length,
-            codes: mainList.codes,
-          };
-        });
-        return {
-          id: materialCode.id,
-          name: materialCode.name,
-          count: mainList.length,
-          subs: mainList,
-        };
-      });
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+  public async getListCodeMaterialCode(design_id: string) {
+    const materialCodes = await this.materialCodeRepository.getCodesByDesignId(
+      design_id
+    );
+    return successResponse({
+      data: materialCodes,
     });
-
-  public getListCodeMaterialCode = (
-    design_id: string
-  ): Promise<IGetListCodeMaterialCode> =>
-    new Promise(async (resolve) => {
-      const materialCodes =
-        await this.materialCodeModel.getAllMaterialCodeByDesignId(design_id);
-      const result = materialCodes
-        .map((materialCode) => {
-          return materialCode.subs.map((mainList) => {
-            return mainList.codes.map((code) => code);
-          });
-        })
-        .flat(Infinity);
-      return resolve({
-        data: result as IGetListCodeMaterialCode["data"],
-        statusCode: 200,
-      });
-    });
+  }
 }
