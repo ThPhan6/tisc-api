@@ -1,4 +1,4 @@
-import { head, isEmpty, forEach } from "lodash";
+import { head, isEmpty, forEach, isUndefined } from "lodash";
 import Model from "../Database/Model";
 
 class BaseRepository<DataType> {
@@ -17,9 +17,22 @@ class BaseRepository<DataType> {
    * Get all
    * @return DataType[]
    */
-  public async getAll() {
+  public async getAll(
+      orderBy?: Extract<keyof(DataType), string>,
+      sequence?: 'ASC' | 'DESC'
+  ) {
+    if (
+        !isUndefined(orderBy) &&
+        !isUndefined(sequence)
+      ) {
+        return await this.model
+          .select()
+          .order(orderBy, sequence)
+          .get() as DataType[];
+    }
     return (await this.model.all()) as DataType[];
   }
+
 
   /**
    * Get one
