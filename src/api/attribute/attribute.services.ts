@@ -1,11 +1,7 @@
 import AttributeRepository from "@/repositories/attribute.repository";
 import { IContentType } from "@/types/attribute.type";
 import { v4 as uuid } from "uuid";
-import {
-  ATTRIBUTE_TYPES,
-  BASIS_TYPES,
-  MESSAGES,
-} from "@/constant/common.constant";
+import { ATTRIBUTE_TYPES, MESSAGES } from "@/constant/common.constant";
 import { getSummaryTable } from "@/helper/common.helper";
 import BasisModel from "@/model/basis.model";
 import { IMessageResponse } from "@/type/common.type";
@@ -29,6 +25,7 @@ import {
   IGetAllAttributeResponse,
   IUpdateAttributeRequest,
 } from "./attribute.type";
+import { BASIS_TYPES } from "@/constants/basis.constant";
 export default class AttributeService {
   private basisModel: BasisModel;
   private attributeRepository: AttributeRepository;

@@ -1,9 +1,6 @@
-import {
-  ATTRIBUTE_TYPES,
-  BASIS_TYPES,
-  MESSAGES,
-} from "@/constant/common.constant";
+import { ATTRIBUTE_TYPES, MESSAGES } from "@/constant/common.constant";
 import { COMMON_TYPES } from "@/constants";
+import { BASIS_TYPES } from "@/constants/basis.constant";
 import { getFileURI } from "@/helper/image.helper";
 import {
   errorMessageResponse,
@@ -23,8 +20,8 @@ import {
   validateImageType,
 } from "@/service/image.service";
 import MailService from "@/service/mail.service";
+import { BasisConversion } from "@/types/basis.type";
 import { difference } from "lodash";
-import { ISubBasisConversion } from "../basis/basis.type";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -88,8 +85,7 @@ export default class ProductService {
       return errorMessageResponse(MESSAGES.PRODUCT_EXISTED);
     }
 
-    const allConversion: ISubBasisConversion[] =
-      await this.getAllBasisConversion();
+    const allConversion: BasisConversion[] = await this.getAllBasisConversion();
 
     const saveGeneralAttributeGroups = await Promise.all(
       payload.general_attribute_groups.map((generalAttributeGroup) =>
@@ -179,8 +175,7 @@ export default class ProductService {
     if (duplicatedProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
-    const allConversion: ISubBasisConversion[] =
-      await this.getAllBasisConversion();
+    const allConversion: BasisConversion[] = await this.getAllBasisConversion();
 
     const saveGeneralAttributeGroups = await Promise.all(
       payload.general_attribute_groups.map((generalAttributeGroup) =>

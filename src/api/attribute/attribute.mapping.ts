@@ -1,5 +1,4 @@
 import {
-  BASIS_TYPES,
   LONG_TEXT_ID,
   MESSAGES,
   SHORT_TEXT_ID,
@@ -13,6 +12,7 @@ import {
 } from "@/types/attribute.type";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 import { v4 as uuid } from "uuid";
+import { BASIS_TYPES } from "@/constants/basis.constant";
 
 export const getBasisType = (type: number) => {
   switch (type) {

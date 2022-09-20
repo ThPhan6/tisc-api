@@ -1,4 +1,11 @@
-import { BasisConversion } from "@/types/basis.type";
+import {
+  BasisConversion,
+  BasisOptionGroup,
+  BasisOption,
+  BasisPresetGroup,
+  BasisPreset,
+  BasisPresetValue,
+} from "@/types/basis.type";
 import { IPagination, ISummaryTale } from "@/type/common.type";
 export interface IBasisConversionRequest {
   name: string;
@@ -40,100 +47,35 @@ export interface IBasisConversionsResponse {
   statusCode: number;
 }
 
-export interface IBasisOption {
-  id: string;
-  name: string;
-  count: number;
-  subs: {
-    id: string;
-    name: string;
-    count: number;
-    subs: {
-      image: string;
-      value_1: string;
-      value_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
-  }[];
-  created_at: string;
-}
-
 export interface IBasisOptionResponse {
-  data: IBasisOption;
+  data: BasisOptionGroup;
   statusCode: number;
 }
 export interface IBasisOptionsResponse {
   data: {
-    basis_options: IBasisOption;
-    summary: {
-      name: string;
-      value: number;
-    }[];
+    basis_options: BasisOptionGroup;
+    summary: ISummaryTale[];
     pagination: IPagination;
   };
   statusCode: number;
 }
 export interface IBasisOptionRequest {
   name: string;
-  subs: {
-    name: string;
-    is_have_image: boolean;
-    subs: {
-      image: any;
-      value_1: string;
-      value_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
-  }[];
+  subs: BasisOption[];
 }
 export interface IUpdateBasisOptionRequest {
   name: string;
-  subs: {
-    id: string;
-    name: string;
-    is_have_image: boolean;
-    subs: {
-      id: string;
-      image: any;
-      value_1: string;
-      value_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
-  }[];
-}
-export interface IBasisPreset {
-  id: string;
-  name: string;
-  count: number;
-  subs: {
-    id: string;
-    name: string;
-    count: number;
-    subs: {
-      value_1: string;
-      value_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
-  }[];
-
-  created_at: string;
+  subs: BasisOption[];
 }
 
 export interface IBasisPresetResponse {
-  data: IBasisPreset;
+  data: BasisPresetGroup;
   statusCode: number;
 }
 export interface IBasisPresetsResponse {
   data: {
-    basis_presets: IBasisPreset;
-    summary: {
-      name: string;
-      value: number;
-    }[];
+    basis_presets: BasisPresetGroup;
+    summary: ISummaryTale[];
     pagination: IPagination;
   };
   statusCode: number;
@@ -142,25 +84,10 @@ export interface IBasisPresetRequest {
   name: string;
   subs: {
     name: string;
-    subs: {
-      value_1: string;
-      value_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
+    subs: BasisPresetValue[];
   }[];
 }
 export interface IUpdateBasisPresetRequest {
   name: string;
-  subs: {
-    id: string;
-    name: string;
-    subs: {
-      id: string;
-      value_1: string;
-      value_2: string;
-      unit_1: string;
-      unit_2: string;
-    }[];
-  }[];
+  subs: Omit<BasisPreset, "count">[];
 }

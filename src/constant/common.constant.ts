@@ -19,7 +19,6 @@ import {
   BrandStatusValue,
   DesignStatusKey,
   DesignStatusValue,
-  BasisType,
   AttributeType,
   DocumentationType,
   SpecifiedProductStatusValue,
@@ -218,15 +217,6 @@ export const MESSAGES = {
     "Can not remove because product is specifying in a project",
 };
 
-export const BASIS_TYPES: {
-  CONVERSION: BasisType;
-  PRESET: BasisType;
-  OPTION: BasisType;
-} = {
-  CONVERSION: 1,
-  PRESET: 2,
-  OPTION: 3,
-};
 export const ATTRIBUTE_TYPES: {
   GENERAL: AttributeType;
   FEATURE: AttributeType;

@@ -1,5 +1,6 @@
+import { BasisType } from "@/constants/basis.constant";
 import BasisModel from "@/model/basis.models";
-import { IBasisAttributes } from "@/types/basis.type";
+import { IBasisAttributes, ListBasisWithPagination } from "@/types/basis.type";
 import BaseRepository from "./base.repository";
 
 class BasisRepository extends BaseRepository<IBasisAttributes> {
@@ -28,6 +29,18 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       .select()
       .where("type", "==", type)
       .get()) as IBasisAttributes[];
+  }
+
+  public async getListBasisWithPagination(
+    limit: number,
+    offset: number,
+    type: BasisType,
+    groupOrder: "ASC" | "DESC"
+  ) {
+    return (await this.model
+      .where("type", "==", type)
+      .order("name", groupOrder)
+      .paginate(limit, offset)) as ListBasisWithPagination;
   }
 }
 export default BasisRepository;

@@ -1,3 +1,4 @@
+import { BasisConversion } from "@/types/basis.type";
 import { getDistinctArray } from "@/helper/common.helper";
 import { IBasisAttributes } from "@/model/basis.model";
 import { IAttributeAttributes } from "@/types/attribute.type";
@@ -7,7 +8,6 @@ import {
   ProductWithCollectionAndBrand,
 } from "@/types/product.type";
 import { v4 as uuid } from "uuid";
-import { ISubBasisConversion } from "../basis/basis.type";
 import {
   IAttributeGroupWithOptionalId,
   IAttributeGroupWithOptionId,
@@ -120,7 +120,7 @@ export const getTotalCategoryOfProducts = (products: IProductAttributes[]) => {
 
 export const mappingAttribute = (
   attributeGroup: IAttributeGroupWithOptionalId,
-  allBasisConversion: ISubBasisConversion[]
+  allBasisConversion: BasisConversion[]
 ) => {
   const newAttributes = attributeGroup.attributes.map((attribute: any) => {
     if (attribute.type === "Conversions") {

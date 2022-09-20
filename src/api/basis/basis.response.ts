@@ -25,6 +25,7 @@ export default {
         })
       ),
       created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
     }),
     statusCode: Joi.number(),
   }) as any,
@@ -51,6 +52,7 @@ export default {
             })
           ),
           created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
         })
       ),
       summary: Joi.array().items(
@@ -90,6 +92,7 @@ export default {
         ),
       }),
       created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
     },
     statusCode: Joi.number(),
   }) as any,
@@ -116,6 +119,7 @@ export default {
             ),
           }),
           created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
         })
       ),
       summary: Joi.array().items(
@@ -151,6 +155,7 @@ export default {
         }),
       }),
       created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
     },
     statusCode: Joi.number(),
   }) as any,
@@ -173,6 +178,7 @@ export default {
           }),
         }),
         created_at: Joi.string(),
+        updated_at: Joi.string().allow(null),
       }),
       count: {
         group_count: Joi.number(),
