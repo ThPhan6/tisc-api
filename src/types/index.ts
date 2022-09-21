@@ -9,6 +9,7 @@ export * from "./product.type";
 export * from "./location.type";
 export * from "./collection.type";
 export * from "./category.type";
+export * from "./contact.type";
 export * from "./auto_email.type";
 export * from "./attribute.type";
 export * from "./material_code.type";
