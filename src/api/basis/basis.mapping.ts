@@ -1,10 +1,14 @@
+import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
+import { BASIS_OPTION_STORE } from "@/constants/basis.constant";
 import {
   getFileTypeFromBase64,
   isDuplicatedString,
-  sortObjectArray,
   randomName,
+  sortObjectArray,
 } from "@/helper/common.helper";
-import { BasisConversion, IBasisAttributes } from "@/types/basis.type";
+import { deleteFile, isExists } from "@/service/aws.service";
+import { IBasisAttributes } from "@/types/basis.type";
+import { v4 as uuid } from "uuid";
 import {
   IBasisConversionRequest,
   IBasisOptionRequest,
@@ -12,10 +16,6 @@ import {
   IUpdateBasisOptionRequest,
   IUpdateBasisPresetRequest,
 } from "./basis.type";
-import { v4 as uuid } from "uuid";
-import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
-import { BASIS_OPTION_STORE } from "@/constants/basis.constant";
-import { deleteFile, isExists } from "@/service/aws.service";
 
 export const duplicateBasisConversion = (payload: IBasisConversionRequest) => {
   let isCheckedSubsDuplicate = false;
@@ -165,26 +165,6 @@ export const addCountBasis = (subBasis: any) => {
   });
 };
 
-export const sortBasisOption = (
-  basisOptionGroup: IBasisAttributes[],
-  optionOrder: "ASC" | "DESC"
-) => {
-  return basisOptionGroup.map((item: IBasisAttributes) => {
-    const returnedOptions = item.subs.map((option: any) => ({
-      ...option,
-      count: option.subs.length,
-    }));
-    const { type, ...rest } = {
-      ...item,
-      subs: sortObjectArray(returnedOptions, "name", optionOrder),
-    };
-    return {
-      ...rest,
-      count: rest.subs.length,
-    };
-  });
-};
-
 export const getAllValueInOneGroup = (group: any) => {
   let result: any[] = [];
   group.subs.map((option: any) => {
@@ -321,18 +301,18 @@ export const mappingBasisPresetCreate = (payload: IBasisPresetRequest) => {
   });
 };
 
-export const sortBasisPreset = (
-  basisPresetGroup: IBasisAttributes[],
+export const sortBasisOptionOrPreset = (
+  basisGroup: IBasisAttributes[],
   order: "ASC" | "DESC"
 ) => {
-  return basisPresetGroup.map((item: IBasisAttributes) => {
-    const returnedPresets = item.subs.map((preset: any) => ({
+  return basisGroup.map((item: IBasisAttributes) => {
+    const returnedBasis = item.subs.map((preset: any) => ({
       ...preset,
       count: preset.subs.length,
     }));
     const { type, ...rest } = {
       ...item,
-      subs: sortObjectArray(returnedPresets, "name", order),
+      subs: sortObjectArray(returnedBasis, "name", order),
     };
     return {
       ...rest,

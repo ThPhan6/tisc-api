@@ -87,3 +87,9 @@ export interface ISummaryTale {
   name: string;
   value: number;
 }
+
+export interface ValidImage {
+  buffer: Buffer;
+  path: string;
+  mime_type: string;
+}
