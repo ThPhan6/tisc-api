@@ -580,26 +580,12 @@ const COMMON_TYPES_ATTRIBUTES = {
   id: "",
   name: "",
   created_at: "",
-  is_deleted: false,
+  deleted_at: null,
+  updated_at: null,
   type: 0,
   relation_id: "",
 };
 
-const PROJECT_TYPE_NULL_ATTRIBUTES = {
-  id: "",
-  name: "",
-  created_at: "",
-  is_deleted: false,
-  type: 0,
-  relation_id: "",
-};
-const UNIT_TYPE_NULL_ATTRIBUTES = {
-  id: "",
-  name: "",
-  created_at: "",
-  is_deleted: false,
-  design_id: "0",
-};
 module.exports = {
   ROLES,
   PERMISSION_TITLE,
@@ -613,6 +599,7 @@ module.exports = {
   DESIGN_NULL_ATTRIBUTES,
   DESIGN_STATUSES,
   CATEGORY_NULL_ATTRIBUTES,
+  FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
   BASIS_NULL_ATTRIBUTES,
   BASIS_TYPES,
   DEPARTMENT_NULL_ATTRIBUTES,
@@ -623,6 +610,10 @@ module.exports = {
   DOCUMENTATION_TYPES,
   LOGO_PATH,
   PROJECT_TYPE_NULL_ATTRIBUTES,
+  BUILDING_TYPE_NULL_ATTRIBUTES,
+  UNIT_TYPE_NULL_ATTRIBUTES,
+  REQUIREMENT_TYPE_NULL_ATTRIBUTES,
   COMMON_TYPES_ATTRIBUTES,
   COMMON_TYPES,
+  FINISH_SCHEDULE_NULL_ATTRIBUTES,
 };
