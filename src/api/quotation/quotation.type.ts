@@ -1,4 +1,5 @@
-import { IPagination } from "./../../type/common.type";
+import { IQuotationAttributes } from "@/types/quotation.type";
+import { IPagination } from "@/type/common.type";
 export interface IQuotationRequest {
   author: string;
   identity: string;
@@ -6,25 +7,13 @@ export interface IQuotationRequest {
 }
 
 export interface IQuotationResponse {
-  data: {
-    id: string;
-    author: string;
-    identity: string;
-    quotation: string;
-    created_at: string;
-  };
+  data: IQuotationAttributes;
   statusCode: number;
 }
 
 export interface IQuotationsResponse {
   data: {
-    quotations: {
-      id: string;
-      author: string;
-      identity: string;
-      quotation: string;
-      created_at: string;
-    }[];
+    quotations: IQuotationAttributes[];
     pagination: IPagination;
   };
   statusCode: number;

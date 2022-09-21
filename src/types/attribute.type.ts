@@ -1,3 +1,5 @@
+import { IPagination } from "@/type/common.type";
+
 export interface SubAttribute {
   id: string;
   name: string;
@@ -40,11 +42,6 @@ export interface IContentType {
 export type AttributeType = 1 | 2 | 3;
 
 export interface ListAttributeWithPagination {
-  pagination: {
-    page: number;
-    page_size: number;
-    total: number;
-    page_count: number;
-  };
+  pagination: IPagination;
   data: IAttributeAttributes[];
 }
