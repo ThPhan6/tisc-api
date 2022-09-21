@@ -1,3 +1,7 @@
+import {
+  paginationResponseValidate,
+  summaryTableResponseValidate,
+} from "@/helper/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -16,45 +20,36 @@ export const subsAttribute = {
   basis: Joi.any(),
 };
 
+export const AttributeGroupResponse = {
+  id: Joi.string(),
+  name: Joi.string(),
+  count: Joi.number().allow(null),
+  type: Joi.number().allow(null),
+  subs: Joi.array().items(Joi.object(subsAttribute)),
+  created_at: Joi.string(),
+  updated_at: Joi.string().allow(null),
+};
+export const dataResponseAllAttribute = {
+  general: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  feature: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  specification: Joi.array().items(Joi.object(AttributeGroupResponse)),
+};
+
 export default {
   getOne: Joi.object({
-    data: Joi.object({
-      id: Joi.string(),
-      name: Joi.string(),
-      count: Joi.number(),
-      subs: Joi.array().items(Joi.object(subsAttribute)),
-      created_at: Joi.string(),
-      updated_at: Joi.string().allow(null),
-    }),
+    data: Joi.object(AttributeGroupResponse),
     statusCode: Joi.number(),
   }) as any,
+
   getList: Joi.object({
     data: Joi.object({
-      attributes: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-          count: Joi.number(),
-          subs: Joi.array().items(Joi.object(subsAttribute)),
-          created_at: Joi.string(),
-          updated_at: Joi.string().allow(null),
-        })
-      ),
-      summary: Joi.array().items(
-        Joi.object({
-          name: Joi.string(),
-          value: Joi.number(),
-        })
-      ),
-      pagination: Joi.object({
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      }),
+      attributes: Joi.array().items(Joi.object(AttributeGroupResponse)),
+      summary: Joi.array().items(Joi.object(summaryTableResponseValidate)),
+      pagination: Joi.object(paginationResponseValidate),
     }),
     statusCode: Joi.number(),
   }) as any,
+
   getListContentType: Joi.object({
     data: Joi.object({
       texts: Joi.any(),
@@ -64,39 +59,9 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+
   getAllAttribute: Joi.object({
-    data: Joi.object({
-      general: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-          type: Joi.number(),
-          subs: Joi.array().items(Joi.object(subsAttribute)),
-          created_at: Joi.string(),
-          updated_at: Joi.string().allow(null),
-        })
-      ),
-      feature: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-          type: Joi.number(),
-          subs: Joi.array().items(Joi.object(subsAttribute)),
-          created_at: Joi.string(),
-          updated_at: Joi.string().allow(null),
-        })
-      ),
-      specification: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          name: Joi.string(),
-          type: Joi.number(),
-          subs: Joi.array().items(Joi.object(subsAttribute)),
-          created_at: Joi.string(),
-          updated_at: Joi.string().allow(null),
-        })
-      ),
-    }),
+    data: Joi.object(dataResponseAllAttribute),
     statusCode: Joi.number(),
   }) as any,
 };
