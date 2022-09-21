@@ -1,3 +1,4 @@
+import { ICountryStateCity } from "@/types/location.type";
 import { IDistributorAttributes } from "./../../model/distributor.model";
 import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
 import DistributorModel, {
@@ -12,9 +13,7 @@ import {
   MarketDistributorGroupByCountry,
   MarketDistributorGroupByCountryResponse,
 } from "./distributor.type";
-import CountryStateCityService, {
-  ICountryStateCity,
-} from "../../service/country_state_city.service";
+import CountryStateCityService from "../../service/country_state_city.service";
 import BrandModel from "../../model/brand.model";
 import MarketAvailabilityModel from "../../model/market_availability.model";
 import CollectionModel from "../../model/collection.model";
@@ -593,22 +592,21 @@ export default class DistributorService {
       );
       const result: MarketDistributorGroupByCountry[] = [];
       distributors.forEach((distributor) => {
-        const groupIndex = result.findIndex((country) => country.country_name === distributor.country_name);
+        const groupIndex = result.findIndex(
+          (country) => country.country_name === distributor.country_name
+        );
         if (groupIndex === -1) {
           result.push({
             country_name: distributor.country_name,
             count: 1,
             distributors: [distributor],
-          })
+          });
         } else {
           result[groupIndex] = {
             ...result[groupIndex],
             count: result[groupIndex].count + 1,
-            distributors: [
-              ...result[groupIndex].distributors,
-              distributor
-            ],
-          }
+            distributors: [...result[groupIndex].distributors, distributor],
+          };
         }
       });
       return resolve({
@@ -617,5 +615,4 @@ export default class DistributorService {
       });
     });
   };
-
 }

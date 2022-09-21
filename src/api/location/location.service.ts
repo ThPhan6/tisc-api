@@ -182,7 +182,7 @@ export default class LocationService {
           return functional_type.id;
         })
       );
-      const countryStateCity =
+      const countryStateCity: any =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
@@ -333,7 +333,7 @@ export default class LocationService {
           return functional_type.id;
         })
       );
-      const countryStateCity =
+      const countryStateCity: any =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
