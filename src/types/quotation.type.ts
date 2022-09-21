@@ -1,3 +1,5 @@
+import { IPagination } from "@/type/common.type";
+
 export interface IQuotationAttributes {
   id: string;
   author: string;
@@ -8,11 +10,6 @@ export interface IQuotationAttributes {
 }
 
 export interface ListQuotationWithPagination {
-  pagination: {
-    page: number;
-    page_size: number;
-    total: number;
-    page_count: number;
-  };
+  pagination: IPagination;
   data: IQuotationAttributes[];
 }

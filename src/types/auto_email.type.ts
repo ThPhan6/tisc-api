@@ -1,3 +1,5 @@
+import { IPagination } from "@/type/common.type";
+
 export interface IAutoEmailAttributes {
   id: string;
   topic: number;
@@ -9,11 +11,6 @@ export interface IAutoEmailAttributes {
 }
 
 export interface ListAutoEmailWithPaginate {
-  pagination: {
-    page: number;
-    page_size: number;
-    total: number;
-    page_count: number;
-  };
+  pagination: IPagination;
   data: IAutoEmailAttributes[];
 }
