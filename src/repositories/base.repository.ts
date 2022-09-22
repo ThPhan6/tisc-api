@@ -108,5 +108,13 @@ class BaseRepository<DataType> {
     }
     return this.model.where("id", "==", foundItem.id).delete();
   }
+
+  public async findAndUpdate(id: string, attributes: Partial<DataType>) {
+    const foundItem: any = await this.model.where("id", "==", id).first();
+    if (!foundItem) {
+      return false;
+    }
+    return this.model.where("id", "==", foundItem.id).update(attributes);
+  }
 }
 export default BaseRepository;

@@ -1,3 +1,5 @@
+import { IPagination } from "@/type/common.type";
+
 export interface ICollectionAttributes {
   brand_id: string;
   created_at: string;
@@ -7,12 +9,7 @@ export interface ICollectionAttributes {
 }
 
 export interface ListCollectionPaginate {
-  pagination: {
-    page: number;
-    page_size: number;
-    total: number;
-    page_count: number;
-  };
+  pagination: IPagination;
   data: ICollectionAttributes[];
 }
 

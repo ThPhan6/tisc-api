@@ -1,3 +1,5 @@
+import { IPagination } from "@/type/common.type";
+
 export interface CategoryValue {
   id: string;
   name: string;
@@ -16,11 +18,6 @@ export interface ICategoryAttributes {
 }
 
 export interface ListCategoryWithPaginate {
-  pagination: {
-    page: number;
-    page_size: number;
-    total: number;
-    page_count: number;
-  };
+  pagination: IPagination;
   data: ICategoryAttributes[];
 }
