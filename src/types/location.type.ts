@@ -54,3 +54,10 @@ export interface ICityAttributes {
   longitude: number;
   wikiDataId: string;
 }
+
+export interface IRegionCountry {
+  id: string;
+  name: string;
+  phone_code: string;
+  region: string;
+}

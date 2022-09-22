@@ -1,11 +1,12 @@
+import MarketAvailabilityRepository from "@/repositories/market_availability.repository";
 import LocationModel, {
   ILocationAttributes,
   LOCATION_NULL_ATTRIBUTES,
-} from "../../model/location.model";
+} from "@/model/location.model";
 import FunctionalTypeModel, {
   FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-} from "../../model/functional_type.model";
-import UserModel from "../../model/user.model";
+} from "@/model/functional_type.model";
+import UserModel from "@/model/user.model";
 import {
   ICitiesResponse,
   ICityResponse,
@@ -20,15 +21,13 @@ import {
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
-import { IMessageResponse, SystemType } from "../../type/common.type";
-import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
-import CountryStateCityService from "../../service/country_state_city.service";
-import { ICityAttributes } from "../../model/city";
-import { getDistinctArray } from "../../helper/common.helper";
-import ProductModel from "../../model/product.model";
-import CollectionModel from "../../model/collection.model";
-import MarketAvailabilityModel from "../../model/market_availability.model";
-
+import { IMessageResponse, SystemType } from "@/type/common.type";
+import { MESSAGES, SYSTEM_TYPE } from "@/constant/common.constant";
+import CountryStateCityService from "@/service/country_state_city.service";
+import { ICityAttributes } from "@/model/city";
+import { getDistinctArray } from "@/helper/common.helper";
+import ProductModel from "@/model/product.model";
+import CollectionModel from "@/model/collection.model";
 export default class LocationService {
   private locationModel: LocationModel;
   private functionalTypeModel: FunctionalTypeModel;
@@ -36,7 +35,6 @@ export default class LocationService {
   private userModel: UserModel;
   private productModel: ProductModel;
   private collectionModel: CollectionModel;
-  private marketAvailabilityModel: MarketAvailabilityModel;
   constructor() {
     this.locationModel = new LocationModel();
     this.functionalTypeModel = new FunctionalTypeModel();
@@ -44,7 +42,6 @@ export default class LocationService {
     this.userModel = new UserModel();
     this.productModel = new ProductModel();
     this.collectionModel = new CollectionModel();
-    this.marketAvailabilityModel = new MarketAvailabilityModel();
   }
 
   private getRegionName = (key: string) => {
@@ -182,7 +179,7 @@ export default class LocationService {
           return functional_type.id;
         })
       );
-      const countryStateCity =
+      const countryStateCity: any =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
@@ -333,7 +330,7 @@ export default class LocationService {
           return functional_type.id;
         })
       );
-      const countryStateCity =
+      const countryStateCity: any =
         await this.countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
@@ -407,7 +404,6 @@ export default class LocationService {
   public getAllCountry = (): Promise<ICountriesResponse> =>
     new Promise(async (resolve) => {
       const result = await this.countryStateCityService.getAllCountry();
-
       return resolve({
         data: result,
         statusCode: 200,
@@ -659,7 +655,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const market = await this.marketAvailabilityModel.findBy({
+      const market = await MarketAvailabilityRepository.findBy({
         collection_id: product.collection_id,
       });
       if (!market) {

@@ -3,10 +3,8 @@ import {
   PROJECT_STATUS,
   PROJECT_STATUS_OPTIONS,
   SYSTEM_TYPE,
-} from "../../constant/common.constant";
-import ProjectModel, {
-  PROJECT_NULL_ATTRIBUTES,
-} from "../../model/project.model";
+} from "@/constant/common.constant";
+import ProjectModel, { PROJECT_NULL_ATTRIBUTES } from "@/model/project.model";
 import {
   IAllProjectResponse,
   IProjectGroupByStatusResponse,
@@ -17,13 +15,13 @@ import {
 } from "./project.type";
 import ProjectTypeModel, {
   PROJECT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/project_type.model";
-import BuildingTypeModel from "../../model/building_type.model";
-import UserModel from "../../model/user.model";
+} from "@/model/project_type.model";
+import BuildingTypeModel from "@/model/building_type.model";
+import UserModel from "@/model/user.model";
 import { IFunctionalTypesResponse } from "../location/location.type";
-import CountryStateCityService from "../../service/country_state_city.service";
-import { IMessageResponse } from "../../type/common.type";
-import DesignerModel from "../../model/designer.model";
+import CountryStateCityService from "@/service/country_state_city.service";
+import { IMessageResponse } from "@/type/common.type";
+import DesignerModel from "@/model/designer.model";
 
 export default class ProjectService {
   private projectModel: ProjectModel;
@@ -129,7 +127,7 @@ export default class ProjectService {
       }
       let projectType: any = await this.projectTypeModel.findByNameOrId(
         payload.project_type_id,
-        user.relation_id || "",
+        user.relation_id || ""
       );
       if (!projectType) {
         projectType = await this.projectTypeModel.create({
@@ -141,7 +139,7 @@ export default class ProjectService {
       }
       let buildingType: any = await this.buildingTypeModel.findByNameOrId(
         payload.building_type_id,
-        user.relation_id || "",
+        user.relation_id || ""
       );
       if (!buildingType) {
         buildingType = await this.buildingTypeModel.create({
@@ -341,7 +339,7 @@ export default class ProjectService {
       const projects = await this.projectModel.getAllBy(
         {
           design_id: user.relation_id,
-          status: PROJECT_STATUS.LIVE
+          status: PROJECT_STATUS.LIVE,
         },
         ["id", "code", "name"],
         "created_at",
@@ -435,7 +433,7 @@ export default class ProjectService {
         }
       }
       let locationParts = [];
-      let countryStateCity;
+      let countryStateCity: any;
       if (
         payload.country_id !== foundProject.country_id ||
         payload.state_id !== foundProject.state_id ||

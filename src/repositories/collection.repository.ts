@@ -19,8 +19,16 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   public async getListCollectionWithPaginate(
     limit: number,
     offset: number,
-    brandId: string
+    brandId: string,
+    sort?: any
   ) {
+    if (sort) {
+      return (await this.model
+        .select()
+        .where("brand_id", "==", brandId)
+        .order(sort[0], sort[1])
+        .paginate(limit, offset)) as ListCollectionPaginate;
+    }
     return (await this.model
       .select()
       .where("brand_id", "==", brandId)

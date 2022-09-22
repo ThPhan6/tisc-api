@@ -48,7 +48,9 @@ export type RegionKey =
   | "europe"
   | "north america"
   | "oceania"
-  | "south america";
+  | "south america"
+  | "americas"
+  | "northern_america";
 
 export type TargetedForValue = 1 | 2 | 3 | 4 | 5;
 export type TargetedForKey =
