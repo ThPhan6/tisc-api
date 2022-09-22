@@ -129,7 +129,7 @@ export default class ProjectService {
       }
       let projectType: any = await this.projectTypeModel.findByNameOrId(
         payload.project_type_id,
-        user.relation_id || "",
+        user.relation_id || ""
       );
       if (!projectType) {
         projectType = await this.projectTypeModel.create({
@@ -141,7 +141,7 @@ export default class ProjectService {
       }
       let buildingType: any = await this.buildingTypeModel.findByNameOrId(
         payload.building_type_id,
-        user.relation_id || "",
+        user.relation_id || ""
       );
       if (!buildingType) {
         buildingType = await this.buildingTypeModel.create({
@@ -341,7 +341,7 @@ export default class ProjectService {
       const projects = await this.projectModel.getAllBy(
         {
           design_id: user.relation_id,
-          status: PROJECT_STATUS.LIVE
+          status: PROJECT_STATUS.LIVE,
         },
         ["id", "code", "name"],
         "created_at",
@@ -435,7 +435,7 @@ export default class ProjectService {
         }
       }
       let locationParts = [];
-      let countryStateCity;
+      let countryStateCity: any;
       if (
         payload.country_id !== foundProject.country_id ||
         payload.state_id !== foundProject.state_id ||

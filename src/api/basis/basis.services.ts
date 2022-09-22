@@ -28,13 +28,10 @@ import {
   IUpdateBasisPresetRequest,
 } from "./basis.type";
 export default class BasisService {
-  private basisRepository: BasisRepository;
-  constructor() {
-    this.basisRepository = new BasisRepository();
-  }
+  constructor() {}
 
   public async createBasisConversion(payload: IBasisConversionRequest) {
-    const conversionGroup = await this.basisRepository.findBy({
+    const conversionGroup = await BasisRepository.findBy({
       name: payload.name,
       type: BASIS_TYPES.CONVERSION,
     });
@@ -59,7 +56,7 @@ export default class BasisService {
       };
     });
 
-    const createdBasisConversion = await this.basisRepository.create({
+    const createdBasisConversion = await BasisRepository.create({
       name: payload.name,
       type: BASIS_TYPES.CONVERSION,
       subs: conversions,
@@ -81,13 +78,12 @@ export default class BasisService {
     conversion_group_order: "ASC" | "DESC",
     conversion_between_order: "ASC" | "DESC"
   ) {
-    const conversionGroups =
-      await this.basisRepository.getListBasisWithPagination(
-        limit,
-        offset,
-        BASIS_TYPES.CONVERSION,
-        conversion_group_order
-      );
+    const conversionGroups = await BasisRepository.getListBasisWithPagination(
+      limit,
+      offset,
+      BASIS_TYPES.CONVERSION,
+      conversion_group_order
+    );
     const returnedConversionGroups = sortBasisConversion(
       conversionGroups.data,
       conversion_between_order
@@ -114,7 +110,7 @@ export default class BasisService {
   }
 
   public async getBasisConversionById(id: string) {
-    const basisConversionGroup = await this.basisRepository.find(id);
+    const basisConversionGroup = await BasisRepository.find(id);
     if (!basisConversionGroup) {
       return errorMessageResponse(
         BASIS_MESSAGE.BASIS_CONVERSION_NOT_FOUND,
@@ -144,19 +140,18 @@ export default class BasisService {
     id: string,
     payload: IBasisConversionUpdateRequest
   ) {
-    const basisConversionGroup = await this.basisRepository.find(id);
+    const basisConversionGroup = await BasisRepository.find(id);
     if (!basisConversionGroup) {
       return errorMessageResponse(
         BASIS_MESSAGE.BASIS_CONVERSION_NOT_FOUND,
         404
       );
     }
-    const duplicatedConversionGroup =
-      await this.basisRepository.getExistedBasis(
-        id,
-        payload.name,
-        BASIS_TYPES.CONVERSION
-      );
+    const duplicatedConversionGroup = await BasisRepository.getExistedBasis(
+      id,
+      payload.name,
+      BASIS_TYPES.CONVERSION
+    );
     if (duplicatedConversionGroup) {
       return errorMessageResponse(
         BASIS_MESSAGE.BASIS_CONVERSION_GROUP_DUPLICATED
@@ -185,7 +180,7 @@ export default class BasisService {
         id: uuid(),
       };
     });
-    const updatedBasisConversion = await this.basisRepository.update(id, {
+    const updatedBasisConversion = await BasisRepository.update(id, {
       name: payload.name,
       type: BASIS_TYPES.CONVERSION,
       subs: conversions,
@@ -201,7 +196,7 @@ export default class BasisService {
   }
 
   public async deleteBasis(id: string) {
-    const basisConversion = await this.basisRepository.findAndDelete(id);
+    const basisConversion = await BasisRepository.findAndDelete(id);
     if (!basisConversion) {
       return errorMessageResponse(BASIS_MESSAGE.BASIS_NOT_FOUND, 404);
     }
@@ -209,7 +204,7 @@ export default class BasisService {
   }
 
   public async createBasisOption(payload: IBasisOptionRequest) {
-    const basisOptionGroup = await this.basisRepository.findBy({
+    const basisOptionGroup = await BasisRepository.findBy({
       type: BASIS_TYPES.OPTION,
       name: payload.name,
     });
@@ -231,7 +226,7 @@ export default class BasisService {
     }
     await uploadImage(mappingBasisOption.valid_upload_image);
 
-    const createdBasisOption = await this.basisRepository.create({
+    const createdBasisOption = await BasisRepository.create({
       name: payload.name,
       type: BASIS_TYPES.OPTION,
       subs: mappingBasisOption.basis_option,
@@ -252,7 +247,7 @@ export default class BasisService {
   }
 
   public async getBasisOption(id: string) {
-    const basisOptionGroup = await this.basisRepository.find(id);
+    const basisOptionGroup = await BasisRepository.find(id);
     if (!basisOptionGroup) {
       return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_NOT_FOUND, 404);
     }
@@ -274,13 +269,12 @@ export default class BasisService {
     groupOrder: "ASC" | "DESC",
     optionOrder: "ASC" | "DESC"
   ) {
-    const basisOptionGroups =
-      await this.basisRepository.getListBasisWithPagination(
-        limit,
-        offset,
-        BASIS_TYPES.OPTION,
-        groupOrder
-      );
+    const basisOptionGroups = await BasisRepository.getListBasisWithPagination(
+      limit,
+      offset,
+      BASIS_TYPES.OPTION,
+      groupOrder
+    );
     const returnedBasisOption = sortBasisOptionOrPreset(
       basisOptionGroups.data,
       optionOrder
@@ -313,11 +307,11 @@ export default class BasisService {
     id: string,
     payload: IUpdateBasisOptionRequest
   ) {
-    const basisOptionGroup = await this.basisRepository.find(id);
+    const basisOptionGroup = await BasisRepository.find(id);
     if (!basisOptionGroup) {
       return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_NOT_FOUND, 404);
     }
-    const existedGroup = await this.basisRepository.getExistedBasis(
+    const existedGroup = await BasisRepository.getExistedBasis(
       id,
       payload.name,
       BASIS_TYPES.OPTION
@@ -344,7 +338,7 @@ export default class BasisService {
 
     await uploadImage(mappingBasisOption.valid_upload_image);
 
-    const updatedAttribute = await this.basisRepository.update(id, {
+    const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
       subs: mappingBasisOption.basis_option,
     });
@@ -355,7 +349,7 @@ export default class BasisService {
   }
 
   public async createBasisPreset(payload: IBasisPresetRequest) {
-    const basisOptionGroup = await this.basisRepository.findBy({
+    const basisOptionGroup = await BasisRepository.findBy({
       type: BASIS_TYPES.PRESET,
       name: payload.name,
     });
@@ -372,7 +366,7 @@ export default class BasisService {
       return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_DUPLICATED);
     }
     const presets = mappingBasisPresetCreate(payload);
-    const createdBasisPreset = await this.basisRepository.create({
+    const createdBasisPreset = await BasisRepository.create({
       name: payload.name,
       type: BASIS_TYPES.PRESET,
       subs: presets,
@@ -392,7 +386,7 @@ export default class BasisService {
   }
 
   public async getBasisPreset(id: string) {
-    const basisPresetGroup = await this.basisRepository.find(id);
+    const basisPresetGroup = await BasisRepository.find(id);
     if (!basisPresetGroup) {
       return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_NOT_FOUND);
     }
@@ -414,13 +408,12 @@ export default class BasisService {
     groupOrder: "ASC" | "DESC",
     presetOrder: "ASC" | "DESC"
   ) {
-    const basisPresetGroups =
-      await this.basisRepository.getListBasisWithPagination(
-        limit,
-        offset,
-        BASIS_TYPES.PRESET,
-        groupOrder
-      );
+    const basisPresetGroups = await BasisRepository.getListBasisWithPagination(
+      limit,
+      offset,
+      BASIS_TYPES.PRESET,
+      groupOrder
+    );
     const returnedGroups = sortBasisOptionOrPreset(
       basisPresetGroups.data,
       presetOrder
@@ -453,11 +446,11 @@ export default class BasisService {
     id: string,
     payload: IUpdateBasisPresetRequest
   ) {
-    const basisPresetGroup = await this.basisRepository.find(id);
+    const basisPresetGroup = await BasisRepository.find(id);
     if (!basisPresetGroup) {
       return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_NOT_FOUND, 404);
     }
-    const existedGroup = await this.basisRepository.getExistedBasis(
+    const existedGroup = await BasisRepository.getExistedBasis(
       id,
       payload.name,
       BASIS_TYPES.PRESET
@@ -476,7 +469,7 @@ export default class BasisService {
     }
 
     const presets = mappingBasisPresetUpdate(payload, basisPresetGroup);
-    const updatedAttribute = await this.basisRepository.update(id, {
+    const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
       subs: presets,
     });

@@ -43,4 +43,4 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       .paginate(limit, offset)) as ListBasisWithPagination;
   }
 }
-export default BasisRepository;
+export default new BasisRepository();
