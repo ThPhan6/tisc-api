@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import DistributorService from "./distributor.service";
+import DistributorService from "./distributor.services";
 import { IDistributorRequest } from "./distributor.type";
 
 export default class DistributorController {

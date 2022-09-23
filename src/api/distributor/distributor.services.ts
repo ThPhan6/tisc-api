@@ -1,9 +1,17 @@
-import { IDistributorAttributes } from "./../../model/distributor.model";
-import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
+import { MESSAGES } from "@/constant/common.constant";
+import { getDistinctArray } from "@/helper/common.helper";
+import BrandModel from "@/model/brand.model";
+import CollectionModel from "@/model/collection.model";
+import { ICountryAttributes } from "@/model/country";
 import DistributorModel, {
   DISTRIBUTOR_NULL_ATTRIBUTES,
-} from "../../model/distributor.model";
-import { IMessageResponse, IPagination } from "./../../type/common.type";
+  IDistributorAttributes,
+} from "@/model/distributor.model";
+import MarketAvailabilityModel from "@/model/market_availability.model";
+import ProductModel from "@/model/product.model";
+import CountryStateCityService from "@/service/country_state_city.service";
+import { IMessageResponse, IPagination } from "@/type/common.type";
+import { ICountryStateCity } from "@/types";
 import {
   IDistributorGroupByCountryResponse,
   IDistributorRequest,
@@ -12,15 +20,7 @@ import {
   MarketDistributorGroupByCountry,
   MarketDistributorGroupByCountryResponse,
 } from "./distributor.type";
-import CountryStateCityService, {
-  ICountryStateCity,
-} from "../../service/country_state_city.service";
-import BrandModel from "../../model/brand.model";
-import MarketAvailabilityModel from "../../model/market_availability.model";
-import CollectionModel from "../../model/collection.model";
-import ProductModel from "../../model/product.model";
-import { getDistinctArray } from "../../helper/common.helper";
-import { ICountryAttributes } from "../../model/country";
+import DistributorRepository from "@/repositories/distributor.repository";
 export default class DistributorService {
   private distributorModel: DistributorModel;
   private countryStateCityService: CountryStateCityService;
@@ -593,22 +593,21 @@ export default class DistributorService {
       );
       const result: MarketDistributorGroupByCountry[] = [];
       distributors.forEach((distributor) => {
-        const groupIndex = result.findIndex((country) => country.country_name === distributor.country_name);
+        const groupIndex = result.findIndex(
+          (country) => country.country_name === distributor.country_name
+        );
         if (groupIndex === -1) {
           result.push({
             country_name: distributor.country_name,
             count: 1,
             distributors: [distributor],
-          })
+          });
         } else {
           result[groupIndex] = {
             ...result[groupIndex],
             count: result[groupIndex].count + 1,
-            distributors: [
-              ...result[groupIndex].distributors,
-              distributor
-            ],
-          }
+            distributors: [...result[groupIndex].distributors, distributor],
+          };
         }
       });
       return resolve({
@@ -617,5 +616,4 @@ export default class DistributorService {
       });
     });
   };
-
 }
