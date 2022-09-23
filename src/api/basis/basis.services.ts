@@ -12,6 +12,7 @@ import { v4 as uuid } from "uuid";
 import {
   addCountBasis,
   duplicateBasisConversion,
+  mappingBasisConversion,
   mappingBasisOptionCreate,
   mappingBasisOptionUpdate,
   mappingBasisPresetCreate,
@@ -117,16 +118,7 @@ export default class BasisService {
         404
       );
     }
-    const basisConversion = basisConversionGroup.subs.map((item: any) => {
-      return {
-        ...item,
-        conversion_between: item.name_1 + " - " + item.name_2,
-        first_formula:
-          item.formula_1 + " " + item.unit_1 + " = " + 1 + " " + item.unit_2,
-        second_formula:
-          item.formula_2 + " " + item.unit_2 + " = " + 1 + " " + item.unit_1,
-      };
-    });
+    const basisConversion = mappingBasisConversion(basisConversionGroup.subs);
     const { type, ...rest } = basisConversionGroup;
     return successResponse({
       data: {

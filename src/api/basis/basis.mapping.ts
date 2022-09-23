@@ -7,7 +7,7 @@ import {
   sortObjectArray,
 } from "@/helper/common.helper";
 import { deleteFile, isExists } from "@/service/aws.service";
-import { IBasisAttributes } from "@/types/basis.type";
+import { IBasisAttributes, BasisConversion } from "@/types/basis.type";
 import { v4 as uuid } from "uuid";
 import {
   IBasisConversionRequest,
@@ -40,6 +40,25 @@ export const duplicateBasisConversion = (payload: IBasisConversionRequest) => {
   return isCheckedSubsDuplicate;
 };
 
+export const mappingBasisConversion = (
+  subBasisConversion: IBasisAttributes
+) => {
+  return subBasisConversion.subs.map((item: IBasisAttributes) => {
+    const subsBasisConversion = item.subs.map((element: any) => {
+      return {
+        ...element,
+        conversion_between: `${element.name_1} - ${element.name_2}`,
+        first_formula: `${element.formula_1} ${element.unit_1} = 1 ${element.unit_2}`,
+        second_formula: `${element.formula_2} ${element.unit_2} = 1 ${element.unit_1}`,
+      };
+    });
+    return {
+      ...item,
+      subs: subsBasisConversion,
+    };
+  });
+};
+
 export const sortBasisConversion = (
   conversionGroups: IBasisAttributes[],
   conversionOder: "ASC" | "DESC"
@@ -53,34 +72,8 @@ export const sortBasisConversion = (
       return { ...rest, count: item.subs.length };
     }
   );
-  return returnedConversionGroups.map((item: IBasisAttributes) => {
-    const subsBasisConversion = item.subs.map((element: any) => {
-      return {
-        ...element,
-        conversion_between: element.name_1 + " - " + element.name_2,
-        first_formula:
-          element.formula_1 +
-          " " +
-          element.unit_1 +
-          " = " +
-          1 +
-          " " +
-          element.unit_2,
-        second_formula:
-          element.formula_2 +
-          " " +
-          element.unit_2 +
-          " = " +
-          1 +
-          " " +
-          element.unit_1,
-      };
-    });
-    return {
-      ...item,
-      subs: subsBasisConversion,
-    };
-  });
+
+  return mappingBasisConversion(returnedConversionGroups.subs);
 };
 
 export const mappingBasisOptionCreate = async (
