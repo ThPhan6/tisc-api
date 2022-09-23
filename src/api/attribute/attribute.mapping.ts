@@ -3,16 +3,16 @@ import {
   LONG_TEXT_ID,
   MESSAGES,
   SHORT_TEXT_ID,
-} from "@/constant/common.constant";
+} from "@/constants";
 import { isDuplicatedString, sortObjectArray } from "@/helper/common.helper";
-import { IBasisAttributes } from "@/model/basis.model";
 import {
   IAttributeAttributes,
+  IBasisAttributes,
   IContentType,
   SubAttribute,
-} from "@/types/attribute.type";
-import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
+} from "@/types";
 import { v4 as uuid } from "uuid";
+import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
 export const getBasisType = (type: number) => {
   switch (type) {
@@ -295,4 +295,14 @@ export const mappingAttributeData = (
       subs: subsAttribute,
     };
   });
+};
+
+export const getSubBasisAttribute = (basisGroups: IBasisAttributes[]) => {
+  return basisGroups.reduce((pre, cur) => {
+    const temp = cur.subs.map((item: any) => ({
+      ...item,
+      type: getBasisType(cur.type),
+    }));
+    return pre.concat(temp);
+  }, []);
 };

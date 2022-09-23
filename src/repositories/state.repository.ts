@@ -18,4 +18,4 @@ class StateRepository extends BaseRepository<IStateAttributes> {
   }
 }
 
-export default StateRepository;
+export default new StateRepository();

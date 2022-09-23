@@ -1,9 +1,8 @@
 import {
   AttributeResponseData,
   IAttributeAttributes,
-} from "@/types/attribute.type";
-import { IPagination } from "@/type/common.type";
-
+  IPagination,
+} from "@/types";
 export interface IAttributeResponse {
   data: AttributeResponseData;
   statusCode: number;

@@ -30,14 +30,12 @@ export default class ProjectService {
   private projectTypeModel: ProjectTypeModel;
   private buildingTypeModel: BuildingTypeModel;
   private userModel: UserModel;
-  private countryStateCityService: CountryStateCityService;
   private designModel: DesignerModel;
   constructor() {
     this.projectModel = new ProjectModel();
     this.projectTypeModel = new ProjectTypeModel();
     this.buildingTypeModel = new BuildingTypeModel();
     this.userModel = new UserModel();
-    this.countryStateCityService = new CountryStateCityService();
     this.designModel = new DesignerModel();
   }
   public getProjectTypes = (
@@ -153,7 +151,7 @@ export default class ProjectService {
       }
 
       let locationParts = [];
-      const country = await this.countryStateCityService.getCountryDetail(
+      const country = await CountryStateCityService.getCountryDetail(
         payload.country_id
       );
       if (!country.id) {
@@ -162,7 +160,7 @@ export default class ProjectService {
           statusCode: 404,
         });
       }
-      const states = await this.countryStateCityService.getStatesByCountry(
+      const states = await CountryStateCityService.getStatesByCountry(
         payload.country_id
       );
       if (states.length >= 1) {
@@ -179,7 +177,7 @@ export default class ProjectService {
             statusCode: 400,
           });
         }
-        const state = await this.countryStateCityService.getStateDetail(
+        const state = await CountryStateCityService.getStateDetail(
           payload.state_id
         );
         if (!state.id) {
@@ -188,11 +186,10 @@ export default class ProjectService {
             statusCode: 404,
           });
         }
-        const cities =
-          await this.countryStateCityService.getCitiesByStateAndCountry(
-            payload.country_id,
-            payload.state_id
-          );
+        const cities = await CountryStateCityService.getCitiesByStateAndCountry(
+          payload.country_id,
+          payload.state_id
+        );
         if (cities.length >= 1) {
           if (!payload.city_id || payload.city_id === "") {
             return resolve({
@@ -210,7 +207,7 @@ export default class ProjectService {
         }
       }
       const countryStateCity =
-        await this.countryStateCityService.getCountryStateCity(
+        await CountryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
           payload.state_id
@@ -444,7 +441,7 @@ export default class ProjectService {
         if (
           foundProject.country_id.toString() !== payload.country_id.toString()
         ) {
-          const country = await this.countryStateCityService.getCountryDetail(
+          const country = await CountryStateCityService.getCountryDetail(
             payload.country_id
           );
           if (!country.id) {
@@ -455,7 +452,7 @@ export default class ProjectService {
           }
         }
         if (foundProject.state_id.toString() !== payload.state_id.toString()) {
-          const states = await this.countryStateCityService.getStatesByCountry(
+          const states = await CountryStateCityService.getStatesByCountry(
             payload.country_id
           );
           if (states.length >= 1) {
@@ -474,7 +471,7 @@ export default class ProjectService {
                 statusCode: 400,
               });
             }
-            const state = await this.countryStateCityService.getStateDetail(
+            const state = await CountryStateCityService.getStateDetail(
               payload.state_id
             );
             if (!state.id) {
@@ -484,7 +481,7 @@ export default class ProjectService {
               });
             }
             const cities =
-              await this.countryStateCityService.getCitiesByStateAndCountry(
+              await CountryStateCityService.getCitiesByStateAndCountry(
                 payload.country_id,
                 payload.state_id
               );
@@ -507,12 +504,11 @@ export default class ProjectService {
             }
           }
         }
-        countryStateCity =
-          await this.countryStateCityService.getCountryStateCity(
-            payload.country_id,
-            payload.city_id,
-            payload.state_id
-          );
+        countryStateCity = await CountryStateCityService.getCountryStateCity(
+          payload.country_id,
+          payload.city_id,
+          payload.state_id
+        );
         if (!countryStateCity) {
           return resolve({
             message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,

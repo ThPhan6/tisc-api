@@ -1,4 +1,4 @@
-import {CommonTypes} from '@/types';
+import { CommonTypes } from "@/types";
 
 export const COMMON_TYPES: CommonTypes = {
   SHARING_GROUP: 1,
@@ -10,4 +10,10 @@ export const COMMON_TYPES: CommonTypes = {
   PROJECT_TYPE: 7,
   PROJECT_REQUIREMENT: 8,
   PROJECT_UNIT: 9,
+};
+
+export const AUTH_NAMES = {
+  GENERAL: "general",
+  ADMIN: "admin",
+  PERMISSION: "permission",
 };
