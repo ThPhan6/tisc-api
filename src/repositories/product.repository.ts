@@ -359,4 +359,4 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   }
 }
 
-export default ProductRepository;
+export default new ProductRepository();

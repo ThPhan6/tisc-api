@@ -31,25 +31,27 @@ export const basisConversionGroupResponse = {
   updated_at: Joi.string().allow(null),
 };
 
+export const subsBasisOptionOrPresetResponse = {
+  id: Joi.string(),
+  name: Joi.string(),
+  count: Joi.number(),
+  subs: Joi.array().items(
+    Joi.object({
+      id: Joi.string(),
+      image: Joi.any(),
+      value_1: Joi.any(),
+      value_2: Joi.any(),
+      unit_1: Joi.any(),
+      unit_2: Joi.any(),
+    }).allow(null)
+  ),
+};
+
 export const basisOptionGroupResponse = {
   id: Joi.string(),
   name: Joi.string(),
   count: Joi.number(),
-  subs: Joi.array().items({
-    id: Joi.string(),
-    name: Joi.string(),
-    count: Joi.number(),
-    subs: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        image: Joi.any(),
-        value_1: Joi.any(),
-        value_2: Joi.any(),
-        unit_1: Joi.any(),
-        unit_2: Joi.any(),
-      }).allow(null)
-    ),
-  }),
+  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
 };
@@ -58,18 +60,7 @@ export const basisPresetGroupResponse = {
   id: Joi.string(),
   name: Joi.string(),
   count: Joi.number(),
-  subs: Joi.array().items({
-    id: Joi.string(),
-    name: Joi.string(),
-    count: Joi.number(),
-    subs: Joi.array().items({
-      id: Joi.string(),
-      value_1: Joi.any(),
-      value_2: Joi.any(),
-      unit_1: Joi.any(),
-      unit_2: Joi.any(),
-    }),
-  }),
+  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
 };

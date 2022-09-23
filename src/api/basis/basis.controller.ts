@@ -9,17 +9,14 @@ import {
   IBasisConversionUpdateRequest,
 } from "./basis.type";
 export default class BasisController {
-  private service: BasisService;
-  constructor() {
-    this.service = new BasisService();
-  }
+  constructor() {}
 
   public createBasisConversion = async (
     req: Request & { payload: IBasisConversionRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.createBasisConversion(payload);
+    const response = await BasisService.createBasisConversion(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -34,7 +31,7 @@ export default class BasisController {
       conversion_group_order,
       conversion_between_order,
     } = req.query;
-    const response = await this.service.getBasisConversions(
+    const response = await BasisService.getBasisConversions(
       limit,
       offset,
       filter,
@@ -49,7 +46,7 @@ export default class BasisController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const response = await this.service.getBasisConversionById(id);
+    const response = await BasisService.getBasisConversionById(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -59,13 +56,13 @@ export default class BasisController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.updateBasisConversion(id, payload);
+    const response = await BasisService.updateBasisConversion(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public deleteBasis = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.deleteBasis(id);
+    const response = await BasisService.deleteBasis(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -74,12 +71,12 @@ export default class BasisController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.createBasisOption(payload);
+    const response = await BasisService.createBasisOption(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getBasisOption = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getBasisOption(id);
+    const response = await BasisService.getBasisOption(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getListBasisOption = async (
@@ -87,7 +84,7 @@ export default class BasisController {
     toolkit: ResponseToolkit
   ) => {
     const { limit, offset, filter, group_order, option_order } = req.query;
-    const response = await this.service.getListBasisOption(
+    const response = await BasisService.getListBasisOption(
       limit,
       offset,
       filter,
@@ -102,7 +99,7 @@ export default class BasisController {
   ) => {
     const payload = req.payload;
     const { id } = req.params;
-    const response = await this.service.updateBasisOption(id, payload);
+    const response = await BasisService.updateBasisOption(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -111,12 +108,12 @@ export default class BasisController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.createBasisPreset(payload);
+    const response = await BasisService.createBasisPreset(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getBasisPreset = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getBasisPreset(id);
+    const response = await BasisService.getBasisPreset(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getListBasisPreset = async (
@@ -124,7 +121,7 @@ export default class BasisController {
     toolkit: ResponseToolkit
   ) => {
     const { limit, offset, filter, group_order, preset_order } = req.query;
-    const response = await this.service.getListBasisPreset(
+    const response = await BasisService.getListBasisPreset(
       limit,
       offset,
       filter,
@@ -139,7 +136,7 @@ export default class BasisController {
   ) => {
     const payload = req.payload;
     const { id } = req.params;
-    const response = await this.service.updateBasisPreset(id, payload);
+    const response = await BasisService.updateBasisPreset(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

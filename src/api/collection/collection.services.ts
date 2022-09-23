@@ -9,25 +9,21 @@ import MarketAvailabilityService from "../market_availability/market_availabilit
 import { successMessageResponse } from "./../../helper/response.helper";
 import { ICollectionRequest } from "./collection.type";
 
-export default class CollectionService {
+class CollectionService {
   private marketAvailabilityService: MarketAvailabilityService;
-  private collectionRepository: CollectionRepository;
-  private productRepository: ProductRepository;
   constructor() {
     this.marketAvailabilityService = new MarketAvailabilityService();
-    this.collectionRepository = new CollectionRepository();
-    this.productRepository = new ProductRepository();
   }
 
   public async create(payload: ICollectionRequest) {
-    const collection = await this.collectionRepository.findBy({
+    const collection = await CollectionRepository.findBy({
       name: payload.name,
       brand_id: payload.brand_id,
     });
     if (collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_EXISTED);
     }
-    const createdCollection = await this.collectionRepository.create({
+    const createdCollection = await CollectionRepository.create({
       name: payload.name,
       brand_id: payload.brand_id,
     });
@@ -49,7 +45,7 @@ export default class CollectionService {
 
   public async getList(brand_id: string, limit: number, offset: number) {
     const collections =
-      await this.collectionRepository.getListCollectionWithPaginate(
+      await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
         brand_id
@@ -63,11 +59,11 @@ export default class CollectionService {
   }
 
   public async delete(id: string) {
-    const collection = await this.collectionRepository.find(id);
+    const collection = await CollectionRepository.find(id);
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
     }
-    const product = await this.productRepository.findBy({
+    const product = await ProductRepository.findBy({
       collection_id: id,
     });
     if (product) {
@@ -75,10 +71,12 @@ export default class CollectionService {
         MESSAGES.CANNOT_DELETE_COLLECTION_HAS_PRODUCT
       );
     }
-    const deletedCollection = await this.collectionRepository.delete(id);
+    const deletedCollection = await CollectionRepository.delete(id);
     if (!deletedCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
+
+export default new CollectionService();

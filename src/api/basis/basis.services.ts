@@ -1,5 +1,5 @@
-import { MESSAGES } from "@/constant/common.constant";
-import { BASIS_MESSAGE, BASIS_TYPES } from "@/constants/basis.constant";
+import { MESSAGES } from "@/constants";
+import { BASIS_TYPES } from "@/constants/basis.constant";
 import { getSummaryTable, isDuplicatedString } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -28,7 +28,7 @@ import {
   IUpdateBasisOptionRequest,
   IUpdateBasisPresetRequest,
 } from "./basis.type";
-export default class BasisService {
+class BasisService {
   constructor() {}
 
   public async createBasisConversion(payload: IBasisConversionRequest) {
@@ -38,12 +38,12 @@ export default class BasisService {
     });
     if (conversionGroup) {
       return errorMessageResponse(
-        BASIS_MESSAGE.BASIS_CONVERSION_GROUP_DUPLICATED
+        MESSAGES.BASIS.BASIS_CONVERSION_GROUP_DUPLICATED
       );
     }
     const isDuplicateBasisConversion = duplicateBasisConversion(payload);
     if (isDuplicateBasisConversion) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_CONVERSION_DUPLICATED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_CONVERSION_DUPLICATED);
     }
     const conversions = payload.subs.map((item) => {
       return {
@@ -63,7 +63,7 @@ export default class BasisService {
       subs: conversions,
     });
     if (!createdBasisConversion) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
     const { type, ...rest } = createdBasisConversion;
 
@@ -114,7 +114,7 @@ export default class BasisService {
     const basisConversionGroup = await BasisRepository.find(id);
     if (!basisConversionGroup) {
       return errorMessageResponse(
-        BASIS_MESSAGE.BASIS_CONVERSION_NOT_FOUND,
+        MESSAGES.BASIS.BASIS_CONVERSION_NOT_FOUND,
         404
       );
     }
@@ -135,7 +135,7 @@ export default class BasisService {
     const basisConversionGroup = await BasisRepository.find(id);
     if (!basisConversionGroup) {
       return errorMessageResponse(
-        BASIS_MESSAGE.BASIS_CONVERSION_NOT_FOUND,
+        MESSAGES.BASIS.BASIS_CONVERSION_NOT_FOUND,
         404
       );
     }
@@ -146,12 +146,12 @@ export default class BasisService {
     );
     if (duplicatedConversionGroup) {
       return errorMessageResponse(
-        BASIS_MESSAGE.BASIS_CONVERSION_GROUP_DUPLICATED
+        MESSAGES.BASIS.BASIS_CONVERSION_GROUP_DUPLICATED
       );
     }
     const isDuplicateBasisConversion = duplicateBasisConversion(payload);
     if (isDuplicateBasisConversion) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_CONVERSION_DUPLICATED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_CONVERSION_DUPLICATED);
     }
 
     const conversions = payload.subs.map((item) => {
@@ -179,7 +179,7 @@ export default class BasisService {
     });
 
     if (!updatedBasisConversion) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
     const { type, ...rest } = updatedBasisConversion;
     return successResponse({
@@ -190,9 +190,9 @@ export default class BasisService {
   public async deleteBasis(id: string) {
     const basisConversion = await BasisRepository.findAndDelete(id);
     if (!basisConversion) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_NOT_FOUND, 404);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_NOT_FOUND, 404);
     }
-    return successMessageResponse(MESSAGES.SUCCESS);
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
   public async createBasisOption(payload: IBasisOptionRequest) {
@@ -201,7 +201,7 @@ export default class BasisService {
       name: payload.name,
     });
     if (basisOptionGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_EXISTED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_EXISTED);
     }
     if (
       isDuplicatedString(
@@ -210,7 +210,7 @@ export default class BasisService {
         })
       )
     ) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_DUPLICATED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
     }
     const mappingBasisOption = await mappingBasisOptionCreate(payload);
     if (!mappingBasisOption.is_valid_image) {
@@ -224,7 +224,7 @@ export default class BasisService {
       subs: mappingBasisOption.basis_option,
     });
     if (!createdBasisOption) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
 
     const { type, ...rest } = createdBasisOption;
@@ -241,7 +241,7 @@ export default class BasisService {
   public async getBasisOption(id: string) {
     const basisOptionGroup = await BasisRepository.find(id);
     if (!basisOptionGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_NOT_FOUND, 404);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_NOT_FOUND, 404);
     }
     const option = addCountBasis(basisOptionGroup.subs);
     const { type, ...rest } = basisOptionGroup;
@@ -301,7 +301,7 @@ export default class BasisService {
   ) {
     const basisOptionGroup = await BasisRepository.find(id);
     if (!basisOptionGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_NOT_FOUND, 404);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_NOT_FOUND, 404);
     }
     const existedGroup = await BasisRepository.getExistedBasis(
       id,
@@ -309,7 +309,7 @@ export default class BasisService {
       BASIS_TYPES.OPTION
     );
     if (existedGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_EXISTED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_EXISTED);
     }
     if (
       isDuplicatedString(
@@ -318,14 +318,14 @@ export default class BasisService {
         })
       )
     ) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_OPTION_DUPLICATED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
     }
     const mappingBasisOption = await mappingBasisOptionUpdate(
       payload,
       basisOptionGroup
     );
     if (!mappingBasisOption.is_valid_image) {
-      return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+      return errorMessageResponse(MESSAGES.IMAGE.IMAGE_INVALID);
     }
 
     await uploadImage(mappingBasisOption.valid_upload_image);
@@ -335,7 +335,7 @@ export default class BasisService {
       subs: mappingBasisOption.basis_option,
     });
     if (!updatedAttribute) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
     return await this.getBasisOption(id);
   }
@@ -346,7 +346,7 @@ export default class BasisService {
       name: payload.name,
     });
     if (basisOptionGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_EXISTED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);
     }
     if (
       isDuplicatedString(
@@ -355,7 +355,7 @@ export default class BasisService {
         })
       )
     ) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_DUPLICATED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_DUPLICATED);
     }
     const presets = mappingBasisPresetCreate(payload);
     const createdBasisPreset = await BasisRepository.create({
@@ -364,7 +364,7 @@ export default class BasisService {
       subs: presets,
     });
     if (!createdBasisPreset) {
-      return successMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      return successMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
     const { type, ...rest } = createdBasisPreset;
     const returnedPresets = addCountBasis(rest.subs);
@@ -380,7 +380,7 @@ export default class BasisService {
   public async getBasisPreset(id: string) {
     const basisPresetGroup = await BasisRepository.find(id);
     if (!basisPresetGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_NOT_FOUND);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND);
     }
     const { type, ...rest } = basisPresetGroup;
     const preset = addCountBasis(rest.subs);
@@ -440,7 +440,7 @@ export default class BasisService {
   ) {
     const basisPresetGroup = await BasisRepository.find(id);
     if (!basisPresetGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_NOT_FOUND, 404);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND, 404);
     }
     const existedGroup = await BasisRepository.getExistedBasis(
       id,
@@ -448,7 +448,7 @@ export default class BasisService {
       BASIS_TYPES.PRESET
     );
     if (existedGroup) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_EXISTED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);
     }
     if (
       isDuplicatedString(
@@ -457,7 +457,7 @@ export default class BasisService {
         })
       )
     ) {
-      return errorMessageResponse(BASIS_MESSAGE.BASIS_PRESET_DUPLICATED);
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_DUPLICATED);
     }
 
     const presets = mappingBasisPresetUpdate(payload, basisPresetGroup);
@@ -466,8 +466,10 @@ export default class BasisService {
       subs: presets,
     });
     if (!updatedAttribute) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
     return await this.getBasisPreset(id);
   }
 }
+
+export default new BasisService();

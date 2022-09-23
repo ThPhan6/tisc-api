@@ -1,5 +1,4 @@
-import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
-import { BASIS_OPTION_STORE } from "@/constants/basis.constant";
+import { VALID_IMAGE_TYPES, BASIS_OPTION_STORE } from "@/constants";
 import {
   getFileTypeFromBase64,
   isDuplicatedString,
@@ -7,7 +6,7 @@ import {
   sortObjectArray,
 } from "@/helper/common.helper";
 import { deleteFile, isExists } from "@/service/aws.service";
-import { IBasisAttributes, BasisConversion } from "@/types/basis.type";
+import { IBasisAttributes } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
   IBasisConversionRequest,
@@ -26,10 +25,10 @@ export const duplicateBasisConversion = (payload: IBasisConversionRequest) => {
   });
 
   const conversionBetweenNames = payload.subs.map((item: any) => {
-    return item.name_1 + "-" + item.name_2;
+    return `${item.name_1} - ${item.name_2}`;
   });
   const conversionUnitNames = payload.subs.map((item: any) => {
-    return item.unit_1 + "-" + item.unit_2;
+    return `${item.unit_1} - ${item.unit_2}`;
   });
   const isCheckedConversionBetween = isDuplicatedString(conversionBetweenNames);
   const isCheckedConversionUnit = isDuplicatedString(conversionUnitNames);
@@ -40,21 +39,13 @@ export const duplicateBasisConversion = (payload: IBasisConversionRequest) => {
   return isCheckedSubsDuplicate;
 };
 
-export const mappingBasisConversion = (
-  subBasisConversion: IBasisAttributes
-) => {
-  return subBasisConversion.subs.map((item: IBasisAttributes) => {
-    const subsBasisConversion = item.subs.map((element: any) => {
-      return {
-        ...element,
-        conversion_between: `${element.name_1} - ${element.name_2}`,
-        first_formula: `${element.formula_1} ${element.unit_1} = 1 ${element.unit_2}`,
-        second_formula: `${element.formula_2} ${element.unit_2} = 1 ${element.unit_1}`,
-      };
-    });
+export const mappingBasisConversion = (basisConversions: any) => {
+  return basisConversions.map((item: any) => {
     return {
       ...item,
-      subs: subsBasisConversion,
+      conversion_between: `${item.name_1} - ${item.name_2}`,
+      first_formula: `${item.formula_1} ${item.unit_1} = 1 ${item.unit_2}`,
+      second_formula: `${item.formula_2} ${item.unit_2} = 1 ${item.unit_1}`,
     };
   });
 };
@@ -69,11 +60,18 @@ export const sortBasisConversion = (
         ...item,
         subs: sortObjectArray(item.subs, "name_1", conversionOder),
       };
-      return { ...rest, count: item.subs.length };
+      return {
+        ...rest,
+        count: item.subs.length,
+      };
     }
   );
-
-  return mappingBasisConversion(returnedConversionGroups.subs);
+  return returnedConversionGroups.map((basisConversion: any) => {
+    return {
+      ...basisConversion,
+      subs: mappingBasisConversion(basisConversion.subs),
+    };
+  });
 };
 
 export const mappingBasisOptionCreate = async (

@@ -1,14 +1,17 @@
-import { ATTRIBUTE_TYPES, MESSAGES } from "@/constant/common.constant";
-import { COMMON_TYPES } from "@/constants";
-import { BASIS_TYPES } from "@/constants/basis.constant";
+import {
+  ATTRIBUTE_TYPES,
+  BASIS_TYPES,
+  COMMON_TYPES,
+  MESSAGES,
+} from "@/constants";
 import { getFileURI } from "@/helper/image.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import BasisModel from "@/model/basis.model";
 import AttributeRepository from "@/repositories/attribute.repository";
+import BasisRepository from "@/repositories/basis.repository";
 import BrandRepository from "@/repositories/brand.repository";
 import CommonTypeRepository from "@/repositories/common_type.repository";
 import ProductRepository from "@/repositories/product.repository";
@@ -41,34 +44,26 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-
-export default class ProductService {
+class ProductService {
   private countryStateCityService: CountryStateCityService;
-  private basisModel: BasisModel;
   private mailService: MailService;
 
-  private productRepository: ProductRepository;
   private userRepository: UserRepository;
   private brandRepository: BrandRepository;
   private commonTypeRepository: CommonTypeRepository;
   private productFavouriteRepository: ProductFavouriteRepository;
-  private attributeRepository: AttributeRepository;
 
   constructor() {
     this.countryStateCityService = new CountryStateCityService();
-    this.basisModel = new BasisModel();
     this.mailService = new MailService();
-
-    this.productRepository = new ProductRepository();
     this.userRepository = new UserRepository();
     this.brandRepository = new BrandRepository();
     this.commonTypeRepository = new CommonTypeRepository();
     this.productFavouriteRepository = new ProductFavouriteRepository();
-    this.attributeRepository = new AttributeRepository();
   }
 
   private getAllBasisConversion = async () => {
-    const allBasisConversion = await this.basisModel.getAllBy({
+    const allBasisConversion = await BasisRepository.getAllBy({
       type: BASIS_TYPES.CONVERSION,
     });
     return allBasisConversion.reduce((pre, cur) => {
@@ -77,7 +72,7 @@ export default class ProductService {
   };
 
   public async create(user_id: string, payload: IProductRequest) {
-    const product = await this.productRepository.findBy({
+    const product = await ProductRepository.findBy({
       name: payload.name,
       brand_id: payload.brand_id,
     });
@@ -120,7 +115,7 @@ export default class ProductService {
       brand.id
     );
 
-    const createdProduct = await this.productRepository.create({
+    const createdProduct = await ProductRepository.create({
       brand_id: payload.brand_id,
       collection_id: payload.collection_id,
       category_ids: payload.category_ids,
@@ -141,11 +136,11 @@ export default class ProductService {
   }
 
   public async duplicate(id: string, user_id: string) {
-    const product = await this.productRepository.find(id);
+    const product = await ProductRepository.find(id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const created = await this.productRepository.create({
+    const created = await ProductRepository.create({
       ...product,
       name: product.name + " - copy",
     });
@@ -160,14 +155,11 @@ export default class ProductService {
     payload: IUpdateProductRequest,
     userId: string
   ) {
-    const product = await this.productRepository.findWithRelationData(
-      id,
-      userId
-    );
+    const product = await ProductRepository.findWithRelationData(id, userId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const duplicatedProduct = await this.productRepository.getDuplicatedProduct(
+    const duplicatedProduct = await ProductRepository.getDuplicatedProduct(
       id,
       payload.name,
       product.brand_id
@@ -205,7 +197,7 @@ export default class ProductService {
       product.brand_id
     );
 
-    const updatedProduct = await this.productRepository.update(id, {
+    const updatedProduct = await ProductRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
       feature_attribute_groups: saveFeatureAttributeGroups,
@@ -219,10 +211,7 @@ export default class ProductService {
   }
 
   public async get(id: string, userId: string) {
-    const product = await this.productRepository.findWithRelationData(
-      id,
-      userId
-    );
+    const product = await ProductRepository.findWithRelationData(id, userId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -240,33 +229,34 @@ export default class ProductService {
       })
     );
 
-    const allFeatureAttributeGroup = await this.attributeRepository.getByType(
+    const allFeatureAttributeGroup = await AttributeRepository.getByType(
       ATTRIBUTE_TYPES.FEATURE
     );
     const allFeatureAttribute: any[] = mappingAttributeOrBasis(
       allFeatureAttributeGroup
     );
 
-    const allGeneralAttributeGroup = await this.attributeRepository.getByType(
+    const allGeneralAttributeGroup = await AttributeRepository.getByType(
       ATTRIBUTE_TYPES.GENERAL
     );
     const allGeneralAttribute: any[] = mappingAttributeOrBasis(
       allGeneralAttributeGroup
     );
-    const allSpecificationAttributeGroup =
-      await this.attributeRepository.getByType(ATTRIBUTE_TYPES.SPECIFICATION);
+    const allSpecificationAttributeGroup = await AttributeRepository.getByType(
+      ATTRIBUTE_TYPES.SPECIFICATION
+    );
     const allSpecificationAttribute: any[] = mappingAttributeOrBasis(
       allSpecificationAttributeGroup
     );
 
-    const allBasisOptionGroup = await this.basisModel.getAllBy({
+    const allBasisOptionGroup = await BasisRepository.getAllBy({
       type: BASIS_TYPES.OPTION,
     });
 
     const allBasisOptionValue: any[] =
       mappingAttributeOrBasis(allBasisOptionGroup);
 
-    const allBasisConversionGroup = await this.basisModel.getAllBy({
+    const allBasisConversionGroup = await BasisRepository.getAllBy({
       type: BASIS_TYPES.CONVERSION,
     });
     const allBasisConversion = mappingAttributeOrBasis(allBasisConversionGroup);
@@ -311,10 +301,7 @@ export default class ProductService {
   }
 
   public getBrandProductSummary = async (brandId: string) => {
-    const products = await this.productRepository.getProductBy(
-      undefined,
-      brandId
-    );
+    const products = await ProductRepository.getProductBy(undefined, brandId);
     const collections = getUniqueCollections(products);
     const categories = getUniqueProductCategories(products);
     const variants = getTotalVariantOfProducts(products);
@@ -338,7 +325,7 @@ export default class ProductService {
     sortName?: string,
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
-    const products = await this.productRepository.getProductBy(
+    const products = await ProductRepository.getProductBy(
       userId,
       brandId,
       categoryId,
@@ -366,7 +353,7 @@ export default class ProductService {
     sortName?: string,
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
-    const products = await this.productRepository.getProductBy(
+    const products = await ProductRepository.getProductBy(
       userId,
       brandId,
       categoryId,
@@ -398,7 +385,7 @@ export default class ProductService {
   };
 
   public delete = async (productId: string) => {
-    const product = await this.productRepository.find(productId);
+    const product = await ProductRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -416,7 +403,7 @@ export default class ProductService {
     //   return errorMessageResponse(MESSAGES.PRODUCT_WAS_SPECIFIED);
     // }
 
-    const isDeleted = await this.productRepository.delete(product.id);
+    const isDeleted = await ProductRepository.delete(product.id);
     if (isDeleted) {
       return successMessageResponse(MESSAGES.SUCCESS);
     }
@@ -424,13 +411,11 @@ export default class ProductService {
   };
 
   public getListRestCollectionProduct = async (productId: string) => {
-    const product = await this.productRepository.findWithRelationData(
-      productId
-    );
+    const product = await ProductRepository.findWithRelationData(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const products = await this.productRepository.getRelatedCollection(
+    const products = await ProductRepository.getRelatedCollection(
       product.id,
       product.collection_id
     );
@@ -462,7 +447,7 @@ export default class ProductService {
 
   /* Getting the product options for a product. */
   public getProductOptions = async (productId: string, attributeId: string) => {
-    const product = await this.productRepository.find(productId);
+    const product = await ProductRepository.find(productId);
     if (!product) {
       return successResponse({ data: [] });
     }
@@ -475,7 +460,7 @@ export default class ProductService {
       return successResponse({ data: [] });
     }
     //
-    const optionGroups = await this.basisModel.getAllBy({
+    const optionGroups = await BasisRepository.getAllBy({
       type: BASIS_TYPES.OPTION,
     });
 
@@ -506,7 +491,7 @@ export default class ProductService {
   };
 
   public getFavoriteProductSummary = async (userId: string) => {
-    const products = await this.productRepository.getFavouriteProducts(userId);
+    const products = await ProductRepository.getFavouriteProducts(userId);
     const categories = getUniqueProductCategories(products);
     const brands = getUniqueBrands(products);
     return successResponse({
@@ -526,7 +511,7 @@ export default class ProductService {
     brandId?: string,
     categoryId?: string
   ) => {
-    const products = await this.productRepository.getFavouriteProducts(
+    const products = await ProductRepository.getFavouriteProducts(
       userId,
       brandId,
       order
@@ -550,7 +535,7 @@ export default class ProductService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
     }
-    const product = await this.productRepository.findWithRelationData(
+    const product = await ProductRepository.findWithRelationData(
       payload.product_id
     );
     if (!product) {
@@ -612,3 +597,5 @@ export default class ProductService {
     });
   };
 }
+
+export default new ProductService();

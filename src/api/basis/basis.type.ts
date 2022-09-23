@@ -6,7 +6,7 @@ import {
   BasisPreset,
   BasisPresetValue,
 } from "@/types/basis.type";
-import { IPagination, ISummaryTale } from "@/type/common.type";
+import { IPagination, ISummaryTale } from "@/types";
 export interface IBasisConversionRequest {
   name: string;
   subs: Omit<BasisConversion, "id">[];
