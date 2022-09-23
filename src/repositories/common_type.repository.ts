@@ -28,7 +28,7 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
         relation_id: relationId
       });
     }
-    return commonType;
+    return commonType as CommonTypeAttributes;
   }
 
   public async findByNameOrId(
@@ -56,6 +56,13 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       .orWhere('relation_id', '==', null)
       .get() as Pick<CommonTypeAttributes, 'id' | 'name'>[];
   }
+
+  public getByListIds = async (ids: string[]) => {
+    return await this.model
+      .select('id', 'name')
+      .where('id', 'in', ids)
+      .get() as Pick<CommonTypeAttributes, 'id' | 'name'>[];
+  }
 }
 
-export default CommonTypeRepository;
+export default new CommonTypeRepository();
