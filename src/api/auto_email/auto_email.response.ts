@@ -1,4 +1,4 @@
-import { paginationResponseValidate } from "@/helper/response.helper";
+import { paginationResponse } from "@/helper/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -26,7 +26,7 @@ export default {
   getList: Joi.object({
     data: Joi.object({
       auto_emails: Joi.array().items(Joi.object(autoEmailResponse)),
-      pagination: Joi.object(paginationResponseValidate),
+      pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
   }),

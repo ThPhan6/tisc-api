@@ -49,7 +49,6 @@ export default class BrandService {
   private mailService: MailService;
   private userModel: UserModel;
   private locationModel: LocationModel;
-  private productService: ProductService;
   private permissionService: PermissionService;
   private distributorModel: DistributorModel;
   private collectionModel: CollectionModel;
@@ -63,7 +62,6 @@ export default class BrandService {
     this.mailService = new MailService();
     this.userModel = new UserModel();
     this.locationModel = new LocationModel();
-    this.productService = new ProductService();
     this.permissionService = new PermissionService();
     this.distributorModel = new DistributorModel();
     this.collectionModel = new CollectionModel();
@@ -394,8 +392,9 @@ export default class BrandService {
               brand.id,
               headquarter?.id || ""
             );
-          const brandSummary: any =
-            await this.productService.getBrandProductSummary(brand.id);
+          const brandSummary: any = await ProductService.getBrandProductSummary(
+            brand.id
+          );
 
           const teamProfiles = await this.userModel.getMany(
             brand.team_profile_ids,

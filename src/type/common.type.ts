@@ -72,7 +72,6 @@ export type BrandStatusKey = "Active" | "Pending" | "Inactive";
 export type DesignStatusValue = 1 | 2;
 export type DesignStatusKey = "Active" | "Inactive";
 
-export type BasisType = 1 | 2 | 3;
 export type AttributeType = 1 | 2 | 3;
 export type DocumentationType = 1 | 2 | 3 | 4;
 
@@ -83,3 +82,14 @@ export type SpecifiedProductStatusKey =
   | "Cancelled"
   | "Re-specified"
   | "Specified";
+
+export interface ISummaryTale {
+  name: string;
+  value: number;
+}
+
+export interface ValidImage {
+  buffer: Buffer;
+  path: string;
+  mime_type: string;
+}

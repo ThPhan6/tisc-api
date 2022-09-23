@@ -8,10 +8,8 @@ import {
 
 export default class FavouriteController {
   private favoriteService: FavouriteService;
-  private productService: ProductService;
   constructor() {
     this.favoriteService = new FavouriteService();
-    this.productService = new ProductService();
   }
 
   public skip = async (req: Request, toolkit: ResponseToolkit) => {
@@ -40,9 +38,7 @@ export default class FavouriteController {
     toolkit: ResponseToolkit
   ) => {
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.productService.getFavoriteProductSummary(
-      userId
-    );
+    const response = await ProductService.getFavoriteProductSummary(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -62,7 +58,7 @@ export default class FavouriteController {
       filterCategoryId = undefined;
     }
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.productService.getFavouriteList(
+    const response = await ProductService.getFavouriteList(
       userId,
       order,
       filterBrandId,
