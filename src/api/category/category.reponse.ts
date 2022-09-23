@@ -1,5 +1,7 @@
-import { paginationResponseValidate } from "./../../helper/response.helper";
-import { summaryTableResponseValidate } from "@/helper/response.helper";
+import {
+  summaryTableResponse,
+  paginationResponse,
+} from "@/helper/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -35,8 +37,8 @@ export default {
   categories: Joi.object({
     data: Joi.object({
       categories: Joi.array().items(Joi.object(categoryResponseValidate)),
-      summary: Joi.array().items(Joi.object(summaryTableResponseValidate)),
-      pagination: Joi.object(paginationResponseValidate),
+      summary: Joi.array().items(Joi.object(summaryTableResponse)),
+      pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
   }) as any,

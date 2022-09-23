@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import QuotationService from "./quotation.service";
+import QuotationService from "./quotation.services";
 import { IQuotationRequest } from "./quotation.type";
 
 export default class QuotationController {

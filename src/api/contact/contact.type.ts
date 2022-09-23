@@ -3,7 +3,8 @@ export interface IContact {
   name: string;
   email: string;
   inquiry: string | null;
-  created_at: any;
+  created_at: string;
+  updated_at: string | null;
 }
 
 export interface IContactRequest {

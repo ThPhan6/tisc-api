@@ -18,21 +18,17 @@ class BaseRepository<DataType> {
    * @return DataType[]
    */
   public async getAll(
-      orderBy?: Extract<keyof(DataType), string>,
-      sequence?: 'ASC' | 'DESC'
+    orderBy?: Extract<keyof DataType, string>,
+    sequence?: "ASC" | "DESC"
   ) {
-    if (
-        !isUndefined(orderBy) &&
-        !isUndefined(sequence)
-      ) {
-        return await this.model
-          .select()
-          .order(orderBy, sequence)
-          .get() as DataType[];
+    if (!isUndefined(orderBy) && !isUndefined(sequence)) {
+      return (await this.model
+        .select()
+        .order(orderBy, sequence)
+        .get()) as DataType[];
     }
     return (await this.model.all()) as DataType[];
   }
-
 
   /**
    * Get one
@@ -107,6 +103,29 @@ class BaseRepository<DataType> {
       return false;
     }
     return this.model.where("id", "==", foundItem.id).delete();
+  }
+
+  public async findAndUpdate(id: string, attributes: Partial<DataType>) {
+    const foundItem: any = await this.model.where("id", "==", id).first();
+    if (!foundItem) {
+      return false;
+    }
+    return this.model.where("id", "==", foundItem.id).update(attributes);
+  }
+
+  /**
+   * Get all by object params
+   * @param params Partial<DataType>
+   * @return DataType | undefined
+   */
+  public async getAllBy(params: {
+    [key: string]: string | number | null | boolean;
+  }) {
+    let query = this.model.getQuery();
+    forEach(params, (value, column) => {
+      query = query.where(column, "==", value);
+    });
+    return (await this.model.all()) as DataType[];
   }
 }
 export default BaseRepository;

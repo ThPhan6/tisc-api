@@ -48,4 +48,4 @@ class AttributeRepository extends BaseRepository<IAttributeAttributes> {
   }
 }
 
-export default AttributeRepository;
+export default new AttributeRepository();
