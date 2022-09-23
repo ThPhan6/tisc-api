@@ -1,7 +1,6 @@
 import UserModel from "@/model/user.models";
 import BaseRepository from "./base.repository";
-import { SYSTEM_TYPE } from "@/constant/common.constant";
-import { USER_STATUSES, ROLE_TYPE } from "@/constants";
+import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
 import { UserAttributes } from "@/types";
 import { head } from "lodash";
 

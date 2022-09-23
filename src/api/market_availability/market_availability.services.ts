@@ -1,5 +1,4 @@
-import { MESSAGES } from "@/constant/common.constant";
-import { MESSAGE_MARKET } from "@/constants/market_availability.constant";
+import { MESSAGES } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -26,12 +25,10 @@ class MarketAvailabilityService {
   private countryStateCityService: CountryStateCityService;
   private distributorModel: DistributorModel;
   private brandModel: BrandModel;
-  private collectionRepository: CollectionRepository;
   constructor() {
     this.countryStateCityService = new CountryStateCityService();
     this.distributorModel = new DistributorModel();
     this.brandModel = new BrandModel();
-    this.collectionRepository = new CollectionRepository();
   }
 
   public async getRegionCountries(ids: string[]) {
@@ -70,9 +67,7 @@ class MarketAvailabilityService {
   }
 
   public async create(payload: IMarketAvailabilityRequest) {
-    const collection = await this.collectionRepository.find(
-      payload.collection_id
-    );
+    const collection = await CollectionRepository.find(payload.collection_id);
 
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
@@ -84,7 +79,9 @@ class MarketAvailabilityService {
       );
 
     if (market) {
-      return errorMessageResponse(MESSAGE_MARKET.MARKET_AVAILABILITY_EXISTED);
+      return errorMessageResponse(
+        MESSAGES.MARKET_AVAILABILITY.MARKET_AVAILABILITY_EXISTED
+      );
     }
 
     const createdMarket = await MarketAvailabilityRepository.create({
@@ -106,7 +103,7 @@ class MarketAvailabilityService {
     collectionId: string,
     payload: IUpdateMarketAvailabilityRequest
   ) {
-    const collection = await this.collectionRepository.find(collectionId);
+    const collection = await CollectionRepository.find(collectionId);
 
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
@@ -119,7 +116,7 @@ class MarketAvailabilityService {
 
     if (!market) {
       return errorMessageResponse(
-        MESSAGE_MARKET.MARKET_AVAILABILITY_NOT_FOUND,
+        MESSAGES.MARKET_AVAILABILITY.MARKET_AVAILABILITY_NOT_FOUND,
         404
       );
     }
@@ -147,7 +144,7 @@ class MarketAvailabilityService {
   }
 
   public async get(collectionId: string) {
-    const collection = await this.collectionRepository.find(collectionId);
+    const collection = await CollectionRepository.find(collectionId);
 
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
@@ -160,7 +157,7 @@ class MarketAvailabilityService {
 
     if (!market) {
       return errorMessageResponse(
-        MESSAGE_MARKET.MARKET_AVAILABILITY_NOT_FOUND,
+        MESSAGES.MARKET_AVAILABILITY.MARKET_AVAILABILITY_NOT_FOUND,
         404
       );
     }
@@ -187,7 +184,7 @@ class MarketAvailabilityService {
     sort: any
   ) {
     const collections =
-      await this.collectionRepository.getListCollectionWithPaginate(
+      await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
         brandId,
@@ -215,7 +212,7 @@ class MarketAvailabilityService {
   }
 
   public async getMarketAvailabilityGroupByCollection(brandId: string) {
-    const collections = await this.collectionRepository.getByBrand(brandId);
+    const collections = await CollectionRepository.getByBrand(brandId);
 
     const marketAvailabilities = await Promise.all(
       collections.map(async (collection) => {

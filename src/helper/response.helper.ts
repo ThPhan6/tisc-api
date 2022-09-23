@@ -48,14 +48,14 @@ export const successResponse = (res: { [key: string]: any } = {}) => {
   return { ...res, statusCode: 200 };
 };
 
-export const paginationResponseValidate = {
+export const paginationResponse = {
   page: Joi.number(),
   page_size: Joi.number(),
   total: Joi.number(),
   page_count: Joi.number(),
 };
 
-export const summaryTableResponseValidate = {
+export const summaryTableResponse = {
   name: Joi.string(),
   value: Joi.number(),
 };

@@ -12,9 +12,9 @@ import {
 } from "../../helper/common.helper";
 import BasisModel, { BASIS_NULL_ATTRIBUTES } from "../../model/basis.model";
 import { deleteFile, isExists, upload } from "../../service/aws.service";
-import { BASIS_TYPES } from "./../../constant/common.constant";
-import { IBasisAttributes } from "./../../model/basis.model";
-import { IMessageResponse, IPagination } from "./../../type/common.type";
+import { BASIS_TYPES } from "../../constant/common.constant";
+import { IBasisAttributes } from "../../model/basis.model";
+import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
   IBasisConversionRequest,
   IBasisConversionResponse,

@@ -43,4 +43,4 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   }
 }
 
-export default CollectionRepository;
+export default new CollectionRepository();

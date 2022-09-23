@@ -1,4 +1,4 @@
-import { REGION_KEY } from "@/constant/common.constant";
+import { REGION_KEY } from "@/constants";
 import {
   ICollectionAttributes,
   ICountryAttributes,

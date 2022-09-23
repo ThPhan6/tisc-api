@@ -1,4 +1,60 @@
 export const MESSAGES = {
+  GENERAL: {
+    AVAILABLE: "Available.",
+    SUCCESS: "Success.",
+    SOMETHING_WRONG: "Something wrong !",
+    SOMETHING_WRONG_CREATE: "Something wrong when create !",
+    SOMETHING_WRONG_UPDATE: "Something wrong when update !",
+    SOMETHING_WRONG_DELETE: "Something wrong delete !",
+  },
+
+  FAVOURITE: {
+    ALREADY_SKIPPED: "You skipped already",
+    ALREADY_RETRIEVED: "You retrieved already",
+    FAILED_TO_SKIP:
+      "Something wrong when skip this action, please try again later!",
+    FAILED_TO_RETRIEVE:
+      "Something wrong when retrieve your favourite, please try again later!",
+  },
+
+  BASIS: {
+    BASIS_CONVERSION_GROUP_DUPLICATED: "Basis conversion group duplicated.",
+    BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
+    BASIS_CONVERSION_DUPLICATED: "Conversion duplicated.",
+    BASIS_OPTION_EXISTED: "Basis option existed.",
+    BASIS_OPTION_DUPLICATED: "Basis option names duplicated.",
+    BASIS_OPTION_NOT_FOUND: "Basis option not found",
+    BASIS_PRESET_DUPLICATED: "Basis preset names duplicated.",
+    BASIS_PRESET_EXISTED: "Basis preset existed.",
+    BASIS_PRESET_NOT_FOUND: "Basis preset not found",
+    BASIS_NOT_FOUND: "Basis not found",
+    BASIS_CONVERSION_EXISTED: "Basis conversion existed",
+  },
+
+  ATTRIBUTE: {
+    ATTRIBUTE_EXISTED: "Attribute existed.",
+    ATTRIBUTE_NOT_FOUND: "Attribute not found",
+    GROUP_ATTRIBUTE_DUPLICATED: "Attribute groups duplicated.",
+  },
+
+  IMAGE: {
+    IMAGE_INVALID: "Image invalid",
+  },
+
+  CATEGORY: {
+    CATEGORY_NOT_FOUND: "Category not found",
+  },
+
+  PRODUCT: {
+    PRODUCT_EXISTED: "Product existed.",
+  },
+
+  MARKET_AVAILABILITY: {
+    MARKET_AVAILABILITY_EXISTED: "Market availability existed",
+    MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
+  },
+
+  //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
   SOMETHING_WRONG: "Something wrong !",
@@ -102,14 +158,7 @@ export const MESSAGES = {
   DESIGN_NOT_FOUND: "Design not found",
   CONSIDER_PRODUCT_NOT_FOUND: "Consider product not found",
   PRODUCT_WAS_SPECIFIED_ALREADY: "Can not remove because product was specified",
-  FAVOURITE: {
-    ALREADY_SKIPPED: "You skipped already",
-    ALREADY_RETRIEVED: "You retrieved already",
-    FAILED_TO_SKIP:
-      "Something wrong when skip this action, please try again later!",
-    FAILED_TO_RETRIEVE:
-      "Something wrong when retrieve your favourite, please try again later!",
-  },
+
   SPECIFIED_PRODUCT_NOT_FOUND: "Specified product not found",
   UNIT_TYPE_NOT_FOUND: "Unit type not found",
   EMAIL_SENT: "Email sent!",

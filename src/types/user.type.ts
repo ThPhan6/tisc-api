@@ -25,3 +25,10 @@ export interface UserAttributes {
   relation_id: string | null;
   retrieve_favourite: boolean;
 }
+
+export type SystemType = 1 | 2 | 3;
+export interface ISystemType {
+  TISC: SystemType;
+  BRAND: SystemType;
+  DESIGN: SystemType;
+}

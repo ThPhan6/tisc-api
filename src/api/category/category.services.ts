@@ -6,7 +6,6 @@ import {
   successMessageResponse,
 } from "@/helper/response.helper";
 import CategoryRepository from "@/repositories/category.repository";
-import ProductRepository from "@/repositories/product.repository";
 import {
   checkCategoryDuplicateByName,
   mappingCategoriesUpdate,
@@ -18,10 +17,8 @@ import { ICategoryRequest } from "./category.type";
 
 export default class CategoryService {
   private categoryRepository: CategoryRepository;
-  private productRepository: ProductRepository;
   constructor() {
     this.categoryRepository = new CategoryRepository();
-    this.productRepository = new ProductRepository();
   }
 
   public async getCategoryValues(ids: string[]) {

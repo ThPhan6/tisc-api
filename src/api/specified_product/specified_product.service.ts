@@ -51,7 +51,6 @@ export default class SpecifiedProductService {
   private collectionModel: CollectionModel;
   private projectZoneModel: ProjectZoneModel;
   private basisModel: BasisModel;
-  private productService: ProductService;
   private finishScheduleModel: FinishScheduleModel;
   private materialCodeRepository: MaterialCodeRepository;
   constructor() {
@@ -67,7 +66,6 @@ export default class SpecifiedProductService {
     this.collectionModel = new CollectionModel();
     this.projectZoneModel = new ProjectZoneModel();
     this.basisModel = new BasisModel();
-    this.productService = new ProductService();
     this.finishScheduleModel = new FinishScheduleModel();
     this.materialCodeRepository = new MaterialCodeRepository();
   }
@@ -344,7 +342,7 @@ export default class SpecifiedProductService {
           variant: payload.variant,
         }
       );
-      const assign = await this.productService.assign(user_id, {
+      const assign = await ProductService.assign(user_id, {
         considered_product_id: payload.considered_product_id,
         is_entire: payload.is_entire,
         product_id: consideredProduct.product_id,
