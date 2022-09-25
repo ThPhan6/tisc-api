@@ -1,5 +1,5 @@
 import DistributorModel from "@/model/distributor.models";
-import { IDistributorAttributes } from "@/types";
+import { IDistributorAttributes, ListDistributorPagination } from "@/types";
 import BaseRepository from "./base.repository";
 
 class DistributorRepository extends BaseRepository<IDistributorAttributes> {
@@ -50,6 +50,31 @@ class DistributorRepository extends BaseRepository<IDistributorAttributes> {
       .where("brand_id", "==", brandId)
       .where("country_id", "in", countries)
       .get()) as IDistributorAttributes[];
+  }
+
+  public async getListDistributorWithPagination(
+    limit: number,
+    offset: number,
+    brandId: string,
+    sort: string,
+    order: "ASC" | "DESC"
+  ) {
+    let result: ListDistributorPagination;
+
+    if (sort && order) {
+      result = await this.model
+        .select()
+        .where("brand_id", "==", brandId)
+        .order(sort, order)
+        .paginate(limit, offset);
+    }
+
+    result = await this.model
+      .select()
+      .where("brand_id", "==", brandId)
+      .paginate(limit, offset);
+
+    return result;
   }
 }
 export default new DistributorRepository();

@@ -1,5 +1,4 @@
 import { ICountryAttributes } from "@/types";
-import { IDistributorResponse } from "./distributor.type";
 
 export const mappingAuthorizedCountriesName = (
   authorizedCountries: ICountryAttributes[]

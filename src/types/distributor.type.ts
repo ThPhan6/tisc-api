@@ -1,3 +1,5 @@
+import { IPagination } from "@/type/common.type";
+
 export interface IDistributorAttributes {
   id: string;
   brand_id: string;
@@ -22,4 +24,9 @@ export interface IDistributorAttributes {
   coverage_beyond: boolean;
   created_at: string;
   updated_at: string | null;
+}
+
+export interface ListDistributorPagination {
+  pagination: IPagination;
+  data: IDistributorAttributes[];
 }
