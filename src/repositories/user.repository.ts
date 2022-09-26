@@ -40,6 +40,16 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .where('relation_id', '==', relationId)
       .first() as UserAttributes | undefined;
   }
+  public async countUserOfCompany(relationId: string) {
+    return await this.model
+      .where('relation_id', '==', relationId)
+      .count();
+  }
+  public async countUserInLocation(locationId: string) {
+    return await this.model
+      .where('location_id', '==', locationId)
+      .count();
+  }
   public async getTiscUsers() {
     return await this.model
       .where('type', '==', SYSTEM_TYPE.TISC)

@@ -11,3 +11,13 @@ export const GlobalCountry: ICountryStateCity = {
   city_name: "",
   phone_code: "",
 }
+
+
+export const getRegionName = (key: string) => {
+  if (key === "africa") return "AFRICA";
+  if (key === "asia") return "ASIA";
+  if (key === "europe") return "EUROPE";
+  if (key === "n_america") return "NORTH AMERICA";
+  if (key === "oceania") return "OCEANIA";
+  return "SOUTH AMERICA";
+};
