@@ -7,7 +7,6 @@ import DistributorModel, {
   DISTRIBUTOR_NULL_ATTRIBUTES,
 } from "@/model/distributor.model";
 import MarketAvailabilityModel from "@/model/market_availability.model";
-import CountryStateCityService from "@/service/country_state_city.service";
 import { IDistributorAttributes } from "@/model/distributor.model";
 import { IMessageResponse, IPagination } from "@/types";
 import {
@@ -20,14 +19,14 @@ import {
 } from "./distributor.type";
 import ProductRepository from "@/repositories/product.repository";
 import CollectionRepository from "@/repositories/collection.repository";
+import { countryStateCityService } from "@/service/country_state_city.service";
+
 export default class DistributorService {
   private distributorModel: DistributorModel;
-  private countryStateCityService: CountryStateCityService;
   private brandModel: BrandModel;
   private marketAvailabilityModel: MarketAvailabilityModel;
   constructor() {
     this.distributorModel = new DistributorModel();
-    this.countryStateCityService = new CountryStateCityService();
     this.brandModel = new BrandModel();
     this.marketAvailabilityModel = new MarketAvailabilityModel();
   }
@@ -90,7 +89,7 @@ export default class DistributorService {
           statusCode: 404,
         });
       }
-      const country = await this.countryStateCityService.getCountryDetail(
+      const country = await countryStateCityService.getCountryDetail(
         payload.country_id
       );
       if (!country.id) {
@@ -99,7 +98,7 @@ export default class DistributorService {
           statusCode: 404,
         });
       }
-      const states = await this.countryStateCityService.getStatesByCountry(
+      const states = await countryStateCityService.getStatesByCountry(
         payload.country_id
       );
       if (states.length >= 1) {
@@ -116,7 +115,7 @@ export default class DistributorService {
             statusCode: 400,
           });
         }
-        const state = await this.countryStateCityService.getStateDetail(
+        const state = await countryStateCityService.getStateDetail(
           payload.state_id
         );
         if (!state.id) {
@@ -125,11 +124,10 @@ export default class DistributorService {
             statusCode: 404,
           });
         }
-        const cities =
-          await this.countryStateCityService.getCitiesByStateAndCountry(
-            payload.country_id,
-            payload.state_id
-          );
+        const cities = await countryStateCityService.getCitiesByStateAndCountry(
+          payload.country_id,
+          payload.state_id
+        );
         if (cities.length >= 1) {
           if (!payload.city_id || payload.city_id === "") {
             return resolve({
@@ -147,7 +145,7 @@ export default class DistributorService {
         }
       }
       const countryStateCity =
-        await this.countryStateCityService.getCountryStateCity(
+        await countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
           payload.state_id
@@ -158,10 +156,9 @@ export default class DistributorService {
           statusCode: 400,
         });
       }
-      const authorizedCountries =
-        await this.countryStateCityService.getCountries(
-          payload.authorized_country_ids
-        );
+      const authorizedCountries = await countryStateCityService.getCountries(
+        payload.authorized_country_ids
+      );
       if (!authorizedCountries) {
         return resolve({
           message: "Not authorized countries, please check ids",
@@ -224,10 +221,9 @@ export default class DistributorService {
         });
       }
 
-      const authorizedCountries =
-        await this.countryStateCityService.getCountries(
-          distributor.authorized_country_ids
-        );
+      const authorizedCountries = await countryStateCityService.getCountries(
+        distributor.authorized_country_ids
+      );
       if (!authorizedCountries) {
         return resolve({
           message: "Not authorized countries, please check ids",
@@ -284,7 +280,7 @@ export default class DistributorService {
           statusCode: 400,
         });
       }
-      const country = await this.countryStateCityService.getCountryDetail(
+      const country = await countryStateCityService.getCountryDetail(
         payload.country_id
       );
       if (!country.id) {
@@ -293,7 +289,7 @@ export default class DistributorService {
           statusCode: 404,
         });
       }
-      const states = await this.countryStateCityService.getStatesByCountry(
+      const states = await countryStateCityService.getStatesByCountry(
         payload.country_id
       );
       if (states.length >= 1) {
@@ -310,7 +306,7 @@ export default class DistributorService {
             statusCode: 400,
           });
         }
-        const state = await this.countryStateCityService.getStateDetail(
+        const state = await countryStateCityService.getStateDetail(
           payload.state_id
         );
         if (!state.id) {
@@ -319,11 +315,10 @@ export default class DistributorService {
             statusCode: 404,
           });
         }
-        const cities =
-          await this.countryStateCityService.getCitiesByStateAndCountry(
-            payload.country_id,
-            payload.state_id
-          );
+        const cities = await countryStateCityService.getCitiesByStateAndCountry(
+          payload.country_id,
+          payload.state_id
+        );
         if (cities.length >= 1) {
           if (!payload.city_id || payload.city_id === "") {
             return resolve({
@@ -347,12 +342,11 @@ export default class DistributorService {
         payload.state_id !== distributor.state_id ||
         payload.city_id !== distributor.city_id
       ) {
-        countryStateCity =
-          await this.countryStateCityService.getCountryStateCity(
-            payload.country_id,
-            payload.city_id,
-            payload.state_id
-          );
+        countryStateCity = await countryStateCityService.getCountryStateCity(
+          payload.country_id,
+          payload.city_id,
+          payload.state_id
+        );
         if (!countryStateCity) {
           return resolve({
             message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
@@ -376,7 +370,7 @@ export default class DistributorService {
         payload.authorized_country_ids.toString() !==
         distributor.authorized_country_ids.toString()
       ) {
-        authorizedCountries = await this.countryStateCityService.getCountries(
+        authorizedCountries = await countryStateCityService.getCountries(
           payload.authorized_country_ids
         );
         if (!authorizedCountries) {
@@ -524,7 +518,7 @@ export default class DistributorService {
       );
       const countries = await Promise.all(
         countryIds.map(async (countryId) => {
-          return await this.countryStateCityService.getCountryDetail(countryId);
+          return await countryStateCityService.getCountryDetail(countryId);
         })
       );
       const result = countries
