@@ -1,10 +1,10 @@
-import { MESSAGES, REGION_KEY } from "../../constant/common.constant";
+import { MESSAGES, REGION_KEY } from "@/constant/common.constant";
 import MarketAvailabilityModel, {
   MARKET_AVAILABILITY_NULL_ATTRIBUTES,
-} from "../../model/market_availability.model";
-import CountryStateCityService from "../../service/country_state_city.service";
-import CollectionModel from "../../model/collection.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+} from "@/model/market_availability.model";
+import { countryStateCityService } from "@/service/country_state_city.service";
+import CollectionModel from "@/model/collection.model";
+import { IMessageResponse, IPagination } from "@/type/common.type";
 import {
   IMarketAvailabilitiesResponse,
   IMarketAvailabilityGroupByCollectionResponse,
@@ -12,9 +12,9 @@ import {
   IMarketAvailabilityResponse,
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
-import DistributorModel from "../../model/distributor.model";
-import BrandModel from "../../model/brand.model";
-import { getDistinctArray } from "../../helper/common.helper";
+import DistributorModel from "@/model/distributor.model";
+import BrandModel from "@/model/brand.model";
+import { getDistinctArray } from "@/helper/common.helper";
 export default class MarketAvailabilityService {
   private marketAvailabilityModel: MarketAvailabilityModel;
   private collectionModel: CollectionModel;
@@ -39,7 +39,7 @@ export default class MarketAvailabilityService {
     new Promise(async (resolve) => {
       const countries = await Promise.all(
         ids.map(async (country_id) => {
-          const countryDetail = await CountryStateCityService.getCountryDetail(
+          const countryDetail = await countryStateCityService.getCountryDetail(
             country_id
           );
           let region = REGION_KEY.AFRICA;

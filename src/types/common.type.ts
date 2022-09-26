@@ -37,3 +37,10 @@ export interface ValidImage {
   path: string;
   mime_type: string;
 }
+
+export type SystemType = 1 | 2 | 3;
+export interface ISystemType {
+  TISC: SystemType;
+  BRAND: SystemType;
+  DESIGN: SystemType;
+}

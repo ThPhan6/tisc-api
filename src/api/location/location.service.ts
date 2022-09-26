@@ -1,11 +1,11 @@
 import LocationModel, {
   ILocationAttributes,
   LOCATION_NULL_ATTRIBUTES,
-} from "../../model/location.model";
+} from "@/model/location.model";
 import FunctionalTypeModel, {
   FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-} from "../../model/functional_type.model";
-import UserModel from "../../model/user.model";
+} from "@/model/functional_type.model";
+import UserModel from "@/model/user.model";
 import {
   ICitiesResponse,
   ICityResponse,
@@ -20,28 +20,25 @@ import {
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
-import { IMessageResponse, SystemType } from "../../type/common.type";
-import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
-import CountryStateCityService from "../../service/country_state_city.service";
-import { ICityAttributes } from "../../model/city";
-import { getDistinctArray } from "../../helper/common.helper";
-import ProductModel from "../../model/product.model";
-import CollectionModel from "../../model/collection.model";
-import MarketAvailabilityModel from "../../model/market_availability.model";
+import { IMessageResponse, SystemType } from "@/type/common.type";
+import { MESSAGES, SYSTEM_TYPE } from "@/constant/common.constant";
+import { ICityAttributes } from "@/model/city";
+import { getDistinctArray } from "@/helper/common.helper";
+import ProductModel from "@/model/product.model";
+import MarketAvailabilityModel from "@/model/market_availability.model";
+import { countryStateCityService } from "@/service/country_state_city.service";
 
 export default class LocationService {
   private locationModel: LocationModel;
   private functionalTypeModel: FunctionalTypeModel;
   private userModel: UserModel;
   private productModel: ProductModel;
-  private collectionModel: CollectionModel;
   private marketAvailabilityModel: MarketAvailabilityModel;
   constructor() {
     this.locationModel = new LocationModel();
     this.functionalTypeModel = new FunctionalTypeModel();
     this.userModel = new UserModel();
     this.productModel = new ProductModel();
-    this.collectionModel = new CollectionModel();
     this.marketAvailabilityModel = new MarketAvailabilityModel();
   }
 
@@ -95,7 +92,7 @@ export default class LocationService {
         });
       }
       if (payload.country_id != "-1") {
-        const country = await CountryStateCityService.getCountryDetail(
+        const country = await countryStateCityService.getCountryDetail(
           payload.country_id
         );
         if (!country.id) {
@@ -106,7 +103,7 @@ export default class LocationService {
         }
       }
 
-      const states = await CountryStateCityService.getStatesByCountry(
+      const states = await countryStateCityService.getStatesByCountry(
         payload.country_id
       );
       if (states.length >= 1) {
@@ -123,7 +120,7 @@ export default class LocationService {
             statusCode: 400,
           });
         }
-        const state = await CountryStateCityService.getStateDetail(
+        const state = await countryStateCityService.getStateDetail(
           payload.state_id
         );
         if (!state.id) {
@@ -132,7 +129,7 @@ export default class LocationService {
             statusCode: 404,
           });
         }
-        const cities = await CountryStateCityService.getCitiesByStateAndCountry(
+        const cities = await countryStateCityService.getCitiesByStateAndCountry(
           payload.country_id,
           payload.state_id
         );
@@ -180,7 +177,7 @@ export default class LocationService {
         })
       );
       const countryStateCity: any =
-        await CountryStateCityService.getCountryStateCity(
+        await countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
           payload.state_id
@@ -228,7 +225,7 @@ export default class LocationService {
         });
       }
       if (payload.country_id != "-1") {
-        const country = await CountryStateCityService.getCountryDetail(
+        const country = await countryStateCityService.getCountryDetail(
           payload.country_id
         );
         if (!country.id) {
@@ -239,7 +236,7 @@ export default class LocationService {
         }
       }
 
-      const states = await CountryStateCityService.getStatesByCountry(
+      const states = await countryStateCityService.getStatesByCountry(
         payload.country_id
       );
       if (states.length >= 1) {
@@ -256,7 +253,7 @@ export default class LocationService {
             statusCode: 400,
           });
         }
-        const state = await CountryStateCityService.getStateDetail(
+        const state = await countryStateCityService.getStateDetail(
           payload.state_id
         );
         if (!state.id) {
@@ -265,7 +262,7 @@ export default class LocationService {
             statusCode: 404,
           });
         }
-        const cities = await CountryStateCityService.getCitiesByStateAndCountry(
+        const cities = await countryStateCityService.getCitiesByStateAndCountry(
           payload.country_id,
           payload.state_id
         );
@@ -330,7 +327,7 @@ export default class LocationService {
         })
       );
       const countryStateCity: any =
-        await CountryStateCityService.getCountryStateCity(
+        await countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
           payload.state_id
@@ -402,7 +399,7 @@ export default class LocationService {
   };
   public getAllCountry = (): Promise<ICountriesResponse> =>
     new Promise(async (resolve) => {
-      const result = await CountryStateCityService.getAllCountry();
+      const result = await countryStateCityService.getAllCountry();
 
       return resolve({
         data: result,
@@ -411,7 +408,7 @@ export default class LocationService {
     });
   public getCountry = (id: string): Promise<ICountryResponse> =>
     new Promise(async (resolve) => {
-      const result = await CountryStateCityService.getCountryDetail(id);
+      const result = await countryStateCityService.getCountryDetail(id);
 
       return resolve({
         data: result,
@@ -420,7 +417,7 @@ export default class LocationService {
     });
   public getState = (id: string): Promise<IStateResponse> =>
     new Promise(async (resolve) => {
-      const result = await CountryStateCityService.getStateDetail(id);
+      const result = await countryStateCityService.getStateDetail(id);
 
       return resolve({
         data: result,
@@ -429,7 +426,7 @@ export default class LocationService {
     });
   public getCity = (id: string): Promise<ICityResponse> =>
     new Promise(async (resolve) => {
-      const result = await CountryStateCityService.getCityDetail(id);
+      const result = await countryStateCityService.getCityDetail(id);
 
       return resolve({
         data: result,
@@ -438,7 +435,7 @@ export default class LocationService {
     });
   public getStates = (country_id: string): Promise<IStatesResponse> =>
     new Promise(async (resolve) => {
-      const result = await CountryStateCityService.getStatesByCountry(
+      const result = await countryStateCityService.getStatesByCountry(
         country_id
       );
       return resolve({
@@ -453,9 +450,9 @@ export default class LocationService {
     new Promise(async (resolve) => {
       let cities: ICityAttributes[] = [];
       if (!state_id) {
-        cities = await CountryStateCityService.getCitiesByCountry(country_id);
+        cities = await countryStateCityService.getCitiesByCountry(country_id);
       } else {
-        cities = await CountryStateCityService.getCitiesByStateAndCountry(
+        cities = await countryStateCityService.getCitiesByStateAndCountry(
           country_id,
           state_id
         );
@@ -746,9 +743,9 @@ export default class LocationService {
     });
   public getListCountryWithRegionGroup = (): Promise<any> =>
     new Promise(async (resolve) => {
-      const allCountry = await CountryStateCityService.getAllCountry();
+      const allCountry = await countryStateCityService.getAllCountry();
       const data = allCountry.reduce(
-        (pre: any, cur) => {
+        (pre: any, cur: any) => {
           if (cur.region.toLowerCase() === "americas") {
             if (cur.subregion.toLowerCase() === "northern america")
               return {

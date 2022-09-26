@@ -13,10 +13,10 @@ import {
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import BrandRepository from "@/repositories/brand.repository";
-import CommonTypeRepository from "@/repositories/common_type.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 import ProductRepository from "@/repositories/product.repository";
 import ProductFavouriteRepository from "@/repositories/product_favourite.repository";
-import UserRepository from "@/repositories/user.repository";
+import { userRepository } from "@/repositories/user.repository";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import {
   uploadImagesProduct,
@@ -527,7 +527,7 @@ class ProductService {
     payload: ShareProductBodyRequest,
     userId: string
   ) => {
-    const user = await UserRepository.find(userId);
+    const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
     }
@@ -537,13 +537,13 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND);
     }
-    await CommonTypeRepository.findOrCreate(
+    await commonTypeRepository.findOrCreate(
       payload.sharing_group,
       user.relation_id,
       COMMON_TYPES.SHARING_GROUP
     );
 
-    await CommonTypeRepository.findOrCreate(
+    await commonTypeRepository.findOrCreate(
       payload.sharing_purpose,
       user.relation_id,
       COMMON_TYPES.SHARING_PURPOSE
@@ -569,24 +569,24 @@ class ProductService {
   };
 
   public getSharingGroups = async (userId: string) => {
-    const user = await UserRepository.find(userId);
+    const user = await userRepository.find(userId);
     if (!user) {
       return successResponse({ data: [] });
     }
     return successResponse({
-      data: await CommonTypeRepository.getAllByRelationAndType(
+      data: await commonTypeRepository.getAllByRelationAndType(
         user.relation_id,
         COMMON_TYPES.SHARING_GROUP
       ),
     });
   };
   public getSharingPurposes = async (userId: string) => {
-    const user = await UserRepository.find(userId);
+    const user = await userRepository.find(userId);
     if (!user) {
       return successResponse({ data: [] });
     }
     return successResponse({
-      data: await CommonTypeRepository.getAllByRelationAndType(
+      data: await commonTypeRepository.getAllByRelationAndType(
         user.relation_id,
         COMMON_TYPES.SHARING_PURPOSE
       ),

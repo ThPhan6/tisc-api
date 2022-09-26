@@ -15,11 +15,13 @@ import MarketAvailabilityModel from "@/model/market_availability.model";
 import ProductModel from "@/model/product.model";
 import CollectionRepository from "@/repositories/collection.repository";
 import DistributorRepository from "@/repositories/distributor.repository";
-import CountryStateCityService from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/service/country_state_city.service";
 import { ICountryStateCity, IMessageResponse, IPagination } from "@/types";
 import {
   mappingAuthorizedCountries,
   mappingAuthorizedCountriesName,
+  mappingDistributorByCountry,
+  mappingResultGetList,
 } from "./distributor.mapping";
 import {
   IDistributorGroupByCountryResponse,
@@ -94,13 +96,13 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    await CountryStateCityService.validateLocationData(
+    await countryStateCityService.validateLocationData(
       payload.country_id,
       payload.city_id,
       payload.state_id
     );
 
-    const countryStateCity = await CountryStateCityService.getCountryStateCity(
+    const countryStateCity = await countryStateCityService.getCountryStateCity(
       payload.country_id,
       payload.city_id,
       payload.state_id
@@ -110,7 +112,7 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
     }
 
-    const authorizedCountries = await CountryStateCityService.getCountries(
+    const authorizedCountries = await countryStateCityService.getCountries(
       payload.authorized_country_ids
     );
 
@@ -165,7 +167,7 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.DISTRIBUTOR_NOT_FOUND, 404);
     }
 
-    const authorizedCountries = await CountryStateCityService.getCountries(
+    const authorizedCountries = await countryStateCityService.getCountries(
       distributor.authorized_country_ids
     );
 
@@ -208,7 +210,7 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.DISTRIBUTOR_EXISTED);
     }
 
-    await CountryStateCityService.validateLocationData(
+    await countryStateCityService.validateLocationData(
       payload.country_id,
       payload.city_id,
       payload.state_id
@@ -222,7 +224,7 @@ class DistributorService {
       payload.state_id !== distributor.state_id ||
       payload.city_id !== distributor.city_id
     ) {
-      countryStateCity = await CountryStateCityService.getCountryStateCity(
+      countryStateCity = await countryStateCityService.getCountryStateCity(
         payload.country_id,
         payload.city_id,
         payload.state_id
@@ -249,7 +251,7 @@ class DistributorService {
       payload.authorized_country_ids.toString() !==
       distributor.authorized_country_ids.toString()
     ) {
-      authorizedCountries = await CountryStateCityService.getCountries(
+      authorizedCountries = await countryStateCityService.getCountries(
         payload.authorized_country_ids
       );
 
@@ -313,7 +315,7 @@ class DistributorService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async getList_(
+  public async getList(
     brandId: string,
     limit: number,
     offset: number,
@@ -329,108 +331,49 @@ class DistributorService {
         sort,
         order
       );
+
+    const mappingDistributors = mappingResultGetList(distributors.data);
+
+    return successResponse({
+      data: {
+        distributors: mappingDistributors,
+        pagination: distributors.pagination,
+      },
+    });
   }
 
-  public getList = (
-    brand_id: string,
-    limit: number,
-    offset: number,
-    filter: any,
-    sort: string,
-    order: "ASC" | "DESC"
-  ): Promise<IMessageResponse | IDistributorsResponse> => {
-    return new Promise(async (resolve) => {
-      const distributors = await DistributorRepository.list(
-        limit,
-        offset,
-        {
-          ...filter,
-          brand_id,
-        },
-        [sort, order]
-      );
-      const pagination: IPagination = await DistributorRepository.getPagination(
-        limit,
-        offset,
-        { brand_id }
-      );
-      const result = distributors.map((distributor: IDistributorAttributes) => {
-        return {
-          id: distributor.id,
-          name: distributor.name,
-          country_name: distributor.country_name,
-          city_name: distributor.city_name,
-          first_name: distributor.first_name,
-          last_name: distributor.last_name,
-          email: distributor.email,
-          authorized_country_name: distributor.authorized_country_name,
-          coverage_beyond: distributor.coverage_beyond,
-          created_at: distributor.created_at,
-        };
-      });
-      return resolve({
-        data: {
-          distributors: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
-    });
-  };
+  public async getDistributorGroupByCountry(brandId: string) {
+    const brand = await this.brandModel.find(brandId);
 
-  public getDistributorGroupByCountry = async (
-    brand_id: string
-  ): Promise<IMessageResponse | IDistributorGroupByCountryResponse> => {
-    return new Promise(async (resolve) => {
-      const brand = await this.brandModel.find(brand_id);
-      if (!brand) {
-        return resolve({
-          message: MESSAGES.BRAND_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const distributors = await DistributorRepository.getAllBy({ brand_id });
-      const countryIds = getDistinctArray(
-        distributors.map((distributor) => distributor.country_id)
-      );
-      const countries = await Promise.all(
-        countryIds.map(async (countryId) => {
-          return await CountryStateCityService.getCountryDetail(countryId);
-        })
-      );
-      const result = countries
-        .map((country) => {
-          const groupDistributors = distributors.filter(
-            (item) => item.country_id === country.id
-          );
-          const removedFieldsOfDistributor = groupDistributors.map(
-            (distributor) => {
-              return {
-                name: distributor.name,
-                address: distributor.address,
-                person: distributor.first_name + " " + distributor.last_name,
-                gender: distributor.gender,
-                email: distributor.email,
-                phone: distributor.phone,
-                mobile: distributor.mobile,
-                authorized_country_name: distributor.authorized_country_name,
-                coverage_beyond: distributor.coverage_beyond,
-              };
-            }
-          );
-          return {
-            country_name: country.name,
-            count: groupDistributors.length,
-            distributors: removedFieldsOfDistributor,
-          };
-        })
-        .flat();
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    const distributors = await DistributorRepository.getAllBy({ brandId });
+
+    const countryIds = getDistinctArray(
+      distributors.map((distributor) => distributor.country_id)
+    );
+
+    const countries = await Promise.all(
+      countryIds.map((countryId) => {
+        return countryStateCityService.getCountryDetail(countryId);
+      })
+    );
+
+    const result = mappingDistributorByCountry(countries, distributors);
+
+    return successResponse({
+      data: result,
     });
-  };
+  }
+
+  public async getMarketDistributorGroupByCountry_(productId: string) {
+    const product = await this.productModel.find(productId);
+    if (!product) {
+      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+    }
+  }
 
   public getMarketDistributorGroupByCountry = async (
     product_id: string
