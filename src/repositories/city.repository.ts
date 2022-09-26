@@ -44,4 +44,4 @@ class CityRepository extends BaseRepository<ICityAttributes> {
 
 }
 
-export default CityRepository;
+export default new CityRepository();

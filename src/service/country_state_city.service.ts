@@ -1,26 +1,26 @@
-import CountryRepository from "@/repositories/country.repository";
-import StateRepository from "@/repositories/state.repository";
-import CityRepository from "@/repositories/city.repository";
+import countryRepository from "@/repositories/country.repository";
+import stateRepository from "@/repositories/state.repository";
+import cityRepository from "@/repositories/city.repository";
 import { GLOBAL_COUNTRY_ID, GlobalCountry } from "@/constants";
-import { ICountryAttributes, IStateAttributes, ICityAttributes } from "@/types";
+import {
+  ICountryAttributes,
+  IStateAttributes,
+  ICityAttributes,
+  ICountryStateCity,
+} from "@/types";
+import { errorMessageResponse } from "@/helper/response.helper";
+import { MESSAGES } from "@/constants";
+import { isEmpty } from "lodash";
 
-export default class CountryStateCityService {
-  private countryRepository: CountryRepository;
-  private stateRepository: StateRepository;
-  private cityRepository: CityRepository;
-  constructor() {
-    this.countryRepository = new CountryRepository();
-    this.stateRepository = new StateRepository();
-    this.cityRepository = new CityRepository();
-  }
+class CountryStateCityService {
   public getAllCountry = async () => {
-    return this.countryRepository.getAll("name", "ASC");
+    return countryRepository.getAll("name", "ASC");
   };
 
   public getCountryDetail = async (
     id: string
   ): Promise<ICountryAttributes | any> => {
-    const country = await this.countryRepository.find(id);
+    const country = await countryRepository.find(id);
     if (!country) {
       return {};
     }
@@ -28,7 +28,7 @@ export default class CountryStateCityService {
   };
 
   public getCityDetail = async (id: string): Promise<ICityAttributes | any> => {
-    const city = await this.cityRepository.find(id);
+    const city = await cityRepository.find(id);
     if (!city) {
       return {};
     }
@@ -36,13 +36,13 @@ export default class CountryStateCityService {
   };
 
   public getStatesByCountry = (countryId: string) => {
-    return this.stateRepository.getStatesByCountry(countryId);
+    return stateRepository.getStatesByCountry(countryId);
   };
 
   public getStateDetail = async (
     id: string
   ): Promise<IStateAttributes | any> => {
-    const state = await this.stateRepository.find(id);
+    const state = await stateRepository.find(id);
     if (!state) {
       return {};
     }
@@ -50,7 +50,7 @@ export default class CountryStateCityService {
   };
 
   public getCitiesByStateAndCountry = (countryId: string, stateId?: string) => {
-    return this.cityRepository.getCitiesByStateAndCountry(countryId, stateId);
+    return cityRepository.getCitiesByStateAndCountry(countryId, stateId);
   };
 
   public getCitiesByCountry = (country_id: string) => {
@@ -58,21 +58,65 @@ export default class CountryStateCityService {
   };
   public getCountryStateCity = async (
     countryId: string,
-    cityId: string,
-    stateId: string
-  ) => {
+    cityId?: string,
+    stateId?: string
+  ): Promise<ICountryStateCity> => {
     if (countryId === GLOBAL_COUNTRY_ID) {
       return GlobalCountry;
     }
-    const data = await this.cityRepository.findCountryStateCity(
-      countryId,
-      cityId,
-      stateId
-    );
-    if (!data) {
-      return false;
+    const country = await this.getCountryDetail(countryId);
+    if (!country.id) {
+      return GlobalCountry;
     }
-    return data;
+    const countryData = {
+      country_name: country.name,
+      phone_code: country.phone_code,
+      country_id: country.id,
+    };
+
+    if (!stateId || stateId == "") {
+      return {
+        ...GlobalCountry,
+        ...countryData,
+      };
+    }
+    const state = await this.getStateDetail(stateId);
+    if (!state.id || state.country_id !== countryId) {
+      return {
+        ...GlobalCountry,
+        ...countryData,
+      };
+    }
+    const stateData = {
+      state_id: state.id,
+      state_name: state.name,
+    };
+    if (!cityId || cityId == "") {
+      return {
+        ...GlobalCountry,
+        ...countryData,
+        ...stateData,
+      };
+    }
+    const city = await this.getCityDetail(cityId);
+    if (
+      !city.id ||
+      city.country_id !== countryId ||
+      city.state_id !== stateId
+    ) {
+      return {
+        ...GlobalCountry,
+        ...countryData,
+        ...stateData,
+      };
+    }
+    return {
+      ...GlobalCountry,
+      ...countryData,
+      ...stateData,
+      city_id: city.id,
+      city_name: city.name,
+    };
   };
 
   public getCountries = async (
@@ -93,4 +137,43 @@ export default class CountryStateCityService {
     }
     return false;
   };
+
+  public validateLocationData = async (
+    countryId: string,
+    stateId: string,
+    cityId: string
+  ) => {
+    const country = await this.getCountryDetail(countryId);
+    if (!country.id) {
+      return errorMessageResponse(MESSAGES.COUNTRY_NOT_FOUND, 404);
+    }
+    ////////////////////////
+    const states = await this.getStatesByCountry(countryId);
+    if (!isEmpty(states)) {
+      if (!stateId || stateId === "") {
+        return errorMessageResponse(MESSAGES.STATE_REQUIRED, 400);
+      }
+      /// state not in country
+      if (!states.find((item) => item.id === stateId)) {
+        return errorMessageResponse(MESSAGES.STATE_NOT_IN_COUNTRY, 400);
+      }
+
+      /// get city from state and country
+      const cities = await this.getCitiesByStateAndCountry(countryId, stateId);
+      if (!isEmpty(cities)) {
+        if (!cityId || cityId === "") {
+          return errorMessageResponse(MESSAGES.CITY_REQUIRED, 400);
+        }
+        /// city not in state
+        if (!cities.find((item) => item.id === cityId)) {
+          return errorMessageResponse(MESSAGES.CITY_NOT_IN_STATE, 400);
+        }
+      }
+    }
+    return true;
+  };
 }
+
+export const countryStateCityService = new CountryStateCityService();
+
+export default CountryStateCityService;

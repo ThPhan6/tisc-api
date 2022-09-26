@@ -36,21 +36,19 @@ import PermissionService from "../permission/permission.service";
 import { getRoleType } from "@/constants/role.constant";
 import BrandRepository from "@/repositories/brand.repository";
 import DesignerRepository from "@/repositories/designer.repository";
-import UserRepository from "@/repositories/user.repository";
+import { userRepository } from "@/repositories/user.repository";
 
 class AuthService {
   private mailService: MailService;
   private permissionService: PermissionService;
   private brandRepository: BrandRepository;
   private designerRepository: DesignerRepository;
-  private userRepository: UserRepository;
 
   constructor() {
     this.mailService = new MailService();
     this.permissionService = new PermissionService();
     this.brandRepository = new BrandRepository();
     this.designerRepository = new DesignerRepository();
-    this.userRepository = new UserRepository();
   }
 
   private reponseWithToken = (userId: string, type?: string) => {
@@ -106,15 +104,13 @@ class AuthService {
     let isDuplicated = true;
     do {
       token = createResetPasswordToken();
-      isDuplicated = !isEmpty(
-        await this.userRepository.findBy({ [field]: token })
-      );
+      isDuplicated = !isEmpty(await userRepository.findBy({ [field]: token }));
     } while (isDuplicated);
     return token;
   };
 
   private updateNewPassword = async (userId: string, password: string) => {
-    return this.userRepository.update(userId, {
+    return userRepository.update(userId, {
       reset_password_token: null,
       password: createHash(password),
     });
@@ -125,7 +121,7 @@ class AuthService {
     type?: RoleTypeValue
   ): Promise<ILoginResponse | IMessageResponse> => {
     this.typeValidation(ROLE_TYPE.TISC, type);
-    const user = await this.userRepository.findBy({ email: payload.email });
+    const user = await userRepository.findBy({ email: payload.email });
     this.authValidation(payload.password, user);
     return this.reponseWithToken(user?.id ?? "");
   };
@@ -134,8 +130,7 @@ class AuthService {
     ///
     this.typeValidation(ROLE_TYPE.TISC, type, "neq");
     ///
-
-    const user = await this.userRepository.findByCompanyIdWithCompanyStatus(
+    const user = await userRepository.findByCompanyIdWithCompanyStatus(
       payload.email
     );
     if (!user) {
@@ -157,7 +152,7 @@ class AuthService {
     payload: IForgotPasswordRequest,
     browserName: string
   ) => {
-    const user = await this.userRepository.findBy({
+    const user = await userRepository.findBy({
       email: payload.email,
       is_verified: true,
     });
@@ -171,7 +166,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
     const token = await this.generateOneTimeToken("reset_password_token");
-    const updatedData = await this.userRepository.update(user.id, {
+    const updatedData = await userRepository.update(user.id, {
       reset_password_token: token,
     });
     if (updatedData === false) {
@@ -183,7 +178,7 @@ class AuthService {
   };
 
   public isValidResetPasswordToken = async (token: string) => {
-    const user = await this.userRepository.findBy({
+    const user = await userRepository.findBy({
       reset_password_token: token,
       is_verified: true,
     });
@@ -195,7 +190,7 @@ class AuthService {
     email: string,
     browserName: string
   ) => {
-    const user = await this.userRepository.getResendEmail(email);
+    const user = await userRepository.getResendEmail(email);
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
@@ -216,7 +211,7 @@ class AuthService {
   };
 
   public resetPassword = async (payload: IResetPasswordRequest) => {
-    const user = await this.userRepository.findBy({
+    const user = await userRepository.findBy({
       reset_password_token: payload.reset_password_token,
       is_verified: true,
     });
@@ -224,7 +219,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
     const newPassword = createHash(payload.password);
-    const updatedData = await this.userRepository.update(user.id, {
+    const updatedData = await userRepository.update(user.id, {
       reset_password_token: null,
       password: newPassword,
     });
@@ -235,7 +230,7 @@ class AuthService {
   };
 
   public resetPasswordAndLogin = async (payload: IResetPasswordRequest) => {
-    const user = await this.userRepository.findBy({
+    const user = await userRepository.findBy({
       reset_password_token: payload.reset_password_token,
       is_verified: true,
     });
@@ -251,7 +246,7 @@ class AuthService {
   };
 
   public register = async (payload: IRegisterRequest) => {
-    const user = await this.userRepository.findBy({
+    const user = await userRepository.findBy({
       email: payload.email,
     });
     if (user) {
@@ -268,7 +263,7 @@ class AuthService {
     const saltHash = createHashWithSalt(payload.password);
     const password = saltHash.hash;
 
-    const createdUser = await this.userRepository.create({
+    const createdUser = await userRepository.create({
       firstname: payload.firstname ?? "",
       lastname: payload.lastname ?? "",
       password,
@@ -287,11 +282,11 @@ class AuthService {
   };
 
   public verify = async (verification_token: string) => {
-    const user = await this.userRepository.findBy({ verification_token });
+    const user = await userRepository.findBy({ verification_token });
     if (!user) {
       return errorMessageResponse(MESSAGES.VERIFICATION_LINK_HAS_EXPIRED);
     }
-    const updatedUser = await this.userRepository.update(user.id, {
+    const updatedUser = await userRepository.update(user.id, {
       verification_token: null,
       is_verified: true,
       status: USER_STATUSES.ACTIVE,
@@ -306,12 +301,12 @@ class AuthService {
     verification_token: string,
     password: string
   ) => {
-    const user = await this.userRepository.findBy({ verification_token });
+    const user = await userRepository.findBy({ verification_token });
     if (!user) {
       return errorMessageResponse(MESSAGES.VERIFICATION_LINK_HAS_EXPIRED);
     }
     const saltHash = createHashWithSalt(password);
-    const updatedUser = await this.userRepository.update(user.id, {
+    const updatedUser = await userRepository.update(user.id, {
       verification_token: null,
       is_verified: true,
       password: saltHash.hash,
@@ -331,7 +326,7 @@ class AuthService {
   };
 
   public checkEmail = async (email: string) => {
-    const user = await this.userRepository.findBy({ email });
+    const user = await userRepository.findBy({ email });
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_ALREADY_USED);
     }

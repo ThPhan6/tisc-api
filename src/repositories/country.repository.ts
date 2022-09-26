@@ -11,4 +11,4 @@ class CountryRepository extends BaseRepository<ICountryAttributes> {
   }
 }
 
-export default CountryRepository;
+export default new CountryRepository();

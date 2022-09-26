@@ -82,4 +82,6 @@ class UserRepository extends BaseRepository<UserAttributes> {
   }
 }
 
+export const userRepository = new UserRepository();
+
 export default UserRepository;
