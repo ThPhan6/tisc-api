@@ -16,3 +16,4 @@ export * from "./attribute.type";
 export * from "./material_code.type";
 export * from "./basis.type";
 export * from "./quotation.type";
+export * from "./market_availability.type";

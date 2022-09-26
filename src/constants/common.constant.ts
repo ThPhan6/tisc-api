@@ -1,4 +1,4 @@
-import { CommonTypes, ISystemType } from "@/types";
+import { CommonTypes } from "@/types";
 
 export const COMMON_TYPES: CommonTypes = {
   SHARING_GROUP: 1,
@@ -16,10 +16,4 @@ export const AUTH_NAMES = {
   GENERAL: "general",
   ADMIN: "admin",
   PERMISSION: "permission",
-};
-
-export const SYSTEM_TYPE: ISystemType = {
-  TISC: 1,
-  BRAND: 2,
-  DESIGN: 3,
 };

@@ -54,3 +54,20 @@ export interface ICityAttributes {
   longitude: number;
   wikiDataId: string;
 }
+
+export interface IRegionCountry {
+  id: string;
+  name: string;
+  phone_code: string;
+  region: string;
+}
+
+export type RegionKey =
+  | "africa"
+  | "asia"
+  | "europe"
+  | "north america"
+  | "oceania"
+  | "south america"
+  | "americas"
+  | "northern_america";

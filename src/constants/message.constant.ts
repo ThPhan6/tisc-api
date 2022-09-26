@@ -47,6 +47,26 @@ export const MESSAGES = {
 
   PRODUCT: {
     PRODUCT_EXISTED: "Product existed.",
+    PRODUCT_NOT_FOUND: "Product not found",
+  },
+
+  MARKET_AVAILABILITY: {
+    MARKET_AVAILABILITY_EXISTED: "Market availability existed",
+    MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
+  },
+
+  DISTRIBUTOR: {
+    DISTRIBUTOR_EXISTED: "Distributor existed",
+    DISTRIBUTOR_NOT_FOUND: "Distributor not found",
+  },
+
+  BRAND: {
+    BRAND_NOT_FOUND: "Brand not found",
+  },
+
+  COUNTRY_STATE_CITY: {
+    COUNTRY_STATE_CITY_NOT_FOUND:
+      "Not found location, please check country state city id",
   },
 
   //delete after refactor finish

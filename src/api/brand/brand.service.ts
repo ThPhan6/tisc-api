@@ -22,7 +22,7 @@ import FunctionalTypeModel from "@/model/functional_type.model";
 import LocationModel, { ILocationAttributes } from "@/model/location.model";
 import ProductModel from "@/model/product.model";
 import UserModel, { USER_NULL_ATTRIBUTES } from "@/model/user.model";
-import DistributorRepository from "@/repositories/distributor.repository";
+import { distributorRepository } from "@/repositories/distributor.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import MailService from "@/service/mail.service";
@@ -30,7 +30,6 @@ import { IMessageResponse, IPagination } from "@/type/common.type";
 import { IProductAttributes } from "@/types/product.type";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
 import PermissionService from "../permission/permission.service";
 import { IAvatarResponse } from "../user/user.type";
 import {
@@ -43,7 +42,7 @@ import {
   IUpdateBrandProfileRequest,
   IUpdateBrandStatusRequest,
 } from "./brand.type";
-
+import MarketAvailabilityServices from "../market_availability/market_availability.services";
 export default class BrandService {
   private brandModel: BrandModel;
   private mailService: MailService;
@@ -52,7 +51,6 @@ export default class BrandService {
   private permissionService: PermissionService;
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
-  private marketAvailabilityService: MarketAvailabilityService;
   private functionalTypeModel: FunctionalTypeModel;
   private countryStateCityService: CountryStateCityService;
 
@@ -64,7 +62,6 @@ export default class BrandService {
     this.permissionService = new PermissionService();
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
-    this.marketAvailabilityService = new MarketAvailabilityService();
     this.functionalTypeModel = new FunctionalTypeModel();
     this.countryStateCityService = new CountryStateCityService();
   }
@@ -118,7 +115,7 @@ export default class BrandService {
           const originLocation = await this.locationModel.getOriginLocation(
             brand.id
           );
-          const distributors = await DistributorRepository.getAllBy({
+          const distributors = await distributorRepository.getAllBy({
             brand_id: brand.id,
           });
           const collections = await this.collectionModel.getBy({
@@ -680,7 +677,7 @@ export default class BrandService {
         })
       );
       const distinctCountryIds = getDistinctArray(countryIds);
-      countries = await this.marketAvailabilityService.getRegionCountries(
+      countries = await MarketAvailabilityServices.getRegionCountries(
         distinctCountryIds
       );
 

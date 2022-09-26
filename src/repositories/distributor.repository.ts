@@ -59,22 +59,20 @@ class DistributorRepository extends BaseRepository<IDistributorAttributes> {
     sort: string,
     order: "ASC" | "DESC"
   ) {
-    let result: ListDistributorPagination;
-
     if (sort && order) {
-      result = await this.model
+      return (await this.model
         .select()
         .where("brand_id", "==", brandId)
         .order(sort, order)
-        .paginate(limit, offset);
+        .paginate(limit, offset)) as ListDistributorPagination;
     }
 
-    result = await this.model
+    return (await this.model
       .select()
       .where("brand_id", "==", brandId)
-      .paginate(limit, offset);
-
-    return result;
+      .paginate(limit, offset)) as ListDistributorPagination;
   }
 }
-export default new DistributorRepository();
+
+export const distributorRepository = new DistributorRepository();
+export default DistributorRepository;

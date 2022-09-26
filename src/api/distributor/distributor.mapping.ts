@@ -1,4 +1,5 @@
 import { ICountryAttributes, IDistributorAttributes } from "@/types";
+import { MarketDistributorGroupByCountry } from "./distributor.type";
 
 export const mappingAuthorizedCountriesName = (
   authorizedCountries: ICountryAttributes[]
@@ -72,4 +73,28 @@ export const mappingDistributorByCountry = (
       };
     })
     .flat();
+};
+
+export const mappingMarketDistributorGroupByCountry = (
+  distributors: IDistributorAttributes[]
+) => {
+  const result: MarketDistributorGroupByCountry[] = [];
+  distributors.forEach((distributor) => {
+    const groupIndex = result.findIndex(
+      (country) => country.country_name === distributor.country_name
+    );
+    if (groupIndex === -1) {
+      result.push({
+        country_name: distributor.country_name,
+        count: 1,
+        distributors: [distributor],
+      });
+    } else {
+      result[groupIndex] = {
+        ...result[groupIndex],
+        count: result[groupIndex].count + 1,
+        distributors: [...result[groupIndex].distributors, distributor],
+      };
+    }
+  });
 };

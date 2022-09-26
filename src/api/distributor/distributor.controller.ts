@@ -1,7 +1,6 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import DistributorService from "./distributor.services";
+import { distributorService } from "./distributor.services";
 import { IDistributorRequest } from "./distributor.type";
-
 export default class DistributorController {
   constructor() {}
   public create = async (
@@ -9,19 +8,19 @@ export default class DistributorController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await DistributorService.create(payload);
+    const response = await distributorService.create(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await DistributorService.getOne(id);
+    const response = await distributorService.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, brand_id, sort, order, filter } = req.query;
-    const response = await DistributorService.getList(
+    const response = await distributorService.getList(
       brand_id,
       limit,
       offset,
@@ -34,7 +33,7 @@ export default class DistributorController {
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await DistributorService.delete(id);
+    const response = await distributorService.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -44,7 +43,7 @@ export default class DistributorController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await DistributorService.update(id, payload);
+    const response = await distributorService.update(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -53,7 +52,7 @@ export default class DistributorController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.query;
-    const response = await DistributorService.getDistributorGroupByCountry(
+    const response = await distributorService.getDistributorGroupByCountry(
       brand_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -65,7 +64,7 @@ export default class DistributorController {
   ) => {
     const { product_id } = req.params;
     const response =
-      await DistributorService.getMarketDistributorGroupByCountry(product_id);
+      await distributorService.getMarketDistributorGroupByCountry(product_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

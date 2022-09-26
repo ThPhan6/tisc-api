@@ -30,7 +30,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 
-import MailService from "../../service/mail.service";
+import MailService from "@/service/mail.service";
 import PermissionService from "../permission/permission.service";
 
 import { getRoleType } from "@/constants/role.constant";
@@ -53,6 +53,7 @@ class AuthService {
 
   private reponseWithToken = (userId: string, type?: string) => {
     const response = {
+      type,
       token: signJwtToken(userId),
       message: MESSAGES.SUCCESS,
       statusCode: 200,
