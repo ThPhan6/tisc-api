@@ -30,7 +30,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 
-import MailService from "../../service/mail.service";
+import MailService from "@/service/mail.service";
 import PermissionService from "../permission/permission.service";
 
 import { getRoleType } from "@/constants/role.constant";
@@ -53,6 +53,7 @@ class AuthService {
 
   private reponseWithToken = (userId: string, type?: string) => {
     const response = {
+      type,
       token: signJwtToken(userId),
       message: MESSAGES.SUCCESS,
       statusCode: 200,
@@ -132,6 +133,9 @@ class AuthService {
     const user = await userRepository.findByCompanyIdWithCompanyStatus(
       payload.email
     );
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
     this.authValidation(payload.password, user);
     //// company status validation
     if (user.company_status === BRAND_STATUSES.INACTIVE) {

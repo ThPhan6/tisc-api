@@ -1,14 +1,17 @@
-import { ICountryStateCity } from "@/types/location.type";
 import { MESSAGES } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
 import BrandModel from "@/model/brand.model";
 import { ICountryAttributes } from "@/model/country";
 import DistributorModel, {
   DISTRIBUTOR_NULL_ATTRIBUTES,
+  IDistributorAttributes,
 } from "@/model/distributor.model";
-import MarketAvailabilityModel from "@/model/market_availability.model";
-import { IDistributorAttributes } from "@/model/distributor.model";
+import CollectionRepository from "@/repositories/collection.repository";
+import MarketAvailabilityRepository from "@/repositories/market_availability.repository";
+import ProductRepository from "@/repositories/product.repository";
+import { countryStateCityService } from "@/service/country_state_city.service";
 import { IMessageResponse, IPagination } from "@/types";
+import { ICountryStateCity } from "@/types/location.type";
 import {
   IDistributorGroupByCountryResponse,
   IDistributorRequest,
@@ -17,18 +20,13 @@ import {
   MarketDistributorGroupByCountry,
   MarketDistributorGroupByCountryResponse,
 } from "./distributor.type";
-import ProductRepository from "@/repositories/product.repository";
-import CollectionRepository from "@/repositories/collection.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
-
 export default class DistributorService {
   private distributorModel: DistributorModel;
   private brandModel: BrandModel;
-  private marketAvailabilityModel: MarketAvailabilityModel;
+
   constructor() {
     this.distributorModel = new DistributorModel();
     this.brandModel = new BrandModel();
-    this.marketAvailabilityModel = new MarketAvailabilityModel();
   }
 
   private updateMarkets = async (
@@ -44,7 +42,7 @@ export default class DistributorService {
     });
     const markets = await Promise.all(
       collections.map(async (collection) => {
-        return await this.marketAvailabilityModel.findBy({
+        return await MarketAvailabilityRepository.findBy({
           collection_id: collection.id,
         });
       })
@@ -60,7 +58,7 @@ export default class DistributorService {
               .filter((item) => !remove_country_ids?.includes(item))
               .concat(add_country_ids || []) || [];
         }
-        await this.marketAvailabilityModel.update(market?.id || "", {
+        await MarketAvailabilityRepository.update(market?.id || "", {
           country_ids: getDistinctArray(newCountryIds),
         });
         return true;
@@ -566,7 +564,7 @@ export default class DistributorService {
           statusCode: 404,
         });
       }
-      const market = await this.marketAvailabilityModel.findBy({
+      const market = await MarketAvailabilityRepository.findBy({
         collection_id: product.collection_id,
       });
       if (!market) {

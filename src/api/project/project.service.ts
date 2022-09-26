@@ -1,12 +1,19 @@
+import { countryStateCityService } from "@/service/country_state_city.service";
 import {
-  MESSAGES,
   PROJECT_STATUS,
   PROJECT_STATUS_OPTIONS,
-  SYSTEM_TYPE,
-} from "../../constant/common.constant";
-import ProjectModel, {
-  PROJECT_NULL_ATTRIBUTES,
-} from "../../model/project.model";
+} from "@/constant/common.constant";
+
+import { MESSAGES, SYSTEM_TYPE } from "@/constants";
+import BuildingTypeModel from "@/model/building_type.model";
+import DesignerModel from "@/model/designer.model";
+import ProjectModel, { PROJECT_NULL_ATTRIBUTES } from "@/model/project.model";
+import ProjectTypeModel, {
+  PROJECT_TYPE_NULL_ATTRIBUTES,
+} from "@/model/project_type.model";
+import UserModel from "@/model/user.model";
+import { IMessageResponse } from "@/type/common.type";
+import { IFunctionalTypesResponse } from "../location/location.type";
 import {
   IAllProjectResponse,
   IProjectGroupByStatusResponse,
@@ -15,16 +22,6 @@ import {
   IProjectsResponse,
   IProjectSummaryResponse,
 } from "./project.type";
-import ProjectTypeModel, {
-  PROJECT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/project_type.model";
-import BuildingTypeModel from "../../model/building_type.model";
-import UserModel from "../../model/user.model";
-import { IFunctionalTypesResponse } from "../location/location.type";
-import { countryStateCityService } from "../../service/country_state_city.service";
-import { IMessageResponse } from "../../type/common.type";
-import DesignerModel from "../../model/designer.model";
-
 export default class ProjectService {
   private projectModel: ProjectModel;
   private projectTypeModel: ProjectTypeModel;

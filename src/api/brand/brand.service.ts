@@ -30,7 +30,6 @@ import { deleteFile, upload } from "@/service/aws.service";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import MailService from "@/service/mail.service";
 import { IMessageResponse, IPagination } from "@/type/common.type";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
 import PermissionService from "../permission/permission.service";
 import { IAvatarResponse } from "../user/user.type";
 import {
@@ -43,7 +42,7 @@ import {
   IUpdateBrandProfileRequest,
   IUpdateBrandStatusRequest,
 } from "./brand.type";
-
+import MarketAvailabilityServices from "../market_availability/market_availability.services";
 export default class BrandService {
   private brandModel: BrandModel;
   private mailService: MailService;
@@ -53,7 +52,6 @@ export default class BrandService {
   private distributorModel: DistributorModel;
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
-  private marketAvailabilityService: MarketAvailabilityService;
   private functionalTypeModel: FunctionalTypeModel;
   private countryStateCityService: CountryStateCityService;
 
@@ -66,7 +64,6 @@ export default class BrandService {
     this.distributorModel = new DistributorModel();
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
-    this.marketAvailabilityService = new MarketAvailabilityService();
     this.functionalTypeModel = new FunctionalTypeModel();
     this.countryStateCityService = new CountryStateCityService();
   }
@@ -682,7 +679,7 @@ export default class BrandService {
         })
       );
       const distinctCountryIds = getDistinctArray(countryIds);
-      countries = await this.marketAvailabilityService.getRegionCountries(
+      countries = await MarketAvailabilityServices.getRegionCountries(
         distinctCountryIds
       );
 

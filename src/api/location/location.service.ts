@@ -1,11 +1,18 @@
+import { MESSAGES, SYSTEM_TYPE } from "@/constant/common.constant";
+import { getDistinctArray } from "@/helper/common.helper";
+import { ICityAttributes } from "@/model/city";
+import FunctionalTypeModel, {
+  FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
+} from "@/model/functional_type.model";
 import LocationModel, {
   ILocationAttributes,
   LOCATION_NULL_ATTRIBUTES,
-} from "../../model/location.model";
-import FunctionalTypeModel, {
-  FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
-} from "../../model/functional_type.model";
-import UserModel from "../../model/user.model";
+} from "@/model/location.model";
+import ProductModel from "@/model/product.model";
+import UserModel from "@/model/user.model";
+import MarketAvailabilityRepository from "@/repositories/market_availability.repository";
+import { countryStateCityService } from "@/service/country_state_city.service";
+import { IMessageResponse, SystemType } from "@/type/common.type";
 import {
   ICitiesResponse,
   ICityResponse,
@@ -20,26 +27,17 @@ import {
   IStatesResponse,
   LocationsWithGroupResponse,
 } from "./location.type";
-import { IMessageResponse, SystemType } from "../../type/common.type";
-import { MESSAGES, SYSTEM_TYPE } from "../../constant/common.constant";
-import { ICityAttributes } from "../../model/city";
-import { getDistinctArray } from "../../helper/common.helper";
-import ProductModel from "../../model/product.model";
-import MarketAvailabilityModel from "../../model/market_availability.model";
-import { countryStateCityService } from "@/service/country_state_city.service";
 
 export default class LocationService {
   private locationModel: LocationModel;
   private functionalTypeModel: FunctionalTypeModel;
   private userModel: UserModel;
   private productModel: ProductModel;
-  private marketAvailabilityModel: MarketAvailabilityModel;
   constructor() {
     this.locationModel = new LocationModel();
     this.functionalTypeModel = new FunctionalTypeModel();
     this.userModel = new UserModel();
     this.productModel = new ProductModel();
-    this.marketAvailabilityModel = new MarketAvailabilityModel();
   }
 
   private getRegionName = (key: string) => {
@@ -650,7 +648,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const market = await this.marketAvailabilityModel.findBy({
+      const market = await MarketAvailabilityRepository.findBy({
         collection_id: product.collection_id,
       });
       if (!market) {

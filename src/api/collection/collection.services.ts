@@ -2,18 +2,14 @@ import { MESSAGES } from "@/constant/common.constant";
 import {
   errorMessageResponse,
   successResponse,
+  successMessageResponse,
 } from "@/helper/response.helper";
 import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
-import { successMessageResponse } from "./../../helper/response.helper";
+import MarketAvailabilityServices from "../market_availability/market_availability.services";
 import { ICollectionRequest } from "./collection.type";
-
 class CollectionService {
-  private marketAvailabilityService: MarketAvailabilityService;
-  constructor() {
-    this.marketAvailabilityService = new MarketAvailabilityService();
-  }
+  constructor() {}
 
   public async create(payload: ICollectionRequest) {
     const collection = await CollectionRepository.findBy({
@@ -31,10 +27,10 @@ class CollectionService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
     const authorizedBrandCountries =
-      await this.marketAvailabilityService.getBrandRegionCountries(
+      await MarketAvailabilityServices.getBrandRegionCountries(
         payload.brand_id
       );
-    await this.marketAvailabilityService.create({
+    await MarketAvailabilityServices.create({
       collection_id: createdCollection.id,
       country_ids: authorizedBrandCountries.map((item) =>
         item.id.toLowerCase()

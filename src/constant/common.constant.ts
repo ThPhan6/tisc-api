@@ -148,8 +148,6 @@ export const MESSAGES = {
   BRAND_EXISTED: "Brand existed",
   DISTRIBUTOR_NOT_FOUND: "Distributor not found",
   DISTRIBUTOR_EXISTED: "Distributor existed",
-  MARKET_AVAILABILITY_EXISTED: "Market availability existed",
-  MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
 
   PRODUCT_CATELOGUE_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND: "Product download not found",
@@ -317,6 +315,8 @@ export const REGION_KEY: {
   NORTH_AMERICA: RegionKey;
   OCEANIA: RegionKey;
   SOUTH_AMERICA: RegionKey;
+  AMERICAS: RegionKey;
+  NORTHERN_AMERICA: RegionKey;
 } = {
   AFRICA: "africa",
   ASIA: "asia",
@@ -324,6 +324,8 @@ export const REGION_KEY: {
   NORTH_AMERICA: "north america",
   OCEANIA: "oceania",
   SOUTH_AMERICA: "south america",
+  AMERICAS: "americas",
+  NORTHERN_AMERICA: "northern_america",
 };
 
 export const LOGO_PATH = {

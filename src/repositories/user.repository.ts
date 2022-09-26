@@ -1,8 +1,8 @@
 import UserModel from "@/model/user.models";
 import BaseRepository from "./base.repository";
-import { SYSTEM_TYPE } from "@/constant/common.constant";
-import { USER_STATUSES, ROLE_TYPE } from "@/constants";
+import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
 import { UserAttributes } from "@/types";
+import { head } from "lodash";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
@@ -66,18 +66,19 @@ class UserRepository extends BaseRepository<UserAttributes> {
   }
 
   public async findByCompanyIdWithCompanyStatus(email: string) {
-    return (await this.model.rawQuery(
+    const result = (await this.model.rawQuery(
       `
         FILTER users.email == @email
-        FILTER users.delete_at == null
+        FILTER users.deleted_at == null
             let brands = (FOR brand in brands FILTER brand.id == users.relation_id RETURN {status: brand.status})
             let designs = (FOR design in designers FILTER design.id == users.relation_id RETURN {status: design.status})
         RETURN MERGE(users, {
-          company_status: LENGTH(brands) > 0 ? brands[0].status : (LENGTH(designs) > 0 ? designs[0].stauts : 0)
+          company_status: LENGTH(brands) > 0 ? brands[0].status : (LENGTH(designs) > 0 ? designs[0].status : 0)
         })
       `,
       { email }
-    )) as UserAttributes & { company_status: number };
+    )) as (UserAttributes & { company_status: number })[];
+    return head(result);
   }
 }
 
