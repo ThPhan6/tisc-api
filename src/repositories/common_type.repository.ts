@@ -1,15 +1,15 @@
-import CommonTypeModel from '@/model/common_type.models';
-import BaseRepository from './base.repository';
-import {CommonTypeAttributes, CommonTypeValue} from '@/types';
-import {COMMON_TYPES} from '@/constants';
+import CommonTypeModel from "@/model/common_type.models";
+import BaseRepository from "./base.repository";
+import { CommonTypeAttributes, CommonTypeValue } from "@/types";
+import { COMMON_TYPES } from "@/constants";
 
 class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
   protected model: CommonTypeModel;
   protected DEFAULT_ATTRIBUTE: Partial<CommonTypeAttributes> = {
-    name: '',
+    name: "",
     type: COMMON_TYPES.SHARING_GROUP,
     relation_id: null,
-  }
+  };
   constructor() {
     super();
     this.model = new CommonTypeModel();
@@ -25,7 +25,7 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       commonType = await this.create({
         name: keyword,
         type,
-        relation_id: relationId
+        relation_id: relationId,
       });
     }
     return commonType as CommonTypeAttributes;
@@ -36,33 +36,35 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
     relationId: string | null,
     type: CommonTypeValue
   ) {
-    return await this.model
-      .where('type', '==', type)
-      .where('id', '==', keyword)
-      .orWhere('name', '==', keyword)
-      .where('relation_id', '==', relationId)
-      .orWhere('relation_id', '==', null)
-      .first() as CommonTypeAttributes | undefined;
+    return (await this.model
+      .where("type", "==", type)
+      .where("id", "==", keyword)
+      .orWhere("name", "==", keyword)
+      .where("relation_id", "==", relationId)
+      .orWhere("relation_id", "==", null)
+      .first()) as CommonTypeAttributes | undefined;
   }
 
   public async getAllByRelationAndType(
     relationId: string | null,
     type: CommonTypeValue
   ) {
-    return await this.model
-      .select('id', 'name')
-      .where('type', '==', type)
-      .where('relation_id', '==', relationId)
-      .orWhere('relation_id', '==', null)
-      .get() as Pick<CommonTypeAttributes, 'id' | 'name'>[];
+    return (await this.model
+      .select("id", "name")
+      .where("type", "==", type)
+      .where("relation_id", "==", relationId)
+      .orWhere("relation_id", "==", null)
+      .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
   }
 
   public getByListIds = async (ids: string[]) => {
-    return await this.model
-      .select('id', 'name')
-      .where('id', 'in', ids)
-      .get() as Pick<CommonTypeAttributes, 'id' | 'name'>[];
-  }
+    return (await this.model
+      .select("id", "name")
+      .where("id", "in", ids)
+      .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
+  };
 }
 
-export default new CommonTypeRepository();
+export const commonTypeRepository = new CommonTypeRepository();
+
+export default CommonTypeRepository;

@@ -2,7 +2,7 @@ import { MESSAGES, REGION_KEY } from "../../constant/common.constant";
 import MarketAvailabilityModel, {
   MARKET_AVAILABILITY_NULL_ATTRIBUTES,
 } from "../../model/market_availability.model";
-import CountryStateCityService from "../../service/country_state_city.service";
+import { countryStateCityService } from "../../service/country_state_city.service";
 import CollectionModel from "../../model/collection.model";
 import { IMessageResponse, IPagination } from "../../type/common.type";
 import {
@@ -17,13 +17,11 @@ import BrandModel from "../../model/brand.model";
 import { getDistinctArray } from "../../helper/common.helper";
 export default class MarketAvailabilityService {
   private marketAvailabilityModel: MarketAvailabilityModel;
-  private countryStateCityService: CountryStateCityService;
   private collectionModel: CollectionModel;
   private distributorModel: DistributorModel;
   private brandModel: BrandModel;
   constructor() {
     this.marketAvailabilityModel = new MarketAvailabilityModel();
-    this.countryStateCityService = new CountryStateCityService();
     this.collectionModel = new CollectionModel();
     this.distributorModel = new DistributorModel();
     this.brandModel = new BrandModel();
@@ -41,8 +39,9 @@ export default class MarketAvailabilityService {
     new Promise(async (resolve) => {
       const countries = await Promise.all(
         ids.map(async (country_id) => {
-          const countryDetail =
-            await this.countryStateCityService.getCountryDetail(country_id);
+          const countryDetail = await countryStateCityService.getCountryDetail(
+            country_id
+          );
           let region = REGION_KEY.AFRICA;
           if (countryDetail.region?.toLowerCase() === "americas") {
             if (countryDetail.subregion?.toLowerCase() === "northern america")
@@ -318,9 +317,10 @@ export default class MarketAvailabilityService {
       const result = marketAvailabilities.map(
         (marketAvailability: IMarketAvailabilityResponse) => {
           let countRegion = 0;
-          const regions = marketAvailability.data.regions
-          .map((region) => {
-            const availableCountries = region.countries.filter((country) => country.available === true);
+          const regions = marketAvailability.data.regions.map((region) => {
+            const availableCountries = region.countries.filter(
+              (country) => country.available === true
+            );
             countRegion += availableCountries.length;
             const regionCountry = availableCountries
               .map((country) => {
