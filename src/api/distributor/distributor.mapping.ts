@@ -97,4 +97,5 @@ export const mappingMarketDistributorGroupByCountry = (
       };
     }
   });
+  return result;
 };
