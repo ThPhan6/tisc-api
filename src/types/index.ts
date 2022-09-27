@@ -7,6 +7,7 @@ export * from "./common.type";
 export * from "./product_favourite.type";
 export * from "./product.type";
 export * from "./location.type";
+export * from "./distributor.type";
 export * from "./collection.type";
 export * from "./category.type";
 export * from "./contact.type";

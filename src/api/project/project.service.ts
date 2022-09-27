@@ -1,9 +1,7 @@
-import { countryStateCityService } from "@/service/country_state_city.service";
 import {
   PROJECT_STATUS,
   PROJECT_STATUS_OPTIONS,
 } from "@/constant/common.constant";
-
 import { MESSAGES, SYSTEM_TYPE } from "@/constants";
 import BuildingTypeModel from "@/model/building_type.model";
 import DesignerModel from "@/model/designer.model";
@@ -12,6 +10,7 @@ import ProjectTypeModel, {
   PROJECT_TYPE_NULL_ATTRIBUTES,
 } from "@/model/project_type.model";
 import UserModel from "@/model/user.model";
+import { countryStateCityService } from "@/service/country_state_city.service";
 import { IMessageResponse } from "@/type/common.type";
 import { IFunctionalTypesResponse } from "../location/location.type";
 import {
@@ -22,6 +21,7 @@ import {
   IProjectsResponse,
   IProjectSummaryResponse,
 } from "./project.type";
+
 export default class ProjectService {
   private projectModel: ProjectModel;
   private projectTypeModel: ProjectTypeModel;

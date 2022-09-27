@@ -1,6 +1,3 @@
-import { IProductAttributes } from "@/types/product.type";
-import moment from "moment";
-import { v4 as uuidv4 } from "uuid";
 import ProductService from "@/api/product/product.services";
 import {
   BRAND_STATUSES,
@@ -21,15 +18,18 @@ import BrandModel, {
 import CollectionModel, {
   ICollectionAttributes,
 } from "@/model/collection.model";
-import DistributorModel from "@/model/distributor.model";
 import FunctionalTypeModel from "@/model/functional_type.model";
 import LocationModel, { ILocationAttributes } from "@/model/location.model";
 import ProductModel from "@/model/product.model";
 import UserModel, { USER_NULL_ATTRIBUTES } from "@/model/user.model";
+import { distributorRepository } from "@/repositories/distributor.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import MailService from "@/service/mail.service";
 import { IMessageResponse, IPagination } from "@/type/common.type";
+import { IProductAttributes } from "@/types/product.type";
+import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 import PermissionService from "../permission/permission.service";
 import { IAvatarResponse } from "../user/user.type";
 import {
@@ -49,7 +49,6 @@ export default class BrandService {
   private userModel: UserModel;
   private locationModel: LocationModel;
   private permissionService: PermissionService;
-  private distributorModel: DistributorModel;
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
   private functionalTypeModel: FunctionalTypeModel;
@@ -61,7 +60,6 @@ export default class BrandService {
     this.userModel = new UserModel();
     this.locationModel = new LocationModel();
     this.permissionService = new PermissionService();
-    this.distributorModel = new DistributorModel();
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
     this.functionalTypeModel = new FunctionalTypeModel();
@@ -117,7 +115,7 @@ export default class BrandService {
           const originLocation = await this.locationModel.getOriginLocation(
             brand.id
           );
-          const distributors = await this.distributorModel.getBy({
+          const distributors = await distributorRepository.getAllBy({
             brand_id: brand.id,
           });
           const collections = await this.collectionModel.getBy({

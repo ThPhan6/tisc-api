@@ -23,7 +23,6 @@ export interface IDistributorAttributes {
   authorized_country_name: string;
   coverage_beyond: boolean;
   created_at: string;
-  is_deleted: boolean;
 }
 
 export const DISTRIBUTOR_NULL_ATTRIBUTES = {
@@ -49,7 +48,6 @@ export const DISTRIBUTOR_NULL_ATTRIBUTES = {
   authorized_country_name: null,
   coverage_beyond: false,
   created_at: null,
-  is_deleted: false,
 };
 
 export default class DistributorModel extends Model<IDistributorAttributes> {
@@ -77,7 +75,7 @@ export default class DistributorModel extends Model<IDistributorAttributes> {
 
   public getMarketDistributor = async (
     brand_id: string,
-    countries: string[],
+    countries: string[]
   ): Promise<IDistributorAttributes[]> => {
     try {
       const result: any = await this.getBuilder()
@@ -89,5 +87,5 @@ export default class DistributorModel extends Model<IDistributorAttributes> {
     } catch (error) {
       return [];
     }
-  }
+  };
 }

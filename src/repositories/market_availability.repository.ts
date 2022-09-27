@@ -22,4 +22,5 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
   }
 }
 
-export default new MarketAvailabilityRepository();
+export const marketAvailabilityRepository = new MarketAvailabilityRepository();
+export default MarketAvailabilityRepository;

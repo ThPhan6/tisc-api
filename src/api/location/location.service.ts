@@ -10,7 +10,7 @@ import LocationModel, {
 } from "@/model/location.model";
 import ProductModel from "@/model/product.model";
 import UserModel from "@/model/user.model";
-import MarketAvailabilityRepository from "@/repositories/market_availability.repository";
+import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { IMessageResponse, SystemType } from "@/type/common.type";
 import {
@@ -648,7 +648,7 @@ export default class LocationService {
           statusCode: 404,
         });
       }
-      const market = await MarketAvailabilityRepository.findBy({
+      const market = await marketAvailabilityRepository.findBy({
         collection_id: product.collection_id,
       });
       if (!market) {
