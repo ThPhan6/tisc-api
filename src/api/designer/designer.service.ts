@@ -3,35 +3,32 @@ import {
   DESIGN_STATUS_OPTIONS,
   PROJECT_STATUS,
   REGION_KEY,
-} from "../../constant/common.constant";
-import { getDistinctArray } from "../../helper/common.helper";
-import DesignerModel, { IDesignerAttributes } from "../../model/designer.model";
-import LocationModel from "../../model/location.model";
-import ProjectModel from "../../model/project.model";
-import UserModel from "../../model/user.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
-import MarketAvailabilityService from "../market_availability/market_availability.service";
-import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
-import { USER_STATUSES } from "./../../constant/user.constant";
-import { ILocationAttributes } from "./../../model/location.model";
-import { IUserAttributes } from "./../../model/user.model";
+} from "@/constant/common.constant";
+import { getDistinctArray } from "@/helper/common.helper";
+import DesignerModel, { IDesignerAttributes } from "@/model/designer.model";
+import LocationModel from "@/model/location.model";
+import ProjectModel from "@/model/project.model";
+import UserModel from "@/model/user.model";
+import { IMessageResponse, IPagination } from "@/type/common.type";
+import MarketAvailabilityServices from "../market_availability/market_availability.services";
+import { MESSAGES, SYSTEM_TYPE } from "@/constant/common.constant";
+import { USER_STATUSES } from "@/constant/user.constant";
+import { ILocationAttributes } from "@/model/location.model";
+import { IUserAttributes } from "@/model/user.model";
 import {
   IDesignerResponse,
   IDesignersResponse,
   IDesignSummary,
   IUpdateDesignStatusRequest,
 } from "./designer.type";
-
 export default class DesignerService {
   private designerModel: DesignerModel;
   private userModel: UserModel;
-  private marketAvailabilityService: MarketAvailabilityService;
   private locationModel: LocationModel;
   private projectModel: ProjectModel;
   constructor() {
     this.designerModel = new DesignerModel();
     this.userModel = new UserModel();
-    this.marketAvailabilityService = new MarketAvailabilityService();
     this.locationModel = new LocationModel();
     this.projectModel = new ProjectModel();
   }
@@ -165,7 +162,7 @@ export default class DesignerService {
 
       const originLocationIds = await this.locationModel.getOriginCountry();
 
-      const countries = await this.marketAvailabilityService.getRegionCountries(
+      const countries = await MarketAvailabilityServices.getRegionCountries(
         getDistinctArray(originLocationIds)
       );
 

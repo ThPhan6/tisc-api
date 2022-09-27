@@ -64,22 +64,22 @@ export default class LocationRoute implements IRoute {
             },
           },
         },
-        {
-          method: "GET",
-          path: "/api/location/regions",
-          options: {
-            handler: controller.getAllCountryWithRegionGroup,
-            description: "Method that get all country with region group",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getListRegion,
-              },
-            },
-          },
-        },
+        // {
+        //   method: "GET",
+        //   path: "/api/location/regions",
+        //   options: {
+        //     handler: controller.getAllCountryWithRegionGroup,
+        //     description: "Method that get all country with region group",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.getListRegion,
+        //       },
+        //     },
+        //   },
+        // },
         {
           method: "GET",
           path: ROUTES.GET_FUNCTIONAL_TYPES,
@@ -129,107 +129,107 @@ export default class LocationRoute implements IRoute {
             },
           },
         },
-        {
-          method: "GET",
-          path: ROUTES.GET_COUNTRIES,
-          options: {
-            handler: controller.getAllCountry,
-            description: "Method that get all country",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.countries,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_STATES,
-          options: {
-            handler: controller.getStates,
-            validate: validate.getStates,
-            description: "Method that get country states",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.states,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_CITIES,
-          options: {
-            handler: controller.getCities,
-            validate: validate.getCities,
-            description: "Method that get cities",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.cities,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_COUNTRY,
-          options: {
-            handler: controller.getCountry,
-            validate: commonValidate.getOne,
-            description: "Method that get country detail",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.country,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_STATE,
-          options: {
-            handler: controller.getState,
-            validate: commonValidate.getOne,
-            description: "Method that get state detail",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.state,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_CITY,
-          options: {
-            handler: controller.getCity,
-            validate: commonValidate.getOne,
-            description: "Method that get city detail",
-            tags: ["api", "Location"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.city,
-              },
-            },
-          },
-        },
+        // {
+        //   method: "GET",
+        //   path: ROUTES.GET_COUNTRIES,
+        //   options: {
+        //     handler: controller.getAllCountry,
+        //     description: "Method that get all country",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.countries,
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   method: "GET",
+        //   path: ROUTES.GET_STATES,
+        //   options: {
+        //     handler: controller.getStates,
+        //     validate: validate.getStates,
+        //     description: "Method that get country states",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.states,
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   method: "GET",
+        //   path: ROUTES.GET_CITIES,
+        //   options: {
+        //     handler: controller.getCities,
+        //     validate: validate.getCities,
+        //     description: "Method that get cities",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.cities,
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   method: "GET",
+        //   path: ROUTES.GET_COUNTRY,
+        //   options: {
+        //     handler: controller.getCountry,
+        //     validate: commonValidate.getOne,
+        //     description: "Method that get country detail",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.country,
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   method: "GET",
+        //   path: ROUTES.GET_STATE,
+        //   options: {
+        //     handler: controller.getState,
+        //     validate: commonValidate.getOne,
+        //     description: "Method that get state detail",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.state,
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   method: "GET",
+        //   path: ROUTES.GET_CITY,
+        //   options: {
+        //     handler: controller.getCity,
+        //     validate: commonValidate.getOne,
+        //     description: "Method that get city detail",
+        //     tags: ["api", "Location"],
+        //     auth: AUTH_NAMES.GENERAL,
+        //     response: {
+        //       status: {
+        //         ...defaultRouteOptionResponseStatus,
+        //         200: response.city,
+        //       },
+        //     },
+        //   },
+        // },
         {
           method: "GET",
           path: ROUTES.GET_MARKET_LOCATIONS_COUNTRY_GROUP,
@@ -252,7 +252,7 @@ export default class LocationRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_BRAND_LOCATIONS_COUNTRY_GROUP,
           options: {
-            handler: controller.getBrandLocationGroupByCountry,
+            handler: controller.getCompanyLocationGroupByCountry,
             validate: validate.getBrandLocationsCountryGroup,
             description: "Method that get brand locations group by country",
             tags: ["api", "Location"],
@@ -269,7 +269,7 @@ export default class LocationRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_DESIGN_LOCATIONS_COUNTRY_GROUP,
           options: {
-            handler: controller.getDesignLocationGroupByCountry,
+            handler: controller.getCompanyLocationGroupByCountry,
             validate: validate.getDesignLocationsCountryGroup,
             description: "Method that get design locations group by country",
             tags: ["api", "Location"],

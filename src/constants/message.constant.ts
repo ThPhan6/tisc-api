@@ -49,6 +49,11 @@ export const MESSAGES = {
     PRODUCT_EXISTED: "Product existed.",
   },
 
+  MARKET_AVAILABILITY: {
+    MARKET_AVAILABILITY_EXISTED: "Market availability existed",
+    MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
+  },
+
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",

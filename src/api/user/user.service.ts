@@ -35,7 +35,7 @@ import { getAccessLevel } from "../../helper/common.helper";
 import PermissionService from "../../api/permission/permission.service";
 import BrandModel from "../../model/brand.model";
 import DesignModel from "../../model/designer.model";
-import CountryStateCityService from "../../service/country_state_city.service";
+import { countryStateCityService } from "../../service/country_state_city.service";
 
 export default class UserService {
   private userModel: UserModel;
@@ -45,7 +45,6 @@ export default class UserService {
   private permissionService: PermissionService;
   private brandModel: BrandModel;
   private designModel: DesignModel;
-  private countryStateCityService: CountryStateCityService;
   constructor() {
     this.userModel = new UserModel();
     this.mailService = new MailService();
@@ -54,7 +53,6 @@ export default class UserService {
     this.permissionService = new PermissionService();
     this.brandModel = new BrandModel();
     this.designModel = new DesignModel();
-    this.countryStateCityService = new CountryStateCityService();
   }
 
   public create = (
@@ -624,7 +622,7 @@ export default class UserService {
       } = {};
       await Promise.all(
         locations.map(async (location) => {
-          const country = await this.countryStateCityService.getCountryDetail(
+          const country = await countryStateCityService.getCountryDetail(
             location.country_id
           );
           const foundUsers = users.filter(

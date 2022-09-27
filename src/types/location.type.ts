@@ -82,3 +82,20 @@ export interface CountryGroupCount {
   country_name: string;
   count: number;
 }
+
+export interface IRegionCountry {
+  id: string;
+  name: string;
+  phone_code: string;
+  region: string;
+}
+
+export type RegionKey =
+  | "africa"
+  | "asia"
+  | "europe"
+  | "north america"
+  | "oceania"
+  | "south america"
+  | "americas"
+  | "northern_america";

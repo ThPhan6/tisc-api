@@ -31,42 +31,42 @@ export default class LocationController {
     const response = await this.service.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllCountry = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await this.service.getAllCountry();
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getStates = async (req: Request, toolkit: ResponseToolkit) => {
-    const { country_id } = req.query;
-    const response = await this.service.getStates(country_id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getCities = async (req: Request, toolkit: ResponseToolkit) => {
-    const { country_id, state_id } = req.query;
-    const response = await this.service.getCities(country_id, state_id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getCountry = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
-    const response = await this.service.getCountry(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getAllCountryWithRegionGroup = async (
-    _req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const response = await this.service.getListCountryWithRegionGroup();
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getState = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
-    const response = await this.service.getState(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getCity = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
-    const response = await this.service.getCity(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+  // public getAllCountry = async (_req: Request, toolkit: ResponseToolkit) => {
+  //   const response = await this.service.getAllCountry();
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
+  // public getStates = async (req: Request, toolkit: ResponseToolkit) => {
+  //   const { country_id } = req.query;
+  //   const response = await this.service.getStates(country_id);
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
+  // public getCities = async (req: Request, toolkit: ResponseToolkit) => {
+  //   const { country_id, state_id } = req.query;
+  //   const response = await this.service.getCities(country_id, state_id);
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
+  // public getCountry = async (req: Request, toolkit: ResponseToolkit) => {
+  //   const { id } = req.params;
+  //   const response = await this.service.getCountry(id);
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
+  // public getAllCountryWithRegionGroup = async (
+  //   _req: Request,
+  //   toolkit: ResponseToolkit
+  // ) => {
+  //   const response = await this.service.getListCountryWithRegionGroup();
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
+  // public getState = async (req: Request, toolkit: ResponseToolkit) => {
+  //   const { id } = req.params;
+  //   const response = await this.service.getState(id);
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
+  // public getCity = async (req: Request, toolkit: ResponseToolkit) => {
+  //   const { id } = req.params;
+  //   const response = await this.service.getCity(id);
+  //   return toolkit.response(response).code(response.statusCode ?? 200);
+  // };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
     const userId = req.auth.credentials.user_id as string;
@@ -74,9 +74,9 @@ export default class LocationController {
       userId,
       limit,
       offset,
-      filter,
       sort,
-      order
+      order,
+      filter,
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -95,25 +95,13 @@ export default class LocationController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getBrandLocationGroupByCountry = async (
+  public getCompanyLocationGroupByCountry = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
-    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
+    const response = await this.service.getCompanyLocationGroupByCountry(
       brand_id,
-      SYSTEM_TYPE.BRAND
-    );
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getDesignLocationGroupByCountry = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const { design_id } = req.params;
-    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
-      design_id,
-      SYSTEM_TYPE.DESIGN
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

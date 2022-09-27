@@ -1,12 +1,19 @@
+import { countryStateCityService } from "@/service/country_state_city.service";
 import {
-  MESSAGES,
   PROJECT_STATUS,
   PROJECT_STATUS_OPTIONS,
-  SYSTEM_TYPE,
-} from "../../constant/common.constant";
-import ProjectModel, {
-  PROJECT_NULL_ATTRIBUTES,
-} from "../../model/project.model";
+} from "@/constant/common.constant";
+
+import { MESSAGES, SYSTEM_TYPE } from "@/constants";
+import BuildingTypeModel from "@/model/building_type.model";
+import DesignerModel from "@/model/designer.model";
+import ProjectModel, { PROJECT_NULL_ATTRIBUTES } from "@/model/project.model";
+import ProjectTypeModel, {
+  PROJECT_TYPE_NULL_ATTRIBUTES,
+} from "@/model/project_type.model";
+import UserModel from "@/model/user.model";
+import { IMessageResponse } from "@/type/common.type";
+import { IFunctionalTypesResponse } from "../location/location.type";
 import {
   IAllProjectResponse,
   IProjectGroupByStatusResponse,
@@ -15,29 +22,17 @@ import {
   IProjectsResponse,
   IProjectSummaryResponse,
 } from "./project.type";
-import ProjectTypeModel, {
-  PROJECT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/project_type.model";
-import BuildingTypeModel from "../../model/building_type.model";
-import UserModel from "../../model/user.model";
-import { IFunctionalTypesResponse } from "../location/location.type";
-import CountryStateCityService from "../../service/country_state_city.service";
-import { IMessageResponse } from "../../type/common.type";
-import DesignerModel from "../../model/designer.model";
-
 export default class ProjectService {
   private projectModel: ProjectModel;
   private projectTypeModel: ProjectTypeModel;
   private buildingTypeModel: BuildingTypeModel;
   private userModel: UserModel;
-  private countryStateCityService: CountryStateCityService;
   private designModel: DesignerModel;
   constructor() {
     this.projectModel = new ProjectModel();
     this.projectTypeModel = new ProjectTypeModel();
     this.buildingTypeModel = new BuildingTypeModel();
     this.userModel = new UserModel();
-    this.countryStateCityService = new CountryStateCityService();
     this.designModel = new DesignerModel();
   }
   public getProjectTypes = (
@@ -153,7 +148,7 @@ export default class ProjectService {
       }
 
       let locationParts = [];
-      const country = await this.countryStateCityService.getCountryDetail(
+      const country = await countryStateCityService.getCountryDetail(
         payload.country_id
       );
       if (!country.id) {
@@ -162,7 +157,7 @@ export default class ProjectService {
           statusCode: 404,
         });
       }
-      const states = await this.countryStateCityService.getStatesByCountry(
+      const states = await countryStateCityService.getStatesByCountry(
         payload.country_id
       );
       if (states.length >= 1) {
@@ -179,7 +174,7 @@ export default class ProjectService {
             statusCode: 400,
           });
         }
-        const state = await this.countryStateCityService.getStateDetail(
+        const state = await countryStateCityService.getStateDetail(
           payload.state_id
         );
         if (!state.id) {
@@ -188,11 +183,10 @@ export default class ProjectService {
             statusCode: 404,
           });
         }
-        const cities =
-          await this.countryStateCityService.getCitiesByStateAndCountry(
-            payload.country_id,
-            payload.state_id
-          );
+        const cities = await countryStateCityService.getCitiesByStateAndCountry(
+          payload.country_id,
+          payload.state_id
+        );
         if (cities.length >= 1) {
           if (!payload.city_id || payload.city_id === "") {
             return resolve({
@@ -210,7 +204,7 @@ export default class ProjectService {
         }
       }
       const countryStateCity =
-        await this.countryStateCityService.getCountryStateCity(
+        await countryStateCityService.getCountryStateCity(
           payload.country_id,
           payload.city_id,
           payload.state_id
@@ -444,7 +438,7 @@ export default class ProjectService {
         if (
           foundProject.country_id.toString() !== payload.country_id.toString()
         ) {
-          const country = await this.countryStateCityService.getCountryDetail(
+          const country = await countryStateCityService.getCountryDetail(
             payload.country_id
           );
           if (!country.id) {
@@ -455,7 +449,7 @@ export default class ProjectService {
           }
         }
         if (foundProject.state_id.toString() !== payload.state_id.toString()) {
-          const states = await this.countryStateCityService.getStatesByCountry(
+          const states = await countryStateCityService.getStatesByCountry(
             payload.country_id
           );
           if (states.length >= 1) {
@@ -474,7 +468,7 @@ export default class ProjectService {
                 statusCode: 400,
               });
             }
-            const state = await this.countryStateCityService.getStateDetail(
+            const state = await countryStateCityService.getStateDetail(
               payload.state_id
             );
             if (!state.id) {
@@ -484,7 +478,7 @@ export default class ProjectService {
               });
             }
             const cities =
-              await this.countryStateCityService.getCitiesByStateAndCountry(
+              await countryStateCityService.getCitiesByStateAndCountry(
                 payload.country_id,
                 payload.state_id
               );
@@ -507,12 +501,11 @@ export default class ProjectService {
             }
           }
         }
-        countryStateCity =
-          await this.countryStateCityService.getCountryStateCity(
-            payload.country_id,
-            payload.city_id,
-            payload.state_id
-          );
+        countryStateCity = await countryStateCityService.getCountryStateCity(
+          payload.country_id,
+          payload.city_id,
+          payload.state_id
+        );
         if (!countryStateCity) {
           return resolve({
             message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
