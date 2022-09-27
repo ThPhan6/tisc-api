@@ -25,6 +25,7 @@ import ConsideredProductRoute from "./api/considered_product/considered_product.
 import MaterialCodeRoute from "./api/material_code/material_code.route";
 import SpecifiedProductRoute from "./api/specified_product/specified_product.route";
 import FavouriteRoute from "./api/favourite/favourite.route";
+import UserProductSpecificationRoute from "./api/user_product_specification/user_product_specification.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -54,5 +55,6 @@ export default class Router {
     await new MaterialCodeRoute().register(server);
     await new SpecifiedProductRoute().register(server);
     await new FavouriteRoute().register(server);
+    await new UserProductSpecificationRoute().register(server);
   }
 }
