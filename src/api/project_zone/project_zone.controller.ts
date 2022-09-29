@@ -1,5 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import ProjectZoneService from "./project_zone.service";
+import ProjectZoneService from "./project_zone.services";
 import {
   IProjectZoneRequest,
   IUpdateProjectZoneRequest,

@@ -15,7 +15,7 @@ export interface IUpdateProjectZoneRequest {
   project_id: string;
   name: string;
   areas: {
-    id: string;
+    id?: string;
     name: string;
     rooms: {
       id: string;
