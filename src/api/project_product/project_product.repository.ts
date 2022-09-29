@@ -1,7 +1,8 @@
 import ProjectProductModel, {
   ProjectProductAttributes,
-} from "@/model/project_product.model";
-import BaseRepository from "./base.repository";
+} from "@/api/project_product/project_product.model";
+import BaseRepository from "@/repositories/base.repository";
+import { AssignProductToProjectRequest } from "./project_product.type";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -40,6 +41,22 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
   constructor() {
     super();
     this.model = new ProjectProductModel();
+  }
+
+  public async upsert(payload: AssignProductToProjectRequest) {
+    return this.model.rawQuery(
+      `UPSERT {product_id: '${payload.product_id}', project_id: '${payload.project_id}'}
+      INSERT @payload
+      UPDATE @payload
+      IN project_products
+      RETURN { doc: NEW }
+    `,
+      { payload }
+    );
+  }
+
+  public async getListAssignedProject(project_id: string, product_id: string) {
+    return this.findBy({ project_id, product_id });
   }
 }
 

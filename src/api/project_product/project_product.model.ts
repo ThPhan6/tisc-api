@@ -26,7 +26,7 @@ export interface ProjectProductAttributes {
   special_instruction: string;
   /// specification
   specification: ProductSpecificationSelection;
-  /// alowcation
+  /// allocation
   allocation: string[]; // room_id
   entire_allocation: boolean;
   ///

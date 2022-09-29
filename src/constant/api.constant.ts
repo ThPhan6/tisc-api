@@ -232,6 +232,10 @@ export const ROUTES = {
 
   GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
   UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
+
+  ASSIGN_PRODUCT_TO_A_PROJECT: "/api/project/assign-product",
+  GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT:
+    "/api/project/{project_id}/prduct/{product_id}/assign-zones",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -440,4 +444,7 @@ export const ROUTE_IDS = {
 
   GET_USER_SPEC_SELECTION: "195",
   UPDATE_USER_SPEC_SELECTION: "196",
+
+  ASSIGN_PRODUCT_TO_A_PROJECT: "197",
+  GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT: "198",
 };
