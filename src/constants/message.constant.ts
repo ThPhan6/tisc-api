@@ -69,6 +69,10 @@ export const MESSAGES = {
       "Not found location, please check country state city id",
   },
 
+  DESIGNER: {
+    DESIGN_NOT_FOUND: "Design not found",
+  },
+
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",

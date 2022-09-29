@@ -10,14 +10,14 @@ export default class DesignerController {
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
-    const response = await this.service.getList_(
+    const response = await this.service.getList(
       limit,
       offset,
       filter,
       sort,
       order
     );
-    // return toolkit.response(response).code(response.statusCode ?? 200);
+    return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
