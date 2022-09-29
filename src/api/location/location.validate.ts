@@ -23,21 +23,6 @@ export default {
         .error(commonFailValidatedMessageFunction("Design id is required")),
     },
   },
-  getStates: {
-    query: {
-      country_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-    },
-  },
-  getCities: {
-    query: {
-      country_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string(),
-    },
-  },
   create: {
     payload: {
       business_name: Joi.string()

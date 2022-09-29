@@ -9,3 +9,4 @@ export * from "./common.constant";
 export * from "./basis.constant";
 export * from "./attribute.constant";
 export * from "./image.constant";
+export * from "./route.constant";

@@ -4,7 +4,7 @@ import { MESSAGES } from "@/constants";
 import {COMMON_TYPES} from '@/constants/common.constant';
 import {userRepository} from '@/repositories/user.repository';
 import productRepository from '@/repositories/product.repository';
-import marketAvailability from '@/repositories/market_availability.repository';
+import {marketAvailabilityRepository} from '@/repositories/market_availability.repository';
 import {commonTypeRepository} from '@/repositories/common_type.repository';
 import {locationRepository} from '@/repositories/location.repository';
 import {countryStateCityService} from "@/service/country_state_city.service";
@@ -161,74 +161,6 @@ export default class LocationService {
     return successResponse({ data: head(locationData) });
   };
 
-  // public getAllCountry = (): Promise<ICountriesResponse> =>
-  //   new Promise(async (resolve) => {
-  //     const result = await this.countryStateCityService.getAllCountry();
-  //
-  //     return resolve({
-  //       data: result,
-  //       statusCode: 200,
-  //     });
-  //   });
-  // public getCountry = (id: string): Promise<ICountryResponse> =>
-  //   new Promise(async (resolve) => {
-  //     const result = await this.countryStateCityService.getCountryDetail(id);
-  //
-  //     return resolve({
-  //       data: result,
-  //       statusCode: 200,
-  //     });
-  //   });
-  // public getState = (id: string): Promise<IStateResponse> =>
-  //   new Promise(async (resolve) => {
-  //     const result = await this.countryStateCityService.getStateDetail(id);
-  //
-  //     return resolve({
-  //       data: result,
-  //       statusCode: 200,
-  //     });
-  //   });
-  // public getCity = (id: string): Promise<ICityResponse> =>
-  //   new Promise(async (resolve) => {
-  //     const result = await this.countryStateCityService.getCityDetail(id);
-  //
-  //     return resolve({
-  //       data: result,
-  //       statusCode: 200,
-  //     });
-  //   });
-  // public getStates = (country_id: string): Promise<IStatesResponse> =>
-  //   new Promise(async (resolve) => {
-  //     const result = await this.countryStateCityService.getStatesByCountry(
-  //       country_id
-  //     );
-  //     return resolve({
-  //       data: result,
-  //       statusCode: 200,
-  //     });
-  //   });
-  // public getCities = (
-  //   country_id: string,
-  //   state_id?: string
-  // ): Promise<ICitiesResponse> =>
-  //   new Promise(async (resolve) => {
-  //     let cities: ICityAttributes[] = [];
-  //     if (!state_id) {
-  //       cities = await this.countryStateCityService.getCitiesByCountry(
-  //         country_id
-  //       );
-  //     } else {
-  //       cities = await this.countryStateCityService.getCitiesByStateAndCountry(
-  //         country_id,
-  //         state_id
-  //       );
-  //     }
-  //     return resolve({
-  //       data: cities,
-  //       statusCode: 200,
-  //     });
-  //   });
-
   public getList = async (
     userId: string,
     limit?: number,
@@ -260,13 +192,13 @@ export default class LocationService {
 
   public getListWithGroup = async (userId: string) => {
     const user = await userRepository.find(userId);
-    if (!user || !user.relation_id) {
+    if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
     return this.getCompanyLocationGroupByCountry(user.relation_id);
   }
 
-  public getCompanyLocationGroupByCountry = async ( relationId: string ) => {
+  public getCompanyLocationGroupByCountry = async (relationId: string | null) => {
     const response = await locationRepository.getLocationPagination(
       undefined,
       undefined,
@@ -285,7 +217,7 @@ export default class LocationService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const market = await marketAvailability.findMarketAvailabilityByCollection(product.collection_id);
+    const market = await marketAvailabilityRepository.findMarketAvailabilityByCollection(product.collection_id);
     if (!market) {
       return successResponse({data: []});
     }
@@ -317,98 +249,5 @@ export default class LocationService {
     await locationRepository.delete(id);
     return successMessageResponse(MESSAGES.SUCCESS);
   }
-
-  // public getListCountryWithRegionGroup = async () =>
-  //   new Promise(async (resolve) => {
-  //     const allCountry = await this.countryStateCityService.getAllCountry();
-  //     const data = allCountry.reduce(
-  //       (pre: any, cur) => {
-  //         if (cur.region.toLowerCase() === "americas") {
-  //           if (cur.subregion.toLowerCase() === "northern america")
-  //             return {
-  //               ...pre,
-  //               n_america: pre.n_america.concat([
-  //                 {
-  //                   id: cur.id,
-  //                   name: cur.name,
-  //                   phone_code: cur.phone_code,
-  //                 },
-  //               ]),
-  //             };
-  //           else
-  //             return {
-  //               ...pre,
-  //               s_america: pre.s_america.concat([
-  //                 {
-  //                   id: cur.id,
-  //                   name: cur.name,
-  //                   phone_code: cur.phone_code,
-  //                 },
-  //               ]),
-  //             };
-  //         }
-  //         if (cur.region.toLowerCase() === "asia")
-  //           return {
-  //             ...pre,
-  //             asia: pre.asia.concat([
-  //               {
-  //                 id: cur.id,
-  //                 name: cur.name,
-  //                 phone_code: cur.phone_code,
-  //               },
-  //             ]),
-  //           };
-  //         if (cur.region.toLowerCase() === "africa")
-  //           return {
-  //             ...pre,
-  //             africa: pre.africa.concat([
-  //               {
-  //                 id: cur.id,
-  //                 name: cur.name,
-  //                 phone_code: cur.phone_code,
-  //               },
-  //             ]),
-  //           };
-  //         if (cur.region.toLowerCase() === "oceania")
-  //           return {
-  //             ...pre,
-  //             oceania: pre.oceania.concat([
-  //               {
-  //                 id: cur.id,
-  //                 name: cur.name,
-  //                 phone_code: cur.phone_code,
-  //               },
-  //             ]),
-  //           };
-  //         return {
-  //           ...pre,
-  //           europe: pre.europe.concat([
-  //             {
-  //               id: cur.id,
-  //               name: cur.name,
-  //               phone_code: cur.phone_code,
-  //             },
-  //           ]),
-  //         };
-  //       },
-  //       {
-  //         africa: [],
-  //         asia: [],
-  //         europe: [],
-  //         n_america: [],
-  //         oceania: [],
-  //         s_america: [],
-  //       }
-  //     );
-  //     const keys = Object.keys(data);
-  //     const result = keys.map((key) => ({
-  //       name: this.getRegionName(key),
-  //       count: data[key].length,
-  //       countries: data[key],
-  //     }));
-  //     return resolve({
-  //       data: result,
-  //       statusCode: 200,
-  //     });
-  //   });
 }
+export const locationService = new LocationService();

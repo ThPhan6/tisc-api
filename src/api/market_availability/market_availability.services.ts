@@ -1,3 +1,5 @@
+import { distributorRepository } from "@/repositories/distributor.repository";
+import { marketAvailabilityRepository } from "./../../repositories/market_availability.repository";
 import { MESSAGES } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
 import {
@@ -5,9 +7,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import BrandModel from "@/model/brand.model";
-import DistributorModel from "@/model/distributor.model";
 import CollectionRepository from "@/repositories/collection.repository";
-import MarketAvailabilityRepository from "@/repositories/market_availability.repository";
 import CountryStateCityService from "@/service/country_state_city.service";
 import { IRegionCountry } from "@/types";
 import {
@@ -21,13 +21,12 @@ import {
   IMarketAvailabilityResponse,
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
+
 class MarketAvailabilityService {
   private countryStateCityService: CountryStateCityService;
-  private distributorModel: DistributorModel;
   private brandModel: BrandModel;
   constructor() {
     this.countryStateCityService = new CountryStateCityService();
-    this.distributorModel = new DistributorModel();
     this.brandModel = new BrandModel();
   }
 
@@ -52,10 +51,7 @@ class MarketAvailabilityService {
       return [];
     }
 
-    const distributors = await this.distributorModel.getAllBy({ brand_id }, [
-      "country_id",
-      "authorized_country_ids",
-    ]);
+    const distributors = await distributorRepository.getAllBy({ brand_id });
 
     const distinctCountryIds = getDistinctArray(
       distributors.reduce((pre: any[], cur) => {
@@ -74,7 +70,7 @@ class MarketAvailabilityService {
     }
 
     const market =
-      await MarketAvailabilityRepository.findMarketAvailabilityByCollection(
+      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
         payload.collection_id
       );
 
@@ -84,7 +80,7 @@ class MarketAvailabilityService {
       );
     }
 
-    const createdMarket = await MarketAvailabilityRepository.create({
+    const createdMarket = await marketAvailabilityRepository.create({
       collection_id: payload.collection_id,
       collection_name: collection.name,
       country_ids: payload.country_ids,
@@ -110,7 +106,7 @@ class MarketAvailabilityService {
     }
 
     const market =
-      await MarketAvailabilityRepository.findMarketAvailabilityByCollection(
+      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
         collectionId
       );
 
@@ -121,7 +117,7 @@ class MarketAvailabilityService {
       );
     }
 
-    const updatedMarket = await MarketAvailabilityRepository.update(
+    const updatedMarket = await marketAvailabilityRepository.update(
       market.id,
       payload
     );
@@ -151,7 +147,7 @@ class MarketAvailabilityService {
     }
 
     const market =
-      await MarketAvailabilityRepository.findMarketAvailabilityByCollection(
+      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
         collectionId
       );
 
@@ -193,7 +189,7 @@ class MarketAvailabilityService {
 
     const result = await Promise.all(
       collections.data.map(async (collection: any) => {
-        const market = await MarketAvailabilityRepository.findBy({
+        const market = await marketAvailabilityRepository.findBy({
           collection_id: collection.id,
         });
         const countries = await this.getRegionCountries(

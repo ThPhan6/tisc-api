@@ -1,15 +1,11 @@
-import { getDistinctArray } from "./../../helper/common.helper";
-import { MESSAGES, SYSTEM_TYPE } from "./../../constant/common.constant";
-import {
-  IMessageResponse,
-  IPagination,
-  SystemType,
-} from "../../type/common.type";
+import { getDistinctArray } from "@/helper/common.helper";
+import { MESSAGES, SYSTEM_TYPE } from "@/constant/common.constant";
+import { IMessageResponse, IPagination, SystemType } from "@/type/common.type";
 import UserModel, {
   IUserAttributes,
   USER_NULL_ATTRIBUTES,
-} from "../../model/user.model";
-import MailService from "../../service/mail.service";
+} from "@/model/user.model";
+import MailService from "@/service/mail.service";
 import {
   IAvatarResponse,
   IUpdateMeRequest,
@@ -21,21 +17,21 @@ import {
   IAssignTeamRequest,
   IGetTiscTeamsProfile,
 } from "./user.type";
-import { createResetPasswordToken } from "../../helper/password.helper";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
-import { VALID_IMAGE_TYPES } from "../../constant/common.constant";
-import { upload, deleteFile } from "../../service/aws.service";
+import { createResetPasswordToken } from "@/helper/password.helper";
+import { ROLES, USER_STATUSES } from "@/constant/user.constant";
+import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
+import { upload, deleteFile } from "@/service/aws.service";
 import moment from "moment";
-import { toWebp } from "../../helper/image.helper";
+import { toWebp } from "@/helper/image.helper";
 import DepartmentModel, {
   DEPARTMENT_NULL_ATTRIBUTES,
-} from "../../model/department.model";
-import LocationModel from "../../model/location.model";
-import { getAccessLevel } from "../../helper/common.helper";
-import PermissionService from "../../api/permission/permission.service";
-import BrandModel from "../../model/brand.model";
-import DesignModel from "../../model/designer.model";
-import { countryStateCityService } from "../../service/country_state_city.service";
+} from "@/model/department.model";
+import LocationModel from "@/model/location.model";
+import { getAccessLevel } from "@/helper/common.helper";
+import PermissionService from "@/api/permission/permission.service";
+import BrandModel from "@/model/brand.model";
+import DesignModel from "@/model/designer.model";
+import { countryStateCityService } from "@/service/country_state_city.service";
 
 export default class UserService {
   private userModel: UserModel;

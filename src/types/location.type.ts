@@ -90,6 +90,19 @@ export interface IRegionCountry {
   region: string;
 }
 
+
+export type RegionGroupValue = Omit<IRegionCountry, 'region'>;
+
+export interface RegionGroup {
+  africa: RegionGroupValue[];
+  asia: RegionGroupValue[];
+  europe: RegionGroupValue[];
+  n_america: RegionGroupValue[];
+  oceania: RegionGroupValue[];
+  s_america: RegionGroupValue[];
+}
+export type RegionGroupKey = keyof RegionGroup;
+
 export type RegionKey =
   | "africa"
   | "asia"
