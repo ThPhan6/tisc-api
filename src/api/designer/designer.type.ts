@@ -1,3 +1,4 @@
+import { DesignStatusValue } from "@/types";
 import { IPagination } from "./../../type/common.type";
 export interface IDesignersResponse {
   data: {
@@ -44,5 +45,5 @@ export interface IDesignSummary {
 }
 
 export interface IUpdateDesignStatusRequest {
-  status: number;
+  status: DesignStatusValue;
 }

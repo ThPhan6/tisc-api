@@ -73,7 +73,7 @@ export interface ILocationAttributes {
   general_phone: string;
   general_email: string;
   created_at: string;
-  is_deleted: boolean;
+  updated_at: string | null;
   type: number;
   relation_id: string | null;
 }
@@ -90,8 +90,7 @@ export interface IRegionCountry {
   region: string;
 }
 
-
-export type RegionGroupValue = Omit<IRegionCountry, 'region'>;
+export type RegionGroupValue = Omit<IRegionCountry, "region">;
 
 export interface RegionGroup {
   africa: RegionGroupValue[];

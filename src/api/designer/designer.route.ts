@@ -29,7 +29,7 @@ export default class DesignerRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getList,
+                // 200: response.getList,
               },
             },
           },

@@ -1,8 +1,10 @@
+import { IPagination } from "@/types";
 export interface DesignStatus {
-  ACTIVE: 1,
-  INACTIVE: 2,
+  ACTIVE: 1;
+  INACTIVE: 2;
 }
 export type DesignStatusValue = DesignStatus[keyof DesignStatus];
+export type DesignStatusKey = "Active" | "Inactive";
 
 export interface DesignerAttributes {
   id: string;
@@ -16,4 +18,9 @@ export interface DesignerAttributes {
   status: DesignStatusValue;
   created_at: string;
   updated_at: string | null;
+}
+
+export interface ListDesignerWithPaginate {
+  pagination: IPagination;
+  data: DesignerAttributes[];
 }

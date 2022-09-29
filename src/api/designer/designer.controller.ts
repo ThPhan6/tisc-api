@@ -1,7 +1,7 @@
-import DesignerService from "./designer.service";
+import DesignerService from "./designer.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { DESIGN_STATUS_OPTIONS } from "../../constant/common.constant";
 import { IUpdateDesignStatusRequest } from "./designer.type";
+import { DESIGN_STATUS_OPTIONS } from "@/constants";
 
 export default class DesignerController {
   private service: DesignerService;
@@ -10,14 +10,14 @@ export default class DesignerController {
   }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
-    const response = await this.service.getList(
+    const response = await this.service.getList_(
       limit,
       offset,
       filter,
       sort,
       order
     );
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    // return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;

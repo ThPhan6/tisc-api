@@ -1,6 +1,6 @@
-import LocationModel from '@/model/location.models';
-import BaseRepository from './base.repository';
-import {ILocationAttributes} from '@/types';
+import LocationModel from "@/model/location.models";
+import BaseRepository from "./base.repository";
+import { ILocationAttributes } from "@/types";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -15,11 +15,11 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     offset?: number,
     relationId?: string | null,
     sort?: string,
-    order: 'ASC' | 'DESC' = 'ASC',
+    order: "ASC" | "DESC" = "ASC"
   ) => {
     let query = this.getModel().getQuery();
     if (relationId) {
-      query = query.where('relation_id', '==', relationId);
+      query = query.where("relation_id", "==", relationId);
     }
 
     if (sort && order) {
@@ -37,20 +37,44 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
         total: totalSize,
         page: 1,
         page_size: totalSize,
-        page_count: totalSize
+        page_count: totalSize,
       },
-      data: response
+      data: response,
     };
-  }
+  };
 
   public getLocationByRelationAndCountryIds = async (
     relationId: string,
-    countryIds: string[],
+    countryIds: string[]
   ) => {
-    return await this.getModel().getQuery()
-      .where('relation_id', '==', relationId)
-      .where('country_id', 'in', countryIds)
-      .get() as ILocationAttributes[];
+    return (await this.getModel()
+      .getQuery()
+      .where("relation_id", "==", relationId)
+      .where("country_id", "in", countryIds)
+      .get()) as ILocationAttributes[];
+  };
+
+  public async getLocationDesign() {
+    const params = {} as any;
+    let rawQuery = `
+    FOR designer in designers
+      FOR location in locations
+        FOR locationDesign in designer.location_ids
+        FILTER locationDesign == location.id
+        RETURN location
+  `;
+    return this.model.rawQuery(rawQuery, params);
+  }
+
+  public async getOriginCountry() {
+    const params = {} as any;
+    let rawQuery = `
+      FOR designer in designers
+        FOR location in locations
+          FILTER designer.location_ids[0] == location.id
+          RETURN location.country_id
+    `;
+    return this.model.rawQuery(rawQuery, params);
   }
 }
 

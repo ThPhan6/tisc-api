@@ -180,4 +180,5 @@ export const MESSAGES = {
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
+  DESIGNER_NOT_FOUND: "Not found designer.",
 };
