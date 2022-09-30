@@ -28,7 +28,7 @@ import DepartmentModel, {
 } from "@/model/department.model";
 import LocationModel from "@/model/location.model";
 import { getAccessLevel } from "@/helper/common.helper";
-import PermissionService from "@/api/permission/permission.service";
+import {permissionService} from "@/api/permission/permission.service";
 import BrandModel from "@/model/brand.model";
 import DesignModel from "@/model/designer.model";
 import { countryStateCityService } from "@/service/country_state_city.service";
@@ -38,7 +38,6 @@ export default class UserService {
   private mailService: MailService;
   private departmentModel: DepartmentModel;
   private locationModel: LocationModel;
-  private permissionService: PermissionService;
   private brandModel: BrandModel;
   private designModel: DesignModel;
   constructor() {
@@ -46,7 +45,6 @@ export default class UserService {
     this.mailService = new MailService();
     this.departmentModel = new DepartmentModel();
     this.locationModel = new LocationModel();
-    this.permissionService = new PermissionService();
     this.brandModel = new BrandModel();
     this.designModel = new DesignModel();
   }
@@ -173,7 +171,7 @@ export default class UserService {
       const location = await this.locationModel.find(user.location_id || "");
       const permissions = current_user_id
         ? undefined
-        : await this.permissionService.getList(user_id);
+        : await permissionService.getList(user_id, true);
       const result = {
         id: user.id,
         role_id: user.role_id,
