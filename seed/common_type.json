@@ -295,5 +295,18 @@
   { "type": 9, "name": "Tube" },
   { "type": 9, "name": "Unit" },
   { "type": 9, "name": "Vial" },
-  { "type": 9, "name": "Yard" }
+  { "type": 9, "name": "Yard" },
+
+  { "type": 10, "name": "Accounting/Finance" },
+  { "type": 10, "name": "Communication & PR" },
+  { "type": 10, "name": "Corporate & Management" },
+  { "type": 10, "name": "Client/Customer Service" },
+  { "type": 10, "name": "Design & Creativity" },
+  { "type": 10, "name": "Human Resource" },
+  { "type": 10, "name": "Legal & Advisory" },
+  { "type": 10, "name": "Marketing & Sales" },
+  { "type": 10, "name": "Operation & Project Management" },
+  { "type": 10, "name": "Production & Manufacturing" },
+  { "type": 10, "name": "Research & Development" },
+  { "type": 10, "name": "3rd Party & External Consultant" }
 ]
