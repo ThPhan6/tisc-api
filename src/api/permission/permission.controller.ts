@@ -1,4 +1,4 @@
-import {permissionService} from "./permission.service_new";
+import {permissionService} from "./permission.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 
 export default class PermissionController {

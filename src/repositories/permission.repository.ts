@@ -1,5 +1,5 @@
 import BaseRepository from "./base.repository";
-import PermissionModel, {IPermissionAttributes} from "@/model/permission.models";
+import PermissionModel, {IPermissionAttributes} from "@/model/permission.model";
 
 class PermissionRepository extends BaseRepository<IPermissionAttributes> {
   protected model: PermissionModel;

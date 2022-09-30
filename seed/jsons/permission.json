@@ -60,7 +60,15 @@
 		"name": "PROJECTS",
 		"parent_id": null,
 		"type": 1,
-		"routes": []
+		"routes": [],
+    "subs": [
+      {
+        "logo": "/logo/list.svg",
+    		"name": "Listing",
+    		"type": 1,
+    		"routes": []
+      }
+    ]
 	},
 	{
 		"logo": "/logo/product.svg",
@@ -316,7 +324,7 @@
 			},
 			{
 				"logo": "/logo/market_availability.svg",
-				"name": "Market Availibility",
+				"name": "Market Availability",
 				"type": 1,
 				"routes": [
 					"/api/market-availability/get-list",
@@ -367,7 +375,7 @@
 			"/api/product/share-via-email",
 			"/api/collection/get-list",
 			"/api/attribute/get-all",
-			"/api/distributor/market",
+			"/api/distributor/market/{product_id}",
 			"/api/product/get-list-rest-collection-product",
 			"/api/product-tip/get-one",
 			"/api/product-download/get-one",
@@ -402,45 +410,86 @@
 		"name": "PROJECTS",
 		"parent_id": null,
 		"type": 3,
-		"routes": [
-			"/api/project/get-summary",
-			"/api/project/get-list",
-			"/api/project/project-types",
-			"/api/project/measurement-units",
-			"/api/get-countries",
-			"/api/project/building-types",
-			"/api/location/get-states",
-			"/api/location/get-cities",
-			"/api/project/create",
-			"/api/project/get-one",
-			"/api/project-zone/get-list",
-			"/api/project-zone/create",
-			"/api/project-zone/update",
-			"/api/project-zone/delete",
-			"/api/considered-product/get-list",
-			"/api/considered-product/update-status",
-			"/api/material-code/get-list-code",
-			"/api/finish-schedule-for/get-list",
-			"/api/requirement-type/get-list",
-			"/api/instruction-type/get-list",
-			"/api/unit-type/get-list",
-			"/api/specified-product/get-one",
-			"/api/product/get-one",
-			"/api/considered-product/get-list-assigned",
-			"/api/distributor/market",
-			"/api/location/brand",
-			"/api/specified-product/specify",
-			"/api/considered-product/delete",
-			"/api/product/sharing-purposes",
-			"/api/product/sharing-groups",
-			"/api/product/share-via-email",
-			"/api/specified-product/get-list-brand",
-			"/api/specified-product/update-status",
-			"/api/specified-product/get-list-material",
-			"/api/specified-product/get-list-zone",
-			"/api/specified-product/delete",
-			"/api/project/delete"
-		]
+		"routes": [],
+    "subs": [
+      {
+        "logo": null,
+        "name": "Overal Listing",
+        "type": 3,
+        "routes": [
+          "/api/project/get-summary",
+    			"/api/project/get-list",
+          "/api/project/delete"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Basic Information",
+        "type": 3,
+        "routes": [
+          "/api/project/get-summary",
+    			"/api/project/get-list",
+    			"/api/project/measurement-units",
+    			"/api/project/create",
+    			"/api/project/get-one"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Zone/Area/Room",
+        "type": 3,
+        "routes": [
+          "/api/project-zone/get-list",
+    			"/api/project-zone/create",
+    			"/api/project-zone/update",
+    			"/api/project-zone/delete"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Product Considered",
+        "type": 3,
+        "routes": [
+          "/api/considered-product/update-status",
+    			"/api/material-code/get-list-code",
+    			"/api/specified-product/get-one",
+    			"/api/product/get-one",
+    			"/api/considered-product/get-list-assigned",
+    			"/api/distributor/market",
+    			"/api/location/brand/{brand_id}",
+    			"/api/specified-product/specify",
+    			"/api/considered-product/delete",
+    			"/api/product/share-via-email",
+    			"/api/specified-product/get-list-brand",
+    			"/api/specified-product/update-status",
+    			"/api/specified-product/get-list-material",
+    			"/api/specified-product/get-list-zone",
+    			"/api/specified-product/delete"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Product Specified",
+        "type": 3,
+        "routes": [
+          "/api/considered-product/update-status",
+    			"/api/material-code/get-list-code",
+    			"/api/specified-product/get-one",
+    			"/api/product/get-one",
+    			"/api/considered-product/get-list-assigned",
+    			"/api/distributor/market",
+    			"/api/location/brand/{brand_id}",
+    			"/api/specified-product/specify",
+    			"/api/considered-product/delete",
+    			"/api/product/share-via-email",
+    			"/api/specified-product/get-list-brand",
+    			"/api/specified-product/update-status",
+    			"/api/specified-product/get-list-material",
+    			"/api/specified-product/get-list-zone",
+    			"/api/specified-product/delete"
+        ]
+      }
+    ]
 	},
 	{
 		"logo": "/logo/administration.svg",

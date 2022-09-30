@@ -1,5 +1,5 @@
 import {CompanyPermissionAttributes} from '@/model/company_permission.model';
-import {IPermissionAttributes} from '@/model/permission.models';
+import {IPermissionAttributes} from '@/model/permission.model';
 
 export interface CompanyPermissionWithInfo extends CompanyPermissionAttributes, Pick<IPermissionAttributes, 'logo' | 'name' | 'parent_id'> {};
 

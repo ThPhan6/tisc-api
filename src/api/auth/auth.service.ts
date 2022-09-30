@@ -31,7 +31,7 @@ import {
 } from "@/helper/response.helper";
 
 import MailService from "@/service/mail.service";
-import PermissionService from "../permission/permission.service";
+import {permissionService} from "@/api/permission/permission.service";
 
 import { getRoleType } from "@/constants/role.constant";
 import BrandRepository from "@/repositories/brand.repository";
@@ -40,13 +40,11 @@ import { userRepository } from "@/repositories/user.repository";
 
 class AuthService {
   private mailService: MailService;
-  private permissionService: PermissionService;
   private brandRepository: BrandRepository;
   private designerRepository: DesignerRepository;
 
   constructor() {
     this.mailService = new MailService();
-    this.permissionService = new PermissionService();
     this.brandRepository = new BrandRepository();
     this.designerRepository = new DesignerRepository();
   }
@@ -276,7 +274,7 @@ class AuthService {
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-    await this.permissionService.createDesignPermission(createdDesign.id);
+    await permissionService.initPermission(createdUser);
     await this.mailService.sendDesignRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);
   };

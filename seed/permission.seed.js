@@ -28,9 +28,9 @@ const seed = async (db) => {
       if (subs) {
         res = res.concat(subs.map((sub, subIndex) => {
           return {
+            ...sub,
             id: `${permission_id}_${subIndex}`,
             parent_id: permission_id,
-            ...sub,
             created_at: now,
             updated_at: now,
           };

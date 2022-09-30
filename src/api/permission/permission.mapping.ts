@@ -1,5 +1,6 @@
 import {CompanyPermissionWithInfo, CompanyPermissionList} from '@/types';
 import { ROLE_NAMES } from '@/constants';
+import {sortBy} from 'lodash';
 
 export const mappingPermission = (permissions: CompanyPermissionWithInfo[]) => {
   const perms: CompanyPermissionList[] = [];
@@ -23,18 +24,19 @@ export const mappingPermission = (permissions: CompanyPermissionWithInfo[]) => {
         subs: [],
       });
     } else { /// found
-      perms[permIndex].items.push(item)
+      perms[permIndex].items.push(item);
     }
   });
+
   /// mapping sub item
-  return perms.reduce((response, perm) => {
+  return sortBy(perms, (o) => o.parent_id !== null).reduce((response, perm) => {
     if (!perm.parent_id) {
       response.push(perm);
       return response;
     }
     /// get index of response
     const index = response.findIndex((item) => item.id === perm.parent_id);
-    if (index > -1) { // not found
+    if (index > -1) { // found
       response[index].subs.push(perm);
     }
     return response;
