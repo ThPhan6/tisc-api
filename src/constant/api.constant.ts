@@ -238,6 +238,8 @@ export const ROUTES = {
     "/api/project/{project_id}/product/{product_id}/assign-zones",
   GET_CONSIDERED_PRODUCT_LIST:
     "/api/project/{project_id}/considered-product/get-list",
+  UPDATE_CONSIDERED_PRODUCT: "/api/project-product/{id}/update",
+  DELETE_CONSIDERED_PRODUCT: "/api/project-product/{id}/delete",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

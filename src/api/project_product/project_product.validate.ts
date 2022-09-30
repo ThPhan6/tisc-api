@@ -44,4 +44,15 @@ export default {
       };
     }),
   },
+  updateConsiderProduct: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Considered product Id is required"
+          )
+        ),
+    },
+  },
 };

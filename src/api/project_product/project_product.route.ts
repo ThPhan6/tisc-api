@@ -63,6 +63,38 @@ export default class ProjectProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "PATCH",
+          path: ROUTES.UPDATE_CONSIDERED_PRODUCT,
+          options: {
+            handler: controller.updateConsiderProduct,
+            validate: validate.updateConsiderProduct,
+            description: "Method that update considered product",
+            tags: ["api", "Considered Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.DELETE_CONSIDERED_PRODUCT,
+          options: {
+            handler: controller.deleteConsiderProduct,
+            validate: validate.updateConsiderProduct,
+            description: "Method that delete considered product",
+            tags: ["api", "Considered Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
