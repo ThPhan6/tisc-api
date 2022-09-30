@@ -35,6 +35,7 @@ class Builder {
       join: [],
       where: [],
       order: [],
+      isCombineJoinSelect: false,
     };
     this.grammar = new ArangoGrammar();
   }
@@ -126,11 +127,19 @@ class Builder {
     return this;
   }
 
-  public async get() {
+  public async get(isCombineJoinSelect: boolean = false) {
+    this.bindings = {
+      ...this.bindings,
+      isCombineJoinSelect,
+    };
     return await this.query();
   }
 
-  public async first() {
+  public async first(isCombineJoinSelect: boolean = false) {
+    this.bindings = {
+      ...this.bindings,
+      isCombineJoinSelect,
+    };
     return head(await this.limit(1).get());
   }
 
@@ -185,6 +194,14 @@ class Builder {
       bindVars,
     });
 
+    return await response.all();
+  }
+
+  public async rawQueryV2(query: string, bindVars: Object) {
+    const response = await this.connection.query({
+      query,
+      bindVars,
+    });
     return await response.all();
   }
 

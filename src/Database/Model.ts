@@ -86,6 +86,10 @@ class Model<DataType> {
   public async rawQuery(query: string, bindVars: DynamicValueBinding) {
     return await this.getQuery().rawQuery(query, bindVars);
   }
+
+  public async rawQueryV2(query: string, bindVars: DynamicValueBinding) {
+    return await this.getQuery().rawQueryV2(query, bindVars);
+  }
 }
 //
 export default Model;
