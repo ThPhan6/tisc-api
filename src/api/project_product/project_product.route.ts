@@ -97,12 +97,28 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "PATCH",
+          path: ROUTES.UPDATE_SPECIFIED_PRODUCT_STATUS,
+          options: {
+            handler: controller.specifyProduct,
+            validate: validate.updateProductSpecifyStatus,
+            description: "Method that update specified product status",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "PATCH",
           path: ROUTES.UPDATE_CONSIDERED_PRODUCT_SPECIFY,
           options: {
-            handler: controller.updateConsiderProduct,
+            handler: controller.specifyProduct,
             validate: validate.specifyProduct,
             description:
-              "Method that update considered product specified infor",
+              "Method that update considered product specified information",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,
             response: {

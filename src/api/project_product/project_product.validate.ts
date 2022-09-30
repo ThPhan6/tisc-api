@@ -1,7 +1,10 @@
 import { ORDER_METHOD } from "@/constant/common.constant";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
 import * as Joi from "joi";
-import { ProductConsiderStatus } from "./project_product.type";
+import {
+  ProductConsiderStatus,
+  ProductSpecifyStatus,
+} from "./project_product.type";
 
 const requiredConsideredId = Joi.string()
   .required()
@@ -61,10 +64,22 @@ export default {
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
   },
+  updateProductSpecifyStatus: {
+    params: { id: requiredConsideredId },
+    payload: {
+      specified_status: Joi.number()
+        .valid(
+          ProductSpecifyStatus.Specified,
+          ProductSpecifyStatus["Re-specified"],
+          ProductSpecifyStatus.Cancelled
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Status is required")),
+    },
+  },
   deleteConsiderProduct: {
     params: { id: requiredConsideredId },
   },
-
   specifyProduct: {
     params: { id: requiredConsideredId },
     payload: {

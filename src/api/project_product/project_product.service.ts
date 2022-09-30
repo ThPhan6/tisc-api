@@ -15,6 +15,7 @@ import { projectProductRepository } from "./project_product.repository";
 import {
   AssignProductToProjectRequest,
   ProductConsiderStatus,
+  ProjectProductStatus,
 } from "./project_product.type";
 
 class ProjectProductService {
@@ -106,7 +107,8 @@ class ProjectProductService {
     );
 
     const consideredProducts = await projectProductRepository.getByProjectId(
-      project_id
+      project_id,
+      ProjectProductStatus.consider
     );
     const mappedConsideredProducts = consideredProducts.map((el: any) => ({
       ...el.products,
@@ -210,11 +212,17 @@ class ProjectProductService {
 
   public updateConsiderProduct = async (
     projectProductId: string,
-    payload: Partial<ProjectProductAttributes>
+    payload: Partial<ProjectProductAttributes>,
+    specify?: boolean
   ) => {
     const considerProduct = await projectProductRepository.findAndUpdate(
       projectProductId,
-      payload
+      {
+        ...payload,
+        status: specify
+          ? ProjectProductStatus.specify
+          : ProjectProductStatus.consider,
+      }
     );
 
     if (!considerProduct) {

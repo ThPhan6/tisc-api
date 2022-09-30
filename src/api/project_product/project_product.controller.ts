@@ -65,6 +65,22 @@ export default class ProjectProductController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
+  public specifyProduct = async (
+    req: Request & {
+      payload: Partial<ProjectProductAttributes>;
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await projectProductService.updateConsiderProduct(
+      id,
+      payload,
+      true
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
   public deleteConsiderProduct = async (
     req: Request,
     toolkit: ResponseToolkit
