@@ -1,22 +1,19 @@
+import { projectZoneService } from "./project_zone.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import ProjectZoneService from "./project_zone.services";
 import {
   IProjectZoneRequest,
   IUpdateProjectZoneRequest,
 } from "./project_zone.type";
 
 export default class ProjectZoneController {
-  private service: ProjectZoneService;
-  constructor() {
-    this.service = new ProjectZoneService();
-  }
+  constructor() {}
   public create = async (
     req: Request & { payload: IProjectZoneRequest },
     toolkit: ResponseToolkit
   ) => {
     const userId = req.auth.credentials.user_id as string;
     const payload = req.payload;
-    const response = await this.service.create(userId, payload);
+    const response = await projectZoneService.create(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -28,7 +25,7 @@ export default class ProjectZoneController {
       room_name_order,
       room_id_order,
     } = req.query;
-    const response = await this.service.getList(
+    const response = await projectZoneService.getList(
       userId,
       project_id,
       zone_order,
@@ -41,13 +38,13 @@ export default class ProjectZoneController {
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
-    const response = await this.service.getOne(userId, id);
+    const response = await projectZoneService.getOne(userId, id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
-    const response = await this.service.delete(userId, id);
+    const response = await projectZoneService.delete(userId, id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public update = async (
@@ -57,7 +54,7 @@ export default class ProjectZoneController {
     const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.update_(userId, id, payload);
+    const response = await projectZoneService.update(userId, id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -20,8 +20,11 @@ import {
   mappingResponseProjectZones,
   mappingResponseUnitRoomSize,
 } from "./project_zone.mapping";
-import { IUpdateProjectZoneRequest } from "./project_zone.type";
-export default class ProjectZoneService {
+import {
+  FindUserAndProjectResponse,
+  IUpdateProjectZoneRequest,
+} from "./project_zone.type";
+class ProjectZoneService {
   private projectModel: ProjectModel;
   private consideredProductModel: ConsideredProductModel;
   private specifiedProductModel: SpecifiedProductModel;
@@ -29,6 +32,26 @@ export default class ProjectZoneService {
     this.projectModel = new ProjectModel();
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
+  }
+
+  private async findUserAndProject(userId: string, projectId: string) {
+    const res: FindUserAndProjectResponse = {
+      message: errorMessageResponse(MESSAGES.SOMETHING_WRONG),
+    };
+
+    res.user = await userRepository.find(userId);
+    if (!res.user) {
+      res.message = errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+      return res;
+    }
+
+    res.project = await this.projectModel.find(projectId);
+    if (!res.project) {
+      res.message = errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+      return res;
+    }
+
+    return res;
   }
 
   private async validateProjectZone(
@@ -62,6 +85,7 @@ export default class ProjectZoneService {
         return errorMessageResponse(MESSAGES.PROJECT_ZONE_EXISTED);
       }
     }
+
     const foundProjectZone = await projectZoneRepository.findBy({
       project_id: payload.project_id,
       name: payload.name,
@@ -70,6 +94,7 @@ export default class ProjectZoneService {
     if (foundProjectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_EXISTED);
     }
+
     if (
       isDuplicatedString(
         payload.areas.map((item) => {
@@ -81,6 +106,7 @@ export default class ProjectZoneService {
     }
 
     let isAreaDuplicate = false;
+
     payload.areas.forEach((area) => {
       if (
         isDuplicatedString(
@@ -103,21 +129,15 @@ export default class ProjectZoneService {
   }
 
   public async create(userId: string, payload: IUpdateProjectZoneRequest) {
-    const foundUser = await userRepository.find(userId);
-
-    if (!foundUser) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    const { project, user, message } = await this.findUserAndProject(
+      userId,
+      payload.project_id
+    );
+    if (!project || !user) {
+      return message;
     }
 
-    const foundProject = await this.projectModel.findBy({
-      id: payload.project_id,
-      design_id: foundUser.relation_id,
-    });
-    if (!foundProject) {
-      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
-    }
-
-    await this.validateProjectZone(payload, foundUser, foundProject);
+    await this.validateProjectZone(payload, user, project);
 
     const areas = mappingAddProjectZoneId(payload);
 
@@ -131,7 +151,7 @@ export default class ProjectZoneService {
     }
 
     const returnedAreas = mappingResponseUnitRoomSize(
-      foundProject,
+      project,
       createdProjectZone
     );
 
@@ -148,24 +168,16 @@ export default class ProjectZoneService {
     roomNameOrder: SortOrder,
     roomIdOrder: SortOrder
   ) {
-    const foundUser = await userRepository.find(userId);
-
-    if (!foundUser) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    const { project, user, message } = await this.findUserAndProject(
+      userId,
+      projectId
+    );
+    if (!project || !user) {
+      return message;
     }
-
-    const foundProject = await this.projectModel.findBy({
-      id: projectId,
-      design_id: foundUser.relation_id,
-    });
-
-    if (!foundProject) {
-      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
-    }
-
     if (
-      foundProject.design_id !== foundUser.relation_id &&
-      foundUser.type !== SYSTEM_TYPE.DESIGN
+      project.design_id !== user.relation_id &&
+      user.type !== SYSTEM_TYPE.DESIGN
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
     }
@@ -176,7 +188,7 @@ export default class ProjectZoneService {
     );
 
     const roomSizeUnit =
-      foundProject.measurement_unit === MEASUREMENT_UNIT.IMPERIAL
+      project.measurement_unit === MEASUREMENT_UNIT.IMPERIAL
         ? "sq.ft."
         : "sq.m.";
 
@@ -208,7 +220,6 @@ export default class ProjectZoneService {
         )} ${roomSizeUnit}`,
       },
     ];
-
     return successResponse({
       data: {
         project_zones: projectZones,
@@ -218,35 +229,27 @@ export default class ProjectZoneService {
   }
 
   public async getOne(userId: string, projectZoneId: string) {
-    const foundUser = await userRepository.find(userId);
-
-    if (!foundUser) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
     const projectZone = await projectZoneRepository.find(projectZoneId);
-
     if (!projectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const foundProject = await this.projectModel.findBy({
-      id: projectZone.project_id,
-      design_id: foundUser.relation_id,
-    });
-
-    if (!foundProject) {
-      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    const { project, user, message } = await this.findUserAndProject(
+      userId,
+      projectZone.project_id
+    );
+    if (!project || !user) {
+      return message;
     }
 
     if (
-      foundProject.design_id !== foundUser.relation_id &&
-      foundUser.type !== SYSTEM_TYPE.DESIGN
+      project.design_id !== user.relation_id &&
+      user.type !== SYSTEM_TYPE.DESIGN
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
     }
 
-    const result = mappingResponseUnitRoomSize(foundProject, projectZone);
+    const result = mappingResponseUnitRoomSize(project, projectZone);
 
     return successResponse({
       data: result,
@@ -254,25 +257,18 @@ export default class ProjectZoneService {
   }
 
   public async delete(userId: string, projectZoneId: string) {
-    const foundUser = await userRepository.find(userId);
-
-    if (!foundUser) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
     const projectZone = await projectZoneRepository.find(projectZoneId);
 
     if (!projectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const foundProject = await this.projectModel.findBy({
-      id: projectZone.project_id,
-      design_id: foundUser.relation_id,
-    });
-
-    if (!foundProject) {
-      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    const { project, user, message } = await this.findUserAndProject(
+      userId,
+      projectZone.project_id
+    );
+    if (!project || !user) {
+      return message;
     }
 
     const foundConsideredProduct =
@@ -294,8 +290,8 @@ export default class ProjectZoneService {
     }
 
     if (
-      foundProject.design_id !== foundUser.relation_id &&
-      foundUser.type !== SYSTEM_TYPE.DESIGN
+      project.design_id !== user.relation_id &&
+      user.type !== SYSTEM_TYPE.DESIGN
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
     }
@@ -311,38 +307,26 @@ export default class ProjectZoneService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async update_(
+  public async update(
     userId: string,
     projectZoneId: string,
     payload: IUpdateProjectZoneRequest
   ) {
-    const foundUser = await userRepository.find(userId);
-
-    if (!foundUser) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
     const projectZone = await projectZoneRepository.find(projectZoneId);
 
     if (!projectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const foundProject = await this.projectModel.findBy({
-      id: projectZone.project_id,
-      design_id: foundUser.relation_id,
-    });
-
-    if (!foundProject) {
-      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    const { project, user, message } = await this.findUserAndProject(
+      userId,
+      projectZone.project_id
+    );
+    if (!project || !user) {
+      return message;
     }
 
-    await this.validateProjectZone(
-      payload,
-      foundUser,
-      foundProject,
-      projectZoneId
-    );
+    await this.validateProjectZone(payload, user, project, projectZoneId);
 
     const areas = mappingProjectZoneAreas(payload.areas);
 
@@ -358,13 +342,13 @@ export default class ProjectZoneService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
     }
 
-    const returnedAreas = mappingResponseUnitRoomSize(
-      foundProject,
-      projectZone
-    );
+    const returnedAreas = mappingResponseUnitRoomSize(project, projectZone);
 
     return successResponse({
       data: { ...updatedProjectZone, areas: returnedAreas },
     });
   }
 }
+
+export const projectZoneService = new ProjectZoneService();
+export default ProjectZoneService;

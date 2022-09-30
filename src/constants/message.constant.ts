@@ -72,6 +72,9 @@ export const MESSAGES = {
   DESIGNER: {
     DESIGN_NOT_FOUND: "Design not found",
   },
+  PERMISSION: {
+    NO_MODIFY_ADMIN_PERM: "Cannot modify admin permission.",
+  },
 
   //delete after refactor finish
   SUCCESS: "Success.",

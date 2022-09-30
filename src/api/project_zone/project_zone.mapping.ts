@@ -1,10 +1,9 @@
-import { SortOrder } from "@/type/common.type";
-import { IProjectAttributes } from "./../../model/project.model";
+import { IProjectAttributes } from "@/model/project.model";
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
 import { v4 as uuidv4 } from "uuid";
-import { IProjectZoneAttributes } from "@/types";
-import { MEASUREMENT_UNIT } from "@/constant/common.constant";
+import { IProjectZoneAttributes, SortOrder } from "@/types";
 import { sortObjectArray } from "@/helper/common.helper";
+import { MEASUREMENT_UNIT } from "@/constants";
 
 export const mappingAddProjectZoneId = (payload: IUpdateProjectZoneRequest) => {
   return payload.areas.map((area) => {
