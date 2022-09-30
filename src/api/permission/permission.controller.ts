@@ -1,19 +1,18 @@
-import PermissionService from "./permission.service";
+import {permissionService} from "./permission.service_new";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 
 export default class PermissionController {
-  private service: PermissionService;
-  constructor() {
-    this.service = new PermissionService();
-  }
+
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getList(userId);
+    const response = await permissionService.getList(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+  }
+
   public openClose = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.openClose(id);
+    const response = await permissionService.openClose(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+  }
+
 }

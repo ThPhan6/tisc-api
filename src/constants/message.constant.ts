@@ -69,6 +69,10 @@ export const MESSAGES = {
       "Not found location, please check country state city id",
   },
 
+  PERMISSION: {
+    NO_MODIFY_ADMIN_PERM: "Cannot modify admin permission.",
+  },
+
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
