@@ -55,7 +55,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           }
           ${
             sortName && sortOrder
-              ? ` SORT products.${sortOrder} ${sortOrder} `
+              ? ` SORT products.${sortName} ${sortOrder} `
               : ``
           }
           let categories = (
