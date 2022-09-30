@@ -194,3 +194,10 @@ export const getSummaryTable = (dataSummary: any) => {
     countItem,
   };
 };
+
+export const pagination = (limit: number, offset: number, total: number) => ({
+  page: offset / limit + 1,
+  page_size: limit,
+  total: total,
+  page_count: Math.ceil(total / limit),
+});

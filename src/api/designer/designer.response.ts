@@ -1,3 +1,4 @@
+import { paginationResponse } from "@/helper/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -29,12 +30,7 @@ export default {
           updated_at: Joi.string().allow(null),
         })
       ),
-      pagination: Joi.object({
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      }),
+      pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
   }) as any,

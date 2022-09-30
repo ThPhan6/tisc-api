@@ -69,6 +69,10 @@ export const MESSAGES = {
       "Not found location, please check country state city id",
   },
 
+  DESIGNER: {
+    DESIGN_NOT_FOUND: "Design not found",
+  },
+
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
@@ -182,4 +186,5 @@ export const MESSAGES = {
   PROJECT_ZONE_MISSING: "Project zone is missing",
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
+  DESIGNER_NOT_FOUND: "Not found designer.",
 };
