@@ -26,12 +26,13 @@ const locationData = Joi.object({
   relation_id: Joi.string().allow(null),
   state_id: Joi.string().allow(null),
   type: Joi.number().allow(null),
-})
+  updated_at: Joi.string().allow(null),
+});
 
 export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
-    data: locationData
+    data: locationData,
   }) as any,
   getList: Joi.object({
     statusCode: Joi.number(),

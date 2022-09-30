@@ -28,13 +28,13 @@ export default class DesignerService {
     sort: string,
     order: "ASC" | "DESC"
   ) {
-    const data = await designerRepository.getListDesignerCustom(
+    const dataDesigners = await designerRepository.getListDesignerCustom(
       limit,
       offset,
       sort,
       order
     );
-    const result = mappingGetListDesigner(data);
+    const result = mappingGetListDesigner(dataDesigners);
 
     return successResponse({
       data: {

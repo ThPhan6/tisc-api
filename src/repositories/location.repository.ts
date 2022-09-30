@@ -57,11 +57,9 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   public async getLocationDesign() {
     const params = {} as any;
     let rawQuery = `
-    FOR designer in designers
-      FOR location in locations
-        FOR locationDesign in designer.location_ids
-        FILTER locationDesign == location.id
-        RETURN location
+      FOR designer in designers
+        FILTER locations.relation_id == designer.id
+        RETURN locations
   `;
     return this.model.rawQuery(rawQuery, params);
   }
@@ -70,9 +68,8 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     const params = {} as any;
     let rawQuery = `
       FOR designer in designers
-        FOR location in locations
-          FILTER designer.location_ids[0] == location.id
-          RETURN location.country_id
+        FILTER locations.relation_id == designer.id
+          RETURN locations.country_id
     `;
     return this.model.rawQuery(rawQuery, params);
   }

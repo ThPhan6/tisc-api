@@ -184,6 +184,7 @@ class Builder {
       query: `FOR ${this.table} IN ${this.table} ${query}`,
       bindVars,
     });
+
     return await response.all();
   }
 

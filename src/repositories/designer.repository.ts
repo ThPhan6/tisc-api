@@ -49,8 +49,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     const rawQuery = `
       ${limit && offset ? `LIMIT ${offset}, ${limit}` : ``}
       ${sort && order ? `SORT designers.${sort} ${order}` : ``}
-      FILTER designers.deleted_at == null
-
+        
         LET assignTeams = (
           FOR profileId IN designers.team_profile_ids
           FOR assignTeam IN users
@@ -95,8 +94,8 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         LET originLocation = (
           FOR locations IN locations
           FILTER locations.deleted_at == null
-          FILTER locations.id == FIRST(designers.location_ids || [])
-          RETURN locations
+          FILTER locations.relation_id == designers.id
+          RETURN FIRST(locations)
         )
 
         LET projects = (
@@ -113,7 +112,6 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           assign_team : assignTeams,
         })
 `;
-
     return this.model.rawQuery(rawQuery, params);
   }
 }
