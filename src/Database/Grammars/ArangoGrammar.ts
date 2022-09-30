@@ -14,14 +14,29 @@ import {
 class ArangoGrammar {
   protected query: string = "";
   protected bindVars: DynamicValueBinding = {};
-  private unQueryFields = ['_id', '_key', '_rev', 'deleted_at', 'deleted_by', 'is_deleted'];
+  private unQueryFields = [
+    "_id",
+    "_key",
+    "_rev",
+    "deleted_at",
+    "deleted_by",
+    "is_deleted",
+  ];
 
   public compileQuery(
     bindings: BuilderBinding,
     type: QueryType = QUERY_TYPE.SELECT,
     dataUpdate: Object = {}
   ) {
-    const { from, select, join, where, order, pagination } = bindings;
+    const {
+      from,
+      select,
+      join,
+      where,
+      order,
+      pagination,
+      isCombineJoinSelect,
+    } = bindings;
     const query = this.compileFrom(from)
       .compileJoins(join)
       .compileWhere(from.alias, where)
@@ -33,7 +48,7 @@ class ArangoGrammar {
     }
     /// combine query select
     if (type === QUERY_TYPE.SELECT) {
-      query.compileSelect(from.alias, select);
+      query.compileSelect(from.alias, select, join, isCombineJoinSelect);
     }
     /// combine query count | pagination
     if (
@@ -129,13 +144,31 @@ class ArangoGrammar {
     return this;
   }
 
-  protected compileSelect(primaryAlias: string, selects: string[]) {
-    if (
+  protected compileSelect(
+    primaryAlias: string,
+    selects: string[],
+    joins: JoinBinding[],
+    isCombineJoinSelect: boolean = false
+  ) {
+    if (isCombineJoinSelect) {
+      const joinResponse = joins.map((join) => {
+        return `${join.table}: ${this.unQueryField(join.table)}`;
+      });
+      this.query += `RETURN merge(${primaryAlias}, {${joinResponse.join(
+        ", "
+      )}})`;
+    } else if (
       isEmpty(selects) ||
       (selects.length === 1 && selects[0].indexOf("*") > 0)
     ) {
       // select * from ...
       this.query += ` RETURN ${this.unQueryField(primaryAlias)}`;
+    } else if (isEmpty(joins)) {
+      this.query += ` RETURN merge({`;
+      const fields = selects.map((select) => {
+        return `${select}: ${primaryAlias}.${select}`;
+      });
+      this.query += `${fields.join(", ")}})`;
     } else {
       let aliases = selects.filter((select) => select.indexOf(".*") > -1);
       let fields = selects.filter((select) => select.indexOf(".*") === -1);
@@ -148,7 +181,7 @@ class ArangoGrammar {
       });
       this.query += aliases.join(", ");
       /// custom select
-      this.query += `{`;
+      this.query += `, {`;
       fields = fields.map((field) => {
         /// get column and alias of field
         let [column, alias] = field.replace(" AS ", " as ").split(" as ");
