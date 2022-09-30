@@ -4,7 +4,6 @@ import { IUpdateDesignStatusRequest } from "./designer.type";
 import { DESIGN_STATUS_OPTIONS } from "@/constants";
 
 export default class DesignerController {
-  constructor() {}
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
     const response = await designerService.getList(

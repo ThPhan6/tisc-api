@@ -1,5 +1,4 @@
-import { PROJECT_STATUS } from "@/constant/common.constant";
-import { DESIGN_STATUS_OPTIONS, REGION_KEY } from "@/constants";
+import { DESIGN_STATUS_OPTIONS, PROJECT_STATUS, REGION_KEY } from "@/constants";
 import { IProjectAttributes } from "@/model/project.model";
 import {
   DesignerAttributes,

@@ -1,5 +1,4 @@
-import { DesignStatusValue, ILocationAttributes } from "@/types";
-import { IPagination } from "./../../type/common.type";
+import { DesignStatusValue, ILocationAttributes, IPagination } from "@/types";
 export interface IDesignersResponse {
   data: {
     designers: {
