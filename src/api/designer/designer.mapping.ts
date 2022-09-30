@@ -7,6 +7,7 @@ import {
   IRegionCountry,
 } from "@/types";
 import { v4 as uuidv4 } from "uuid";
+import { DesignerDataCustom } from "./designer.type";
 
 export const mappingCountDesigner = (designFirm: DesignerAttributes[]) => {
   return designFirm.reduce((pre: number, cur) => {
@@ -118,38 +119,40 @@ export const mappingDesignSummary = (
   ];
 };
 
-export const mappingGetListDesigner = (data: any) => {
-  return data.map((item: any) => {
+export const mappingGetListDesigner = (
+  designerDataCustom: DesignerDataCustom[]
+) => {
+  return designerDataCustom.map((designerData) => {
     const foundStatus = DESIGN_STATUS_OPTIONS.find(
-      (designStatus) => designStatus.value === item.designer.status
+      (designStatus) => designStatus.value === designerData.designer.status
     );
 
-    const countLive = item.projects.filter(
-      (project: any) => project.status == PROJECT_STATUS.LIVE
+    const countLive = designerData.projects.filter(
+      (projectStatus) => projectStatus == PROJECT_STATUS.LIVE
     ).length;
-    const countOnHold = item.projects.filter(
-      (project: any) => project.status == PROJECT_STATUS.ON_HOLD
+    const countOnHold = designerData.projects.filter(
+      (projectStatus) => projectStatus == PROJECT_STATUS.ON_HOLD
     ).length;
-    const countArchived = item.projects.filter(
-      (project: any) => project.status == PROJECT_STATUS.ARCHIVE
+    const countArchived = designerData.projects.filter(
+      (projectStatus) => projectStatus == PROJECT_STATUS.ARCHIVE
     ).length;
     return {
-      id: item.designer.id,
-      name: item.designer.name,
-      logo: item.designer.logo,
-      origin: item.origin_location[0]?.country_name || "",
+      id: designerData.designer.id,
+      name: designerData.designer.name,
+      logo: designerData.designer.logo,
+      origin: designerData.origin_location[0]?.country_name || "",
       main_office: "",
       satellites: 1,
-      designers: item.users,
+      designers: designerData.users,
       capacities: 1,
-      projects: item.projects.length,
+      projects: designerData.projects.length,
       live: countLive,
       on_hold: countOnHold,
       archived: countArchived,
-      status: item.designer.status,
+      status: designerData.designer.status,
       status_key: foundStatus?.key,
-      assign_team: item.assign_team,
-      created_at: item.designer.created_at,
+      assign_team: designerData.assign_team,
+      created_at: designerData.designer.created_at,
     };
   });
 };

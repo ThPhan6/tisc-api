@@ -1,16 +1,13 @@
-import DesignerService from "./designer.services";
+import { designerService } from "./designer.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IUpdateDesignStatusRequest } from "./designer.type";
 import { DESIGN_STATUS_OPTIONS } from "@/constants";
 
 export default class DesignerController {
-  private service: DesignerService;
-  constructor() {
-    this.service = new DesignerService();
-  }
+  constructor() {}
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
-    const response = await this.service.getList(
+    const response = await designerService.getList(
       limit,
       offset,
       filter,
@@ -21,7 +18,7 @@ export default class DesignerController {
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getOne(id);
+    const response = await designerService.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getStatuses = async (_req: Request, toolkit: ResponseToolkit) => {
@@ -31,7 +28,7 @@ export default class DesignerController {
     _req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await this.service.getAllDesignSummary();
+    const response = await designerService.getAllDesignSummary();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public updateDesignStatus = async (
@@ -40,7 +37,7 @@ export default class DesignerController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.updateDesignStatus(id, payload);
+    const response = await designerService.updateDesignStatus(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

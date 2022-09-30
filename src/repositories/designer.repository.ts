@@ -1,6 +1,7 @@
 import DesignerModel from "@/model/designer.models";
 import BaseRepository from "./base.repository";
 import { DesignerAttributes, ListDesignerWithPaginate } from "@/types";
+import { DesignerDataCustom } from "@/api/designer/designer.type";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
   protected model: DesignerModel;
@@ -95,24 +96,38 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           FOR locations IN locations
           FILTER locations.deleted_at == null
           FILTER locations.relation_id == designers.id
-          RETURN FIRST(locations)
+          RETURN locations
         )
 
         LET projects = (
           FOR projects IN projects
           FILTER projects.deleted_at == null
-          RETURN projects
+          RETURN projects.status
         )
 
         RETURN MERGE ({
-          designer : designers,
+          designer : UNSET(designers, [
+            '_key',
+            '_id',
+            '_rev',
+            'parent_company',
+            'slogan',
+            'profile_n_philosophy',
+            'official_website',
+            'team_profile_ids',
+            'updated_at',
+            'deleted_at'
+          ]),
           users : LENGTH(users),
           origin_location : originLocation,
           projects : projects,
           assign_team : assignTeams,
         })
 `;
-    return this.model.rawQuery(rawQuery, params);
+    return (await this.model.rawQuery(
+      rawQuery,
+      params
+    )) as DesignerDataCustom[];
   }
 }
 export const designerRepository = new DesignerRepository();

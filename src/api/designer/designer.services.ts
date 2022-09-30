@@ -1,5 +1,5 @@
 import { MESSAGES } from "@/constants";
-import { getDistinctArray } from "@/helper/common.helper";
+import { getDistinctArray, pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -15,7 +15,7 @@ import {
   mappingGetListDesigner,
 } from "./designer.mapping";
 import { IUpdateDesignStatusRequest } from "./designer.type";
-export default class DesignerService {
+class DesignerService {
   private projectModel: ProjectModel;
   constructor() {
     this.projectModel = new ProjectModel();
@@ -35,16 +35,10 @@ export default class DesignerService {
       order
     );
     const result = mappingGetListDesigner(dataDesigners);
-
     return successResponse({
       data: {
         designers: result,
-        pagination: {
-          page: offset / limit + 1,
-          page_size: limit,
-          total: result.length,
-          page_count: Math.ceil(result.length / limit),
-        },
+        pagination: pagination(limit, offset, result.length),
       },
     });
   }
@@ -110,3 +104,6 @@ export default class DesignerService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
+
+export const designerService = new DesignerService();
+export default DesignerService;
