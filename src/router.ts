@@ -25,6 +25,8 @@ import ConsideredProductRoute from "./api/considered_product/considered_product.
 import MaterialCodeRoute from "./api/material_code/material_code.route";
 import SpecifiedProductRoute from "./api/specified_product/specified_product.route";
 import FavouriteRoute from "./api/favourite/favourite.route";
+import UserProductSpecificationRoute from "./api/user_product_specification/user_product_specification.route";
+import ProjectProductRoute from "./api/project_product/project_product.route";
 import SettingRoute from "./api/setting/setting.route";
 
 export default class Router {
@@ -55,6 +57,8 @@ export default class Router {
     await new MaterialCodeRoute().register(server);
     await new SpecifiedProductRoute().register(server);
     await new FavouriteRoute().register(server);
+    await new UserProductSpecificationRoute().register(server);
+    await new ProjectProductRoute().register(server);
     await new SettingRoute().register(server);
   }
 }
