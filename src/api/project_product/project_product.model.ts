@@ -1,5 +1,6 @@
 import Model from "@/Database/Model";
 import { ProductSpecificationSelection } from "@/api/user_product_specification/user_product_specification.model";
+import { ProductConsiderStatus } from "./project_product.type";
 
 export interface ProjectProductAttributes {
   // basic information
@@ -7,7 +8,7 @@ export interface ProjectProductAttributes {
   project_id: string;
   product_id: string;
   status: number; // consider || specified
-  consider_status: number; // considered - default || re-considered || unlist
+  consider_status: ProductConsiderStatus; // considered - default || re-considered || unlist
   specified_status: number; // specified - default || re-specify || cancel
   // vendor
   brand_location_id: string;

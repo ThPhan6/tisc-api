@@ -58,6 +58,7 @@ export interface BuilderBinding {
   where: WhereBinding[];
   order: OrderBinding[];
   pagination?: PaginationBinding;
+  isCombineJoinSelect: boolean;
 }
 
 export interface DynamicValueBinding {

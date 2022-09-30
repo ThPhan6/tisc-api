@@ -2,7 +2,11 @@ import ProjectProductModel, {
   ProjectProductAttributes,
 } from "@/api/project_product/project_product.model";
 import BaseRepository from "@/repositories/base.repository";
-import { AssignProductToProjectRequest } from "./project_product.type";
+import {
+  AssignProductToProjectRequest,
+  ProductConsiderStatus,
+} from "./project_product.type";
+import { v4 as uuidv4 } from "uuid";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -43,21 +47,43 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     this.model = new ProjectProductModel();
   }
 
-  public async upsert(payload: AssignProductToProjectRequest) {
-    return this.model.rawQuery(
-      `UPSERT {product_id: '${payload.product_id}', project_id: '${payload.project_id}'}
-      INSERT @payload
+  public async upsert(payload: AssignProductToProjectRequest, user_id: string) {
+    const now = new Date();
+    return this.model.rawQueryV2(
+      `UPSERT {product_id: "${payload.product_id}", project_id: "${payload.project_id}"}
+      INSERT @payloadWithId
       UPDATE @payload
       IN project_products
       RETURN { doc: NEW }
     `,
-      { payload }
+      {
+        payloadWithId: {
+          ...payload,
+          id: uuidv4(),
+          consider_status: ProductConsiderStatus.Considered,
+          created_by: user_id,
+          created_at: now,
+          updated_at: now,
+        },
+        payload: { ...payload, updated_at: now },
+      }
     );
   }
 
   public async getListAssignedProject(project_id: string, product_id: string) {
     return this.findBy({ project_id, product_id });
   }
+
+  public getByProjectId = async (project_id: string) => {
+    return this.model
+      .getQuery()
+      .where("project_id", "==", project_id)
+      .join("products", "products.id", "==", "project_products.product_id")
+      .join("brands", "brands.id", "==", "products.brand_id")
+      .join("collections", "collections.id", "==", "products.collection_id")
+      .join("users", "users.id", "==", "project_products.created_by")
+      .get(true);
+  };
 }
 
 export const projectProductRepository = new ProjectProductRepository();

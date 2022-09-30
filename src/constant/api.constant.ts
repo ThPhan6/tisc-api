@@ -235,7 +235,9 @@ export const ROUTES = {
 
   ASSIGN_PRODUCT_TO_A_PROJECT: "/api/project/assign-product",
   GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT:
-    "/api/project/{project_id}/prduct/{product_id}/assign-zones",
+    "/api/project/{project_id}/product/{product_id}/assign-zones",
+  GET_CONSIDERED_PRODUCT_LIST:
+    "/api/project/{project_id}/considered-product/get-list",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -447,4 +449,5 @@ export const ROUTE_IDS = {
 
   ASSIGN_PRODUCT_TO_A_PROJECT: "197",
   GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT: "198",
+  GET_CONSIDERED_PRODUCT_LIST: "199",
 };

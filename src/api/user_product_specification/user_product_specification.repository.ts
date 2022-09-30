@@ -3,6 +3,7 @@ import UserProductSpecificationModel, {
   UserProductSpecificationAttributes,
   UserProductSpecificationRequest,
 } from "@/api/user_product_specification/user_product_specification.model";
+import { v4 as uuidv4 } from "uuid";
 
 class UserProductSpecificationRepository extends BaseRepository<UserProductSpecificationAttributes> {
   protected model: UserProductSpecificationModel;
@@ -27,14 +28,25 @@ class UserProductSpecificationRepository extends BaseRepository<UserProductSpeci
     user_id: string,
     payload: UserProductSpecificationRequest
   ) {
-    return this.model.rawQuery(
+    const now = new Date();
+    return this.model.rawQueryV2(
       `UPSERT {product_id: '${product_id}', user_id: '${user_id}'}
-      INSERT @payload
+      INSERT @payloadWithId
       UPDATE @payload
       IN user_product_specifications
       RETURN { doc: NEW }
     `,
-      { payload: { product_id, user_id, ...payload } }
+      {
+        payloadWithId: {
+          product_id,
+          user_id,
+          ...payload,
+          id: uuidv4(),
+          created_at: now,
+          updated_at: now,
+        },
+        payload: { product_id, user_id, updated_at: now, ...payload },
+      }
     );
   }
 }

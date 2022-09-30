@@ -1,6 +1,12 @@
 export interface AssignProductToProjectRequest {
-  is_entire: boolean;
+  entire_allocation: boolean;
   product_id: string;
   project_id: string;
-  project_zone_ids: string[];
+  allocation: string[];
+}
+
+export enum ProductConsiderStatus {
+  "Considered",
+  "Re-Considered",
+  "Unlisted",
 }
