@@ -30,7 +30,7 @@ import { IMessageResponse, IPagination } from "@/type/common.type";
 import { IProductAttributes } from "@/types/product.type";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
-import PermissionService from "../permission/permission.service";
+// import {permissionService} from "@/api/permission/permission.service";
 import { IAvatarResponse } from "../user/user.type";
 import {
   IBrandByAlphabetResponse,
@@ -48,7 +48,6 @@ export default class BrandService {
   private mailService: MailService;
   private userModel: UserModel;
   private locationModel: LocationModel;
-  private permissionService: PermissionService;
   private collectionModel: CollectionModel;
   private productModel: ProductModel;
   private functionalTypeModel: FunctionalTypeModel;
@@ -59,7 +58,6 @@ export default class BrandService {
     this.mailService = new MailService();
     this.userModel = new UserModel();
     this.locationModel = new LocationModel();
-    this.permissionService = new PermissionService();
     this.collectionModel = new CollectionModel();
     this.productModel = new ProductModel();
     this.functionalTypeModel = new FunctionalTypeModel();
@@ -628,7 +626,7 @@ export default class BrandService {
         });
       }
       //create brand permissions
-      await this.permissionService.createBrandPermission(createdBrand.id);
+      // await permissionService.initPermission(createdUser);
       return resolve(await this.getOne(createdBrand.id));
     });
 

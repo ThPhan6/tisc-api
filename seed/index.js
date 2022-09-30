@@ -34,14 +34,14 @@ const seed = async () => {
   // await seedDocument(db);
   // await seedAutoEmail(db);
   // await seedCategory(db);
-  // await seedPermission(db);
+  await seedPermission(db);
   // await seedPermissionRoute(db);
   // await seedFunctionType(db);
   // await seedBuildingType(db);
   // await seedProjectType(db);
   // await seedUser(db);
   // await seedFinishScheduleFor(db);
-  await seedCommonType(db);
+  // await seedCommonType(db);
 };
 
 seed();

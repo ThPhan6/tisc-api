@@ -1,4 +1,4 @@
-import { IPagination } from "./../../type/common.type";
+import { DesignStatusValue, ILocationAttributes, IPagination } from "@/types";
 export interface IDesignersResponse {
   data: {
     designers: {
@@ -44,5 +44,26 @@ export interface IDesignSummary {
 }
 
 export interface IUpdateDesignStatusRequest {
-  status: number;
+  status: DesignStatusValue;
+}
+
+export interface DesignerDataCustom {
+  designer: {
+    created_at: string;
+    id: string;
+    logo: string | null;
+    name: string;
+    status: 1;
+  };
+  users: number;
+  origin_location: ILocationAttributes[];
+  projects: number[];
+  assign_team: {
+    avatar: string | null;
+    email: string;
+    firstname: string;
+    id: string;
+    lastname: string;
+    updated_at: string | null;
+  }[];
 }

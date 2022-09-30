@@ -1,3 +1,4 @@
+import {RoleTypeValue} from './role.type';
 export interface UserAttributes {
   id: string;
   role_id: string;
@@ -21,7 +22,7 @@ export interface UserAttributes {
   status: number;
   created_at: string | null;
   updated_at: string | null;
-  type: number;
+  type: RoleTypeValue;
   relation_id: string | null;
   retrieve_favourite: boolean;
 }

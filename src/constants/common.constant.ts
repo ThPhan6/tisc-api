@@ -10,6 +10,7 @@ export const COMMON_TYPES: CommonTypes = {
   PROJECT_TYPE: 7,
   PROJECT_REQUIREMENT: 8,
   PROJECT_UNIT: 9,
+  DEPARTMENT: 10,
 };
 
 export const AUTH_NAMES = {
