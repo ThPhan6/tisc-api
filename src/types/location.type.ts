@@ -55,12 +55,53 @@ export interface ICityAttributes {
   wikiDataId: string;
 }
 
+export interface ILocationAttributes {
+  id: string;
+  business_name: string;
+  business_number: string;
+  functional_type_ids: string[];
+  functional_type: string;
+  country_id: string;
+  country_name: string;
+  state_id: string | null;
+  state_name: string | null;
+  city_id: string;
+  city_name: string;
+  phone_code: string;
+  address: string;
+  postal_code: string;
+  general_phone: string;
+  general_email: string;
+  created_at: string;
+  is_deleted: boolean;
+  type: number;
+  relation_id: string | null;
+}
+
+export interface CountryGroupCount {
+  country_name: string;
+  count: number;
+}
+
 export interface IRegionCountry {
   id: string;
   name: string;
   phone_code: string;
   region: string;
 }
+
+
+export type RegionGroupValue = Omit<IRegionCountry, 'region'>;
+
+export interface RegionGroup {
+  africa: RegionGroupValue[];
+  asia: RegionGroupValue[];
+  europe: RegionGroupValue[];
+  n_america: RegionGroupValue[];
+  oceania: RegionGroupValue[];
+  s_america: RegionGroupValue[];
+}
+export type RegionGroupKey = keyof RegionGroup;
 
 export type RegionKey =
   | "africa"
