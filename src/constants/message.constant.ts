@@ -69,6 +69,9 @@ export const MESSAGES = {
       "Not found location, please check country state city id",
   },
 
+  DESIGNER: {
+    DESIGN_NOT_FOUND: "Design not found",
+  },
   PERMISSION: {
     NO_MODIFY_ADMIN_PERM: "Cannot modify admin permission.",
   },
@@ -184,4 +187,5 @@ export const MESSAGES = {
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
+  DESIGNER_NOT_FOUND: "Not found designer.",
 };

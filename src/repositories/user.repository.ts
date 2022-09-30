@@ -42,14 +42,10 @@ class UserRepository extends BaseRepository<UserAttributes> {
       | undefined;
   }
   public async countUserOfCompany(relationId: string) {
-    return await this.model
-      .where('relation_id', '==', relationId)
-      .count();
+    return await this.model.where("relation_id", "==", relationId).count();
   }
   public async countUserInLocation(locationId: string) {
-    return await this.model
-      .where('location_id', '==', locationId)
-      .count();
+    return await this.model.where("location_id", "==", locationId).count();
   }
   public async getTiscUsers() {
     return (await this.model
