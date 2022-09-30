@@ -1,4 +1,5 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
 import { AssignProductToProjectRequest } from "./project_product.type";
 
@@ -47,5 +48,45 @@ export default class ProjectProductController {
     );
 
     return toolkit.response(zoneResponse).code(zoneResponse.statusCode ?? 200);
+  };
+
+  public updateConsiderProduct = async (
+    req: Request & {
+      payload: Partial<ProjectProductAttributes>;
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await projectProductService.updateConsiderProduct(
+      id,
+      payload
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public specifyProduct = async (
+    req: Request & {
+      payload: Partial<ProjectProductAttributes>;
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await projectProductService.updateConsiderProduct(
+      id,
+      payload,
+      true
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public deleteConsiderProduct = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const response = await projectProductService.deleteConsiderProduct(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

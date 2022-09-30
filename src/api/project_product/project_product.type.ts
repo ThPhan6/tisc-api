@@ -5,8 +5,19 @@ export interface AssignProductToProjectRequest {
   allocation: string[];
 }
 
+export enum ProjectProductStatus {
+  consider,
+  specify,
+}
+
 export enum ProductConsiderStatus {
   "Considered",
   "Re-Considered",
   "Unlisted",
+}
+
+export enum ProductSpecifyStatus {
+  "Specified",
+  "Re-specified",
+  "Cancelled",
 }
