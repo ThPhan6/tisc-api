@@ -125,7 +125,6 @@ class ProjectProductService {
       mappedConsideredProducts,
       "entire_allocation"
     );
-    consideredProducts.filter((item: any) => item.entire_allocation);
 
     const mappedAllocatedProducts = projectZones.map(
       (zone: ProjectZoneAttributes) => {
