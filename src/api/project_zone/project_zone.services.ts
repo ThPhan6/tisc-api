@@ -1,5 +1,4 @@
-import { MEASUREMENT_UNIT } from "@/constant/common.constant";
-import { MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { MEASUREMENT_UNIT, MESSAGES, SYSTEM_TYPE } from "@/constants";
 import {
   formatNumberDisplay,
   isDuplicatedString,
@@ -11,33 +10,23 @@ import {
 } from "@/helper/response.helper";
 import ConsideredProductModel from "@/model/considered_product.model";
 import ProjectModel, { IProjectAttributes } from "@/model/project.model";
-import ProjectZoneModel from "@/model/project_zone.model";
 import SpecifiedProductModel from "@/model/specified_product.model";
-import UserModel from "@/model/user.model";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { userRepository } from "@/repositories/user.repository";
-import { IMessageResponse } from "@/type/common.type";
-import { UserAttributes } from "@/types";
-import { v4 as uuidv4 } from "uuid";
+import { SortOrder, UserAttributes } from "@/types";
 import {
   mappingAddProjectZoneId,
+  mappingProjectZoneAreas,
   mappingResponseProjectZones,
   mappingResponseUnitRoomSize,
 } from "./project_zone.mapping";
-import {
-  IProjectZoneResponse,
-  IUpdateProjectZoneRequest,
-} from "./project_zone.type";
+import { IUpdateProjectZoneRequest } from "./project_zone.type";
 export default class ProjectZoneService {
   private projectModel: ProjectModel;
-  private userModel: UserModel;
-  private projectZoneModel: ProjectZoneModel;
   private consideredProductModel: ConsideredProductModel;
   private specifiedProductModel: SpecifiedProductModel;
   constructor() {
-    this.projectZoneModel = new ProjectZoneModel();
     this.projectModel = new ProjectModel();
-    this.userModel = new UserModel();
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
   }
@@ -49,7 +38,7 @@ export default class ProjectZoneService {
     projectZoneId?: string
   ) {
     if (projectZoneId) {
-      const projectZone = await this.projectZoneModel.find(projectZoneId);
+      const projectZone = await projectZoneRepository.find(projectZoneId);
 
       if (!projectZone) {
         return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
@@ -63,7 +52,7 @@ export default class ProjectZoneService {
       }
 
       const projectZoneExisted =
-        await this.projectZoneModel.getExistedProjectZone(
+        await projectZoneRepository.getExistedProjectZone(
           projectZoneId,
           payload.name,
           projectZone.project_id
@@ -73,7 +62,7 @@ export default class ProjectZoneService {
         return errorMessageResponse(MESSAGES.PROJECT_ZONE_EXISTED);
       }
     }
-    const foundProjectZone = await this.projectZoneModel.findBy({
+    const foundProjectZone = await projectZoneRepository.findBy({
       project_id: payload.project_id,
       name: payload.name,
     });
@@ -154,12 +143,12 @@ export default class ProjectZoneService {
   public async getList(
     userId: string,
     projectId: string,
-    zoneOrder: "ASC" | "DESC",
-    areaOrder: "ASC" | "DESC",
-    roomNameOrder: "ASC" | "DESC",
-    roomIdOrder: "ASC" | "DESC"
+    zoneOrder: SortOrder,
+    areaOrder: SortOrder,
+    roomNameOrder: SortOrder,
+    roomIdOrder: SortOrder
   ) {
-    const foundUser = await this.userModel.find(userId);
+    const foundUser = await userRepository.find(userId);
 
     if (!foundUser) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -229,7 +218,7 @@ export default class ProjectZoneService {
   }
 
   public async getOne(userId: string, projectZoneId: string) {
-    const foundUser = await this.userModel.find(userId);
+    const foundUser = await userRepository.find(userId);
 
     if (!foundUser) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -264,14 +253,14 @@ export default class ProjectZoneService {
     });
   }
 
-  public async delete_(userId: string, projectZoneId: string) {
-    const foundUser = await this.userModel.find(userId);
+  public async delete(userId: string, projectZoneId: string) {
+    const foundUser = await userRepository.find(userId);
 
     if (!foundUser) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
-    const projectZone = await this.projectZoneModel.find(projectZoneId);
+    const projectZone = await projectZoneRepository.find(projectZoneId);
 
     if (!projectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
@@ -322,239 +311,60 @@ export default class ProjectZoneService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public delete = async (
-    userId: string,
-    projectZoneId: string
-  ): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const foundUser = await this.userModel.find(userId);
-      if (!foundUser) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const projectZone = await this.projectZoneModel.find(projectZoneId);
-      if (!projectZone) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const foundProject = await this.projectModel.findBy({
-        id: projectZone.project_id,
-        design_id: foundUser.relation_id,
-      });
-      if (!foundProject) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-
-      const foundConsideredProduct =
-        await this.consideredProductModel.findConsideredProductByZone(
-          projectZoneId
-        );
-
-      if (foundConsideredProduct.total > 0) {
-        return resolve({
-          message: MESSAGES.ZONE_WAS_CONSIDERED,
-          statusCode: 400,
-        });
-      }
-      const foundSpecifiedProduct =
-        await this.specifiedProductModel.findSpecifiedProductByZone(
-          projectZoneId
-        );
-
-      if (foundSpecifiedProduct.total > 0) {
-        return resolve({
-          message: MESSAGES.ZONE_WAS_SPECIFIED,
-          statusCode: 400,
-        });
-      }
-
-      if (
-        foundProject.design_id !== foundUser.relation_id &&
-        foundUser.type !== SYSTEM_TYPE.DESIGN
-      ) {
-        return resolve({
-          message: MESSAGES.JUST_OWNER_CAN_DELETE,
-          statusCode: 400,
-        });
-      }
-
-      const updatedProjectZone = await this.projectZoneModel.update(
-        projectZoneId,
-        { is_deleted: true }
-      );
-      if (!updatedProjectZone) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 200,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
-    });
-  };
-  public update = async (
+  public async update_(
     userId: string,
     projectZoneId: string,
     payload: IUpdateProjectZoneRequest
-  ): Promise<IMessageResponse | IProjectZoneResponse> => {
-    return new Promise(async (resolve) => {
-      const foundUser = await this.userModel.find(userId);
-      if (!foundUser) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
+  ) {
+    const foundUser = await userRepository.find(userId);
 
-      const projectZone = await this.projectZoneModel.find(projectZoneId);
-      if (!projectZone) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const foundProject = await this.projectModel.findBy({
-        id: projectZone.project_id,
-        design_id: foundUser.relation_id,
-      });
-      if (!foundProject) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
+    if (!foundUser) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
 
-      if (
-        foundProject.design_id !== foundUser.relation_id &&
-        foundUser.type !== SYSTEM_TYPE.DESIGN
-      ) {
-        return resolve({
-          message: MESSAGES.JUST_OWNER_CAN_UPDATE,
-          statusCode: 400,
-        });
-      }
+    const projectZone = await projectZoneRepository.find(projectZoneId);
 
-      const foundProjectZone =
-        await this.projectZoneModel.getExistedProjectZone(
-          projectZoneId,
-          payload.name,
-          projectZone.project_id
-        );
+    if (!projectZone) {
+      return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
+    }
 
-      if (foundProjectZone) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_EXISTED,
-          statusCode: 400,
-        });
-      }
-      if (
-        isDuplicatedString(
-          payload.areas.map((item) => {
-            return item.name;
-          })
-        )
-      ) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_AREA_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-
-      let isAreaDuplicate = false;
-      payload.areas.forEach((area) => {
-        if (
-          isDuplicatedString(
-            area.rooms.map((item) => {
-              return item.room_name;
-            })
-          ) ||
-          isDuplicatedString(
-            area.rooms.map((item) => {
-              return item.room_id;
-            })
-          )
-        ) {
-          isAreaDuplicate = true;
-        }
-      });
-      if (isAreaDuplicate) {
-        return resolve({
-          message: MESSAGES.PROJECT_ZONE_ROOM_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-
-      const areas = payload.areas.map((area) => {
-        const rooms = area.rooms.map((room) => {
-          if (!room.id) {
-            return {
-              ...room,
-              id: uuidv4(),
-            };
-          }
-          if (room.id) {
-            return {
-              ...room,
-            };
-          }
-        });
-        if (!area.id) {
-          return {
-            ...area,
-            rooms,
-            id: uuidv4(),
-          };
-        }
-        if (area.id) {
-          return {
-            ...area,
-            rooms,
-          };
-        }
-      });
-      const updatedProjectZone = await this.projectZoneModel.update(
-        projectZoneId,
-        {
-          ...payload,
-          areas,
-        }
-      );
-      if (!updatedProjectZone) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 200,
-        });
-      }
-      const roomSizeUnit =
-        foundProject.measurement_unit === MEASUREMENT_UNIT.IMPERIAL
-          ? "sq.ft."
-          : "sq.m.";
-      const { is_deleted, ...rest } = updatedProjectZone;
-      const returnedAreas = updatedProjectZone.areas.map((area) => {
-        const rooms = area.rooms.map((room) => {
-          return {
-            ...room,
-            room_size_unit: roomSizeUnit,
-          };
-        });
-        return {
-          ...area,
-          rooms,
-        };
-      });
-      return resolve({
-        data: { ...rest, areas: returnedAreas },
-        statusCode: 200,
-      });
+    const foundProject = await this.projectModel.findBy({
+      id: projectZone.project_id,
+      design_id: foundUser.relation_id,
     });
-  };
+
+    if (!foundProject) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
+
+    await this.validateProjectZone(
+      payload,
+      foundUser,
+      foundProject,
+      projectZoneId
+    );
+
+    const areas = mappingProjectZoneAreas(payload.areas);
+
+    const updatedProjectZone = await projectZoneRepository.update(
+      projectZoneId,
+      {
+        ...payload,
+        areas,
+      }
+    );
+
+    if (!updatedProjectZone) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
+    }
+
+    const returnedAreas = mappingResponseUnitRoomSize(
+      foundProject,
+      projectZone
+    );
+
+    return successResponse({
+      data: { ...updatedProjectZone, areas: returnedAreas },
+    });
+  }
 }

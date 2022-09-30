@@ -57,7 +57,7 @@ export default class ProjectZoneController {
     const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.update(userId, id, payload);
+    const response = await this.service.update_(userId, id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

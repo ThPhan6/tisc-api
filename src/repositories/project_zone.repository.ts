@@ -1,5 +1,5 @@
+import { SortOrder, IProjectZoneAttributes } from "@/types";
 import ProjectZoneModel from "@/model/project_zone.models";
-import { IProjectZoneAttributes } from "@/types";
 import BaseRepository from "./base.repository";
 
 class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
@@ -30,6 +30,14 @@ class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
     this.model = new ProjectZoneModel();
   }
 
+  public getByProjectId = async (project_id: string, zoneOrder: SortOrder) => {
+    return this.model
+      .select("id", "name", "areas")
+      .where("project_id", "==", project_id)
+      .order("name", zoneOrder)
+      .get();
+  };
+
   public async findByNameOrId(id: string, relation_id: string) {
     return (await this.model
       .where("id", "==", id)
@@ -50,11 +58,8 @@ class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
       .first();
   }
 
-  public async getListProjectZone(
-    projectId: string,
-    zoneOrder: "ASC" | "DESC"
-  ) {
-    return await this.model
+  public async getListProjectZone(projectId: string, zoneOrder: SortOrder) {
+    return this.model
       .select()
       .where("project_id", "==", projectId)
       .order("name", zoneOrder)
