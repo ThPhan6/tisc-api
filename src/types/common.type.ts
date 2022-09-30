@@ -38,3 +38,5 @@ export interface ValidImage {
   path: string;
   mime_type: string;
 }
+
+export type SortOrder = "ASC" | "DESC";

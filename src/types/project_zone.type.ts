@@ -1,6 +1,4 @@
-import Model from "@/Database/Model";
-
-export interface ProjectZoneAttributes {
+export interface IProjectZoneAttributes {
   id: string;
   project_id: string;
   name: string;
@@ -17,10 +15,5 @@ export interface ProjectZoneAttributes {
     }[];
   }[];
   created_at: string;
-  is_deleted: boolean;
-}
-
-export default class ProjectZoneModel extends Model<ProjectZoneAttributes> {
-  protected table = "project_zones";
-  protected softDelete = true;
+  updated_at: string | null;
 }

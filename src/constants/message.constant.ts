@@ -187,5 +187,7 @@ export const MESSAGES = {
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
+  ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
+  ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
 };

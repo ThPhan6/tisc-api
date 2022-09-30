@@ -5,11 +5,11 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import productRepository from "@/repositories/product.repository";
+import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { SortOrder } from "@/type/common.type";
+import { IProjectZoneAttributes } from "@/types";
 import { orderBy, partition, uniqBy } from "lodash";
 import { projectRepository } from "../project/project.repository";
-import { ProjectZoneAttributes } from "../project_zone/project_zone.models";
-import { projectZoneRepository } from "../project_zone/project_zone.repository";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductRepository } from "./project_product.repository";
 import {
@@ -131,7 +131,7 @@ class ProjectProductService {
     );
 
     const mappedAllocatedProducts = projectZones.map(
-      (zone: ProjectZoneAttributes) => {
+      (zone: IProjectZoneAttributes) => {
         const areas = zone.areas.map((area) => {
           const rooms = area.rooms.map((room) => {
             const products = allocatedProducts.filter((prod: any) =>
