@@ -29,7 +29,7 @@ import UserModel from "@/model/user.model";
 import MaterialCodeRepository from "@/repositories/material_code.repository";
 import { IMessageResponse, SortOrder } from "@/type/common.type";
 import { IRoom } from "../considered_product/considered_product.type";
-import ProductService from "../product/product.services";
+import { productService } from "../product/product.services";
 import {
   IInstructionTypesResponse,
   IRequirementTypesResponse,
@@ -342,7 +342,7 @@ export default class SpecifiedProductService {
           variant: payload.variant,
         }
       );
-      const assign = await ProductService.assign(user_id, {
+      const assign = await productService.assign(user_id, {
         considered_product_id: payload.considered_product_id,
         is_entire: payload.is_entire,
         product_id: consideredProduct.product_id,

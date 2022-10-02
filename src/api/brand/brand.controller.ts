@@ -1,4 +1,4 @@
-import BrandService from "./brand.service";
+import BrandService from "./brand.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { BRAND_STATUS_OPTIONS } from "../../constant/common.constant";
 import {
