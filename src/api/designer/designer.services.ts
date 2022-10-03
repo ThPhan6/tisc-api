@@ -34,11 +34,14 @@ class DesignerService {
       sort,
       order
     );
+
+    const totalDesigner = await designerRepository.getModel().count();
+
     const result = mappingGetListDesigner(dataDesigners);
     return successResponse({
       data: {
         designers: result,
-        pagination: pagination(limit, offset, result.length),
+        pagination: pagination(limit, offset, totalDesigner),
       },
     });
   }

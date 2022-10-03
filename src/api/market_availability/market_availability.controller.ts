@@ -2,7 +2,6 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { marketAvailabilityService } from "./market_availability.services";
 import { IUpdateMarketAvailabilityRequest } from "./market_availability.type";
 export default class MarketAvailabilityController {
-  constructor() {}
   public update = async (
     req: Request & { payload: IUpdateMarketAvailabilityRequest },
     toolkit: ResponseToolkit

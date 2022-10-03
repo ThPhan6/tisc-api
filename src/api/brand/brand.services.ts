@@ -70,12 +70,14 @@ class BrandService {
       order
     );
 
+    const totalBrand = await brandRepository.getModel().count();
+
     const result = mappingBrands(dataBrandCustom);
 
     return successResponse({
       data: {
         brands: result,
-        pagination: pagination(limit, offset, result.length),
+        pagination: pagination(limit, offset, totalBrand),
       },
     });
   }
