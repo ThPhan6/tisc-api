@@ -11,11 +11,13 @@ export interface UserAttributes {
   position: string;
   email: string;
   phone: string;
+  phone_code: string;
   mobile: string;
   password: string;
   avatar: string | null;
   backup_email: string;
   personal_mobile: string;
+  linkedin: string;
   is_verified: boolean;
   verification_token: string | null;
   reset_password_token: string | null;
@@ -23,8 +25,9 @@ export interface UserAttributes {
   created_at: string | null;
   updated_at: string | null;
   type: RoleTypeValue;
-  relation_id: string | null;
+  relation_id: string;
   retrieve_favourite: boolean;
+  interested: any[];
 }
 
 export type SystemType = 1 | 2 | 3;

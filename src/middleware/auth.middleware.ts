@@ -2,6 +2,7 @@ import { AUTH_NAMES } from "../constant/auth.constant";
 import { Server } from "@hapi/hapi";
 import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
+import {userRepository} from '@/repositories/user.repository';
 // import UserModel from "../model/user.model";
 // import PermissionModel from "../model/permission.model";
 // import PermissionRouteModel from "../model/permission_route.model";
@@ -14,18 +15,28 @@ import {
 } from "../helper/jwt.helper";
 
 
-const parseJwtToken = (authorization?: string) => {
+export const throwError = async () => {
+  throw Boom.unauthorized("Invalid token signature");
+}
+
+
+
+
+const parseJwtToken = async (authorization?: string) => {
   if (!authorization) {
-    throw Boom.unauthorized("Invalid token signature");
+    return throwError();
   }
   const token = authorization.substring(7);
   const tokenArtifact = verifyJwtToken(token);
   if (!tokenArtifact.isValid) {
-    throw Boom.unauthorized("Invalid token signature");
+    return throwError();
   }
-
-  return jwt_decode(token) as any;
-
+  const jwtData = jwt_decode(token) as {user_id: string};
+  const user = await userRepository.find(jwtData.user_id);
+  if (!user) {
+    return throwError();
+  }
+  return user;
 }
 
 export default class AuthMiddleware {
@@ -33,9 +44,12 @@ export default class AuthMiddleware {
     server.auth.scheme(AUTH_NAMES.GENERAL, (_server: Server) => {
       return {
         authenticate: async (request, h) => {
-          const decoded = parseJwtToken(request.headers.authorization);
+          const user = await parseJwtToken(request.headers.authorization);
           return h.authenticated({
-            credentials: { user_id: decoded.user_id },
+            credentials: {
+              user,
+              user_id: user.id,
+            },
           });
         },
       };
@@ -44,9 +58,12 @@ export default class AuthMiddleware {
     server.auth.scheme(AUTH_NAMES.PERMISSION, (_server: Server) => {
       return {
         authenticate: async (request, h) => {
-          const decoded = parseJwtToken(request.headers.authorization);
+          const user = await parseJwtToken(request.headers.authorization);
           return h.authenticated({
-            credentials: { user_id: decoded.user_id },
+            credentials: {
+              user,
+              user_id: user.id,
+            },
           });
           //check permission
           // const decoded: any = jwt_decode(token);

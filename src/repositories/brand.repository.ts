@@ -53,3 +53,4 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
 }
 
 export default BrandRepository;
+export const brandRepository = new BrandRepository();
