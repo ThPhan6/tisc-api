@@ -6,6 +6,7 @@ export const MESSAGES = {
     SOMETHING_WRONG_CREATE: "Something wrong when create !",
     SOMETHING_WRONG_UPDATE: "Something wrong when update !",
     SOMETHING_WRONG_DELETE: "Something wrong delete !",
+    INVITED: "Invited",
   },
 
   FAVOURITE: {
@@ -39,6 +40,7 @@ export const MESSAGES = {
 
   IMAGE: {
     IMAGE_INVALID: "Image invalid",
+    LOGO_NOT_VALID: "Logo not valid",
   },
 
   CATEGORY: {
@@ -62,6 +64,7 @@ export const MESSAGES = {
 
   BRAND: {
     BRAND_NOT_FOUND: "Brand not found",
+    NOT_IN_BRAND: "You are not in this brand",
   },
 
   COUNTRY_STATE_CITY: {

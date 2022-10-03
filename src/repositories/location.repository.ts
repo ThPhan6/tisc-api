@@ -73,6 +73,20 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     `;
     return this.model.rawQuery(rawQuery, params);
   }
+
+  public async getOriginLocation(relationId: string) {
+    return this.model.where("relation_id", "==", relationId).first();
+  }
+
+  public getFirstHeadquarterLocation(
+    relationId: string,
+    headquarterId: string
+  ) {
+    return this.model
+      .where("relation_id", "==", relationId)
+      .where("functional_type_ids", "in", headquarterId, "inverse")
+      .first();
+  }
 }
 
 export const locationRepository = new LocationRepository();

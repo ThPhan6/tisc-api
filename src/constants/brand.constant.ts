@@ -1,4 +1,4 @@
-import {BrandStatus} from '@/types';
+import { BrandStatus } from "@/types";
 export const BRAND_STATUSES: BrandStatus = {
   ACTIVE: 1,
   INACTIVE: 2,
