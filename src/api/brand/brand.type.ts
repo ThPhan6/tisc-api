@@ -1,5 +1,4 @@
-import { IProductAttributes } from "./../../types/product.type";
-import { IPagination } from "./../../type/common.type";
+import { IProductAttributes, IPagination } from "@/types";
 import {
   BrandStatusValue,
   ICollectionAttributes,
