@@ -1,6 +1,11 @@
 import { IProductAttributes } from "./../../types/product.type";
 import { IPagination } from "./../../type/common.type";
-import { IDistributorAttributes, ILocationAttributes } from "@/types";
+import {
+  BrandStatusValue,
+  ICollectionAttributes,
+  IDistributorAttributes,
+  ILocationAttributes,
+} from "@/types";
 export interface IBrandsResponse {
   data: {
     brands: IBrand[];
@@ -108,7 +113,7 @@ export interface IBrandSummary {
 }
 
 export interface IUpdateBrandStatusRequest {
-  status: number;
+  status: BrandStatusValue;
 }
 
 export interface ListBrandCustom {
@@ -139,4 +144,23 @@ export interface ListBrandCustom {
     id: string;
     lastname: string;
   }[];
+}
+
+export interface BrandDataSummary {
+  created_at: string;
+  id: string;
+  is_deleted: false;
+  location_ids: string[];
+  logo: null;
+  mission_n_vision: null;
+  name: string;
+  official_websites: string[];
+  parent_company: null;
+  slogan: null;
+  status: number;
+  team_profile_ids: string[];
+  updated_at: null;
+  products: IProductAttributes;
+  locations: ILocationAttributes;
+  collections: ICollectionAttributes;
 }

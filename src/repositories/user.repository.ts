@@ -87,7 +87,12 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return head(result);
   }
 
-  public async getTeamProfile() {}
+  public async getTeamProfile(ids: string[], keySelect: string[]) {
+    return this.model
+      .select(...keySelect)
+      .whereIn("id", ids)
+      .get();
+  }
 }
 
 export const userRepository = new UserRepository();

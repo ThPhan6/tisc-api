@@ -23,7 +23,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
 
   public async getAllAndSortByName() {
     return (await this.model
-      .select("*")
+      .select()
       .order("name", "ASC")
       .get()) as BrandAttributes[];
   }
@@ -41,13 +41,18 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   ) {
     let query = this.model.getQuery();
     if (brandId) {
-      query = query.where("brand.id", "==", brandId);
+      query = query.where("brands.id", "==", brandId);
     }
     if (type === "user") {
-      query = query.join("users", "users.relation_id", "==", "brand.id");
+      query = query.join("users", "users.relation_id", "==", "brands.id");
     }
     if (type === "location") {
-      query = query.join("locations", "location.relation_id", "==", "brand.id");
+      query = query.join(
+        "locations",
+        "location.relation_id",
+        "==",
+        "brands.id"
+      );
     }
     return await query.count();
   }
@@ -154,6 +159,15 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         .get()) as BrandAttributes[];
     }
     return (await this.model.select().get()) as BrandAttributes[];
+  }
+
+  public async getBrandSummary() {
+    return this.model
+      .getQuery()
+      .join("locations", "locations.relation_id", "==", "brands.id")
+      .join("collections", "collections.brand_id", "==", "brands.id")
+      .join("products", "products.brand_id", "==", "brands.id")
+      .get(true);
   }
 }
 

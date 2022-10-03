@@ -8,7 +8,7 @@ import {
 import ProjectModel from "@/model/project.model";
 import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
-import MarketAvailabilityServices from "../market_availability/market_availability.services";
+import { marketAvailabilityService } from "../market_availability/market_availability.services";
 import {
   mappingCountDesigner,
   mappingDesignSummary,
@@ -64,7 +64,7 @@ class DesignerService {
 
     const originLocationIds = await locationRepository.getOriginCountry();
 
-    const countries = await MarketAvailabilityServices.getRegionCountries(
+    const countries = await marketAvailabilityService.getRegionCountries(
       getDistinctArray(originLocationIds)
     );
 

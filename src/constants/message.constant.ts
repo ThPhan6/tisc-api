@@ -40,6 +40,7 @@ export const MESSAGES = {
 
   IMAGE: {
     IMAGE_INVALID: "Image invalid",
+    LOGO_NOT_VALID: "Logo not valid",
   },
 
   CATEGORY: {
