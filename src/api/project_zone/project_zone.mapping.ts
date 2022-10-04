@@ -1,7 +1,6 @@
-import { IProjectAttributes } from "@/model/project.model";
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
 import { v4 as uuidv4 } from "uuid";
-import { IProjectZoneAttributes, SortOrder } from "@/types";
+import { IProjectZoneAttributes, ProjectAttributes, SortOrder } from "@/types";
 import { sortObjectArray } from "@/helper/common.helper";
 import { MEASUREMENT_UNIT } from "@/constants";
 
@@ -26,7 +25,7 @@ export const mappingAddProjectZoneId = (payload: IUpdateProjectZoneRequest) => {
 };
 
 export const mappingResponseUnitRoomSize = (
-  project: IProjectAttributes,
+  project: ProjectAttributes,
   projectZone: IProjectZoneAttributes
 ) => {
   const roomSizeUnit =

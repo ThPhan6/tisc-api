@@ -9,55 +9,30 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import ConsideredProductModel from "@/model/considered_product.model";
-import ProjectModel, { IProjectAttributes } from "@/model/project.model";
+import ProjectModel from "@/model/project.model";
 import SpecifiedProductModel from "@/model/specified_product.model";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
-import { userRepository } from "@/repositories/user.repository";
-import { SortOrder, UserAttributes } from "@/types";
+import { ProjectAttributes, SortOrder, UserAttributes } from "@/types";
+import { projectService } from "./../project/project.services";
 import {
   mappingAddProjectZoneId,
   mappingProjectZoneAreas,
   mappingResponseProjectZones,
   mappingResponseUnitRoomSize,
 } from "./project_zone.mapping";
-import {
-  FindUserAndProjectResponse,
-  IUpdateProjectZoneRequest,
-} from "./project_zone.type";
+import { IUpdateProjectZoneRequest } from "./project_zone.type";
 class ProjectZoneService {
-  private projectModel: ProjectModel;
   private consideredProductModel: ConsideredProductModel;
   private specifiedProductModel: SpecifiedProductModel;
   constructor() {
-    this.projectModel = new ProjectModel();
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
-  }
-
-  private async findUserAndProject(userId: string, projectId: string) {
-    const res: FindUserAndProjectResponse = {
-      message: errorMessageResponse(MESSAGES.SOMETHING_WRONG),
-    };
-
-    res.user = await userRepository.find(userId);
-    if (!res.user) {
-      res.message = errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-      return res;
-    }
-
-    res.project = await this.projectModel.find(projectId);
-    if (!res.project) {
-      res.message = errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
-      return res;
-    }
-
-    return res;
   }
 
   private async validateProjectZone(
     payload: IUpdateProjectZoneRequest,
     user: UserAttributes,
-    project: IProjectAttributes,
+    project: ProjectAttributes,
     projectZoneId?: string
   ) {
     if (projectZoneId) {
@@ -129,7 +104,7 @@ class ProjectZoneService {
   }
 
   public async create(userId: string, payload: IUpdateProjectZoneRequest) {
-    const { project, user, message } = await this.findUserAndProject(
+    const { project, user, message } = await projectService.findUserAndProject(
       userId,
       payload.project_id
     );
@@ -168,7 +143,7 @@ class ProjectZoneService {
     roomNameOrder: SortOrder,
     roomIdOrder: SortOrder
   ) {
-    const { project, user, message } = await this.findUserAndProject(
+    const { project, user, message } = await projectService.findUserAndProject(
       userId,
       projectId
     );
@@ -234,7 +209,7 @@ class ProjectZoneService {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const { project, user, message } = await this.findUserAndProject(
+    const { project, user, message } = await projectService.findUserAndProject(
       userId,
       projectZone.project_id
     );
@@ -263,7 +238,7 @@ class ProjectZoneService {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const { project, user, message } = await this.findUserAndProject(
+    const { project, user, message } = await projectService.findUserAndProject(
       userId,
       projectZone.project_id
     );
@@ -318,7 +293,7 @@ class ProjectZoneService {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const { project, user, message } = await this.findUserAndProject(
+    const { project, user, message } = await projectService.findUserAndProject(
       userId,
       projectZone.project_id
     );

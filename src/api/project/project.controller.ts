@@ -1,10 +1,7 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import ProjectService from "./project.service";
+import ProjectService from "./project.services";
 import { IProjectRequest } from "./project.type";
-import {
-  MEASUREMENT_UNIT_OPTIONS,
-  PROJECT_STATUS_OPTIONS,
-} from "../../constant/common.constant";
+import { PROJECT_STATUS_OPTIONS } from "@/constants";
 
 export default class ProjectController {
   private service: ProjectService;
@@ -31,22 +28,7 @@ export default class ProjectController {
     const response = await this.service.getAll(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getProjectTypes = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getProjectTypes(userId);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getBuildingTypes = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getBuildingTypes(userId);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getMeasurementUnits = async (
-    _req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    return toolkit.response(MEASUREMENT_UNIT_OPTIONS).code(200);
-  };
+
   public getProjectStatus = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(PROJECT_STATUS_OPTIONS).code(200);
   };
@@ -86,6 +68,7 @@ export default class ProjectController {
     const response = await this.service.getProjectSummary(userId);
     return toolkit.response(response).code(200);
   };
+
   public getProjectGroupByStatus = async (
     req: Request,
     toolkit: ResponseToolkit

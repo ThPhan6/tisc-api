@@ -1,11 +1,11 @@
+import { ProjectAttributes } from "@/types";
 import BaseRepository from "@/repositories/base.repository";
-import ProjectModel, { ProjectAttributes } from "./project.model";
+import ProjectModel from "@/model/project.models";
 
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected model: ProjectModel;
 
   protected DEFAULT_ATTRIBUTE: Partial<ProjectAttributes> = {
-    id: "",
     code: "",
     name: "",
     location: "",
@@ -32,7 +32,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     design_id: "",
     status: 0,
     created_at: "",
-    is_deleted: false,
   };
 
   constructor() {
