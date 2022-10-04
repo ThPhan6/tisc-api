@@ -264,7 +264,7 @@
 	},
 	{
 		"logo": "/logo/project_tracking.svg",
-		"name": "GENERAL INQUIRES",
+		"name": "PROJECT TRACKING",
 		"parent_id": null,
 		"type": 2,
 		"routes": []
