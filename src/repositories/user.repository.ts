@@ -3,6 +3,7 @@ import BaseRepository from "./base.repository";
 import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
 import { UserAttributes } from "@/types";
 import { head } from "lodash";
+import {generateUniqueString} from '@/helper/common.helper';
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
@@ -16,20 +17,24 @@ class UserRepository extends BaseRepository<UserAttributes> {
     department_id: null,
     position: "",
     email: "",
+    phone_code: "",
     phone: "",
     mobile: "",
     password: "",
     avatar: null,
     backup_email: "",
     personal_mobile: "",
+    linkedin: "",
     is_verified: false,
     verification_token: null,
     reset_password_token: null,
     status: USER_STATUSES.PENDING,
     type: ROLE_TYPE.TISC,
-    relation_id: null,
+    relation_id: 'TISC',
     retrieve_favourite: false,
-  };
+    interested: []
+  }
+
   constructor() {
     super();
     this.model = new UserModel();
@@ -50,6 +55,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
   public async getTiscUsers() {
     return (await this.model
       .where("type", "==", SYSTEM_TYPE.TISC)
+      .where("status", "==", USER_STATUSES.ACTIVE)
       .get()) as UserAttributes[];
   }
   public async getInactiveDesignFirmByBackupData(
@@ -87,12 +93,87 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return head(result);
   }
 
+  public generateToken = async (column: keyof UserAttributes) => {
+    let token: string;
+    let isDuplicated = true;
+    do {
+      token = generateUniqueString();
+      const user = await this.findBy({ [column]: token });
+      if (!user) isDuplicated = false;
+    } while (isDuplicated);
+    return token;
+  }
+
+  public getPagination = async (
+    limit?: number,
+    offset?: number,
+    relationId?: string | null,
+    sort?: string,
+    order: "ASC" | "DESC" = "ASC"
+  ) => {
+    let query = this.getModel().getQuery();
+    if (relationId) {
+      query = query.where("relation_id", "==", relationId);
+    }
+
+    if (sort && order) {
+      query = query.order(sort, order);
+    }
+
+    if (limit && offset) {
+      query.limit(limit, offset);
+      return await query.paginate();
+    }
+    const response = await query.get();
+    const totalSize = (response.length ?? 0) as number;
+    return {
+      pagination: {
+        total: totalSize,
+        page: 1,
+        page_size: totalSize,
+        page_count: totalSize,
+      },
+      data: response,
+    };
+  }
+
+  public getWithLocationAndDeparmentData = (relationId: string) => {
+    const rawQuery = `
+      FOR users IN users
+        FILTER users.deleted_at == null
+        FILTER users.relation_id == @relationId
+        let locationData = (
+          FOR locations IN locations
+            FILTER locations.relation_id == users.relation_id
+            FILTER locations.deleted_at == null
+          RETURN UNSET(locations, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"])
+        )
+        let commontypeData = (
+          FOR common_types IN common_types
+            FILTER common_types.id == users.department_id
+            FILTER common_types.deleted_at == null
+          RETURN UNSET(common_types, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"])
+        )
+        SORT users._key DESC
+      RETURN merge(
+        users,
+        {
+          locations: locationData.length == 0 ? null : locationData[0],
+          common_types: commontypeData.length == 0 ? null : commontypeData[0]
+        }
+    )`;
+
+    return this.model.rawQueryV2(rawQuery, {relationId});
+
+  }
+
   public async getTeamProfile(ids: string[], keySelect: string[]) {
     return this.model
       .select(...keySelect)
       .whereIn("id", ids)
       .get();
   }
+
 }
 
 export const userRepository = new UserRepository();

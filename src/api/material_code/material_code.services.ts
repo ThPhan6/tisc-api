@@ -1,3 +1,4 @@
+import { userRepository } from "@/repositories/user.repository";
 import { MESSAGES } from "@/constant/common.constant";
 import MaterialCodeRepository from "@/repositories/material_code.repository";
 import {
@@ -13,11 +14,15 @@ export default class MaterialCodeService {
     this.materialCodeRepository = new MaterialCodeRepository();
   }
 
-  public async create(user_id: string, payload: IMaterialCodeRequest) {
+  public async create(userId: string, payload: IMaterialCodeRequest) {
+    const user = await userRepository.find(userId);
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
     const newPayload = mappingDataCreate(payload);
     const createdMaterialCode = await this.materialCodeRepository.create({
       ...newPayload,
-      design_id: user_id,
+      design_id: user.relation_id || "",
     });
     if (!createdMaterialCode) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
