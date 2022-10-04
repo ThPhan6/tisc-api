@@ -73,9 +73,9 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FOR assignTeam IN users
         FILTER assignTeam.id == profileId
         RETURN UNSET(assignTeam, [
-          '_id', 
-          '_key', 
-          '_rev', 
+          '_id',
+          '_key',
+          '_rev',
           'deleted_at', 'deleted_by','access_level',
           'backup_email',
           'created_at',
@@ -112,36 +112,36 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
             FILTER locations.relation_id == brands.id
             return locations
         )
-        
+
         LET originLocations = (
             FOR originLocation  IN locations
             FILTER originLocation.relation_id == brands.id
             RETURN originLocation
         )
-        
+
         LET distributors = (
             FOR  distributors IN distributors
             FILTER distributors.brand_id == brands.id
             RETURN distributors
         )
-        
+
         LET collection = (
             FOR collection IN collections
             FILTER collection.brand_id == brands.id
             RETURN collection
         )
-        
+
         LET cards = (
-            FOR products in products 
+            FOR products in products
             FILTER products.brand_id == brands.id
             RETURN products
         )
-          
+
         RETURN {
             brand : brands,
             locations : LENGTH(locations),
             origin_location : originLocations[0],
-            collection : LENGTH(collection), 
+            collection : LENGTH(collection),
             cards : cards,
             users : LENGTH(users),
             distributors : distributors,
@@ -171,6 +171,5 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   }
 }
 
-export const brandRepository = new BrandRepository();
 export default BrandRepository;
 export const brandRepository = new BrandRepository();
