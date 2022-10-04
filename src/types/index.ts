@@ -17,5 +17,6 @@ export * from "./material_code.type";
 export * from "./basis.type";
 export * from "./quotation.type";
 export * from "./market_availability.type";
+export * from "./project_zone.type";
 export * from "./permission.type";
 export * from "./project.type";

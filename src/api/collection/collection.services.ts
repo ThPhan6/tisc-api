@@ -6,7 +6,7 @@ import {
 } from "@/helper/response.helper";
 import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
-import MarketAvailabilityServices from "../market_availability/market_availability.services";
+import { marketAvailabilityService } from "../market_availability/market_availability.services";
 import { ICollectionRequest } from "./collection.type";
 class CollectionService {
   constructor() {}
@@ -27,10 +27,8 @@ class CollectionService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
     const authorizedBrandCountries =
-      await MarketAvailabilityServices.getBrandRegionCountries(
-        payload.brand_id
-      );
-    await MarketAvailabilityServices.create({
+      await marketAvailabilityService.getBrandRegionCountries(payload.brand_id);
+    await marketAvailabilityService.create({
       collection_id: createdCollection.id,
       country_ids: authorizedBrandCountries.map((item) =>
         item.id.toLowerCase()

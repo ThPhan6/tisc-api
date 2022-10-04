@@ -224,4 +224,6 @@ class MarketAvailabilityService {
   }
 }
 
-export default new MarketAvailabilityService();
+export const marketAvailabilityService = new MarketAvailabilityService();
+
+export default MarketAvailabilityService;

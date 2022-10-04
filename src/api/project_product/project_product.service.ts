@@ -1,18 +1,21 @@
 import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
+  successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
 import productRepository from "@/repositories/product.repository";
+import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { SortOrder } from "@/type/common.type";
+import { IProjectZoneAttributes } from "@/types";
 import { orderBy, partition, uniqBy } from "lodash";
 import { projectRepository } from "../project/project.repository";
-import { ProjectZoneAttributes } from "../project_zone/project_zone.models";
-import { projectZoneRepository } from "../project_zone/project_zone.repository";
+import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductRepository } from "./project_product.repository";
 import {
   AssignProductToProjectRequest,
   ProductConsiderStatus,
+  ProjectProductStatus,
 } from "./project_product.type";
 
 class ProjectProductService {
@@ -104,15 +107,16 @@ class ProjectProductService {
     );
 
     const consideredProducts = await projectProductRepository.getByProjectId(
-      project_id
+      project_id,
+      ProjectProductStatus.consider
     );
     const mappedConsideredProducts = consideredProducts.map((el: any) => ({
       ...el.products,
       brand_name: el.brands.name,
       brand_logo: el.brands.logo,
       collection_name: el.collections.name,
-      status: el.consider_status,
-      status_name: ProductConsiderStatus[el.consider_status],
+      consider_status: el.consider_status,
+      consider_status_name: ProductConsiderStatus[el.consider_status],
       considered_id: el.id,
       allocation: el.allocation,
       entire_allocation: el.entire_allocation,
@@ -127,7 +131,7 @@ class ProjectProductService {
     );
 
     const mappedAllocatedProducts = projectZones.map(
-      (zone: ProjectZoneAttributes) => {
+      (zone: IProjectZoneAttributes) => {
         const areas = zone.areas.map((area) => {
           const rooms = area.rooms.map((room) => {
             const products = allocatedProducts.filter((prod: any) =>
@@ -204,6 +208,39 @@ class ProjectProductService {
         ],
       },
     });
+  };
+
+  public updateConsiderProduct = async (
+    projectProductId: string,
+    payload: Partial<ProjectProductAttributes>,
+    specify?: boolean
+  ) => {
+    const considerProduct = await projectProductRepository.findAndUpdate(
+      projectProductId,
+      {
+        ...payload,
+        status: specify
+          ? ProjectProductStatus.specify
+          : ProjectProductStatus.consider,
+      }
+    );
+
+    if (!considerProduct) {
+      return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+    return successResponse({
+      data: considerProduct,
+    });
+  };
+
+  public deleteConsiderProduct = async (projectProductId: string) => {
+    const deletedRecord = await projectProductRepository.findAndDelete(
+      projectProductId
+    );
+    if (!deletedRecord) {
+      return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
+    }
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   };
 }
 

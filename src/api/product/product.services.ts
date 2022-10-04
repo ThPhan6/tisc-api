@@ -594,4 +594,6 @@ class ProductService {
   };
 }
 
-export default new ProductService();
+export const productService = new ProductService();
+
+export default ProductService;

@@ -5,8 +5,10 @@ import BaseRepository from "@/repositories/base.repository";
 import {
   AssignProductToProjectRequest,
   ProductConsiderStatus,
+  ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
+import { CONSIDERED_PRODUCT_STATUS } from "@/constant/common.constant";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -16,7 +18,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     project_id: "",
     product_id: "",
     status: 0,
-    consider_status: 0,
+    consider_status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
     specified_status: 0,
 
     brand_location_id: "",
@@ -61,6 +63,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           ...payload,
           id: uuidv4(),
           consider_status: ProductConsiderStatus.Considered,
+          status: ProjectProductStatus.consider,
           created_by: user_id,
           created_at: now,
           updated_at: now,
@@ -74,10 +77,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     return this.findBy({ project_id, product_id });
   }
 
-  public getByProjectId = async (project_id: string) => {
+  public getByProjectId = async (
+    project_id: string,
+    status: ProjectProductStatus
+  ) => {
     return this.model
       .getQuery()
       .where("project_id", "==", project_id)
+      .where("status", "==", status)
       .join("products", "products.id", "==", "project_products.product_id")
       .join("brands", "brands.id", "==", "products.brand_id")
       .join("collections", "collections.id", "==", "products.collection_id")

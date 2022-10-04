@@ -1,3 +1,6 @@
+import { IProjectAttributes } from "@/model/project.model";
+import { IMessageResponse, UserAttributes } from "@/types";
+
 export interface IProjectZoneRequest {
   project_id: string;
   name: string;
@@ -15,10 +18,10 @@ export interface IUpdateProjectZoneRequest {
   project_id: string;
   name: string;
   areas: {
-    id: string;
+    id?: string;
     name: string;
     rooms: {
-      id: string;
+      id?: string;
       room_name: string;
       room_id: string;
       room_size: number;
@@ -77,4 +80,10 @@ export interface IProjectZonesResponse {
     }[];
   };
   statusCode: number;
+}
+
+export interface FindUserAndProjectResponse {
+  user?: UserAttributes;
+  project?: IProjectAttributes;
+  message: IMessageResponse;
 }
