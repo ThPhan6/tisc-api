@@ -1,20 +1,16 @@
+import { documentationService } from "./documentation.services";
 import { IDocumentationRequest, IHowto } from "./documentation.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import DocumentationService from "./documentation.service";
 export default class DocumentationController {
-  private service: DocumentationService;
-  constructor() {
-    this.service = new DocumentationService();
-  }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, sort } = req.query;
-    const response = await this.service.getList(limit, offset, sort);
+    const response = await documentationService.getList(limit, offset, sort);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getById = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getById(id);
+    const response = await documentationService.getById(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -24,7 +20,7 @@ export default class DocumentationController {
   ) => {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.create(payload, userId);
+    const response = await documentationService.create(payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -35,7 +31,7 @@ export default class DocumentationController {
     const { id } = req.params;
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.update(id, payload, userId);
+    const response = await documentationService.update(id, payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public updateHowtos = async (
@@ -43,29 +39,29 @@ export default class DocumentationController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.updateHowto(payload);
+    const response = await documentationService.updateHowto(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAllHowto = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await this.service.getAllHowto();
+    const response = await documentationService.getAllHowto();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getHowto = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getHowto(userId);
+    const response = await documentationService.getHowto(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.delete(id);
+    const response = await documentationService.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getListPolicyForLandingPage = async (
     _req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await this.service.getListPolicyForLandingPage();
+    const response = await documentationService.getListPolicyForLandingPage();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
