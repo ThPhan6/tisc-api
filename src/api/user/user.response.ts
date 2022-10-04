@@ -10,7 +10,7 @@ const userData = Joi.object({
   firstname: Joi.any().allow(null),
   lastname: Joi.any().allow(null),
   fullname: Joi.any().allow(null),
-  gender: Joi.boolean(),
+  gender: Joi.boolean().allow(null),
   location_id: Joi.string().allow(null),
   department_id: Joi.string().allow(null),
   position: Joi.any().allow(null),

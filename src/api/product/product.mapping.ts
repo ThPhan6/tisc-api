@@ -175,10 +175,15 @@ export const mappingAttributeGroups = (
           let newBasisOptions: any = attribute.basis_options;
           if (all_basis_option_value) {
             if (attribute.basis_options) {
+
               newBasisOptions = attribute.basis_options.map((basisOption) => {
-                const foundBasisOption: any = all_basis_option_value?.find(
-                  (item) => item.id === basisOption.id
-                );
+                let foundBasisOption: any = {};
+                all_basis_option_value?.forEach((item) => {
+                  const foundedOption = item.subs.find((sub: any) => sub.id === basisOption.id);
+                  if (foundedOption) {
+                    foundBasisOption = foundedOption;
+                  }
+                });
                 return {
                   ...basisOption,
                   value_1: foundBasisOption?.value_1,
