@@ -320,7 +320,7 @@ class ProjectProductService {
     user_id: string,
     project_id: string,
     brand_order?: SortOrder,
-    material_code_order?: SortOrder
+    material_order?: SortOrder
   ) => {
     const project = await projectRepository.find(project_id);
     if (!project) {
@@ -330,38 +330,23 @@ class ProjectProductService {
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForMaterial(
         user_id,
-        project_id
+        project_id,
+        brand_order,
+        material_order
       );
 
     const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.product,
+      ...el.project_products,
+      considered_id: el.project_products.id,
+      id: el.product.id,
+      image: el.product.images[0],
       brand_name: el.brand.name,
-      considered_id: el.id,
-      allocation: el.allocation,
-      entire_allocation: el.entire_allocation,
-      specified_status: el.specified_status,
+      brand_id: el.brand.id,
       specified_status_name: ProductSpecifyStatus[el.specified_status],
-      description: el.description,
-      quantity: el.quantity,
       unit_type: el.unit_type?.name,
       material_code: el.material_code?.code,
-      order_method: OrderMethod[el.order_method],
+      order_method_name: OrderMethod[el.order_method],
     }));
-
-    const brandSortedProducts = brand_order
-      ? orderBy(
-          specifiedProducts,
-          "brand_name",
-          brand_order.toLocaleLowerCase() as any
-        )
-      : specifiedProducts;
-    const materialCodeSortedProducts = material_code_order
-      ? orderBy(
-          specifiedProducts,
-          "brand_name",
-          material_code_order.toLocaleLowerCase() as any
-        )
-      : specifiedProducts;
 
     const unlistedCount = specifiedProducts.reduce(
       (total: number, prod: any) =>

@@ -48,9 +48,9 @@ export default class MaterialCodeService {
     return successResponse({ data: materialCodes });
   }
 
-  public async getListCodeMaterialCode(design_id: string) {
-    const materialCodes = await this.materialCodeRepository.getCodesByDesignId(
-      design_id
+  public async getListCodeMaterialCode(user_id: string) {
+    const materialCodes = await this.materialCodeRepository.getCodesByUser(
+      user_id
     );
     return successResponse({
       data: materialCodes,

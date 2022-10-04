@@ -150,7 +150,7 @@ export default class ProjectProductRoute implements IRoute {
           path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_MATERIAL,
           options: {
             handler: controller.getSpecifiedProductsByMaterial,
-            validate: validate.getListByBrand,
+            validate: validate.getListByMaterial,
             description: "Method that get specified products group by material",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,

@@ -33,8 +33,8 @@ export default class MaterialCodeController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const design_id = req.auth.credentials.user_id as string;
-    const response = await this.service.getListCodeMaterialCode(design_id);
+    const user_id = req.auth.credentials.user_id as string;
+    const response = await this.service.getListCodeMaterialCode(user_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -9,7 +9,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { CONSIDERED_PRODUCT_STATUS } from "@/constant/common.constant";
+import { SortOrder } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -101,19 +101,26 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public getSpecifiedProductsForMaterial = async (
     userId: string,
-    projectId: string
+    projectId: string,
+    brand_order?: SortOrder,
+    material_code_order?: SortOrder
   ) => {
-    console.log(userId, projectId);
     return this.model.rawQuery(
       `
       FILTER project_products.status == @status
       FILTER project_products.project_id == @projectId
+      FILTER project_products.deleted_at == null
       FOR products IN products 
       FILTER products.id == project_products.product_id  
       FOR brands IN brands 
       FILTER brands.id == products.brand_id  
       FOR users IN users 
       FILTER users.id == @userId  
+      LET unit_type = (
+        FOR common_types IN common_types
+        FILTER common_types.id == project_products.unit_type_id
+        RETURN common_types
+      )
       LET code = (
       FOR material_codes IN material_codes
       FILTER material_codes.design_id == users.relation_id
@@ -122,11 +129,22 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               FILTER code.id == project_products.material_code_id
               RETURN code
       )
-      RETURN merge(project_products, {
-        product: KEEP(products, 'name', 'images'),
-        brand: KEEP(brands, 'name'),
-        material_code: code[0]
-      })
+      ${
+        brand_order || material_code_order
+          ? `SORT ${brand_order ? "brands.name " + brand_order : ""} ${
+              material_code_order
+                ? "code[0].description " + material_code_order
+                : ""
+            }`
+          : ""
+      } 
+      RETURN {
+        project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+        product: KEEP(products, 'id', 'name', 'images'),
+        brand: KEEP(brands, 'id', 'name'),
+        material_code: code[0],
+        unit_type: unit_type[0]
+      }
       `,
       {
         status: ProjectProductStatus.specify,

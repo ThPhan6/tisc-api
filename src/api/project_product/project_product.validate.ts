@@ -128,10 +128,10 @@ export default {
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is required")),
-      unit_type_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Unit type is required")),
+      // unit_type_id: Joi.string()
+      //   .trim()
+      //   .required()
+      //   .error(commonFailValidatedMessageFunction("Unit type is required")),
       order_method: Joi.number().valid(
         ORDER_METHOD.DIRECT_PURCHASE,
         ORDER_METHOD.CUSTOM_ORDER
@@ -154,8 +154,8 @@ export default {
   getListByMaterial: {
     params: { project_id: requiredProjectId },
     query: Joi.object({
-      brand_order: Joi.string().valid("ASC", "DESC"),
       material_order: Joi.string().valid("ASC", "DESC"),
+      brand_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
         brand_order: value.brand_order ? value.brand_order : undefined,
