@@ -43,6 +43,7 @@ export default class PermissionService {
       user.relation_id,
       withRole ? user.role_id : undefined
     );
+
     if (isEmpty(companyPermissions)) {
       await this.initPermission(user);
       companyPermissions = await companyPermissionRepository.getAllByCompanyIdAndRoleId(
@@ -50,6 +51,7 @@ export default class PermissionService {
         withRole ? user.role_id : undefined
       );
     }
+
     return successResponse({
       data: mappingPermission(companyPermissions)
     });

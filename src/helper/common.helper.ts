@@ -73,7 +73,12 @@ export const tosingleSpace = (str: string) => {
 
 export const getDistinctArray = (arr: Array<string>) => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
-};
+}
+
+export const generateUniqueString = (length: number = 64) => {
+  return randomBytes(length).toString("hex");
+}
+
 
 type AccessLevelType =
   | "TISC Admin"

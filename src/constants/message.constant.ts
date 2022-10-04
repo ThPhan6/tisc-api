@@ -1,11 +1,13 @@
 export const MESSAGES = {
   GENERAL: {
     AVAILABLE: "Available.",
+    INVITED_ALREADY: "Invited.",
     SUCCESS: "Success.",
     SOMETHING_WRONG: "Something wrong !",
     SOMETHING_WRONG_CREATE: "Something wrong when create !",
     SOMETHING_WRONG_UPDATE: "Something wrong when update !",
     SOMETHING_WRONG_DELETE: "Something wrong delete !",
+    BLOCKED: "Blocked!",
     INVITED: "Invited",
   },
 

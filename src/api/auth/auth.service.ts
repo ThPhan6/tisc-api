@@ -120,8 +120,17 @@ class AuthService {
   ): Promise<ILoginResponse | IMessageResponse> => {
     this.typeValidation(ROLE_TYPE.TISC, type);
     const user = await userRepository.findBy({ email: payload.email });
+    if (!user) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
+    }
+    if (user.status === USER_STATUSES.PENDING) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    }
+    if (user.status === USER_STATUSES.BLOCKED) {
+      return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
+    }
     this.authValidation(payload.password, user);
-    return this.reponseWithToken(user?.id ?? "");
+    return this.reponseWithToken(user.id);
   };
 
   public login = async (payload: IAdminLoginRequest, type?: RoleTypeValue) => {
@@ -135,6 +144,14 @@ class AuthService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
     this.authValidation(payload.password, user);
+
+    if (user.status === USER_STATUSES.PENDING) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    }
+    if (user.status === USER_STATUSES.BLOCKED) {
+      return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
+    }
+
     //// company status validation
     if (user.company_status === BRAND_STATUSES.INACTIVE) {
       return errorMessageResponse(MESSAGES.BRAND_INACTIVE_LOGIN, 401);

@@ -264,7 +264,7 @@
 	},
 	{
 		"logo": "/logo/project_tracking.svg",
-		"name": "GENERAL INQUIRES",
+		"name": "PROJECT TRACKING",
 		"parent_id": null,
 		"type": 2,
 		"routes": []
@@ -286,7 +286,7 @@
 			{
 				"logo": "/logo/location.svg",
 				"name": "Locations",
-				"type": 1,
+				"type": 2,
 				"routes": [
 					"/api/location/get-list",
 					"/api/location/create",
@@ -298,7 +298,7 @@
 			{
 				"logo": "/logo/team_profile.svg",
 				"name": "Team Profiles",
-				"type": 1,
+				"type": 2,
 				"routes": [
 					"/api/team-profile/get-list",
 					"/api/location/get-list-with-country-group",
@@ -313,7 +313,7 @@
 			{
 				"logo": "/logo/distributor.svg",
 				"name": "Distributors",
-				"type": 1,
+				"type": 2,
 				"routes": [
 					"/api/distributor/get-list",
 					"/api/distributor/create",
@@ -325,7 +325,7 @@
 			{
 				"logo": "/logo/market_availability.svg",
 				"name": "Market Availability",
-				"type": 1,
+				"type": 2,
 				"routes": [
 					"/api/market-availability/get-list",
 					"/api/market-availability/get-one/{id}",
@@ -335,7 +335,7 @@
 			{
 				"logo": "/logo/subscription.svg",
 				"name": "Subscription",
-				"type": 1,
+				"type": 2,
 				"routes": [
 					"/api/market-availability/get-list",
 					"/api/market-availability/get-one/{id}",

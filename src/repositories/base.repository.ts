@@ -128,7 +128,7 @@ class BaseRepository<DataType> {
     forEach(params, (value, column) => {
       query = query.where(column, "==", value);
     });
-    return (await query.select(keys).get()) as DataType[];
+    return (await query.get()) as DataType[];
   }
 }
 export default BaseRepository;
