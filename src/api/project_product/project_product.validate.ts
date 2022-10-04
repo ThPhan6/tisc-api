@@ -128,10 +128,7 @@ export default {
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is required")),
-      // unit_type_id: Joi.string()
-      //   .trim()
-      //   .required()
-      //   .error(commonFailValidatedMessageFunction("Unit type is required")),
+      unit_type_id: Joi.string().trim().allow(""),
       order_method: Joi.number().valid(
         ORDER_METHOD.DIRECT_PURCHASE,
         ORDER_METHOD.CUSTOM_ORDER

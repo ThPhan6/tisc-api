@@ -118,4 +118,22 @@ export default class ProjectProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getSpecifiedProductsByZone = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { zone_order, area_order, room_order, brand_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await projectProductService.getSpecifiedProductsByZone(
+      userId,
+      project_id,
+      zone_order,
+      area_order,
+      room_order,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

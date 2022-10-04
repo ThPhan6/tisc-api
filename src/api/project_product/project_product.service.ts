@@ -91,6 +91,60 @@ class ProjectProductService {
     });
   };
 
+  private groupProductsByRoom = (
+    allocatedProducts: any[],
+    projectZones: IProjectZoneAttributes[],
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder
+  ): any[] => {
+    return projectZones.map((zone) => {
+      const areas = zone.areas.map((area) => {
+        const rooms = area.rooms.map((room) => {
+          const products = allocatedProducts.filter((prod: any) =>
+            prod.specifiedDetail.allocation.includes(room.id)
+          );
+          return {
+            ...room,
+            products: brand_order
+              ? orderBy(
+                  products,
+                  "brand_name",
+                  brand_order.toLocaleLowerCase() as any
+                )
+              : products,
+            count: products.length,
+          };
+        });
+
+        const allProductsInRooms = uniqBy(
+          rooms.flatMap((room) => room.products),
+          "id"
+        );
+        return {
+          ...area,
+          rooms: room_order
+            ? orderBy(rooms, "room_name", room_order.toLocaleLowerCase() as any)
+            : rooms,
+          count: allProductsInRooms.length,
+        };
+      });
+
+      const allProductsInAreas = uniqBy(
+        areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
+        "id"
+      );
+
+      return {
+        ...zone,
+        areas: area_order
+          ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
+          : areas,
+        count: allProductsInAreas.length,
+      };
+    });
+  };
+
   public getConsideredProducts = async (
     project_id: string,
     zone_order: SortOrder,
@@ -110,16 +164,18 @@ class ProjectProductService {
 
     const consideredProducts =
       await projectProductRepository.getConsideredProductsByProject(project_id);
+
     const mappedConsideredProducts = consideredProducts.map((el: any) => ({
       ...el.products,
-      brand_name: el.brands.name,
-      brand_logo: el.brands.logo,
-      collection_name: el.collections.name,
-      consider_status: el.consider_status,
-      consider_status_name: ProductConsiderStatus[el.consider_status],
-      considered_id: el.id,
-      allocation: el.allocation,
-      entire_allocation: el.entire_allocation,
+      brand: el.brands,
+      collection: el.collections,
+      specifiedDetail: {
+        ...el,
+        products: undefined,
+        brands: undefined,
+        users: undefined,
+        collections: undefined,
+      },
       assigned_name: `${el.users?.firstname || ""}${
         el.users?.lastname ? " " + el.users?.lastname : ""
       }`,
@@ -127,59 +183,15 @@ class ProjectProductService {
 
     const [entireConsideredProducts, allocatedProducts] = partition(
       mappedConsideredProducts,
-      "entire_allocation"
+      "specifiedDetail.entire_allocation"
     );
 
-    const mappedAllocatedProducts = projectZones.map(
-      (zone: IProjectZoneAttributes) => {
-        const areas = zone.areas.map((area) => {
-          const rooms = area.rooms.map((room) => {
-            const products = allocatedProducts.filter((prod: any) =>
-              prod.allocation.includes(room.id)
-            );
-            return {
-              ...room,
-              products: brand_order
-                ? orderBy(
-                    products,
-                    "brand_name",
-                    brand_order.toLocaleLowerCase() as any
-                  )
-                : products,
-              count: products.length,
-            };
-          });
-
-          const allProductsInRooms = uniqBy(
-            rooms.flatMap((room) => room.products),
-            "id"
-          );
-          return {
-            ...area,
-            rooms: room_order
-              ? orderBy(
-                  rooms,
-                  "room_name",
-                  room_order.toLocaleLowerCase() as any
-                )
-              : rooms,
-            count: allProductsInRooms.length,
-          };
-        });
-
-        const allProductsInAreas = uniqBy(
-          areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
-          "id"
-        );
-
-        return {
-          ...zone,
-          areas: area_order
-            ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
-            : areas,
-          count: allProductsInAreas.length,
-        };
-      }
+    const mappedAllocatedProducts = this.groupProductsByRoom(
+      allocatedProducts,
+      projectZones,
+      area_order,
+      room_order,
+      brand_order
     );
 
     const results = [
@@ -272,17 +284,18 @@ class ProjectProductService {
 
     const mappedProducts = specifiedProducts.map((el: any) => ({
       ...el.products,
-      brand_name: el.brands.name,
-      brand_logo: el.brands.logo,
-      collection_name: el.collections.name,
-      considered_id: el.id,
-      allocation: el.allocation,
-      entire_allocation: el.entire_allocation,
-      specified_status: el.specified_status,
-      specified_status_name: ProductSpecifyStatus[el.specified_status],
-      variant: "updating",
+      brand: el.brands,
+      collection: el.collections,
+      specifiedDetail: {
+        ...el,
+        products: undefined,
+        brands: undefined,
+        collections: undefined,
+      },
       product_id: "XXX-000",
+      variant: "updating",
     }));
+
     const groupByBrandProducts = groupBy(mappedProducts, "brand_id");
 
     const results: any[] = [];
@@ -336,27 +349,107 @@ class ProjectProductService {
       );
 
     const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.project_products,
-      considered_id: el.project_products.id,
-      id: el.product.id,
-      image: el.product.images[0],
-      brand_name: el.brand.name,
-      brand_id: el.brand.id,
-      specified_status_name: ProductSpecifyStatus[el.specified_status],
-      unit_type: el.unit_type?.name,
-      material_code: el.material_code?.code,
-      order_method_name: OrderMethod[el.order_method],
+      ...el.product,
+      brand: el.brand,
+      specifiedDetail: {
+        ...el.project_products,
+        unit_type: el.unit_type?.name,
+        material_code: el.material_code?.code,
+        order_method_name: OrderMethod[el.project_products.order_method],
+      },
     }));
 
     const unlistedCount = specifiedProducts.reduce(
       (total: number, prod: any) =>
         total +
-        (prod.specified_status === ProductSpecifyStatus.Cancelled ? 1 : 0),
+        (prod.project_products.specified_status ===
+        ProductSpecifyStatus.Cancelled
+          ? 1
+          : 0),
       0
     );
     return successResponse({
       data: {
         data: mappedProducts,
+        summary: [
+          {
+            name: "Specified",
+            value: specifiedProducts.length - unlistedCount,
+          },
+          { name: "Cancelled", value: unlistedCount },
+        ],
+      },
+    });
+  };
+
+  public getSpecifiedProductsByZone = async (
+    user_id: string,
+    project_id: string,
+    zone_order: SortOrder,
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder
+  ) => {
+    const project = await projectRepository.find(project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
+
+    const projectZones = await projectZoneRepository.getByProjectId(
+      project_id,
+      zone_order
+    );
+
+    const specifiedProducts =
+      await projectProductRepository.getSpecifiedProductsForZoneGroup(
+        user_id,
+        project_id
+      );
+    const mappedProducts = specifiedProducts.map((el: any) => ({
+      ...el.product,
+      brand: el.brand,
+      specifiedDetail: {
+        ...el.project_products,
+        unit_type: el.unit_type?.name,
+        material_code: el.material_code?.code,
+        order_method_name: OrderMethod[el.project_products.order_method],
+      },
+    }));
+
+    const [entireConsideredProducts, allocatedProducts] = partition(
+      mappedProducts,
+      "specifiedDetail.entire_allocation"
+    );
+
+    const mappedAllocatedProducts = this.groupProductsByRoom(
+      allocatedProducts,
+      projectZones,
+      area_order,
+      room_order,
+      brand_order
+    );
+
+    const results = [
+      {
+        id: "entire_project",
+        name: "ENTIRE PROJECT",
+        products: entireConsideredProducts,
+        count: entireConsideredProducts.length,
+      },
+    ].concat(mappedAllocatedProducts);
+
+    const unlistedCount = specifiedProducts.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.project_products.specified_status ===
+        ProductSpecifyStatus.Cancelled
+          ? 1
+          : 0),
+      0
+    );
+    return successResponse({
+      data: {
+        data: results,
         summary: [
           {
             name: "Specified",

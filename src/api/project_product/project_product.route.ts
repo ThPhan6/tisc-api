@@ -162,6 +162,23 @@ export default class ProjectProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_ZONE,
+          options: {
+            handler: controller.getSpecifiedProductsByZone,
+            validate: validate.getConsideredProducts,
+            description: "Method that get specified products group by space",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSpecifiedProductList,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

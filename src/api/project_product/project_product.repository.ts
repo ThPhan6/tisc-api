@@ -153,6 +153,43 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       }
     );
   };
+  public getSpecifiedProductsForZoneGroup = async (
+    userId: string,
+    projectId: string
+  ) => {
+    return this.model.rawQuery(
+      `
+    FILTER project_products.status == @status
+    FILTER project_products.project_id == @projectId
+    FILTER project_products.deleted_at == null
+    FOR products IN products 
+    FILTER products.id == project_products.product_id  
+    FOR brands IN brands 
+    FILTER brands.id == products.brand_id  
+    FOR users IN users 
+    FILTER users.id == @userId
+    LET code = (
+    FOR material_codes IN material_codes
+    FILTER material_codes.design_id == users.relation_id
+        FOR sub IN material_codes.subs
+            FOR code IN sub.codes
+            FILTER code.id == project_products.material_code_id
+            RETURN code
+    )
+    RETURN {
+      project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+      product: KEEP(products, 'id', 'name', 'images'),
+      brand: KEEP(brands, 'id', 'name'),
+      material_code: code[0],
+    }
+    `,
+      {
+        status: ProjectProductStatus.specify,
+        userId,
+        projectId,
+      }
+    );
+  };
 }
 
 export const projectProductRepository = new ProjectProductRepository();
