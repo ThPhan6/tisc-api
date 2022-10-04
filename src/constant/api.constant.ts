@@ -244,6 +244,12 @@ export const ROUTES = {
   UPDATE_SPECIFIED_PRODUCT_STATUS:
     "/api/project-product/{id}/update-specified-status",
   UPDATE_CONSIDERED_PRODUCT_SPECIFY: "/api/project-product/{id}/update-specify",
+  GET_SPECIFYING_PRODUCTS_BY_BRAND:
+    "/api/project-product/get-list-by-brand/{project_id}",
+  GET_SPECIFYING_PRODUCTS_BY_MATERIAL:
+    "/api/project-product/get-list-by-material/{project_id}",
+  GET_SPECIFYING_PRODUCTS_BY_ZONE:
+    "/api/project-product/get-list-by-zone/{project_id}",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

@@ -141,4 +141,26 @@ export default {
       special_instructions: Joi.string().allow(""),
     },
   },
+  getListByBrand: {
+    params: { project_id: requiredProjectId },
+    query: Joi.object({
+      brand_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        brand_order: value.brand_order ? value.brand_order : "ASC",
+      };
+    }),
+  },
+  getListByMaterial: {
+    params: { project_id: requiredProjectId },
+    query: Joi.object({
+      brand_order: Joi.string().valid("ASC", "DESC"),
+      material_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        brand_order: value.brand_order ? value.brand_order : undefined,
+        material_order: value.material_order ? value.material_order : undefined,
+      };
+    }),
+  },
 };

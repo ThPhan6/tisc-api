@@ -5,7 +5,7 @@ import { ROUTES } from "@/constant/api.constant";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import ProjectProductController from "./project_product.controller";
 import validate from "./project_product.validate";
-import consideredProductResponse from "../considered_product/considered_product.response";
+import response from "./project_product.response";
 
 export default class ProjectProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -41,7 +41,7 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: consideredProductResponse.getListAssignedProject,
+                200: response.getListAssignedProject,
               },
             },
           },
@@ -58,7 +58,7 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: consideredProductResponse.getList,
+                200: response.getList,
               },
             },
           },
@@ -124,6 +124,40 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_BRAND,
+          options: {
+            handler: controller.getSpecifiedProductsByBrand,
+            validate: validate.getListByBrand,
+            description: "Method that get specified products group by brand",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSpecifiedProductList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_MATERIAL,
+          options: {
+            handler: controller.getSpecifiedProductsByMaterial,
+            validate: validate.getListByBrand,
+            description: "Method that get specified products group by material",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSpecifiedProductList,
               },
             },
           },

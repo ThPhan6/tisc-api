@@ -4,6 +4,7 @@ import ProjectProductModel, {
 import BaseRepository from "@/repositories/base.repository";
 import {
   AssignProductToProjectRequest,
+  OrderMethod,
   ProductConsiderStatus,
   ProjectProductStatus,
 } from "./project_product.type";
@@ -17,9 +18,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     id: "",
     project_id: "",
     product_id: "",
-    status: 0,
-    consider_status: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-    specified_status: 0,
 
     brand_location_id: "",
     distributor_location_id: "",
@@ -29,7 +27,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     suffix_code: "",
     description: "",
     quantity: 0,
-    order_method: 0,
+    order_method: OrderMethod["Direct Purchase"],
     requirement_type_ids: [],
     instruction_type_ids: [],
     finish_schedule_ids: [],
@@ -51,8 +49,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public async upsert(payload: AssignProductToProjectRequest, user_id: string) {
     const now = new Date();
+
     return this.model.rawQueryV2(
-      `UPSERT {product_id: "${payload.product_id}", project_id: "${payload.project_id}"}
+      `UPSERT {product_id: "${payload.product_id}", project_id: "${payload.project_id}, deleted_at: null"}
       INSERT @payloadWithId
       UPDATE @payload
       IN project_products
@@ -77,19 +76,64 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     return this.findBy({ project_id, product_id });
   }
 
-  public getByProjectId = async (
-    project_id: string,
-    status: ProjectProductStatus
-  ) => {
+  public getConsideredProductsByProject = async (project_id: string) => {
     return this.model
       .getQuery()
       .where("project_id", "==", project_id)
-      .where("status", "==", status)
+      .where("status", "==", ProjectProductStatus.consider)
       .join("products", "products.id", "==", "project_products.product_id")
       .join("brands", "brands.id", "==", "products.brand_id")
       .join("collections", "collections.id", "==", "products.collection_id")
       .join("users", "users.id", "==", "project_products.created_by")
       .get(true);
+  };
+
+  public getSpecifiedProductsForBrandGroup = async (project_id: string) => {
+    return this.model
+      .getQuery()
+      .where("project_id", "==", project_id)
+      .where("status", "==", ProjectProductStatus.specify)
+      .join("products", "products.id", "==", "project_products.product_id")
+      .join("brands", "brands.id", "==", "products.brand_id")
+      .join("collections", "collections.id", "==", "products.collection_id")
+      .get(true);
+  };
+
+  public getSpecifiedProductsForMaterial = async (
+    userId: string,
+    projectId: string
+  ) => {
+    console.log(userId, projectId);
+    return this.model.rawQuery(
+      `
+      FILTER project_products.status == @status
+      FILTER project_products.project_id == @projectId
+      FOR products IN products 
+      FILTER products.id == project_products.product_id  
+      FOR brands IN brands 
+      FILTER brands.id == products.brand_id  
+      FOR users IN users 
+      FILTER users.id == @userId  
+      LET code = (
+      FOR material_codes IN material_codes
+      FILTER material_codes.design_id == users.relation_id
+          FOR sub IN material_codes.subs
+              FOR code IN sub.codes
+              FILTER code.id == project_products.material_code_id
+              RETURN code
+      )
+      RETURN merge(project_products, {
+        product: KEEP(products, 'name', 'images'),
+        brand: KEEP(brands, 'name'),
+        material_code: code[0]
+      })
+      `,
+      {
+        status: ProjectProductStatus.specify,
+        userId,
+        projectId,
+      }
+    );
   };
 }
 
