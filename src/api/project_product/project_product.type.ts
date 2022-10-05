@@ -21,3 +21,8 @@ export enum ProductSpecifyStatus {
   "Re-specified",
   "Cancelled",
 }
+
+export enum OrderMethod {
+  "Direct Purchase",
+  "Custom Order",
+}

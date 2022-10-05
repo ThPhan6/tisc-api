@@ -128,10 +128,7 @@ export default {
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is required")),
-      unit_type_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Unit type is required")),
+      unit_type_id: Joi.string().trim().allow(""),
       order_method: Joi.number().valid(
         ORDER_METHOD.DIRECT_PURCHASE,
         ORDER_METHOD.CUSTOM_ORDER
@@ -140,5 +137,27 @@ export default {
       instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       special_instructions: Joi.string().allow(""),
     },
+  },
+  getListByBrand: {
+    params: { project_id: requiredProjectId },
+    query: Joi.object({
+      brand_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        brand_order: value.brand_order ? value.brand_order : "ASC",
+      };
+    }),
+  },
+  getListByMaterial: {
+    params: { project_id: requiredProjectId },
+    query: Joi.object({
+      material_order: Joi.string().valid("ASC", "DESC"),
+      brand_order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        brand_order: value.brand_order ? value.brand_order : undefined,
+        material_order: value.material_order ? value.material_order : undefined,
+      };
+    }),
   },
 };

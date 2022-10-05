@@ -89,4 +89,51 @@ export default class ProjectProductController {
     const response = await projectProductService.deleteConsiderProduct(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getSpecifiedProductsByBrand = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { brand_order } = req.query;
+    const response = await projectProductService.getSpecifiedProductsByBrand(
+      project_id,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getSpecifiedProductsByMaterial = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { brand_order, material_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await projectProductService.getSpecifiedProductsByMaterial(
+      userId,
+      project_id,
+      brand_order,
+      material_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getSpecifiedProductsByZone = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { zone_order, area_order, room_order, brand_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await projectProductService.getSpecifiedProductsByZone(
+      userId,
+      project_id,
+      zone_order,
+      area_order,
+      room_order,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

@@ -7,14 +7,16 @@ import {
 import productRepository from "@/repositories/product.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { SortOrder } from "@/type/common.type";
-import { IProjectZoneAttributes } from "@/types";
-import { orderBy, partition, uniqBy } from "lodash";
+import { BrandAttributes, IProjectZoneAttributes } from "@/types";
+import { groupBy, orderBy, partition, uniqBy } from "lodash";
 import { projectRepository } from "../project/project.repository";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductRepository } from "./project_product.repository";
 import {
   AssignProductToProjectRequest,
+  OrderMethod,
   ProductConsiderStatus,
+  ProductSpecifyStatus,
   ProjectProductStatus,
 } from "./project_product.type";
 
@@ -89,6 +91,60 @@ class ProjectProductService {
     });
   };
 
+  private groupProductsByRoom = (
+    allocatedProducts: any[],
+    projectZones: IProjectZoneAttributes[],
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder
+  ): any[] => {
+    return projectZones.map((zone) => {
+      const areas = zone.areas.map((area) => {
+        const rooms = area.rooms.map((room) => {
+          const products = allocatedProducts.filter((prod: any) =>
+            prod.specifiedDetail.allocation.includes(room.id)
+          );
+          return {
+            ...room,
+            products: brand_order
+              ? orderBy(
+                  products,
+                  "brand_name",
+                  brand_order.toLocaleLowerCase() as any
+                )
+              : products,
+            count: products.length,
+          };
+        });
+
+        const allProductsInRooms = uniqBy(
+          rooms.flatMap((room) => room.products),
+          "id"
+        );
+        return {
+          ...area,
+          rooms: room_order
+            ? orderBy(rooms, "room_name", room_order.toLocaleLowerCase() as any)
+            : rooms,
+          count: allProductsInRooms.length,
+        };
+      });
+
+      const allProductsInAreas = uniqBy(
+        areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
+        "id"
+      );
+
+      return {
+        ...zone,
+        areas: area_order
+          ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
+          : areas,
+        count: allProductsInAreas.length,
+      };
+    });
+  };
+
   public getConsideredProducts = async (
     project_id: string,
     zone_order: SortOrder,
@@ -106,20 +162,20 @@ class ProjectProductService {
       zone_order
     );
 
-    const consideredProducts = await projectProductRepository.getByProjectId(
-      project_id,
-      ProjectProductStatus.consider
-    );
+    const consideredProducts =
+      await projectProductRepository.getConsideredProductsByProject(project_id);
+
     const mappedConsideredProducts = consideredProducts.map((el: any) => ({
       ...el.products,
-      brand_name: el.brands.name,
-      brand_logo: el.brands.logo,
-      collection_name: el.collections.name,
-      consider_status: el.consider_status,
-      consider_status_name: ProductConsiderStatus[el.consider_status],
-      considered_id: el.id,
-      allocation: el.allocation,
-      entire_allocation: el.entire_allocation,
+      brand: el.brands,
+      collection: el.collections,
+      specifiedDetail: {
+        ...el,
+        products: undefined,
+        brands: undefined,
+        users: undefined,
+        collections: undefined,
+      },
       assigned_name: `${el.users?.firstname || ""}${
         el.users?.lastname ? " " + el.users?.lastname : ""
       }`,
@@ -127,59 +183,15 @@ class ProjectProductService {
 
     const [entireConsideredProducts, allocatedProducts] = partition(
       mappedConsideredProducts,
-      "entire_allocation"
+      "specifiedDetail.entire_allocation"
     );
 
-    const mappedAllocatedProducts = projectZones.map(
-      (zone: IProjectZoneAttributes) => {
-        const areas = zone.areas.map((area) => {
-          const rooms = area.rooms.map((room) => {
-            const products = allocatedProducts.filter((prod: any) =>
-              prod.allocation.includes(room.id)
-            );
-            return {
-              ...room,
-              products: brand_order
-                ? orderBy(
-                    products,
-                    "brand_name",
-                    brand_order.toLocaleLowerCase() as any
-                  )
-                : products,
-              count: products.length,
-            };
-          });
-
-          const allProductsInRooms = uniqBy(
-            rooms.flatMap((room) => room.products),
-            "id"
-          );
-          return {
-            ...area,
-            rooms: room_order
-              ? orderBy(
-                  rooms,
-                  "room_name",
-                  room_order.toLocaleLowerCase() as any
-                )
-              : rooms,
-            count: allProductsInRooms.length,
-          };
-        });
-
-        const allProductsInAreas = uniqBy(
-          areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
-          "id"
-        );
-
-        return {
-          ...zone,
-          areas: area_order
-            ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
-            : areas,
-          count: allProductsInAreas.length,
-        };
-      }
+    const mappedAllocatedProducts = this.groupProductsByRoom(
+      allocatedProducts,
+      projectZones,
+      area_order,
+      room_order,
+      brand_order
     );
 
     const results = [
@@ -193,7 +205,8 @@ class ProjectProductService {
 
     const unlistedCount = consideredProducts.reduce(
       (total: number, prod: any) =>
-        total + (prod.status === ProductConsiderStatus.Unlisted ? 1 : 0),
+        total +
+        (prod.consider_status === ProductConsiderStatus.Unlisted ? 1 : 0),
       0
     );
     return successResponse({
@@ -222,6 +235,9 @@ class ProjectProductService {
         status: specify
           ? ProjectProductStatus.specify
           : ProjectProductStatus.consider,
+        specified_status:
+          payload.specified_status ??
+          (specify ? ProductSpecifyStatus.Specified : undefined),
       }
     );
 
@@ -241,6 +257,208 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  };
+
+  public getSpecifiedProductsByBrand = async (
+    project_id: string,
+    brand_order?: SortOrder
+  ) => {
+    const project = await projectRepository.find(project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
+
+    const specifiedProducts =
+      await projectProductRepository.getSpecifiedProductsForBrandGroup(
+        project_id
+      );
+
+    const brands: BrandAttributes[] = specifiedProducts.flatMap(
+      (el: { brands: BrandAttributes }) => el.brands
+    );
+    const filteredBrands = uniqBy(brands, "id");
+
+    const sortedBrands = brand_order
+      ? orderBy(filteredBrands, "name", brand_order.toLocaleLowerCase() as any)
+      : filteredBrands;
+
+    const mappedProducts = specifiedProducts.map((el: any) => ({
+      ...el.products,
+      brand: el.brands,
+      collection: el.collections,
+      specifiedDetail: {
+        ...el,
+        products: undefined,
+        brands: undefined,
+        collections: undefined,
+      },
+      product_id: "XXX-000",
+      variant: "updating",
+    }));
+
+    const groupByBrandProducts = groupBy(mappedProducts, "brand_id");
+
+    const results: any[] = [];
+
+    sortedBrands.forEach((brand) => {
+      results.push({
+        id: brand.id,
+        name: brand.name,
+        products: groupByBrandProducts[brand.id],
+        count: groupByBrandProducts[brand.id].length,
+      });
+    });
+
+    const unlistedCount = specifiedProducts.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.specified_status === ProductSpecifyStatus.Cancelled ? 1 : 0),
+      0
+    );
+    return successResponse({
+      data: {
+        data: results,
+        summary: [
+          {
+            name: "Specified",
+            value: specifiedProducts.length - unlistedCount,
+          },
+          { name: "Cancelled", value: unlistedCount },
+        ],
+      },
+    });
+  };
+
+  public getSpecifiedProductsByMaterial = async (
+    user_id: string,
+    project_id: string,
+    brand_order?: SortOrder,
+    material_order?: SortOrder
+  ) => {
+    const project = await projectRepository.find(project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
+
+    const specifiedProducts =
+      await projectProductRepository.getSpecifiedProductsForMaterial(
+        user_id,
+        project_id,
+        brand_order,
+        material_order
+      );
+
+    const mappedProducts = specifiedProducts.map((el: any) => ({
+      ...el.product,
+      brand: el.brand,
+      specifiedDetail: {
+        ...el.project_products,
+        unit_type: el.unit_type?.name,
+        material_code: el.material_code?.code,
+        order_method_name: OrderMethod[el.project_products.order_method],
+      },
+    }));
+
+    const unlistedCount = specifiedProducts.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.project_products.specified_status ===
+        ProductSpecifyStatus.Cancelled
+          ? 1
+          : 0),
+      0
+    );
+    return successResponse({
+      data: {
+        data: mappedProducts,
+        summary: [
+          {
+            name: "Specified",
+            value: specifiedProducts.length - unlistedCount,
+          },
+          { name: "Cancelled", value: unlistedCount },
+        ],
+      },
+    });
+  };
+
+  public getSpecifiedProductsByZone = async (
+    user_id: string,
+    project_id: string,
+    zone_order: SortOrder,
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder
+  ) => {
+    const project = await projectRepository.find(project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
+
+    const projectZones = await projectZoneRepository.getByProjectId(
+      project_id,
+      zone_order
+    );
+
+    const specifiedProducts =
+      await projectProductRepository.getSpecifiedProductsForZoneGroup(
+        user_id,
+        project_id
+      );
+    const mappedProducts = specifiedProducts.map((el: any) => ({
+      ...el.product,
+      brand: el.brand,
+      specifiedDetail: {
+        ...el.project_products,
+        unit_type: el.unit_type?.name,
+        material_code: el.material_code?.code,
+        order_method_name: OrderMethod[el.project_products.order_method],
+      },
+    }));
+
+    const [entireConsideredProducts, allocatedProducts] = partition(
+      mappedProducts,
+      "specifiedDetail.entire_allocation"
+    );
+
+    const mappedAllocatedProducts = this.groupProductsByRoom(
+      allocatedProducts,
+      projectZones,
+      area_order,
+      room_order,
+      brand_order
+    );
+
+    const results = [
+      {
+        id: "entire_project",
+        name: "ENTIRE PROJECT",
+        products: entireConsideredProducts,
+        count: entireConsideredProducts.length,
+      },
+    ].concat(mappedAllocatedProducts);
+
+    const unlistedCount = specifiedProducts.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.project_products.specified_status ===
+        ProductSpecifyStatus.Cancelled
+          ? 1
+          : 0),
+      0
+    );
+    return successResponse({
+      data: {
+        data: results,
+        summary: [
+          {
+            name: "Specified",
+            value: specifiedProducts.length - unlistedCount,
+          },
+          { name: "Cancelled", value: unlistedCount },
+        ],
+      },
+    });
   };
 }
 

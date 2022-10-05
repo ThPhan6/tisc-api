@@ -1,6 +1,7 @@
 import Model from "@/Database/Model";
 import { ProductSpecificationSelection } from "@/api/user_product_specification/user_product_specification.model";
 import {
+  OrderMethod,
   ProductConsiderStatus,
   ProductSpecifyStatus,
   ProjectProductStatus,
@@ -23,7 +24,7 @@ export interface ProjectProductAttributes {
   suffix_code: string;
   description: string;
   quantity: number;
-  order_method: number;
+  order_method: OrderMethod;
   requirement_type_ids: string[];
   instruction_type_ids: string[];
   finish_schedule_ids: string[];
