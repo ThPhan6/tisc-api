@@ -1,5 +1,4 @@
-import { ICollection } from "@/types/collection.type";
-import { IPagination } from "@/type/common.type";
+import { IPagination, ICollection } from "@/types";
 
 export interface ICollectionRequest {
   name: string;

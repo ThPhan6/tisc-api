@@ -523,7 +523,7 @@ const DOCUMENTATION_NULL_ATTRIBUTES = {
   created_at: null,
   created_by: null,
   updated_at: null,
-  is_deleted: false,
+  deleted_at: null,
 };
 const DOCUMENTATION_TYPES = {
   GENERAL: 1,

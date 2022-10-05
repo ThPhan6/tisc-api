@@ -118,12 +118,9 @@ class BaseRepository<DataType> {
    * @param params Partial<DataType>
    * @return DataType | undefined
    */
-  public async getAllBy(
-    params: {
-      [key: string]: string | number | null | boolean;
-    },
-    keys: string[] = ["*"]
-  ) {
+  public async getAllBy(params: {
+    [key: string]: string | number | null | boolean;
+  }) {
     let query = this.model.getQuery();
     forEach(params, (value, column) => {
       query = query.where(column, "==", value);

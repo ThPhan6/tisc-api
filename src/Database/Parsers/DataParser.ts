@@ -27,7 +27,7 @@ class DataParser {
       ...data,
       id: uuid(),
       created_at: getTimestamps(),
-      updated_at: null,
+      updated_at: data.updated_at || null,
       deleted_at: null,
     };
   }
