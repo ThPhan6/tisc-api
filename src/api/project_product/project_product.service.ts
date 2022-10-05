@@ -5,11 +5,11 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import productRepository from "@/repositories/product.repository";
+import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { SortOrder } from "@/type/common.type";
 import { BrandAttributes, IProjectZoneAttributes } from "@/types";
 import { groupBy, orderBy, partition, uniqBy } from "lodash";
-import { projectRepository } from "../project/project.repository";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductRepository } from "./project_product.repository";
 import {

@@ -81,9 +81,3 @@ export interface IProjectZonesResponse {
   };
   statusCode: number;
 }
-
-export interface FindUserAndProjectResponse {
-  user?: UserAttributes;
-  project?: IProjectAttributes;
-  message: IMessageResponse;
-}

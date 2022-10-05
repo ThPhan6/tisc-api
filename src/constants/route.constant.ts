@@ -234,7 +234,9 @@ export const ROUTES = {
     FIND_COUNTRY: "/api/setting/countries/{id}",
     FIND_STATE: "/api/setting/states/{id}",
     FIND_CITY: "/api/setting/cities/{id}",
-  }
+    GET_MEASUREMENT_UNIT: "/api/setting/measurement-units",
+    GET_FUNCTIONAL_TYPE: "/api/setting/functional-type",
+  },
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

@@ -1,0 +1,117 @@
+import { ProjectAttributes, SortOrder } from "@/types";
+import BaseRepository from "@/repositories/base.repository";
+import ProjectModel from "@/model/project.models";
+import { forEach } from "lodash";
+
+class ProjectRepository extends BaseRepository<ProjectAttributes> {
+  protected model: ProjectModel;
+
+  protected DEFAULT_ATTRIBUTE: Partial<ProjectAttributes> = {
+    code: "",
+    name: "",
+    location: "",
+    country_id: "",
+    state_id: "",
+    city_id: "",
+    country_name: "",
+    state_name: "",
+    city_name: "",
+    address: "",
+    phone_code: "",
+    postal_code: "",
+    project_type_id: "",
+    project_type: "",
+    building_type_id: "",
+    building_type: "",
+    measurement_unit: 1,
+    design_due: "",
+    construction_start: "",
+    team_profile_ids: [],
+
+    product_ids: [],
+
+    design_id: "",
+    status: 0,
+    created_at: "",
+  };
+
+  constructor() {
+    super();
+    this.model = new ProjectModel();
+  }
+
+  public async getListProject(
+    designId: string,
+    limit: number,
+    offset: number,
+    sort: any
+  ) {
+    const params = {
+      design_id: designId,
+      offset,
+      limit,
+    };
+    const rawQuery = `
+    FILTER projects.design_id == @design_id
+    LIMIT @offset, @limit
+    ${sort ? ` SORT projects.${sort[0]} ${sort[1]} ` : ``}
+    LET users = (
+        FOR users in users
+        FOR teamIds in projects.team_profile_ids
+        FILTER users.id == teamIds
+        return {
+            id : users.id,
+            name : users.firstname,
+            avatar : users.avatar
+        }
+    )
+    
+    return {
+        id: projects.id,
+        code: projects.code,
+        name: projects.name,
+        location: projects.location,
+        project_type: projects.project_type,
+        building_type: projects.building_type,
+        design_due: projects.design_due,
+        status: projects.status,
+        teams: users,
+    }
+    `;
+    return this.model.rawQuery(rawQuery, params);
+  }
+
+  public async countProjectBy(designId: string) {
+    return this.model.where("design_id", "==", designId).count();
+  }
+
+  public async getAllProjectByWithSelect(
+    params: {
+      [key: string]: string | number | null | boolean;
+    },
+    keys: string[],
+    order: string,
+    sort: SortOrder
+  ) {
+    let query = this.model.getQuery();
+    forEach(params, (value, column) => {
+      query = query.where(column, "==", value);
+    });
+    return query
+      .select([...keys])
+      .order(order, sort)
+      .get();
+  }
+
+  public async getProjectExist(id: string, code: string, designId: string) {
+    return this.model
+      .where("id", "!=", id)
+      .where("code", "==", code)
+      .where("design_id", "==", designId)
+      .first();
+  }
+}
+
+export const projectRepository = new ProjectRepository();
+
+export default ProjectRepository;

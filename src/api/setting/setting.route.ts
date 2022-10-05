@@ -1,3 +1,4 @@
+import { commonResponse } from "./../../helper/response.helper";
 import * as Hapi from "@hapi/hapi";
 import SettingController from "./setting.controller";
 import IRoute from "@/helper/route.helper";
@@ -142,6 +143,38 @@ export default class SettingRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.city,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.SETTING.GET_MEASUREMENT_UNIT,
+          options: {
+            handler: controller.getMeasurementUnits,
+            description: "Method that get measurement units",
+            tags: ["api", "Setting"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: commonResponse.keyValueResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.SETTING.GET_FUNCTIONAL_TYPE,
+          options: {
+            handler: controller.getFunctionalType,
+            description: "Method that get functional type",
+            tags: ["api", "Setting"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: commonResponse.keyValueResponse,
               },
             },
           },
