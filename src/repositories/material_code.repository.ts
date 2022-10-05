@@ -69,13 +69,18 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     );
   }
 
-  public async getCodesByDesignId(designId: string) {
+  public async getCodesByUser(userId: string) {
     const params = {
-      designId,
+      userId,
     };
     const rawQuery = `
-    FILTER material_codes.design_id == @designId
-    FOR sub in material_codes.subs
+    LET userRalationIds = (
+      FOR u IN users
+      FILTER u.id == @userId
+      RETURN u.relation_id
+    )
+    FILTER material_codes.design_id IN userRalationIds
+    FOR sub IN material_codes.subs
     RETURN sub.codes
      `;
     const result =

@@ -1,9 +1,12 @@
 import * as Hapi from "@hapi/hapi";
-import commonValidate from "../../validate/common.validate";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import commonValidate from "@/validate/common.validate";
+import IRoute from "@/helper/route.helper";
+import {
+  commonResponse,
+  defaultRouteOptionResponseStatus,
+} from "@/helper/response.helper";
+import { ROUTES } from "@/constant/api.constant";
+import { AUTH_NAMES } from "@/constant/auth.constant";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
@@ -74,7 +77,7 @@ export default class ProjectRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getMeasurementUnitOptions,
+                200: commonResponse.keyValueResponse,
               },
             },
           },

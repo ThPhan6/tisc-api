@@ -59,3 +59,10 @@ export const summaryTableResponse = {
   name: Joi.string(),
   value: Joi.number(),
 };
+
+export const commonResponse = {
+  keyValueResponse: Joi.array().items({
+    key: Joi.string(),
+    value: Joi.number(),
+  }) as any,
+};

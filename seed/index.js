@@ -31,10 +31,10 @@ const seed = async () => {
   // await seedInstructionType(db);
   // await seedUnitType(db);
   // await seedRole(db);
-  // await seedDocument(db);
+  await seedDocument(db);
   // await seedAutoEmail(db);
   // await seedCategory(db);
-  await seedPermission(db);
+  // await seedPermission(db);
   // await seedPermissionRoute(db);
   // await seedFunctionType(db);
   // await seedBuildingType(db);

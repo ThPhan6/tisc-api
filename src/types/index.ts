@@ -20,3 +20,5 @@ export * from "./market_availability.type";
 export * from "./project_zone.type";
 export * from "./permission.type";
 export * from "./project.type";
+export * from "./documentation.type";
+export * from "./common.type";

@@ -1,4 +1,4 @@
-import { IDocument } from "../api/documentation/documentation.type";
+import { IDocument } from "@/types";
 import Model from "./index";
 
 export interface IDocumentationAttributes {

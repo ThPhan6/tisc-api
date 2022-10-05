@@ -1,4 +1,4 @@
-import { IPagination } from "@/type/common.type";
+import { IPagination } from "@/types";
 
 export interface ICollectionAttributes {
   brand_id: string;

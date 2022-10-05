@@ -1,44 +1,25 @@
 import {
+  COMMON_TYPES,
+  MESSAGES,
   PROJECT_STATUS,
-  PROJECT_STATUS_OPTIONS,
-} from "@/constant/common.constant";
-import { MESSAGES, SYSTEM_TYPE } from "@/constants";
-import { errorMessageResponse } from "@/helper/response.helper";
-import BuildingTypeModel from "@/model/building_type.model";
-import DesignerModel from "@/model/designer.model";
-import ProjectModel, { PROJECT_NULL_ATTRIBUTES } from "@/model/project.model";
-import ProjectTypeModel, {
-  PROJECT_TYPE_NULL_ATTRIBUTES,
-} from "@/model/project_type.model";
-import UserModel from "@/model/user.model";
+  SYSTEM_TYPE,
+} from "@/constants";
+import { pagination } from "@/helper/common.helper";
+import {
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { IMessageResponse } from "@/type/common.type";
 import { FindUserAndProjectResponse } from "@/types";
-import {
-  IAllProjectResponse,
-  IProjectGroupByStatusResponse,
-  IProjectRequest,
-  IProjectResponse,
-  IProjectsResponse,
-  IProjectSummaryResponse,
-} from "./project.type";
+import { mappingProjectGroupByStatus } from "./project.mapping";
+import { IProjectRequest } from "./project.type";
 
 class ProjectService {
-  private projectModel: ProjectModel;
-  private projectTypeModel: ProjectTypeModel;
-  private buildingTypeModel: BuildingTypeModel;
-  private userModel: UserModel;
-  private designModel: DesignerModel;
-  constructor() {
-    this.projectModel = new ProjectModel();
-    this.projectTypeModel = new ProjectTypeModel();
-    this.buildingTypeModel = new BuildingTypeModel();
-    this.userModel = new UserModel();
-    this.designModel = new DesignerModel();
-  }
-
   public async findUserAndProject(userId: string, projectId: string) {
     const res: FindUserAndProjectResponse = {
       message: errorMessageResponse(MESSAGES.SOMETHING_WRONG),
@@ -59,7 +40,7 @@ class ProjectService {
     return res;
   }
 
-  public async create_(userId: string, payload: IProjectRequest) {
+  public async create(userId: string, payload: IProjectRequest) {
     const user = await userRepository.find(userId);
 
     if (!user) {
@@ -78,607 +59,311 @@ class ProjectService {
     if (project) {
       return errorMessageResponse(MESSAGES.PROJECT_EXISTED);
     }
+
+    const projectType = await commonTypeRepository.findOrCreate(
+      payload.project_type_id,
+      user.relation_id,
+      COMMON_TYPES.PROJECT_TYPE
+    );
+
+    const buildingType = await commonTypeRepository.findOrCreate(
+      payload.building_type_id,
+      user.relation_id,
+      COMMON_TYPES.PROJECT_BUILDING
+    );
+
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.state_id,
+        payload.city_id
+      );
+
+    if (isValidGeoLocation !== true) {
+      return isValidGeoLocation;
+    }
+
+    let locationParts = [];
+
+    const countryStateCity = await countryStateCityService.getCountryStateCity(
+      payload.country_id,
+      payload.city_id,
+      payload.state_id
+    );
+
+    if (!countryStateCity) {
+      return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
+    }
+
+    if (countryStateCity.city_name && countryStateCity.city_name !== "") {
+      locationParts.push(countryStateCity.city_name);
+    }
+
+    locationParts.push(countryStateCity.country_name);
+
+    const createdProject = await projectRepository.create({
+      code: payload.code,
+      name: payload.name,
+      location: locationParts.join(", "),
+      country_id: countryStateCity.country_id,
+      state_id: countryStateCity.state_id,
+      city_id: countryStateCity.city_id,
+      country_name: countryStateCity.country_name,
+      state_name: countryStateCity.state_name,
+      city_name: countryStateCity.city_name,
+      address: payload.address,
+      phone_code: countryStateCity.phone_code,
+      postal_code: payload.postal_code,
+      project_type: projectType.name,
+      project_type_id: projectType.id,
+      building_type: buildingType.name,
+      building_type_id: buildingType.id,
+      measurement_unit: payload.measurement_unit,
+      design_due: payload.design_due,
+      construction_start: payload.construction_start,
+      design_id: user.relation_id || "",
+      status: payload.status,
+    });
+
+    if (!createdProject) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    return successResponse({
+      data: createdProject,
+    });
   }
 
-  public create = (
-    user_id: string,
-    payload: IProjectRequest
-  ): Promise<IProjectResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      if (user.type !== SYSTEM_TYPE.DESIGN) {
-        return resolve({
-          message: MESSAGES.JUST_DESIGNER_CAN_CREATE,
-          statusCode: 400,
-        });
-      }
+  public async getProject(id: string) {
+    const project = await projectRepository.find(id);
 
-      const project = await this.projectModel.findBy({
-        code: payload.code,
-        design_id: user.relation_id,
-      });
-      if (project) {
-        return resolve({
-          message: MESSAGES.PROJECT_EXISTED,
-          statusCode: 400,
-        });
-      }
-      let projectType: any = await this.projectTypeModel.findByNameOrId(
-        payload.project_type_id,
-        user.relation_id || ""
-      );
-      if (!projectType) {
-        projectType = await this.projectTypeModel.create({
-          ...PROJECT_TYPE_NULL_ATTRIBUTES,
-          name: payload.project_type_id,
-          type: user.type,
-          relation_id: user.relation_id || "",
-        });
-      }
-      let buildingType: any = await this.buildingTypeModel.findByNameOrId(
-        payload.building_type_id,
-        user.relation_id || ""
-      );
-      if (!buildingType) {
-        buildingType = await this.buildingTypeModel.create({
-          ...PROJECT_TYPE_NULL_ATTRIBUTES,
-          name: payload.building_type_id,
-          type: user.type,
-          relation_id: user.relation_id || "",
-        });
-      }
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
 
-      let locationParts = [];
-      const country = await countryStateCityService.getCountryDetail(
-        payload.country_id
-      );
-      if (!country.id) {
-        return resolve({
-          message: MESSAGES.COUNTRY_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const states = await countryStateCityService.getStatesByCountry(
-        payload.country_id
-      );
-      if (states.length >= 1) {
-        if (!payload.state_id || payload.state_id === "") {
-          return resolve({
-            message: MESSAGES.STATE_REQUIRED,
-            statusCode: 400,
-          });
-        }
-        const foundState = states.find((item) => item.id === payload.state_id);
-        if (!foundState) {
-          return resolve({
-            message: MESSAGES.STATE_NOT_IN_COUNTRY,
-            statusCode: 400,
-          });
-        }
-        const state = await countryStateCityService.getStateDetail(
-          payload.state_id
-        );
-        if (!state.id) {
-          return resolve({
-            message: MESSAGES.STATE_NOT_FOUND,
-            statusCode: 404,
-          });
-        }
-        const cities = await countryStateCityService.getCitiesByStateAndCountry(
-          payload.country_id,
-          payload.state_id
-        );
-        if (cities.length >= 1) {
-          if (!payload.city_id || payload.city_id === "") {
-            return resolve({
-              message: MESSAGES.CITY_REQUIRED,
-              statusCode: 400,
-            });
-          }
-          const foundCity = cities.find((item) => item.id === payload.city_id);
-          if (!foundCity) {
-            return resolve({
-              message: MESSAGES.CITY_NOT_IN_STATE,
-              statusCode: 400,
-            });
-          }
-        }
-      }
-      const countryStateCity =
-        await countryStateCityService.getCountryStateCity(
-          payload.country_id,
-          payload.city_id,
-          payload.state_id
-        );
-      if (!countryStateCity) {
-        return resolve({
-          message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
-          statusCode: 400,
-        });
-      }
-      if (countryStateCity.city_name && countryStateCity.city_name !== "") {
-        locationParts.push(countryStateCity.city_name);
-      }
-      locationParts.push(countryStateCity.country_name);
-      const createdProject = await this.projectModel.create({
-        ...PROJECT_NULL_ATTRIBUTES,
-        code: payload.code,
-        name: payload.name,
-        location: locationParts.join(", "),
-        country_id: countryStateCity.country_id,
-        state_id: countryStateCity.state_id,
-        city_id: countryStateCity.city_id,
-        country_name: countryStateCity.country_name,
-        state_name: countryStateCity.state_name,
-        city_name: countryStateCity.city_name,
-        address: payload.address,
-        phone_code: countryStateCity.phone_code,
-        postal_code: payload.postal_code,
-        project_type: projectType.name,
-        project_type_id: projectType.id,
-        building_type: buildingType.name,
-        building_type_id: buildingType.id,
-        measurement_unit: payload.measurement_unit,
-        design_due: payload.design_due,
-        construction_start: payload.construction_start,
-
-        design_id: user.relation_id || "",
-        status: payload.status,
-      });
-      if (!createdProject) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(createdProject.id));
+    return successResponse({
+      data: project,
     });
+  }
 
-  public get = (id: string): Promise<IProjectResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const project = await this.projectModel.find(id);
-      if (!project) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const { is_deleted, design_id, ...rest } = project;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
-    });
-  public getList = (
-    user_id: string,
+  public async getProjects(
+    userId: string,
     limit: number,
     offset: number,
     filter: any,
     sort: any
-  ): Promise<IProjectsResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const projects = await this.projectModel.listV2(
-        limit,
-        offset,
-        { ...filter, design_id: user.relation_id },
-        sort
-      );
-      const result = await Promise.all(
-        projects.map(async (project) => {
-          const users = await this.userModel.getMany(project.team_profile_ids, [
-            "id",
-            "firstname",
-            "avatar",
-          ]);
-          return {
-            id: project.id,
-            code: project.code,
-            name: project.name,
-            location: project.location,
-            project_type: project.project_type,
-            building_type: project.building_type,
-            design_due: project.design_due,
-            status: project.status,
-            teams: users,
-          };
-        })
-      );
-      const pagination = await this.projectModel.getPagination(limit, offset, {
-        ...filter,
+  ) {
+    const user = await userRepository.find(userId);
+
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const projects = await projectRepository.getListProject(
+      user.relation_id,
+      limit,
+      offset,
+      sort
+    );
+
+    const totalProject = await projectRepository.countProjectBy(
+      user.relation_id
+    );
+
+    return successResponse({
+      data: {
+        projects: projects,
+        pagination: pagination(limit, offset, totalProject),
+      },
+    });
+  }
+
+  public async getAll(userId: string) {
+    const user = await userRepository.find(userId);
+
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const projects = await projectRepository.getAllProjectByWithSelect(
+      {
         design_id: user.relation_id,
-      });
-      return resolve({
-        data: {
-          projects: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
+        status: PROJECT_STATUS.LIVE,
+      },
+      ["id", "code", "name"],
+      "created_at",
+      "DESC"
+    );
+
+    return successResponse({
+      data: projects,
     });
-  public getAll = (
-    user_id: string
-  ): Promise<IAllProjectResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const projects = await this.projectModel.getAllBy(
-        {
-          design_id: user.relation_id,
-          status: PROJECT_STATUS.LIVE,
-        },
-        ["id", "code", "name"],
-        "created_at",
-        "DESC"
+  }
+
+  public async update(id: string, userId: string, payload: IProjectRequest) {
+    const { user, project, message } = await this.findUserAndProject(
+      userId,
+      id
+    );
+
+    if (!project || !user) {
+      return message;
+    }
+
+    if (
+      user.type !== SYSTEM_TYPE.DESIGN ||
+      project.design_id !== user.relation_id
+    ) {
+      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+    }
+
+    const projectExisted = await projectRepository.getProjectExist(
+      id,
+      payload.code,
+      project.design_id
+    );
+
+    if (projectExisted) {
+      return errorMessageResponse(MESSAGES.PROJECT_EXISTED);
+    }
+
+    const projectType = await commonTypeRepository.findOrCreate(
+      payload.project_type_id,
+      user.relation_id,
+      COMMON_TYPES.PROJECT_TYPE
+    );
+
+    const buildingType = await commonTypeRepository.findOrCreate(
+      payload.building_type_id,
+      user.relation_id,
+      COMMON_TYPES.PROJECT_BUILDING
+    );
+
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.state_id,
+        payload.city_id
       );
 
-      return resolve({
-        data: projects,
-        statusCode: 200,
-      });
+    if (isValidGeoLocation !== true) {
+      return isValidGeoLocation;
+    }
+
+    let locationParts = [];
+    let countryStateCity = await countryStateCityService.getCountryStateCity(
+      payload.country_id,
+      payload.city_id,
+      payload.state_id
+    );
+    if (!countryStateCity) {
+      return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
+    }
+
+    if (countryStateCity.city_name && countryStateCity.city_name !== "") {
+      locationParts.push(countryStateCity.city_name);
+    }
+
+    locationParts.push(countryStateCity.country_name);
+
+    const updatedProject = await projectRepository.update(id, {
+      ...payload,
+      location: locationParts.join(", "),
+      country_id: countryStateCity.country_id,
+      state_id: countryStateCity.state_id,
+      city_id: countryStateCity.city_id,
+      country_name: countryStateCity.country_name,
+      state_name: countryStateCity.state_name,
+      city_name: countryStateCity.city_name,
+      phone_code: countryStateCity.phone_code,
+      project_type: projectType.name,
+      project_type_id: projectType.id,
+      building_type: buildingType.name,
+      building_type_id: buildingType.id,
     });
 
-  public update = async (
-    id: string,
-    user_id: string,
-    payload: IProjectRequest
-  ): Promise<IMessageResponse | IProjectResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const foundProject = await this.projectModel.find(id);
-      if (!foundProject) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      if (
-        user.type !== SYSTEM_TYPE.DESIGN ||
-        foundProject.design_id !== user.relation_id
-      ) {
-        return resolve({
-          message: MESSAGES.JUST_OWNER_CAN_UPDATE,
-          statusCode: 400,
-        });
-      }
+    if (!updatedProject) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
 
-      const project = await this.projectModel.getExistedProject(
-        id,
-        payload.code,
-        foundProject.design_id
-      );
-
-      if (project) {
-        return resolve({
-          message: MESSAGES.PROJECT_EXISTED,
-          statusCode: 400,
-        });
-      }
-
-      let projectType;
-      if (
-        payload.project_type_id !== foundProject.project_type_id &&
-        payload.project_type_id !== foundProject.project_type
-      ) {
-        projectType = await this.projectTypeModel.findByNameOrId(
-          payload.project_type_id,
-          user.relation_id || ""
-        );
-        if (!projectType) {
-          projectType = await this.projectTypeModel.create({
-            ...PROJECT_TYPE_NULL_ATTRIBUTES,
-            name: payload.project_type_id,
-            type: user.type,
-            relation_id: user.relation_id || "",
-          });
-        }
-      }
-      let buildingType;
-
-      if (
-        payload.building_type_id !== foundProject.building_type_id &&
-        payload.building_type_id !== foundProject.building_type
-      ) {
-        buildingType = await this.buildingTypeModel.findByNameOrId(
-          payload.building_type_id,
-          user.relation_id || ""
-        );
-        if (!buildingType) {
-          buildingType = await this.buildingTypeModel.create({
-            ...PROJECT_TYPE_NULL_ATTRIBUTES,
-            name: payload.building_type_id,
-            type: user.type,
-            relation_id: user.relation_id || "",
-          });
-        }
-      }
-      let locationParts = [];
-      let countryStateCity: any;
-      if (
-        payload.country_id !== foundProject.country_id ||
-        payload.state_id !== foundProject.state_id ||
-        payload.city_id !== foundProject.city_id
-      ) {
-        if (
-          foundProject.country_id.toString() !== payload.country_id.toString()
-        ) {
-          const country = await countryStateCityService.getCountryDetail(
-            payload.country_id
-          );
-          if (!country.id) {
-            return resolve({
-              message: MESSAGES.COUNTRY_NOT_FOUND,
-              statusCode: 404,
-            });
-          }
-        }
-        if (foundProject.state_id.toString() !== payload.state_id.toString()) {
-          const states = await countryStateCityService.getStatesByCountry(
-            payload.country_id
-          );
-          if (states.length >= 1) {
-            if (!payload.state_id || payload.state_id === "") {
-              return resolve({
-                message: MESSAGES.STATE_REQUIRED,
-                statusCode: 400,
-              });
-            }
-            const foundState = states.find(
-              (item) => item.id === payload.state_id
-            );
-            if (!foundState) {
-              return resolve({
-                message: MESSAGES.STATE_NOT_IN_COUNTRY,
-                statusCode: 400,
-              });
-            }
-            const state = await countryStateCityService.getStateDetail(
-              payload.state_id
-            );
-            if (!state.id) {
-              return resolve({
-                message: MESSAGES.STATE_NOT_FOUND,
-                statusCode: 404,
-              });
-            }
-            const cities =
-              await countryStateCityService.getCitiesByStateAndCountry(
-                payload.country_id,
-                payload.state_id
-              );
-            if (cities.length >= 1) {
-              if (!payload.city_id || payload.city_id === "") {
-                return resolve({
-                  message: MESSAGES.CITY_REQUIRED,
-                  statusCode: 400,
-                });
-              }
-              const foundCity = cities.find(
-                (item) => item.id === payload.city_id
-              );
-              if (!foundCity) {
-                return resolve({
-                  message: MESSAGES.CITY_NOT_IN_STATE,
-                  statusCode: 400,
-                });
-              }
-            }
-          }
-        }
-        countryStateCity = await countryStateCityService.getCountryStateCity(
-          payload.country_id,
-          payload.city_id,
-          payload.state_id
-        );
-        if (!countryStateCity) {
-          return resolve({
-            message: MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND,
-            statusCode: 400,
-          });
-        }
-        if (countryStateCity.city_name && countryStateCity.city_name !== "") {
-          locationParts.push(countryStateCity.city_name);
-        }
-        locationParts.push(countryStateCity.country_name);
-      }
-      const updatedProject = await this.projectModel.update(id, {
-        ...payload,
-        location: locationParts.length
-          ? locationParts.join(", ")
-          : foundProject.location,
-        country_id: countryStateCity
-          ? countryStateCity.country_id
-          : foundProject.country_id,
-        state_id: countryStateCity
-          ? countryStateCity.state_id
-          : foundProject.state_id,
-        city_id: countryStateCity
-          ? countryStateCity.city_id
-          : foundProject.city_id,
-        country_name: countryStateCity
-          ? countryStateCity.country_name
-          : foundProject.country_name,
-        state_name: countryStateCity
-          ? countryStateCity.state_name
-          : foundProject.state_name,
-        city_name: countryStateCity
-          ? countryStateCity.city_name
-          : foundProject.city_name,
-        phone_code: countryStateCity
-          ? countryStateCity.phone_code
-          : foundProject.phone_code,
-        project_type: projectType
-          ? projectType.name
-          : foundProject.project_type,
-        project_type_id: projectType
-          ? projectType.id
-          : foundProject.project_type_id,
-        building_type: buildingType
-          ? buildingType.name
-          : foundProject.building_type,
-        building_type_id: buildingType
-          ? buildingType.id
-          : foundProject.building_type,
-      });
-      if (!updatedProject) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(id));
+    return successResponse({
+      data: updatedProject,
     });
-  };
+  }
 
-  public delete = async (
-    id: string,
-    user_id: string
-  ): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const foundProject = await this.projectModel.find(id);
-      if (!foundProject) {
-        return resolve({
-          message: MESSAGES.PROJECT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      if (
-        user.type !== SYSTEM_TYPE.DESIGN ||
-        foundProject.design_id !== user.relation_id
-      ) {
-        return resolve({
-          message: MESSAGES.JUST_OWNER_CAN_DELETE,
-          statusCode: 400,
-        });
-      }
+  public async delete(id: string, userId: string) {
+    const { user, project, message } = await this.findUserAndProject(
+      userId,
+      id
+    );
 
-      const updatedProject = await this.projectModel.update(id, {
-        is_deleted: true,
-      });
-      if (!updatedProject) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+    if (!project || !user) {
+      return message;
+    }
+
+    if (
+      user.type !== SYSTEM_TYPE.DESIGN ||
+      project.design_id !== user.relation_id
+    ) {
+      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
+    }
+
+    const deletedProject = await projectRepository.delete(id);
+
+    if (!deletedProject) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
+    }
+
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+
+  public async getProjectSummary(userId: string) {
+    const user = await userRepository.find(userId);
+
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const projects = await projectRepository.getAllBy({
+      design_id: user.relation_id,
     });
-  };
 
-  public getProjectSummary = async (
-    user_id: string
-  ): Promise<IMessageResponse | IProjectSummaryResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const projects = await this.projectModel.getBy({
-        design_id: user.relation_id,
-      });
+    return {
+      projects: projects.length,
+      live: projects.filter((project) => project.status === PROJECT_STATUS.LIVE)
+        .length,
+      on_hold: projects.filter(
+        (project) => project.status === PROJECT_STATUS.ON_HOLD
+      ).length,
+      archived: projects.filter(
+        (project) => project.status === PROJECT_STATUS.ARCHIVE
+      ).length,
+    };
+  }
 
-      return resolve({
-        projects: projects.length,
-        live: projects.filter(
-          (project) => project.status === PROJECT_STATUS.LIVE
-        ).length,
-        on_hold: projects.filter(
-          (project) => project.status === PROJECT_STATUS.ON_HOLD
-        ).length,
-        archived: projects.filter(
-          (project) => project.status === PROJECT_STATUS.ARCHIVE
-        ).length,
-      });
+  public async getProjectGroupByStatus(designId: string) {
+    const design = await designerRepository.find(designId);
+
+    if (!design) {
+      return errorMessageResponse(MESSAGES.DESIGN_NOT_FOUND, 404);
+    }
+
+    const user = await userRepository.findBy({ relation_id: design.id });
+
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const projects = await projectRepository.getAllBy({
+      design_id: user.relation_id,
     });
-  };
 
-  public getProjectGroupByStatus = async (
-    design_id: string
-  ): Promise<IMessageResponse | IProjectGroupByStatusResponse> => {
-    return new Promise(async (resolve) => {
-      const design = await this.designModel.find(design_id);
-      if (!design) {
-        return resolve({
-          message: MESSAGES.DESIGN_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const user = await this.userModel.findBy({ relation_id: design.id });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const projects = await this.projectModel.getAllBy({
-        design_id: user.relation_id,
-      });
+    const result = mappingProjectGroupByStatus(projects);
 
-      const result = PROJECT_STATUS_OPTIONS.map((projectStatus) => {
-        const groupProjects = projects.filter(
-          (project) => project.status === projectStatus.value
-        );
-        const removedFieldsOfProject = groupProjects.map((groupProject) => {
-          return {
-            code: groupProject.code,
-            name: groupProject.name,
-            location: groupProject.location,
-            building_type: groupProject.building_type,
-            type: groupProject.project_type,
-            measurement_unit: groupProject.measurement_unit,
-            design_due: groupProject.design_due,
-            construction_start: groupProject.construction_start,
-          };
-        });
-        return {
-          status_name: projectStatus.key,
-          count: groupProjects.length,
-          projects: removedFieldsOfProject,
-        };
-      });
-
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+    return successResponse({
+      data: result,
     });
-  };
+  }
 }
 
 export const projectService = new ProjectService();

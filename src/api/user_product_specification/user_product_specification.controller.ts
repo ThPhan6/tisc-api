@@ -1,4 +1,6 @@
 import { UserProductSpecificationRequest } from "@/api/user_product_specification/user_product_specification.model";
+import { MESSAGES } from "@/constants";
+import { errorMessageResponse } from "@/helper/response.helper";
 import productRepository from "@/repositories/product.repository";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { userProductSpecificationRepository } from "./user_product_specification.repository";
@@ -49,7 +51,9 @@ export default class UserProductSpecificationController {
     });
 
     if (!response) {
-      return "failed";
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.SOMETHING_WRONG, 404))
+        .code(404);
     }
 
     return toolkit.response({ data: response }).code(200);
