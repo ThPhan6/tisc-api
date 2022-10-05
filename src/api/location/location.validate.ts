@@ -1,5 +1,9 @@
+import { SYSTEM_TYPE } from "@/constants";
+import {
+  commonFailValidatedMessageFunction,
+  getListV2,
+} from "@/validate/common.validate";
 import Joi from "joi";
-import { commonFailValidatedMessageFunction, getListV2 } from "@/validate/common.validate";
 
 export default {
   getMarketLocationsCountryGroup: {
@@ -30,11 +34,12 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Business name is required")),
       business_number: Joi.string()
-        .trim()
         .required()
+        .allow("")
         .error(
           commonFailValidatedMessageFunction("Business number is required")
         ),
+
       functional_type_ids: Joi.array()
         .items(
           Joi.string()
@@ -85,11 +90,11 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Business name is required")),
       business_number: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Business number is required")
-        ),
+        // .required()
+        .allow(""),
+      // .error(
+      //   commonFailValidatedMessageFunction("Business number is required")
+      // ),
       functional_type_ids: Joi.array()
         .items(
           Joi.string()
@@ -128,5 +133,5 @@ export default {
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
   },
-  getList: getListV2
+  getList: getListV2,
 };

@@ -1,61 +1,74 @@
-import { ILocationRequest } from "./location.type";
-import { IMessageResponse, ILocationAttributes } from "@/types";
-import { MESSAGES } from "@/constants";
-import {COMMON_TYPES} from '@/constants/common.constant';
-import {userRepository} from '@/repositories/user.repository';
-import productRepository from '@/repositories/product.repository';
-import {marketAvailabilityRepository} from '@/repositories/market_availability.repository';
-import {commonTypeRepository} from '@/repositories/common_type.repository';
-import {locationRepository} from '@/repositories/location.repository';
-import {countryStateCityService} from "@/service/country_state_city.service";
+import { MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { COMMON_TYPES } from "@/constants/common.constant";
 import {
   errorMessageResponse,
-  successResponse,
   successMessageResponse,
-} from '@/helper/response.helper';
-
-import {mappingByCountries} from './location.mapping';
-import {head} from 'lodash';
+  successResponse,
+} from "@/helper/response.helper";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { locationRepository } from "@/repositories/location.repository";
+import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
+import productRepository from "@/repositories/product.repository";
+import { userRepository } from "@/repositories/user.repository";
+import { countryStateCityService } from "@/service/country_state_city.service";
+import { ILocationAttributes, IMessageResponse } from "@/types";
+import { head } from "lodash";
+import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
+import { ILocationRequest } from "./location.type";
 
 export default class LocationService {
-
   private mappingLocationData = async (locations: ILocationAttributes[]) => {
-    return Promise.all(locations.map(async (location) => {
-      const totalUser = await userRepository.countUserInLocation(location.id);
-      const functionalTypes = await commonTypeRepository.getByListIds(location.functional_type_ids);
-      return {
-        ...location,
-        functional_types: functionalTypes,
-        teams: totalUser,
-      };
-    }));
-  }
+    return Promise.all(
+      locations.map(async (location) => {
+        const totalUser = await userRepository.countUserInLocation(location.id);
+        const functionalTypeOption = getDesignFunctionType(
+          location.functional_type_ids
+        );
+        let functionalTypes;
+        if (functionalTypeOption) {
+          functionalTypes = [
+            {
+              id: String(functionalTypeOption.value),
+              name: functionalTypeOption.key,
+            },
+          ];
+        } else {
+          functionalTypes = await commonTypeRepository.getByListIds(
+            location.functional_type_ids
+          );
+        }
+        return {
+          ...location,
+          functional_types: functionalTypes,
+          teams: totalUser,
+        };
+      })
+    );
+  };
 
   public getFunctionalTypes = async (userId: string) => {
     const user = await userRepository.find(userId);
     if (!user) {
-      return successResponse({data: []});
+      return successResponse({ data: [] });
     }
     const functionTypes = await commonTypeRepository.getAllByRelationAndType(
-      user.relation_id, COMMON_TYPES.COMPANY_FUNCTIONAL
+      user.relation_id,
+      COMMON_TYPES.COMPANY_FUNCTIONAL
     );
-    return successResponse({data: functionTypes});
-  }
+    return successResponse({ data: functionTypes });
+  };
 
-
-  public create = async (
-    userId: string,
-    payload: ILocationRequest
-  ) => {
+  public create = async (userId: string, payload: ILocationRequest) => {
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    const isValidGeoLocation = await countryStateCityService.validateLocationData(
-      payload.country_id,
-      payload.state_id,
-      payload.city_id,
-    );
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.state_id,
+        payload.city_id
+      );
 
     if (isValidGeoLocation !== true) {
       return isValidGeoLocation;
@@ -67,17 +80,32 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await Promise.all(payload.functional_type_ids.map((id) => {
-      return commonTypeRepository.findOrCreate(
-        id, user.relation_id, COMMON_TYPES.COMPANY_FUNCTIONAL
-      );
-    }));
+    const functionalTypes = await Promise.all(
+      payload.functional_type_ids.map((id) => {
+        return commonTypeRepository.findOrCreate(
+          id,
+          user.relation_id,
+          COMMON_TYPES.COMPANY_FUNCTIONAL
+        );
+      })
+    );
+
+    const designFunctionalType = getDesignFunctionType(
+      payload.functional_type_ids
+    );
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
-      business_number: payload.business_number,
-      functional_type_ids: functionalTypes.map((item) => item.id),
-      functional_type: functionalTypes.map((item) => item.name).join(", "),
+      functional_type_ids:
+        user.type === SYSTEM_TYPE.DESIGN
+          ? payload.functional_type_ids
+          : functionalTypes.map((item) => item.id),
+      business_number:
+        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
+      functional_type:
+        user.type === SYSTEM_TYPE.DESIGN
+          ? designFunctionalType?.key
+          : functionalTypes.map((item) => item.name).join(", "),
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -88,10 +116,9 @@ export default class LocationService {
     });
     if (!createdLocation) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
-
     }
     return this.get(createdLocation.id);
-  }
+  };
 
   public update = async (
     userId: string,
@@ -102,11 +129,12 @@ export default class LocationService {
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    const isValidGeoLocation = await countryStateCityService.validateLocationData(
-      payload.country_id,
-      payload.state_id,
-      payload.city_id,
-    );
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.state_id,
+        payload.city_id
+      );
 
     if (isValidGeoLocation !== true) {
       return isValidGeoLocation;
@@ -118,11 +146,15 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await Promise.all(payload.functional_type_ids.map((id) => {
-      return commonTypeRepository.findOrCreate(
-        id, user.relation_id, COMMON_TYPES.COMPANY_FUNCTIONAL
-      );
-    }));
+    const functionalTypes = await Promise.all(
+      payload.functional_type_ids.map((id) => {
+        return commonTypeRepository.findOrCreate(
+          id,
+          user.relation_id,
+          COMMON_TYPES.COMPANY_FUNCTIONAL
+        );
+      })
+    );
 
     const location = await locationRepository.find(id);
     if (!location) {
@@ -135,11 +167,22 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE, 404);
     }
 
+    const designFunctionalType = getDesignFunctionType(
+      payload.functional_type_ids
+    );
+
     const updatedLocation = await locationRepository.update(id, {
       business_name: payload.business_name,
-      business_number: payload.business_number,
-      functional_type_ids: functionalTypes.map((item) => item.id),
-      functional_type: functionalTypes.map((item) => item.name).join(", "),
+      business_number:
+        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
+      functional_type:
+        user.type === SYSTEM_TYPE.DESIGN
+          ? designFunctionalType?.key
+          : functionalTypes.map((item) => item.name).join(", "),
+      functional_type_ids:
+        user.type === SYSTEM_TYPE.DESIGN
+          ? payload.functional_type_ids
+          : functionalTypes.map((item) => item.id),
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -169,7 +212,6 @@ export default class LocationService {
     order?: "ASC" | "DESC",
     _filter?: any
   ) => {
-
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -188,7 +230,7 @@ export default class LocationService {
         pagination: response.pagination,
       },
     });
-  }
+  };
 
   public getListWithGroup = async (userId: string) => {
     const user = await userRepository.find(userId);
@@ -196,43 +238,51 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
     return this.getCompanyLocationGroupByCountry(user.relation_id);
-  }
+  };
 
-  public getCompanyLocationGroupByCountry = async (relationId: string | null) => {
+  public getCompanyLocationGroupByCountry = async (
+    relationId: string | null
+  ) => {
     const response = await locationRepository.getLocationPagination(
       undefined,
       undefined,
       relationId,
-      'country_name',
+      "country_name"
     );
     /// format data
     const locations = await this.mappingLocationData(response.data);
     return successResponse({
       data: mappingByCountries(locations),
     });
-  }
+  };
 
-  public getMarketLocationGroupByCountry = async ( productId: string ) => {
+  public getMarketLocationGroupByCountry = async (productId: string) => {
     const product = await productRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const market = await marketAvailabilityRepository.findMarketAvailabilityByCollection(product.collection_id);
+    const market =
+      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
+        product.collection_id
+      );
     if (!market) {
-      return successResponse({data: []});
+      return successResponse({ data: [] });
     }
 
-    const locations = await locationRepository.getLocationByRelationAndCountryIds(
-      product.brand_id,
-      market.country_ids
-    );
+    const locations =
+      await locationRepository.getLocationByRelationAndCountryIds(
+        product.brand_id,
+        market.country_ids
+      );
     const locationData = await this.mappingLocationData(locations);
     return successResponse({
       data: mappingByCountries(locationData, true),
     });
-
-  }
-  public delete = async (userId: string, id: string): Promise<IMessageResponse> => {
+  };
+  public delete = async (
+    userId: string,
+    id: string
+  ): Promise<IMessageResponse> => {
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -248,6 +298,6 @@ export default class LocationService {
     }
     await locationRepository.delete(id);
     return successMessageResponse(MESSAGES.SUCCESS);
-  }
+  };
 }
 export const locationService = new LocationService();
