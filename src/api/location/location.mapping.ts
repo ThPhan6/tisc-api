@@ -40,7 +40,13 @@ export const mappingByCountries = (
 };
 
 export const getDesignFunctionType = (functional_type_ids: string[]) => {
-  return FUNCTIONAL_TYPE_OPTIONS.find(
-    (option) => option.value === Number(functional_type_ids[0])
+  const functionalTypeOption = FUNCTIONAL_TYPE_OPTIONS.find(
+    (option) => option.id === Number(functional_type_ids[0])
   );
+  return [
+    {
+      id: String(functionalTypeOption?.id),
+      name: functionalTypeOption?.name,
+    },
+  ];
 };

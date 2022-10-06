@@ -26,12 +26,7 @@ export default class LocationService {
         );
         let functionalTypes;
         if (functionalTypeOption) {
-          functionalTypes = [
-            {
-              id: String(functionalTypeOption.value),
-              name: functionalTypeOption.key,
-            },
-          ];
+          functionalTypes = functionalTypeOption;
         } else {
           functionalTypes = await commonTypeRepository.getByListIds(
             location.functional_type_ids
@@ -80,32 +75,27 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await Promise.all(
-      payload.functional_type_ids.map((id) => {
-        return commonTypeRepository.findOrCreate(
-          id,
-          user.relation_id,
-          COMMON_TYPES.COMPANY_FUNCTIONAL
-        );
-      })
-    );
-
-    const designFunctionalType = getDesignFunctionType(
-      payload.functional_type_ids
-    );
+    let functionalTypes;
+    if (user.type !== SYSTEM_TYPE.DESIGN) {
+      functionalTypes = await Promise.all(
+        payload.functional_type_ids.map((id) => {
+          return commonTypeRepository.findOrCreate(
+            id,
+            user.relation_id,
+            COMMON_TYPES.COMPANY_FUNCTIONAL
+          );
+        })
+      );
+    } else {
+      functionalTypes = getDesignFunctionType(payload.functional_type_ids);
+    }
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
-      functional_type_ids:
-        user.type === SYSTEM_TYPE.DESIGN
-          ? payload.functional_type_ids
-          : functionalTypes.map((item) => item.id),
+      functional_type_ids: functionalTypes.map((item) => item.id),
       business_number:
         user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
-      functional_type:
-        user.type === SYSTEM_TYPE.DESIGN
-          ? designFunctionalType?.key
-          : functionalTypes.map((item) => item.name).join(", "),
+      functional_type: functionalTypes.map((item) => item.name).join(", "),
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -145,16 +135,20 @@ export default class LocationService {
       payload.city_id,
       payload.state_id
     );
-
-    const functionalTypes = await Promise.all(
-      payload.functional_type_ids.map((id) => {
-        return commonTypeRepository.findOrCreate(
-          id,
-          user.relation_id,
-          COMMON_TYPES.COMPANY_FUNCTIONAL
-        );
-      })
-    );
+    let functionalTypes;
+    if (user.type !== SYSTEM_TYPE.DESIGN) {
+      functionalTypes = await Promise.all(
+        payload.functional_type_ids.map((id) => {
+          return commonTypeRepository.findOrCreate(
+            id,
+            user.relation_id,
+            COMMON_TYPES.COMPANY_FUNCTIONAL
+          );
+        })
+      );
+    } else {
+      functionalTypes = getDesignFunctionType(payload.functional_type_ids);
+    }
 
     const location = await locationRepository.find(id);
     if (!location) {
@@ -167,22 +161,12 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE, 404);
     }
 
-    const designFunctionalType = getDesignFunctionType(
-      payload.functional_type_ids
-    );
-
     const updatedLocation = await locationRepository.update(id, {
       business_name: payload.business_name,
       business_number:
         user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
-      functional_type:
-        user.type === SYSTEM_TYPE.DESIGN
-          ? designFunctionalType?.key
-          : functionalTypes.map((item) => item.name).join(", "),
-      functional_type_ids:
-        user.type === SYSTEM_TYPE.DESIGN
-          ? payload.functional_type_ids
-          : functionalTypes.map((item) => item.id),
+      functional_type: functionalTypes.map((item) => item.name).join(", "),
+      functional_type_ids: functionalTypes.map((item) => item.id),
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
