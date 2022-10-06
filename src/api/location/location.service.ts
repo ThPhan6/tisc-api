@@ -24,11 +24,11 @@ import { ILocationRequest } from "./location.type";
 export default class LocationService {
   private async getFunctionalType(
     user: UserAttributes,
-    payload: ILocationRequest
+    functional_type_ids: string[]
   ) {
     if (user.type !== SYSTEM_TYPE.DESIGN) {
       return Promise.all(
-        payload.functional_type_ids.map((id) => {
+        functional_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
             id,
             user.relation_id,
@@ -36,9 +36,8 @@ export default class LocationService {
           );
         })
       );
-    } else {
-      return getDesignFunctionType(payload.functional_type_ids);
     }
+    return getDesignFunctionType(functional_type_ids);
   }
 
   private mappingLocationData = async (locations: ILocationAttributes[]) => {
@@ -51,7 +50,6 @@ export default class LocationService {
         let functionalTypes;
         if (functionalTypeOption) {
           functionalTypes = functionalTypeOption;
-        } else {
           functionalTypes = await commonTypeRepository.getByListIds(
             location.functional_type_ids
           );
@@ -99,7 +97,10 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await this.getFunctionalType(user, payload);
+    const functionalTypes = await this.getFunctionalType(
+      user,
+      payload.functional_type_ids
+    );
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
@@ -147,7 +148,10 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await this.getFunctionalType(user, payload);
+    const functionalTypes = await this.getFunctionalType(
+      user,
+      payload.functional_type_ids
+    );
 
     const location = await locationRepository.find(id);
     if (!location) {
