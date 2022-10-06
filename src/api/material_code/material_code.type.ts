@@ -1,10 +1,13 @@
 import { ICodeAttribute } from "@/types/material_code.type";
 
 export interface IMaterialCodeRequest {
+  id: string;
   name: string;
   subs: {
+    id: string;
     name: string;
     codes: {
+      id: string;
       code: string;
       description: string;
     }[];
