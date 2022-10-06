@@ -52,6 +52,7 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     }
 
     query += `
+    FILTER material_codes.deleted_at == null
     SORT material_codes.name ${mainMaterialCodeOrder}
     LET subs = (
       FOR sub IN material_codes.subs
