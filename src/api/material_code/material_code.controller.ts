@@ -24,7 +24,6 @@ export default class MaterialCodeController {
       sub_material_code_order,
       material_code_order,
     } = req.query;
-    console.log(design_id, "[design_id]");
     const response = await materialCodeService.getMaterialCodes(
       main_material_code_order,
       sub_material_code_order,

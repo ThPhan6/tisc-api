@@ -69,7 +69,7 @@ export default {
             codes: Joi.array()
               .items({
                 id: Joi.string().allow(null),
-                name: Joi.string()
+                code: Joi.string()
                   .trim()
                   .required()
                   .error(() => new Error("Code is missing")),
