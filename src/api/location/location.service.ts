@@ -22,7 +22,7 @@ import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
 import { ILocationRequest } from "./location.type";
 
 export default class LocationService {
-  private async validateFunctionalType(
+  private async getFunctionalType(
     user: UserAttributes,
     payload: ILocationRequest
   ) {
@@ -99,7 +99,7 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await this.validateFunctionalType(user, payload);
+    const functionalTypes = await this.getFunctionalType(user, payload);
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
@@ -147,7 +147,7 @@ export default class LocationService {
       payload.state_id
     );
 
-    const functionalTypes = await this.validateFunctionalType(user, payload);
+    const functionalTypes = await this.getFunctionalType(user, payload);
 
     const location = await locationRepository.find(id);
     if (!location) {
