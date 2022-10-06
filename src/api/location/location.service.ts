@@ -11,12 +11,36 @@ import { marketAvailabilityRepository } from "@/repositories/market_availability
 import productRepository from "@/repositories/product.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { ILocationAttributes, IMessageResponse } from "@/types";
+import {
+  ILocationAttributes,
+  IMessageResponse,
+  SortOrder,
+  UserAttributes,
+} from "@/types";
 import { head } from "lodash";
 import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
 import { ILocationRequest } from "./location.type";
 
 export default class LocationService {
+  private async validateFunctionalType(
+    user: UserAttributes,
+    payload: ILocationRequest
+  ) {
+    if (user.type !== SYSTEM_TYPE.DESIGN) {
+      return Promise.all(
+        payload.functional_type_ids.map((id) => {
+          return commonTypeRepository.findOrCreate(
+            id,
+            user.relation_id,
+            COMMON_TYPES.COMPANY_FUNCTIONAL
+          );
+        })
+      );
+    } else {
+      return getDesignFunctionType(payload.functional_type_ids);
+    }
+  }
+
   private mappingLocationData = async (locations: ILocationAttributes[]) => {
     return Promise.all(
       locations.map(async (location) => {
@@ -75,20 +99,7 @@ export default class LocationService {
       payload.state_id
     );
 
-    let functionalTypes;
-    if (user.type !== SYSTEM_TYPE.DESIGN) {
-      functionalTypes = await Promise.all(
-        payload.functional_type_ids.map((id) => {
-          return commonTypeRepository.findOrCreate(
-            id,
-            user.relation_id,
-            COMMON_TYPES.COMPANY_FUNCTIONAL
-          );
-        })
-      );
-    } else {
-      functionalTypes = getDesignFunctionType(payload.functional_type_ids);
-    }
+    const functionalTypes = await this.validateFunctionalType(user, payload);
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
@@ -135,20 +146,8 @@ export default class LocationService {
       payload.city_id,
       payload.state_id
     );
-    let functionalTypes;
-    if (user.type !== SYSTEM_TYPE.DESIGN) {
-      functionalTypes = await Promise.all(
-        payload.functional_type_ids.map((id) => {
-          return commonTypeRepository.findOrCreate(
-            id,
-            user.relation_id,
-            COMMON_TYPES.COMPANY_FUNCTIONAL
-          );
-        })
-      );
-    } else {
-      functionalTypes = getDesignFunctionType(payload.functional_type_ids);
-    }
+
+    const functionalTypes = await this.validateFunctionalType(user, payload);
 
     const location = await locationRepository.find(id);
     if (!location) {
@@ -193,7 +192,7 @@ export default class LocationService {
     limit?: number,
     offset?: number,
     sort?: string,
-    order?: "ASC" | "DESC",
+    order?: SortOrder,
     _filter?: any
   ) => {
     const user = await userRepository.find(userId);
