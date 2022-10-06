@@ -9,26 +9,29 @@ import moment from "moment";
 
 import DesignModel from "@/model/designer.model";
 
-import {userRepository} from '@/repositories/user.repository';
-import {commonTypeRepository} from '@/repositories/common_type.repository';
-import {locationRepository} from '@/repositories/location.repository';
-import {brandRepository} from '@/repositories/brand.repository';
-import {permissionService} from "@/api/permission/permission.service";
+import { userRepository } from "@/repositories/user.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { locationRepository } from "@/repositories/location.repository";
+import { brandRepository } from "@/repositories/brand.repository";
+import { permissionService } from "@/api/permission/permission.service";
 import {
   errorMessageResponse,
   successResponse,
   successMessageResponse,
-} from '@/helper/response.helper';
+} from "@/helper/response.helper";
 
-import {validateRoleType} from '@/helper/user.helper';
+import { validateRoleType } from "@/helper/user.helper";
 import { getAccessLevel } from "@/helper/common.helper";
 import {
-  COMMON_TYPES, MESSAGES, ROLE_TYPE,
-  ROLES, USER_STATUSES,
-  VALID_IMAGE_TYPES
-} from '@/constants';
-import {UserAttributes, IMessageResponse} from '@/types';
-import {has, isNull, merge, uniq, isEmpty} from 'lodash';
+  COMMON_TYPES,
+  MESSAGES,
+  ROLE_TYPE,
+  ROLES,
+  USER_STATUSES,
+  VALID_IMAGE_TYPES,
+} from "@/constants";
+import { UserAttributes, IMessageResponse, SortOrder } from "@/types";
+import { has, isNull, merge, uniq, isEmpty } from "lodash";
 
 export default class UserService {
   private mailService: MailService;
@@ -38,13 +41,11 @@ export default class UserService {
     this.designModel = new DesignModel();
   }
 
-
   public create = async (
     authenticatedUser: UserAttributes,
     payload: IUserRequest
   ) => {
-
-    const user = await userRepository.findBy({email: payload.email});
+    const user = await userRepository.findBy({ email: payload.email });
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
@@ -69,16 +70,20 @@ export default class UserService {
       lastname: payload.lastname,
       gender: payload.gender,
       location_id: payload.location_id,
-      work_location: `${location.city_name}, ${location.country_name.toUpperCase()}`,
+      work_location: `${
+        location.city_name
+      }, ${location.country_name.toUpperCase()}`,
       department_id: department.id,
       position: payload.position,
       email: payload.email,
       phone: payload.phone,
-      phone_code: location.phone_code ?? '',
+      phone_code: location.phone_code ?? "",
       mobile: payload.mobile,
       role_id: payload.role_id,
       is_verified: false,
-      verification_token: await userRepository.generateToken('verification_token'),
+      verification_token: await userRepository.generateToken(
+        "verification_token"
+      ),
       type: authenticatedUser.type,
       relation_id: authenticatedUser.relation_id,
     });
@@ -88,15 +93,13 @@ export default class UserService {
     }
 
     return await this.get(createdUser.id, authenticatedUser);
-
-  }
+  };
 
   public get = async (
     userId: string,
     authenticatedUser: UserAttributes,
     withPermission: boolean = false
   ) => {
-
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -109,7 +112,9 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE);
     }
 
-    const permissions = withPermission ? await permissionService.getList(user.id, true) : undefined;
+    const permissions = withPermission
+      ? await permissionService.getList(user.id, true)
+      : undefined;
 
     const result = {
       id: user.id,
@@ -138,34 +143,32 @@ export default class UserService {
       permissions,
       retrieve_favourite: user.retrieve_favourite,
       interested: user.interested,
-    }
+    };
 
     if (user.type === ROLE_TYPE.BRAND) {
       const brand = await brandRepository.find(user.relation_id);
       return successResponse({
-        data: { ...result, brand }
+        data: { ...result, brand },
       });
     }
 
     if (user.type === ROLE_TYPE.DESIGN) {
       const design = await this.designModel.find(user.relation_id);
       return successResponse({
-        data: { ...result, design }
+        data: { ...result, design },
       });
     }
 
     return successResponse({
-      data: { ...result }
+      data: { ...result },
     });
-  }
-
+  };
 
   public update = async (
     userId: string,
     payload: IUserRequest,
     authenticatedUser: UserAttributes
   ) => {
-
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -191,7 +194,7 @@ export default class UserService {
     const updatedUser = await userRepository.update(user.id, {
       ...payload,
       department_id: department.id,
-      phone_code: location.phone_code ?? '',
+      phone_code: location.phone_code ?? "",
       work_location: location.city_name + ", " + location.country_name,
     });
     if (!updatedUser) {
@@ -199,28 +202,22 @@ export default class UserService {
     }
 
     return await this.get(user.id, authenticatedUser);
-  }
+  };
 
-  public updateMe = async (
-    user: UserAttributes,
-    payload: IUpdateMeRequest
-  ) => {
+  public updateMe = async (user: UserAttributes, payload: IUpdateMeRequest) => {
     const updatedUser = await userRepository.update(user.id, {
-      backup_email: payload.backup_email || '',
-      personal_mobile: payload.personal_mobile || '',
-      linkedin: payload.linkedin || '',
+      backup_email: payload.backup_email || "",
+      personal_mobile: payload.personal_mobile || "",
+      linkedin: payload.linkedin || "",
       interested: payload.interested || [],
     });
     if (!updatedUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
     return await this.get(user.id, user);
-  }
+  };
 
-  public delete = async (
-    userId: string,
-    authenticatedUser: UserAttributes
-  ) => {
+  public delete = async (userId: string, authenticatedUser: UserAttributes) => {
     if (userId === authenticatedUser.id) {
       return errorMessageResponse(MESSAGES.DELETE_CURRENT_USER);
     }
@@ -239,14 +236,14 @@ export default class UserService {
 
     await userRepository.delete(user.id);
     return successMessageResponse(MESSAGES.SUCCESS);
-  }
-
+  };
 
   public updateAvatar = async (user: UserAttributes, avatar: any) => {
-
     if (
       !avatar._data ||
-      !VALID_IMAGE_TYPES.find((item) => item === avatar.hapi.headers["content-type"])
+      !VALID_IMAGE_TYPES.find(
+        (item) => item === avatar.hapi.headers["content-type"]
+      )
     ) {
       return errorMessageResponse(MESSAGES.AVATAR_NOT_VALID);
     }
@@ -274,20 +271,23 @@ export default class UserService {
     });
 
     return successResponse({
-      data: { url: `/${filePath}` }
+      data: { url: `/${filePath}` },
     });
-  }
+  };
 
   public getList = async (
     authenticatedUser: UserAttributes,
     limit?: number,
     offset?: number,
-    sort?: string,
-    order?: "ASC" | "DESC",
+    sort?: any,
     _filter?: any
   ) => {
-
-    const result = await userRepository.getPagination(limit, offset, authenticatedUser.relation_id, sort, order);
+    const result = await userRepository.getPagination(
+      limit,
+      offset,
+      authenticatedUser.relation_id,
+      sort
+    );
 
     result.data = result.data.map((user: UserAttributes) => {
       return {
@@ -304,22 +304,20 @@ export default class UserService {
         avatar: user.avatar,
         created_at: user.created_at,
         phone_code: user.phone_code,
-      }
+      };
     });
     return successResponse({
       data: {
         users: result.data,
-        pagination: result.pagination
-      }
+        pagination: result.pagination,
+      },
     });
-
-  }
+  };
 
   public invite = async (
     userId: string,
     authenticatedUser: UserAttributes
   ): Promise<IMessageResponse> => {
-
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
@@ -329,11 +327,11 @@ export default class UserService {
     }
     await this.mailService.sendInviteEmailTeamProfile(user, authenticatedUser);
     return successMessageResponse(MESSAGES.SUCCESS);
-  }
+  };
 
-  public getBrandOrDesignTeamGroupByCountry = async ( relationId: string ) => {
-
-    const userWithLocations = await userRepository.getWithLocationAndDeparmentData(relationId);
+  public getBrandOrDesignTeamGroupByCountry = async (relationId: string) => {
+    const userWithLocations =
+      await userRepository.getWithLocationAndDeparmentData(relationId);
 
     const noLocationName = "Empty Location";
     let response: {
@@ -357,16 +355,20 @@ export default class UserService {
         mobile: userWithLocation.mobile,
         access_level: getAccessLevel(userWithLocation.role_id),
         status: userWithLocation.status,
-      }
+      };
 
-      const countryName = isNull(userWithLocation.locations) ? noLocationName : userWithLocation.locations.country_name;
-      let index = response.findIndex((item) => item.country_name === userWithLocation.locations.country_name);
+      const countryName = isNull(userWithLocation.locations)
+        ? noLocationName
+        : userWithLocation.locations.country_name;
+      let index = response.findIndex(
+        (item) => item.country_name === userWithLocation.locations.country_name
+      );
 
       if (index === -1) {
         response.push({
           country_name: countryName,
           users: [],
-          count: 0
+          count: 0,
         });
         index = response.length - 1;
       }
@@ -375,8 +377,8 @@ export default class UserService {
       response[index] = {
         ...response[index],
         users: merge(response[index].users, userData),
-        count: response[index].count + 1
-      }
+        count: response[index].count + 1,
+      };
     });
 
     return successResponse({ data: response });
@@ -398,7 +400,6 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
-
   };
 
   public getTiscTeamsProfile = async (brandId: string) => {
@@ -436,11 +437,10 @@ export default class UserService {
       {
         name: "CONSULTANT TEAMS",
         users: groupConsultantTeams,
-      }
+      },
     ];
     return successResponse({ data: result });
-
-  }
+  };
 }
 
 export const userService = new UserService();

@@ -1,9 +1,9 @@
 import UserModel from "@/model/user.models";
 import BaseRepository from "./base.repository";
 import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
-import { UserAttributes } from "@/types";
+import { SortOrder, UserAttributes } from "@/types";
 import { head } from "lodash";
-import {generateUniqueString} from '@/helper/common.helper';
+import { generateUniqueString } from "@/helper/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
@@ -30,10 +30,10 @@ class UserRepository extends BaseRepository<UserAttributes> {
     reset_password_token: null,
     status: USER_STATUSES.PENDING,
     type: ROLE_TYPE.TISC,
-    relation_id: 'TISC',
+    relation_id: "TISC",
     retrieve_favourite: false,
-    interested: []
-  }
+    interested: [],
+  };
 
   constructor() {
     super();
@@ -102,24 +102,21 @@ class UserRepository extends BaseRepository<UserAttributes> {
       if (!user) isDuplicated = false;
     } while (isDuplicated);
     return token;
-  }
+  };
 
   public getPagination = async (
     limit?: number,
     offset?: number,
     relationId?: string | null,
-    sort?: string,
-    order: "ASC" | "DESC" = "ASC"
+    sort?: any
   ) => {
     let query = this.getModel().getQuery();
     if (relationId) {
       query = query.where("relation_id", "==", relationId);
     }
-
-    if (sort && order) {
-      query = query.order(sort, order);
+    if (sort) {
+      query = query.order(sort[0], sort[1]);
     }
-
     if (limit && offset) {
       query.limit(limit, offset);
       return await query.paginate();
@@ -135,7 +132,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
       },
       data: response,
     };
-  }
+  };
 
   public getWithLocationAndDeparmentData = (relationId: string) => {
     const rawQuery = `
@@ -163,9 +160,8 @@ class UserRepository extends BaseRepository<UserAttributes> {
         }
     )`;
 
-    return this.model.rawQueryV2(rawQuery, {relationId});
-
-  }
+    return this.model.rawQueryV2(rawQuery, { relationId });
+  };
 
   public async getTeamProfile(ids: string[], keySelect: string[]) {
     return this.model
@@ -173,7 +169,6 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .whereIn("id", ids)
       .get();
   }
-
 }
 
 export const userRepository = new UserRepository();

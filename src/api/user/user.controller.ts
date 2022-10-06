@@ -1,18 +1,14 @@
-import {userService} from "./user.service";
+import { userService } from "./user.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 import {
   IAssignTeamRequest,
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import {
-  INTERESTED_IN_OPTIONS,
-} from "@/constant/common.constant";
+import { INTERESTED_IN_OPTIONS } from "@/constant/common.constant";
 
 export default class UserController {
-
-
   public create = async (
     req: Request & { payload: IUserRequest },
     toolkit: ResponseToolkit
@@ -26,32 +22,35 @@ export default class UserController {
     const user = req.auth.credentials.user as UserAttributes;
     const response = await userService.get(user.id, user, true);
     return toolkit.response(response).code(response.statusCode);
-  }
+  };
 
   public get = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.params.id;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await userService.get(userId, user);
     return toolkit.response(response).code(response.statusCode);
-  }
+  };
 
   public invite = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await userService.invite(id, user);
     return toolkit.response(response).code(response.statusCode);
-  }
+  };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, order } = req.query;
+    const { limit, offset, filter, sort } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
 
     const response = await userService.getList(
-      user, limit, offset,
-      sort, order, filter,
+      user,
+      limit,
+      offset,
+      sort,
+      filter
     );
     return toolkit.response(response).code(response.statusCode);
-  }
+  };
 
   public updateMe = async (
     req: Request & { payload: IUpdateMeRequest },
@@ -101,7 +100,7 @@ export default class UserController {
   ) => {
     const { brand_id } = req.params;
     const response = await userService.getBrandOrDesignTeamGroupByCountry(
-      brand_id,
+      brand_id
     );
     return toolkit.response(response).code(response.statusCode);
   };
@@ -111,7 +110,7 @@ export default class UserController {
   ) => {
     const { design_id } = req.params;
     const response = await userService.getBrandOrDesignTeamGroupByCountry(
-      design_id,
+      design_id
     );
     return toolkit.response(response).code(response.statusCode);
   };
