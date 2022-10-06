@@ -214,7 +214,6 @@ export const ROUTES = {
   UPDATE_STATUS_CONSIDER_PRODUCT: "/api/considered-product/update-status/{id}",
   DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{id}",
   GET_LIST_POLICY_LANDING_PAGE: "/api/documentation/get-list-policy",
-  GET_LIST_CODE_MATERIAL_CODE: "/api/material-code/get-list-code",
   FAVOURITE: {
     SKIP: "/api/favourite/skip",
     RETRIEVE: "/api/favourite/retrieve",
@@ -236,6 +235,14 @@ export const ROUTES = {
     FIND_CITY: "/api/setting/cities/{id}",
     GET_MEASUREMENT_UNIT: "/api/setting/measurement-units",
     GET_FUNCTIONAL_TYPE: "/api/setting/functional-type",
+  },
+  MATERIAL_CODE: {
+    GET_MATERIAL_CODES: "/api/material-code/get-list",
+    UPDATE_MATERIAL_CODE: "/api/material-code/update/{id}",
+    DELETE_MATERIAL_CODE: "/api/material-code/delete/{id}",
+    CREATE_MATERIAL_CODE: "/api/material-code/create",
+    GET_MATERIAL_CODE: "/api/material-code/get-one/{id}",
+    GET_LIST_CODE_MATERIAL_CODE: "/api/material-code/get-list-code",
   },
 };
 export const ROUTE_IDS = {

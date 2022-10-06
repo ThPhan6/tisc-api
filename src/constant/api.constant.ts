@@ -209,7 +209,7 @@ export const ROUTES = {
   GET_DISTRIBUTOR_GROUP_BY_COUNTRY:
     "/api/distributor/get-list-group-by-country",
   GET_ALL_PROJECT: "/api/project/get-all",
-  GET_MATERIAL_CODE_GROUP: "/api/material-code/get-list-group/{design_id}",
+  GET_MATERIAL_CODES: "/api/material-code/get-list",
   UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
   UPDATE_BRAND_STATUS: "/api/brand/update-status/{id}",
   GET_LIST_ASSIGNED_PROJECT:

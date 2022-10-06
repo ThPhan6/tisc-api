@@ -1,5 +1,5 @@
 import { MESSAGES } from "@/constant/common.constant";
-import { getSummaryTable, tosingleSpace } from "@/helper/common.helper";
+import { getSummaryTable, toSingleSpace } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successResponse,
@@ -27,7 +27,7 @@ export default class CategoryService {
   }
 
   public async create(payload: ICategoryRequest) {
-    payload.name = tosingleSpace(payload.name);
+    payload.name = toSingleSpace(payload.name);
     const mainCategory = await this.categoryRepository.findBy({
       name: payload.name,
     });
