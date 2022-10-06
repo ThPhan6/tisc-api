@@ -1,9 +1,10 @@
-import { MESSAGES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
@@ -175,6 +176,11 @@ class ProjectProductService {
         brands: undefined,
         users: undefined,
         collections: undefined,
+        user_product_specifications: undefined,
+        specification: el.user_product_specifications?.specification,
+        brand_location_id: el.user_product_specifications?.brand_location_id,
+        distributor_location_id:
+          el.user_product_specifications?.distributor_location_id,
       },
       assigned_name: `${el.users?.firstname || ""}${
         el.users?.lastname ? " " + el.users?.lastname : ""
@@ -226,18 +232,40 @@ class ProjectProductService {
   public updateConsiderProduct = async (
     projectProductId: string,
     payload: Partial<ProjectProductAttributes>,
-    specify?: boolean
+    relationId?: string // specifying
   ) => {
+    if (payload.unit_type_id) {
+      const unitTypes = await commonTypeRepository.findOrCreate(
+        payload.unit_type_id,
+        relationId || "",
+        COMMON_TYPES.PROJECT_UNIT
+      );
+      payload.unit_type_id = unitTypes.id;
+    }
+
+    if (payload.requirement_type_ids) {
+      const requirements = await Promise.all(
+        payload.requirement_type_ids.map((id) => {
+          return commonTypeRepository.findOrCreate(
+            id,
+            relationId || "",
+            COMMON_TYPES.PROJECT_REQUIREMENT
+          );
+        })
+      );
+      payload.requirement_type_ids = requirements.map((el) => el.id);
+    }
+
     const considerProduct = await projectProductRepository.findAndUpdate(
       projectProductId,
       {
         ...payload,
-        status: specify
+        status: relationId
           ? ProjectProductStatus.specify
           : ProjectProductStatus.consider,
         specified_status:
           payload.specified_status ??
-          (specify ? ProductSpecifyStatus.Specified : undefined),
+          (relationId ? ProductSpecifyStatus.Specified : undefined),
       }
     );
 
@@ -351,6 +379,7 @@ class ProjectProductService {
     const mappedProducts = specifiedProducts.map((el: any) => ({
       ...el.product,
       brand: el.brand,
+      collection: el.collection,
       specifiedDetail: {
         ...el.project_products,
         unit_type: el.unit_type?.name,
@@ -408,6 +437,7 @@ class ProjectProductService {
     const mappedProducts = specifiedProducts.map((el: any) => ({
       ...el.product,
       brand: el.brand,
+      collection: el.collection,
       specifiedDetail: {
         ...el.project_products,
         unit_type: el.unit_type?.name,
