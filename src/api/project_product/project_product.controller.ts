@@ -1,4 +1,5 @@
 import { userRepository } from "@/repositories/user.repository";
+import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
@@ -75,9 +76,7 @@ export default class ProjectProductController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const currentUserId = req.auth.credentials.user_id as string;
-
-    const user = await userRepository.find(currentUserId);
+    const user = req.auth.credentials.user as UserAttributes;
 
     const response = await projectProductService.updateConsiderProduct(
       id,
