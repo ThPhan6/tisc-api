@@ -47,7 +47,7 @@ export interface ILocationsResponse {
 
 export interface ILocationRequest {
   business_name: string;
-  business_number: string;
+  business_number?: string;
   functional_type_ids: string[];
   country_id: string;
   state_id: string;

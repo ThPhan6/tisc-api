@@ -35,20 +35,20 @@ export const FUNCTIONAL_TYPE: {
   OTHER: 3,
 };
 export const FUNCTIONAL_TYPE_OPTIONS: {
-  key: FunctionalTypeKey;
-  value: FunctionalTypeValue;
+  name: FunctionalTypeKey;
+  id: FunctionalTypeValue;
 }[] = [
   {
-    key: "Main office",
-    value: FUNCTIONAL_TYPE.MAIN_OFFICE,
+    name: "Main office",
+    id: FUNCTIONAL_TYPE.MAIN_OFFICE,
   },
   {
-    key: "Satellite office",
-    value: FUNCTIONAL_TYPE.SATELLITE_OFFICE,
+    name: "Satellite office",
+    id: FUNCTIONAL_TYPE.SATELLITE_OFFICE,
   },
   {
-    key: "Other",
-    value: FUNCTIONAL_TYPE.OTHER,
+    name: "Other",
+    id: FUNCTIONAL_TYPE.OTHER,
   },
 ];
 
@@ -60,15 +60,15 @@ export const MEASUREMENT_UNIT: {
   METRIC: 2,
 };
 export const MEASUREMENT_UNIT_OPTIONS: {
-  key: MeasurementUnitKey;
-  value: MeasurementUnitValue;
+  name: MeasurementUnitKey;
+  id: MeasurementUnitValue;
 }[] = [
   {
-    key: "Metric",
-    value: MEASUREMENT_UNIT.METRIC,
+    name: "Metric",
+    id: MEASUREMENT_UNIT.METRIC,
   },
   {
-    key: "Imperial",
-    value: MEASUREMENT_UNIT.IMPERIAL,
+    name: "Imperial",
+    id: MEASUREMENT_UNIT.IMPERIAL,
   },
 ];

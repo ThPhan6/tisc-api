@@ -77,7 +77,7 @@ export default {
   commonList: Joi.object({
     statusCode: Joi.number(),
     data: Joi.array().items({
-      id: Joi.string(),
+      id: Joi.string().allow(),
       name: Joi.string(),
     }),
   }) as any,
@@ -93,4 +93,8 @@ export default {
       }),
     }),
   }) as any,
+  responseIdIsNumber: Joi.array().items({
+    id: Joi.number(),
+    name: Joi.string(),
+  }),
 };

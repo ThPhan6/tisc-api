@@ -1,4 +1,3 @@
-import { commonResponse } from "./../../helper/response.helper";
 import * as Hapi from "@hapi/hapi";
 import SettingController from "./setting.controller";
 import IRoute from "@/helper/route.helper";
@@ -158,7 +157,7 @@ export default class SettingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: commonResponse.keyValueResponse,
+                200: response.responseIdIsNumber,
               },
             },
           },
@@ -174,7 +173,7 @@ export default class SettingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: commonResponse.keyValueResponse,
+                200: response.responseIdIsNumber,
               },
             },
           },

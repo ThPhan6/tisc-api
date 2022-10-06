@@ -58,7 +58,7 @@ export interface ICityAttributes {
 export interface ILocationAttributes {
   id: string;
   business_name: string;
-  business_number: string;
+  business_number?: string;
   functional_type_ids: string[];
   functional_type: string;
   country_id: string;

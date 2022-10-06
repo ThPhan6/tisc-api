@@ -1,6 +1,6 @@
 import LocationModel from "@/model/location.models";
 import BaseRepository from "./base.repository";
-import { ILocationAttributes } from "@/types";
+import { ILocationAttributes, SortOrder } from "@/types";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -15,7 +15,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     offset?: number,
     relationId?: string | null,
     sort?: string,
-    order: "ASC" | "DESC" = "ASC"
+    order: SortOrder = "ASC"
   ) => {
     let query = this.getModel().getQuery();
     if (relationId) {
