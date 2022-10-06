@@ -1,3 +1,4 @@
+import { userRepository } from "@/repositories/user.repository";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
@@ -58,6 +59,7 @@ export default class ProjectProductController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
+
     const response = await projectProductService.updateConsiderProduct(
       id,
       payload
@@ -73,11 +75,16 @@ export default class ProjectProductController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
+    const currentUserId = req.auth.credentials.user_id as string;
+
+    const user = await userRepository.find(currentUserId);
+
     const response = await projectProductService.updateConsiderProduct(
       id,
       payload,
-      true
+      user?.relation_id
     );
+
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
