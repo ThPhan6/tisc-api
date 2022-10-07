@@ -1,4 +1,5 @@
 import { FUNCTIONAL_TYPE_OPTIONS, MEASUREMENT_UNIT_OPTIONS } from "@/constants";
+import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { settingService } from "./setting.service";
 export default class SettingController {
@@ -64,4 +65,12 @@ export default class SettingController {
   ) => {
     return toolkit.response(FUNCTIONAL_TYPE_OPTIONS).code(200);
   };
+  public async getListInquiryFor(req: Request, toolkit: ResponseToolkit) {
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await settingService.getListInquiryFor(
+      11,
+      user.relation_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  }
 }

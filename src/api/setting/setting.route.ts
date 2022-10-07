@@ -178,6 +178,22 @@ export default class SettingRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.SETTING.GET_LIST_INQUIRY_REQUEST_FOR,
+          options: {
+            handler: controller.getListInquiryFor,
+            description: "Method that get list inquiry for",
+            tags: ["api", "Setting"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                // 200: response.,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
