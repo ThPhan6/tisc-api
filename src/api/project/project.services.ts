@@ -16,6 +16,7 @@ import { projectRepository } from "@/repositories/project.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { FindUserAndProjectResponse } from "@/types";
+import { uniq } from "lodash";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { IProjectRequest } from "./project.type";
 
@@ -217,6 +218,17 @@ class ProjectService {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
     }
 
+    if (payload.team_profile_ids.length) {
+      const userIds = uniq(payload.team_profile_ids);
+
+      const assignedTeam = await projectRepository.update(id, {
+        team_profile_ids: userIds,
+      });
+      return successResponse({
+        data: assignedTeam,
+      });
+    }
+
     const projectExisted = await projectRepository.getProjectExist(
       id,
       payload.code,
@@ -265,6 +277,8 @@ class ProjectService {
     }
 
     locationParts.push(countryStateCity.country_name);
+
+    //assign team
 
     const updatedProject = await projectRepository.update(id, {
       ...payload,
