@@ -31,7 +31,7 @@ const seed = async () => {
   // await seedInstructionType(db);
   // await seedUnitType(db);
   // await seedRole(db);
-  await seedDocument(db);
+  // await seedDocument(db);
   // await seedAutoEmail(db);
   // await seedCategory(db);
   // await seedPermission(db);
@@ -41,7 +41,7 @@ const seed = async () => {
   // await seedProjectType(db);
   // await seedUser(db);
   // await seedFinishScheduleFor(db);
-  // await seedCommonType(db);
+  await seedCommonType(db);
 };
 
 seed();
