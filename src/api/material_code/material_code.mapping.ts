@@ -101,31 +101,33 @@ export const mappingCheckDuplicatePayload = (payload: IMaterialCodeRequest) => {
 
 export const mappingMaterialCodeUpdate = (payload: IMaterialCodeRequest) => {
   return payload.subs.map((subMaterialCode) => {
-    const subMaterialCodes = subMaterialCode.codes.map((materialCode) => {
+    const materialCodes = subMaterialCode.codes.map((materialCode) => {
       if (materialCode.id) {
         return {
           ...materialCode,
           code: materialCode.code,
+          description: materialCode.description,
         };
       }
       return {
         ...materialCode,
         id: uuid(),
         code: materialCode.code,
+        description: materialCode.description,
       };
     });
     if (subMaterialCode.id) {
       return {
         ...subMaterialCode,
         name: subMaterialCode.name,
-        subs: subMaterialCodes,
+        codes: materialCodes,
       };
     }
     return {
       ...subMaterialCode,
       id: uuid(),
       name: subMaterialCode.name,
-      subs: subMaterialCodes,
+      codes: materialCodes,
     };
   });
 };

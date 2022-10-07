@@ -73,6 +73,12 @@ export default {
                   .trim()
                   .required()
                   .error(() => new Error("Code is missing")),
+                description: Joi.string()
+                  .trim()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Description is missing")
+                  ),
               })
               .required()
               .error(() => new Error("Code is missing")),
