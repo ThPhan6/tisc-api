@@ -5,11 +5,11 @@ import {
   commonResponse,
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
-import { ROUTES } from "@/constant/api.constant";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
+import { ROUTES } from "@/constants";
 export default class ProjectRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -161,6 +161,24 @@ export default class ProjectRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getProjectGroupByStatus,
+              },
+            },
+          },
+        },
+
+        {
+          method: "PATCH",
+          path: ROUTES.ASSIGN_TEAM_PROJECT,
+          options: {
+            handler: controller.update,
+            validate: validate.assignTeamProject,
+            description: "Method that assign team to project",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
               },
             },
           },

@@ -244,6 +244,7 @@ export const ROUTES = {
     GET_MATERIAL_CODE: "/api/material-code/get-one/{id}",
     GET_LIST_CODE_MATERIAL_CODE: "/api/material-code/get-list-code",
   },
+  ASSIGN_TEAM_PROJECT: "/api/project/{id}/assign-team",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
