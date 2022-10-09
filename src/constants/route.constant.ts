@@ -248,7 +248,7 @@ export const ROUTES = {
   ASSIGN_TEAM_PROJECT: "/api/project/{id}/assign-team",
   GENERAL_INQUIRY: {
     CREATE: "/api/general-inquiry",
-    GET_LIST: "/api/general-inquiry",
+    GET_LIST: "/api/general-inquiry/get-list",
   },
 };
 export const ROUTE_IDS = {

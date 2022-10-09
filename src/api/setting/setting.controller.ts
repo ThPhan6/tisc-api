@@ -65,9 +65,12 @@ export default class SettingController {
   ) => {
     return toolkit.response(FUNCTIONAL_TYPE_OPTIONS).code(200);
   };
-  public async getListInquiryFor(req: Request, toolkit: ResponseToolkit) {
+  public async getListInquiryOrRequestFor(
+    req: Request,
+    toolkit: ResponseToolkit
+  ) {
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await settingService.getListInquiryFor(
+    const response = await settingService.getListInquiryOrRequestFor(
       11,
       user.relation_id
     );

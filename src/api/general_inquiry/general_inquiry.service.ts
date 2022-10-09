@@ -1,9 +1,11 @@
+import { SortOrder } from "@/types";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
+  successMessageResponse,
 } from "@/helper/response.helper";
 import productRepository from "@/repositories/product.repository";
 import { GeneralInquiryRequest } from "./general_inquiry.type";
@@ -37,6 +39,25 @@ class GeneralInquiryService {
     return successResponse({
       data: createdGeneralInquiry,
     });
+  }
+
+  public async getList(
+    relationId: string,
+    limit: number,
+    offset: number,
+    sort: string,
+    order: SortOrder,
+    filter: any
+  ) {
+    const inquiries = await generalInquiryRepository.getListGeneralInquiry(
+      relationId,
+      limit,
+      offset,
+      sort,
+      order
+    );
+    console.log(inquiries, "[inquiries]");
+    return successMessageResponse("");
   }
 }
 export const generalInquiryService = new GeneralInquiryService();

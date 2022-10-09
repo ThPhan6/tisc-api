@@ -66,13 +66,13 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
   };
 
-  public async getListInquiryFor(type: number, relationId: string) {
-    return this.model
-      .select()
+  public async getListInquiryOrRequestFor(type: number, relationId: string) {
+    return (await this.model
+      .select("id", "name")
       .where("type", "==", type)
       .where("relation_id", "==", relationId)
       .orWhere("relation_id", "==", "")
-      .get();
+      .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
   }
 }
 

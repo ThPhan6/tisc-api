@@ -27,6 +27,23 @@ export default class GeneralInquiryRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GENERAL_INQUIRY.GET_LIST,
+          options: {
+            handler: controller.getList,
+            // validate: validate.getList,
+            description: "Method that get list general inquiry",
+            tags: ["api", "General Inquiry"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                // 200: response.getList,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
