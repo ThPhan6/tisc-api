@@ -99,7 +99,7 @@ class BrandService {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
     }
 
-    const officialWebsites = this.getOfficialWebsites(brand);
+    const officialWebsites = await this.getOfficialWebsites(brand);
 
     return successResponse({
       data: { ...brand, official_websites: officialWebsites },
