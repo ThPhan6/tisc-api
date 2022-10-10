@@ -1,37 +1,34 @@
-import MailService from "@/service/mail.service";
-import {
-  IUpdateMeRequest,
-  IUserRequest,
-  IAssignTeamRequest,
-} from "./user.type";
-import { upload, deleteFile } from "@/service/aws.service";
-import moment from "moment";
-
-import DesignModel from "@/model/designer.model";
-
-import { userRepository } from "@/repositories/user.repository";
-import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { locationRepository } from "@/repositories/location.repository";
-import { brandRepository } from "@/repositories/brand.repository";
 import { permissionService } from "@/api/permission/permission.service";
-import {
-  errorMessageResponse,
-  successResponse,
-  successMessageResponse,
-} from "@/helper/response.helper";
-
-import { validateRoleType } from "@/helper/user.helper";
-import { getAccessLevel } from "@/helper/common.helper";
 import {
   COMMON_TYPES,
   MESSAGES,
-  ROLE_TYPE,
   ROLES,
+  ROLE_TYPE,
   USER_STATUSES,
   VALID_IMAGE_TYPES,
 } from "@/constants";
-import { UserAttributes, IMessageResponse, SortOrder } from "@/types";
-import { has, isNull, merge, uniq, isEmpty } from "lodash";
+import { getAccessLevel } from "@/helper/common.helper";
+import {
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { validateRoleType } from "@/helper/user.helper";
+import DesignModel from "@/model/designer.model";
+import { brandRepository } from "@/repositories/brand.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { locationRepository } from "@/repositories/location.repository";
+import { userRepository } from "@/repositories/user.repository";
+import { deleteFile, upload } from "@/service/aws.service";
+import MailService from "@/service/mail.service";
+import { IMessageResponse, UserAttributes } from "@/types";
+import { isNull, uniq } from "lodash";
+import moment from "moment";
+import {
+  IAssignTeamRequest,
+  IUpdateMeRequest,
+  IUserRequest,
+} from "./user.type";
 
 export default class UserService {
   private mailService: MailService;
@@ -376,11 +373,10 @@ export default class UserService {
       // merge users
       response[index] = {
         ...response[index],
-        users: merge(response[index].users, userData),
+        users: [...response[index].users, userData],
         count: response[index].count + 1,
       };
     });
-
     return successResponse({ data: response });
   };
 
