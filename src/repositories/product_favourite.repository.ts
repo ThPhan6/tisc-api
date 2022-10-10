@@ -39,3 +39,4 @@ class ProductFavouriteRepository extends BaseRepository<ProductFavouriteAttribut
 }
 
 export default ProductFavouriteRepository;
+export const productFavouriteRepository = new ProductFavouriteRepository();

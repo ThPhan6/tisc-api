@@ -1,7 +1,7 @@
-import { ORDER_METHOD } from "@/constant/common.constant";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
 import * as Joi from "joi";
 import {
+  OrderMethod,
   ProductConsiderStatus,
   ProductSpecifyStatus,
 } from "./project_product.type";
@@ -92,7 +92,7 @@ export default {
               "Is refer to document is missing"
             )
           ),
-        specification_attribute_groups: Joi.array().items({
+        attribute_groups: Joi.array().items({
           id: Joi.string(),
           attributes: Joi.array().items({
             id: Joi.string(),
@@ -130,8 +130,8 @@ export default {
         .error(commonFailValidatedMessageFunction("Quantity is required")),
       unit_type_id: Joi.string().trim().allow(""),
       order_method: Joi.number().valid(
-        ORDER_METHOD.DIRECT_PURCHASE,
-        ORDER_METHOD.CUSTOM_ORDER
+        OrderMethod["Custom Order"],
+        OrderMethod["Direct Purchase"]
       ),
       requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),

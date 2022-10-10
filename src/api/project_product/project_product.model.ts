@@ -29,7 +29,7 @@ export interface ProjectProductAttributes {
   instruction_type_ids: string[];
   finish_schedule_ids: string[];
   unit_type_id: string;
-  special_instruction: string;
+  special_instructions: string;
   /// specification
   specification: ProductSpecificationSelection;
   /// allocation

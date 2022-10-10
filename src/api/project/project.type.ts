@@ -12,6 +12,7 @@ export interface IProjectRequest {
   design_due: string;
   construction_start: string;
   status: number;
+  team_profile_ids: string[];
 }
 
 export interface IProjectResponse {

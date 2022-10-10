@@ -1,3 +1,4 @@
+import { SortOrder } from "./../types/common.type";
 import {
   IMaterialCodeAttributes,
   ICodeAttribute,
@@ -41,6 +42,40 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     return result?._result[0] ?? null;
   }
 
+  public async getListMaterialCode(
+    mainMaterialCodeOrder: SortOrder,
+    designId?: string
+  ) {
+    let query = "";
+    if (designId) {
+      query += `FILTER material_codes.design_id == '${designId}'`;
+    }
+
+    query += `
+    FILTER material_codes.deleted_at == null
+    SORT material_codes.name ${mainMaterialCodeOrder}
+    LET subs = (
+      FOR sub IN material_codes.subs
+      RETURN {
+        id: sub.id,
+        name: sub.name,
+        count: count(sub.codes),
+        codes: sub.codes
+      }
+    )
+    return {
+      id: material_codes.id,
+      name: material_codes.name,
+      count: count(material_codes.subs),
+      subs : subs
+    }
+    `;
+    return (
+      ((await this.model.rawQuery(query, {})) as IMaterialCodeAttributes[]) ??
+      []
+    );
+  }
+
   public async getMaterialCodeWithCountByDesignId(designId: string) {
     const params = {
       designId,
@@ -74,12 +109,12 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
       userId,
     };
     const rawQuery = `
-    LET userRalationIds = (
+    LET userRelationIds = (
       FOR u IN users
       FILTER u.id == @userId
       RETURN u.relation_id
     )
-    FILTER material_codes.design_id IN userRalationIds
+    FILTER material_codes.design_id IN userRelationIds
     FOR sub IN material_codes.subs
     RETURN sub.codes
      `;
@@ -87,6 +122,20 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
       ((await this.model.rawQuery(rawQuery, params)) as ICodeAttribute[]) ?? [];
     return result.flat(Infinity);
   }
+
+  public async getExistedMaterialCode(
+    id: string,
+    designId: string,
+    name: string
+  ) {
+    return this.model
+      .where("id", "!=", id)
+      .where("design_id", "==", designId)
+      .where("name", "==", name)
+      .first();
+  }
 }
+
+export const materialCodeRepository = new MaterialCodeRepository();
 
 export default MaterialCodeRepository;

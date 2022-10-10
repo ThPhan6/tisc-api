@@ -2,12 +2,9 @@ import { MESSAGES } from "@/constant/common.constant";
 import {
   isDuplicatedString,
   sortObjectArray,
-  tosingleSpace,
+  toSingleSpace,
 } from "@/helper/common.helper";
-import {
-  ICategoryAttributes,
-  SubCategoryAttributes,
-} from "@/types/category.type";
+import { ICategoryAttributes } from "@/types/category.type";
 import { ICategoryRequest } from "./category.type";
 const uuid = require("uuid").v4;
 
@@ -33,7 +30,7 @@ export const mappingCategoryGroup = (
 export const checkCategoryDuplicateByName = (
   categoryGroup: ICategoryRequest
 ) => {
-  categoryGroup.name = tosingleSpace(categoryGroup.name);
+  categoryGroup.name = toSingleSpace(categoryGroup.name);
   if (
     isDuplicatedString(
       categoryGroup.subs.map((item) => {

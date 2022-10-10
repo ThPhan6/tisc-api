@@ -32,7 +32,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     instruction_type_ids: [],
     finish_schedule_ids: [],
     unit_type_id: "",
-    special_instruction: "",
+    special_instructions: "",
 
     allocation: [],
     entire_allocation: true,
@@ -51,13 +51,15 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     const now = new Date();
 
     return this.model.rawQueryV2(
-      `UPSERT {product_id: "${payload.product_id}", project_id: "${payload.project_id}, deleted_at: null"}
+      `UPSERT {product_id: @product_id, project_id: @project_id, deleted_at: null}
       INSERT @payloadWithId
       UPDATE @payload
       IN project_products
       RETURN { doc: NEW }
     `,
       {
+        product_id: payload.product_id,
+        project_id: payload.project_id,
         payloadWithId: {
           ...payload,
           id: uuidv4(),
@@ -85,6 +87,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       .join("brands", "brands.id", "==", "products.brand_id")
       .join("collections", "collections.id", "==", "products.collection_id")
       .join("users", "users.id", "==", "project_products.created_by")
+      .join(
+        "user_product_specifications",
+        "user_product_specifications.user_id",
+        "==",
+        "users.id"
+      )
       .get(true);
   };
 
@@ -114,6 +122,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER products.id == project_products.product_id  
       FOR brands IN brands 
       FILTER brands.id == products.brand_id  
+      FOR collections IN collections 
+      FILTER collections.id == products.collection_id  
       FOR users IN users 
       FILTER users.id == @userId  
       LET unit_type = (
@@ -140,8 +150,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       } 
       RETURN {
         project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-        product: KEEP(products, 'id', 'name', 'images'),
-        brand: KEEP(brands, 'id', 'name'),
+        product: KEEP(products, 'id', 'name', 'images', 'description'),
+        brand: KEEP(brands, 'id', 'name', 'logo'),
+        collection: KEEP(collections, 'id', 'name'),
         material_code: code[0],
         unit_type: unit_type[0]
       }
@@ -166,6 +177,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     FILTER products.id == project_products.product_id  
     FOR brands IN brands 
     FILTER brands.id == products.brand_id  
+    FOR collections IN collections 
+    FILTER collections.id == products.collection_id
     FOR users IN users 
     FILTER users.id == @userId
     LET code = (
@@ -178,9 +191,10 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     )
     RETURN {
       project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-      product: KEEP(products, 'id', 'name', 'images'),
-      brand: KEEP(brands, 'id', 'name'),
-      material_code: code[0],
+      product: KEEP(products, 'id', 'name', 'images', 'description'),
+      brand: KEEP(brands, 'id', 'name', 'logo'),
+      collection: KEEP(collections, 'id', 'name'),
+      material_code: code[0]
     }
     `,
       {

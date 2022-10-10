@@ -9,6 +9,12 @@ export const MESSAGES = {
     SOMETHING_WRONG_DELETE: "Something wrong delete !",
     BLOCKED: "Blocked!",
     INVITED: "Invited",
+    JUST_OWNER_CAN_UPDATE:
+      "You are not in this design firm. So you cannot update",
+    JUST_OWNER_CAN_DELETE:
+      "You are not in this design firm. So you cannot delete",
+    JUST_OWNER_CAN_CREATE:
+      "You are not in this design firm. So you cannot create",
   },
 
   FAVOURITE: {
@@ -87,6 +93,14 @@ export const MESSAGES = {
     NOT_FOUND_DOCUMENTATION: "Not found documentation !",
   },
 
+  MATERIAL_CODE: {
+    MAIN_MATERIAL_CODE_DUPLICATED: "Main material code duplicated",
+    SUB_MATERIAL_CODE_DUPLICATED: "Main material code duplicated",
+    MATERIAL_CODE_DUPLICATE: "Material code duplicated",
+    MATERIAL_CODE_NOT_FOUND: "Material code not found",
+    MATERIAL_CODE_EXISTED: "Material code is existed",
+    CAN_NOT_DELETE: "This material code is using, can't delete",
+  },
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
