@@ -80,6 +80,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         project_type: projects.project_type,
         building_type: projects.building_type,
         design_due: projects.design_due,
+        design_id: projects.design_id,
         status: projects.status,
         teams: users,
     }

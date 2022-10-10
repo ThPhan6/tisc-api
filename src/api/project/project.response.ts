@@ -30,6 +30,7 @@ export default {
         project_type: Joi.string(),
         building_type: Joi.string(),
         design_due: Joi.string(),
+        design_id: Joi.string(),
         status: Joi.number(),
         teams: Joi.array().items({
           id: Joi.string(),
