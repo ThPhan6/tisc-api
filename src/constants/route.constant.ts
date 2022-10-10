@@ -235,7 +235,6 @@ export const ROUTES = {
     FIND_CITY: "/api/setting/cities/{id}",
     GET_MEASUREMENT_UNIT: "/api/setting/measurement-units",
     GET_FUNCTIONAL_TYPE: "/api/setting/functional-type",
-    GET_LIST_INQUIRY_REQUEST_FOR: "/api/setting/inquiry-request-for",
   },
   MATERIAL_CODE: {
     GET_MATERIAL_CODES: "/api/material-code/get-list",
@@ -248,7 +247,9 @@ export const ROUTES = {
   ASSIGN_TEAM_PROJECT: "/api/project/{id}/assign-team",
   GENERAL_INQUIRY: {
     CREATE: "/api/general-inquiry",
-    GET_LIST: "/api/general-inquiry/get-list",
+    GET_LIST: "/api/general-inquiry",
+    SUMMARY: "/api/general-inquiry/summary",
+    GET_ONE: "/api/general-inquiry/{id}",
   },
 };
 export const ROUTE_IDS = {

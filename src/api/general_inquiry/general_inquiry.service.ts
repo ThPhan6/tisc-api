@@ -1,15 +1,16 @@
-import { SortOrder } from "@/types";
-import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
+import { UserAttributes } from "@/types";
 import { MESSAGES } from "@/constants";
+import { GENERAL_INQUIRY_STATUS } from "@/constants/general_inquiry.constant";
+import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successResponse,
-  successMessageResponse,
 } from "@/helper/response.helper";
+import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import productRepository from "@/repositories/product.repository";
+import { mappingGeneralInquiries } from "./general_inquiry.mapping";
 import { GeneralInquiryRequest } from "./general_inquiry.type";
-import { GENERAL_INQUIRY_STATUS } from "@/constants/general_inquiry.constant";
+import { uniq } from "lodash";
 class GeneralInquiryService {
   public async create(userId: string, payload: GeneralInquiryRequest) {
     const product = await productRepository.find(payload.product_id);
@@ -26,7 +27,7 @@ class GeneralInquiryService {
       product_id: product.id,
       title: payload.title,
       message: payload.message,
-      inquiry_for_ids: payload.inquiry_for_ids,
+      inquiry_for_id: payload.inquiry_for_id,
       status: GENERAL_INQUIRY_STATUS.PENDING,
       read: [],
       created_by: userId,
@@ -45,19 +46,62 @@ class GeneralInquiryService {
     relationId: string,
     limit: number,
     offset: number,
-    sort: string,
-    order: SortOrder,
-    filter: any
+    sort: any,
+    status: number
   ) {
-    const inquiries = await generalInquiryRepository.getListGeneralInquiry(
-      relationId,
-      limit,
-      offset,
-      sort,
-      order
+    const generalInquiries =
+      await generalInquiryRepository.getListGeneralInquiry(
+        relationId,
+        limit,
+        offset,
+        sort,
+        status
+      );
+
+    const allInquiry = await generalInquiryRepository.getAllInquiryBy(
+      relationId
     );
-    console.log(inquiries, "[inquiries]");
-    return successMessageResponse("");
+
+    const result = mappingGeneralInquiries(generalInquiries);
+
+    return successResponse({
+      data: {
+        general_inquiries: result,
+        pagination: pagination(limit, offset, allInquiry.length),
+      },
+    });
+  }
+
+  public async getSummary(relationId: string) {
+    const allInquiry = await generalInquiryRepository.getAllInquiryBy(
+      relationId
+    );
+
+    return {
+      inquires: allInquiry.length,
+
+      pending: allInquiry.filter(
+        (inquiry) => inquiry.status === GENERAL_INQUIRY_STATUS.PENDING
+      ).length,
+
+      responded: allInquiry.filter(
+        (inquiry) => inquiry.status === GENERAL_INQUIRY_STATUS.RESPONDED
+      ).length,
+    };
+  }
+
+  public async getOne(id: string, user: UserAttributes) {
+    const inquiry = await generalInquiryRepository.find(id);
+
+    if (!inquiry) {
+      return errorMessageResponse(MESSAGES.GENERAL_INQUIRY.NOT_FOUND, 404);
+    }
+    const userReadIds = uniq([...inquiry.read, user.id]);
+    console.log(userReadIds, "[userReadIds]");
+    const updatedUserRead = await generalInquiryRepository.update(id, {
+      read: userReadIds,
+    });
+    return errorMessageResponse("");
   }
 }
 export const generalInquiryService = new GeneralInquiryService();

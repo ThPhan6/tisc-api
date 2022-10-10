@@ -57,15 +57,6 @@ export default class SettingService {
       data: mappingCountryByRegion(countries),
     });
   };
-  public async getListInquiryOrRequestFor(type: number, relationId: string) {
-    const inquiriesFor = await commonTypeRepository.getListInquiryOrRequestFor(
-      type,
-      relationId
-    );
-    return successResponse({
-      data: inquiriesFor,
-    });
-  }
 
   public findOrCreateList = async (
     ids: string[],
