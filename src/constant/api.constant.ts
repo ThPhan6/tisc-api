@@ -250,6 +250,8 @@ export const ROUTES = {
     "/api/project-product/get-list-by-material/{project_id}",
   GET_SPECIFYING_PRODUCTS_BY_ZONE:
     "/api/project-product/get-list-by-zone/{project_id}",
+
+  CREATE_PRODUCT_REQUEST: "/api/project-tracking/request/create",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

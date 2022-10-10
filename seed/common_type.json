@@ -308,5 +308,15 @@
   { "type": 10, "name": "Operation & Project Management" },
   { "type": 10, "name": "Production & Manufacturing" },
   { "type": 10, "name": "Research & Development" },
-  { "type": 10, "name": "3rd Party & External Consultant" }
+  { "type": 10, "name": "3rd Party & External Consultant" },
+
+  { "type": 11, "name": "Brochure/Catalogue" },
+  { "type": 11, "name": "Demonstration & Performance Review" },
+  { "type": 11, "name": "Lunch & Learn" },
+  { "type": 11, "name": "Request Project Proposal" },
+  { "type": 11, "name": "Request Project Quotation" },
+  { "type": 11, "name": "Sample Submission" },
+  { "type": 11, "name": "Showroom Visit" },
+  { "type": 11, "name": "Technical Documentation" },
+  { "type": 11, "name": "Update Material Library & Resource Room" }
 ]
