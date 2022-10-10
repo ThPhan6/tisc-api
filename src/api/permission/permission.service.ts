@@ -1,1019 +1,153 @@
-import PermissionModel, {
-  PERMISSION_NULL_ATTRIBUTES,
-} from "../../model/permission.model";
-import UserModel from "../../model/user.model";
-import { ROLES } from "../../constant/user.constant";
+import {permissionRepository} from '@/repositories/permission.repository';
+import {companyPermissionRepository} from '@/repositories/company_permission.repository';
+import {userRepository} from '@/repositories/user.repository';
 import {
-  LOGO_PATH,
+  ROLES,
   MESSAGES,
-  SYSTEM_TYPE,
-} from "../../constant/common.constant";
+  ROLE_TYPE,
+} from '@/constants';
 import {
-  BRAND_PERMISSION_TITLE,
-  DESIGN_PERMISSION_TITLE,
-} from "../../constant/permission.constant";
-import { IPermissionsResponse } from "./permission.type";
-import { IMessageResponse } from "../../type/common.type";
-import { getAccessLevel } from "../../helper/common.helper";
-import { ROUTE_IDS } from "../../constant/api.constant";
+  errorMessageResponse,
+  successResponse,
+  successMessageResponse,
+} from '@/helper/response.helper';
+import {mappingPermission} from './permission.mapping';
+import {UserAttributes, RoleTypeValue} from '@/types';
+import {CompanyPermissionAttributes} from '@/model/company_permission.model';
+import {isEmpty} from 'lodash';
 
 export default class PermissionService {
-  private permissionModel: PermissionModel;
-  private userModel: UserModel;
-  constructor() {
-    this.permissionModel = new PermissionModel();
-    this.userModel = new UserModel();
+
+  private getRoles = (type: RoleTypeValue) => {
+
+    if (type === ROLE_TYPE.TISC) {
+      return [ROLES.TISC_ADMIN, ROLES.TISC_CONSULTANT_TEAM];
+    }
+
+    if (type === ROLE_TYPE.BRAND) {
+      return [ROLES.BRAND_ADMIN, ROLES.BRAND_TEAM];
+    }
+
+    return [ROLES.DESIGN_ADMIN, ROLES.DESIGN_TEAM];
   }
-  private makeSubItem = (sub: any, permissions: any[]) => {
-    const subs2 = permissions.filter(
-      (item) => item.parent_number === sub.number
-    );
-    if (subs2 && subs2[0]) {
-      return {
-        ...sub,
-        subs: subs2,
-      };
+
+  public getList = async (userId: string, withRole: boolean = false) => {
+
+    const user = await userRepository.find(userId);
+
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    return sub;
-  };
-  private makeList = (permissions: any[]) => {
-    const parents = permissions.filter(
-      (permission) => permission.parent_number === null
+
+    let companyPermissions = await companyPermissionRepository.getAllByCompanyIdAndRoleId(
+      user.relation_id,
+      withRole ? user.role_id : undefined
     );
-    if (!parents) {
-      return [];
+
+    if (isEmpty(companyPermissions)) {
+      await this.initPermission(user);
+      companyPermissions = await companyPermissionRepository.getAllByCompanyIdAndRoleId(
+        user.relation_id,
+        withRole ? user.role_id : undefined
+      );
     }
-    return parents.map((parent) => {
-      const subs = permissions.filter(
-        (permission) => permission.parent_number === parent.number
-      );
-      const newSubs = subs.map((sub) => this.makeSubItem(sub, permissions));
-      if (newSubs && newSubs[0]) {
-        return {
-          ...parent,
-          subs: newSubs,
-        };
-      }
-      return parent;
+
+    return successResponse({
+      data: mappingPermission(companyPermissions)
     });
-  };
-  public openClose = (id: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const permission = await this.permissionModel.find(id);
-      if (!permission) {
-        return resolve({
-          message: MESSAGES.PERMISSION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      if (
-        permission.role_id === ROLES.TISC_ADMIN ||
-        permission.role_id === ROLES.BRAND_ADMIN ||
-        permission.role_id === ROLES.DESIGN_ADMIN
-      ) {
-        return resolve({
-          message: "Cannot modify admin permission.",
-          statusCode: 400,
-        });
-      }
-      if (permission.accessable === true || permission.accessable === false) {
-        const newRoutes = permission.routes.map((route) => ({
-          ...route,
-          accessable: !route.accessable,
-        }));
-        await this.permissionModel.update(id, {
-          accessable: !permission.accessable,
-          routes: newRoutes,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  }
+
+  public openClose = async (id: string) => {
+
+    const companyPermission = await companyPermissionRepository.find(id);
+    if (!companyPermission) {
+      return errorMessageResponse(MESSAGES.PERMISSION_NOT_FOUND);
+    }
+    if (
+      companyPermission.role_id === ROLES.TISC_ADMIN ||
+      companyPermission.role_id === ROLES.BRAND_ADMIN ||
+      companyPermission.role_id === ROLES.DESIGN_ADMIN
+    ) {
+      return errorMessageResponse(MESSAGES.PERMISSION.NO_MODIFY_ADMIN_PERM);
+    }
+
+    await companyPermissionRepository.update(id, {
+      accessable: !companyPermission.accessable
     });
-  };
-  public getList = (
-    user_id: string
-  ): Promise<IPermissionsResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      let userPermissions = await this.permissionModel.getAllBy(
-        {
-          role_id: user.role_id,
-          type: user.type,
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public initPermission = async (user: UserAttributes) => {
+    const permissions = await permissionRepository.getAllBy({ type: user.type });
+    const roles = this.getRoles(user.type);
+    const data: Partial<CompanyPermissionAttributes>[] = [];
+    ///
+    permissions.forEach((permission) => {
+      roles.forEach((roleId) => {
+        data.push({
+          role_id: roleId,
           relation_id: user.relation_id,
-        },
-        undefined,
-        "number",
-        "ASC"
-      );
-      let adminPermissions = await this.permissionModel.getAllBy(
-        {
-          role_id:
-            user.type === SYSTEM_TYPE.TISC
-              ? ROLES.TISC_ADMIN
-              : user.type === SYSTEM_TYPE.BRAND
-              ? ROLES.BRAND_ADMIN
-              : ROLES.DESIGN_ADMIN,
-          type: user.type,
-          relation_id: user.relation_id,
-        },
-        undefined,
-        "number",
-        "ASC"
-      );
-
-      const teamPermissions = await this.permissionModel.getBy({
-        role_id:
-          user.type === SYSTEM_TYPE.TISC
-            ? ROLES.TISC_CONSULTANT_TEAM
-            : user.type === SYSTEM_TYPE.BRAND
-            ? ROLES.BRAND_TEAM
-            : ROLES.DESIGN_TEAM,
-        type: user.type,
-        relation_id: user.relation_id,
-      });
-      const permissions = userPermissions.map((item) => {
-        const adminPermission = adminPermissions.find(
-          (teamItem) => teamItem.name === item.name
-        );
-        const teamPermission = teamPermissions.find(
-          (teamItem) => teamItem.name === item.name
-        );
-        return {
-          logo: item.logo,
-          name: item.name,
-          accessable: item.accessable,
-          items: [
-            {
-              id: adminPermission?.id,
-              name: getAccessLevel(
-                user.type === SYSTEM_TYPE.TISC
-                  ? ROLES.TISC_ADMIN
-                  : user.type === SYSTEM_TYPE.BRAND
-                  ? ROLES.BRAND_ADMIN
-                  : ROLES.DESIGN_ADMIN
-              ),
-              accessable: adminPermission?.accessable,
-            },
-            {
-              id: teamPermission?.id,
-              name: getAccessLevel(
-                user.type === SYSTEM_TYPE.TISC
-                  ? ROLES.TISC_CONSULTANT_TEAM
-                  : user.type === SYSTEM_TYPE.BRAND
-                  ? ROLES.BRAND_TEAM
-                  : ROLES.DESIGN_TEAM
-              ),
-              accessable: teamPermission?.accessable,
-            },
-          ],
-          number: item.number,
-          parent_number: item.parent_number,
-        };
-      });
-
-      if (!permissions) {
-        return resolve({
-          data: [],
-          statusCode: 200,
+          permission_id: permission.id,
+          accessable: this.getRoleAccessable(roleId, permission.name)
         });
-      }
-      const result = this.makeList(permissions);
+      });
+    });
+    await companyPermissionRepository.multipleInsert(data);
+    return true;
+  }
 
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
-    });
-  };
+  private getRoleAccessable = (roleId: string, permissionName: string) => {
+    if (
+      roleId === ROLES.TISC_ADMIN ||
+      roleId === ROLES.BRAND_ADMIN ||
+      roleId === ROLES.DESIGN_ADMIN
+    ) {
+      return true;
+    }
 
-  public createBrandPermission = (brand_id: string): Promise<boolean> => {
-    return new Promise(async (resolve) => {
-      const permission = await this.permissionModel.findBy({
-        type: SYSTEM_TYPE.BRAND,
-        relation_id: brand_id,
-      });
-      if (permission) {
-        return resolve(false);
-      }
-      const records = [
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.MY_WORKSPACE,
-          name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
-          accessable: true,
-          number: 1,
-          routes: [
-            {
-              id: ROUTE_IDS.GET_LIST_PROJECT_CARD,
-              accessable: true,
-            },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.PRODUCT,
-          name: BRAND_PERMISSION_TITLE.PRODUCT,
-          accessable: true,
-          number: 2,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.GENERAL_INQUIRY,
-          name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
-          accessable: true,
-          number: 3,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_INQUIRY, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_INQUIRY, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.PROJECT_TRACKING,
-          name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
-          accessable: true,
-          number: 4,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.ADMINISTRATION,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION,
-          number: 5,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.BRAND,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE,
-          accessable: true,
-          number: 6,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.UPDATE_BRAND_PROFILE, accessable: true },
-            { id: ROUTE_IDS.UPDATE_BRAND_LOGO, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.LOCATION,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
-          accessable: true,
-          number: 7,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: true },
-            { id: ROUTE_IDS.EDIT_LOCATION, accessable: true },
-            { id: ROUTE_IDS.DELETE_LOCATION, accessable: true },
-            { id: ROUTE_IDS.CREATE_LOCATION, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.TEAM_PROFILE,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
-          accessable: true,
-          number: 8,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: true },
-            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.DISTRIBUTOR,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR,
-          accessable: true,
-          number: 9,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.CREATE_DISTRIBUTOR, accessable: true },
-            { id: ROUTE_IDS.UPDATE_DISTRIBUTOR, accessable: true },
-            { id: ROUTE_IDS.DELETE_DISTRIBUTOR, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_DISTRIBUTOR, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_DISTRIBUTOR, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.MARKET,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY,
-          accessable: true,
-          number: 10,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.UPDATE_MARKET_AVAILABILITY, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_MARKET_AVAILABILITY, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_MARKET_AVAILABILITY, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_ADMIN,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.SUBSCRIPTION,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION,
-          accessable: true,
-          number: 11,
-          parent_number: 5,
-          routes: [{ id: ROUTE_IDS.GET_ONE_SUBSCRIPTION, accessable: true }],
-        },
-        //brand team
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.MY_WORKSPACE,
-          name: BRAND_PERMISSION_TITLE.MY_WORKSPACE,
-          accessable: true,
-          number: 1,
-          routes: [
-            {
-              id: ROUTE_IDS.GET_LIST_PROJECT_CARD,
-              accessable: true,
-            },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.PRODUCT,
-          name: BRAND_PERMISSION_TITLE.PRODUCT,
-          accessable: true,
-          number: 2,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.GENERAL_INQUIRY,
-          name: BRAND_PERMISSION_TITLE.GENERAL_INQUIRES,
-          accessable: true,
-          number: 3,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_INQUIRY, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_INQUIRY, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.PROJECT_TRACKING,
-          name: BRAND_PERMISSION_TITLE.PROJECT_TRACKING,
-          accessable: true,
-          number: 4,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.ADMINISTRATION,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION,
-          number: 5,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.BRAND,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_BRAND_PROFILE,
-          accessable: false,
-          number: 6,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.UPDATE_BRAND_PROFILE, accessable: false },
-            { id: ROUTE_IDS.UPDATE_BRAND_LOGO, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.LOCATION,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
-          accessable: false,
-          number: 7,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: false },
-            { id: ROUTE_IDS.EDIT_LOCATION, accessable: false },
-            { id: ROUTE_IDS.DELETE_LOCATION, accessable: false },
-            { id: ROUTE_IDS.CREATE_LOCATION, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.TEAM_PROFILE,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
-          accessable: false,
-          number: 8,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: false },
-            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.DISTRIBUTOR,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_DISTRIBUTOR,
-          accessable: false,
-          number: 9,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.CREATE_DISTRIBUTOR, accessable: false },
-            { id: ROUTE_IDS.UPDATE_DISTRIBUTOR, accessable: false },
-            { id: ROUTE_IDS.DELETE_DISTRIBUTOR, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_DISTRIBUTOR, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_DISTRIBUTOR, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.MARKET,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_MARKET_AVAILABILITY,
-          accessable: false,
-          number: 10,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.UPDATE_MARKET_AVAILABILITY, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_MARKET_AVAILABILITY, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_MARKET_AVAILABILITY, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.BRAND_TEAM,
-          type: SYSTEM_TYPE.BRAND,
-          relation_id: brand_id,
-          logo: LOGO_PATH.SUBSCRIPTION,
-          name: BRAND_PERMISSION_TITLE.ADMINISTRATION_SUBSCRIPTION,
-          accessable: false,
-          number: 11,
-          parent_number: 5,
-          routes: [{ id: ROUTE_IDS.GET_ONE_SUBSCRIPTION, accessable: false }],
-        },
+    if (roleId === ROLES.TISC_CONSULTANT_TEAM) {
+      const noAdminAccessable = [
+        'Brands',
+        'Design Firms',
+        'Listing',
+        'Categories',
+        'Documentation',
+        'Locations',
+        'Team Profiles',
+        'Messages',
+        'Revenues',
       ];
-      await Promise.all(
-        records.map(async (record) => {
-          await this.permissionModel.create(record);
-        })
-      );
-      return resolve(true);
-    });
-  };
-  public createDesignPermission = (design_id: string): Promise<boolean> => {
-    return new Promise(async (resolve) => {
-      const permission = await this.permissionModel.findBy({
-        type: SYSTEM_TYPE.DESIGN,
-        relation_id: design_id,
-      });
-      if (permission) {
-        return resolve(false);
+      if (!noAdminAccessable.includes(permissionName)) {
+        return true;
       }
-      const records = [
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.MY_WORKSPACE,
-          name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
-          accessable: true,
-          number: 1,
-          routes: [{ id: ROUTE_IDS.GET_LIST_PROJECT_CARD, accessable: true }],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.FAVORITE,
-          name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
-          accessable: true,
-          number: 2,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.PRODUCT,
-          name: DESIGN_PERMISSION_TITLE.PRODUCT,
-          accessable: true,
-          number: 3,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.BRAND,
-          name: DESIGN_PERMISSION_TITLE.BRAND_PRODUCT,
-          accessable: true,
-          number: 15,
-          parent_number: 3,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.DESIGN,
-          name: DESIGN_PERMISSION_TITLE.CUSTOM_LIBRARY,
-          accessable: true,
-          number: 16,
-          parent_number: 3,
-          routes: [],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.PROJECT,
-          name: DESIGN_PERMISSION_TITLE.PROJECT,
-          accessable: true,
-          number: 4,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
-          accessable: true,
-          number: 5,
-          parent_number: 4,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: true },
-            { id: ROUTE_IDS.CREATE_PROJECT, accessable: true },
-            { id: ROUTE_IDS.UPDATE_PROJECT, accessable: true },
-            { id: ROUTE_IDS.DELETE_PROJECT, accessable: true },
-            { id: ROUTE_IDS.GET_PROJECT_SUMMARY, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
-          accessable: true,
-          number: 6,
-          parent_number: 5,
-          routes: [{ id: ROUTE_IDS.CREATE_PROJECT, accessable: true }],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
-          accessable: true,
-          number: 7,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.CREATE_PROJECT_ZONE, accessable: true },
-            { id: ROUTE_IDS.UPDATE_PROJECT_ZONE, accessable: true },
-            { id: ROUTE_IDS.DELETE_PROJECT_ZONE, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_PROJECT_ZONE, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PROJECT_ZONE, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
-          accessable: true,
-          number: 8,
-          parent_number: 5,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
-          accessable: true,
-          number: 9,
-          parent_number: 5,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.ADMINISTRATION,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
-          accessable: true,
-          number: 10,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.OFFICE,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
-          accessable: true,
-          number: 11,
-          parent_number: 10,
-          routes: [{ id: ROUTE_IDS.UPDATE_DESIGN_PROFILE, accessable: true }],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.LOCATION,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
-          accessable: true,
-          number: 12,
-          parent_number: 10,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: true },
-            { id: ROUTE_IDS.EDIT_LOCATION, accessable: true },
-            { id: ROUTE_IDS.DELETE_LOCATION, accessable: true },
-            { id: ROUTE_IDS.CREATE_LOCATION, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.TEAM_PROFILE,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
-          accessable: true,
-          number: 13,
-          parent_number: 10,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: true },
-            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_ADMIN,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.MATERIAL,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
-          accessable: true,
-          number: 14,
-          parent_number: 10,
-          routes: [
-            { id: ROUTE_IDS.CREATE_MATERIAL_CODE, accessable: true },
-            { id: ROUTE_IDS.UPDATE_MATERIAL_CODE, accessable: true },
-            { id: ROUTE_IDS.DELETE_MATERIAL_CODE, accessable: true },
-            { id: ROUTE_IDS.GET_LIST_MATERIAL_CODE, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_MATERIAL_CODE, accessable: true },
-          ],
-        },
-        // design team
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.MY_WORKSPACE,
-          name: DESIGN_PERMISSION_TITLE.MY_WORKSPACE,
-          accessable: true,
-          number: 1,
-          routes: [{ id: ROUTE_IDS.GET_LIST_PROJECT_CARD, accessable: true }],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.FAVORITE,
-          name: DESIGN_PERMISSION_TITLE.MY_FAVOURITE,
-          accessable: true,
-          number: 2,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.PRODUCT,
-          name: DESIGN_PERMISSION_TITLE.PRODUCT,
-          accessable: true,
-          number: 3,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.BRAND,
-          name: DESIGN_PERMISSION_TITLE.BRAND_PRODUCT,
-          accessable: true,
-          number: 15,
-          parent_number: 3,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PRODUCT, accessable: true },
-            { id: ROUTE_IDS.GET_ONE_PRODUCT, accessable: true },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.DESIGN,
-          name: DESIGN_PERMISSION_TITLE.CUSTOM_LIBRARY,
-          accessable: true,
-          number: 16,
-          parent_number: 3,
-          routes: [],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.PROJECT,
-          name: DESIGN_PERMISSION_TITLE.PROJECT,
-          accessable: true,
-          number: 4,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_LIST,
-          accessable: false,
-          number: 5,
-          parent_number: 4,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_PROJECT, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_PROJECT, accessable: false },
-            { id: ROUTE_IDS.CREATE_PROJECT, accessable: false },
-            { id: ROUTE_IDS.UPDATE_PROJECT, accessable: false },
-            { id: ROUTE_IDS.DELETE_PROJECT, accessable: false },
-            { id: ROUTE_IDS.GET_PROJECT_SUMMARY, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_BASIC,
-          accessable: false,
-          number: 6,
-          parent_number: 5,
-          routes: [{ id: ROUTE_IDS.CREATE_PROJECT, accessable: false }],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_ZONE,
-          accessable: false,
-          number: 7,
-          parent_number: 5,
-          routes: [
-            { id: ROUTE_IDS.CREATE_PROJECT_ZONE, accessable: false },
-            { id: ROUTE_IDS.UPDATE_PROJECT_ZONE, accessable: false },
-            { id: ROUTE_IDS.DELETE_PROJECT_ZONE, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_PROJECT_ZONE, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_PROJECT_ZONE, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_CONSIDERED_PRODUCT,
-          accessable: false,
-          number: 8,
-          parent_number: 5,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: null,
-          name: DESIGN_PERMISSION_TITLE.PROJECT_SPECIFIED_PRODUCT,
-          accessable: false,
-          number: 9,
-          parent_number: 5,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.ADMINISTRATION,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION,
-          accessable: false,
-          number: 10,
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.OFFICE,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_OFFICE_PROFILE,
-          accessable: false,
-          number: 11,
-          parent_number: 10,
-          routes: [{ id: ROUTE_IDS.UPDATE_DESIGN_PROFILE, accessable: false }],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.LOCATION,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_LOCATION,
-          accessable: false,
-          number: 12,
-          parent_number: 10,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_LOCATION, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_LOCATION_WITH_GROUP, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_LOCATION, accessable: false },
-            { id: ROUTE_IDS.EDIT_LOCATION, accessable: false },
-            { id: ROUTE_IDS.DELETE_LOCATION, accessable: false },
-            { id: ROUTE_IDS.CREATE_LOCATION, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.TEAM_PROFILE,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_TEAM_PROFILE,
-          accessable: false,
-          number: 13,
-          parent_number: 10,
-          routes: [
-            { id: ROUTE_IDS.GET_LIST_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.EDIT_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.DELETE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.CREATE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.SEND_INVITE_TEAM_PROFILE, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_PERMISSION, accessable: false },
-            { id: ROUTE_IDS.OPEN_CLOSE_PERMISSION, accessable: false },
-          ],
-        },
-        {
-          ...PERMISSION_NULL_ATTRIBUTES,
-          role_id: ROLES.DESIGN_TEAM,
-          type: SYSTEM_TYPE.DESIGN,
-          relation_id: design_id,
-          logo: LOGO_PATH.MATERIAL,
-          name: DESIGN_PERMISSION_TITLE.ADMINISTRATION_MATERIAL,
-          accessable: false,
-          number: 14,
-          parent_number: 10,
-          routes: [
-            { id: ROUTE_IDS.CREATE_MATERIAL_CODE, accessable: false },
-            { id: ROUTE_IDS.UPDATE_MATERIAL_CODE, accessable: false },
-            { id: ROUTE_IDS.DELETE_MATERIAL_CODE, accessable: false },
-            { id: ROUTE_IDS.GET_LIST_MATERIAL_CODE, accessable: false },
-            { id: ROUTE_IDS.GET_ONE_MATERIAL_CODE, accessable: false },
-          ],
-        },
+    }
+    if (roleId === ROLES.BRAND_TEAM) {
+      const noBrandAccessable = [
+        'Brand Profile',
+        'Locations',
+        'Team Profiles',
+        'Distributors',
+        'Market Availability',
+        'Subscription',
       ];
-      await Promise.all(
-        records.map(async (record) => {
-          await this.permissionModel.create(record);
-        })
-      );
-      return resolve(true);
-    });
-  };
+      if (!noBrandAccessable.includes(permissionName)) {
+        return true;
+      }
+    }
+    if (roleId === ROLES.DESIGN_TEAM) {
+      const noDesignAccessable = [
+        'Office Profile',
+        'Locations',
+        'Team Profiles',
+        'Material/Product Code',
+      ];
+      if (!noDesignAccessable.includes(permissionName)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
+export const permissionService = new PermissionService();

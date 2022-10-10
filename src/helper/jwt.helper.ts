@@ -31,7 +31,7 @@ export interface IDecodedToken {
   };
 }
 
-export const signAdminToken = (user_id: string) => {
+export const signJwtToken = (user_id: string) => {
   return Jwt.token.generate(
     {
       aud: "urn:audience:test",
@@ -39,96 +39,15 @@ export const signAdminToken = (user_id: string) => {
       user_id,
     },
     {
-      key: jwtConfig.jwtAdminSecret,
+      key: jwtConfig.jwtSecret,
       algorithm: "HS512",
     },
     {
       ttlSec: jwtConfig.ttlSec,
     }
   );
-};
+}
 
-export const signBrandAdminToken = (user_id: string) => {
-  return Jwt.token.generate(
-    {
-      aud: "urn:audience:test",
-      iss: "urn:issuer:test",
-      user_id,
-    },
-    {
-      key: jwtConfig.jwtBrandAdminSecret,
-      algorithm: "HS512",
-    },
-    {
-      ttlSec: jwtConfig.ttlSec,
-    }
-  );
-};
-export const signDesignAdminToken = (user_id: string) => {
-  return Jwt.token.generate(
-    {
-      aud: "urn:audience:test",
-      iss: "urn:issuer:test",
-      user_id,
-    },
-    {
-      key: jwtConfig.jwtDesignAdminSecret,
-      algorithm: "HS512",
-    },
-    {
-      ttlSec: jwtConfig.ttlSec,
-    }
-  );
-};
-
-export const signConsultantTeamToken = (user_id: string) => {
-  return Jwt.token.generate(
-    {
-      aud: "urn:audience:test",
-      iss: "urn:issuer:test",
-      user_id,
-    },
-    {
-      key: jwtConfig.jwtConsultantTeamSecret,
-      algorithm: "HS512",
-    },
-    {
-      ttlSec: jwtConfig.ttlSec,
-    }
-  );
-};
-export const signBrandTeamToken = (user_id: string) => {
-  return Jwt.token.generate(
-    {
-      aud: "urn:audience:test",
-      iss: "urn:issuer:test",
-      user_id,
-    },
-    {
-      key: jwtConfig.jwtBrandTeamSecret,
-      algorithm: "HS512",
-    },
-    {
-      ttlSec: jwtConfig.ttlSec,
-    }
-  );
-};
-export const signDesignTeamToken = (user_id: string) => {
-  return Jwt.token.generate(
-    {
-      aud: "urn:audience:test",
-      iss: "urn:issuer:test",
-      user_id,
-    },
-    {
-      key: jwtConfig.jwtDesignTeamSecret,
-      algorithm: "HS512",
-    },
-    {
-      ttlSec: jwtConfig.ttlSec,
-    }
-  );
-};
 
 export const decodedToken = (token: string): any => {
   try {
@@ -138,25 +57,8 @@ export const decodedToken = (token: string): any => {
   }
 };
 
-export const verifyAdminToken = (token: string): IVerifyTokenResponse => {
-  return verifyToken(decodedToken(token), jwtConfig.jwtAdminSecret);
-};
-export const verifyBrandAdminToken = (token: string): IVerifyTokenResponse => {
-  return verifyToken(decodedToken(token), jwtConfig.jwtBrandAdminSecret);
-};
-export const verifyDesignAdminToken = (token: string): IVerifyTokenResponse => {
-  return verifyToken(decodedToken(token), jwtConfig.jwtDesignAdminSecret);
-};
-export const verifyConsultantTeamToken = (
-  token: string
-): IVerifyTokenResponse => {
-  return verifyToken(decodedToken(token), jwtConfig.jwtConsultantTeamSecret);
-};
-export const verifyBrandTeamToken = (token: string): IVerifyTokenResponse => {
-  return verifyToken(decodedToken(token), jwtConfig.jwtBrandTeamSecret);
-};
-export const verifyDesignTeamToken = (token: string): IVerifyTokenResponse => {
-  return verifyToken(decodedToken(token), jwtConfig.jwtDesignTeamSecret);
+export const verifyJwtToken = (token: string): IVerifyTokenResponse => {
+  return verifyToken(decodedToken(token), jwtConfig.jwtSecret);
 };
 
 const verifyToken = (artifact: any, secret: string): IVerifyTokenResponse => {

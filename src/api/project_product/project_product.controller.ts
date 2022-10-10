@@ -1,0 +1,145 @@
+import { userRepository } from "@/repositories/user.repository";
+import { UserAttributes } from "@/types";
+import { Request, ResponseToolkit } from "@hapi/hapi";
+import { ProjectProductAttributes } from "./project_product.model";
+import { projectProductService } from "./project_product.service";
+import { AssignProductToProjectRequest } from "./project_product.type";
+
+export default class ProjectProductController {
+  public assignProductToProject = async (
+    req: Request & { payload: AssignProductToProjectRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const currentUserId = req.auth.credentials.user_id as string;
+    const upsertResponse = await projectProductService.assignProductToProduct(
+      req.payload,
+      currentUserId
+    );
+
+    return toolkit.response(upsertResponse).code(200);
+  };
+
+  public getProjectAssignZoneByProduct = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { product_id, project_id } = req.params;
+
+    const zoneResponse =
+      await projectProductService.getProjectAssignZoneByProduct(
+        project_id,
+        product_id
+      );
+
+    return toolkit.response(zoneResponse).code(zoneResponse.statusCode ?? 200);
+  };
+
+  public getConsideredProducts = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { zone_order, area_order, room_order, brand_order } = req.query;
+
+    const zoneResponse = await projectProductService.getConsideredProducts(
+      project_id,
+      zone_order,
+      area_order,
+      room_order,
+      brand_order
+    );
+
+    return toolkit.response(zoneResponse).code(zoneResponse.statusCode ?? 200);
+  };
+
+  public updateConsiderProduct = async (
+    req: Request & {
+      payload: Partial<ProjectProductAttributes>;
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+
+    const response = await projectProductService.updateConsiderProduct(
+      id,
+      payload
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public specifyProduct = async (
+    req: Request & {
+      payload: Partial<ProjectProductAttributes>;
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const response = await projectProductService.updateConsiderProduct(
+      id,
+      payload,
+      user?.relation_id
+    );
+
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public deleteConsiderProduct = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const response = await projectProductService.deleteConsiderProduct(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getSpecifiedProductsByBrand = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { brand_order } = req.query;
+    const response = await projectProductService.getSpecifiedProductsByBrand(
+      project_id,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getSpecifiedProductsByMaterial = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { brand_order, material_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await projectProductService.getSpecifiedProductsByMaterial(
+      userId,
+      project_id,
+      brand_order,
+      material_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getSpecifiedProductsByZone = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_id } = req.params;
+    const { zone_order, area_order, room_order, brand_order } = req.query;
+    const userId = req.auth.credentials.user_id as string;
+    const response = await projectProductService.getSpecifiedProductsByZone(
+      userId,
+      project_id,
+      zone_order,
+      area_order,
+      room_order,
+      brand_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+}

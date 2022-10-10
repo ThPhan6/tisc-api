@@ -125,6 +125,7 @@ export default {
         )
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
+      team_profile_ids: Joi.array().items(Joi.string()).allow(null),
     },
   },
   getWithDesignId: {
@@ -133,6 +134,16 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+  },
+  assignTeamProject: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project is required")),
+    },
+    payload: {
+      team_profile_ids: Joi.array().items(Joi.string()).allow(null),
     },
   },
 };

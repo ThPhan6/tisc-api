@@ -1,12 +1,15 @@
 import * as Hapi from "@hapi/hapi";
-import commonValidate from "../../validate/common.validate";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import commonValidate from "@/validate/common.validate";
+import IRoute from "@/helper/route.helper";
+import {
+  commonResponse,
+  defaultRouteOptionResponseStatus,
+} from "@/helper/response.helper";
+import { AUTH_NAMES } from "@/constant/auth.constant";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
+import { ROUTES } from "@/constants";
 export default class ProjectRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -65,54 +68,6 @@ export default class ProjectRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_PROJECT_TYPES,
-          options: {
-            handler: controller.getProjectTypes,
-            description: "Method that get project types",
-            tags: ["api", "Project"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getlistType,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.GET_BUILDING_TYPES,
-          options: {
-            handler: controller.getBuildingTypes,
-            description: "Method that get building types",
-            tags: ["api", "Project"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getlistType,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: "/api/project/measurement-units",
-          options: {
-            handler: controller.getMeasurementUnits,
-            description: "Method that get measurement units",
-            tags: ["api", "Project"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getMeasurementUnitOptions,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
           path: "/api/project/status",
           options: {
             handler: controller.getProjectStatus,
@@ -122,7 +77,7 @@ export default class ProjectRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getMeasurementUnitOptions,
+                200: commonResponse.keyValueResponse,
               },
             },
           },
@@ -206,6 +161,24 @@ export default class ProjectRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getProjectGroupByStatus,
+              },
+            },
+          },
+        },
+
+        {
+          method: "PATCH",
+          path: ROUTES.ASSIGN_TEAM_PROJECT,
+          options: {
+            handler: controller.update,
+            validate: validate.assignTeamProject,
+            description: "Method that assign team to project",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
               },
             },
           },

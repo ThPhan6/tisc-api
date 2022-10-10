@@ -15,6 +15,7 @@ const seedProjectType = require("./project_type.seed").seed;
 const seedFunctionType = require("./functional_type.seed").seed;
 const seedUser = require("./user.seed").seed;
 const seedFinishScheduleFor = require("./finish_schedule_for.seed").seed;
+const seedCommonType = require("./common_types.seed").seed;
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ const seed = async () => {
   // await seedInstructionType(db);
   // await seedUnitType(db);
   // await seedRole(db);
-  // await seedDocument(db);
+  await seedDocument(db);
   // await seedAutoEmail(db);
   // await seedCategory(db);
   // await seedPermission(db);
@@ -39,7 +40,8 @@ const seed = async () => {
   // await seedBuildingType(db);
   // await seedProjectType(db);
   // await seedUser(db);
-  await seedFinishScheduleFor(db);
+  // await seedFinishScheduleFor(db);
+  // await seedCommonType(db);
 };
 
 seed();

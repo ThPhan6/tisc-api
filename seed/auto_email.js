@@ -162,7 +162,8 @@ const seed = async (db) => {
 
         </html>
         `,
-        is_deleted: true,
+        deleted_at: moment(),
+        updated_at: moment(),
         created_at: moment(),
       },
       {
@@ -288,7 +289,8 @@ const seed = async (db) => {
         </body>
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
       {
@@ -414,7 +416,8 @@ const seed = async (db) => {
         </body>
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
       {
@@ -540,7 +543,8 @@ const seed = async (db) => {
         </body>
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
       {
@@ -684,7 +688,8 @@ const seed = async (db) => {
 
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
       {
@@ -832,7 +837,8 @@ const seed = async (db) => {
 
         </html>
         `,
-        is_deleted: true,
+        deleted_at: moment(),
+        updated_at: moment(),
         created_at: moment(),
       },
       {
@@ -978,7 +984,8 @@ const seed = async (db) => {
         </body>
         </html>
         `,
-        is_deleted: true,
+        deleted_at: moment(),
+        updated_at: moment(),
         created_at: moment(),
       },
       {
@@ -1124,7 +1131,8 @@ const seed = async (db) => {
         
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
       {
@@ -1270,7 +1278,8 @@ const seed = async (db) => {
         
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
       {
@@ -1416,7 +1425,8 @@ const seed = async (db) => {
         
         </html>
         `,
-        is_deleted: false,
+        deleted_at: null,
+        updated_at: null,
         created_at: moment(),
       },
     ];

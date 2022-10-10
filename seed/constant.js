@@ -463,35 +463,7 @@ const CATEGORY_NULL_ATTRIBUTES = {
   created_at: null,
   is_deleted: false,
 };
-const FUNCTIONAL_TYPE_NULL_ATTRIBUTES = {
-  id: null,
-  name: null,
-  created_at: null,
-  is_deleted: false,
-  type: 0,
-};
-const UNIT_TYPE_NULL_ATTRIBUTES = {
-  id: null,
-  name: null,
-  created_at: null,
-  is_deleted: false,
-  design_id: "0",
-};
-const REQUIREMENT_TYPE_NULL_ATTRIBUTES = {
-  id: null,
-  name: null,
-  created_at: null,
-  is_deleted: false,
-  design_id: "0",
-};
-const PROJECT_TYPE_NULL_ATTRIBUTES = {
-  id: "",
-  name: "",
-  created_at: "",
-  is_deleted: false,
-  type: 0,
-  relation_id: "",
-};
+
 const BASIS_NULL_ATTRIBUTES = {
   id: null,
   type: null,
@@ -551,7 +523,7 @@ const DOCUMENTATION_NULL_ATTRIBUTES = {
   created_at: null,
   created_by: null,
   updated_at: null,
-  is_deleted: false,
+  deleted_at: null,
 };
 const DOCUMENTATION_TYPES = {
   GENERAL: 1,
@@ -586,33 +558,33 @@ const LOGO_PATH = {
   OFFICE: "/logo/office.svg",
   MATERIAL: "/logo/material.svg",
 };
-const BUILDING_TYPE_NULL_ATTRIBUTES = {
-  id: "",
-  name: "",
-  created_at: "",
-  is_deleted: false,
-  type: 0,
-  relation_id: "",
+
+// const COMMON_TYPES = {
+//   SHARING_GROUP: 1,
+//   SHARING_PURPOSE: 2,
+// };
+
+const COMMON_TYPES = {
+  SHARING_GROUP: 1,
+  SHARING_PURPOSE: 2,
+  PROJECT_BUILDING: 3,
+  FINISH_SCHEDULES: 4,
+  COMPANY_FUNCTIONAL: 5,
+  PROJECT_INSTRUCTION: 6,
+  PROJECT_TYPE: 7,
+  PROJECT_REQUIREMENT: 8,
+  PROJECT_UNIT: 9,
+  DEPARTMENT: 10,
 };
 
 const COMMON_TYPES_ATTRIBUTES = {
   id: "",
   name: "",
   created_at: "",
-  is_deleted: false,
+  deleted_at: null,
+  updated_at: null,
   type: 0,
   relation_id: "",
-};
-const COMMON_TYPES = {
-  SHARING_GROUP: 1,
-  SHARING_PURPOSE: 2,
-};
-
-const FINISH_SCHEDULE_NULL_ATTRIBUTES = {
-  id: null,
-  name: null,
-  created_at: null,
-  is_deleted: false,
 };
 
 module.exports = {
@@ -628,7 +600,6 @@ module.exports = {
   DESIGN_NULL_ATTRIBUTES,
   DESIGN_STATUSES,
   CATEGORY_NULL_ATTRIBUTES,
-  FUNCTIONAL_TYPE_NULL_ATTRIBUTES,
   BASIS_NULL_ATTRIBUTES,
   BASIS_TYPES,
   DEPARTMENT_NULL_ATTRIBUTES,
@@ -638,11 +609,6 @@ module.exports = {
   DOCUMENTATION_NULL_ATTRIBUTES,
   DOCUMENTATION_TYPES,
   LOGO_PATH,
-  PROJECT_TYPE_NULL_ATTRIBUTES,
-  BUILDING_TYPE_NULL_ATTRIBUTES,
-  UNIT_TYPE_NULL_ATTRIBUTES,
-  REQUIREMENT_TYPE_NULL_ATTRIBUTES,
   COMMON_TYPES_ATTRIBUTES,
   COMMON_TYPES,
-  FINISH_SCHEDULE_NULL_ATTRIBUTES,
 };

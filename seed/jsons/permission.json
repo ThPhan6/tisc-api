@@ -1,0 +1,532 @@
+[
+
+
+	{
+		"logo": "/logo/my_workspace.svg",
+		"name": "MY WORKSPACE",
+		"parent_id": null,
+		"type": 1,
+		"routes": [
+			"/api/brand/get-list-card"
+		]
+	},
+	{
+		"logo": "/logo/user_group.svg",
+		"name": "USER GROUP",
+		"parent_id": null,
+		"type": 1,
+		"routes": [],
+		"subs": [{
+				"logo": "/logo/brand.svg",
+				"name": "Brands",
+				"parent_id": null,
+				"type": 1,
+				"routes": [
+					"/api/brand/summary",
+					"/api/brand/get-list",
+					"/api/brand/create",
+					"/api/team/get-list-group-team-profile",
+					"/api/team/assign/{brand_id}",
+					"/api/brand/get-one/{id}",
+					"/api/brand/statuses",
+					"/api/location/brand/{brand_id}",
+					"/api/team-profile/brand/{brand_id}",
+					"/api/distributor/get-list-group-by-country",
+					"/api/market-availability/get-list-group-by-collection/{brand_id}",
+					"/api/brand/update-status/{id}"
+				]
+			},
+			{
+				"logo": "/logo/design.svg",
+				"name": "Design Firms",
+				"parent_id": null,
+				"type": 1,
+				"routes": [
+					"/api/design/summary",
+					"/api/design/get-list",
+					"/api/location/design/{design_id}",
+					"/api/team-profile/design/{design_id}",
+					"/api/material-code/get-list-group/{design_id}",
+					"/api/project/get-list-group-by-status",
+					"/api/design/statuses",
+					"/api/design/get-one/{id}",
+					"/api/design/update-status/{id}"
+				]
+			}
+		]
+	},
+	{
+		"logo": "/logo/project.svg",
+		"name": "PROJECTS",
+		"parent_id": null,
+		"type": 1,
+		"routes": [],
+    "subs": [
+      {
+        "logo": "/logo/list.svg",
+    		"name": "Listing",
+    		"type": 1,
+    		"routes": []
+      }
+    ]
+	},
+	{
+		"logo": "/logo/product.svg",
+		"name": "PRODUCTS",
+		"parent_id": null,
+		"type": 1,
+		"routes": [],
+		"subs": [{
+				"logo": "/logo/category.svg",
+				"name": "Categories",
+				"type": 1,
+				"routes": [
+					"/api/category/get-list",
+					"/api/category/create",
+					"/api/category/get-one/{id}",
+					"/api/category/update/{id}",
+					"/api/category/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/basis.svg",
+				"name": "Basis",
+				"type": 1,
+				"routes": [
+					"/api/basis-conversion/get-list",
+					"/api/basis-conversion/create",
+					"/api/basis-conversion/get-one/{id}",
+					"/api/basis-conversion/update/{id}",
+					"/api/basis-conversion/delete/{id}",
+
+					"/api/basis-preset/get-list",
+					"/api/basis-preset/create",
+					"/api/basis-preset/get-one/{id}",
+					"/api/basis-preset/update/{id}",
+					"/api/basis-preset/delete/{id}",
+
+					"/api/basis-option/get-list",
+					"/api/basis-option/create",
+					"/api/basis-option/get-one/{id}",
+					"/api/basis-option/update/{id}",
+					"/api/basis-option/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/attribute.svg",
+				"name": "Attributes",
+				"type": 1,
+				"routes": [
+					"/api/attribute/get-list",
+					"/api/attribute/content-type/get-list",
+					"/api/attribute/create",
+					"/api/attribute/get-one/{id}",
+					"/api/attribute/update/{id}",
+					"/api/attribute/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/configuration.svg",
+				"name": "Configurations",
+				"type": 1,
+				"routes": [
+					"/api/brand/get-all-alphabet",
+					"/api/product/brand-product-summary/{brand_id}",
+					"/api/product/get-list",
+					"/api/product/get-one/{id}",
+					"/api/collection/get-list",
+					"/api/attribute/get-all",
+					"/api/product/sharing-purposes",
+					"/api/product-download/get-one/{product_id}",
+					"/api/product-tip/get-one/{product_id}",
+					"/api/product/get-list-rest-collection-product/{id}",
+					"/api/distributor/market/{product_id}",
+					"/api/location/brand/{brand_id}",
+					"/api/product-catelogue-download/get-one/{product_id}",
+					"/api/product-tip/create",
+					"/api/product-download/create",
+					"/api/product-catelogue-download/create",
+					"/api/product/update/{id}",
+					"/api/brand/get-one/{id}",
+					"/api/product/create",
+					"/api/product/like/{id}",
+					"/api/product/duplicate/{id}",
+					"/api/product/delete/{id}",
+					"/api/product/{id}/select-specification/get-list",
+					"/api/product/{id}/select-specification/update"
+				]
+			}
+		]
+	},
+	{
+		"logo": "/logo/administration.svg",
+		"name": "ADMINISTRATION",
+		"parent_id": null,
+		"type": 1,
+		"routes": [],
+		"subs": [{
+				"logo": "/logo/documentation.svg",
+				"name": "Documentation",
+				"type": 1,
+				"routes": [
+					"/api/documentation/get-list",
+					"/api/documentation/get-one/{id}",
+					"/api/documentation/update/{id}"
+				]
+			},
+			{
+				"logo": "/logo/location.svg",
+				"name": "Locations",
+				"type": 1,
+				"routes": [
+					"/api/location/get-list",
+					"/api/location/create",
+					"/api/location/get-one/{id}",
+					"/api/location/update/{id}",
+					"/api/location/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/team_profile.svg",
+				"name": "Team Profiles",
+				"type": 1,
+				"routes": [
+					"/api/team-profile/get-list",
+					"/api/location/get-list-with-country-group",
+					"/api/permission/get-list",
+					"/api/team-profile/create",
+					"/api/team-profile/invite/{id}",
+					"/api/team-profile/get-one/{id}",
+					"/api/team-profile/update/{id}",
+					"/api/team-profile/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/message.svg",
+				"name": "Messages",
+				"type": 1,
+				"routes": [
+					"/api/email-auto/get-list",
+					"/api/email-auto/get-list-topic",
+					"/api/email-auto/get-list-targeted-for",
+					"/api/email-auto/get-one/{id}",
+					"/api/email-auto/update/{id}"
+				]
+			},
+			{
+				"logo": "/logo/revenue.svg",
+				"name": "Revenues",
+				"type": 1,
+				"routes": []
+			}
+		]
+	},
+
+
+
+
+
+	{
+		"logo": "/logo/my_workspace.svg",
+		"name": "MY WORKSPACE",
+		"parent_id": null,
+		"type": 2,
+		"routes": []
+	},
+	{
+		"logo": "/logo/product.svg",
+		"name": "PRODUCTS",
+		"parent_id": null,
+		"type": 2,
+		"routes": [
+			"/api/product/brand-product-summary/{brand_id}",
+			"/api/product/get-list",
+			"/api/product/like/{id}",
+			"/api/product/share-via-email",
+			"/api/collection/get-list",
+			"/api/attribute/get-all",
+			"/api/distributor/market/{product_id}",
+			"/api/product/get-list-rest-collection-product/{id}",
+			"/api/product-tip/get-one/{product_id}",
+			"/api/product-download/get-one/{product_id}",
+			"/api/product/get-one/{product_id}",
+			"/api/location/brand/{brand_id}",
+			"/api/product/{id}/select-specification/get-list",
+			"/api/product/{id}/select-specification/update"
+		]
+	},
+	{
+		"logo": "/logo/general_inquires.svg",
+		"name": "GENERAL INQUIRES",
+		"parent_id": null,
+		"type": 2,
+		"routes": []
+	},
+	{
+		"logo": "/logo/project_tracking.svg",
+		"name": "PROJECT TRACKING",
+		"parent_id": null,
+		"type": 2,
+		"routes": []
+	},
+	{
+		"logo": "/logo/administration.svg",
+		"name": "ADMINISTRATION",
+		"parent_id": null,
+		"type": 2,
+		"routes": [],
+		"subs": [{
+				"logo": "/logo/brand.svg",
+				"name": "Brand Profile",
+				"type": 2,
+				"routes": [
+					"/api/brand/update-profile"
+				]
+			},
+			{
+				"logo": "/logo/location.svg",
+				"name": "Locations",
+				"type": 2,
+				"routes": [
+					"/api/location/get-list",
+					"/api/location/create",
+					"/api/location/get-one/{id}",
+					"/api/location/update/{id}",
+					"/api/location/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/team_profile.svg",
+				"name": "Team Profiles",
+				"type": 2,
+				"routes": [
+					"/api/team-profile/get-list",
+					"/api/location/get-list-with-country-group",
+					"/api/permission/get-list",
+					"/api/team-profile/create",
+					"/api/team-profile/invite/{id}",
+					"/api/team-profile/get-one/{id}",
+					"/api/team-profile/update/{id}",
+					"/api/team-profile/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/distributor.svg",
+				"name": "Distributors",
+				"type": 2,
+				"routes": [
+					"/api/distributor/get-list",
+					"/api/distributor/create",
+					"/api/distributor/get-one/{id}",
+					"/api/distributor/update/{id}",
+					"/api/distributor/delete/{id}"
+				]
+			},
+			{
+				"logo": "/logo/market_availability.svg",
+				"name": "Market Availability",
+				"type": 2,
+				"routes": [
+					"/api/market-availability/get-list",
+					"/api/market-availability/get-one/{id}",
+					"/api/market-availability/update/{id}"
+				]
+			},
+			{
+				"logo": "/logo/subscription.svg",
+				"name": "Subscription",
+				"type": 2,
+				"routes": [
+					"/api/market-availability/get-list",
+					"/api/market-availability/get-one/{id}",
+					"/api/market-availability/update/{id}"
+				]
+			}
+		]
+	},
+
+
+
+
+	{
+		"logo": "/logo/my_workspace.svg",
+		"name": "MY WORKSPACE",
+		"parent_id": null,
+		"type": 3,
+		"routes": []
+	},
+	{
+		"logo": "/logo/favourite.svg",
+		"name": "MY FAVOURITE",
+		"parent_id": null,
+		"type": 3,
+		"routes": [
+			"/api/favourite/product-summary",
+			"/api/favourite/product-list",
+			"/api/brand/get-list",
+			"/api/category/get-list",
+			"/api/favourite/product-list",
+			"/api/product/like",
+			"/api/product/assign",
+			"/api/project/get-all",
+			"/api/considered-product/get-list-assigned",
+			"/api/product/sharing-purposes",
+			"/api/product/sharing-groups",
+			"/api/product/share-via-email",
+			"/api/collection/get-list",
+			"/api/attribute/get-all",
+			"/api/distributor/market/{product_id}",
+			"/api/product/get-list-rest-collection-product",
+			"/api/product-tip/get-one",
+			"/api/product-download/get-one",
+			"/api/product/get-one",
+			"/api/location/brand"
+		]
+	},
+	{
+		"logo": "/logo/product.svg",
+		"name": "PRODUCTS",
+		"parent_id": null,
+		"type": 3,
+		"routes": [
+			"/api/brand/get-list",
+			"/api/category/get-list",
+			"/api/product/design/get-list",
+			"/api/product/share-via-email",
+			"/api/collection/get-list",
+			"/api/attribute/get-all",
+			"/api/distributor/market/{product_id}",
+			"/api/product/get-list-rest-collection-product/{id}",
+			"/api/product-tip/get-one/{product_id}",
+			"/api/product-download/get-one/{product_id}",
+			"/api/product/get-one/{id}",
+			"/api/location/brand/{brand_id}",
+			"/api/product/{id}/select-specification/get-list",
+			"/api/product/{id}/select-specification/update"
+		]
+	},
+	{
+		"logo": "/logo/project.svg",
+		"name": "PROJECTS",
+		"parent_id": null,
+		"type": 3,
+		"routes": [],
+    "subs": [
+      {
+        "logo": null,
+        "name": "Overal Listing",
+        "type": 3,
+        "routes": [
+          "/api/project/get-summary",
+    			"/api/project/get-list",
+          "/api/project/delete"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Basic Information",
+        "type": 3,
+        "routes": [
+          "/api/project/get-summary",
+    			"/api/project/get-list",
+    			"/api/project/measurement-units",
+    			"/api/project/create",
+    			"/api/project/get-one"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Zone/Area/Room",
+        "type": 3,
+        "routes": [
+          "/api/project-zone/get-list",
+    			"/api/project-zone/create",
+    			"/api/project-zone/update",
+    			"/api/project-zone/delete"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Product Considered",
+        "type": 3,
+        "routes": [
+          "/api/considered-product/update-status",
+    			"/api/material-code/get-list-code",
+    			"/api/specified-product/get-one",
+    			"/api/product/get-one",
+    			"/api/considered-product/get-list-assigned",
+    			"/api/distributor/market",
+    			"/api/location/brand/{brand_id}",
+    			"/api/specified-product/specify",
+    			"/api/considered-product/delete",
+    			"/api/product/share-via-email",
+    			"/api/specified-product/get-list-brand",
+    			"/api/specified-product/update-status",
+    			"/api/specified-product/get-list-material",
+    			"/api/specified-product/get-list-zone",
+    			"/api/specified-product/delete"
+        ]
+      },
+      {
+        "logo": null,
+        "name": "Product Specified",
+        "type": 3,
+        "routes": [
+          "/api/considered-product/update-status",
+    			"/api/material-code/get-list-code",
+    			"/api/specified-product/get-one",
+    			"/api/product/get-one",
+    			"/api/considered-product/get-list-assigned",
+    			"/api/distributor/market",
+    			"/api/location/brand/{brand_id}",
+    			"/api/specified-product/specify",
+    			"/api/considered-product/delete",
+    			"/api/product/share-via-email",
+    			"/api/specified-product/get-list-brand",
+    			"/api/specified-product/update-status",
+    			"/api/specified-product/get-list-material",
+    			"/api/specified-product/get-list-zone",
+    			"/api/specified-product/delete"
+        ]
+      }
+    ]
+	},
+	{
+		"logo": "/logo/administration.svg",
+		"name": "ADMINISTRATION",
+		"parent_id": null,
+		"type": 3,
+		"routes": [],
+		"subs": [{
+				"logo": "/logo/office.svg",
+				"name": "Office Profile",
+				"type": 3,
+				"routes": []
+			},
+			{
+				"logo": "/logo/office.svg",
+				"name": "Office Profile",
+				"type": 3,
+				"routes": []
+			},
+			{
+				"logo": "/logo/location.svg",
+				"name": "Locations",
+				"type": 3,
+				"routes": []
+			},
+			{
+				"logo": "/logo/team_profile.svg",
+				"name": "Team Profiles",
+				"type": 3,
+				"routes": []
+			},
+			{
+				"logo": "/logo/material.svg",
+				"name": "Material/Product Code",
+				"type": 3,
+				"routes": []
+			}
+		]
+	}
+]

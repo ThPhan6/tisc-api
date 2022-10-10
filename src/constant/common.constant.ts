@@ -19,7 +19,6 @@ import {
   BrandStatusValue,
   DesignStatusKey,
   DesignStatusValue,
-  BasisType,
   AttributeType,
   DocumentationType,
   SpecifiedProductStatusValue,
@@ -124,30 +123,19 @@ export const MESSAGES = {
   COLLECTION_EXISTED: "Collection existed.",
   PRODUCT_EXISTED: "Product existed.",
   ATTRIBUTE_EXISTED: "Attribute existed.",
-  BASIS_OPTION_EXISTED: "Basis option existed.",
-  BASIS_PRESET_EXISTED: "Basis preset existed.",
   ATTRIBUTE_DUPLICATED: "Attributes duplicated.",
-  BASIS_OPTION_DUPLICATED: "Basis option names duplicated.",
-  BASIS_PRESET_DUPLICATED: "Basis preset names duplicated.",
   GROUP_ATTRIBUTE_DUPLICATED: "Attribute groups duplicated.",
   ATTRIBUTE_NOT_FOUND: "Attribute not found",
-  BASIS_CONVERSION_EXISTED: "Basis conversion existed",
-  BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
-  BASIS_NOT_FOUND: "Basis not found",
-  BASIS_CONVERSION_GROUP_DUPLICATED: "Basis conversion group duplicated.",
-  BASIS_CONVERSION_DUPLICATED: "Conversion duplicated.",
   CATEGORY_DUPLICATED: "Category duplicated",
   SUB_CATEGORY_DUPLICATED: "Sub category duplicated",
   MAIN_CATEGORY_DUPLICATED: "Main category duplicated",
   IMAGE_INVALID: "Image invalid",
-  BASIS_OPTION_NOT_FOUND: "Basis option not found",
   LOCATION_NOT_FOUND: "Location not found",
   PRODUCT_NOT_FOUND: "Product not found",
   PRODUCT_DUPLICATED: "Product duplicated",
   PRODUCT_TIP_NOT_FOUND: "Product tip not found",
   PRODUCT_TIP_EXISTED: "Product tip existed",
   CONTENT_TIP_MAX_WORDS: "Content max 100 words",
-  BASIS_PRESET_NOT_FOUND: "Basis preset not found",
   COLLECTION_NOT_FOUND: "Collection not found",
   CANNOT_DELETE_COLLECTION_HAS_PRODUCT:
     "Cannot delete collection has products.",
@@ -160,8 +148,6 @@ export const MESSAGES = {
   BRAND_EXISTED: "Brand existed",
   DISTRIBUTOR_NOT_FOUND: "Distributor not found",
   DISTRIBUTOR_EXISTED: "Distributor existed",
-  MARKET_AVAILABILITY_EXISTED: "Market availability existed",
-  MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
 
   PRODUCT_CATELOGUE_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND: "Product download not found",
@@ -218,15 +204,6 @@ export const MESSAGES = {
     "Can not remove because product is specifying in a project",
 };
 
-export const BASIS_TYPES: {
-  CONVERSION: BasisType;
-  PRESET: BasisType;
-  OPTION: BasisType;
-} = {
-  CONVERSION: 1,
-  PRESET: 2,
-  OPTION: 3,
-};
 export const ATTRIBUTE_TYPES: {
   GENERAL: AttributeType;
   FEATURE: AttributeType;
@@ -236,9 +213,6 @@ export const ATTRIBUTE_TYPES: {
   FEATURE: 2,
   SPECIFICATION: 3,
 };
-
-export const LONG_TEXT_ID = "aa4d21fe-c19b-40e3-aeaa-27423d794e27";
-export const SHORT_TEXT_ID = "66d7e3c1-1c8f-4743-99bf-f607d5379504";
 
 export const BASIS_OPTION_STORE = "basis-option";
 
@@ -341,6 +315,8 @@ export const REGION_KEY: {
   NORTH_AMERICA: RegionKey;
   OCEANIA: RegionKey;
   SOUTH_AMERICA: RegionKey;
+  AMERICAS: RegionKey;
+  NORTHERN_AMERICA: RegionKey;
 } = {
   AFRICA: "africa",
   ASIA: "asia",
@@ -348,6 +324,8 @@ export const REGION_KEY: {
   NORTH_AMERICA: "north america",
   OCEANIA: "oceania",
   SOUTH_AMERICA: "south america",
+  AMERICAS: "americas",
+  NORTHERN_AMERICA: "northern_america",
 };
 
 export const LOGO_PATH = {

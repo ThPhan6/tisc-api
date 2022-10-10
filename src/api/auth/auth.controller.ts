@@ -7,7 +7,7 @@ import {
   IRegisterRequest,
   IResetPasswordRequest,
 } from "./auth.type";
-import { SYSTEM_TYPE } from "../../constant/common.constant";
+import { SYSTEM_TYPE } from "@/constant/common.constant";
 
 export default class AuthController {
   private authService: AuthService;

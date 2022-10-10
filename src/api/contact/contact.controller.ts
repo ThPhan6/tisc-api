@@ -1,6 +1,6 @@
 import { IContactRequest } from "./contact.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import ContactService from "./contact.service";
+import ContactService from "./contact.services";
 export default class ContactController {
   private service: ContactService;
   constructor() {

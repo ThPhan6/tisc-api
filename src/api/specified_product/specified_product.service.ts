@@ -1,39 +1,35 @@
-import {
-  MESSAGES,
-  SPECIFIED_PRODUCT_STATUS,
-} from "../../constant/common.constant";
+import { MESSAGES, SPECIFIED_PRODUCT_STATUS } from "@/constant/common.constant";
 import {
   getDistinctArray,
   getSpecifiedProductStatusName,
   sortObjectArray,
-} from "../../helper/common.helper";
-import AttributeModel from "../../model/attribute.model";
-import BasisModel from "../../model/basis.model";
-import BrandModel from "../../model/brand.model";
-import CollectionModel from "../../model/collection.model";
+} from "@/helper/common.helper";
+import BasisModel from "@/model/basis.model";
+import BrandModel from "@/model/brand.model";
+import CollectionModel from "@/model/collection.model";
 import ConsideredProductModel, {
   IConsideredProductAttributes,
-} from "../../model/considered_product.model";
-import FinishScheduleModel from "../../model/finish_schedule_for.model";
-import InstructionTypeModel from "../../model/instruction_type.model";
-import MaterialCodeModel from "../../model/material_code.model";
-import ProductModel from "../../model/product.model";
-import ProjectModel from "../../model/project.model";
-import ProjectZoneModel from "../../model/project_zone.model";
+} from "@/model/considered_product.model";
+import FinishScheduleModel from "@/model/finish_schedule_for.model";
+import InstructionTypeModel from "@/model/instruction_type.model";
+import ProductModel from "@/model/product.model";
+import ProjectModel from "@/model/project.model";
+import ProjectZoneModel from "@/model/project_zone.model";
 import RequirementTypeModel, {
   REQUIREMENT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/requirement_type.model";
+} from "@/model/requirement_type.model";
 import SpecifiedProductModel, {
   ISpecifiedProductAttributes,
   SPECIFIED_PRODUCT_NULL_ATTRIBUTES,
-} from "../../model/specified_product.model";
+} from "@/model/specified_product.model";
 import UnitTypeModel, {
   UNIT_TYPE_NULL_ATTRIBUTES,
-} from "../../model/unit_type.model";
-import UserModel from "../../model/user.model";
-import { IMessageResponse, SortOrder } from "../../type/common.type";
+} from "@/model/unit_type.model";
+import UserModel from "@/model/user.model";
+import MaterialCodeRepository from "@/repositories/material_code.repository";
+import { IMessageResponse, SortOrder } from "@/type/common.type";
 import { IRoom } from "../considered_product/considered_product.type";
-import ProductService from "../product/product.service";
+import { productService } from "../product/product.services";
 import {
   IInstructionTypesResponse,
   IRequirementTypesResponse,
@@ -53,12 +49,10 @@ export default class SpecifiedProductService {
   private productModel: ProductModel;
   private brandModel: BrandModel;
   private collectionModel: CollectionModel;
-  private materialCodeModel: MaterialCodeModel;
   private projectZoneModel: ProjectZoneModel;
-  private attributeModel: AttributeModel;
   private basisModel: BasisModel;
-  private productService: ProductService;
   private finishScheduleModel: FinishScheduleModel;
+  private materialCodeRepository: MaterialCodeRepository;
   constructor() {
     this.consideredProductModel = new ConsideredProductModel();
     this.specifiedProductModel = new SpecifiedProductModel();
@@ -70,12 +64,10 @@ export default class SpecifiedProductService {
     this.productModel = new ProductModel();
     this.brandModel = new BrandModel();
     this.collectionModel = new CollectionModel();
-    this.materialCodeModel = new MaterialCodeModel();
     this.projectZoneModel = new ProjectZoneModel();
-    this.attributeModel = new AttributeModel();
     this.basisModel = new BasisModel();
-    this.productService = new ProductService();
     this.finishScheduleModel = new FinishScheduleModel();
+    this.materialCodeRepository = new MaterialCodeRepository();
   }
   private countStatusSpecifiedProduct = (
     specified_products: ISpecifiedProductAttributes[]
@@ -297,9 +289,10 @@ export default class SpecifiedProductService {
         })
       );
 
-      const materialCode = await this.materialCodeModel.getSubMaterialCodeById(
-        payload.material_code_id
-      );
+      const materialCode =
+        await this.materialCodeRepository.getSubMaterialCodeById(
+          payload.material_code_id
+        );
 
       if (!specifiedProduct) {
         //create
@@ -349,7 +342,7 @@ export default class SpecifiedProductService {
           variant: payload.variant,
         }
       );
-      const assign = await this.productService.assign(user_id, {
+      const assign = await productService.assign(user_id, {
         considered_product_id: payload.considered_product_id,
         is_entire: payload.is_entire,
         product_id: consideredProduct.product_id,

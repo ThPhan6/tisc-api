@@ -1,4 +1,5 @@
-import { IPagination } from "./../../type/common.type";
+import { IAutoEmailAttributes } from "@/types/auto_email.type";
+import { IPagination } from "@/types";
 export interface IUpdateAutoEmailRequest {
   topic: number;
   targeted_for: number;
@@ -7,27 +8,13 @@ export interface IUpdateAutoEmailRequest {
 }
 
 export interface IAutoEmailResponse {
-  data: {
-    id: string;
-    topic: number;
-    targeted_for: number;
-    title: string;
-    message: string;
-    created_at: string;
-  };
+  data: IAutoEmailAttributes;
   statusCode: number;
 }
 
 export interface IAutoEmailsResponse {
   data: {
-    auto_emails: {
-      id: string;
-      topic: number;
-      targeted_for: number;
-      title: string;
-      message: string;
-      created_at: string;
-    }[];
+    auto_emails: IAutoEmailAttributes[];
     pagination: IPagination;
   };
   statusCode: number;

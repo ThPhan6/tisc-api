@@ -2,112 +2,68 @@ import { AUTH_NAMES } from "../constant/auth.constant";
 import { Server } from "@hapi/hapi";
 import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
-import UserModel from "../model/user.model";
-import PermissionModel from "../model/permission.model";
-import PermissionRouteModel from "../model/permission_route.model";
+import {userRepository} from '@/repositories/user.repository';
+// import UserModel from "../model/user.model";
+// import PermissionModel from "../model/permission.model";
+// import PermissionRouteModel from "../model/permission_route.model";
+// const userModel = new UserModel();
+// const permissionModel = new PermissionModel();
+// const permissionRouteModel = new PermissionRouteModel();
+
 import {
-  verifyAdminToken,
-  verifyBrandAdminToken,
-  verifyBrandTeamToken,
-  verifyConsultantTeamToken,
-  verifyDesignAdminToken,
-  verifyDesignTeamToken,
+  verifyJwtToken,
 } from "../helper/jwt.helper";
-const userModel = new UserModel();
-const permissionModel = new PermissionModel();
-const permissionRouteModel = new PermissionRouteModel();
+
+
+export const throwError = async () => {
+  throw Boom.unauthorized("Invalid token signature");
+}
+
+
+
+
+const parseJwtToken = async (authorization?: string) => {
+  if (!authorization) {
+    return throwError();
+  }
+  const token = authorization.substring(7);
+  const tokenArtifact = verifyJwtToken(token);
+  if (!tokenArtifact.isValid) {
+    return throwError();
+  }
+  const jwtData = jwt_decode(token) as {user_id: string};
+  const user = await userRepository.find(jwtData.user_id);
+  if (!user) {
+    return throwError();
+  }
+  return user;
+}
+
 export default class AuthMiddleware {
   public static registration = (server: Server) => {
     server.auth.scheme(AUTH_NAMES.GENERAL, (_server: Server) => {
       return {
         authenticate: async (request, h) => {
-          const authorization = request.headers.authorization;
-          if (!authorization) {
-            throw Boom.unauthorized("Invalid token signature");
-          }
-          const token = authorization.substring(7);
-          const consultantTeamToken = verifyConsultantTeamToken(token);
-          const adminToken = verifyAdminToken(token);
-          const brandAdminToken = verifyBrandAdminToken(token);
-          const brandTeamToken = verifyBrandTeamToken(token);
-          const designAdminToken = verifyDesignAdminToken(token);
-          const designTeamToken = verifyDesignTeamToken(token);
-          if (
-            !consultantTeamToken.isValid &&
-            !adminToken.isValid &&
-            !brandAdminToken.isValid &&
-            !brandTeamToken.isValid &&
-            !designAdminToken.isValid &&
-            !designTeamToken.isValid
-          ) {
-            throw Boom.unauthorized("Invalid token signature");
-          }
-
-          const decoded: any = jwt_decode(token);
+          const user = await parseJwtToken(request.headers.authorization);
           return h.authenticated({
-            credentials: { user_id: decoded.user_id },
+            credentials: {
+              user,
+              user_id: user.id,
+            },
           });
         },
       };
     });
 
-    server.auth.strategy(AUTH_NAMES.GENERAL, AUTH_NAMES.GENERAL);
-
-    server.auth.scheme(AUTH_NAMES.ADMIN, (_server: Server) => {
-      return {
-        authenticate: async (request, h) => {
-          const authorization = request.headers.authorization;
-          if (!authorization) {
-            throw Boom.unauthorized("Invalid token signature");
-          }
-          const token = authorization.substring(7);
-          const adminToken = verifyAdminToken(token);
-          const brandAdminToken = verifyBrandAdminToken(token);
-          const designAdminToken = verifyDesignAdminToken(token);
-          if (
-            !adminToken.isValid &&
-            !brandAdminToken.isValid &&
-            !designAdminToken.isValid
-          ) {
-            throw Boom.unauthorized("Invalid token signature");
-          }
-
-          const decoded: any = jwt_decode(token);
-          return h.authenticated({
-            credentials: { user_id: decoded.user_id },
-          });
-        },
-      };
-    });
-
-    server.auth.strategy(AUTH_NAMES.ADMIN, AUTH_NAMES.ADMIN);
     server.auth.scheme(AUTH_NAMES.PERMISSION, (_server: Server) => {
       return {
         authenticate: async (request, h) => {
-          const authorization = request.headers.authorization;
-          if (!authorization) {
-            throw Boom.unauthorized("Invalid token signature");
-          }
-          const token = authorization.substring(7);
-          const consultantTeamToken = verifyConsultantTeamToken(token);
-          const adminToken = verifyAdminToken(token);
-          const brandAdminToken = verifyBrandAdminToken(token);
-          const brandTeamToken = verifyBrandTeamToken(token);
-          const designAdminToken = verifyDesignAdminToken(token);
-          const designTeamToken = verifyDesignTeamToken(token);
-          if (
-            !consultantTeamToken.isValid &&
-            !adminToken.isValid &&
-            !brandAdminToken.isValid &&
-            !brandTeamToken.isValid &&
-            !designAdminToken.isValid &&
-            !designTeamToken.isValid
-          ) {
-            throw Boom.unauthorized("Invalid token signature");
-          }
-          const decoded: any = jwt_decode(token);
+          const user = await parseJwtToken(request.headers.authorization);
           return h.authenticated({
-            credentials: { user_id: decoded.user_id },
+            credentials: {
+              user,
+              user_id: user.id,
+            },
           });
           //check permission
           // const decoded: any = jwt_decode(token);
@@ -148,7 +104,9 @@ export default class AuthMiddleware {
       };
     });
 
+    ///
     server.auth.strategy(AUTH_NAMES.PERMISSION, AUTH_NAMES.PERMISSION);
+    server.auth.strategy(AUTH_NAMES.GENERAL, AUTH_NAMES.GENERAL);
   };
   public static registerAll = (server: Server) => {
     AuthMiddleware.registration(server);

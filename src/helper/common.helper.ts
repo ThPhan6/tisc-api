@@ -67,12 +67,16 @@ export const countWord = (str: string) => {
   return arrStr.filter((word: any) => word !== "").length;
 };
 
-export const tosingleSpace = (str: string) => {
+export const toSingleSpace = (str: string) => {
   return str.trim().replace(/ +/g, " ");
 };
 
 export const getDistinctArray = (arr: Array<string>) => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
+};
+
+export const generateUniqueString = (length: number = 64) => {
+  return randomBytes(length).toString("hex");
 };
 
 type AccessLevelType =
@@ -174,3 +178,30 @@ export const replaceTemplate = (
   const compiled = template(templateReplace);
   return compiled({ [key]: value });
 };
+
+export const getSummaryTable = (dataSummary: any) => {
+  const countGroup = dataSummary.length;
+  let countSub = 0;
+  let countItem = 0;
+
+  dataSummary.forEach((item: any) => {
+    if (item.subs) {
+      countSub += item.subs.length;
+      item.subs.forEach((subCategory: any) => {
+        if (subCategory.subs) countItem += subCategory.subs.length;
+      });
+    }
+  });
+  return {
+    countGroup,
+    countSub,
+    countItem,
+  };
+};
+
+export const pagination = (limit: number, offset: number, total: number) => ({
+  page: offset / limit + 1,
+  page_size: limit,
+  total: total,
+  page_count: Math.ceil(total / limit),
+});
