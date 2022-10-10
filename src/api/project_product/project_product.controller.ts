@@ -1,4 +1,3 @@
-import { userRepository } from "@/repositories/user.repository";
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ProjectProductAttributes } from "./project_product.model";

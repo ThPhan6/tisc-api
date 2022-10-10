@@ -4,6 +4,7 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { successResponse } from "@/helper/response.helper";
 import { mappingCountryByRegion } from "./setting.mapping";
+import { COMMON_TYPES } from "@/constants";
 
 export default class SettingService {
   public getCommonTypes = async (userId: string, type: CommonTypeValue) => {
@@ -65,5 +66,18 @@ export default class SettingService {
       data: inquiriesFor,
     });
   }
+
+  public findOrCreateList = async (
+    ids: string[],
+    relationId: string | null,
+    type: CommonTypeValue
+  ) => {
+    const commonRecords = await Promise.all(
+      ids.map((id) => {
+        return commonTypeRepository.findOrCreate(id, relationId || "", type);
+      })
+    );
+    return commonRecords.map((el) => el.id);
+  };
 }
 export const settingService = new SettingService();

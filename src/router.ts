@@ -29,6 +29,8 @@ import UserProductSpecificationRoute from "./api/user_product_specification/user
 import ProjectProductRoute from "./api/project_product/project_product.route";
 import SettingRoute from "./api/setting/setting.route";
 import GeneralInquiryRoute from "./api/general_inquiry/general_inquiry.route";
+import ProjectTrackingRoute from "./api/project_tracking/project_tracking.route";
+
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
     await new AuthRoute().register(server);
@@ -61,5 +63,6 @@ export default class Router {
     await new ProjectProductRoute().register(server);
     await new SettingRoute().register(server);
     await new GeneralInquiryRoute().register(server);
+    await new ProjectTrackingRoute().register(server);
   }
 }
