@@ -33,7 +33,7 @@ const userData = Joi.object({
   design: Joi.any(),
   interested: Joi.any(),
   retrieve_favourite: Joi.bool(),
-})
+});
 
 export default {
   getOne: Joi.object({
@@ -77,6 +77,7 @@ export default {
         count: Joi.number(),
         users: Joi.array().items(
           Joi.object({
+            id: Joi.string(),
             logo: Joi.string().allow(null),
             firstname: Joi.string(),
             lastname: Joi.string().allow(""),
