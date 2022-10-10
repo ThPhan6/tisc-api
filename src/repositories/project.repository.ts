@@ -44,7 +44,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     designId: string,
     limit: number,
     offset: number,
-    sort: any
+    sort: any,
+    filter: any
   ) {
     const params = {
       design_id: designId,
@@ -53,6 +54,11 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     };
     const rawQuery = `
     FILTER projects.design_id == @design_id
+    ${
+      filter && filter.status
+        ? `FILTER projects.status == ${filter.status}`
+        : ""
+    } 
     LIMIT @offset, @limit
     ${sort ? ` SORT projects.${sort[0]} ${sort[1]} ` : ``}
     LET users = (
