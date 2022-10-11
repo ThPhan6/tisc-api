@@ -1,114 +1,68 @@
-import ProductModel from "../../model/product.model";
-import UserModel from "../../model/user.model";
-import { MESSAGES } from "./../../constant/common.constant";
-import { IMessageResponse } from "../../type/common.type";
-import LocationModel from "../../model/location.model";
+import productRepository from '@/repositories/product.repository';
+import {userRepository} from '@/repositories/user.repository';
+import {locationRepository} from '@/repositories/location.repository';
+import {productFavouriteRepository} from '@/repositories/product_favourite.repository';
+import { MESSAGES } from "@/constants";
+import {UserAttributes} from '@/types';
+import {successMessageResponse, errorMessageResponse} from '@/helper/response.helper';
+import {isEmpty} from 'lodash';
 
 export default class FavouriteService {
-  private productModel: ProductModel;
-  private userModel: UserModel;
-  private locationModel: LocationModel;
-  constructor() {
-    this.productModel = new ProductModel();
-    this.userModel = new UserModel();
-    this.locationModel = new LocationModel();
-  }
 
-  public skip = (userId: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(userId);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 400,
-        });
-      }
-      if (user.retrieve_favourite) {
-        return resolve({
-          message: MESSAGES.FAVOURITE.ALREADY_SKIPPED,
-          statusCode: 400,
-        });
-      }
-      const updatedUser = await this.userModel.update(userId, {
-        retrieve_favourite: true,
-      });
+  public skip = async (user: UserAttributes) => {
 
-      if (!updatedUser) {
-        return resolve({
-          message: MESSAGES.FAVOURITE.FAILED_TO_SKIP,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+    if (user.retrieve_favourite) {
+      return errorMessageResponse(MESSAGES.FAVOURITE.ALREADY_SKIPPED);
+    }
+
+    const updatedUser = await userRepository.update(user.id, {
+      retrieve_favourite: true,
     });
+
+    if (!updatedUser) {
+      return errorMessageResponse(MESSAGES.FAVOURITE.FAILED_TO_SKIP);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+
   };
 
-  public retrieve = (
+  public retrieve = async (
     backupEmail: string,
     personalMobile: string,
     phone_code: string,
-    userId: string
-  ): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const backupUser = await this.userModel.getInactiveDesignFirmByBackupData(
-        backupEmail,
-        personalMobile
-      );
-      const currentUser = await this.userModel.find(userId);
-      const location = await this.locationModel.find(backupUser?.location_id || "");
+    user: UserAttributes
+  ) => {
 
-      if (
-        !backupUser ||
-        !currentUser ||
-        (location && location.phone_code !== phone_code)
-      ) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 400,
-        });
-      }
-      if (currentUser.retrieve_favourite) {
-        return resolve({
-          message: MESSAGES.FAVOURITE.ALREADY_RETRIEVED,
-          statusCode: 400,
-        });
-      }
-      ///
-      const previousLikedProducts =
-        await this.productModel.getUserFavouriteProducts(backupUser.id);
-      ///
-      await Promise.all(
-        previousLikedProducts.map(async (product) => {
-          if (product.favorites.includes(userId)) {
-            // user liked already
-            return true;
-          }
-          /// save favorite
-          const newFavorites = [...product.favorites, userId];
-          await this.productModel.update(product.id, {
-            favorites: newFavorites,
-          });
-          return true;
-        })
-      );
+    const backupUser = await userRepository.getInactiveDesignFirmByBackupData(backupEmail, personalMobile);
+    const location = await locationRepository.find(backupUser?.location_id || "");
 
-      const updatedUser = await this.userModel.update(userId, {
-        retrieve_favourite: true,
-      });
+    if ( !backupUser || (location && location.phone_code !== phone_code) ) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
+    }
 
-      if (!updatedUser) {
-        return resolve({
-          message: MESSAGES.FAVOURITE.FAILED_TO_RETRIEVE,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+    if (user.retrieve_favourite) {
+      return errorMessageResponse(MESSAGES.FAVOURITE.ALREADY_RETRIEVED);
+    }
+
+    const previousLikedProducts = await productRepository.getUserFavouriteProducts(backupUser.id);
+
+    const favouriteData = previousLikedProducts.map((product) => {
+      return { product_id: product.id, created_by: user.id }
     });
-  };
+
+    if (!isEmpty(favouriteData)) {
+      await productFavouriteRepository.getModel().insert(favouriteData);
+    }
+    
+    const updatedUser = await userRepository.update(user.id, {
+      retrieve_favourite: true,
+    });
+
+    if (!updatedUser) {
+      return errorMessageResponse(MESSAGES.FAVOURITE.FAILED_TO_RETRIEVE);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
 }
+
+export const favouriteService = new FavouriteService();
