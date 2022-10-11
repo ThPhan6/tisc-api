@@ -31,7 +31,7 @@ export const mappingPermission = (permissions: CompanyPermissionWithInfo[]) => {
   });
 
   /// mapping sub item
-  return sortBy(perms, (o) => o.parent_id !== null).reduce((response, perm) => {
+  const response = sortBy(perms, (o) => o.parent_id !== null).reduce((response, perm) => {
     perm.items = perm.items.map((item) => {
       return {
         accessable: item.accessable,
@@ -48,7 +48,9 @@ export const mappingPermission = (permissions: CompanyPermissionWithInfo[]) => {
     const index = response.findIndex((item) => item.id === perm.parent_id);
     if (index > -1) { // found
       response[index].subs.push(perm);
+      response[index].subs = sortBy(response[index].subs, ['id']);
     }
     return response;
   }, [] as CompanyPermissionList[]);
+  return sortBy(response, ['id']);
 }
