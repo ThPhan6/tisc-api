@@ -67,7 +67,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER users.id == teamIds
         return {
             id : users.id,
-            name : users.firstname,
+            firstname : users.firstname,
+            lastname : users.lastname,
             avatar : users.avatar
         }
     )
@@ -82,7 +83,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         design_due: projects.design_due,
         design_id: projects.design_id,
         status: projects.status,
-        teams: users,
+        assign_teams: users,
     }
     `;
     return this.model.rawQuery(rawQuery, params);
