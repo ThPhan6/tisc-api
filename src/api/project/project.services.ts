@@ -164,7 +164,11 @@ class ProjectService {
       user.relation_id,
       limit,
       offset,
-      sort
+      sort,
+      {
+        ...filter,
+        status: filter?.status,
+      }
     );
 
     const totalProject = await projectRepository.countProjectBy(

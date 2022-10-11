@@ -44,7 +44,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     designId: string,
     limit: number,
     offset: number,
-    sort: any
+    sort: any,
+    filter: any
   ) {
     const params = {
       design_id: designId,
@@ -53,6 +54,11 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     };
     const rawQuery = `
     FILTER projects.design_id == @design_id
+    ${
+      filter && filter.status
+        ? `FILTER projects.status == ${filter.status}`
+        : ""
+    } 
     LIMIT @offset, @limit
     ${sort ? ` SORT projects.${sort[0]} ${sort[1]} ` : ``}
     LET users = (
@@ -61,7 +67,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER users.id == teamIds
         return {
             id : users.id,
-            name : users.firstname,
+            firstname : users.firstname,
+            lastname : users.lastname,
             avatar : users.avatar
         }
     )
@@ -74,8 +81,9 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         project_type: projects.project_type,
         building_type: projects.building_type,
         design_due: projects.design_due,
+        design_id: projects.design_id,
         status: projects.status,
-        teams: users,
+        assign_teams: users,
     }
     `;
     return this.model.rawQuery(rawQuery, params);

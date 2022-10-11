@@ -339,6 +339,7 @@ export default class UserService {
 
     userWithLocations.forEach((userWithLocation: any) => {
       const userData = {
+        id: userWithLocation.id,
         phone_code: userWithLocation.phone_code,
         logo: userWithLocation.avatar,
         firstname: userWithLocation.firstname,
