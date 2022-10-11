@@ -79,6 +79,7 @@ class ProjectTrackingService {
       newTracking: el.project_tracking.read_by
         ? el.project_tracking.read_by.includes(user.id) === false
         : true,
+      assignedTeams: el.members,
     }));
 
     return successResponse({

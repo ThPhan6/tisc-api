@@ -46,6 +46,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       {
         project_id: payload.project_id,
         payloadWithId: {
+          ...this.DEFAULT_ATTRIBUTE,
           ...payload,
           product_id: undefined,
           id: v4(),
@@ -70,6 +71,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       project: ProjectAttributes;
       projectRequests: ProjectRequestAttributes[];
       designFirm: DesignerAttributes;
+      members: DesignerAttributes[];
     }[]
   > {
     const params = {
@@ -140,12 +142,18 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         RETURN products
     )
 
-    FOR users IN users
-    FILTER users.id IN requestUsers OR users.id IN ppUsers
+    FOR u IN users
+    FILTER u.id IN requestUsers OR u.id IN ppUsers
 
     FOR designers IN designers
-    FILTER designers.id == users.relation_id
+    FILTER designers.id == u.relation_id
     ${sort === "design_firm" ? `SORT designers.name ${order}` : ""}
+
+    LET members = (
+      FOR user IN users
+      FILTER user.id IN project_trackings.assigned_teams
+      RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
+    )
 
     RETURN {
       project_tracking: UNSET(project_trackings, ['_key','_id','_rev']),
@@ -153,7 +161,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       projectRequests,
       designFirm: designers,
       notifications,
-      products
+      products,
+      members
     }
     `;
     return this.model.rawQuery(rawQuery, params);

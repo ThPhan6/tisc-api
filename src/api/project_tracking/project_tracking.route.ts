@@ -42,7 +42,23 @@ export default class ProjectTrackingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getListProjectTracking,
+                200: response.getListProjectTracking,
+              },
+            },
+          },
+        },
+        {
+          method: "PATCH",
+          path: ROUTES.UPDATE_PROJECT_TRACKING,
+          options: {
+            handler: controller.updateProjectTracking,
+            validate: validate.updateProjectTracking,
+            description: "Method that update project tracking info",
+            tags: ["api", "Project Tracking"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },

@@ -78,4 +78,18 @@ export default {
       };
     }),
   },
+  updateProjectTracking: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Project tracking id is required")
+        ),
+    },
+    payload: {
+      priority: Joi.number().allow(null),
+      assigned_teams: Joi.array().items(Joi.string()).allow(null),
+      read_by: Joi.array().items(Joi.string()).allow(null),
+    },
+  },
 };

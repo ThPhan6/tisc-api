@@ -20,7 +20,14 @@ export default {
         projectStatus: Joi.string(),
         priority: Joi.number(),
         priorityName: Joi.string(),
-        assigned_teams: Joi.array().items(Joi.string()),
+        assignedTeams: Joi.array().items(
+          Joi.object({
+            id: Joi.string(),
+            firstname: Joi.string(),
+            lastname: Joi.string(),
+            avatar: Joi.string().allow(null),
+          })
+        ),
         requestCount: Joi.number(),
         newRequest: Joi.bool(),
         notificationCount: Joi.number(),

@@ -1,6 +1,10 @@
+import { errorMessageResponse } from "@/helper/response.helper";
+import { projectRepository } from "@/repositories/project.repository";
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { CreateProjectRequestBody } from "./project_request.model";
+import { ProjectTrackingAttributes } from "./project_tracking.model";
+import { projectTrackingRepository } from "./project_tracking.repository";
 import { projectTrackingService } from "./project_tracking.service";
 
 export default class ProjectTrackingController {
@@ -33,5 +37,22 @@ export default class ProjectTrackingController {
       order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public updateProjectTracking = async (
+    req: Request & { payload: Partial<ProjectTrackingAttributes> },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const response = await projectTrackingRepository.update(id, req.payload);
+
+    if (response === false) {
+      const errorResponse = errorMessageResponse(
+        "Update project tracking failed."
+      );
+      return toolkit.response(errorResponse).code(errorResponse.statusCode);
+    }
+
+    return toolkit.response(response).code(200);
   };
 }
