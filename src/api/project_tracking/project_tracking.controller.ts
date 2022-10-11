@@ -17,4 +17,21 @@ export default class ProjectTrackingController {
 
     return toolkit.response(response).code(200);
   };
+
+  public getListProjectTracking = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { limit, offset, sort, order, project_status, priority } = req.query;
+    const currentUser = req.auth.credentials.user as UserAttributes;
+    const response = await projectTrackingService.getListProjectTracking(
+      currentUser,
+      limit,
+      offset,
+      { project_status, priority },
+      sort,
+      order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

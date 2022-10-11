@@ -17,7 +17,7 @@ export interface ProjectTrackingNotificationAttributes {
   project_tracking_id: string; // project_trackings table
   product_id: string;
   status: TrackingStatus;
-  read: string[]; // user_id[];
+  read_by: string[]; // user_id[];
   created_at: string;
   updated_at: null | string;
 }

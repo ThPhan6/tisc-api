@@ -10,7 +10,7 @@ export interface ProjectRequestAttributes {
   message: string;
   request_for_ids: string[]; // common type
   status: TrackingStatus;
-  read: string[]; // user_id[];
+  read_by: string[]; // user_id[];
   created_at: string;
   updated_at: null | string;
   created_by: string;

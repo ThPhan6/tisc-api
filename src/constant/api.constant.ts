@@ -252,6 +252,10 @@ export const ROUTES = {
     "/api/project-product/get-list-by-zone/{project_id}",
 
   CREATE_PRODUCT_REQUEST: "/api/project-tracking/request/create",
+  GET_LIST_PROJECT_TRACKING: "/api/project-tracking/request/get-list",
+  GET_ONE_PROJECT_TRACKING: "/api/project-tracking/request/get-one",
+  ASSIGN_BRAND_TEAM_TO_PROJECT_TRACKING:
+    "/api/project-tracking/{id}/assign-teams",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
