@@ -25,4 +25,71 @@ export default {
         .error(commonFailValidatedMessageFunction("Request for is required")),
     },
   },
+  getList: {
+    query: Joi.object({
+      page: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .error(commonFailValidatedMessageFunction("Page must be an integer")),
+      pageSize: Joi.number()
+        .min(1)
+        .custom((value, helpers) => {
+          if (!Number.isInteger(value)) return helpers.error("any.invalid");
+          return value;
+        })
+        .error(
+          commonFailValidatedMessageFunction("Page Size must be an integer")
+        ),
+      project_status: Joi.number()
+        .allow(null)
+        .error(
+          commonFailValidatedMessageFunction(
+            "Invalid Project status filter value"
+          )
+        ),
+      priority: Joi.number()
+        .allow(null)
+        .error(
+          commonFailValidatedMessageFunction("Invalid priority filter value")
+        ),
+      sort: Joi.string().valid(
+        //GetProjectListSort
+        "created_at",
+        "project_name",
+        "project_location",
+        "project_type",
+        "design_firm"
+      ),
+      order: Joi.string().valid("ASC", "DESC"),
+    }).custom((value) => {
+      return {
+        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
+        offset:
+          !value.page || !value.pageSize
+            ? 0
+            : (value.page - 1) * value.pageSize,
+        project_status: value.project_status,
+        priority: value.priority,
+        sort: value.sort ? value.sort : "created_at",
+        order: value.order ? value.order : "DESC",
+      };
+    }),
+  },
+  updateProjectTracking: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Project tracking id is required")
+        ),
+    },
+    payload: {
+      priority: Joi.number().allow(null),
+      assigned_teams: Joi.array().items(Joi.string()).allow(null),
+      read_by: Joi.array().items(Joi.string()).allow(null),
+    },
+  },
 };

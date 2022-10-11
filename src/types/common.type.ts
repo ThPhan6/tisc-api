@@ -47,3 +47,10 @@ export type MeasurementUnitKey = "Metric" | "Imperial";
 
 export type FunctionalTypeValue = 1 | 2 | 3;
 export type FunctionalTypeKey = "Main office" | "Satellite office" | "Other";
+
+export type SummaryInfo = {
+  id: string;
+  quantity: number;
+  label: string;
+  subs?: SummaryInfo[];
+};

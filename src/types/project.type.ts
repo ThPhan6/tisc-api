@@ -2,6 +2,11 @@ import { UserAttributes, IMessageResponse } from "@/types";
 
 export type ProjectStatusValue = 1 | 2 | 3;
 export type ProjectStatusKey = "Live" | "On Hold" | "Archive";
+export enum ProjectStatus {
+  "Live" = 1,
+  "On Hold" = 2,
+  "Archive" = 3,
+}
 
 export interface ProjectAttributes {
   id: string;

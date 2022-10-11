@@ -18,6 +18,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     id: "",
     project_id: "",
     product_id: "",
+    project_tracking_id: "",
 
     brand_location_id: "",
     distributor_location_id: "",
@@ -49,13 +50,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public async upsert(payload: AssignProductToProjectRequest, user_id: string) {
     const now = new Date();
-
     return this.model.rawQueryV2(
       `UPSERT {product_id: @product_id, project_id: @project_id, deleted_at: null}
       INSERT @payloadWithId
       UPDATE @payload
       IN project_products
-      RETURN { doc: NEW }
+      RETURN NEW
     `,
       {
         product_id: payload.product_id,

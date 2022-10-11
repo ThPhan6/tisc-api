@@ -34,7 +34,7 @@ class UserProductSpecificationRepository extends BaseRepository<UserProductSpeci
       INSERT @payloadWithId
       UPDATE @payload
       IN user_product_specifications
-      RETURN { doc: NEW }
+      RETURN NEW
     `,
       {
         payloadWithId: {
