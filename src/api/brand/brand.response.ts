@@ -6,6 +6,24 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const getSummaryResponseValidate = Joi.object({
+  data: Joi.array().items(
+    Joi.object({
+      id: Joi.string(),
+      quantity: Joi.number(),
+      label: Joi.string(),
+      subs: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          quantity: Joi.number(),
+          label: Joi.string(),
+        })
+      ),
+    })
+  ),
+  statusCode: Joi.number(),
+});
+
 export default {
   getList: Joi.object({
     data: Joi.object({
@@ -51,23 +69,7 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
-  getAllBrandSummary: Joi.object({
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        quantity: Joi.number(),
-        label: Joi.string(),
-        subs: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            quantity: Joi.number(),
-            label: Joi.string(),
-          })
-        ),
-      })
-    ),
-    statusCode: Joi.number(),
-  }) as any,
+  getAllBrandSummary: getSummaryResponseValidate as any,
   brandProfile: Joi.object({
     data: Joi.object({
       id: Joi.string(),

@@ -255,6 +255,7 @@ export const ROUTES = {
   GET_LIST_PROJECT_TRACKING: "/api/project-tracking/request/get-list",
   GET_ONE_PROJECT_TRACKING: "/api/project-tracking/request/get-one",
   UPDATE_PROJECT_TRACKING: "/api/project-tracking/{id}/update",
+  GET_PROJECT_TRACKING_SUMMARY: "/api/project-tracking/summary",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

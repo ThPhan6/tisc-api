@@ -63,6 +63,22 @@ export default class ProjectTrackingRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.GET_PROJECT_TRACKING_SUMMARY,
+          options: {
+            handler: controller.getProjectTrackingSummary,
+            description: "Method that get project tracking summary info",
+            tags: ["api", "Project Tracking"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                // 200: response.getProjectTrackingSummary,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

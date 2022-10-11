@@ -1,5 +1,6 @@
 import { paginationResponse } from "@/helper/response.helper";
 import * as HapiJoi from "joi";
+import { getSummaryResponseValidate } from "../brand/brand.response";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 
 export default {
@@ -37,4 +38,5 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
+  getProjectTrackingSummary: getSummaryResponseValidate as any,
 };
