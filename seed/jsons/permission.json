@@ -504,12 +504,6 @@
 				"routes": []
 			},
 			{
-				"logo": "/logo/office.svg",
-				"name": "Office Profile",
-				"type": 3,
-				"routes": []
-			},
-			{
 				"logo": "/logo/location.svg",
 				"name": "Locations",
 				"type": 3,
