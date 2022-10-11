@@ -1,5 +1,8 @@
 import PdfGenerator from "html-pdf";
 import PdfConfig from './pdf.config';
+import * as memoryStreams from "memory-streams";
+import {head, takeRight} from 'lodash';
+const hummus = require('hummus');
 
 class PDFResult {
   private result: PdfGenerator.CreateResult;
@@ -34,6 +37,32 @@ class PDFService {
 
   public create(html: string, options: PdfGenerator.CreateOptions = {}) {
     return new PDFResult(this.pdf.create(html, {...PdfConfig, ...options}));
+  }
+
+  public merge(...pdfs: Buffer[]) {
+    const firstBuffer = head(pdfs);
+    const otherBuffers = takeRight(pdfs, pdfs.length - 1);
+    const outStream = new memoryStreams.WritableStream();
+
+    try {
+      const firstPDFStream = new hummus.PDFRStreamForBuffer(firstBuffer);
+      const pdfWriter = hummus.createWriterToModify(
+        firstPDFStream,
+        new hummus.PDFStreamForResponse(outStream));
+
+      otherBuffers.forEach((buffer) => {
+        pdfWriter.appendPDFPagesFromPDF(
+          new hummus.PDFRStreamForBuffer(buffer)
+        );
+      });
+      pdfWriter.end();
+      var newBuffer = outStream.toBuffer();
+      outStream.end();
+      return newBuffer;
+    } catch (_e) {
+      outStream.end();
+      throw new Error('Error during PDF combination');
+    }
   }
 }
 
