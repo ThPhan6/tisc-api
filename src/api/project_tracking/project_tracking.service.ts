@@ -60,6 +60,11 @@ class ProjectTrackingService {
         order
       );
 
+    const total = await projectTrackingRepository.getListProjectTrackingTotal(
+      user.relation_id,
+      filter
+    );
+
     const results = projectTrackings.map((el, index) => ({
       id: el.project_tracking.id,
       created_at: el.project_tracking.created_at,
@@ -85,7 +90,7 @@ class ProjectTrackingService {
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: pagination(limit, offset, projectTrackings.length),
+        pagination: pagination(limit, offset, total[0]),
       },
     });
   }

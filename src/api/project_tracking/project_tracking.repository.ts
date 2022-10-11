@@ -167,6 +167,72 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     `;
     return this.model.rawQuery(rawQuery, params);
   }
+
+  public async getListProjectTrackingTotal(
+    brandId: string,
+    filter: GetProjectListFilter
+  ): Promise<number[]> {
+    const params = {
+      brandId,
+      priority: filter.priority,
+      projectStatus: filter.project_status,
+    };
+    const rawQuery = `
+    ${
+      typeof filter.priority === "number"
+        ? `FILTER project_trackings.priority == @priority`
+        : ""
+    }
+
+
+    FOR projects IN projects
+    FILTER projects.id == project_trackings.project_id
+    ${
+      typeof filter.project_status === "number"
+        ? "FILTER projects.status == @projectStatus"
+        : ""
+    }
+
+    LET projectRequests = (
+      FOR project_requests IN project_requests
+      FILTER project_requests.project_tracking_id == project_trackings.id
+      RETURN project_requests
+    )
+    LET requestIds = (
+      FOR project_requests IN projectRequests
+      RETURN project_requests.product_id
+    )
+    LET requestUsers = (
+      FOR project_requests IN projectRequests
+      RETURN project_requests.created_by
+    )
+
+    LET projectProducts = (
+      FOR project_products IN project_products
+      FILTER project_products.project_tracking_id == project_trackings.id
+      RETURN project_products
+    )
+    LET projectProductIds = (
+      FOR project_products IN projectProducts
+      RETURN project_products.product_id
+    )
+    LET ppUsers = (
+      FOR project_products IN projectProducts
+      RETURN project_products.created_by
+    )
+
+    LET products = (
+      FOR products IN products
+      FILTER (products.brand_id == @brandId) AND 
+        (products.id IN requestIds OR products.id IN projectProductIds)
+        RETURN products
+    )
+    
+    COLLECT WITH COUNT INTO length
+    RETURN length
+    `;
+    return this.model.rawQuery(rawQuery, params);
+  }
 }
 
 export const projectTrackingRepository = new ProjectTrackingRepository();
