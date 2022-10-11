@@ -32,9 +32,10 @@ export default {
         design_due: Joi.string(),
         design_id: Joi.string(),
         status: Joi.number(),
-        teams: Joi.array().items({
+        assign_teams: Joi.array().items({
           id: Joi.string(),
-          name: Joi.string(),
+          firstname: Joi.string(),
+          lastname: Joi.string(),
           avatar: Joi.any(),
         }),
       }),
