@@ -1,5 +1,4 @@
-import { UserAttributes } from "@/types";
-import { MESSAGES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { GENERAL_INQUIRY_STATUS } from "@/constants/general_inquiry.constant";
 import { pagination } from "@/helper/common.helper";
 import {
@@ -8,29 +7,33 @@ import {
 } from "@/helper/response.helper";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import productRepository from "@/repositories/product.repository";
+import { SortValidGeneralInquiry, UserAttributes } from "@/types";
+import { head, uniq } from "lodash";
+import { settingService } from "./../setting/setting.service";
 import { mappingGeneralInquiries } from "./general_inquiry.mapping";
 import { GeneralInquiryRequest } from "./general_inquiry.type";
-import { uniq } from "lodash";
 class GeneralInquiryService {
-  public async create(userId: string, payload: GeneralInquiryRequest) {
+  public async create(user: UserAttributes, payload: GeneralInquiryRequest) {
     const product = await productRepository.find(payload.product_id);
 
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
     }
 
-    //validate general inquiry duplicate
-    //check trùng product_id & created_by & title==> khong dc tao
-    //trùng product_id & created_by khac title==>  dc tao
+    payload.inquiry_for_ids = await settingService.findOrCreateList(
+      payload.inquiry_for_ids,
+      user.relation_id,
+      COMMON_TYPES.REQUEST_FOR
+    );
 
     const createdGeneralInquiry = await generalInquiryRepository.create({
       product_id: product.id,
       title: payload.title,
       message: payload.message,
-      inquiry_for_id: payload.inquiry_for_id,
+      inquiry_for_ids: payload.inquiry_for_ids,
       status: GENERAL_INQUIRY_STATUS.PENDING,
       read: [],
-      created_by: userId,
+      created_by: user.id,
     });
 
     if (!createdGeneralInquiry) {
@@ -46,8 +49,8 @@ class GeneralInquiryService {
     relationId: string,
     limit: number,
     offset: number,
-    sort: any,
-    status: number
+    sort: SortValidGeneralInquiry,
+    filter: any
   ) {
     const generalInquiries =
       await generalInquiryRepository.getListGeneralInquiry(
@@ -55,7 +58,10 @@ class GeneralInquiryService {
         limit,
         offset,
         sort,
-        status
+        {
+          ...filter,
+          status: filter?.status,
+        }
       );
 
     const allInquiry = await generalInquiryRepository.getAllInquiryBy(
@@ -96,12 +102,15 @@ class GeneralInquiryService {
     if (!inquiry) {
       return errorMessageResponse(MESSAGES.GENERAL_INQUIRY.NOT_FOUND, 404);
     }
-    const userReadIds = uniq([...inquiry.read, user.id]);
-    console.log(userReadIds, "[userReadIds]");
-    const updatedUserRead = await generalInquiryRepository.update(id, {
-      read: userReadIds,
+    const userReadNotificationIds = uniq([...inquiry.read, user.id]);
+
+    //update user read notification
+    await generalInquiryRepository.update(id, {
+      read: userReadNotificationIds,
     });
-    return errorMessageResponse("");
+
+    const result = await generalInquiryRepository.getDetailGeneralInquiry(id);
+    return successResponse({ data: head(result) });
   }
 }
 export const generalInquiryService = new GeneralInquiryService();

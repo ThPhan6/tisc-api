@@ -1,4 +1,3 @@
-import { GeneralInquiryAttribute } from "@/types";
 import { ListGeneralInquiryCustom } from "@/types/general_inquiry.type";
 export const mappingGeneralInquiries = (
   generalInquiries: ListGeneralInquiryCustom[]
@@ -6,9 +5,9 @@ export const mappingGeneralInquiries = (
   return generalInquiries.map((inquiry) => {
     return {
       ...inquiry.general_inquiry,
-      inquiry_for: inquiry.inquiry_for,
       inquirer: inquiry.inquirer,
       design_firm: inquiry.design_firm.name,
+      inquiry_for: inquiry.inquiries_for[0],
       firm_location:
         inquiry.design_firm.state_name && inquiry.design_firm.country_name
           ? `${inquiry.design_firm.state_name}, ${inquiry.design_firm.country_name}`

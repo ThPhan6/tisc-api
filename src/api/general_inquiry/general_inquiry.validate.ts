@@ -2,6 +2,17 @@ import { GENERAL_INQUIRY_STATUS } from "@/constants/general_inquiry.constant";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
 import Joi from "joi";
 
+const customFilter = (value: any, helpers: any) => {
+  try {
+    const filter = JSON.parse(decodeURIComponent(value));
+    if (typeof filter === "object") {
+      return filter;
+    }
+    return helpers.error("any.invalid");
+  } catch (error) {
+    return helpers.error("any.invalid");
+  }
+};
 export default {
   create: {
     payload: {
@@ -20,10 +31,12 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Message is required")),
 
-      inquiry_for_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Inquiry for is required")),
+      inquiry_for_ids: Joi.array().items(
+        Joi.string()
+          .trim()
+          .required()
+          .error(commonFailValidatedMessageFunction("Inquiry for is required"))
+      ),
     },
   },
   getList: {
@@ -44,11 +57,18 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Page Size must be an integer")
         ),
-      status: Joi.number().valid(
-        GENERAL_INQUIRY_STATUS.PENDING,
-        GENERAL_INQUIRY_STATUS.RESPONDED
+      filter: Joi.string()
+        .custom((value, helpers) => {
+          return customFilter(value, helpers);
+        }, "custom filter validation")
+        .error(commonFailValidatedMessageFunction("Invalid filter")),
+      sort: Joi.string().valid(
+        //SortValidGeneralInquiry
+        "created_at",
+        "design_name",
+        "design_location",
+        "inquiry_for"
       ),
-      sort: Joi.string(),
       order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
@@ -57,7 +77,7 @@ export default {
           !value.page || !value.pageSize
             ? 0
             : (value.page - 1) * value.pageSize,
-        status: value.status,
+        filter: value.filter,
         sort: value.sort ? [value.sort, value.order] : undefined,
       };
     }),

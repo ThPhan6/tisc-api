@@ -12,24 +12,22 @@ export default class GeneralInquiryController {
 
     const user = req.auth.credentials.user as UserAttributes;
 
-    const response = await generalInquiryService.create(user.id, payload);
+    const response = await generalInquiryService.create(user, payload);
 
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
 
   public async getList(req: Request, toolkit: ResponseToolkit) {
-    const { limit, offset, sort, status } = req.query;
+    const { limit, offset, sort, filter } = req.query;
 
     const user = req.auth.credentials.user as UserAttributes;
-
     const response = await generalInquiryService.getList(
       user.relation_id,
       limit,
       offset,
       sort,
-      Number(status)
+      filter
     );
-
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
 
