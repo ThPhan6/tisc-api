@@ -336,8 +336,8 @@ class ProductService {
     return successResponse({
       data: {
         data: categoryId
-          ? mappingByBrand(products)
-          : mappingByCategory(products),
+          ? mappingByCategory(products)
+          : mappingByBrand(products),
         brand: await this.brandRepository.find(brandId),
       },
     });
