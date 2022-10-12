@@ -1,10 +1,13 @@
 // import { MESSAGES } from "./../../constant/common.constant";
 import {projectRepository} from '@/repositories/project.repository';
+import {templateRepository} from '@/repositories/template.repository';
+import {projectProductPDFConfigRepository} from '@/repositories/project_product_pdf_config.repository';
 // import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import {MESSAGES} from '@/constants';
+import {mappingSpecifyPDFTemplate} from './pdf.mapping';
 import {UserAttributes} from '@/types';
 import {isEmpty, merge} from 'lodash';
-import {errorMessageResponse} from '@/helper/response.helper';
+import {errorMessageResponse, successResponse} from '@/helper/response.helper';
 import {pdfNode} from '@/service/pdf/pdf.service';
 import * as ejs from "ejs";
 
@@ -14,6 +17,13 @@ export default class PDFService {
 
   private injectBasePdfTemplate = (content: string, layout: 'specification' | 'none' = 'none') => {
     return ejs.renderFile(`${this.baseTemplate}/layouts/base.layout.ejs`, {content, layout});
+  }
+
+  private validateProjectWithRelation = async (projectId: string, user: UserAttributes) => {
+    const project = await projectRepository.find(projectId);
+    if (isEmpty(project) || project.design_id !== user.relation_id) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND);
+    }
   }
 
   private getProjectData = async (projectId: string, user: UserAttributes) => {
@@ -68,6 +78,35 @@ export default class PDFService {
     const footerOption = await this.getSpecifyFooter();
     console.log(html);
     return await pdfNode.create(html, merge(headerOption, footerOption)).toBuffer();
+  }
+
+  public getProjectSpecifyConfig = async (user: UserAttributes, projectId: string) => {
+    const isInvalid = await this.validateProjectWithRelation(projectId, user);
+    if (isInvalid) {
+      return isInvalid;
+    }
+
+    let projectProductPDFConfig = await projectProductPDFConfigRepository.findBy({project_id: projectId});
+
+    if (!projectProductPDFConfig) {
+      projectProductPDFConfig = await projectProductPDFConfigRepository.create({
+        project_id: projectId,
+        created_by: user.id
+      });
+    }
+
+    if (!projectProductPDFConfig) {
+      return errorMessageResponse(MESSAGES.PDF_SPECIFY.ERROR_CREATE);
+    }
+    const templates = await templateRepository.getAll('sequence', 'ASC');
+    const templatesResponse = mappingSpecifyPDFTemplate(templates);
+
+    return successResponse({
+      data: {
+        config: projectProductPDFConfig,
+        templates: templatesResponse
+      }
+    });
   }
 
 }

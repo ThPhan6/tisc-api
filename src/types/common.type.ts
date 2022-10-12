@@ -10,6 +10,7 @@ export interface CommonTypes {
   PROJECT_UNIT: 9;
   DEPARTMENT: 10;
   REQUEST_FOR: 11;
+  ISSUE_FOR: 12;
 }
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 
