@@ -65,8 +65,8 @@ export default {
       sort: Joi.string().valid(
         //SortValidGeneralInquiry
         "created_at",
-        "design_name",
-        "design_location",
+        "design_firm",
+        "firm_location",
         "inquiry_for"
       ),
       order: Joi.string().valid("ASC", "DESC"),

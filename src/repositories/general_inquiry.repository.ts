@@ -43,35 +43,38 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
   ) {
     const params = {
       relationId,
+      limit,
+      offset,
     };
     const rawQuery = `
-      FOR general_inquiries IN general_inquiries
-      ${
-        filter.status
-          ? `FILTER general_inquiries.status == ${filter.status}`
-          : ""
-      }
+    FILTER general_inquiries.deleted_at == null
+    ${
+      filter.status ? `FILTER general_inquiries.status == ${filter.status}` : ""
+    }
       ${
         sort && sort[0] === "created_at"
           ? `SORT general_inquiries.created_at ${sort[1]}`
           : ""
       }
-      LIMIT ${offset},${limit}
+
+      LIMIT @offset,@limit
+      
       FOR products IN products 
       FILTER products.brand_id == @relationId
       FILTER products.id == general_inquiries.product_id
+
       LET designFirm = (
         FOR users IN users
         FILTER users.id == general_inquiries.created_by
         FOR designers IN designers 
         FILTER designers.id == users.relation_id
         ${
-          sort && sort[0] === "design_name"
+          sort && sort[0] === "design_firm"
             ? `SORT designers.name ${sort[1]}`
             : ""
         }
         ${
-          sort && sort[0] == "design_location"
+          sort && sort[0] == "firm_location"
             ? `SORT designers.state_name ${sort[1]}`
             : ""
         }
@@ -81,29 +84,28 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
         }
       )
 
-      LET commonTypeName = (
-        FOR common_types IN common_types
+      LET inquiryFor = (
         FOR inquiryId IN general_inquiries.inquiry_for_ids
-        FILTER inquiryId == common_types.id
-        SORT common_types.name ASC
-        RETURN common_types.name
-      )
+            FOR common_types IN common_types
+            FILTER inquiryId == common_types.id
+            SORT common_types.name ASC
+        RETURN common_types
+    )
 
-      LET sortedInquiryFor = (
-        FOR common_types IN common_types
-        ${sort && sort[0] === "inquiry_for" ? `SORT name ${sort[1]}` : ""}
-        RETURN common_types.name
-      )
-  
+    ${
+      sort && sort[0] === "inquiry_for"
+        ? `SORT inquiryFor[0].name ${sort[1]}`
+        : ""
+    }
       RETURN MERGE({
         general_inquiry : UNSET(general_inquiries,  ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         design_firm : designFirm[0].design,
-        inquiries_for :commonTypeName,
-        sorted_inquiry_for : sortedInquiryFor,
+        inquiries_for :inquiryFor,
         inquirer : designFirm[0].user.firstname
       })
     `;
-    return (await this.model.rawQueryV2(
+
+    return (await this.model.rawQuery(
       rawQuery,
       params
     )) as ListGeneralInquiryCustom[];
@@ -112,7 +114,9 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
   public async getDetailGeneralInquiry(id: string) {
     const params = { id } as any;
     const rawQuery = `
+    FILTER general_inquiries.deleted_at == null
     FILTER general_inquiries.id == @id
+
     LET designFirm = (
       FOR users IN users
       FILTER users.id == general_inquiries.created_by
@@ -120,6 +124,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER designers.id == users.relation_id
       RETURN MERGE(UNSET(designers, ['_id', '_key','_rev','deleted_at']), KEEP(users,'email', 'phone'))
     )
+
     LET products = (
       FOR products IN products
       FILTER products.id == general_inquiries.product_id
@@ -136,6 +141,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           official_website : brands.official_websites[0]
       }
     )
+    
     LET inquiryFor = (
         FOR common_types IN common_types
         FILTER general_inquiries.inquiry_for_ids == common_types.id

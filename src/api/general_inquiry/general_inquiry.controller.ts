@@ -21,6 +21,7 @@ export default class GeneralInquiryController {
     const { limit, offset, sort, filter } = req.query;
 
     const user = req.auth.credentials.user as UserAttributes;
+
     const response = await generalInquiryService.getList(
       user.relation_id,
       limit,

@@ -21,12 +21,15 @@ export interface ListGeneralInquiryCustom {
     state_name: string | null;
     country_name: string | null;
   };
-  inquiries_for: string[];
+  inquiries_for: {
+    id: string;
+    name: string;
+  }[];
   inquirer: string;
 }
 
 export type SortValidGeneralInquiry =
   | "created_at"
-  | "design_name"
-  | "design_location"
+  | "design_firm"
+  | "firm_location"
   | "inquiry_for";

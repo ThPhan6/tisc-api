@@ -60,7 +60,6 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
   }
 
   public getByListIds = async (ids: string[]) => {
-    console.log(ids, "[ids]");
     return (await this.model
       .select("id", "name")
       .where("id", "in", ids)
