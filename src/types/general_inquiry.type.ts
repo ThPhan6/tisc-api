@@ -1,13 +1,11 @@
-import { inquiry } from "./../api/general_inquiry/general_inquiry.response";
 export interface GeneralInquiryAttribute {
-  /// general inquiry
   id: string;
   product_id: string;
   title: string;
   message: string;
-  inquiry_for_ids: string[]; /// common type
-  status: number; /// need to define type here ---// Pending, Responded
-  read: string[]; /// user_id[];
+  inquiry_for_ids: string[];
+  status: number;
+  read: string[];
   created_at: string;
   updated_at: null | string;
   created_by: string;
