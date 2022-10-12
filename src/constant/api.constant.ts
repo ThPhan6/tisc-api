@@ -252,8 +252,8 @@ export const ROUTES = {
     "/api/project-product/get-list-by-zone/{project_id}",
 
   CREATE_PRODUCT_REQUEST: "/api/project-tracking/request/create",
-  GET_LIST_PROJECT_TRACKING: "/api/project-tracking/request/get-list",
-  GET_ONE_PROJECT_TRACKING: "/api/project-tracking/request/get-one",
+  GET_LIST_PROJECT_TRACKING: "/api/project-tracking/get-list",
+  GET_ONE_PROJECT_TRACKING: "/api/project-tracking/{id}/get-one",
   UPDATE_PROJECT_TRACKING: "/api/project-tracking/{id}/update",
   GET_PROJECT_TRACKING_SUMMARY: "/api/project-tracking/summary",
 };

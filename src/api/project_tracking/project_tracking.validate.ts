@@ -92,4 +92,13 @@ export default {
       read_by: Joi.array().items(Joi.string()).allow(null),
     },
   },
+  getOne: {
+    params: Joi.object({
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Project tracking id is required")
+        ),
+    }),
+  },
 };

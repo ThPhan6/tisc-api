@@ -350,6 +350,101 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     `;
     return this.model.rawQueryV2(rawQuery, params);
   };
+
+  public getOne = async (trackingId: string, userId: string) => {
+    const params = { trackingId, userId };
+    const rawQuery = `
+    FILTER project_trackings.id == @trackingId
+    FILTER project_trackings.deleted_at == null
+
+    FOR projects IN projects
+    FILTER projects.id == project_trackings.project_id
+    FILTER projects.deleted_at == null
+
+    LET projectRequests = (
+      FOR project_requests IN project_requests
+      FILTER project_requests.project_tracking_id == @trackingId
+      FILTER project_requests.deleted_at == null
+      FOR product in products
+      FILTER product.id == project_requests.product_id
+      FOR collection in collections
+      FILTER collection.id == product.collection_id
+      FOR common_type in common_types
+      FILTER common_type.id == FIRST(project_requests.request_for_ids)
+      LET newRequest = ( RETURN POSITION( project_requests.read_by, @userId) )
+      RETURN MERGE(
+        KEEP(project_requests, 'created_at','title', 'message', 'status','created_by'),
+        {
+          product: MERGE(
+            KEEP(product, 'id', 'name', 'images', 'description'), 
+            {collection_name: collection.name}
+          ),
+          newRequest: NOT newRequest[0],
+          requestFor: common_type.name
+        }
+      )
+    )
+
+    LET notifications = (
+      FOR notifications IN project_tracking_notifications
+      FILTER notifications.project_tracking_id == @trackingId
+      FILTER notifications.deleted_at == null
+      FOR product in products
+      FILTER product.id == notifications.product_id
+      FOR collection in collections
+      FILTER collection.id == product.collection_id
+      LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
+      RETURN MERGE(
+        KEEP(notifications, 'created_at','type', 'status', 'created_by'),
+        {
+          product: MERGE(
+            KEEP(product, 'id', 'name', 'images', 'description'), 
+            {collection_name: collection.name}
+          ),
+          newNotification: NOT newNotification[0]
+        }
+      )
+    )
+
+    LET firstTrackingItem = (
+      RETURN FIRST(UNION(projectRequests, notifications))
+    )
+
+    LET designFirm = (
+      FOR users IN users
+      FILTER users.id == firstTrackingItem[0].created_by
+      FOR designers IN designers
+      FILTER designers.id == users.relation_id
+      FOR locations IN locations
+      FILTER locations.relation_id == designers.id
+      RETURN MERGE(
+        KEEP(designers, 'name', 'official_website'), 
+        KEEP(users, 'phone', 'phone_code', 'email'), 
+        {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
+      )
+    )
+
+    RETURN {
+      projects: KEEP(projects, 'created_at','name','location','project_type','building_type','measurement_unit','design_due','construction_start'),
+      projectRequests,
+      notifications,
+      designFirm: designFirm[0]
+    }
+    `;
+    return this.model.rawQuery(rawQuery, params);
+  };
+
+  public updateReadBy = async (trackingId: string, userId: string) => {
+    const params = { trackingId, userId, now: new Date() };
+    const rawQuery = `
+      FILTER project_trackings.id == @trackingId
+      UPDATE project_trackings WITH { 
+        read_by: UNIQUE( PUSH( project_trackings.read_by, @userId ) ),
+        updated_at: @now
+       } IN project_trackings
+    `;
+    return this.model.rawQuery(rawQuery, params);
+  };
 }
 
 export const projectTrackingRepository = new ProjectTrackingRepository();
