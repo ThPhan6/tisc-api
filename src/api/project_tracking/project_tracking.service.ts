@@ -3,12 +3,12 @@ import { pagination } from "@/helper/common.helper";
 import { successResponse } from "@/helper/response.helper";
 import { ProjectStatus, SortOrder, UserAttributes } from "@/types";
 import { settingService } from "../setting/setting.service";
-import { CreateProjectRequestBody } from "./project_request.model";
-import { projectRequestRepository } from "./project_request.repository";
 import {
-  ProjectTrackingPriority,
-  TrackingStatus,
-} from "./project_tracking.model";
+  CreateProjectRequestBody,
+  ProjectRequestStatus,
+} from "./project_request.model";
+import { projectRequestRepository } from "./project_request.repository";
+import { ProjectTrackingPriority } from "./project_tracking.model";
 import { projectTrackingRepository } from "./project_tracking.repository";
 import {
   GetProjectListFilter,
@@ -33,7 +33,7 @@ class ProjectTrackingService {
     const response = await projectRequestRepository.create({
       ...payload,
       created_by: userId,
-      status: TrackingStatus.Pending,
+      status: ProjectRequestStatus.Pending,
       project_tracking_id: projectTracking.id,
     });
 

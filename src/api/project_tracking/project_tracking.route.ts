@@ -74,7 +74,7 @@ export default class ProjectTrackingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getProjectTrackingSummary,
+                200: response.getProjectTrackingSummary,
               },
             },
           },

@@ -9,6 +9,7 @@ import { v4 } from "uuid";
 import {
   CreateProjectRequestBody,
   ProjectRequestAttributes,
+  ProjectRequestStatus,
 } from "./project_request.model";
 import ProjectTrackingModel, {
   ProjectTrackingAttributes,
@@ -18,6 +19,7 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
+import { ProjectTrackingNotificationStatus } from "./project_tracking_notification.model";
 
 class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes> {
   protected model: ProjectTrackingModel;
@@ -60,12 +62,19 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     FOR project_products IN projectProducts
     RETURN project_products.created_by
   )
-  
+
   ${noJoin ? "LET products = (" : ""}
   FOR products IN products
   FILTER (products.brand_id == @brandId) AND 
     (products.id IN requestIds OR products.id IN projectProductIds)
   ${noJoin ? "RETURN products)" : ""}
+    
+  FOR u IN users
+  FILTER u.id IN requestUsers OR u.id IN ppUsers
+
+  FOR designers IN designers
+  FILTER designers.id == u.relation_id
+
   `;
 
   constructor() {
@@ -149,11 +158,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER ptn.project_tracking_id == project_trackings.id
       RETURN ptn
     )
-    FOR u IN users
-    FILTER u.id IN requestUsers OR u.id IN ppUsers
-
-    FOR designers IN designers
-    FILTER designers.id == u.relation_id
+    
     ${sort === "design_firm" ? `SORT designers.name ${order}` : ""}
 
     LET members = (
@@ -199,20 +204,45 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         : ""
     }
     
-    ${this.getMappingProjectTrackingWithBrandQuery()}
-    
+    ${this.getMappingProjectTrackingWithBrandQuery(true)}
+
     COLLECT WITH COUNT INTO length
     RETURN length
     `;
     return this.model.rawQuery(rawQuery, params);
   }
 
-  public getSummary = async (brandId: string): Promise<any> => {
+  public getSummary = async (
+    brandId: string
+  ): Promise<
+    {
+      project: {
+        total: number;
+        live: number;
+        onHold: number;
+        archive: number;
+      };
+      request: {
+        total: number;
+        pending: number;
+        responded: number;
+      };
+      notification: {
+        total: number;
+        keepInView: number;
+        followedUp: number;
+      };
+    }[]
+  > => {
     const params = {
       brandId,
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
       archiveStatus: ProjectStatus.Archive,
+      pending: ProjectRequestStatus.Pending,
+      responded: ProjectRequestStatus.Responded,
+      keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
+      followedUp: ProjectTrackingNotificationStatus["Followed-up"],
     };
     const rawQuery = `
     LET mapping = (
@@ -221,17 +251,27 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR projects IN projects
       FILTER projects.id == project_trackings.project_id
   
-      ${this.getMappingProjectTrackingWithBrandQuery()}
-      RETURN {projects, project_requests}
+      ${this.getMappingProjectTrackingWithBrandQuery(true)}
+
+      LET notifications = (
+        FOR ptn IN project_tracking_notifications
+        FILTER ptn.project_tracking_id == project_trackings.id
+        RETURN ptn
+      )
+      RETURN {projects, projectRequests, notifications}
     )
 
     LET projects = (
       FOR p in mapping
       RETURN p.projects
     )
-    LET project_requests = (
+    LET projectRequests = (
       FOR pr in mapping
-      RETURN p.project_requests
+      RETURN pr.projectRequests
+    )
+    LET notifications = (
+      FOR pr in mapping
+      RETURN pr.notifications
     )
    
     LET live = (
@@ -253,12 +293,59 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       RETURN length
     )
 
+    LET allRequest = (
+      FOR prs IN projectRequests
+      FOR pr IN prs
+      RETURN pr 
+    )
+    LET pending = (
+      FOR prs IN projectRequests
+      FOR pr IN prs
+      FILTER pr.status == @pending
+      RETURN pr 
+    )
+    LET responded = (
+      FOR prs IN projectRequests
+      FOR pr IN prs
+      FILTER pr.status == @responded
+      RETURN pr
+    )
+
+    LET allNoti = (
+      FOR noti IN notifications
+      FOR nt IN noti
+      RETURN nt
+    )
+    LET keepInView = (
+      FOR noti IN notifications
+      FOR nt IN noti
+      FILTER nt.status == @keepInView
+      RETURN nt
+    )
+    LET followedUp = (
+      FOR noti IN notifications
+      FOR nt IN noti
+      FILTER nt.status == @followedUp
+      RETURN nt
+    )
+
     RETURN {
       project: {
+        total: LENGTH(projects),
         live: live[0],
         onHold: onHold[0],
         archive: archive[0]
-      }
+      },
+      request: {
+        total: COUNT(FLATTEN(allRequest)),
+        pending: COUNT(FLATTEN(pending)),
+        responded: COUNT(FLATTEN(responded)),
+      },
+      notification: {
+        total: COUNT(FLATTEN(allNoti)),
+        keepInView: COUNT(FLATTEN(keepInView)),
+        followedUp: COUNT(FLATTEN(followedUp)),
+      },
     }
     `;
     return this.model.rawQueryV2(rawQuery, params);

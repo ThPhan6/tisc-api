@@ -1,8 +1,8 @@
 import BaseRepository from "@/repositories/base.repository";
 import ProjectRequestModel, {
   ProjectRequestAttributes,
+  ProjectRequestStatus,
 } from "./project_request.model";
-import { TrackingStatus } from "./project_tracking.model";
 
 class ProjectRequestRepository extends BaseRepository<ProjectRequestAttributes> {
   protected model: ProjectRequestModel;
@@ -15,7 +15,7 @@ class ProjectRequestRepository extends BaseRepository<ProjectRequestAttributes> 
     read_by: [],
     request_for_ids: [],
     project_tracking_id: "",
-    status: TrackingStatus.Pending,
+    status: ProjectRequestStatus.Pending,
     title: "",
     created_at: "",
     updated_at: "",

@@ -1,5 +1,9 @@
 import Model from "@/Database/Model";
-import { TrackingStatus } from "./project_tracking.model";
+
+export enum ProjectRequestStatus {
+  "Pending",
+  "Responded",
+}
 
 export interface ProjectRequestAttributes {
   id: string;
@@ -9,7 +13,7 @@ export interface ProjectRequestAttributes {
   title: string;
   message: string;
   request_for_ids: string[]; // common type
-  status: TrackingStatus;
+  status: ProjectRequestStatus;
   read_by: string[]; // user_id[];
   created_at: string;
   updated_at: null | string;

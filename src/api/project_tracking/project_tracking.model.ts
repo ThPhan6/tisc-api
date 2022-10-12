@@ -7,11 +7,6 @@ export enum ProjectTrackingPriority {
   "Low priority",
 }
 
-export enum TrackingStatus {
-  "Pending",
-  "Responded",
-}
-
 export interface ProjectTrackingAttributes {
   id: string;
   project_id: string;
