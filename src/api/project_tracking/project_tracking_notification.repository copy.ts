@@ -1,7 +1,7 @@
 import BaseRepository from "@/repositories/base.repository";
-import { TrackingStatus } from "./project_tracking.model";
 import ProjectTrackingNotificationModel, {
   ProjectTrackingNotificationAttributes,
+  ProjectTrackingNotificationStatus,
   ProjectTrackingNotificationType,
 } from "./project_tracking_notification.model";
 
@@ -14,7 +14,7 @@ class ProjectTrackingNotificationRepository extends BaseRepository<ProjectTracki
       product_id: "",
       project_tracking_id: "",
       read_by: [],
-      status: TrackingStatus.Pending,
+      status: ProjectTrackingNotificationStatus["Keep-in-view"],
       type: ProjectTrackingNotificationType.Considered,
       created_at: "",
       updated_at: "",

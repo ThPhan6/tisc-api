@@ -1,5 +1,4 @@
 import Model from "@/Database/Model";
-import { TrackingStatus } from "./project_tracking.model";
 
 export enum ProjectTrackingNotificationType {
   "Deleted",
@@ -11,12 +10,17 @@ export enum ProjectTrackingNotificationType {
   "Cancelled",
 }
 
+export enum ProjectTrackingNotificationStatus {
+  "Keep-in-view",
+  "Followed-up",
+}
+
 export interface ProjectTrackingNotificationAttributes {
   id: string;
   type: ProjectTrackingNotificationType;
   project_tracking_id: string; // project_trackings table
   product_id: string;
-  status: TrackingStatus;
+  status: ProjectTrackingNotificationStatus;
   read_by: string[]; // user_id[];
   created_at: string;
   updated_at: null | string;
