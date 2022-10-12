@@ -94,6 +94,10 @@ class ProjectTrackingService {
       },
     });
   }
+
+  public getOne = async (trackingId: string, userId: string) => {
+    return projectTrackingRepository.getOne(trackingId, userId);
+  };
 }
 
 export const projectTrackingService = new ProjectTrackingService();
