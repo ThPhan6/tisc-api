@@ -1,5 +1,6 @@
 import { paginationResponse } from "@/helper/response.helper";
 import HapiJoi from "joi";
+import { designResponse } from "./../designer/designer.response";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 
 export const inquiry = {
@@ -26,38 +27,32 @@ export const inquires = {
   firm_location: Joi.string().allow(""),
 };
 
+export const designFirmWithPhoneEmail = {
+  ...designResponse,
+  email: Joi.string(),
+  phone: Joi.string().allow(""),
+};
+
+export const inquiryMessage = {
+  id: Joi.string(),
+  inquiry_for: Joi.string(),
+  title: Joi.string(),
+  message: Joi.string(),
+  product_id: Joi.string(),
+  product_collection: Joi.string(),
+  product_description: Joi.string().allow(""),
+  official_website: Joi.string(),
+  product_image: Joi.string(),
+};
+
 export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({
       product_name: Joi.string(),
-      design_firm: Joi.object({
-        created_at: Joi.string(),
-        id: Joi.string(),
-        logo: Joi.string().allow(null),
-        name: Joi.string(),
-        official_website: Joi.string().allow(""),
-        parent_company: Joi.string().allow(""),
-        profile_n_philosophy: Joi.string().allow(""),
-        slogan: Joi.string().allow(""),
-        status: Joi.number(),
-        team_profile_ids: Joi.array().items(Joi.string().allow(null)),
-        updated_at: Joi.string().allow(null),
-        email: Joi.string(),
-        phone: Joi.string().allow(""),
-      }),
-      inquiry_message: Joi.object({
-        id: Joi.string(),
-        inquiry_for: Joi.string(),
-        title: Joi.string(),
-        message: Joi.string(),
-        product_id: Joi.string(),
-        product_collection: Joi.string(),
-        product_description: Joi.string(),
-        official_website: Joi.string(),
-        product_image: Joi.string(),
-      }),
-    }),
+      design_firm: Joi.object(designFirmWithPhoneEmail),
+      inquiry_message: Joi.object(inquiryMessage),
+    }).allow(null),
   }) as any,
 
   getList: Joi.object({

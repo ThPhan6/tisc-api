@@ -27,12 +27,16 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
    *
    * @param relationId brand id
    */
-  public async getAllInquiryBy(relationId: string) {
-    return (await this.model
+  public async getAllInquiryBy(relationId: string, filter?: any) {
+    let query = this.model
       .getQuery()
       .join("products", "products.id", "==", "general_inquiries.product_id")
-      .where("products.brand_id", "==", relationId)
-      .get()) as GeneralInquiryAttribute[];
+      .where("products.brand_id", "==", relationId);
+
+    if (filter && filter.status) {
+      query = query.where("status", "==", filter.status);
+    }
+    return (await query.get()) as GeneralInquiryAttribute[];
   }
   public async getListGeneralInquiry(
     relationId: string,
@@ -141,13 +145,16 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           official_website : brands.official_websites[0]
       }
     )
-    
+
     LET inquiryFor = (
-        FOR common_types IN common_types
-        FILTER general_inquiries.inquiry_for_ids == common_types.id
+      FOR inquiryId IN general_inquiries.inquiry_for_ids
+            FOR common_types IN common_types
+            FILTER inquiryId == common_types.id
+            SORT common_types.name ASC
         RETURN common_types.name
+
     )
-    
+
     RETURN {
       product_name : products[0].name,
       design_firm : designFirm[0],

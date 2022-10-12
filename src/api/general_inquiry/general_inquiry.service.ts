@@ -65,7 +65,8 @@ class GeneralInquiryService {
       );
 
     const allInquiry = await generalInquiryRepository.getAllInquiryBy(
-      relationId
+      relationId,
+      { ...filter, status: filter?.status }
     );
 
     const result = mappingGeneralInquiries(generalInquiries);
@@ -110,7 +111,7 @@ class GeneralInquiryService {
     });
 
     const result = await generalInquiryRepository.getDetailGeneralInquiry(id);
-    return successResponse({ data: head(result) });
+    return successResponse({ data: head(result) || null });
   }
 }
 export const generalInquiryService = new GeneralInquiryService();
