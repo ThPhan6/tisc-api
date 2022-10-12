@@ -318,5 +318,11 @@
   { "type": 11, "name": "Sample Submission" },
   { "type": 11, "name": "Showroom Visit" },
   { "type": 11, "name": "Technical Documentation" },
-  { "type": 11, "name": "Update Material Library & Resource Room" }
+  { "type": 11, "name": "Update Material Library & Resource Room" },
+
+  { "type": 12, "name": "Client Approval" },
+  { "type": 12, "name": "Construction Documents" },
+  { "type": 12, "name": "Internal Review" },
+  { "type": 12, "name": "Tender Prequlification" },
+  { "type": 12, "name": "Tender Documents" }
 ]

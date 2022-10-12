@@ -1,10 +1,16 @@
 // import { MESSAGES } from "./../../constant/common.constant";
 import { projectRepository } from "@/repositories/project.repository";
+import { templateRepository } from "@/repositories/template.repository";
+import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
 // import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import { MESSAGES } from "@/constants";
+import { mappingSpecifyPDFTemplate } from "./pdf.mapping";
 import { UserAttributes } from "@/types";
 import { isEmpty, merge } from "lodash";
-import { errorMessageResponse } from "@/helper/response.helper";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
 import { pdfNode } from "@/service/pdf/pdf.service";
 import * as ejs from "ejs";
 
@@ -19,6 +25,16 @@ export default class PDFService {
       content,
       layout,
     });
+  };
+
+  private validateProjectWithRelation = async (
+    projectId: string,
+    user: UserAttributes
+  ) => {
+    const project = await projectRepository.find(projectId);
+    if (isEmpty(project) || project.design_id !== user.relation_id) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND);
+    }
   };
 
   private getProjectData = async (projectId: string, user: UserAttributes) => {
@@ -42,7 +58,8 @@ export default class PDFService {
 
   private getSpecifyHeader = async (title: string) => {
     const headerHtml = await ejs.renderFile(
-      `${this.baseTemplate}/layouts/header.layout.ejs`, {title}
+      `${this.baseTemplate}/layouts/header.layout.ejs`,
+      { title }
     );
     return {
       header: {
@@ -76,18 +93,47 @@ export default class PDFService {
       `${this.baseTemplate}/specification/finishes_material_products/reference_by_code.ejs`
     );
     const html = await this.injectBasePdfTemplate(coverHtml, "specification");
-    const headerOption = await this.getSpecifyHeader('finishes, materials & products listing by code');
+    const headerOption = await this.getSpecifyHeader(
+      "finishes, materials & products listing by code"
+    );
     const footerOption = await this.getSpecifyFooter();
+    console.log(html);
     return await pdfNode
       .create(html, merge(headerOption, footerOption))
       .toBuffer();
   };
-  public generateProjectProductHtml = async () => {
-    const coverHtml = await ejs.renderFile(
-      `${this.baseTemplate}/specification/finishes_material_products/reference_by_code.ejs`
-    );
-    const html = await this.injectBasePdfTemplate(coverHtml, "specification");
-    return html
+
+  public getProjectSpecifyConfig = async (
+    user: UserAttributes,
+    projectId: string
+  ) => {
+    const isInvalid = await this.validateProjectWithRelation(projectId, user);
+    if (isInvalid) {
+      return isInvalid;
+    }
+
+    let projectProductPDFConfig =
+      await projectProductPDFConfigRepository.findBy({ project_id: projectId });
+
+    if (!projectProductPDFConfig) {
+      projectProductPDFConfig = await projectProductPDFConfigRepository.create({
+        project_id: projectId,
+        created_by: user.id,
+      });
+    }
+
+    if (!projectProductPDFConfig) {
+      return errorMessageResponse(MESSAGES.PDF_SPECIFY.ERROR_CREATE);
+    }
+    const templates = await templateRepository.getAll("sequence", "ASC");
+    const templatesResponse = mappingSpecifyPDFTemplate(templates);
+
+    return successResponse({
+      data: {
+        config: projectProductPDFConfig,
+        templates: templatesResponse,
+      },
+    });
   };
 }
 

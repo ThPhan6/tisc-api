@@ -215,4 +215,7 @@ export const MESSAGES = {
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
+  PDF_SPECIFY: {
+    ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
+  }
 };
