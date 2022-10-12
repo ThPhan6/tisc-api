@@ -6,6 +6,20 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const designResponse = {
+  name: Joi.string(),
+  parent_company: Joi.string().allow(""),
+  logo: Joi.string().allow(null),
+  slogan: Joi.string().allow(""),
+  profile_n_philosophy: Joi.string().allow(""),
+  official_website: Joi.string().allow(""),
+  team_profile_ids: Joi.array().items(Joi.string().allow(null)),
+  status: Joi.number(),
+  id: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string().allow(null),
+};
+
 export default {
   getList: Joi.object({
     data: Joi.object({

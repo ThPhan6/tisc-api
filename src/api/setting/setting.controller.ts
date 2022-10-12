@@ -1,4 +1,5 @@
 import { FUNCTIONAL_TYPE_OPTIONS, MEASUREMENT_UNIT_OPTIONS } from "@/constants";
+import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { settingService } from "./setting.service";
 export default class SettingController {

@@ -28,6 +28,7 @@ import FavouriteRoute from "./api/favourite/favourite.route";
 import UserProductSpecificationRoute from "./api/user_product_specification/user_product_specification.route";
 import ProjectProductRoute from "./api/project_product/project_product.route";
 import SettingRoute from "./api/setting/setting.route";
+import GeneralInquiryRoute from "./api/general_inquiry/general_inquiry.route";
 import ProjectTrackingRoute from "./api/project_tracking/project_tracking.route";
 
 export default class Router {
@@ -61,6 +62,7 @@ export default class Router {
     await new UserProductSpecificationRoute().register(server);
     await new ProjectProductRoute().register(server);
     await new SettingRoute().register(server);
+    await new GeneralInquiryRoute().register(server);
     await new ProjectTrackingRoute().register(server);
   }
 }
