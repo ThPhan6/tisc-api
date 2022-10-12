@@ -101,6 +101,10 @@ export const MESSAGES = {
     MATERIAL_CODE_EXISTED: "Material code is existed",
     CAN_NOT_DELETE: "This material code is using, can't delete",
   },
+
+  GENERAL_INQUIRY: {
+    NOT_FOUND: "General inquiry not found",
+  },
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",

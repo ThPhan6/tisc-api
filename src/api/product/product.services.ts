@@ -186,12 +186,14 @@ class ProductService {
     if (!(await validateImageType(newPaths))) {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
-    const imagePaths = await uploadImagesProduct(
-      newPaths,
-      payload.keywords,
-      product.brand.name,
-      product.brand_id
-    );
+    const imagePaths = !newPaths[0]
+      ? product.images
+      : await uploadImagesProduct(
+          newPaths,
+          payload.keywords,
+          product.brand.name,
+          product.brand_id
+        );
 
     const updatedProduct = await ProductRepository.update(id, {
       ...payload,
@@ -334,8 +336,8 @@ class ProductService {
     return successResponse({
       data: {
         data: categoryId
-          ? mappingByBrand(products)
-          : mappingByCategory(products),
+          ? mappingByCategory(products)
+          : mappingByBrand(products),
         brand: await this.brandRepository.find(brandId),
       },
     });

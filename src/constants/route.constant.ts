@@ -245,6 +245,12 @@ export const ROUTES = {
     GET_LIST_CODE_MATERIAL_CODE: "/api/material-code/get-list-code",
   },
   ASSIGN_TEAM_PROJECT: "/api/project/{id}/assign-team",
+  GENERAL_INQUIRY: {
+    CREATE: "/api/general-inquiry",
+    GET_LIST: "/api/general-inquiry",
+    SUMMARY: "/api/general-inquiry/summary",
+    GET_ONE: "/api/general-inquiry/{id}",
+  },
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

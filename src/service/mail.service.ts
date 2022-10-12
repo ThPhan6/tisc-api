@@ -6,6 +6,7 @@ import { SYSTEM_TYPE, TARGETED_FOR_TYPES } from "./../constant/common.constant";
 import EmailAutoResponderModel from "../model/auto_email.model";
 import { unescape } from "lodash";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
+
 export default class MailService {
   private fromAddress: string;
   private frontpageURL: string;
@@ -262,3 +263,4 @@ export default class MailService {
     });
   }
 }
+export const mailService = new MailService();

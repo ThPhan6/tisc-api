@@ -30,26 +30,17 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 
-import MailService from "@/service/mail.service";
+import {mailService} from "@/service/mail.service";
 import {permissionService} from "@/api/permission/permission.service";
 
 import { getRoleType } from "@/constants/role.constant";
-import BrandRepository from "@/repositories/brand.repository";
-import DesignerRepository from "@/repositories/designer.repository";
+import {brandRepository} from "@/repositories/brand.repository";
+import {designerRepository} from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
 
 class AuthService {
-  private mailService: MailService;
-  private brandRepository: BrandRepository;
-  private designerRepository: DesignerRepository;
 
-  constructor() {
-    this.mailService = new MailService();
-    this.brandRepository = new BrandRepository();
-    this.designerRepository = new DesignerRepository();
-  }
-
-  private reponseWithToken = (userId: string, type?: string) => {
+  private responseWithToken = (userId: string, type?: string) => {
     const response = {
       type,
       token: signJwtToken(userId),
@@ -67,44 +58,36 @@ class AuthService {
 
   private authValidation = (
     inputPassword: string,
-    user?: UserAttributes & {}
+    user: UserAttributes
   ) => {
-    if (!user) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
-    }
+
     if (!user.is_verified) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    }
+    if (user.status === USER_STATUSES.PENDING) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    }
+    if (user.status === USER_STATUSES.BLOCKED) {
+      return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
     }
     if (!comparePassword(inputPassword, user.password)) {
       return errorMessageResponse(MESSAGES.PASSWORD_NOT_CORRECT);
     }
-  };
+  }
 
   private typeValidation = (
-    expectType: number,
-    type?: number,
+    expectType: RoleTypeValue,
+    type: RoleTypeValue,
     operation: "eq" | "neq" = "eq"
   ) => {
     if (type) {
-      if (operation === "eq" && expectType === type) {
+      if (operation === "eq" && expectType !== type) {
         return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
       }
-      if (operation === "neq" && expectType !== type) {
+      if (operation === "neq" && expectType === type) {
         return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
       }
     }
-  };
-
-  private generateOneTimeToken = async (
-    field: "reset_password_token" | "verification_token"
-  ) => {
-    let token = "";
-    let isDuplicated = true;
-    do {
-      token = createResetPasswordToken();
-      isDuplicated = !isEmpty(await userRepository.findBy({ [field]: token }));
-    } while (isDuplicated);
-    return token;
   };
 
   private updateNewPassword = async (userId: string, password: string) => {
@@ -115,27 +98,25 @@ class AuthService {
   };
 
   public tiscLogin = async (
-    payload: IAdminLoginRequest,
-    type?: RoleTypeValue
+    payload: IAdminLoginRequest
   ): Promise<ILoginResponse | IMessageResponse> => {
-    this.typeValidation(ROLE_TYPE.TISC, type);
+
     const user = await userRepository.findBy({ email: payload.email });
     if (!user) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    if (user.status === USER_STATUSES.PENDING) {
-      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    const isInvalid = this.authValidation(payload.password, user);
+    if (isInvalid) {
+      return isInvalid;
     }
-    if (user.status === USER_STATUSES.BLOCKED) {
-      return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
+    const isIncorrectType = this.typeValidation(ROLE_TYPE.TISC, user.type);
+    if (isIncorrectType) {
+      return isIncorrectType;
     }
-    this.authValidation(payload.password, user);
-    return this.reponseWithToken(user.id);
+    return this.responseWithToken(user.id);
   };
 
-  public login = async (payload: IAdminLoginRequest, type?: RoleTypeValue) => {
-    ///
-    this.typeValidation(ROLE_TYPE.TISC, type, "neq");
+  public login = async (payload: IAdminLoginRequest) => {
     ///
     const user = await userRepository.findByCompanyIdWithCompanyStatus(
       payload.email
@@ -143,13 +124,15 @@ class AuthService {
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    this.authValidation(payload.password, user);
 
-    if (user.status === USER_STATUSES.PENDING) {
-      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    const isInvalid = this.authValidation(payload.password, user);
+    if (isInvalid) {
+      return isInvalid;
     }
-    if (user.status === USER_STATUSES.BLOCKED) {
-      return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
+
+    const isIncorrectType = this.typeValidation(ROLE_TYPE.TISC, user.type, "neq");
+    if (isIncorrectType) {
+      return isIncorrectType;
     }
 
     //// company status validation
@@ -160,7 +143,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.DESIGN_INACTIVE_LOGIN, 401);
     }
     ///
-    return this.reponseWithToken(user.id, getRoleType(user.role_id));
+    return this.responseWithToken(user.id, getRoleType(user.role_id));
   };
 
   public forgotPassword = async (
@@ -180,7 +163,7 @@ class AuthService {
     ) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    const token = await this.generateOneTimeToken("reset_password_token");
+    const token = await userRepository.generateToken("reset_password_token");
     const updatedData = await userRepository.update(user.id, {
       reset_password_token: token,
     });
@@ -188,7 +171,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 404);
     }
     /// send reset password
-    await this.mailService.sendResetPasswordEmail(updatedData, browserName);
+    await mailService.sendResetPasswordEmail(updatedData, browserName);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
@@ -211,13 +194,13 @@ class AuthService {
     }
     let isSuccess = false;
     if (type === AUTH_EMAIL_TYPE.FORGOT_PASSWORD) {
-      isSuccess = await this.mailService.sendResetPasswordEmail(
+      isSuccess = await mailService.sendResetPasswordEmail(
         user,
         browserName
       );
     }
     if (type === AUTH_EMAIL_TYPE.VERIFICATION) {
-      isSuccess = await this.mailService.sendRegisterEmail(user);
+      isSuccess = await mailService.sendRegisterEmail(user);
     }
     if (isSuccess) {
       return successResponse();
@@ -255,7 +238,7 @@ class AuthService {
     }
     const updated = await this.updateNewPassword(user.id, payload.password);
     if (updated) {
-      return this.reponseWithToken(user.id);
+      return this.responseWithToken(user.id);
     }
     return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
@@ -267,14 +250,14 @@ class AuthService {
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
-    const createdDesign = await this.designerRepository.create({
+    const createdDesign = await designerRepository.create({
       name: payload.company_name || payload.firstname + " Design Firm",
     });
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
-    const token = await this.generateOneTimeToken("verification_token");
+    const token = await userRepository.generateToken("verification_token");
     const saltHash = createHashWithSalt(payload.password);
     const password = saltHash.hash;
 
@@ -292,7 +275,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
     await permissionService.initPermission(createdUser);
-    await this.mailService.sendDesignRegisterEmail(createdUser);
+    await mailService.sendDesignRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
@@ -333,7 +316,7 @@ class AuthService {
     }
     // update brand status after verify the first brand admin
     if (user.type === ROLE_TYPE.BRAND && user.relation_id) {
-      await this.brandRepository.update(user.relation_id, {
+      await brandRepository.update(user.relation_id, {
         status: BRAND_STATUSES.ACTIVE,
       });
     }
