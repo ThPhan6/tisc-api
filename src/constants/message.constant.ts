@@ -105,6 +105,9 @@ export const MESSAGES = {
   GENERAL_INQUIRY: {
     NOT_FOUND: "General inquiry not found",
   },
+  ACTION_TASK: {
+    NOT_FOUND: "Action task not found",
+  },
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",

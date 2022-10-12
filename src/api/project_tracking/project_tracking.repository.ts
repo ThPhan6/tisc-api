@@ -3,13 +3,13 @@ import {
   DesignerAttributes,
   ProjectAttributes,
   ProjectStatus,
+  RespondedOrPendingStatus,
   SortOrder,
 } from "@/types";
 import { v4 } from "uuid";
 import {
   CreateProjectRequestBody,
   ProjectRequestAttributes,
-  ProjectRequestStatus,
 } from "./project_request.model";
 import ProjectTrackingModel, {
   ProjectTrackingAttributes,
@@ -239,8 +239,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
       archiveStatus: ProjectStatus.Archive,
-      pending: ProjectRequestStatus.Pending,
-      responded: ProjectRequestStatus.Responded,
+      pending: RespondedOrPendingStatus.Pending,
+      responded: RespondedOrPendingStatus.Responded,
       keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
       followedUp: ProjectTrackingNotificationStatus["Followed-up"],
     };

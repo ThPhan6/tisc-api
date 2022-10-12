@@ -43,6 +43,7 @@ const migrate = async () => {
   await migrate_table("project_trackings");
   await migrate_table("project_requests");
   await migrate_table("project_tracking_notifications");
+  await migrate_table("actions_tasks");
 };
 
 migrate();

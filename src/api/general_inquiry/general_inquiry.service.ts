@@ -1,5 +1,4 @@
 import { COMMON_TYPES, MESSAGES } from "@/constants";
-import { GENERAL_INQUIRY_STATUS } from "@/constants/general_inquiry.constant";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -7,7 +6,11 @@ import {
 } from "@/helper/response.helper";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import productRepository from "@/repositories/product.repository";
-import { SortValidGeneralInquiry, UserAttributes } from "@/types";
+import {
+  RespondedOrPendingStatus,
+  SortValidGeneralInquiry,
+  UserAttributes,
+} from "@/types";
 import { head, uniq } from "lodash";
 import { settingService } from "./../setting/setting.service";
 import { mappingGeneralInquiries } from "./general_inquiry.mapping";
@@ -31,7 +34,7 @@ class GeneralInquiryService {
       title: payload.title,
       message: payload.message,
       inquiry_for_ids: payload.inquiry_for_ids,
-      status: GENERAL_INQUIRY_STATUS.PENDING,
+      status: RespondedOrPendingStatus.Pending,
       read: [],
       created_by: user.id,
     });
@@ -88,11 +91,11 @@ class GeneralInquiryService {
       inquires: allInquiry.length,
 
       pending: allInquiry.filter(
-        (inquiry) => inquiry.status === GENERAL_INQUIRY_STATUS.PENDING
+        (inquiry) => inquiry.status === RespondedOrPendingStatus.Pending
       ).length,
 
       responded: allInquiry.filter(
-        (inquiry) => inquiry.status === GENERAL_INQUIRY_STATUS.RESPONDED
+        (inquiry) => inquiry.status === RespondedOrPendingStatus.Responded
       ).length,
     };
   }
