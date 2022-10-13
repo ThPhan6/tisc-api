@@ -1,9 +1,10 @@
-import { DESIGN_STATUS_OPTIONS, PROJECT_STATUS, REGION_KEY } from "@/constants";
+import { DESIGN_STATUS_OPTIONS, REGION_KEY } from "@/constants";
 import { IProjectAttributes } from "@/model/project.model";
 import {
   DesignerAttributes,
   ILocationAttributes,
   IRegionCountry,
+  ProjectStatus,
 } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { DesignerDataCustom } from "./designer.type";
@@ -95,21 +96,21 @@ export const mappingDesignSummary = (
         {
           id: uuidv4(),
           quantity: projects.filter(
-            (project) => project.status === PROJECT_STATUS.LIVE
+            (project) => project.status === ProjectStatus.Live
           ).length,
           label: "Live",
         },
         {
           id: uuidv4(),
           quantity: projects.filter(
-            (project) => project.status === PROJECT_STATUS.ON_HOLD
+            (project) => project.status === ProjectStatus["On Hold"]
           ).length,
           label: "On Hold",
         },
         {
           id: uuidv4(),
           quantity: projects.filter(
-            (project) => project.status === PROJECT_STATUS.ARCHIVE
+            (project) => project.status === ProjectStatus.Archive
           ).length,
           label: "Archived",
         },
@@ -127,13 +128,13 @@ export const mappingGetListDesigner = (
     );
 
     const countLive = designerData.projects.filter(
-      (projectStatus) => projectStatus == PROJECT_STATUS.LIVE
+      (projectStatus) => projectStatus == ProjectStatus.Live
     ).length;
     const countOnHold = designerData.projects.filter(
-      (projectStatus) => projectStatus == PROJECT_STATUS.ON_HOLD
+      (projectStatus) => projectStatus == ProjectStatus["On Hold"]
     ).length;
     const countArchived = designerData.projects.filter(
-      (projectStatus) => projectStatus == PROJECT_STATUS.ARCHIVE
+      (projectStatus) => projectStatus == ProjectStatus.Archive
     ).length;
     return {
       id: designerData.designer.id,

@@ -205,3 +205,11 @@ export const pagination = (limit: number, offset: number, total: number) => ({
   total: total,
   page_count: Math.ceil(total / limit),
 });
+
+export function getEnumValues<T extends string | number>(e: any): T[] {
+  return typeof e === "object" ? Object.values(e) : [];
+}
+
+export function getEnumKeys(e: any): string[] {
+  return typeof e === "object" ? Object.keys(e) : [];
+}
