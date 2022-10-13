@@ -72,7 +72,7 @@ export default class GeneralInquiryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getOne,
+                200: response.getOne,
               },
             },
           },

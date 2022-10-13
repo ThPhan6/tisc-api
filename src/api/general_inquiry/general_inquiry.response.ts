@@ -31,6 +31,9 @@ export const designFirmWithPhoneEmail = {
   ...designResponse,
   email: Joi.string(),
   phone: Joi.string().allow(""),
+  address: Joi.string().allow(""),
+  inquirer: Joi.string(),
+  position: Joi.string(),
 };
 
 export const inquiryMessage = {
