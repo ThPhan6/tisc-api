@@ -35,7 +35,7 @@ class GeneralInquiryService {
       message: payload.message,
       inquiry_for_ids: payload.inquiry_for_ids,
       status: RespondedOrPendingStatus.Pending,
-      read: [],
+      read_by: [],
       created_by: user.id,
     });
 
@@ -106,11 +106,11 @@ class GeneralInquiryService {
     if (!inquiry) {
       return errorMessageResponse(MESSAGES.GENERAL_INQUIRY.NOT_FOUND, 404);
     }
-    const userReadNotificationIds = uniq([...inquiry.read, user.id]);
+    const userReadNotificationIds = uniq([...inquiry.read_by, user.id]);
 
-    //update user read notification
+    //update user read_by notification
     await generalInquiryRepository.update(id, {
-      read: userReadNotificationIds,
+      read_by: userReadNotificationIds,
     });
 
     const result = await generalInquiryRepository.getDetailGeneralInquiry(id);

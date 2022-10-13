@@ -1,9 +1,8 @@
-import { ActionTaskStatus } from "./../../types/action_task.type";
 import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
-  successResponse,
   successMessageResponse,
+  successResponse,
 } from "@/helper/response.helper";
 import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
@@ -12,6 +11,8 @@ import { RespondedOrPendingStatus, UserAttributes } from "@/types";
 import { ActionTaskModel } from "@/types/action_task.type";
 import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";
+import { ActionTaskStatus } from "@/types/action_task.type";
+import { projectTrackingRepository } from "./../project_tracking/project_tracking.repository";
 import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository copy";
 import {
   ActionTaskRequestCreate,
@@ -28,41 +29,80 @@ class ActionTaskService {
     );
 
     //insert into actions_tasks
-    const createdActionTask = await actionTaskRepository.create({
-      ...payload,
-      model_name: payload.model_name,
-      model_id: payload.model_id,
-      status: ActionTaskStatus.To_do_list,
-      common_type_ids: payload.common_type_ids,
-      created_by: user.id,
-    });
+    let createdActionTask;
+    for (const commonTypeId of payload.common_type_ids) {
+      createdActionTask = await actionTaskRepository.create({
+        model_name: payload.model_name,
+        model_id: payload.model_id,
+        status: ActionTaskStatus.To_do_list,
+        common_type_id: commonTypeId,
+        created_by: user.id,
+      });
+    }
 
     if (!createdActionTask) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
 
+    //update status when has assign tasks
     switch (payload.model_name) {
       case ActionTaskModel.notification:
         await projectTrackingNotificationRepository.update(payload.model_id, {
           status: ProjectTrackingNotificationStatus["Followed-up"],
         });
         break;
+
       case ActionTaskModel.request:
         await projectRepository.update(payload.model_id, {
           status: RespondedOrPendingStatus.Responded,
         });
         break;
+
       case ActionTaskModel.inquiry:
         await generalInquiryRepository.update(payload.model_id, {
           status: RespondedOrPendingStatus.Responded,
         });
         break;
+
       default:
         break;
     }
 
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+
+  public async getList(userId: string, modelId: string, modelName: string) {
+    //update user read notification or request
+    switch (modelName) {
+      case ActionTaskModel.notification:
+        await projectTrackingRepository.updateUniqueAttribute(
+          "project_tracking_notifications",
+          "read_by",
+          modelId,
+          userId
+        );
+        break;
+
+      case ActionTaskModel.request:
+        await projectTrackingRepository.updateUniqueAttribute(
+          "project_requests",
+          "read_by",
+          modelId,
+          userId
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    const result = await actionTaskRepository.getListActionTask(
+      modelName,
+      modelId
+    );
+
     return successResponse({
-      data: createdActionTask,
+      data: result,
     });
   }
 

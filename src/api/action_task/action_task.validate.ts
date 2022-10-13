@@ -45,4 +45,20 @@ export default {
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
   },
+  getList: {
+    query: {
+      model_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Model is missing")),
+      model_name: Joi.string()
+        //ActionTaskModel
+        .valid(
+          ActionTaskModel.notification,
+          ActionTaskModel.request,
+          ActionTaskModel.inquiry
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Model name is missing")),
+    },
+  },
 };

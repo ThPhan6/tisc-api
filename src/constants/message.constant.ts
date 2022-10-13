@@ -108,6 +108,12 @@ export const MESSAGES = {
   ACTION_TASK: {
     NOT_FOUND: "Action task not found",
   },
+
+  PROJECT_TRACKING: {
+    PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
+    NOTIFICATION_NOT_FOUND: "Notification not found",
+    REQUEST_NOT_FOUND: "Request not found",
+  },
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",

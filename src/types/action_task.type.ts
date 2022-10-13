@@ -4,7 +4,7 @@ export interface ActionTaskAttribute {
   model_id: string; ///
   status: number; /// need to define type here --// Completed, Todo-list, In Progress, Cancelled // todo-list default
   created_at: string;
-  common_type_ids: string[]; //action_task_ids
+  common_type_id: string; //action_task_ids
   updated_at: null | string;
   created_by: string; // user_id
 }

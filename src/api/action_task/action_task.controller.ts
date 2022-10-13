@@ -26,4 +26,15 @@ export default class ActionTaskController {
     const response = await actionTaskService.update(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
+
+  public async getList(req: Request, toolkit: ResponseToolkit) {
+    const user = req.auth.credentials.user as UserAttributes;
+    const { model_name, model_id } = req.query;
+    const response = await actionTaskService.getList(
+      user.id,
+      model_id,
+      model_name
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  }
 }
