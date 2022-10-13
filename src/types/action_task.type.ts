@@ -21,7 +21,7 @@ export enum ActionTaskModelEnum {
 export enum ActionTaskStatus {
   "To_do_list",
   "In_progress",
-  "Canceled",
+  "Cancelled",
   "Completed",
 }
 

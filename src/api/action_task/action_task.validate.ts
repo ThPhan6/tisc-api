@@ -38,7 +38,7 @@ export default {
         .valid(
           ActionTaskStatus.To_do_list,
           ActionTaskStatus.In_progress,
-          ActionTaskStatus.Canceled,
+          ActionTaskStatus.Cancelled,
           ActionTaskStatus.Completed
         )
         .required()
