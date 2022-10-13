@@ -53,7 +53,9 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     const rawQuery = `
     FILTER general_inquiries.deleted_at == null
     ${
-      filter.status ? `FILTER general_inquiries.status == ${filter.status}` : ""
+      typeof filter.status === "number"
+        ? `FILTER general_inquiries.status == ${filter.status}`
+        : ""
     }
       ${
         sort && sort[0] === "created_at"
@@ -126,7 +128,14 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER users.id == general_inquiries.created_by
       FOR designers IN designers
       FILTER designers.id == users.relation_id
-      RETURN MERGE(UNSET(designers, ['_id', '_key','_rev','deleted_at']), KEEP(users,'email', 'phone'))
+      FOR locations IN locations
+      FILTER locations.relation_id == designers.id
+      RETURN MERGE(
+        KEEP(designers, 'name', 'official_website'), 
+        KEEP(users, 'phone', 'email','position'),
+        {inquirer : CONCAT(users.firstname, " " ,users.lastname)},
+        {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
+      )
     )
 
     LET products = (
