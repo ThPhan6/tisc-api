@@ -1,9 +1,8 @@
+import { getEnumValues } from "@/helper/common.helper";
 import * as Joi from "joi";
-import {
-  ORDER_METHOD,
-  SPECIFIED_PRODUCT_STATUS,
-} from "../../constant/common.constant";
+import { SPECIFIED_PRODUCT_STATUS } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import { OrderMethod } from "../project_product/project_product.type";
 
 export default {
   getOne: {
@@ -123,10 +122,7 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Unit type is required")),
-      order_method: Joi.number().valid(
-        ORDER_METHOD.DIRECT_PURCHASE,
-        ORDER_METHOD.CUSTOM_ORDER
-      ),
+      order_method: Joi.number().valid(...getEnumValues(OrderMethod)),
       requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
 
