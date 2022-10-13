@@ -81,17 +81,14 @@ class ActionTaskService {
   ) {
     //update user read notification or request
 
-    const model =
-      ActionTaskModelEnum[modelName] == ActionTaskModelEnum.notification
-        ? "project_tracking_notifications"
-        : "project_requests";
-
-    await projectTrackingRepository.updateUniqueAttribute(
-      model,
-      "read_by",
-      modelId,
-      userId
-    );
+    if (ActionTaskModelEnum[modelName] !== ActionTaskModelEnum.inquiry) {
+      await projectTrackingRepository.updateUniqueAttribute(
+        ActionTaskModelEnum[modelName],
+        "read_by",
+        modelId,
+        userId
+      );
+    }
 
     const result = await actionTaskRepository.getListActionTask(
       ActionTaskModelEnum[modelName],
