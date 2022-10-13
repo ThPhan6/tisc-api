@@ -10,7 +10,7 @@ class ActionTaskRepository extends BaseRepository<ActionTaskAttribute> {
   protected DEFAULT_ATTRIBUTE: Partial<ActionTaskAttribute> = {
     model_name: ActionTaskModelEnum.inquiry,
     model_id: "",
-    status: ActionTaskStatus.To_do_list,
+    status: ActionTaskStatus["To-Do-List"],
     created_at: "",
     common_type_id: "",
     updated_at: null,
