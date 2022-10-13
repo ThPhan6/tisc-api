@@ -1,5 +1,8 @@
 import { getEnumKeys } from "@/helper/common.helper";
-import { ActionTaskModel, ActionTaskStatus } from "@/types/action_task.type";
+import {
+  ActionTaskModelEnum,
+  ActionTaskStatus,
+} from "@/types/action_task.type";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
 import Joi from "joi";
 
@@ -17,8 +20,8 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Model is missing")),
       model_name: Joi.string()
-        //ActionTaskModel
-        .valid(...getEnumKeys(ActionTaskModel))
+        //ActionTaskModelEnum
+        .valid(...getEnumKeys(ActionTaskModelEnum))
         .required()
         .error(commonFailValidatedMessageFunction("Model name is missing")),
     },
@@ -48,8 +51,8 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Model is missing")),
       model_name: Joi.string()
-        //ActionTaskModel
-        .valid(...getEnumKeys(ActionTaskModel))
+        //ActionTaskModelEnum
+        .valid(...getEnumKeys(ActionTaskModelEnum))
 
         .required()
         .error(commonFailValidatedMessageFunction("Model name is missing")),

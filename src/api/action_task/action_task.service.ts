@@ -8,12 +8,15 @@ import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { RespondedOrPendingStatus, UserAttributes } from "@/types";
-import { ActionTaskModel, ActionTaskStatus } from "@/types/action_task.type";
+import {
+  ActionTaskModelEnum,
+  ActionTaskModelKey,
+  ActionTaskStatus,
+} from "@/types/action_task.type";
 import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";
 import { projectTrackingRepository } from "./../project_tracking/project_tracking.repository";
 import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository copy";
-import { parseActionTaskModelName } from "./action_task.mapping";
 import {
   ActionTaskRequestCreate,
   ActionTaskRequestUpdateStatus,
@@ -32,7 +35,7 @@ class ActionTaskService {
     let createdActionTask;
     for (const commonTypeId of payload.common_type_ids) {
       createdActionTask = await actionTaskRepository.create({
-        model_name: parseActionTaskModelName(payload.model_name),
+        model_name: ActionTaskModelEnum[payload.model_name],
         model_id: payload.model_id,
         status: ActionTaskStatus.To_do_list,
         common_type_id: commonTypeId,
@@ -45,22 +48,20 @@ class ActionTaskService {
     }
 
     //update status when has assign tasks
-    switch (
-      parseActionTaskModelName(payload.model_name) //
-    ) {
-      case ActionTaskModel.notification:
+    switch (ActionTaskModelEnum[payload.model_name]) {
+      case ActionTaskModelEnum.notification:
         await projectTrackingNotificationRepository.update(payload.model_id, {
           status: ProjectTrackingNotificationStatus["Followed-up"],
         });
         break;
 
-      case ActionTaskModel.request:
+      case ActionTaskModelEnum.request:
         await projectRepository.update(payload.model_id, {
           status: RespondedOrPendingStatus.Responded,
         });
         break;
 
-      case ActionTaskModel.inquiry:
+      case ActionTaskModelEnum.inquiry:
         await generalInquiryRepository.update(payload.model_id, {
           status: RespondedOrPendingStatus.Responded,
         });
@@ -73,33 +74,27 @@ class ActionTaskService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getList(userId: string, modelId: string, modelName: string) {
+  public async getList(
+    userId: string,
+    modelId: string,
+    modelName: ActionTaskModelKey
+  ) {
     //update user read notification or request
-    switch (parseActionTaskModelName(modelName)) {
-      case ActionTaskModel.notification:
-        await projectTrackingRepository.updateUniqueAttribute(
-          "project_tracking_notifications",
-          "read_by",
-          modelId,
-          userId
-        );
-        break;
 
-      case ActionTaskModel.request:
-        await projectTrackingRepository.updateUniqueAttribute(
-          "project_requests",
-          "read_by",
-          modelId,
-          userId
-        );
-        break;
+    const model =
+      ActionTaskModelEnum[modelName] == ActionTaskModelEnum.notification
+        ? "project_tracking_notifications"
+        : "project_requests";
 
-      default:
-        break;
-    }
+    await projectTrackingRepository.updateUniqueAttribute(
+      model,
+      "read_by",
+      modelId,
+      userId
+    );
 
     const result = await actionTaskRepository.getListActionTask(
-      parseActionTaskModelName(modelName),
+      ActionTaskModelEnum[modelName],
       modelId
     );
 

@@ -1,11 +1,14 @@
 import ActionTaskModel from "@/model/action_task.model";
 import BaseRepository from "@/repositories/base.repository";
-import { ActionTaskAttribute } from "@/types/action_task.type";
+import {
+  ActionTaskAttribute,
+  ActionTaskModelEnum,
+} from "@/types/action_task.type";
 import { ActionTaskStatus } from "./../types/action_task.type";
 class ActionTaskRepository extends BaseRepository<ActionTaskAttribute> {
   protected model: ActionTaskModel;
   protected DEFAULT_ATTRIBUTE: Partial<ActionTaskAttribute> = {
-    model_name: "",
+    model_name: ActionTaskModelEnum.inquiry,
     model_id: "",
     status: ActionTaskStatus.To_do_list,
     created_at: "",
