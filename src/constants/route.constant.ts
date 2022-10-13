@@ -251,6 +251,11 @@ export const ROUTES = {
     SUMMARY: "/api/general-inquiry/summary",
     GET_ONE: "/api/general-inquiry/{id}",
   },
+  ACTION_TASK: {
+    CREATE: "/api/action-task",
+    GET_LIST: "/api/action-task",
+    UPDATE: "/api/action-task/{id}",
+  },
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",

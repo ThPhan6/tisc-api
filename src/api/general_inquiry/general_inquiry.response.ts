@@ -9,7 +9,7 @@ export const inquiry = {
   inquiry_for_ids: Joi.array().items(Joi.string().allow(null)),
   inquiries_for: Joi.array().items(Joi.string().allow(null)),
   status: Joi.number(),
-  read: Joi.array().items(Joi.string().allow(null)),
+  read_by: Joi.array().items(Joi.string().allow(null)),
   created_at: Joi.string(),
   created_by: Joi.string(),
   id: Joi.string(),

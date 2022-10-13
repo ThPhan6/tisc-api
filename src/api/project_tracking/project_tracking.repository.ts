@@ -3,13 +3,13 @@ import {
   DesignerAttributes,
   ProjectAttributes,
   ProjectStatus,
+  RespondedOrPendingStatus,
   SortOrder,
 } from "@/types";
 import { v4 } from "uuid";
 import {
   CreateProjectRequestBody,
   ProjectRequestAttributes,
-  ProjectRequestStatus,
 } from "./project_request.model";
 import ProjectTrackingModel, {
   ProjectTrackingAttributes,
@@ -239,8 +239,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
       archiveStatus: ProjectStatus.Archive,
-      pending: ProjectRequestStatus.Pending,
-      responded: ProjectRequestStatus.Responded,
+      pending: RespondedOrPendingStatus.Pending,
+      responded: RespondedOrPendingStatus.Responded,
       keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
       followedUp: ProjectTrackingNotificationStatus["Followed-up"],
     };
@@ -434,16 +434,26 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     return this.model.rawQuery(rawQuery, params);
   };
 
-  public updateReadBy = async (trackingId: string, userId: string) => {
-    const params = { trackingId, userId, now: new Date() };
+  public updateUniqueAttribute = async (
+    modelName: string,
+    attributeName: string, // attribute with array type
+    modelId: string,
+    newValue: string
+  ) => {
+    const params = {
+      modelId,
+      newValue,
+      now: new Date(),
+    };
     const rawQuery = `
-      FILTER project_trackings.id == @trackingId
-      UPDATE project_trackings WITH { 
-        read_by: UNIQUE( PUSH( project_trackings.read_by, @userId ) ),
+      FOR ${modelName} IN ${modelName}
+      FILTER ${modelName}.id == @modelId
+      UPDATE ${modelName} WITH { 
+        ${attributeName}: UNIQUE( PUSH( ${modelName}.${attributeName}, @newValue ) ),
         updated_at: @now
-       } IN project_trackings
+       } IN ${modelName}
     `;
-    return this.model.rawQuery(rawQuery, params);
+    return this.model.rawQueryV2(rawQuery, params);
   };
 }
 

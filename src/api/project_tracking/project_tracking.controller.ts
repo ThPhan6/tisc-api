@@ -166,7 +166,12 @@ export default class ProjectTrackingController {
     const currentUser = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
 
-    await projectTrackingRepository.updateReadBy(id, currentUser.id);
+    await projectTrackingRepository.updateUniqueAttribute(
+      "project_trackings",
+      "read_by",
+      id,
+      currentUser.id
+    );
 
     const response = await projectTrackingService.getOne(id, currentUser.id);
 

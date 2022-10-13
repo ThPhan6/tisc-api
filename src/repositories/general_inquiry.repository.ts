@@ -14,7 +14,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     message: "",
     inquiry_for_ids: [],
     status: 1,
-    read: [],
+    read_by: [],
     created_at: "",
     created_by: "",
   };
