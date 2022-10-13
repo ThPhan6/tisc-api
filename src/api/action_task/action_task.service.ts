@@ -8,12 +8,12 @@ import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { RespondedOrPendingStatus, UserAttributes } from "@/types";
-import { ActionTaskModel } from "@/types/action_task.type";
+import { ActionTaskModel, ActionTaskStatus } from "@/types/action_task.type";
 import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";
-import { ActionTaskStatus } from "@/types/action_task.type";
 import { projectTrackingRepository } from "./../project_tracking/project_tracking.repository";
 import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository copy";
+import { parseActionTaskModelName } from "./action_task.mapping";
 import {
   ActionTaskRequestCreate,
   ActionTaskRequestUpdateStatus,
@@ -32,7 +32,7 @@ class ActionTaskService {
     let createdActionTask;
     for (const commonTypeId of payload.common_type_ids) {
       createdActionTask = await actionTaskRepository.create({
-        model_name: payload.model_name,
+        model_name: parseActionTaskModelName(payload.model_name),
         model_id: payload.model_id,
         status: ActionTaskStatus.To_do_list,
         common_type_id: commonTypeId,
@@ -45,7 +45,9 @@ class ActionTaskService {
     }
 
     //update status when has assign tasks
-    switch (payload.model_name) {
+    switch (
+      parseActionTaskModelName(payload.model_name) //
+    ) {
       case ActionTaskModel.notification:
         await projectTrackingNotificationRepository.update(payload.model_id, {
           status: ProjectTrackingNotificationStatus["Followed-up"],
@@ -73,7 +75,7 @@ class ActionTaskService {
 
   public async getList(userId: string, modelId: string, modelName: string) {
     //update user read notification or request
-    switch (modelName) {
+    switch (parseActionTaskModelName(modelName)) {
       case ActionTaskModel.notification:
         await projectTrackingRepository.updateUniqueAttribute(
           "project_tracking_notifications",
@@ -97,7 +99,7 @@ class ActionTaskService {
     }
 
     const result = await actionTaskRepository.getListActionTask(
-      modelName,
+      parseActionTaskModelName(modelName),
       modelId
     );
 

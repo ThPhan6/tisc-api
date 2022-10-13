@@ -15,6 +15,12 @@ export enum ActionTaskModel {
   inquiry = "general_inquiries",
 }
 
+export enum ActionTaskModelName {
+  "project_tracking_notifications",
+  "project_requests",
+  "general_inquiries",
+}
+
 export enum ActionTaskStatus {
   "To_do_list",
   "In_progress",

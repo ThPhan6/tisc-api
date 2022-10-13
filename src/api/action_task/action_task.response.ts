@@ -4,15 +4,17 @@ export default {
   getList: Joi.object({
     data: Joi.array().items(
       Joi.object({
-        id: Joi.string(),
+        common_type_id: Joi.string(),
         created_at: Joi.string(),
-        actions: Joi.string(),
-        teams: Joi.object({
-          id: Joi.string(),
-          fistname: Joi.string(),
-          lastname: Joi.string(),
-        }),
+        created_by: Joi.string(),
+        id: Joi.string(),
+        model_id: Joi.string(),
+        model_name: Joi.string(),
         status: Joi.number(),
+        updated_at: Joi.string().allow(null),
+        lastname: Joi.string(),
+        firstname: Joi.string(),
+        action_name: Joi.string(),
       })
     ),
     statusCode: Joi.number(),

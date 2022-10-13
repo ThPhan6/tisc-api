@@ -19,40 +19,24 @@ class ActionTaskRepository extends BaseRepository<ActionTaskAttribute> {
   }
 
   public async getListActionTask(modelName: string, modelId: string) {
-    const params = {
-      modelName,
-      modelId,
-    };
-    const rawQuery = `
-    FILTER actions_tasks.deleted_at == null
-    FILTER actions_tasks.model_name == @modelName
-    FILTER actions_tasks.model_id == @modelId
-    LET actionTask = (
-        FOR common_types IN common_types
-        FILTER actions_tasks.common_type_id == common_types.id
-        RETURN common_types
-    )
-    LET teams = (
-        FOR users IN users
-        FILTER users.id == actions_tasks.created_by
-        RETURN {
-            id : users.id,
-            fistname : users.firstname,
-            lastname :users.lastname
-        }
-    )
-    
-    FOR actions IN actionTask
-    RETURN {
-        id : actions_tasks.id,
-        created_at : actions_tasks.created_at,
-        actions : actions.name,
-        teams : teams[0],
-        status :  actions_tasks.status
-    }
-    `;
-
-    return this.model.rawQuery(rawQuery, params);
+    return this.model
+      .getQuery()
+      .select([
+        "actions_tasks.*",
+        "common_types.name as action_name",
+        "users.firstname as firstname",
+        "users.lastname as lastname",
+      ])
+      .where("actions_tasks.model_name", "==", modelName)
+      .where("actions_tasks.model_id", "==", modelId)
+      .join(
+        "common_types",
+        "common_types.id",
+        "==",
+        "actions_tasks.common_type_id"
+      )
+      .join("users", "users.id", "==", "actions_tasks.created_by")
+      .get();
   }
 }
 export const actionTaskRepository = new ActionTaskRepository();
