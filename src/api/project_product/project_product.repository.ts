@@ -48,6 +48,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     this.model = new ProjectProductModel();
   }
 
+  public findProjectWithRelation = async (projectId: string, relationId: string) => {
+    return await this.model.select('project_products.*')
+      .where('project_id', '==', projectId)
+      .join('projects', 'projects.id', '==', 'project_products.id')
+      .where('projects.design_id', '==', relationId)
+      .first() as ProjectProductAttributes | undefined;
+  }
+
   public async upsert(payload: AssignProductToProjectRequest, user_id: string) {
     const now = new Date();
     return this.model.rawQueryV2(
@@ -118,14 +126,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER project_products.status == @status
       FILTER project_products.project_id == @projectId
       FILTER project_products.deleted_at == null
-      FOR products IN products 
-      FILTER products.id == project_products.product_id  
-      FOR brands IN brands 
-      FILTER brands.id == products.brand_id  
-      FOR collections IN collections 
-      FILTER collections.id == products.collection_id  
-      FOR users IN users 
-      FILTER users.id == @userId  
+      FOR products IN products
+      FILTER products.id == project_products.product_id
+      FOR brands IN brands
+      FILTER brands.id == products.brand_id
+      FOR collections IN collections
+      FILTER collections.id == products.collection_id
+      FOR users IN users
+      FILTER users.id == @userId
       LET unit_type = (
         FOR common_types IN common_types
         FILTER common_types.id == project_products.unit_type_id
@@ -147,7 +155,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 : ""
             }`
           : ""
-      } 
+      }
       RETURN {
         project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         product: KEEP(products, 'id', 'name', 'images', 'description'),
@@ -173,13 +181,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     FILTER project_products.status == @status
     FILTER project_products.project_id == @projectId
     FILTER project_products.deleted_at == null
-    FOR products IN products 
-    FILTER products.id == project_products.product_id  
-    FOR brands IN brands 
-    FILTER brands.id == products.brand_id  
-    FOR collections IN collections 
+    FOR products IN products
+    FILTER products.id == project_products.product_id
+    FOR brands IN brands
+    FILTER brands.id == products.brand_id
+    FOR collections IN collections
     FILTER collections.id == products.collection_id
-    FOR users IN users 
+    FOR users IN users
     FILTER users.id == @userId
     LET code = (
     FOR material_codes IN material_codes
@@ -204,6 +212,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       }
     );
   };
+
+  public getRoomDataByRoomIds = async (id: string, roomIds: string[]) => {
+    const params = { id, roomIds };
+    return this.model.rawQuery(`
+      FILTER project_product.id == @id
+      FILTER project_product.deletet_at == null
+      FOR project IN projects
+          FILTER project.deletet_at == null
+          FILTER project.id == project_product.project_id
+              FOR project_zone IN project_zones
+                  FOR area IN project_zone.areas
+                      FOR room IN area.rooms
+                          FILTER room.id IN @roomIds
+                            RETURN room
+    `, params);
+  }
+
 }
 
 export const projectProductRepository = new ProjectProductRepository();

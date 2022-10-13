@@ -219,4 +219,9 @@ export const MESSAGES = {
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
+  FINISH_SCHEDULE: {
+    INCORRECT_ROOM: "Some rooms does not exist!.",
+    INCORRECT_CODE: "Invalid Material Code",
+    MISSING_ROOM_DATA: "Please update Finish Schedule!",
+  }
 };

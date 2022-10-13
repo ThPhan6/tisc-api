@@ -2,7 +2,7 @@ import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
-import { AssignProductToProjectRequest } from "./project_product.type";
+import { AssignProductToProjectRequest, UpdateProjectProductPayload } from "./project_product.type";
 
 export default class ProjectProductController {
   public assignProductToProject = async (
@@ -59,28 +59,35 @@ export default class ProjectProductController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
+    const user = req.auth.credentials.user as UserAttributes;
 
     const response = await projectProductService.updateConsiderProduct(
       id,
-      payload
+      payload,
+      user,
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public specifyProduct = async (
     req: Request & {
-      payload: Partial<ProjectProductAttributes>;
+      payload: UpdateProjectProductPayload;
     },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
+    const {
+      finish_schedules,
+      ...others
+    } = req.payload as any;
 
     const response = await projectProductService.updateConsiderProduct(
       id,
-      payload,
-      user?.relation_id
+      others,
+      user,
+      finish_schedules,
+      true
     );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
