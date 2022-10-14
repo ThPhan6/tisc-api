@@ -7,11 +7,6 @@ export enum ProjectTrackingPriority {
   "Low priority",
 }
 
-export enum TrackingStatus {
-  "Pending",
-  "Responded",
-}
-
 export interface ProjectTrackingAttributes {
   id: string;
   project_id: string;
@@ -19,6 +14,7 @@ export interface ProjectTrackingAttributes {
   assigned_teams: string[]; ///user_id[]; // brand users
   created_at: string;
   updated_at: string | null;
+  read_by: string[];
 }
 
 export default class ProjectTrackingModel extends Model<ProjectTrackingAttributes> {

@@ -1,7 +1,19 @@
 import { UserAttributes, IMessageResponse } from "@/types";
 
-export type ProjectStatusValue = 1 | 2 | 3;
-export type ProjectStatusKey = "Live" | "On Hold" | "Archive";
+export enum ProjectStatus {
+  "Live",
+  "On Hold",
+  "Archive",
+}
+
+export type ProjectStatusKey = keyof typeof ProjectStatus;
+
+export type ProjectStatusValue = `${Extract<
+  ProjectStatus,
+  number
+>}` extends `${infer N extends number}`
+  ? N
+  : never;
 
 export interface ProjectAttributes {
   id: string;

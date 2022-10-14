@@ -4,13 +4,18 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
+import {fillObject} from '@/helper/common.helper';
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
+import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
 import { SortOrder } from "@/type/common.type";
-import { BrandAttributes, IProjectZoneAttributes } from "@/types";
-import { groupBy, orderBy, partition, uniqBy } from "lodash";
+import { BrandAttributes, IProjectZoneAttributes, UserAttributes } from "@/types";
+import { groupBy, isNumber,orderBy, partition, uniqBy, isEmpty } from "lodash";
+import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
+import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
+import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductRepository } from "./project_product.repository";
 import {
@@ -19,9 +24,11 @@ import {
   ProductConsiderStatus,
   ProductSpecifyStatus,
   ProjectProductStatus,
+  UpdateFinishChedulePayload,
 } from "./project_product.type";
 
 class ProjectProductService {
+
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
     user_id: string
@@ -37,8 +44,30 @@ class ProjectProductService {
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 400);
     }
+    const projectProduct = await projectProductRepository.findBy({
+      deleted_at: null,
+      project_id: payload.project_id,
+      product_id: payload.product_id,
+    });
 
-    return await projectProductRepository.upsert(payload, user_id);
+    if (projectProduct) {
+      return errorMessageResponse(MESSAGES.PRODUCT_ALREADY_ASSIGNED, 400);
+    }
+
+    const projectTracking =
+      await projectTrackingRepository.findOrCreateIfNotExists(
+        payload.project_id
+      );
+
+    await projectTrackingNotificationRepository.create({
+      project_tracking_id: projectTracking.id,
+      product_id: payload.product_id,
+    });
+
+    return projectProductRepository.upsert(
+      { ...payload, project_tracking_id: projectTracking.id },
+      user_id
+    );
   };
 
   public getProjectAssignZoneByProduct = async (
@@ -147,6 +176,7 @@ class ProjectProductService {
   };
 
   public getConsideredProducts = async (
+    userId: string,
     project_id: string,
     zone_order: SortOrder,
     area_order: SortOrder,
@@ -164,7 +194,10 @@ class ProjectProductService {
     );
 
     const consideredProducts =
-      await projectProductRepository.getConsideredProductsByProject(project_id);
+      await projectProductRepository.getConsideredProductsByProject(
+        project_id,
+        userId
+      );
 
     const mappedConsideredProducts = consideredProducts.map((el: any) => ({
       ...el.products,
@@ -232,23 +265,34 @@ class ProjectProductService {
   public updateConsiderProduct = async (
     projectProductId: string,
     payload: Partial<ProjectProductAttributes>,
-    relationId?: string // specifying
+    user: UserAttributes,
+    finishSchedulePayload: UpdateFinishChedulePayload[] = [],
+    isSpecifying: boolean = false // specifying
   ) => {
+
+    //// validate permission
+    const projectProduct = await projectProductRepository.findWithRelation(projectProductId, user.relation_id);
+    if (!projectProduct) {
+      return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+
+    ///
     if (payload.unit_type_id) {
       const unitTypes = await commonTypeRepository.findOrCreate(
         payload.unit_type_id,
-        relationId || "",
+        user.relation_id,
         COMMON_TYPES.PROJECT_UNIT
       );
       payload.unit_type_id = unitTypes.id;
     }
 
+    //
     if (payload.requirement_type_ids) {
       const requirements = await Promise.all(
         payload.requirement_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
             id,
-            relationId || "",
+            user.relation_id,
             COMMON_TYPES.PROJECT_REQUIREMENT
           );
         })
@@ -256,22 +300,53 @@ class ProjectProductService {
       payload.requirement_type_ids = requirements.map((el) => el.id);
     }
 
+    if (
+      projectProduct.status === ProjectProductStatus.consider &&
+      isSpecifying
+    ) {
+      const errorSavedFinishSchedule = await this.updateFinishScheduleByRoom(
+        user,
+        projectProductId,
+        payload.entire_allocation,
+        payload.allocation,
+        finishSchedulePayload
+      );
+      if (errorSavedFinishSchedule) {
+        return errorSavedFinishSchedule;
+      }
+    }
+
     const considerProduct = await projectProductRepository.findAndUpdate(
       projectProductId,
       {
         ...payload,
-        status: relationId
+        status: isSpecifying
           ? ProjectProductStatus.specify
           : ProjectProductStatus.consider,
         specified_status:
           payload.specified_status ??
-          (relationId ? ProductSpecifyStatus.Specified : undefined),
+          (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
       }
     );
 
     if (!considerProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
+
+    const notiStatus = isNumber(payload.consider_status)
+      ? considerProduct[0].consider_status + 1
+      : isNumber(payload.specified_status) || isSpecifying
+      ? considerProduct[0].specified_status + 4
+      : null;
+
+    if (notiStatus !== null) {
+      await projectTrackingNotificationRepository.create({
+        project_tracking_id: considerProduct[0].project_tracking_id,
+        product_id: considerProduct[0].product_id,
+        type: notiStatus,
+      });
+    }
+
     return successResponse({
       data: considerProduct,
     });
@@ -281,9 +356,16 @@ class ProjectProductService {
     const deletedRecord = await projectProductRepository.findAndDelete(
       projectProductId
     );
-    if (!deletedRecord) {
+
+    if (!deletedRecord[0]) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
+    await projectTrackingNotificationRepository.create({
+      project_tracking_id: deletedRecord[0].project_tracking_id,
+      product_id: deletedRecord[0].product_id,
+      type: ProjectTrackingNotificationType.Deleted,
+    });
+
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   };
 
@@ -490,6 +572,90 @@ class ProjectProductService {
       },
     });
   };
+
+  public getFinishScheduleByRoom = async (
+    projectProductId: string,
+    roomIds: string[],
+    user: UserAttributes,
+  ) => {
+
+    //// validate permission
+    const projectProduct = await projectProductRepository.findWithRelation(projectProductId, user.relation_id);
+    if (!projectProduct) {
+      return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+
+    let rooms: IProjectZoneAttributes['areas'][0]['rooms'] = [];
+    if (!isEmpty(roomIds)) {
+      /// check room is exist
+      rooms = await projectProductRepository.getRoomDataByRoomIds(projectProductId, roomIds);
+      if (rooms.length !== roomIds.length) {
+        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.INCORRECT_ROOM);
+      }
+    }
+
+    /// get
+    const finishSchedules = await projectProductFinishScheduleRepository.getByProjectProductAndRoom(projectProductId, roomIds);
+    return successResponse({
+      data: finishSchedules.map((item, index) => {
+        return {
+          ...item,
+          room_id_text: isEmpty(roomIds) ? 'EP' : rooms[index].room_id,
+          room_name: isEmpty(roomIds) ? 'ENTIRE PROJECT' : rooms[index].room_name,
+        }
+      })
+    });
+  }
+
+  private updateFinishScheduleByRoom = async (
+    user: UserAttributes,
+    projectProductId: string,
+    entireAllocation: boolean | undefined,
+    roomIds: string[] | undefined,
+    payload: UpdateFinishChedulePayload[],
+  ) => {
+
+    ///
+    if (
+      (!entireAllocation && !roomIds) ||
+      (entireAllocation && roomIds && roomIds.length > 0))
+    {
+      return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.MISSING_ROOM_DATA);
+    }
+
+    ////
+    let assignRooms: string[] = [];
+    if (roomIds) {
+      assignRooms = roomIds;
+    }
+
+    ///
+    const rooms = await projectProductRepository.getRoomDataByRoomIds(projectProductId, assignRooms);
+    if (
+      rooms.length !== assignRooms.length || //// not found room
+      (rooms.length !== payload.length && !entireAllocation) || /// payload not correct
+      (payload.length > 1 && entireAllocation) /// entire product should only have one payload
+    ) {
+      return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.INCORRECT_ROOM);
+    }
+
+    /// update finish schedule
+    const response = await Promise.all((payload.map(async (item, index) => {
+      const upsertData = fillObject(
+        projectProductFinishScheduleRepository.getDefaultAttribute(projectProductId),
+        {
+          ...item,
+          project_product_id: projectProductId,
+          room_id: entireAllocation ? '' : assignRooms[index]
+        }
+      );
+      return await projectProductFinishScheduleRepository.upsert(
+        upsertData,
+        user.id
+      );
+    })));
+    console.log('response', response);
+  }
 }
 
 export const projectProductService = new ProjectProductService();

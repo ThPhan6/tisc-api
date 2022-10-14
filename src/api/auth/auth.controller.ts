@@ -7,7 +7,6 @@ import {
   IRegisterRequest,
   IResetPasswordRequest,
 } from "./auth.type";
-import { SYSTEM_TYPE } from "@/constant/common.constant";
 
 export default class AuthController {
   private authService: AuthService;
@@ -19,19 +18,14 @@ export default class AuthController {
     req: Request & { payload: IAdminLoginRequest },
     toolkit: ResponseToolkit
   ) => {
-    const payload = req.payload;
-    const response = await this.authService.tiscLogin(
-      payload,
-      SYSTEM_TYPE.TISC
-    );
+    const response = await this.authService.tiscLogin(req.payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public brandLogin = async (
     req: Request & { payload: IAdminLoginRequest },
     toolkit: ResponseToolkit
   ) => {
-    const payload = req.payload;
-    const response = await this.authService.login(payload, SYSTEM_TYPE.BRAND);
+    const response = await this.authService.login(req.payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -1,3 +1,4 @@
+import { ProjectStatus } from "@/types";
 import Model from "./index";
 
 export interface IProjectAttributes {
@@ -26,7 +27,7 @@ export interface IProjectAttributes {
   product_ids: string[];
 
   design_id: string;
-  status: number;
+  status: ProjectStatus;
   created_at: string;
   is_deleted: boolean;
 }
@@ -57,7 +58,7 @@ export const PROJECT_NULL_ATTRIBUTES = {
   product_ids: [],
 
   design_id: "",
-  status: 0,
+  status: ProjectStatus.Live,
   created_at: "",
   is_deleted: false,
 };

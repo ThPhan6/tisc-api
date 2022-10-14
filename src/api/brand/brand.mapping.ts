@@ -6,6 +6,7 @@ import {
   ICollectionAttributes,
   ILocationAttributes,
   IProductAttributes,
+  SummaryInfo,
 } from "@/types";
 import { BrandDataSummary, ListBrandCustom } from "./brand.type";
 import { v4 as uuidv4 } from "uuid";
@@ -192,7 +193,7 @@ export const mappingBrandsAlphabet = (allBrand: BrandAttributes[]) => {
 export const mappingBrandSummary = async (
   brandSummaryData: BrandDataSummary[],
   userCount: number
-) => {
+): Promise<SummaryInfo[]> => {
   let locations: ILocationAttributes[] = [];
 
   let countries: {

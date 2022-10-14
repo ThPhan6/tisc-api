@@ -208,73 +208,166 @@ export default {
       category_ids: Joi.array().items(Joi.string()),
       name: Joi.string(),
       description: Joi.string().allow(""),
-      general_attribute_groups: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          name: Joi.string(),
-          attributes: Joi.array().items({
-            id: Joi.string(),
-            basis_id: Joi.string(),
-            basis_value_id: Joi.any(),
-            type: Joi.string().valid(
-              "Text",
-              "Conversions",
-              "Presets",
-              "Options"
-            ),
-            text: Joi.any(),
-            conversion_value_1: Joi.any(),
-            conversion_value_2: Joi.any(),
-          }),
-        })
-      ),
-      feature_attribute_groups: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          name: Joi.string(),
-          attributes: Joi.array().items({
-            id: Joi.string(),
-            basis_id: Joi.string(),
-            basis_value_id: Joi.any(),
-            type: Joi.string().valid(
-              "Text",
-              "Conversions",
-              "Presets",
-              "Options"
-            ),
-            text: Joi.any(),
-            conversion_value_1: Joi.any(),
-            conversion_value_2: Joi.any(),
-          }),
-        })
-      ),
-      specification_attribute_groups: Joi.array().items(
-        Joi.object({
-          id: Joi.any(),
-          name: Joi.string(),
-          attributes: Joi.array().items({
-            id: Joi.string(),
-            basis_id: Joi.any(),
-            basis_value_id: Joi.any(),
-            type: Joi.string().valid(
-              "Text",
-              "Conversions",
-              "Presets",
-              "Options"
-            ),
-            text: Joi.any(),
-            conversion_value_1: Joi.any(),
-            conversion_value_2: Joi.any(),
-            basis_options: [
-              Joi.array().items({
-                id: Joi.string(),
-                option_code: Joi.string(),
-              }),
-              Joi.any(),
-            ],
-          }),
-        })
-      ),
+      general_attribute_groups: Joi.array()
+        .items(
+          Joi.object({
+            name: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "General attribute title is required"
+                )
+              ),
+            attributes: Joi.array()
+              .items({
+                id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Attribute is required")
+                  ),
+                basis_id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "General attribute basis is required"
+                    )
+                  ),
+                basis_value_id: Joi.any(),
+                type: Joi.string()
+                  .valid("Text", "Conversions", "Presets", "Options")
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "General attribute type is required"
+                    )
+                  ),
+                text: Joi.any(),
+                conversion_value_1: Joi.any(),
+                conversion_value_2: Joi.any(),
+              })
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "General attributes is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "General attribute groups is required"
+          )
+        ),
+      feature_attribute_groups: Joi.array()
+        .items(
+          Joi.object({
+            name: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Feature attribute title is required"
+                )
+              ),
+            attributes: Joi.array()
+              .items({
+                id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Attribute is required")
+                  ),
+                basis_id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Feature attribute basis is required"
+                    )
+                  ),
+                basis_value_id: Joi.any(),
+                type: Joi.string()
+                  .valid("Text", "Conversions", "Presets", "Options")
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Feature attribute type is required"
+                    )
+                  ),
+                text: Joi.any(),
+                conversion_value_1: Joi.any(),
+                conversion_value_2: Joi.any(),
+              })
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Feature attributes is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Feature attribute groups is required"
+          )
+        ),
+      specification_attribute_groups: Joi.array()
+        .items(
+          Joi.object({
+            name: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Specification attribute name is required"
+                )
+              ),
+            attributes: Joi.array()
+              .items({
+                id: Joi.string()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction("Attribute is required")
+                  ),
+                basis_id: Joi.any()
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Specification attribute basis is required"
+                    )
+                  ),
+                basis_value_id: Joi.any(),
+                type: Joi.string()
+                  .valid("Text", "Conversions", "Presets", "Options")
+                  .required()
+                  .error(
+                    commonFailValidatedMessageFunction(
+                      "Specification attribute type is required"
+                    )
+                  ),
+                text: Joi.any(),
+                conversion_value_1: Joi.any(),
+                conversion_value_2: Joi.any(),
+                basis_options: [
+                  Joi.array().items({
+                    id: Joi.string(),
+                    option_code: Joi.string(),
+                  }),
+                  Joi.any(),
+                ],
+              })
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Specification attributes is required"
+                )
+              ),
+          })
+        )
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Specification attribute groups is required"
+          )
+        ),
       images: Joi.array()
         .min(3)
         .max(9)
@@ -299,6 +392,12 @@ export default {
         .error(commonFailValidatedMessageFunction("Brand id is required")),
       category_id: Joi.string(),
       collection_id: Joi.string(),
+    }).custom((value) => {
+      return {
+        ...value,
+        category_id:
+          value.category_id === "all" ? undefined : value.category_id,
+      };
     }),
   } as any,
   getListDesignerBrandProducts: {
@@ -350,7 +449,9 @@ export default {
         .error(commonFailValidatedMessageFunction("Sharing Group is required")),
       sharing_purpose: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Sharing Purpose is required")),
+        .error(
+          commonFailValidatedMessageFunction("Sharing Purpose is required")
+        ),
       to_email: Joi.string()
         .required()
         .error(commonFailValidatedMessageFunction("Email is required")),

@@ -1,9 +1,4 @@
-import {
-  COMMON_TYPES,
-  MESSAGES,
-  PROJECT_STATUS,
-  SYSTEM_TYPE,
-} from "@/constants";
+import { COMMON_TYPES, MESSAGES, SYSTEM_TYPE } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -15,7 +10,7 @@ import { designerRepository } from "@/repositories/designer.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { FindUserAndProjectResponse } from "@/types";
+import { FindUserAndProjectResponse, ProjectStatus } from "@/types";
 import { uniq } from "lodash";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { IProjectRequest } from "./project.type";
@@ -164,7 +159,11 @@ class ProjectService {
       user.relation_id,
       limit,
       offset,
-      sort
+      sort,
+      {
+        ...filter,
+        status: filter?.status,
+      }
     );
 
     const totalProject = await projectRepository.countProjectBy(
@@ -189,7 +188,7 @@ class ProjectService {
     const projects = await projectRepository.getAllProjectByWithSelect(
       {
         design_id: user.relation_id,
-        status: PROJECT_STATUS.LIVE,
+        status: ProjectStatus.Live,
       },
       ["id", "code", "name"],
       "created_at",
@@ -344,13 +343,13 @@ class ProjectService {
 
     return {
       projects: projects.length,
-      live: projects.filter((project) => project.status === PROJECT_STATUS.LIVE)
+      live: projects.filter((project) => project.status === ProjectStatus.Live)
         .length,
       on_hold: projects.filter(
-        (project) => project.status === PROJECT_STATUS.ON_HOLD
+        (project) => project.status === ProjectStatus["On Hold"]
       ).length,
       archived: projects.filter(
-        (project) => project.status === PROJECT_STATUS.ARCHIVE
+        (project) => project.status === ProjectStatus.Archive
       ).length,
     };
   }

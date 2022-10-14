@@ -18,7 +18,8 @@ export const COMMON_TYPES: CommonTypes = {
   PROJECT_UNIT: 9,
   DEPARTMENT: 10,
   REQUEST_FOR: 11,
-  ISSUE_FOR: 12,
+  ACTION_TASK: 12,
+  ISSUE_FOR: 13,
 };
 
 export const AUTH_NAMES = {

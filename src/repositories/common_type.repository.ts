@@ -42,7 +42,7 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       .orWhere("name", "==", keyword)
       .where("relation_id", "==", relationId)
       .orWhere("relation_id", "==", null)
-      .orWhere("relation_id", "==", '')
+      .orWhere("relation_id", "==", "")
       .first()) as CommonTypeAttributes | undefined;
   }
 
@@ -55,7 +55,7 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       .where("type", "==", type)
       .where("relation_id", "==", relationId)
       .orWhere("relation_id", "==", null)
-      .orWhere("relation_id", "==", '')
+      .orWhere("relation_id", "==", "")
       .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
   }
 

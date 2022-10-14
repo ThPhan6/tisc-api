@@ -10,7 +10,8 @@ export interface CommonTypes {
   PROJECT_UNIT: 9;
   DEPARTMENT: 10;
   REQUEST_FOR: 11;
-  ISSUE_FOR: 12;
+  ACTION_TASK: 12;
+  ISSUE_FOR: 13;
 }
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 
@@ -48,3 +49,15 @@ export type MeasurementUnitKey = "Metric" | "Imperial";
 
 export type FunctionalTypeValue = 1 | 2 | 3;
 export type FunctionalTypeKey = "Main office" | "Satellite office" | "Other";
+
+export type SummaryInfo = {
+  id: string;
+  quantity: number;
+  label: string;
+  subs?: SummaryInfo[];
+};
+
+export enum RespondedOrPendingStatus {
+  "Pending",
+  "Responded",
+}
