@@ -170,11 +170,9 @@ class Builder {
     }
     try {
       if (this.softDelete) {
-        await this.update({ deleted_at: getTimestamps() });
-        return true;
+        return await this.update({ deleted_at: getTimestamps() });
       }
-      await this.query(QUERY_TYPE.DELETE);
-      return true;
+      return await this.query(QUERY_TYPE.DELETE);
     } catch {
       return false;
     }

@@ -15,7 +15,9 @@ export default class ProjectProductController {
       currentUserId
     );
 
-    return toolkit.response(upsertResponse).code(200);
+    return toolkit
+      .response(upsertResponse)
+      .code(upsertResponse.statusCode ?? 200);
   };
 
   public getProjectAssignZoneByProduct = async (
@@ -39,8 +41,10 @@ export default class ProjectProductController {
   ) => {
     const { project_id } = req.params;
     const { zone_order, area_order, room_order, brand_order } = req.query;
+    const currentUserId = req.auth.credentials.user_id as string;
 
     const zoneResponse = await projectProductService.getConsideredProducts(
+      currentUserId,
       project_id,
       zone_order,
       area_order,
