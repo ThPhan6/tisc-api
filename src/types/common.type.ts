@@ -11,6 +11,8 @@ export interface CommonTypes {
   DEPARTMENT: 10;
   REQUEST_FOR: 11;
   ACTION_TASK: 12;
+  //type 13 is finish schedule
+  CAPABILITIES: 14;
 }
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 

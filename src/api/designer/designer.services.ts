@@ -1,4 +1,4 @@
-import { MESSAGES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { getDistinctArray, pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -8,13 +8,14 @@ import {
 import ProjectModel from "@/model/project.model";
 import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
+import { DesignerAttributes } from "@/types";
 import { marketAvailabilityService } from "../market_availability/market_availability.services";
+import { settingService } from "../setting/setting.service";
 import {
   mappingCountDesigner,
   mappingDesignSummary,
   mappingGetListDesigner,
 } from "./designer.mapping";
-import { IUpdateDesignStatusRequest } from "./designer.type";
 class DesignerService {
   private projectModel: ProjectModel;
   constructor() {
@@ -86,9 +87,9 @@ class DesignerService {
     });
   }
 
-  public async updateDesignStatus(
+  public async updateDesign(
     designId: string,
-    payload: IUpdateDesignStatusRequest
+    payload: Partial<DesignerAttributes>
   ) {
     const designer = await designerRepository.find(designId);
 
@@ -96,15 +97,24 @@ class DesignerService {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);
     }
 
-    const updatedDesignStatus = await designerRepository.update(designId, {
-      status: payload.status,
-    });
+    if (payload.status) {
+      await designerRepository.update(designId, {
+        status: payload.status,
+      });
 
-    if (!updatedDesignStatus) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      return successMessageResponse(MESSAGES.SUCCESS);
+    } else {
+      //upload logo
+
+      payload.capabilities = await settingService.findOrCreateList(
+        payload.capabilities || [],
+        designer.id,
+        COMMON_TYPES.CAPABILITIES
+      );
+      return successResponse({
+        data: await designerRepository.update(designId, payload),
+      });
     }
-
-    return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
 

@@ -141,10 +141,6 @@ export const uploadLogoBrand = async (logo: any, brand: BrandAttributes) => {
   });
 
   return "/brand-logo/" + newFileName;
-
-  return successResponse({
-    data: {
-      url: "/brand-logo/" + newFileName,
-    },
-  });
 };
+
+export const uploadLogoDesign = () => {};

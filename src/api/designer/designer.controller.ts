@@ -1,7 +1,7 @@
-import { designerService } from "./designer.services";
-import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IUpdateDesignStatusRequest } from "./designer.type";
 import { DESIGN_STATUS_OPTIONS } from "@/constants";
+import { DesignerAttributes } from "@/types";
+import { Request, ResponseToolkit } from "@hapi/hapi";
+import { designerService } from "./designer.services";
 
 export default class DesignerController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -30,13 +30,15 @@ export default class DesignerController {
     const response = await designerService.getAllDesignSummary();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public updateDesignStatus = async (
-    req: Request & { payload: IUpdateDesignStatusRequest },
+  public updateDesign = async (
+    req: Request & {
+      payload: Partial<DesignerAttributes>;
+    },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await designerService.updateDesignStatus(id, payload);
+    const response = await designerService.updateDesign(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
