@@ -29,11 +29,10 @@ export const inquires = {
 
 export const designFirmWithPhoneEmail = {
   ...designResponse,
-  email: Joi.string(),
-  phone: Joi.string().allow(""),
+  general_email: Joi.string(),
+  general_phone: Joi.string().allow(""),
+  general_phone_code: Joi.string().allow(""),
   address: Joi.string().allow(""),
-  inquirer: Joi.string(),
-  position: Joi.string(),
 };
 
 export const inquiryMessage = {
@@ -43,9 +42,14 @@ export const inquiryMessage = {
   message: Joi.string(),
   product_id: Joi.string(),
   product_collection: Joi.string(),
-  product_description: Joi.string().allow(""),
-  official_website: Joi.string(),
+  product_description: Joi.string(),
   product_image: Joi.string(),
+  official_website: Joi.string(),
+  inquirer: Joi.string(),
+  position: Joi.string(),
+  work_email: Joi.string(),
+  work_phone: Joi.string().allow(""),
+  work_phone_code: Joi.string().allow(""),
 };
 
 export default {
