@@ -129,12 +129,16 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FOR designers IN designers
       FILTER designers.id == users.relation_id
       FOR locations IN locations
-      FILTER locations.relation_id == designers.id
+      FILTER locations.id == users.location_id
       RETURN MERGE(
         KEEP(designers, 'name', 'official_website'), 
-        KEEP(users, 'phone', 'email','position'),
-        {inquirer : CONCAT(users.firstname, " " ,users.lastname)},
-        {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
+        KEEP(users, 'position'),
+        {
+          inquirer : CONCAT(users.firstname, " " ,users.lastname),
+          email : locations.general_email, 
+          phone :  locations.general_phone,
+          address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)
+        }
       )
     )
 
@@ -146,20 +150,20 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FOR brands IN brands
       FILTER brands.id == products.brand_id
       RETURN {
-          image : products.images[0],
-          id : products.id,
-          name : products.name,
-          collection : collections.name,
-          description : products.description,
-          official_website : brands.official_websites[0]
+        image : products.images[0],
+        id : products.id,
+        name : products.name,
+        collection : collections.name,
+        description : products.description,
+        official_website : brands.official_websites[0]
       }
     )
 
     LET inquiryFor = (
       FOR inquiryId IN general_inquiries.inquiry_for_ids
-            FOR common_types IN common_types
-            FILTER inquiryId == common_types.id
-            SORT common_types.name ASC
+        FOR common_types IN common_types
+        FILTER inquiryId == common_types.id
+        SORT common_types.name ASC
         RETURN common_types.name
 
     )

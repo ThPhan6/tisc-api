@@ -37,7 +37,7 @@ class ActionTaskService {
       createdActionTask = await actionTaskRepository.create({
         model_name: ActionTaskModelEnum[payload.model_name],
         model_id: payload.model_id,
-        status: ActionTaskStatus.To_do_list,
+        status: ActionTaskStatus["To-Do-List"],
         common_type_id: commonTypeId,
         created_by: user.id,
       });
