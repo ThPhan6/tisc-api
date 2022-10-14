@@ -4,14 +4,15 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { brandRepository } from "@/repositories/brand.repository";
 import productRepository from "@/repositories/product.repository";
-import { ProjectStatus, SortOrder, UserAttributes } from "@/types";
 import { settingService } from "../setting/setting.service";
 import {
-  CreateProjectRequestBody,
-  ProjectRequestStatus,
-} from "./project_request.model";
+  ProjectStatus,
+  RespondedOrPendingStatus,
+  SortOrder,
+  UserAttributes,
+} from "@/types";
+import { CreateProjectRequestBody } from "./project_request.model";
 import { projectRequestRepository } from "./project_request.repository";
 import { ProjectTrackingPriority } from "./project_tracking.model";
 import { projectTrackingRepository } from "./project_tracking.repository";
@@ -48,7 +49,7 @@ class ProjectTrackingService {
     const response = await projectRequestRepository.create({
       ...payload,
       created_by: userId,
-      status: ProjectRequestStatus.Pending,
+      status: RespondedOrPendingStatus.Pending,
       project_tracking_id: projectTracking.id,
     });
 

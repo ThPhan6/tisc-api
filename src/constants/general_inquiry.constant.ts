@@ -1,4 +1,1 @@
-export const GENERAL_INQUIRY_STATUS = {
-  PENDING: 0,
-  RESPONDED: 1,
-};
+

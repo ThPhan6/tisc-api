@@ -5,7 +5,7 @@ export interface GeneralInquiryAttribute {
   message: string;
   inquiry_for_ids: string[];
   status: number;
-  read: string[];
+  read_by: string[];
   created_at: string;
   updated_at: null | string;
   created_by: string;

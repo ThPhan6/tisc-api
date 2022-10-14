@@ -36,6 +36,7 @@ const migrate = async () => {
 
   await migrate_table("user_product_specifications");
   await migrate_table("project_products");
+  await migrate_table("project_product_pdf_configs");
 
   await migrate_table("company_permissions");
 
@@ -43,6 +44,8 @@ const migrate = async () => {
   await migrate_table("project_trackings");
   await migrate_table("project_requests");
   await migrate_table("project_tracking_notifications");
+  await migrate_table("project_product_finish_schedules");
+  await migrate_table("actions_tasks");
 };
 
 migrate();

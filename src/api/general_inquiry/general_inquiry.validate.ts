@@ -1,4 +1,3 @@
-import { GENERAL_INQUIRY_STATUS } from "@/constants/general_inquiry.constant";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
 import Joi from "joi";
 

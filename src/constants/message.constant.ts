@@ -105,6 +105,15 @@ export const MESSAGES = {
   GENERAL_INQUIRY: {
     NOT_FOUND: "General inquiry not found",
   },
+  ACTION_TASK: {
+    NOT_FOUND: "Action task not found",
+  },
+
+  PROJECT_TRACKING: {
+    PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
+    NOTIFICATION_NOT_FOUND: "Notification not found",
+    REQUEST_NOT_FOUND: "Request not found",
+  },
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
@@ -220,6 +229,13 @@ export const MESSAGES = {
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
-
+  FINISH_SCHEDULE: {
+    INCORRECT_ROOM: "Some rooms does not exist!.",
+    INCORRECT_CODE: "Invalid Material Code",
+    MISSING_ROOM_DATA: "Please update Finish Schedule!",
+  },
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
+  PDF_SPECIFY: {
+    ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
+  },
 };

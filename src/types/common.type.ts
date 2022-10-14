@@ -10,6 +10,8 @@ export interface CommonTypes {
   PROJECT_UNIT: 9;
   DEPARTMENT: 10;
   REQUEST_FOR: 11;
+  ACTION_TASK: 12;
+  ISSUE_FOR: 13;
 }
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 
@@ -54,3 +56,8 @@ export type SummaryInfo = {
   label: string;
   subs?: SummaryInfo[];
 };
+
+export enum RespondedOrPendingStatus {
+  "Pending",
+  "Responded",
+}

@@ -14,7 +14,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     message: "",
     inquiry_for_ids: [],
     status: 1,
-    read: [],
+    read_by: [],
     created_at: "",
     created_by: "",
   };
@@ -53,7 +53,9 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     const rawQuery = `
     FILTER general_inquiries.deleted_at == null
     ${
-      filter.status ? `FILTER general_inquiries.status == ${filter.status}` : ""
+      typeof filter.status === "number"
+        ? `FILTER general_inquiries.status == ${filter.status}`
+        : ""
     }
       ${
         sort && sort[0] === "created_at"
@@ -126,7 +128,22 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER users.id == general_inquiries.created_by
       FOR designers IN designers
       FILTER designers.id == users.relation_id
-      RETURN MERGE(UNSET(designers, ['_id', '_key','_rev','deleted_at']), KEEP(users,'email', 'phone'))
+      FOR locations IN locations
+      FILTER locations.id == users.location_id
+      RETURN MERGE(
+        KEEP(designers, 'name', 'official_website'), 
+        {
+          inquirer : CONCAT(users.firstname, " " ,users.lastname),
+          position : users.position,
+          work_email : users.email,
+          work_phone : users.phone,
+          work_phone_code : users.phone_code,
+          general_email : locations.general_email, 
+          general_phone :  locations.general_phone,
+          general_phone_code : locations.phone_code,
+          address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)
+        }
+      )
     )
 
     LET products = (
@@ -137,38 +154,49 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FOR brands IN brands
       FILTER brands.id == products.brand_id
       RETURN {
-          image : products.images[0],
-          id : products.id,
-          name : products.name,
-          collection : collections.name,
-          description : products.description,
-          official_website : brands.official_websites[0]
+        image : products.images[0],
+        id : products.id,
+        name : products.name,
+        collection : collections.name,
+        description : products.description,
+        official_website : brands.official_websites[0]
       }
     )
 
     LET inquiryFor = (
       FOR inquiryId IN general_inquiries.inquiry_for_ids
-            FOR common_types IN common_types
-            FILTER inquiryId == common_types.id
-            SORT common_types.name ASC
+        FOR common_types IN common_types
+        FILTER inquiryId == common_types.id
+        SORT common_types.name ASC
         RETURN common_types.name
-
     )
 
     RETURN {
       product_name : products[0].name,
-      design_firm : designFirm[0],
+      design_firm : {
+        general_email : designFirm[0].general_email, 
+        general_phone :  designFirm[0].general_phone,
+        general_phone_code : designFirm[0].general_phone_code,
+        address: CONCAT_SEPARATOR(', ', designFirm[0].address, designFirm[0].city_name, designFirm[0].state_name, designFirm[0].country_name),
+        name : designFirm[0].name, 
+        official_website : designFirm[0].official_website
+      },
       inquiry_message : {
-          id : general_inquiries.id,
-          inquiry_for : inquiryFor[0],
-          title : general_inquiries.title,
-          message : general_inquiries.message,
-          product_id : products[0].id,
-          product_collection : products[0].collection,
-          product_description : products[0].description,
-          product_image : products[0].image,
-          official_website : products[0].official_website.url
-        }
+        id : general_inquiries.id,
+        inquiry_for : inquiryFor[0],
+        title : general_inquiries.title,
+        message : general_inquiries.message,
+        product_id : products[0].id,
+        product_collection : products[0].collection,
+        product_description : products[0].description,
+        product_image : products[0].image,
+        official_website : products[0].official_website.url,
+        inquirer : designFirm[0].inquirer,
+        position : designFirm[0].position,
+        work_email : designFirm[0].work_email,
+        work_phone : designFirm[0].work_phone,
+        work_phone_code : designFirm[0].work_phone_code
+      }
     }
     `;
 
