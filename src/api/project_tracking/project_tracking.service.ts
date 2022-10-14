@@ -28,7 +28,9 @@ class ProjectTrackingService {
     );
 
     const projectTracking =
-      await projectTrackingRepository.findOrCreateIfNotExists(payload);
+      await projectTrackingRepository.findOrCreateIfNotExists(
+        payload.project_id
+      );
 
     const response = await projectRequestRepository.create({
       ...payload,
@@ -79,8 +81,10 @@ class ProjectTrackingService {
       newRequest: el.projectRequests.some((el) =>
         el.read_by ? el.read_by.includes(user.id) === false : true
       ),
-      notificationCount: 0,
-      newNotification: index % 2 ? true : false,
+      notificationCount: el.notifications.length,
+      newNotification: el.notifications.some((el) =>
+        el.read_by ? el.read_by.includes(user.id) === false : true
+      ),
       newTracking: el.project_tracking.read_by
         ? el.project_tracking.read_by.includes(user.id) === false
         : true,
@@ -94,10 +98,6 @@ class ProjectTrackingService {
       },
     });
   }
-
-  public getOne = async (trackingId: string, userId: string) => {
-    return projectTrackingRepository.getOne(trackingId, userId);
-  };
 }
 
 export const projectTrackingService = new ProjectTrackingService();
