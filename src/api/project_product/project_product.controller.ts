@@ -152,4 +152,22 @@ export default class ProjectProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getFinishScheduleByRoom = async (
+    req: Request & {
+      query: { roomIds: string[] }
+      params: { project_product_id: string }
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_product_id } = req.params;
+    const { roomIds } = req.query;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectProductService.getFinishScheduleByRoom(
+      project_product_id,
+      roomIds,
+      user
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

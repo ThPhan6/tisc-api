@@ -156,7 +156,7 @@ export default {
             door: Joi.boolean()
           }),
         })
-      ),
+      ).error(commonFailValidatedMessageFunction("Please update Finish Schedule!")),
     },
   },
   getListByBrand: {
@@ -181,4 +181,16 @@ export default {
       };
     }),
   },
+  getFinishScheduleByRoom: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId
+    }),
+    query: Joi.object({
+      roomIds: Joi.string().trim(),
+    }).custom((value) => {
+      return {
+        roomIds: (value.roomIds && value.roomIds.split) ? value.roomIds.split(',') : []
+      }
+    })
+  }
 };

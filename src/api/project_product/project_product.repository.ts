@@ -9,7 +9,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { SortOrder } from "@/types";
+import { SortOrder, IProjectZoneAttributes } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -48,10 +48,10 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     this.model = new ProjectProductModel();
   }
 
-  public findProjectWithRelation = async (projectId: string, relationId: string) => {
+  public findWithRelation = async (projectProductId: string, relationId: string) => {
     return await this.model.select('project_products.*')
-      .where('project_id', '==', projectId)
-      .join('projects', 'projects.id', '==', 'project_products.id')
+      .join('projects', 'projects.id', '==', 'project_products.project_id')
+      .where('project_products.id', '==', projectProductId)
       .where('projects.design_id', '==', relationId)
       .first() as ProjectProductAttributes | undefined;
   }
@@ -254,18 +254,18 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public getRoomDataByRoomIds = async (id: string, roomIds: string[]) => {
     const params = { id, roomIds };
-    return this.model.rawQuery(`
-      FILTER project_product.id == @id
-      FILTER project_product.deletet_at == null
+    return await this.model.rawQuery(`
+      FILTER project_products.id == @id
+      FILTER project_products.deletet_at == null
       FOR project IN projects
           FILTER project.deletet_at == null
-          FILTER project.id == project_product.project_id
+          FILTER project.id == project_products.project_id
               FOR project_zone IN project_zones
                   FOR area IN project_zone.areas
                       FOR room IN area.rooms
                           FILTER room.id IN @roomIds
                             RETURN room
-    `, params);
+    `, params) as IProjectZoneAttributes['areas'][0]['rooms'];
   }
 
 }

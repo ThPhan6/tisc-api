@@ -16,7 +16,7 @@ import {
 import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";
 import { projectTrackingRepository } from "./../project_tracking/project_tracking.repository";
-import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository copy";
+import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository";
 import {
   ActionTaskRequestCreate,
   ActionTaskRequestUpdateStatus,

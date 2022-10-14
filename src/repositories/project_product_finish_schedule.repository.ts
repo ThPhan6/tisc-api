@@ -49,11 +49,16 @@ class ProjectProductFinishScheduleRepository extends BaseRepository<ProjectProdu
 
     if (!isEmpty(roomIds)) {
       query = query.whereIn('room_id', roomIds);
+    } else {
+      query = query.where('room_id', '==', '');
     }
     ///
     const response = await query.get() as ProjectProductFinishSchedule[];
     ////
     if (isEmpty(roomIds)) {
+      if (!isEmpty(response)) {
+        return response;
+      }
       return [this.getDefaultAttribute(projectProductId)];
     }
     return roomIds.map((roomId) => {
@@ -70,11 +75,13 @@ class ProjectProductFinishScheduleRepository extends BaseRepository<ProjectProdu
     userId: string,
   ) => {
     const now = new Date();
+    console.log();
+    const modelName = this.model.getTableName();
     return this.model.rawQueryV2(
       `UPSERT {project_product_id: @project_product_id, room_id: @room_id, deleted_at: null}
       INSERT @payloadWithId
       UPDATE @payload
-      IN project_products
+      IN ${modelName}
       RETURN NEW
     `,
       {
