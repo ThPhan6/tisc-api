@@ -329,5 +329,11 @@
   { "type": 12, "name": "Personal meetup" },
   { "type": 12, "name": "Project site visit" },
   { "type": 12, "name": "Share inquiry with distributor" },
-  { "type": 12, "name": "Submit required info" }
+  { "type": 12, "name": "Submit required info" },
+
+  { "type": 13, "name": "Client Approval" },
+  { "type": 13, "name": "Construction Documents" },
+  { "type": 13, "name": "Internal Review" },
+  { "type": 13, "name": "Tender Prequlification" },
+  { "type": 13, "name": "Tender Documents" }
 ]
