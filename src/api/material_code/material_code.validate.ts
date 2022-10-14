@@ -66,36 +66,30 @@ export default {
         .trim()
         .required()
         .error(() => new Error("Main material code name is missing")),
-      subs: Joi.array()
-        .items(
-          Joi.object({
+      subs: Joi.array().items(
+        Joi.object({
+          id: Joi.string().allow(null),
+          name: Joi.string()
+            .trim()
+            .required()
+            .error(() => new Error("Sub-list name is missing")),
+          codes: Joi.array().items({
             id: Joi.string().allow(null),
-            name: Joi.string()
+            code: Joi.string()
               .trim()
               .required()
-              .error(() => new Error("Sub-list name is missing")),
-            codes: Joi.array()
-              .items({
-                id: Joi.string().allow(null),
-                code: Joi.string()
-                  .trim()
-                  .required()
-                  .error(() => new Error("Sub-list Code is missing")),
-                description: Joi.string()
-                  .trim()
-                  .required()
-                  .error(
-                    commonFailValidatedMessageFunction(
-                      "Sub-list description is missing"
-                    )
-                  ),
-              })
-              .required()
               .error(() => new Error("Sub-list Code is missing")),
-          })
-        )
-        .required()
-        .error(() => new Error("Sub-list description is missing")),
+            description: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Sub-list description is missing"
+                )
+              ),
+          }),
+        })
+      ),
     },
   },
 };
