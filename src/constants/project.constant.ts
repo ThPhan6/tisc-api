@@ -1,28 +1,19 @@
-import { ProjectStatusKey, ProjectStatusValue } from "@/types";
+import { ProjectStatus, ProjectStatusValue } from "@/types";
 
-export const PROJECT_STATUS: {
-  ARCHIVE: ProjectStatusValue;
-  LIVE: ProjectStatusValue;
-  ON_HOLD: ProjectStatusValue;
-} = {
-  ARCHIVE: 1,
-  LIVE: 2,
-  ON_HOLD: 3,
-};
 export const PROJECT_STATUS_OPTIONS: {
-  key: ProjectStatusKey;
+  key: ProjectStatus;
   value: ProjectStatusValue;
 }[] = [
   {
-    key: "Live",
-    value: PROJECT_STATUS.LIVE,
+    key: ProjectStatus.Live,
+    value: 0,
   },
   {
-    key: "On Hold",
-    value: PROJECT_STATUS.ON_HOLD,
+    key: ProjectStatus["On Hold"],
+    value: 1,
   },
   {
-    key: "Archive",
-    value: PROJECT_STATUS.ARCHIVE,
+    key: ProjectStatus.Archive,
+    value: 2,
   },
 ];

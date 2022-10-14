@@ -39,4 +39,61 @@ export default {
     statusCode: Joi.number(),
   }) as any,
   getProjectTrackingSummary: getSummaryResponseValidate as any,
+  getProjectTrackingDetail: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.object({
+      projects: Joi.object({
+        created_at: Joi.string(),
+        name: Joi.string(),
+        location: Joi.string(),
+        project_type: Joi.string(),
+        building_type: Joi.string(),
+        measurement_unit: Joi.number(),
+        design_due: Joi.string(),
+        construction_start: Joi.string(),
+      }),
+      projectRequests: Joi.array().items(
+        Joi.object({
+          created_at: Joi.string(),
+          title: Joi.string(),
+          message: Joi.string(),
+          status: Joi.number(),
+          created_by: Joi.string(),
+          product: Joi.object({
+            id: Joi.string(),
+            name: Joi.string(),
+            description: Joi.string(),
+            images: Joi.array().items(Joi.string()),
+            collection_name: Joi.string(),
+          }),
+          newRequest: Joi.bool(),
+          requestFor: Joi.string(),
+        })
+      ),
+      notifications: Joi.array().items(
+        Joi.object({
+          created_at: Joi.string(),
+          type: Joi.number(),
+          status: Joi.number(),
+          created_by: Joi.string(),
+          product: Joi.object({
+            id: Joi.string(),
+            name: Joi.string(),
+            description: Joi.string(),
+            images: Joi.array().items(Joi.string()),
+            collection_name: Joi.string(),
+          }),
+          newNotification: Joi.bool(),
+        })
+      ),
+      designFirm: Joi.object({
+        name: Joi.string(),
+        official_website: Joi.string().allow(""),
+        phone: Joi.string().allow(""),
+        phone_code: Joi.string(),
+        email: Joi.string(),
+        address: Joi.string(),
+      }),
+    }),
+  }) as any,
 };

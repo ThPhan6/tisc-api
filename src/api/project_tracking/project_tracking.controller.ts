@@ -158,4 +158,33 @@ export default class ProjectTrackingController {
       })
     );
   };
+
+  public getProjectTrackingDetail = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const currentUser = req.auth.credentials.user as UserAttributes;
+    const { id } = req.params;
+
+    await projectTrackingRepository.updateUniqueAttribute(
+      "project_trackings",
+      "read_by",
+      id,
+      currentUser.id
+    );
+
+    const response = await projectTrackingService.getOne(id, currentUser.id);
+
+    if (!response.length) {
+      return toolkit.response(
+        errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404)
+      );
+    }
+
+    return toolkit.response(
+      successResponse({
+        data: response[0],
+      })
+    );
+  };
 }

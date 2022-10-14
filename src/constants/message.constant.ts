@@ -105,6 +105,15 @@ export const MESSAGES = {
   GENERAL_INQUIRY: {
     NOT_FOUND: "General inquiry not found",
   },
+  ACTION_TASK: {
+    NOT_FOUND: "Action task not found",
+  },
+
+  PROJECT_TRACKING: {
+    PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
+    NOTIFICATION_NOT_FOUND: "Notification not found",
+    REQUEST_NOT_FOUND: "Request not found",
+  },
   //delete after refactor finish
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
@@ -223,5 +232,6 @@ export const MESSAGES = {
     INCORRECT_ROOM: "Some rooms does not exist!.",
     INCORRECT_CODE: "Invalid Material Code",
     MISSING_ROOM_DATA: "Please update Finish Schedule!",
-  }
+  },
+  PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
 };

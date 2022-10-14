@@ -1,14 +1,11 @@
+import { ProjectStatus, ProjectStatusValue } from "@/types";
 import {
   ConsiderProductStatusKey,
   ConsiderProductStatusValue,
-  OrderMethodKey,
-  OrderMethodValue,
   InterestedInKey,
   InterestedInValue,
   MeasurementUnitKey,
   MeasurementUnitValue,
-  ProjectStatusKey,
-  ProjectStatusValue,
   RegionKey,
   TargetedForKey,
   TargetedForValue,
@@ -356,30 +353,21 @@ export const LOGO_PATH = {
   MATERIAL: "/logo/material.svg",
 };
 
-export const PROJECT_STATUS: {
-  ARCHIVE: ProjectStatusValue;
-  LIVE: ProjectStatusValue;
-  ON_HOLD: ProjectStatusValue;
-} = {
-  ARCHIVE: 1,
-  LIVE: 2,
-  ON_HOLD: 3,
-};
 export const PROJECT_STATUS_OPTIONS: {
-  key: ProjectStatusKey;
+  key: ProjectStatus;
   value: ProjectStatusValue;
 }[] = [
   {
-    key: "Live",
-    value: PROJECT_STATUS.LIVE,
+    key: ProjectStatus.Live,
+    value: 0,
   },
   {
-    key: "On Hold",
-    value: PROJECT_STATUS.ON_HOLD,
+    key: ProjectStatus["On Hold"],
+    value: 1,
   },
   {
-    key: "Archive",
-    value: PROJECT_STATUS.ARCHIVE,
+    key: ProjectStatus.Archive,
+    value: 2,
   },
 ];
 export const MEASUREMENT_UNIT: {
@@ -468,22 +456,6 @@ export const CONSIDERED_PRODUCT_STATUS_OPTIONS: {
     key: "Unlisted",
     value: CONSIDERED_PRODUCT_STATUS.UNLISTED,
   },
-];
-
-export const ORDER_METHOD: {
-  DIRECT_PURCHASE: OrderMethodValue;
-  CUSTOM_ORDER: OrderMethodValue;
-} = {
-  DIRECT_PURCHASE: 1,
-  CUSTOM_ORDER: 2,
-};
-
-export const ORDER_METHOD_OPTIONS: {
-  key: OrderMethodKey;
-  value: OrderMethodValue;
-}[] = [
-  { key: "Direct Purchase", value: ORDER_METHOD.DIRECT_PURCHASE },
-  { key: "Custom Order", value: ORDER_METHOD.CUSTOM_ORDER },
 ];
 
 export const SPECIFIED_PRODUCT_STATUS: {

@@ -3,13 +3,13 @@ import {
   DesignerAttributes,
   ProjectAttributes,
   ProjectStatus,
+  RespondedOrPendingStatus,
   SortOrder,
 } from "@/types";
 import { v4 } from "uuid";
 import {
   CreateProjectRequestBody,
   ProjectRequestAttributes,
-  ProjectRequestStatus,
 } from "./project_request.model";
 import ProjectTrackingModel, {
   ProjectTrackingAttributes,
@@ -239,8 +239,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
       archiveStatus: ProjectStatus.Archive,
-      pending: ProjectRequestStatus.Pending,
-      responded: ProjectRequestStatus.Responded,
+      pending: RespondedOrPendingStatus.Pending,
+      responded: RespondedOrPendingStatus.Responded,
       keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
       followedUp: ProjectTrackingNotificationStatus["Followed-up"],
     };
@@ -347,6 +347,111 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         followedUp: COUNT(FLATTEN(followedUp)),
       },
     }
+    `;
+    return this.model.rawQueryV2(rawQuery, params);
+  };
+
+  public getOne = async (trackingId: string, userId: string) => {
+    const params = { trackingId, userId };
+    const rawQuery = `
+    FILTER project_trackings.id == @trackingId
+    FILTER project_trackings.deleted_at == null
+
+    FOR projects IN projects
+    FILTER projects.id == project_trackings.project_id
+    FILTER projects.deleted_at == null
+
+    LET projectRequests = (
+      FOR project_requests IN project_requests
+      FILTER project_requests.project_tracking_id == @trackingId
+      FILTER project_requests.deleted_at == null
+      FOR product in products
+      FILTER product.id == project_requests.product_id
+      FOR collection in collections
+      FILTER collection.id == product.collection_id
+      FOR common_type in common_types
+      FILTER common_type.id == FIRST(project_requests.request_for_ids)
+      LET newRequest = ( RETURN POSITION( project_requests.read_by, @userId) )
+      RETURN MERGE(
+        KEEP(project_requests, 'created_at','title', 'message', 'status','created_by'),
+        {
+          product: MERGE(
+            KEEP(product, 'id', 'name', 'images', 'description'), 
+            {collection_name: collection.name}
+          ),
+          newRequest: NOT newRequest[0],
+          requestFor: common_type.name
+        }
+      )
+    )
+
+    LET notifications = (
+      FOR notifications IN project_tracking_notifications
+      FILTER notifications.project_tracking_id == @trackingId
+      FILTER notifications.deleted_at == null
+      FOR product in products
+      FILTER product.id == notifications.product_id
+      FOR collection in collections
+      FILTER collection.id == product.collection_id
+      LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
+      RETURN MERGE(
+        KEEP(notifications, 'created_at','type', 'status', 'created_by'),
+        {
+          product: MERGE(
+            KEEP(product, 'id', 'name', 'images', 'description'), 
+            {collection_name: collection.name}
+          ),
+          newNotification: NOT newNotification[0]
+        }
+      )
+    )
+
+    LET firstTrackingItem = (
+      RETURN FIRST(UNION(projectRequests, notifications))
+    )
+
+    LET designFirm = (
+      FOR users IN users
+      FILTER users.id == firstTrackingItem[0].created_by
+      FOR designers IN designers
+      FILTER designers.id == users.relation_id
+      FOR locations IN locations
+      FILTER locations.relation_id == designers.id
+      RETURN MERGE(
+        KEEP(designers, 'name', 'official_website'), 
+        KEEP(users, 'phone', 'phone_code', 'email'), 
+        {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
+      )
+    )
+
+    RETURN {
+      projects: KEEP(projects, 'created_at','name','location','project_type','building_type','measurement_unit','design_due','construction_start'),
+      projectRequests,
+      notifications,
+      designFirm: designFirm[0]
+    }
+    `;
+    return this.model.rawQuery(rawQuery, params);
+  };
+
+  public updateUniqueAttribute = async (
+    modelName: string,
+    attributeName: string, // attribute with array type
+    modelId: string,
+    newValue: string
+  ) => {
+    const params = {
+      modelId,
+      newValue,
+      now: new Date(),
+    };
+    const rawQuery = `
+      FOR ${modelName} IN ${modelName}
+      FILTER ${modelName}.id == @modelId
+      UPDATE ${modelName} WITH { 
+        ${attributeName}: UNIQUE( PUSH( ${modelName}.${attributeName}, @newValue ) ),
+        updated_at: @now
+       } IN ${modelName}
     `;
     return this.model.rawQueryV2(rawQuery, params);
   };

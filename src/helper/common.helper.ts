@@ -220,3 +220,11 @@ export const fillObject = (data: any, fillData: any) => {
   });
   return mutableObject1;
 };
+
+export function getEnumValues<T extends string | number>(e: any): T[] {
+  return typeof e === "object" ? Object.values(e) : [];
+}
+
+export function getEnumKeys(e: any): string[] {
+  return typeof e === "object" ? Object.keys(e) : [];
+}

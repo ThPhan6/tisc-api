@@ -318,5 +318,16 @@
   { "type": 11, "name": "Sample Submission" },
   { "type": 11, "name": "Showroom Visit" },
   { "type": 11, "name": "Technical Documentation" },
-  { "type": 11, "name": "Update Material Library & Resource Room" }
+  { "type": 11, "name": "Update Material Library & Resource Room" },
+
+  { "type": 12, "name": "Call follow up" },
+  { "type": 12, "name": "Design office visit" },
+  { "type": 12, "name": "Design office visit" },
+  { "type": 12, "name": "Email follow up" },
+  { "type": 12, "name": "Internal discussion & review" },
+  { "type": 12, "name": "Invite showroom visit" },
+  { "type": 12, "name": "Personal meetup" },
+  { "type": 12, "name": "Project site visit" },
+  { "type": 12, "name": "Share inquiry with distributor" },
+  { "type": 12, "name": "Submit required info" }
 ]
