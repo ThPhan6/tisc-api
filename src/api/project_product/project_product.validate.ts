@@ -1,5 +1,5 @@
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
-import * as Joi from "joi";
+import Joi from "joi";
 import {
   OrderMethod,
   ProductConsiderStatus,
@@ -124,7 +124,6 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Description is required")),
-      finish_schedules: Joi.array().items(Joi.string().trim().allow(null)),
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is required")),
@@ -136,6 +135,28 @@ export default {
       requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       special_instructions: Joi.string().allow(""),
+      finish_schedules: Joi.array().items(
+        Joi.object({
+          floor: Joi.boolean(),
+          base: Joi.object({
+            ceiling: Joi.boolean(),
+            floor: Joi.boolean(),
+          }),
+          front_wall: Joi.boolean(),
+          left_wall: Joi.boolean(),
+          back_wall: Joi.boolean(),
+          right_wall: Joi.boolean(),
+          ceiling: Joi.boolean(),
+          door: Joi.object({
+            frame: Joi.boolean(),
+            panel: Joi.boolean(),
+          }),
+          cabinet: Joi.object({
+            carcass: Joi.boolean(),
+            door: Joi.boolean()
+          }),
+        })
+      ).error(commonFailValidatedMessageFunction("Please update Finish Schedule!")),
     },
   },
   getListByBrand: {
@@ -160,4 +181,16 @@ export default {
       };
     }),
   },
+  getFinishScheduleByRoom: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId
+    }),
+    query: Joi.object({
+      roomIds: Joi.string().trim(),
+    }).custom((value) => {
+      return {
+        roomIds: (value.roomIds && value.roomIds.split) ? value.roomIds.split(',') : []
+      }
+    })
+  }
 };

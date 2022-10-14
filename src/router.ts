@@ -21,9 +21,7 @@ import MarketAvailabilityRoute from "./api/market_availability/market_availabili
 import ProductCatelogueNDownloadRoute from "./api/product_catelogue_n_download/product_catelogue_n_download.route";
 import ProjectRoute from "./api/project/project.route";
 import ProjectZoneRoute from "./api/project_zone/project_zone.route";
-import ConsideredProductRoute from "./api/considered_product/considered_product.route";
 import MaterialCodeRoute from "./api/material_code/material_code.route";
-import SpecifiedProductRoute from "./api/specified_product/specified_product.route";
 import FavouriteRoute from "./api/favourite/favourite.route";
 import UserProductSpecificationRoute from "./api/user_product_specification/user_product_specification.route";
 import ProjectProductRoute from "./api/project_product/project_product.route";
@@ -56,9 +54,7 @@ export default class Router {
     await new ProductCatelogueNDownloadRoute().register(server);
     await new ProjectRoute().register(server);
     await new ProjectZoneRoute().register(server);
-    await new ConsideredProductRoute().register(server);
     await new MaterialCodeRoute().register(server);
-    await new SpecifiedProductRoute().register(server);
     await new FavouriteRoute().register(server);
     await new UserProductSpecificationRoute().register(server);
     await new ProjectProductRoute().register(server);

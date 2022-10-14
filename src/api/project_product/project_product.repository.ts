@@ -9,7 +9,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { SortOrder } from "@/types";
+import { SortOrder, IProjectZoneAttributes } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -46,6 +46,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
   constructor() {
     super();
     this.model = new ProjectProductModel();
+  }
+
+  public findWithRelation = async (projectProductId: string, relationId: string) => {
+    return await this.model.select('project_products.*')
+      .join('projects', 'projects.id', '==', 'project_products.project_id')
+      .where('project_products.id', '==', projectProductId)
+      .where('projects.design_id', '==', relationId)
+      .first() as ProjectProductAttributes | undefined;
   }
 
   public async upsert(
@@ -109,13 +117,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER collections.id == products.collection_id
       RETURN collections
     )
-    
+
     LET users = (
       FOR users IN users
       FILTER users.id == project_products.created_by
       RETURN users
     )
-    
+
     LET user_product_specifications = (
       FOR user_product_specifications IN user_product_specifications
       FILTER user_product_specifications.user_id == @userId
@@ -157,14 +165,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER project_products.status == @status
       FILTER project_products.project_id == @projectId
       FILTER project_products.deleted_at == null
-      FOR products IN products 
-      FILTER products.id == project_products.product_id  
-      FOR brands IN brands 
-      FILTER brands.id == products.brand_id  
-      FOR collections IN collections 
-      FILTER collections.id == products.collection_id  
-      FOR users IN users 
-      FILTER users.id == @userId  
+      FOR products IN products
+      FILTER products.id == project_products.product_id
+      FOR brands IN brands
+      FILTER brands.id == products.brand_id
+      FOR collections IN collections
+      FILTER collections.id == products.collection_id
+      FOR users IN users
+      FILTER users.id == @userId
       LET unit_type = (
         FOR common_types IN common_types
         FILTER common_types.id == project_products.unit_type_id
@@ -186,7 +194,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 : ""
             }`
           : ""
-      } 
+      }
       RETURN {
         project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         product: KEEP(products, 'id', 'name', 'images', 'description'),
@@ -212,13 +220,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     FILTER project_products.status == @status
     FILTER project_products.project_id == @projectId
     FILTER project_products.deleted_at == null
-    FOR products IN products 
-    FILTER products.id == project_products.product_id  
-    FOR brands IN brands 
-    FILTER brands.id == products.brand_id  
-    FOR collections IN collections 
+    FOR products IN products
+    FILTER products.id == project_products.product_id
+    FOR brands IN brands
+    FILTER brands.id == products.brand_id
+    FOR collections IN collections
     FILTER collections.id == products.collection_id
-    FOR users IN users 
+    FOR users IN users
     FILTER users.id == @userId
     LET code = (
     FOR material_codes IN material_codes
@@ -243,6 +251,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       }
     );
   };
+
+  public getRoomDataByRoomIds = async (id: string, roomIds: string[]) => {
+    const params = { id, roomIds };
+    return await this.model.rawQuery(`
+      FILTER project_products.id == @id
+      FILTER project_products.deletet_at == null
+      FOR project IN projects
+          FILTER project.deletet_at == null
+          FILTER project.id == project_products.project_id
+              FOR project_zone IN project_zones
+                  FOR area IN project_zone.areas
+                      FOR room IN area.rooms
+                          FILTER room.id IN @roomIds
+                            RETURN room
+    `, params) as IProjectZoneAttributes['areas'][0]['rooms'];
+  }
+
 }
 
 export const projectProductRepository = new ProjectProductRepository();
