@@ -41,7 +41,7 @@ export interface ProjectAttributes {
   product_ids: string[];
 
   design_id: string;
-  status: ProjectStatus;
+  status: number;
   created_at: string;
   updated_at: boolean;
 }
