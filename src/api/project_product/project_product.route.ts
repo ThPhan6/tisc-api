@@ -191,7 +191,7 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getListFinishScheduleFor,
+                200: response.getFinishScheduleByRoom,
               },
             },
           },
