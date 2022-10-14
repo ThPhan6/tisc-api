@@ -45,18 +45,27 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
+import ProductDownloadService from "../product_download/product_download.service";
+import ProductTipService from "../product_tip/product_tip.service";
+import LocationService from "../location/location.service";
 class ProductService {
   private countryStateCityService: CountryStateCityService;
   private mailService: MailService;
 
   private brandRepository: BrandRepository;
   private productFavouriteRepository: ProductFavouriteRepository;
+  private productDownloadService: ProductDownloadService;
+  private productTipService: ProductTipService;
+  private locationService: LocationService;
 
   constructor() {
     this.countryStateCityService = new CountryStateCityService();
     this.mailService = new MailService();
     this.brandRepository = new BrandRepository();
     this.productFavouriteRepository = new ProductFavouriteRepository();
+    this.productDownloadService = new ProductDownloadService();
+    this.productTipService = new ProductTipService();
+    this.locationService = new LocationService();
   }
 
   private getAllBasisConversion = async () => {
@@ -583,13 +592,41 @@ class ProductService {
     return successMessageResponse(MESSAGES.EMAIL_SENT);
   };
 
-  public getPublicSharingProduct = (hash: string) => {
+  public getPublicSharingProduct = async (hash: string) => {
     const decrypted = decrypt(hash);
     const hashObj: {
       email: string;
       product_id: string;
     } = JSON.parse(decrypted);
-    return this.get(hashObj.product_id);
+    const product: any = await this.get(hashObj.product_id);
+    const brandLocations =
+      await this.locationService.getCompanyLocationGroupByCountry(
+        product.brand_id
+      );
+    const marketLocations =
+      await this.locationService.getMarketLocationGroupByCountry(
+        product.brand_id
+      );
+    const productDownload: any = await this.productDownloadService.get(
+      hashObj.product_id
+    );
+    const productTip: any = await this.productTipService.get(
+      hashObj.product_id
+    );
+    const collections = await this.getListRestCollectionProduct(
+      hashObj.product_id
+    );
+    return {
+      statusCode: 200,
+      data: {
+        ...product.data,
+        product_download: productDownload.data,
+        product_tip: productTip.data,
+        collections,
+        brand_locations: brandLocations,
+        market_locations: marketLocations,
+      },
+    };
   };
 
   public getSharingGroups = async (userId: string) => {
