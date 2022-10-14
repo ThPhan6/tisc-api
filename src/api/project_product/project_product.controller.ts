@@ -9,10 +9,10 @@ export default class ProjectProductController {
     req: Request & { payload: AssignProductToProjectRequest },
     toolkit: ResponseToolkit
   ) => {
-    const currentUserId = req.auth.credentials.user_id as string;
+    const currentUser = req.auth.credentials.user as UserAttributes;
     const upsertResponse = await projectProductService.assignProductToProduct(
       req.payload,
-      currentUserId
+      currentUser.id
     );
 
     return toolkit
@@ -63,10 +63,12 @@ export default class ProjectProductController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
+    const currentUser = req.auth.credentials.user as UserAttributes;
 
     const response = await projectProductService.updateConsiderProduct(
       id,
-      payload
+      payload,
+      currentUser
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -84,7 +86,8 @@ export default class ProjectProductController {
     const response = await projectProductService.updateConsiderProduct(
       id,
       payload,
-      user?.relation_id
+      user,
+      true
     );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -95,7 +98,11 @@ export default class ProjectProductController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const response = await projectProductService.deleteConsiderProduct(id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectProductService.deleteConsiderProduct(
+      id,
+      user.id
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -9,7 +9,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { SortOrder } from "@/types";
+import { BrandAttributes, SortOrder } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -18,7 +18,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     id: "",
     project_id: "",
     product_id: "",
-    project_tracking_id: "",
+
+    status: ProjectProductStatus.consider,
+    consider_status: ProductConsiderStatus.Considered,
+
+    allocation: [],
+    entire_allocation: true,
 
     brand_location_id: "",
     distributor_location_id: "",
@@ -35,9 +40,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     unit_type_id: "",
     special_instructions: "",
 
-    allocation: [],
-    entire_allocation: true,
-
     created_at: "",
     created_by: "",
     updated_at: "",
@@ -51,7 +53,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
   public async upsert(
     payload: AssignProductToProjectRequest & { project_tracking_id: string },
     user_id: string
-  ) {
+  ): Promise<ProjectProductAttributes[]> {
     const now = new Date();
     return this.model.rawQueryV2(
       `UPSERT {product_id: @product_id, project_id: @project_id, deleted_at: null}
@@ -241,6 +243,20 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         userId,
         projectId,
       }
+    );
+  };
+
+  public getProductBrandById = (id: string): Promise<BrandAttributes[]> => {
+    return this.model.rawQuery(
+      `
+      FILTER project_products.id == @id
+      FOR p in products
+      FILTER p.id == project_products.product_id
+      FOR b IN brands
+      FILTER b.id == p.brand_id
+      RETURN b
+    `,
+      { id }
     );
   };
 }

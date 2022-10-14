@@ -1,5 +1,8 @@
+import { getEnumValues } from "@/helper/common.helper";
+import { ProjectStatus } from "@/types";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
 import * as Joi from "joi";
+import { ProjectTrackingPriority } from "./project_tracking.model";
 
 const requiredProductId = Joi.string()
   .required()
@@ -44,6 +47,7 @@ export default {
           commonFailValidatedMessageFunction("Page Size must be an integer")
         ),
       project_status: Joi.number()
+        .valid(...getEnumValues(ProjectStatus))
         .allow(null)
         .error(
           commonFailValidatedMessageFunction(
@@ -51,6 +55,7 @@ export default {
           )
         ),
       priority: Joi.number()
+        .valid(...getEnumValues(ProjectTrackingPriority))
         .allow(null)
         .error(
           commonFailValidatedMessageFunction("Invalid priority filter value")
@@ -87,7 +92,9 @@ export default {
         ),
     },
     payload: {
-      priority: Joi.number().allow(null),
+      priority: Joi.number()
+        .allow(null)
+        .valid(...getEnumValues(ProjectTrackingPriority)),
       assigned_teams: Joi.array().items(Joi.string()).allow(null),
       read_by: Joi.array().items(Joi.string()).allow(null),
     },

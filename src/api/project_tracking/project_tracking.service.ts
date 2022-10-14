@@ -1,6 +1,11 @@
-import { COMMON_TYPES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
-import { successResponse } from "@/helper/response.helper";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { brandRepository } from "@/repositories/brand.repository";
+import productRepository from "@/repositories/product.repository";
 import { ProjectStatus, SortOrder, UserAttributes } from "@/types";
 import { settingService } from "../setting/setting.service";
 import {
@@ -27,9 +32,17 @@ class ProjectTrackingService {
       COMMON_TYPES.REQUEST_FOR
     );
 
+    const product = await productRepository.find(payload.product_id);
+
+    if (!product) {
+      console.log("product not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
     const projectTracking =
       await projectTrackingRepository.findOrCreateIfNotExists(
-        payload.project_id
+        payload.project_id,
+        product.brand_id
       );
 
     const response = await projectRequestRepository.create({
@@ -67,7 +80,7 @@ class ProjectTrackingService {
       filter
     );
 
-    const results = projectTrackings.map((el, index) => ({
+    const results = projectTrackings.map((el) => ({
       id: el.project_tracking.id,
       created_at: el.project_tracking.created_at,
       priority: el.project_tracking.priority,

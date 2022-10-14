@@ -9,8 +9,12 @@ import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { SortOrder } from "@/type/common.type";
-import { BrandAttributes, IProjectZoneAttributes } from "@/types";
-import { groupBy, isNumber, orderBy, partition, uniqBy } from "lodash";
+import {
+  BrandAttributes,
+  IProjectZoneAttributes,
+  UserAttributes,
+} from "@/types";
+import { groupBy, orderBy, partition, uniqBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -27,7 +31,7 @@ import {
 class ProjectProductService {
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
-    user_id: string
+    userId: string
   ) => {
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
@@ -50,20 +54,31 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PRODUCT_ALREADY_ASSIGNED, 400);
     }
 
+    const newProjectProductRecord = await projectProductRepository.create({
+      ...payload,
+      created_by: userId,
+    });
+
+    if (!newProjectProductRecord) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 400);
+    }
+
+    // Create Tracking | Tracking Notification
     const projectTracking =
       await projectTrackingRepository.findOrCreateIfNotExists(
-        payload.project_id
+        payload.project_id,
+        product.brand_id
       );
 
     await projectTrackingNotificationRepository.create({
       project_tracking_id: projectTracking.id,
-      product_id: payload.product_id,
+      project_product_id: newProjectProductRecord.id,
+      created_by: userId,
     });
 
-    return projectProductRepository.upsert(
-      { ...payload, project_tracking_id: projectTracking.id },
-      user_id
-    );
+    return successResponse({
+      data: newProjectProductRecord,
+    });
   };
 
   public getProjectAssignZoneByProduct = async (
@@ -258,15 +273,42 @@ class ProjectProductService {
     });
   };
 
+  private getTrackingNotificationTypeByStatus = (payload: {
+    status: ProjectProductStatus;
+    consider_status?: ProductConsiderStatus;
+    specified_status?: ProductSpecifyStatus;
+  }): ProjectTrackingNotificationType => {
+    const { consider_status, specified_status, status } = payload;
+    if (status === ProjectProductStatus.consider) {
+      switch (consider_status) {
+        case ProductConsiderStatus["Re-considered"]:
+          return ProjectTrackingNotificationType["Re-considered"];
+        case ProductConsiderStatus.Unlisted:
+          return ProjectTrackingNotificationType.Unlisted;
+        default:
+          return ProjectTrackingNotificationType.Considered;
+      }
+    }
+    switch (specified_status) {
+      case ProductSpecifyStatus["Re-specified"]:
+        return ProjectTrackingNotificationType["Re-specified"];
+      case ProductSpecifyStatus.Cancelled:
+        return ProjectTrackingNotificationType.Cancelled;
+      default:
+        return ProjectTrackingNotificationType.Specified;
+    }
+  };
+
   public updateConsiderProduct = async (
     projectProductId: string,
     payload: Partial<ProjectProductAttributes>,
-    relationId?: string // specifying
+    user: UserAttributes,
+    isSpecifying?: boolean // specifying
   ) => {
     if (payload.unit_type_id) {
       const unitTypes = await commonTypeRepository.findOrCreate(
         payload.unit_type_id,
-        relationId || "",
+        user.relation_id,
         COMMON_TYPES.PROJECT_UNIT
       );
       payload.unit_type_id = unitTypes.id;
@@ -277,7 +319,7 @@ class ProjectProductService {
         payload.requirement_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
             id,
-            relationId || "",
+            user.relation_id,
             COMMON_TYPES.PROJECT_REQUIREMENT
           );
         })
@@ -289,39 +331,62 @@ class ProjectProductService {
       projectProductId,
       {
         ...payload,
-        status: relationId
+        status: isSpecifying
           ? ProjectProductStatus.specify
           : ProjectProductStatus.consider,
-        specified_status:
-          payload.specified_status ??
-          (relationId ? ProductSpecifyStatus.Specified : undefined),
+        specified_status: isSpecifying
+          ? ProductSpecifyStatus.Specified
+          : payload.specified_status,
       }
     );
 
-    if (!considerProduct) {
+    if (!considerProduct[0]) {
+      console.log("considerProduct not found");
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
-    const notiStatus = isNumber(payload.consider_status)
-      ? considerProduct[0].consider_status + 1
-      : isNumber(payload.specified_status) || relationId
-      ? considerProduct[0].specified_status + 4
-      : null;
+    const notiType: ProjectTrackingNotificationType = isSpecifying
+      ? ProjectTrackingNotificationType.Specified
+      : this.getTrackingNotificationTypeByStatus({
+          status: considerProduct[0].status,
+          consider_status: payload.consider_status,
+          specified_status: payload.specified_status,
+        });
 
-    if (notiStatus !== null) {
-      await projectTrackingNotificationRepository.create({
-        project_tracking_id: considerProduct[0].project_tracking_id,
-        product_id: considerProduct[0].product_id,
-        type: notiStatus,
-      });
+    const brand = await projectProductRepository.getProductBrandById(
+      considerProduct[0].id
+    );
+
+    if (!brand[0]) {
+      console.log("brand not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    const trackingRecord = await projectTrackingRepository.findBy({
+      brand_id: brand[0].id,
+      project_id: considerProduct[0].project_id,
+    });
+
+    if (!trackingRecord) {
+      console.log("trackingRecord not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
+    await projectTrackingNotificationRepository.create({
+      project_tracking_id: trackingRecord.id,
+      project_product_id: considerProduct[0].id,
+      type: notiType,
+      created_by: user.id,
+    });
+
     return successResponse({
-      data: considerProduct,
+      data: considerProduct[0],
     });
   };
 
-  public deleteConsiderProduct = async (projectProductId: string) => {
+  public deleteConsiderProduct = async (
+    projectProductId: string,
+    userId: string
+  ) => {
     const deletedRecord = await projectProductRepository.findAndDelete(
       projectProductId
     );
@@ -331,8 +396,9 @@ class ProjectProductService {
     }
     await projectTrackingNotificationRepository.create({
       project_tracking_id: deletedRecord[0].project_tracking_id,
-      product_id: deletedRecord[0].product_id,
+      project_product_id: deletedRecord[0].id,
       type: ProjectTrackingNotificationType.Deleted,
+      created_by: userId,
     });
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
