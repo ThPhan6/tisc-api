@@ -62,7 +62,7 @@ export default {
           product: Joi.object({
             id: Joi.string(),
             name: Joi.string(),
-            description: Joi.string(),
+            description: Joi.string().allow(""),
             images: Joi.array().items(Joi.string()),
             collection_name: Joi.string(),
           }),
@@ -79,7 +79,7 @@ export default {
           product: Joi.object({
             id: Joi.string(),
             name: Joi.string(),
-            description: Joi.string(),
+            description: Joi.string().allow(""),
             images: Joi.array().items(Joi.string()),
             collection_name: Joi.string(),
           }),
@@ -89,11 +89,11 @@ export default {
       designFirm: Joi.object({
         name: Joi.string(),
         official_website: Joi.string().allow(""),
-        phone: Joi.string().allow(""),
-        phone_code: Joi.string(),
-        email: Joi.string(),
+        // phone: Joi.string().allow(""),
+        // phone_code: Joi.string(),
+        // email: Joi.string(),
         address: Joi.string(),
-      }),
+      }).allow(null),
     }),
   }) as any,
 };

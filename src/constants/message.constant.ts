@@ -201,6 +201,7 @@ export const MESSAGES = {
   CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
   PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
+  PRODUCT_ALREADY_ASSIGNED: "Product already assigned to this project",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE:
     "You are not in this design firm. So you cannot update",

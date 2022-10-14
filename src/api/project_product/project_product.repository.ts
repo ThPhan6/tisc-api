@@ -48,7 +48,10 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     this.model = new ProjectProductModel();
   }
 
-  public async upsert(payload: AssignProductToProjectRequest, user_id: string) {
+  public async upsert(
+    payload: AssignProductToProjectRequest & { project_tracking_id: string },
+    user_id: string
+  ) {
     const now = new Date();
     return this.model.rawQueryV2(
       `UPSERT {product_id: @product_id, project_id: @project_id, deleted_at: null}
@@ -78,22 +81,58 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     return this.findBy({ project_id, product_id });
   }
 
-  public getConsideredProductsByProject = async (project_id: string) => {
-    return this.model
-      .getQuery()
-      .where("project_id", "==", project_id)
-      .where("status", "==", ProjectProductStatus.consider)
-      .join("products", "products.id", "==", "project_products.product_id")
-      .join("brands", "brands.id", "==", "products.brand_id")
-      .join("collections", "collections.id", "==", "products.collection_id")
-      .join("users", "users.id", "==", "project_products.created_by")
-      .join(
-        "user_product_specifications",
-        "user_product_specifications.user_id",
-        "==",
-        "users.id"
-      )
-      .get(true);
+  public getConsideredProductsByProject = async (
+    projectId: string,
+    userId: string
+  ) => {
+    const params = {
+      projectId,
+      userId,
+      considerStatus: ProjectProductStatus.consider,
+    };
+    const rawQuery = `
+    FILTER project_products.project_id == @projectId
+    FILTER project_products.deleted_at == null
+    FILTER project_products.status == @considerStatus
+
+    FOR products IN products
+    FILTER products.id == project_products.product_id
+
+    LET brands = (
+      FOR brands IN brands
+      FILTER brands.id == products.brand_id
+      RETURN brands
+    )
+
+    LET collections = (
+      FOR collections IN collections
+      FILTER collections.id == products.collection_id
+      RETURN collections
+    )
+    
+    LET users = (
+      FOR users IN users
+      FILTER users.id == project_products.created_by
+      RETURN users
+    )
+    
+    LET user_product_specifications = (
+      FOR user_product_specifications IN user_product_specifications
+      FILTER user_product_specifications.user_id == @userId
+      FILTER user_product_specifications.product_id == project_products.product_id
+      RETURN user_product_specifications
+    )
+
+    RETURN MERGE(project_products, {
+      products,
+      brands: brands[0],
+      collections: collections[0],
+      user_product_specifications: user_product_specifications[0],
+      users: users[0],
+      user_product_specification: user_product_specifications
+    })
+    `;
+    return this.model.rawQuery(rawQuery, params);
   };
 
   public getSpecifiedProductsForBrandGroup = async (project_id: string) => {

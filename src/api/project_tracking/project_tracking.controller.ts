@@ -173,7 +173,11 @@ export default class ProjectTrackingController {
       currentUser.id
     );
 
-    const response = await projectTrackingService.getOne(id, currentUser.id);
+    const response = await projectTrackingRepository.getOne(
+      id,
+      currentUser.id,
+      currentUser.relation_id
+    );
 
     if (!response.length) {
       return toolkit.response(

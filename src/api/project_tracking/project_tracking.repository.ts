@@ -19,7 +19,10 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
-import { ProjectTrackingNotificationStatus } from "./project_tracking_notification.model";
+import {
+  ProjectTrackingNotificationAttributes,
+  ProjectTrackingNotificationStatus,
+} from "./project_tracking_notification.model";
 
 class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes> {
   protected model: ProjectTrackingModel;
@@ -83,7 +86,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
   }
 
   public async findOrCreateIfNotExists(
-    payload: CreateProjectRequestBody
+    project_id: string
   ): Promise<ProjectTrackingAttributes> {
     const now = new Date();
     const results = await this.model.rawQueryV2(
@@ -94,11 +97,10 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       RETURN NEW
     `,
       {
-        project_id: payload.project_id,
+        project_id,
         payloadWithId: {
           ...this.DEFAULT_ATTRIBUTE,
-          ...payload,
-          product_id: undefined,
+          project_id,
           id: v4(),
           created_at: now,
           updated_at: now,
@@ -122,6 +124,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       projectRequests: ProjectRequestAttributes[];
       designFirm: DesignerAttributes;
       members: DesignerAttributes[];
+      notifications: ProjectTrackingNotificationAttributes[];
     }[]
   > {
     const params = {
@@ -351,8 +354,12 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     return this.model.rawQueryV2(rawQuery, params);
   };
 
-  public getOne = async (trackingId: string, userId: string) => {
-    const params = { trackingId, userId };
+  public getOne = async (
+    trackingId: string,
+    userId: string,
+    brandId: string
+  ) => {
+    const params = { trackingId, userId, brandId };
     const rawQuery = `
     FILTER project_trackings.id == @trackingId
     FILTER project_trackings.deleted_at == null
@@ -367,6 +374,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER project_requests.deleted_at == null
       FOR product in products
       FILTER product.id == project_requests.product_id
+      FILTER product.brand_id == @brandId
       FOR collection in collections
       FILTER collection.id == product.collection_id
       FOR common_type in common_types
@@ -391,6 +399,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER notifications.deleted_at == null
       FOR product in products
       FILTER product.id == notifications.product_id
+      FILTER product.brand_id == @brandId
       FOR collection in collections
       FILTER collection.id == product.collection_id
       LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
@@ -406,20 +415,13 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       )
     )
 
-    LET firstTrackingItem = (
-      RETURN FIRST(UNION(projectRequests, notifications))
-    )
-
     LET designFirm = (
-      FOR users IN users
-      FILTER users.id == firstTrackingItem[0].created_by
       FOR designers IN designers
-      FILTER designers.id == users.relation_id
+      FILTER designers.id == projects.design_id
       FOR locations IN locations
       FILTER locations.relation_id == designers.id
       RETURN MERGE(
-        KEEP(designers, 'name', 'official_website'), 
-        KEEP(users, 'phone', 'phone_code', 'email'), 
+        KEEP(designers, 'name', 'official_website'),
         {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
       )
     )
