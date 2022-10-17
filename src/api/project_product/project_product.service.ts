@@ -661,7 +661,7 @@ class ProjectProductService {
         roomIds
       );
       if (rooms.length !== roomIds.length) {
-        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.INCORRECT_ROOM);
+        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.ROOM_DOES_NOT_EXIST);
       }
     }
 
@@ -715,7 +715,7 @@ class ProjectProductService {
       (rooms.length !== payload.length && !entireAllocation) || /// payload not correct
       (payload.length > 1 && entireAllocation) /// entire product should only have one payload
     ) {
-      return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.INCORRECT_ROOM);
+      return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.MISSING_ROOM_DATA);
     }
 
     /// update finish schedule
@@ -737,7 +737,9 @@ class ProjectProductService {
         );
       })
     );
-    console.log("response", response);
+    if (response.length !== assignRooms.length) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+    }
   };
 }
 
