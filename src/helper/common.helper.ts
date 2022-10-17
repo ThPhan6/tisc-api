@@ -70,6 +70,9 @@ export const countWord = (str: string) => {
 export const toSingleSpace = (str: string) => {
   return str.trim().replace(/ +/g, " ");
 };
+export const toSingleSpaceAndToLowerCase = (str: string) => {
+  return toSingleSpace(str).toLowerCase();
+};
 
 export const getDistinctArray = (arr: Array<string>) => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
@@ -211,7 +214,7 @@ export const fillObject = (data: any, fillData: any) => {
   const mutableObject2 = Object.assign({}, fillData);
   Object.keys(mutableObject2).forEach(function (key) {
     if (key in mutableObject1) {
-      if (typeof mutableObject1[key] === 'object') {
+      if (typeof mutableObject1[key] === "object") {
         fillObject(mutableObject1[key], mutableObject2[key]);
       } else {
         mutableObject1[key] = mutableObject2[key];

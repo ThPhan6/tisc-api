@@ -1,5 +1,8 @@
 import { MESSAGES } from "@/constant/common.constant";
-import { getSummaryTable, toSingleSpace } from "@/helper/common.helper";
+import {
+  getSummaryTable,
+  toSingleSpaceAndToLowerCase,
+} from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successResponse,
@@ -27,9 +30,8 @@ export default class CategoryService {
   }
 
   public async create(payload: ICategoryRequest) {
-    payload.name = toSingleSpace(payload.name);
     const mainCategory = await this.categoryRepository.findBy({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (mainCategory) {
       return errorMessageResponse(MESSAGES.CATEGORY_EXISTED);
@@ -41,7 +43,7 @@ export default class CategoryService {
     const subCategories = mappingSubCategories(payload);
 
     const createdCategory = await this.categoryRepository.create({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       subs: subCategories,
     });
     if (!createdCategory) {
@@ -111,7 +113,10 @@ export default class CategoryService {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
     }
     const duplicatedCategory =
-      await this.categoryRepository.getDuplicatedCategory(id, payload.name);
+      await this.categoryRepository.getDuplicatedCategory(
+        id,
+        toSingleSpaceAndToLowerCase(payload.name)
+      );
     if (duplicatedCategory) {
       return errorMessageResponse(MESSAGES.MAIN_CATEGORY_DUPLICATED);
     }
@@ -122,7 +127,7 @@ export default class CategoryService {
     const subCategories = mappingCategoriesUpdate(payload);
 
     const updatedCategory = await this.categoryRepository.update(id, {
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       subs: subCategories,
     });
     if (!updatedCategory) {
