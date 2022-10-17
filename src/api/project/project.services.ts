@@ -178,16 +178,10 @@ class ProjectService {
     });
   }
 
-  public async getAll(userId: string) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
+  public async getAll(relation_id: string) {
     const projects = await projectRepository.getAllProjectByWithSelect(
       {
-        design_id: user.relation_id,
+        design_id: relation_id,
         status: ProjectStatus.Live,
       },
       ["id", "code", "name"],

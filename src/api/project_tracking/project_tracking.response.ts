@@ -104,6 +104,7 @@ export default {
             country_name: Joi.string().allow(""),
             general_email: Joi.string().allow(""),
             general_phone: Joi.string().allow(""),
+            phone_code: Joi.string().allow(""),
             teamMembers: Joi.array().items(
               Joi.object({
                 firstname: Joi.string().allow(""),
