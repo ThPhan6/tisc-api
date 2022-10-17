@@ -47,9 +47,13 @@ export default class SettingController {
   };
 
   public getCommonTypes = async (req: Request, toolkit: ResponseToolkit) => {
-    const { type } = req.params;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await settingService.getCommonTypes(userId, type);
+    const { type, sort_order } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await settingService.getCommonTypes(
+      user.relation_id,
+      type,
+      sort_order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

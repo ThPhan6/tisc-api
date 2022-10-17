@@ -24,7 +24,7 @@ export enum ProjectProductStatus {
 
 export enum ProductConsiderStatus {
   "Considered",
-  "Re-Considered",
+  "Re-considered",
   "Unlisted",
 }
 

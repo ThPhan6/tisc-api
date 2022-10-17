@@ -392,12 +392,6 @@ export default {
         .error(commonFailValidatedMessageFunction("Brand id is required")),
       category_id: Joi.string(),
       collection_id: Joi.string(),
-    }).custom((value) => {
-      return {
-        ...value,
-        category_id:
-          value.category_id === "all" ? undefined : value.category_id,
-      };
     }),
   } as any,
   getListDesignerBrandProducts: {

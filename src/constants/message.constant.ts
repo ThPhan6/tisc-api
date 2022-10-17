@@ -15,6 +15,7 @@ export const MESSAGES = {
       "You are not in this design firm. So you cannot delete",
     JUST_OWNER_CAN_CREATE:
       "You are not in this design firm. So you cannot create",
+    SOMETHING_WRONG_CONTACT_SYSADMIN: "Something went wrong. Please contact to the administrator!",
   },
 
   FAVOURITE: {
@@ -230,8 +231,7 @@ export const MESSAGES = {
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
   FINISH_SCHEDULE: {
-    INCORRECT_ROOM: "Some rooms does not exist!.",
-    INCORRECT_CODE: "Invalid Material Code",
+    ROOM_DOES_NOT_EXIST: "Invalid Rooms. Please check allowcation!",
     MISSING_ROOM_DATA: "Please update Finish Schedule!",
   },
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",

@@ -1,20 +1,19 @@
-import { CommonTypeValue } from "@/types";
-import { userRepository } from "@/repositories/user.repository";
+import { CommonTypeValue, SortOrder } from "@/types";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { successResponse } from "@/helper/response.helper";
 import { mappingCountryByRegion } from "./setting.mapping";
-import { COMMON_TYPES } from "@/constants";
 
 export default class SettingService {
-  public getCommonTypes = async (userId: string, type: CommonTypeValue) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return successResponse({ data: [] });
-    }
+  public getCommonTypes = async (
+    relationId: string,
+    type: CommonTypeValue,
+    sort_order?: SortOrder
+  ) => {
     const commonTypes = await commonTypeRepository.getAllByRelationAndType(
-      user.relation_id,
-      type
+      relationId,
+      type,
+      sort_order
     );
     return successResponse({ data: commonTypes });
   };

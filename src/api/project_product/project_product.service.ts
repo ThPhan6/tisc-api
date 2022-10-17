@@ -4,15 +4,19 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import {fillObject} from '@/helper/common.helper';
+import { fillObject } from "@/helper/common.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
 import { SortOrder } from "@/type/common.type";
-import { BrandAttributes, IProjectZoneAttributes, UserAttributes } from "@/types";
-import { groupBy, isNumber,orderBy, partition, uniqBy, isEmpty } from "lodash";
+import {
+  BrandAttributes,
+  IProjectZoneAttributes,
+  UserAttributes,
+} from "@/types";
+import { groupBy, orderBy, partition, uniqBy, isEmpty } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -28,10 +32,9 @@ import {
 } from "./project_product.type";
 
 class ProjectProductService {
-
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
-    user_id: string
+    userId: string
   ) => {
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
@@ -54,20 +57,31 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PRODUCT_ALREADY_ASSIGNED, 400);
     }
 
+    const newProjectProductRecord = await projectProductRepository.create({
+      ...payload,
+      created_by: userId,
+    });
+
+    if (!newProjectProductRecord) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 400);
+    }
+
+    // Create Tracking | Tracking Notification
     const projectTracking =
       await projectTrackingRepository.findOrCreateIfNotExists(
-        payload.project_id
+        payload.project_id,
+        product.brand_id
       );
 
     await projectTrackingNotificationRepository.create({
       project_tracking_id: projectTracking.id,
-      product_id: payload.product_id,
+      project_product_id: newProjectProductRecord.id,
+      created_by: userId,
     });
 
-    return projectProductRepository.upsert(
-      { ...payload, project_tracking_id: projectTracking.id },
-      user_id
-    );
+    return successResponse({
+      data: newProjectProductRecord,
+    });
   };
 
   public getProjectAssignZoneByProduct = async (
@@ -262,6 +276,32 @@ class ProjectProductService {
     });
   };
 
+  private getTrackingNotificationTypeByStatus = (payload: {
+    status: ProjectProductStatus;
+    consider_status?: ProductConsiderStatus;
+    specified_status?: ProductSpecifyStatus;
+  }): ProjectTrackingNotificationType => {
+    const { consider_status, specified_status, status } = payload;
+    if (status === ProjectProductStatus.consider) {
+      switch (consider_status) {
+        case ProductConsiderStatus["Re-considered"]:
+          return ProjectTrackingNotificationType["Re-considered"];
+        case ProductConsiderStatus.Unlisted:
+          return ProjectTrackingNotificationType.Unlisted;
+        default:
+          return ProjectTrackingNotificationType.Considered;
+      }
+    }
+    switch (specified_status) {
+      case ProductSpecifyStatus["Re-specified"]:
+        return ProjectTrackingNotificationType["Re-specified"];
+      case ProductSpecifyStatus.Cancelled:
+        return ProjectTrackingNotificationType.Cancelled;
+      default:
+        return ProjectTrackingNotificationType.Specified;
+    }
+  };
+
   public updateConsiderProduct = async (
     projectProductId: string,
     payload: Partial<ProjectProductAttributes>,
@@ -269,9 +309,11 @@ class ProjectProductService {
     finishSchedulePayload: UpdateFinishChedulePayload[] = [],
     isSpecifying: boolean = false // specifying
   ) => {
-
     //// validate permission
-    const projectProduct = await projectProductRepository.findWithRelation(projectProductId, user.relation_id);
+    const projectProduct = await projectProductRepository.findWithRelation(
+      projectProductId,
+      user.relation_id
+    );
     if (!projectProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
@@ -323,36 +365,59 @@ class ProjectProductService {
         status: isSpecifying
           ? ProjectProductStatus.specify
           : ProjectProductStatus.consider,
-        specified_status:
-          payload.specified_status ??
-          (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
+        specified_status: isSpecifying
+          ? ProductSpecifyStatus.Specified
+          : payload.specified_status,
       }
     );
 
-    if (!considerProduct) {
+    if (!considerProduct[0]) {
+      console.log("considerProduct not found");
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
-    const notiStatus = isNumber(payload.consider_status)
-      ? considerProduct[0].consider_status + 1
-      : isNumber(payload.specified_status) || isSpecifying
-      ? considerProduct[0].specified_status + 4
-      : null;
+    const notiType: ProjectTrackingNotificationType = isSpecifying
+      ? ProjectTrackingNotificationType.Specified
+      : this.getTrackingNotificationTypeByStatus({
+          status: considerProduct[0].status,
+          consider_status: payload.consider_status,
+          specified_status: payload.specified_status,
+        });
 
-    if (notiStatus !== null) {
-      await projectTrackingNotificationRepository.create({
-        project_tracking_id: considerProduct[0].project_tracking_id,
-        product_id: considerProduct[0].product_id,
-        type: notiStatus,
-      });
+    const brand = await projectProductRepository.getProductBrandById(
+      considerProduct[0].id
+    );
+
+    if (!brand[0]) {
+      console.log("brand not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    const trackingRecord = await projectTrackingRepository.findBy({
+      brand_id: brand[0].id,
+      project_id: considerProduct[0].project_id,
+    });
+
+    if (!trackingRecord) {
+      console.log("trackingRecord not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
+    await projectTrackingNotificationRepository.create({
+      project_tracking_id: trackingRecord.id,
+      project_product_id: considerProduct[0].id,
+      type: notiType,
+      created_by: user.id,
+    });
+
     return successResponse({
-      data: considerProduct,
+      data: considerProduct[0],
     });
   };
 
-  public deleteConsiderProduct = async (projectProductId: string) => {
+  public deleteConsiderProduct = async (
+    projectProductId: string,
+    userId: string
+  ) => {
     const deletedRecord = await projectProductRepository.findAndDelete(
       projectProductId
     );
@@ -362,8 +427,9 @@ class ProjectProductService {
     }
     await projectTrackingNotificationRepository.create({
       project_tracking_id: deletedRecord[0].project_tracking_id,
-      product_id: deletedRecord[0].product_id,
+      project_product_id: deletedRecord[0].id,
       type: ProjectTrackingNotificationType.Deleted,
+      created_by: userId,
     });
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
@@ -576,50 +642,60 @@ class ProjectProductService {
   public getFinishScheduleByRoom = async (
     projectProductId: string,
     roomIds: string[],
-    user: UserAttributes,
+    user: UserAttributes
   ) => {
-
     //// validate permission
-    const projectProduct = await projectProductRepository.findWithRelation(projectProductId, user.relation_id);
+    const projectProduct = await projectProductRepository.findWithRelation(
+      projectProductId,
+      user.relation_id
+    );
     if (!projectProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
-    let rooms: IProjectZoneAttributes['areas'][0]['rooms'] = [];
+    let rooms: IProjectZoneAttributes["areas"][0]["rooms"] = [];
     if (!isEmpty(roomIds)) {
       /// check room is exist
-      rooms = await projectProductRepository.getRoomDataByRoomIds(projectProductId, roomIds);
+      rooms = await projectProductRepository.getRoomDataByRoomIds(
+        projectProductId,
+        roomIds
+      );
       if (rooms.length !== roomIds.length) {
-        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.INCORRECT_ROOM);
+        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.ROOM_DOES_NOT_EXIST);
       }
     }
 
     /// get
-    const finishSchedules = await projectProductFinishScheduleRepository.getByProjectProductAndRoom(projectProductId, roomIds);
+    const finishSchedules =
+      await projectProductFinishScheduleRepository.getByProjectProductAndRoom(
+        projectProductId,
+        roomIds
+      );
     return successResponse({
       data: finishSchedules.map((item, index) => {
         return {
           ...item,
-          room_id_text: isEmpty(roomIds) ? 'EP' : rooms[index].room_id,
-          room_name: isEmpty(roomIds) ? 'ENTIRE PROJECT' : rooms[index].room_name,
-        }
-      })
+          room_id_text: isEmpty(roomIds) ? "EP" : rooms[index].room_id,
+          room_name: isEmpty(roomIds)
+            ? "ENTIRE PROJECT"
+            : rooms[index].room_name,
+        };
+      }),
     });
-  }
+  };
 
   private updateFinishScheduleByRoom = async (
     user: UserAttributes,
     projectProductId: string,
     entireAllocation: boolean | undefined,
     roomIds: string[] | undefined,
-    payload: UpdateFinishChedulePayload[],
+    payload: UpdateFinishChedulePayload[]
   ) => {
-
     ///
     if (
       (!entireAllocation && !roomIds) ||
-      (entireAllocation && roomIds && roomIds.length > 0))
-    {
+      (entireAllocation && roomIds && roomIds.length > 0)
+    ) {
       return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.MISSING_ROOM_DATA);
     }
 
@@ -630,32 +706,41 @@ class ProjectProductService {
     }
 
     ///
-    const rooms = await projectProductRepository.getRoomDataByRoomIds(projectProductId, assignRooms);
+    const rooms = await projectProductRepository.getRoomDataByRoomIds(
+      projectProductId,
+      assignRooms
+    );
     if (
       rooms.length !== assignRooms.length || //// not found room
       (rooms.length !== payload.length && !entireAllocation) || /// payload not correct
       (payload.length > 1 && entireAllocation) /// entire product should only have one payload
     ) {
-      return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.INCORRECT_ROOM);
+      return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.MISSING_ROOM_DATA);
     }
 
     /// update finish schedule
-    const response = await Promise.all((payload.map(async (item, index) => {
-      const upsertData = fillObject(
-        projectProductFinishScheduleRepository.getDefaultAttribute(projectProductId),
-        {
-          ...item,
-          project_product_id: projectProductId,
-          room_id: entireAllocation ? '' : assignRooms[index]
-        }
-      );
-      return await projectProductFinishScheduleRepository.upsert(
-        upsertData,
-        user.id
-      );
-    })));
-    console.log('response', response);
-  }
+    const response = await Promise.all(
+      payload.map(async (item, index) => {
+        const upsertData = fillObject(
+          projectProductFinishScheduleRepository.getDefaultAttribute(
+            projectProductId
+          ),
+          {
+            ...item,
+            project_product_id: projectProductId,
+            room_id: entireAllocation ? "" : assignRooms[index],
+          }
+        );
+        return await projectProductFinishScheduleRepository.upsert(
+          upsertData,
+          user.id
+        );
+      })
+    );
+    if (response.length !== assignRooms.length) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+    }
+  };
 }
 
 export const projectProductService = new ProjectProductService();

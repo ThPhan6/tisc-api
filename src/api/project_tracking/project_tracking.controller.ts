@@ -3,7 +3,6 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { projectRepository } from "@/repositories/project.repository";
 import { SummaryInfo, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { v4 } from "uuid";

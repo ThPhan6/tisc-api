@@ -3,10 +3,10 @@ import Model from "@/Database/Model";
 export enum ProjectTrackingNotificationType {
   "Deleted",
   "Considered",
-  "Re-Considered",
+  "Re-considered",
   "Unlisted",
   "Specified",
-  "Re-Specified",
+  "Re-specified",
   "Cancelled",
 }
 
@@ -17,11 +17,14 @@ export enum ProjectTrackingNotificationStatus {
 
 export interface ProjectTrackingNotificationAttributes {
   id: string;
-  type: ProjectTrackingNotificationType;
   project_tracking_id: string; // project_trackings table
-  product_id: string;
+  project_product_id: string;
+
+  type: ProjectTrackingNotificationType;
   status: ProjectTrackingNotificationStatus;
   read_by: string[]; // user_id[];
+  created_by: string;
+
   created_at: string;
   updated_at: null | string;
 }

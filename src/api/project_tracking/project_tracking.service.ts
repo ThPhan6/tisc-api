@@ -1,13 +1,17 @@
-import { COMMON_TYPES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
-import { successResponse } from "@/helper/response.helper";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import productRepository from "@/repositories/product.repository";
+import { settingService } from "../setting/setting.service";
 import {
   ProjectStatus,
   RespondedOrPendingStatus,
   SortOrder,
   UserAttributes,
 } from "@/types";
-import { settingService } from "../setting/setting.service";
 import { CreateProjectRequestBody } from "./project_request.model";
 import { projectRequestRepository } from "./project_request.repository";
 import { ProjectTrackingPriority } from "./project_tracking.model";
@@ -29,9 +33,17 @@ class ProjectTrackingService {
       COMMON_TYPES.REQUEST_FOR
     );
 
+    const product = await productRepository.find(payload.product_id);
+
+    if (!product) {
+      console.log("product not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
     const projectTracking =
       await projectTrackingRepository.findOrCreateIfNotExists(
-        payload.project_id
+        payload.project_id,
+        product.brand_id
       );
 
     const response = await projectRequestRepository.create({
@@ -69,7 +81,7 @@ class ProjectTrackingService {
       filter
     );
 
-    const results = projectTrackings.map((el, index) => ({
+    const results = projectTrackings.map((el) => ({
       id: el.project_tracking.id,
       created_at: el.project_tracking.created_at,
       priority: el.project_tracking.priority,
@@ -77,7 +89,7 @@ class ProjectTrackingService {
       projectName: el.project.name,
       projectLocation: el.project.location,
       projectType: el.project.project_type,
-      designFirm: el.designFirm.name,
+      designFirm: el.designFirm?.name,
       projectStatus: ProjectStatus[el.project.status],
       requestCount: el.projectRequests.length,
       newRequest: el.projectRequests.some((el) =>

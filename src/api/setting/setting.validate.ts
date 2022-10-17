@@ -29,6 +29,7 @@ export default {
       type: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Type is required")),
+      sort_order: Joi.string().valid("ASC", "DESC").allow(""),
     },
   },
 };
