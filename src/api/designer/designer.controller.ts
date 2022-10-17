@@ -37,8 +37,9 @@ export default class DesignerController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await designerService.updateDesign(id, payload);
+    const response = await designerService.updateDesign(id, payload, user.relation_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
