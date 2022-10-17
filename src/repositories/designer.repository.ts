@@ -14,6 +14,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     official_website: "",
     team_profile_ids: [],
     status: 1,
+    capabilities: [],
   };
 
   constructor() {

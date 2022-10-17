@@ -1,5 +1,15 @@
-import { MESSAGES } from "@/constants";
-import { getDistinctArray, pagination } from "@/helper/common.helper";
+import {
+  COMMON_TYPES,
+  DESIGN_STORE,
+  MESSAGES,
+  VALID_IMAGE_TYPES,
+} from "@/constants";
+import {
+  getDistinctArray,
+  getFileTypeFromBase64,
+  pagination,
+  randomName,
+} from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -8,13 +18,21 @@ import {
 import ProjectModel from "@/model/project.model";
 import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
+import { deleteFile, isExists } from "@/service/aws.service";
+import {
+  uploadImage,
+  uploadLogoOfficeProfile,
+  validateImageType,
+} from "@/service/image.service";
+import { DesignerAttributes } from "@/types";
+import { object } from "joi";
 import { marketAvailabilityService } from "../market_availability/market_availability.services";
+import { settingService } from "../setting/setting.service";
 import {
   mappingCountDesigner,
   mappingDesignSummary,
   mappingGetListDesigner,
 } from "./designer.mapping";
-import { IUpdateDesignStatusRequest } from "./designer.type";
 class DesignerService {
   private projectModel: ProjectModel;
   constructor() {
@@ -86,25 +104,51 @@ class DesignerService {
     });
   }
 
-  public async updateDesignStatus(
+  public async updateDesign(
     designId: string,
-    payload: IUpdateDesignStatusRequest
+    payload: Partial<DesignerAttributes>,
+    userRealtionId : string
   ) {
+    if(designId !== userRealtionId) {
+      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE)
+    }
+    
     const designer = await designerRepository.find(designId);
+    
 
     if (!designer) {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);
     }
 
-    const updatedDesignStatus = await designerRepository.update(designId, {
-      status: payload.status,
-    });
+    if (payload.status) {
+      await designerRepository.update(designId, {
+        status: payload.status,
+      });
 
-    if (!updatedDesignStatus) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      return successMessageResponse(MESSAGES.SUCCESS);
+    } else {
+      let logoPath = await uploadLogoOfficeProfile(
+        payload.logo || `/${DESIGN_STORE}`,
+        designer.logo || `/${DESIGN_STORE}`
+      );
+
+      if (typeof logoPath == "object") {
+        return errorMessageResponse(logoPath.message);
+      }
+
+      payload.capabilities = await settingService.findOrCreateList(
+        payload.capabilities || [],
+        designer.id,
+        COMMON_TYPES.CAPABILITIES
+      );
+
+      return successResponse({
+        data: await designerRepository.update(designId, {
+          ...payload,
+          logo: `/${logoPath}`,
+        }),
+      });
     }
-
-    return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
 

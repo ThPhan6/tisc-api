@@ -1,19 +1,17 @@
 import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
-import { MESSAGES } from "@/constants";
+import { DESIGN_STORE, MESSAGES } from "@/constants";
 import {
   getFileTypeFromBase64,
+  randomName,
   removeSpecialChars,
 } from "@/helper/common.helper";
 import { toWebp } from "@/helper/image.helper";
-import {
-  errorMessageResponse,
-  successResponse,
-} from "@/helper/response.helper";
-import { deleteFile, upload } from "@/service/aws.service";
+import { errorMessageResponse } from "@/helper/response.helper";
+import { brandRepository } from "@/repositories/brand.repository";
+import { deleteFile, isExists, upload } from "@/service/aws.service";
 import { ValidImage } from "@/type/common.type";
 import { BrandAttributes } from "@/types";
 import moment from "moment";
-import { brandRepository } from "@/repositories/brand.repository";
 
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
@@ -141,10 +139,38 @@ export const uploadLogoBrand = async (logo: any, brand: BrandAttributes) => {
   });
 
   return "/brand-logo/" + newFileName;
+};
 
-  return successResponse({
-    data: {
-      url: "/brand-logo/" + newFileName,
-    },
-  });
+export const uploadLogoOfficeProfile = async (
+  newLogo: string,
+  oldLogo: string
+) => {
+  let logoPath;
+
+  if ((await isExists(newLogo.slice(1))) || oldLogo === newLogo) {
+    logoPath = oldLogo?.slice(1);
+  } else {
+    await deleteFile(oldLogo.slice(1));
+
+    //upload logo
+    const fileType = await getFileTypeFromBase64(newLogo);
+    const fileName = randomName(8);
+
+    if (
+      !fileType ||
+      !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+    ) {
+      return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+    }
+    logoPath = `${DESIGN_STORE}/${fileName}.${fileType.ext}`;
+
+    await uploadImage([
+      {
+        buffer: Buffer.from(newLogo, "base64"),
+        path: logoPath,
+        mime_type: fileType.mime,
+      },
+    ]);
+  }
+  return logoPath;
 };

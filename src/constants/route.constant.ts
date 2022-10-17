@@ -255,6 +255,14 @@ export const ROUTES = {
     GET_LIST: "/api/action-task",
     UPDATE: "/api/action-task/{id}",
   },
+  DESIGN_FIRM: {
+    UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",
+    GET_LIST_DESIGN_FIRM: "/api/design/get-list",
+    GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
+    GET_DESIGN_STATUSES: "/api/design/statuses",
+    GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
+    UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
+  },
   PROJECT_PRODUCT: {
     ASSIGN_PRODUCT_TO_A_PROJECT: "/api/project/assign-product",
     GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT:
@@ -266,14 +274,16 @@ export const ROUTES = {
       "/api/project-product/{id}/update-consider-status",
     UPDATE_SPECIFIED_PRODUCT_STATUS:
       "/api/project-product/{id}/update-specified-status",
-    UPDATE_CONSIDERED_PRODUCT_SPECIFY: "/api/project-product/{id}/update-specify",
+    UPDATE_CONSIDERED_PRODUCT_SPECIFY:
+      "/api/project-product/{id}/update-specify",
     GET_SPECIFYING_PRODUCTS_BY_BRAND:
       "/api/project-product/get-list-by-brand/{project_id}",
     GET_SPECIFYING_PRODUCTS_BY_MATERIAL:
       "/api/project-product/get-list-by-material/{project_id}",
     GET_SPECIFYING_PRODUCTS_BY_ZONE:
       "/api/project-product/get-list-by-zone/{project_id}",
-    GET_LIST_FINISH_SCHEDULE_FOR: "/api/project-product/{project_product_id}/finish-schedules",
+    GET_LIST_FINISH_SCHEDULE_FOR:
+      "/api/project-product/{project_product_id}/finish-schedules",
   },
   PROJECT_TRACKING: {
     CREATE: "/api/project-tracking/request/create",
@@ -285,4 +295,5 @@ export const ROUTES = {
   PDF: {
     GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
   },
-}
+};
+
