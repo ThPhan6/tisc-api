@@ -215,7 +215,7 @@ export const fillObject = (data: any, fillData: any) => {
   Object.keys(mutableObject2).forEach(function (key) {
     if (key in mutableObject1) {
       if (typeof mutableObject1[key] === "object") {
-        fillObject(mutableObject1[key], mutableObject2[key]);
+        mutableObject1[key] = fillObject(mutableObject1[key], mutableObject2[key]);
       } else {
         mutableObject1[key] = mutableObject2[key];
       }
