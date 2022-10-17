@@ -106,9 +106,15 @@ class DesignerService {
 
   public async updateDesign(
     designId: string,
-    payload: Partial<DesignerAttributes>
+    payload: Partial<DesignerAttributes>,
+    userRealtionId : string
   ) {
+    if(designId !== userRealtionId) {
+      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE)
+    }
+    
     const designer = await designerRepository.find(designId);
+    
 
     if (!designer) {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);
