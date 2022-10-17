@@ -446,7 +446,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
             RETURN KEEP(u, 'firstname','lastname','position')
           )
           RETURN MERGE(
-            KEEP(designerUserLocation.location, 'city_name','country_name','address','general_phone','general_email'),
+            KEEP(designerUserLocation.location, 'city_name','country_name','address','general_phone','phone_code','general_email'),
             {teamMembers: teamMembers}
           )
         )

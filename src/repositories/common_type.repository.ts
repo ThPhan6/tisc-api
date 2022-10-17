@@ -1,6 +1,6 @@
 import CommonTypeModel from "@/model/common_type.models";
 import BaseRepository from "./base.repository";
-import { CommonTypeAttributes, CommonTypeValue } from "@/types";
+import { CommonTypeAttributes, CommonTypeValue, SortOrder } from "@/types";
 import { COMMON_TYPES } from "@/constants";
 
 class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
@@ -48,7 +48,8 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
 
   public async getAllByRelationAndType(
     relationId: string | null,
-    type: CommonTypeValue
+    type: CommonTypeValue,
+    sort_order?: SortOrder
   ) {
     return (await this.model
       .select("id", "name")
@@ -56,6 +57,7 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       .where("relation_id", "==", relationId)
       .orWhere("relation_id", "==", null)
       .orWhere("relation_id", "==", "")
+      .order("name", sort_order)
       .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
   }
 
