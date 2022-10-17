@@ -1,5 +1,15 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
-import { getDistinctArray, pagination } from "@/helper/common.helper";
+import {
+  COMMON_TYPES,
+  DESIGN_STORE,
+  MESSAGES,
+  VALID_IMAGE_TYPES,
+} from "@/constants";
+import {
+  getDistinctArray,
+  getFileTypeFromBase64,
+  pagination,
+  randomName,
+} from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -8,7 +18,14 @@ import {
 import ProjectModel from "@/model/project.model";
 import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
+import { deleteFile, isExists } from "@/service/aws.service";
+import {
+  uploadImage,
+  uploadLogoOfficeProfile,
+  validateImageType,
+} from "@/service/image.service";
 import { DesignerAttributes } from "@/types";
+import { object } from "joi";
 import { marketAvailabilityService } from "../market_availability/market_availability.services";
 import { settingService } from "../setting/setting.service";
 import {
@@ -104,15 +121,26 @@ class DesignerService {
 
       return successMessageResponse(MESSAGES.SUCCESS);
     } else {
-      //upload logo
+      let logoPath = await uploadLogoOfficeProfile(
+        payload.logo || `/${DESIGN_STORE}`,
+        designer.logo || `/${DESIGN_STORE}`
+      );
+
+      if (typeof logoPath == "object") {
+        return errorMessageResponse(logoPath.message);
+      }
 
       payload.capabilities = await settingService.findOrCreateList(
         payload.capabilities || [],
         designer.id,
         COMMON_TYPES.CAPABILITIES
       );
+
       return successResponse({
-        data: await designerRepository.update(designId, payload),
+        data: await designerRepository.update(designId, {
+          ...payload,
+          logo: `/${logoPath}`,
+        }),
       });
     }
   }
