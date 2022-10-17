@@ -7,6 +7,7 @@ export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
     data: Joi.any(),
+    message: Joi.string().allow(""),
   }) as any,
   getListProjectTracking: Joi.object({
     data: Joi.object({
@@ -68,6 +69,15 @@ export default {
           }),
           newRequest: Joi.bool(),
           requestFor: Joi.string(),
+          designer: Joi.object({
+            location_id: Joi.string().allow(""),
+            firstname: Joi.string().allow(""),
+            lastname: Joi.string().allow(""),
+            position: Joi.string().allow(""),
+            email: Joi.string().allow(""),
+            phone: Joi.string().allow(""),
+            phone_code: Joi.string().allow(""),
+          }).allow(null),
         })
       ),
       notifications: Joi.array().items(
@@ -84,6 +94,15 @@ export default {
             collection_name: Joi.string(),
           }),
           newNotification: Joi.bool(),
+          designer: Joi.object({
+            location_id: Joi.string().allow(""),
+            firstname: Joi.string().allow(""),
+            lastname: Joi.string().allow(""),
+            position: Joi.string().allow(""),
+            email: Joi.string().allow(""),
+            phone: Joi.string().allow(""),
+            phone_code: Joi.string().allow(""),
+          }).allow(null),
         })
       ),
       designFirm: Joi.object({

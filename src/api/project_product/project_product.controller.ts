@@ -2,17 +2,20 @@ import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
-import { AssignProductToProjectRequest, UpdateProjectProductPayload } from "./project_product.type";
+import {
+  AssignProductToProjectRequest,
+  UpdateProjectProductPayload,
+} from "./project_product.type";
 
 export default class ProjectProductController {
   public assignProductToProject = async (
     req: Request & { payload: AssignProductToProjectRequest },
     toolkit: ResponseToolkit
   ) => {
-    const currentUserId = req.auth.credentials.user_id as string;
+    const currentUser = req.auth.credentials.user as UserAttributes;
     const upsertResponse = await projectProductService.assignProductToProduct(
       req.payload,
-      currentUserId
+      currentUser.id
     );
 
     return toolkit
@@ -68,7 +71,7 @@ export default class ProjectProductController {
     const response = await projectProductService.updateConsiderProduct(
       id,
       payload,
-      user,
+      user
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -81,10 +84,7 @@ export default class ProjectProductController {
   ) => {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
-    const {
-      finish_schedules,
-      ...others
-    } = req.payload as any;
+    const { finish_schedules, ...others } = req.payload as any;
 
     const response = await projectProductService.updateConsiderProduct(
       id,
@@ -102,7 +102,11 @@ export default class ProjectProductController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const response = await projectProductService.deleteConsiderProduct(id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectProductService.deleteConsiderProduct(
+      id,
+      user.id
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -155,8 +159,8 @@ export default class ProjectProductController {
 
   public getFinishScheduleByRoom = async (
     req: Request & {
-      query: { roomIds: string[] }
-      params: { project_product_id: string }
+      query: { roomIds: string[] };
+      params: { project_product_id: string };
     },
     toolkit: ResponseToolkit
   ) => {
