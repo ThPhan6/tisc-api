@@ -369,7 +369,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         RETURN loc
       )
       RETURN MERGE(
-        KEEP(pr, 'created_at','title', 'message', 'status','created_by'),
+        KEEP(pr, 'id','created_at','title', 'message', 'status','created_by'),
         {
           product: MERGE(
             KEEP(product, 'id', 'name', 'images', 'description'), 
@@ -404,7 +404,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         RETURN loc
       )
       RETURN MERGE(
-        KEEP(notifications, 'created_at','type', 'status', 'created_by'),
+        KEEP(notifications, 'id','created_at','type', 'status', 'created_by'),
         {
           product: MERGE(
             KEEP(p, 'id', 'name', 'images', 'description'), 

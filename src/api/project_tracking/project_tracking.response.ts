@@ -72,6 +72,7 @@ export default {
       }),
       projectRequests: Joi.array().items(
         Joi.object({
+          id: Joi.string(),
           created_at: Joi.string(),
           title: Joi.string(),
           message: Joi.string(),
@@ -85,6 +86,7 @@ export default {
       ),
       notifications: Joi.array().items(
         Joi.object({
+          id: Joi.string(),
           created_at: Joi.string(),
           type: Joi.number(),
           status: Joi.number(),
