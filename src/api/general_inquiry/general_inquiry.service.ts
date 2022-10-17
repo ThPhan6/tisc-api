@@ -114,6 +114,7 @@ class GeneralInquiryService {
     });
 
     const result = await generalInquiryRepository.getDetailGeneralInquiry(id);
+
     return successResponse({ data: head(result) || null });
   }
 }

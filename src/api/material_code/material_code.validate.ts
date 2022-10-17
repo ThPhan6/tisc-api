@@ -6,18 +6,26 @@ export default {
     payload: {
       name: Joi.string()
         .required()
-        .error(commonFailValidatedMessageFunction("Material name is required")),
+        .error(commonFailValidatedMessageFunction("Material name is missing")),
       subs: Joi.array().items({
         name: Joi.string()
           .required()
           .error(
-            commonFailValidatedMessageFunction("Sub material name is required")
+            commonFailValidatedMessageFunction("Sub-list name is missing")
           ),
         codes: Joi.array().items({
           code: Joi.string()
             .required()
-            .error(commonFailValidatedMessageFunction("Code is required")),
-          description: Joi.string(),
+            .error(
+              commonFailValidatedMessageFunction("Sub-list Code is missing")
+            ),
+          description: Joi.string()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Sub-list description is missing"
+              )
+            ),
         }),
       }),
     },
@@ -58,34 +66,30 @@ export default {
         .trim()
         .required()
         .error(() => new Error("Main material code name is missing")),
-      subs: Joi.array()
-        .items(
-          Joi.object({
+      subs: Joi.array().items(
+        Joi.object({
+          id: Joi.string().allow(null),
+          name: Joi.string()
+            .trim()
+            .required()
+            .error(() => new Error("Sub-list name is missing")),
+          codes: Joi.array().items({
             id: Joi.string().allow(null),
-            name: Joi.string()
+            code: Joi.string()
               .trim()
               .required()
-              .error(() => new Error("Sub material code name is missing")),
-            codes: Joi.array()
-              .items({
-                id: Joi.string().allow(null),
-                code: Joi.string()
-                  .trim()
-                  .required()
-                  .error(() => new Error("Code is missing")),
-                description: Joi.string()
-                  .trim()
-                  .required()
-                  .error(
-                    commonFailValidatedMessageFunction("Description is missing")
-                  ),
-              })
+              .error(() => new Error("Sub-list Code is missing")),
+            description: Joi.string()
+              .trim()
               .required()
-              .error(() => new Error("Code is missing")),
-          })
-        )
-        .required()
-        .error(() => new Error("Subs material code is missing")),
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Sub-list description is missing"
+                )
+              ),
+          }),
+        })
+      ),
     },
   },
 };

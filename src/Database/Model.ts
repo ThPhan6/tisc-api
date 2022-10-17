@@ -17,6 +17,10 @@ class Model<DataType> {
     this.connection = new Connection();
   }
 
+  public getTableName() {
+    return this.table;
+  }
+
   public getQuery() {
     return new Builder(this.connection, this.table, this.softDelete);
   }

@@ -223,7 +223,6 @@ export const ROUTES = {
   UPDATE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/update-status/{id}",
   DELETE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/delete/{id}",
   GET_LIST_QUOTATION_NOT_AUTH: "/api/quotation/landing-page/get-list",
-  GET_LIST_FINISH_SCHEDULE_FOR: "/api/finish-schedule-for/get-list",
   SETTING: {
     COUNTRY_REGION_GROUP: "/api/setting/regions",
     COMMON_TYPES_LIST: "/api/setting/common-type/{type}",
@@ -256,6 +255,7 @@ export const ROUTES = {
     GET_LIST: "/api/action-task",
     UPDATE: "/api/action-task/{id}",
   },
+<<<<<<< HEAD
   DESIGN_FIRM: {
     UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",
     GET_LIST_DESIGN_FIRM: "/api/design/get-list",
@@ -470,3 +470,36 @@ export const ROUTE_IDS = {
   GET_LIST_QUOTATION_NOT_AUTH: "193",
   GET_LIST_FINISH_SCHEDULE_FOR: "194",
 };
+=======
+  PROJECT_PRODUCT: {
+    ASSIGN_PRODUCT_TO_A_PROJECT: "/api/project/assign-product",
+    GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT:
+      "/api/project/{project_id}/product/{product_id}/assign-zones",
+    GET_CONSIDERED_PRODUCT_LIST:
+      "/api/project/{project_id}/considered-product/get-list",
+    DELETE_CONSIDERED_PRODUCT: "/api/project-product/{id}/delete",
+    UPDATE_CONSIDERED_PRODUCT_STATUS:
+      "/api/project-product/{id}/update-consider-status",
+    UPDATE_SPECIFIED_PRODUCT_STATUS:
+      "/api/project-product/{id}/update-specified-status",
+    UPDATE_CONSIDERED_PRODUCT_SPECIFY: "/api/project-product/{id}/update-specify",
+    GET_SPECIFYING_PRODUCTS_BY_BRAND:
+      "/api/project-product/get-list-by-brand/{project_id}",
+    GET_SPECIFYING_PRODUCTS_BY_MATERIAL:
+      "/api/project-product/get-list-by-material/{project_id}",
+    GET_SPECIFYING_PRODUCTS_BY_ZONE:
+      "/api/project-product/get-list-by-zone/{project_id}",
+    GET_LIST_FINISH_SCHEDULE_FOR: "/api/project-product/{project_product_id}/finish-schedules",
+  },
+  PROJECT_TRACKING: {
+    CREATE: "/api/project-tracking/request/create",
+    GET_LIST: "/api/project-tracking/get-list",
+    GET_ONE: "/api/project-tracking/{id}/get-one",
+    UPDATE: "/api/project-tracking/{id}/update",
+    GET_SUMMARY: "/api/project-tracking/summary",
+  },
+  PDF: {
+    GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
+  },
+}
+>>>>>>> fbcfa081adbde737b80b41c4e10c91a66c0df5b1

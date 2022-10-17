@@ -1,13 +1,17 @@
-import { COMMON_TYPES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
-import { successResponse } from "@/helper/response.helper";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import productRepository from "@/repositories/product.repository";
+import { settingService } from "../setting/setting.service";
 import {
   ProjectStatus,
   RespondedOrPendingStatus,
   SortOrder,
   UserAttributes,
 } from "@/types";
-import { settingService } from "../setting/setting.service";
 import { CreateProjectRequestBody } from "./project_request.model";
 import { projectRequestRepository } from "./project_request.repository";
 import { ProjectTrackingPriority } from "./project_tracking.model";
@@ -29,8 +33,18 @@ class ProjectTrackingService {
       COMMON_TYPES.REQUEST_FOR
     );
 
+    const product = await productRepository.find(payload.product_id);
+
+    if (!product) {
+      console.log("product not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
     const projectTracking =
-      await projectTrackingRepository.findOrCreateIfNotExists(payload);
+      await projectTrackingRepository.findOrCreateIfNotExists(
+        payload.project_id,
+        product.brand_id
+      );
 
     const response = await projectRequestRepository.create({
       ...payload,
@@ -67,7 +81,7 @@ class ProjectTrackingService {
       filter
     );
 
-    const results = projectTrackings.map((el, index) => ({
+    const results = projectTrackings.map((el) => ({
       id: el.project_tracking.id,
       created_at: el.project_tracking.created_at,
       priority: el.project_tracking.priority,
@@ -81,8 +95,10 @@ class ProjectTrackingService {
       newRequest: el.projectRequests.some((el) =>
         el.read_by ? el.read_by.includes(user.id) === false : true
       ),
-      notificationCount: 0,
-      newNotification: index % 2 ? true : false,
+      notificationCount: el.notifications.length,
+      newNotification: el.notifications.some((el) =>
+        el.read_by ? el.read_by.includes(user.id) === false : true
+      ),
       newTracking: el.project_tracking.read_by
         ? el.project_tracking.read_by.includes(user.id) === false
         : true,
@@ -96,10 +112,6 @@ class ProjectTrackingService {
       },
     });
   }
-
-  public getOne = async (trackingId: string, userId: string) => {
-    return projectTrackingRepository.getOne(trackingId, userId);
-  };
 }
 
 export const projectTrackingService = new ProjectTrackingService();

@@ -206,6 +206,21 @@ export const pagination = (limit: number, offset: number, total: number) => ({
   page_count: Math.ceil(total / limit),
 });
 
+export const fillObject = (data: any, fillData: any) => {
+  const mutableObject1 = Object.assign({}, data);
+  const mutableObject2 = Object.assign({}, fillData);
+  Object.keys(mutableObject2).forEach(function (key) {
+    if (key in mutableObject1) {
+      if (typeof mutableObject1[key] === 'object') {
+        fillObject(mutableObject1[key], mutableObject2[key]);
+      } else {
+        mutableObject1[key] = mutableObject2[key];
+      }
+    }
+  });
+  return mutableObject1;
+};
+
 export function getEnumValues<T extends string | number>(e: any): T[] {
   return typeof e === "object" ? Object.values(e) : [];
 }

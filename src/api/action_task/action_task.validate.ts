@@ -36,10 +36,10 @@ export default {
     payload: {
       status: Joi.number()
         .valid(
-          ActionTaskStatus.To_do_list,
-          ActionTaskStatus.In_progress,
-          ActionTaskStatus.Canceled,
-          ActionTaskStatus.Completed
+          ActionTaskStatus["To-Do-List"],
+          ActionTaskStatus["In Progress"],
+          ActionTaskStatus["Cancelled"],
+          ActionTaskStatus["Completed"]
         )
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),

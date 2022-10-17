@@ -67,9 +67,9 @@ export default class UserService {
       lastname: payload.lastname,
       gender: payload.gender,
       location_id: payload.location_id,
-      work_location: `${
-        location.city_name
-      }, ${location.country_name.toUpperCase()}`,
+      work_location: location.city_name
+        ? `${location.city_name}, ${location.country_name.toUpperCase()}`
+        : `${location.country_name.toUpperCase()}`,
       department_id: department.id,
       position: payload.position,
       email: payload.email,

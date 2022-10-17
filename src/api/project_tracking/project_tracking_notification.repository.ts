@@ -11,11 +11,15 @@ class ProjectTrackingNotificationRepository extends BaseRepository<ProjectTracki
   protected DEFAULT_ATTRIBUTE: Partial<ProjectTrackingNotificationAttributes> =
     {
       id: "",
-      product_id: "",
+      project_product_id: "",
       project_tracking_id: "",
+
       read_by: [],
       status: ProjectTrackingNotificationStatus["Keep-in-view"],
       type: ProjectTrackingNotificationType.Considered,
+
+      created_by: "",
+
       created_at: "",
       updated_at: "",
     };

@@ -22,4 +22,7 @@ export * from "./permission.type";
 export * from "./project.type";
 export * from "./documentation.type";
 export * from "./common.type";
+export * from "./project_product_pdf_config.type";
+export * from "./template.type";
+export * from "./project_product_finish_schedule.type";
 export * from "./general_inquiry.type";

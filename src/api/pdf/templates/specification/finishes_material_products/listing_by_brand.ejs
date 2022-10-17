@@ -1,0 +1,54 @@
+<div class="general-specification-content">
+  <table width="100%">
+    <tr class="bg-black">
+      <td width="18" style="padding-top: 2px">
+        <span class="color-white uppercase"></span>
+      </td>
+      <td width="79" style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">collection</span>
+      </td>
+      <td width="80" style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">product</span>
+      </td>
+      <td width="235" style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">option/variant</span>
+      </td>
+      <td width="60" style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">code</span>
+      </td>
+    </tr>
+    <% for(var i=1; i<=3; i++) {%>
+    <tr class="border-bottom-box-shadow-bold">
+      <td width="18" style="padding-top: 2px">
+        <span></span>
+      </td>
+      <td width="79" style="padding: 0 4px" colspan="2">
+        <span class="primary-roboto-bold-8-18 ">Brand name A</span>
+      </td>
+    </tr>
+    <% for(var j=1; j<=3; j++) {%>
+    <tr>
+      <td width="18" style="padding: 2px 0">
+        <img
+          style="width: 14px; height: 14px; background-color: black; margin: 0"
+        ></img>
+      </td>
+      <td width="79" style="padding: 0 4px" class="primary-roboto-light-8-18">
+        <span>Collection name</span>
+      </td>
+      <td width="80" style="padding: 0 4px" class="primary-roboto-light-8-18">
+        <span>product description</span>
+      </td>
+      <td width="235" style="padding: 0 4px" class="primary-roboto-light-8-18">
+        <span>option/variant name</span>
+      </td>
+      <td width="60" style="padding: 0 4px" class="primary-roboto-light-8-18">
+        <span>code</span>
+      </td>
+    </tr>
+    <% } %>
+    <tr class="border-bottom-box-shadow"></tr>
+    <tr style="height: 18px;"></tr>
+    <% } %>
+  </table>
+</div>

@@ -7,6 +7,7 @@ export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
     data: Joi.any(),
+    message: Joi.string().allow(""),
   }) as any,
   getListProjectTracking: Joi.object({
     data: Joi.object({
@@ -62,12 +63,21 @@ export default {
           product: Joi.object({
             id: Joi.string(),
             name: Joi.string(),
-            description: Joi.string(),
+            description: Joi.string().allow(""),
             images: Joi.array().items(Joi.string()),
             collection_name: Joi.string(),
           }),
           newRequest: Joi.bool(),
           requestFor: Joi.string(),
+          designer: Joi.object({
+            location_id: Joi.string().allow(""),
+            firstname: Joi.string().allow(""),
+            lastname: Joi.string().allow(""),
+            position: Joi.string().allow(""),
+            email: Joi.string().allow(""),
+            phone: Joi.string().allow(""),
+            phone_code: Joi.string().allow(""),
+          }).allow(null),
         })
       ),
       notifications: Joi.array().items(
@@ -79,21 +89,30 @@ export default {
           product: Joi.object({
             id: Joi.string(),
             name: Joi.string(),
-            description: Joi.string(),
+            description: Joi.string().allow(""),
             images: Joi.array().items(Joi.string()),
             collection_name: Joi.string(),
           }),
           newNotification: Joi.bool(),
+          designer: Joi.object({
+            location_id: Joi.string().allow(""),
+            firstname: Joi.string().allow(""),
+            lastname: Joi.string().allow(""),
+            position: Joi.string().allow(""),
+            email: Joi.string().allow(""),
+            phone: Joi.string().allow(""),
+            phone_code: Joi.string().allow(""),
+          }).allow(null),
         })
       ),
       designFirm: Joi.object({
         name: Joi.string(),
         official_website: Joi.string().allow(""),
-        phone: Joi.string().allow(""),
-        phone_code: Joi.string(),
-        email: Joi.string(),
+        // phone: Joi.string().allow(""),
+        // phone_code: Joi.string(),
+        // email: Joi.string(),
         address: Joi.string(),
-      }),
+      }).allow(null),
     }),
   }) as any,
 };

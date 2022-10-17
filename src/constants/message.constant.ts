@@ -201,6 +201,7 @@ export const MESSAGES = {
   CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
   PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
+  PRODUCT_ALREADY_ASSIGNED: "Product already assigned to this project",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE:
     "You are not in this design firm. So you cannot update",
@@ -228,6 +229,13 @@ export const MESSAGES = {
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
-
+  FINISH_SCHEDULE: {
+    INCORRECT_ROOM: "Some rooms does not exist!.",
+    INCORRECT_CODE: "Invalid Material Code",
+    MISSING_ROOM_DATA: "Please update Finish Schedule!",
+  },
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
+  PDF_SPECIFY: {
+    ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
+  },
 };
