@@ -3,6 +3,23 @@ import * as HapiJoi from "joi";
 import { getSummaryResponseValidate } from "../brand/brand.response";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 
+const designerValidate = Joi.object({
+  location_id: Joi.string().allow(""),
+  firstname: Joi.string().allow(""),
+  lastname: Joi.string().allow(""),
+  position: Joi.string().allow(""),
+  email: Joi.string().allow(""),
+  phone: Joi.string().allow(""),
+  phone_code: Joi.string().allow(""),
+}).allow(null);
+const productValidate = Joi.object({
+  id: Joi.string(),
+  name: Joi.string(),
+  description: Joi.string().allow(""),
+  images: Joi.array().items(Joi.string()),
+  collection_name: Joi.string(),
+});
+
 export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
@@ -60,24 +77,10 @@ export default {
           message: Joi.string(),
           status: Joi.number(),
           created_by: Joi.string(),
-          product: Joi.object({
-            id: Joi.string(),
-            name: Joi.string(),
-            description: Joi.string().allow(""),
-            images: Joi.array().items(Joi.string()),
-            collection_name: Joi.string(),
-          }),
+          product: productValidate,
           newRequest: Joi.bool(),
           requestFor: Joi.string(),
-          designer: Joi.object({
-            location_id: Joi.string().allow(""),
-            firstname: Joi.string().allow(""),
-            lastname: Joi.string().allow(""),
-            position: Joi.string().allow(""),
-            email: Joi.string().allow(""),
-            phone: Joi.string().allow(""),
-            phone_code: Joi.string().allow(""),
-          }).allow(null),
+          designer: designerValidate,
         })
       ),
       notifications: Joi.array().items(
@@ -86,32 +89,30 @@ export default {
           type: Joi.number(),
           status: Joi.number(),
           created_by: Joi.string(),
-          product: Joi.object({
-            id: Joi.string(),
-            name: Joi.string(),
-            description: Joi.string().allow(""),
-            images: Joi.array().items(Joi.string()),
-            collection_name: Joi.string(),
-          }),
+          product: productValidate,
           newNotification: Joi.bool(),
-          designer: Joi.object({
-            location_id: Joi.string().allow(""),
-            firstname: Joi.string().allow(""),
-            lastname: Joi.string().allow(""),
-            position: Joi.string().allow(""),
-            email: Joi.string().allow(""),
-            phone: Joi.string().allow(""),
-            phone_code: Joi.string().allow(""),
-          }).allow(null),
+          designer: designerValidate,
         })
       ),
       designFirm: Joi.object({
         name: Joi.string(),
         official_website: Joi.string().allow(""),
-        // phone: Joi.string().allow(""),
-        // phone_code: Joi.string(),
-        // email: Joi.string(),
-        address: Joi.string(),
+        locations: Joi.array().items(
+          Joi.object({
+            address: Joi.string().allow(""),
+            city_name: Joi.string().allow(""),
+            country_name: Joi.string().allow(""),
+            general_email: Joi.string().allow(""),
+            general_phone: Joi.string().allow(""),
+            teamMembers: Joi.array().items(
+              Joi.object({
+                firstname: Joi.string().allow(""),
+                lastname: Joi.string().allow(""),
+                position: Joi.string().allow(""),
+              })
+            ),
+          })
+        ),
       }).allow(null),
     }),
   }) as any,

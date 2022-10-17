@@ -89,7 +89,7 @@ class ProjectTrackingService {
       projectName: el.project.name,
       projectLocation: el.project.location,
       projectType: el.project.project_type,
-      designFirm: el.designFirm.name,
+      designFirm: el.designFirm?.name,
       projectStatus: ProjectStatus[el.project.status],
       requestCount: el.projectRequests.length,
       newRequest: el.projectRequests.some((el) =>
