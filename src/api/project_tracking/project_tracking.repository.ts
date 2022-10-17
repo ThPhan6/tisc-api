@@ -7,9 +7,7 @@ import {
   SortOrder,
 } from "@/types";
 import { v4 } from "uuid";
-import {
-  ProjectRequestAttributes,
-} from "./project_request.model";
+import { ProjectRequestAttributes } from "./project_request.model";
 import ProjectTrackingModel, {
   ProjectTrackingAttributes,
   ProjectTrackingPriority,
@@ -391,11 +389,12 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR notifications IN project_tracking_notifications
       FILTER notifications.project_tracking_id == @trackingId
       FILTER notifications.deleted_at == null
-      FOR product in products
-      FILTER product.id == notifications.product_id
-      FILTER product.brand_id == @brandId
-      FOR collection in collections
-      FILTER collection.id == product.collection_id
+      FOR pr in project_products
+      FILTER pr.id == notifications.project_product_id
+      FOR p in products
+      FILTER p.id == pr.product_id
+      FOR c in collections
+      FILTER c.id == p.collection_id
       LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
       FOR u IN users
       FILTER u.id == notifications.created_by
@@ -408,8 +407,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         KEEP(notifications, 'created_at','type', 'status', 'created_by'),
         {
           product: MERGE(
-            KEEP(product, 'id', 'name', 'images', 'description'), 
-            {collection_name: collection.name}
+            KEEP(p, 'id', 'name', 'images', 'description'), 
+            {collection_name: c.name}
           ),
           newNotification: NOT newNotification[0],
           designer: MERGE(
@@ -421,13 +420,41 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     )
 
     LET designFirm = (
-      FOR designers IN designers
-      FILTER designers.id == projects.design_id
-      FOR locations IN locations
-      FILTER locations.relation_id == designers.id
+      FOR designer IN designers
+      FILTER designer.id == projects.design_id
+      FOR loc IN locations
+      FILTER loc.relation_id == designer.id
+      
+      LET allLocations = (
+        LET mergedUsers = UNION(notifications, projectRequests)
+        LET designerUserIds = (
+          FOR mu IN mergedUsers
+          RETURN mu.created_by
+        )
+        LET designerUserLocations = (
+          FOR du IN users
+          FILTER du.id IN UNIQUE(designerUserIds)
+          FOR duLoc IN locations
+          FILTER duLoc.id == du.location_id
+          COLLECT location = duLoc INTO usersByLocation
+          RETURN {location, users: usersByLocation[*].du}
+        )
+        LET groupData = (
+          FOR designerUserLocation IN designerUserLocations
+          LET teamMembers = (
+            FOR u IN designerUserLocation.users
+            RETURN KEEP(u, 'firstname','lastname','position')
+          )
+          RETURN MERGE(
+            KEEP(designerUserLocation.location, 'city_name','country_name','address','general_phone','general_email'),
+            {teamMembers: teamMembers}
+          )
+        )
+        RETURN groupData
+      )
       RETURN MERGE(
-        KEEP(designers, 'name', 'official_website'),
-        {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
+        KEEP(designer, 'name', 'official_website'),
+        { locations: allLocations[0] }
       )
     )
 
