@@ -1,5 +1,8 @@
 import ProjectProductPDFConfigModel from "@/model/project_product_pdf_config.model";
-import { ProjectProductPDFConfigAttribute } from "@/types";
+import {
+  ProjectProductPDFConfigAttribute,
+  ProjectProductPDFConfigWithLocationAndType,
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class ProjectProductPDFConfigRepository extends BaseRepository<ProjectProductPDFConfigAttribute> {
@@ -20,6 +23,23 @@ class ProjectProductPDFConfigRepository extends BaseRepository<ProjectProductPDF
     super();
     this.model = new ProjectProductPDFConfigModel();
   }
+
+  public updateByProjectId = (
+    projectId: string,
+    payload: Partial<ProjectProductPDFConfigAttribute>
+  ) => {
+    return this.model
+      .where('project_id', '==', projectId)
+      .update(payload);
+  }
+
+  public findWithInfoByProjectId = async (projectId: string) => {
+    return await this.model.where('project_product_pdf_configs.project_id', '==', projectId)
+    .join('locations', 'locations.id', '==', 'project_product_pdf_configs.location_id')
+    .join('common_types', 'common_types.id', '==', 'project_product_pdf_configs.issuing_for_id')
+    .first(true) as ProjectProductPDFConfigWithLocationAndType | undefined;
+  }
+
 
 }
 

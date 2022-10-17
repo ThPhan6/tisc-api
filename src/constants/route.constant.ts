@@ -283,6 +283,7 @@ export const ROUTES = {
     GET_SUMMARY: "/api/project-tracking/summary",
   },
   PDF: {
+    GENERATE_PROJECT_PDF: "/api/pdf/project/{project_id}/generate",
     GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
   },
 }

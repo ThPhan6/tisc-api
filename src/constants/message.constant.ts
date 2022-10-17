@@ -237,5 +237,6 @@ export const MESSAGES = {
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
   PDF_SPECIFY: {
     ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
+    NOT_FOUND: 'Please update Issuing information!'
   },
 };

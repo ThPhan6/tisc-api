@@ -1,3 +1,8 @@
+import {
+  ILocationAttributes,
+  CommonTypeAttributes,
+} from "@/types";
+
 export interface ProjectProductPDFConfigAttribute {
   id: string;
   project_id: string;
@@ -12,4 +17,9 @@ export interface ProjectProductPDFConfigAttribute {
   updated_at: string;
   created_by: string;
   updated_by: string;
+}
+
+export interface ProjectProductPDFConfigWithLocationAndType extends ProjectProductPDFConfigAttribute {
+  locations: ILocationAttributes;
+  common_types: CommonTypeAttributes;
 }

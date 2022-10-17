@@ -2,10 +2,17 @@
 import { projectRepository } from "@/repositories/project.repository";
 import { templateRepository } from "@/repositories/template.repository";
 import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
+import {locationRepository} from '@/repositories/location.repository';
 // import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import { MESSAGES } from "@/constants";
 import { mappingSpecifyPDFTemplate } from "./pdf.mapping";
-import { UserAttributes } from "@/types";
+import { ProjectPDfData } from "./pdf.type";
+import {
+  UserAttributes,
+  ProjectProductPDFConfigAttribute,
+  ProjectProductPDFConfigWithLocationAndType,
+  ProjectAttributes
+} from "@/types";
 import { isEmpty, merge } from "lodash";
 import {
   errorMessageResponse,
@@ -17,40 +24,38 @@ import * as ejs from "ejs";
 export default class PDFService {
   private baseTemplate = `${process.cwd()}/src/api/pdf/templates`;
 
-  private injectBasePdfTemplate = (
-    content: string,
-    layout: "specification" | "none" = "none"
-  ) => {
-    return ejs.renderFile(`${this.baseTemplate}/layouts/base.layout.ejs`, {
-      content,
-      layout,
-    });
+  private injectBasePdfTemplate = (content: string) => {
+    return ejs.renderFile(
+      `${this.baseTemplate}/layouts/base.layout.ejs`,
+      { content }
+    );
   };
 
-  private validateProjectWithRelation = async (
+  private getProjectData = async (
     projectId: string,
     user: UserAttributes
   ) => {
-    const project = await projectRepository.find(projectId);
+    const res: ProjectPDfData = {};
+    ///
+    const project = await projectRepository.findProjectWithDesignData(projectId);
     if (isEmpty(project) || project.design_id !== user.relation_id) {
-      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND);
-    }
-  };
-
-  private getProjectData = async (projectId: string, user: UserAttributes) => {
-    const res: any = {};
-    const project = await projectRepository.find(projectId);
-    if (isEmpty(project)) {
       res.message = errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND);
       return res;
     }
-
+    res.project = project;
     return res;
   };
 
-  private generateCoverPage = async () => {
+  private generateProjectCoverPage = async (
+    project: ProjectAttributes & {
+      design_firm_official_website: string;
+      design_firm_name: string;
+    },
+    config: ProjectProductPDFConfigWithLocationAndType
+  ) => {
     const coverHtml = await ejs.renderFile(
-      `${this.baseTemplate}/cover/specify.ejs`
+      `${this.baseTemplate}/cover/specify.ejs`,
+      {project, config}
     );
     const html = await this.injectBasePdfTemplate(coverHtml);
     return await pdfNode.create(html).toBuffer();
@@ -83,33 +88,73 @@ export default class PDFService {
     };
   };
 
-  private mergePDF = () => {
-    // pdfNode.merge
-  };
-
   // Buffer response
-  public generateProjectProduct = async () => {
-    const coverHtml = await ejs.renderFile(
-      `${this.baseTemplate}/specification/finishes_material_products/reference_by_code.ejs`
-    );
-    const html = await this.injectBasePdfTemplate(coverHtml, "specification");
-    const headerOption = await this.getSpecifyHeader(
-      "finishes, materials & products listing by code"
-    );
-    const footerOption = await this.getSpecifyFooter();
-    console.log(html);
-    return await pdfNode
-      .create(html, merge(headerOption, footerOption))
-      .toBuffer();
+
+
+  public generateProjectProduct = async (
+    user: UserAttributes,
+    projectId: string,
+    payload: Partial<ProjectProductPDFConfigAttribute>
+    // payload: Omit<
+    //   ProjectProductPDFConfigAttribute,
+    //   'created_by' | 'created_at' | 'updated_at' | 'id' | 'project_id'
+    // >
+  ) => {
+    /// get project Data
+    const projectData = await this.getProjectData(projectId, user);
+    if (projectData.message) {
+      return projectData.message;
+    }
+    // save payload
+    await projectProductPDFConfigRepository.updateByProjectId(projectId, payload);
+    const pdfConfig = await projectProductPDFConfigRepository.findWithInfoByProjectId(projectId);
+    console.log('pdfConfig', pdfConfig);
+    console.log('projectData', projectData);
+
+    const pdfBuffers: Buffer[] = [];
+
+    if (!pdfConfig) {
+      return errorMessageResponse(MESSAGES.PDF_SPECIFY.NOT_FOUND);
+    }
+    if (pdfConfig.has_cover) {
+      pdfBuffers.push(await this.generateProjectCoverPage(projectData.project, pdfConfig));
+    }
+
+    const templates = await templateRepository.getModel()
+      .whereIn('id', pdfConfig.template_ids)
+      .order('sequence')
+      .get();
+
+    console.log(templates);
+
+    return pdfNode.merge(...pdfBuffers);
+
+    // // PDFBuffer
+    // const pdfBuffers: Buffer[] = [];
+    //
+    //
+    //
+    // const coverHtml = await ejs.renderFile(
+    //   `${this.baseTemplate}/cover/specify.ejs`
+    // );
+    // const html = await this.injectBasePdfTemplate(coverHtml, "specification");
+    // const headerOption = await this.getSpecifyHeader(
+    //   "finishes, materials & products listing by code"
+    // );
+    // const footerOption = await this.getSpecifyFooter();
+    // console.log(html);
+    // return await pdfNode
+    //   .create(html, merge(headerOption, footerOption))
+    //   .toBuffer();
   };
 
   public getProjectSpecifyConfig = async (
     user: UserAttributes,
     projectId: string
   ) => {
-    const isInvalid = await this.validateProjectWithRelation(projectId, user);
-    if (isInvalid) {
-      return isInvalid;
+    const projectData = await this.getProjectData(projectId, user);
+    if (projectData.message) {
+      return projectData.message;
     }
 
     let projectProductPDFConfig =

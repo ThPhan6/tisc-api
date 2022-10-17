@@ -14,11 +14,13 @@ export default class PDFRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: '/api/pdf/project-product/{project_product_id}',
+          path: ROUTES.PDF.GENERATE_PROJECT_PDF,
           options: {
             handler: controller.generateProjectProduct,
-            description: "ABCD---ABCD",
-            tags: ["api", "pdf"],
+            validate: validate.paramProjectId,
+            description: "Method that generate project PDF specify",
+            tags: ["api", "PDF Generator"],
+            auth: AUTH_NAMES.PERMISSION,
           },
         },
         {
@@ -28,7 +30,7 @@ export default class PDFRoute implements IRoute {
             handler: controller.getProjectSpecifyConfig,
             validate: validate.paramProjectId,
             description: "Method that get Project Specify PDF configuration",
-            tags: ["api", "pdf"],
+            tags: ["api", "PDF Generator"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

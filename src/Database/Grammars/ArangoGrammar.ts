@@ -154,7 +154,7 @@ class ArangoGrammar {
       const joinResponse = joins.map((join) => {
         return `${join.table}: ${this.unQueryField(join.table)}`;
       });
-      this.query += `RETURN merge(${primaryAlias}, {${joinResponse.join(
+      this.query += `RETURN merge(${this.unQueryField(primaryAlias)}, {${joinResponse.join(
         ", "
       )}})`;
     } else if (
