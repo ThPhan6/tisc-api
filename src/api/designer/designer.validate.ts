@@ -66,4 +66,46 @@ export default {
         .error(commonFailValidatedMessageFunction("Design status is required")),
     },
   },
+  updateDesign: {
+    params: {
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+    payload: {
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Design firm name is required")
+        ),
+      parent_company: Joi.string(),
+      logo: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Logo is required")),
+      slogan: Joi.string(),
+      profile_n_philosophy: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Profile & Philosophy")),
+      office_website: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Office website is required")
+        ),
+      capabilities: Joi.array().items(
+        Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Design capabilities is required"
+            )
+          )
+      ),
+    },
+  },
 };

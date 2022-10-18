@@ -12,6 +12,7 @@ export interface CommonTypes {
   REQUEST_FOR: 11;
   ACTION_TASK: 12;
   ISSUE_FOR: 13;
+  CAPABILITIES: 14;
 }
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 

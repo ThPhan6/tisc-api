@@ -1,5 +1,7 @@
 import { DESIGN_STATUS_OPTIONS, REGION_KEY } from "@/constants";
+import { getFileTypeFromBase64, randomName } from "@/helper/common.helper";
 import { IProjectAttributes } from "@/model/project.model";
+import { deleteFile, isExists } from "@/service/aws.service";
 import {
   DesignerAttributes,
   ILocationAttributes,

@@ -18,6 +18,7 @@ export interface DesignerAttributes {
   status: DesignStatusValue;
   created_at: string;
   updated_at: string | null;
+  capabilities: string[];
 }
 
 export interface ListDesignerWithPaginate {
