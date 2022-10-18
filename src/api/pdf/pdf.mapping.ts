@@ -61,11 +61,11 @@ export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
 
 export const groupSpecifyTemplates = (templates: TemplateAttributes[]) => {
   const response: {
-    mergeTemplate: TemplateAttributes[],
-    buildTemplate: TemplateAttributes[]
+    introTemplates: TemplateAttributes[],
+    specificationTemplates: TemplateAttributes[]
   } = {
-    mergeTemplate: [],
-    buildTemplate: [],
+    introTemplates: [],
+    specificationTemplates: [],
   };
 
   templates.forEach((template) => {
@@ -73,9 +73,9 @@ export const groupSpecifyTemplates = (templates: TemplateAttributes[]) => {
       template.group === TemplateGroup.Introduction ||
       template.group === TemplateGroup.Preamble
     ) {
-      response.mergeTemplate.push(template);
+      response.introTemplates.push(template);
     } else {
-      response.buildTemplate.push(template);
+      response.specificationTemplates.push(template);
     }
   });
 

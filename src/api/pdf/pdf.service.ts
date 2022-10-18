@@ -2,7 +2,7 @@
 import { projectRepository } from "@/repositories/project.repository";
 import { templateRepository } from "@/repositories/template.repository";
 import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
-import {getBufferFile, listFilePrefix} from '@/service/aws.service';
+import {getBufferFile} from '@/service/aws.service';
 // import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import { MESSAGES } from "@/constants";
 import { mappingSpecifyPDFTemplate, groupSpecifyTemplates } from "./pdf.mapping";
@@ -129,14 +129,21 @@ export default class PDFService {
       pdfBuffers.push(
         await this.generateProjectCoverPage(projectData.project, pdfConfig)
       );
-      // mergeTemplate include introduction and Preambles
-      if (!isEmpty(groupTemplate.mergeTemplate)) {
-        const mergeTemplates = await Promise.all(groupTemplate.mergeTemplate.map(async (template) => {
+      // introTemplates include introduction and Preambles
+      if (!isEmpty(groupTemplate.introTemplates)) {
+        const mergeTemplates = await Promise.all(groupTemplate.introTemplates.map(async (template) => {
             return await getBufferFile(template.pdf_url.substring(1));
         }));
         pdfBuffers.push(...mergeTemplates);
       }
     }
+    //
+    if (!isEmpty(groupTemplate.specificationTemplates)) {
+      await Promise.all(groupTemplate.specificationTemplates.map((template) => {
+
+      }));
+    }
+
 
     return pdfNode.merge(...pdfBuffers);
 
