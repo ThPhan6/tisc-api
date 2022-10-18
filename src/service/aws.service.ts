@@ -93,7 +93,7 @@ export const deleteFile = async (file_name: string) => {
 };
 
 export const getBufferFile = async (file_name: string) => {
-  const streamToString = (stream: any) =>
+  const streamToString = (stream: any): Promise<Buffer> =>
     new Promise((resolve, reject) => {
       const chunks: any = [];
       stream.on("data", (chunk: any) => chunks.push(chunk));

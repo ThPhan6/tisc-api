@@ -2,10 +2,10 @@
 import { projectRepository } from "@/repositories/project.repository";
 import { templateRepository } from "@/repositories/template.repository";
 import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
-import {locationRepository} from '@/repositories/location.repository';
+import {getBufferFile, listFilePrefix} from '@/service/aws.service';
 // import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import { MESSAGES } from "@/constants";
-import { mappingSpecifyPDFTemplate } from "./pdf.mapping";
+import { mappingSpecifyPDFTemplate, groupSpecifyTemplates } from "./pdf.mapping";
 import { ProjectPDfData } from "./pdf.type";
 import {
   UserAttributes,
@@ -116,16 +116,27 @@ export default class PDFService {
     if (!pdfConfig) {
       return errorMessageResponse(MESSAGES.PDF_SPECIFY.NOT_FOUND);
     }
-    if (pdfConfig.has_cover) {
-      pdfBuffers.push(await this.generateProjectCoverPage(projectData.project, pdfConfig));
-    }
 
+    /// get selected templates
     const templates = await templateRepository.getModel()
       .whereIn('id', pdfConfig.template_ids)
       .order('sequence')
       .get();
+    const groupTemplate = groupSpecifyTemplates(templates);
 
-    console.log(templates);
+    if (true) {
+    // if (pdfConfig.has_cover) {
+      pdfBuffers.push(
+        await this.generateProjectCoverPage(projectData.project, pdfConfig)
+      );
+      // mergeTemplate include introduction and Preambles
+      if (!isEmpty(groupTemplate.mergeTemplate)) {
+        const mergeTemplates = await Promise.all(groupTemplate.mergeTemplate.map(async (template) => {
+            return await getBufferFile(template.pdf_url.substring(1));
+        }));
+        pdfBuffers.push(...mergeTemplates);
+      }
+    }
 
     return pdfNode.merge(...pdfBuffers);
 
@@ -146,6 +157,10 @@ export default class PDFService {
     // return await pdfNode
     //   .create(html, merge(headerOption, footerOption))
     //   .toBuffer();
+
+    ////////
+
+
   };
 
   public getProjectSpecifyConfig = async (

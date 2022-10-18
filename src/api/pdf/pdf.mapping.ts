@@ -58,3 +58,26 @@ export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
     return data.filter(item => !isEmpty(item.items));
   });
 }
+
+export const groupSpecifyTemplates = (templates: TemplateAttributes[]) => {
+  const response: {
+    mergeTemplate: TemplateAttributes[],
+    buildTemplate: TemplateAttributes[]
+  } = {
+    mergeTemplate: [],
+    buildTemplate: [],
+  };
+
+  templates.forEach((template) => {
+    if (
+      template.group === TemplateGroup.Introduction ||
+      template.group === TemplateGroup.Preamble
+    ) {
+      response.mergeTemplate.push(template);
+    } else {
+      response.buildTemplate.push(template);
+    }
+  });
+
+  return response;
+}
