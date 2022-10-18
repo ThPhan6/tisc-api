@@ -99,7 +99,7 @@ export default class ProjectProductRoute implements IRoute {
           method: "PATCH",
           path: ROUTES.PROJECT_PRODUCT.UPDATE_SPECIFIED_PRODUCT_STATUS,
           options: {
-            handler: controller.specifyProduct,
+            handler: controller.updateSpecifyProductStatus,
             validate: validate.updateProductSpecifyStatus,
             description: "Method that update specified product status",
             tags: ["api", "Project"],

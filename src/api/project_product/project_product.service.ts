@@ -342,10 +342,7 @@ class ProjectProductService {
       payload.requirement_type_ids = requirements.map((el) => el.id);
     }
 
-    if (
-      projectProduct.status === ProjectProductStatus.consider &&
-      isSpecifying
-    ) {
+    if (isSpecifying) {
       const errorSavedFinishSchedule = await this.updateFinishScheduleByRoom(
         user,
         projectProductId,
@@ -365,14 +362,12 @@ class ProjectProductService {
         status: isSpecifying
           ? ProjectProductStatus.specify
           : ProjectProductStatus.consider,
-        specified_status: isSpecifying
+        specified_status: payload.specified_status ?? (isSpecifying
           ? ProductSpecifyStatus.Specified
-          : payload.specified_status,
+          : undefined),
       }
     );
-
     if (!considerProduct[0]) {
-      console.log("considerProduct not found");
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
@@ -737,7 +732,10 @@ class ProjectProductService {
         );
       })
     );
-    if (response.length !== assignRooms.length) {
+    if (
+      entireAllocation && response.length !== 1 ||
+      (!entireAllocation && response.length !== assignRooms.length)
+    ) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
     }
   };
