@@ -1,3 +1,4 @@
+import { locationService } from "./../location/location.service";
 import {
   BRAND_STATUSES,
   MESSAGES,
@@ -268,6 +269,11 @@ class BrandService {
     if (!createdBrand) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+
+    await locationService.createDefaultLocation(
+      createdBrand.id,
+      SYSTEM_TYPE.BRAND
+    );
 
     let verificationToken: string;
     let isDuplicated = true;

@@ -286,5 +286,27 @@ export default class LocationService {
     await locationRepository.delete(id);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
+
+  public createDefaultLocation = async (relationId: string, type: number) => {
+    return locationRepository.create({
+      business_name: "N/A",
+      functional_type_ids: [""],
+      business_number: "N/A",
+      functional_type: "N/A",
+      country_id: "199",
+      country_name: "Singapore",
+      state_id: "4651",
+      state_name: "Central Region",
+      city_id: "151001",
+      city_name: "Bishan",
+      phone_code: "65",
+      address: "N/A",
+      postal_code: "N/A",
+      general_phone: "N/A",
+      general_email: "N/A",
+      type,
+      relation_id: relationId,
+    });
+  };
 }
 export const locationService = new LocationService();
