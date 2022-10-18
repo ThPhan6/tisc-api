@@ -13,7 +13,6 @@ import {
 } from "@/types";
 import { head, uniq } from "lodash";
 import { settingService } from "./../setting/setting.service";
-import { mappingGeneralInquiries } from "./general_inquiry.mapping";
 import { GeneralInquiryRequest } from "./general_inquiry.type";
 class GeneralInquiryService {
   public async create(user: UserAttributes, payload: GeneralInquiryRequest) {
@@ -49,6 +48,7 @@ class GeneralInquiryService {
   }
 
   public async getList(
+    userId: string,
     relationId: string,
     limit: number,
     offset: number,
@@ -57,26 +57,40 @@ class GeneralInquiryService {
   ) {
     const generalInquiries =
       await generalInquiryRepository.getListGeneralInquiry(
+        userId,
         relationId,
         limit,
         offset,
         sort,
-        {
-          ...filter,
-          status: filter?.status,
-        }
+        filter
       );
-
     const allInquiry = await generalInquiryRepository.getAllInquiryBy(
       relationId,
-      { ...filter, status: filter?.status }
+      filter
     );
 
-    const result = mappingGeneralInquiries(generalInquiries);
+    const results = generalInquiries.map((el) => {
+      const {
+        firm_state_name,
+        firm_country_name,
+        inquirer_firstname,
+        inquirer_lastname,
+        ...inquiry
+      } = el;
+      return {
+        ...inquiry,
+        firm_location: firm_state_name
+          ? `${firm_state_name}, ${firm_country_name}`
+          : firm_country_name,
+        inquirer: `${inquirer_firstname || ""} ${
+          inquirer_lastname || ""
+        }`.trim(),
+      };
+    });
 
     return successResponse({
       data: {
-        general_inquiries: result,
+        general_inquiries: results,
         pagination: pagination(limit, offset, allInquiry.length),
       },
     });

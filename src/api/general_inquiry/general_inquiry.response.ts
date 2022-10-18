@@ -1,4 +1,6 @@
+import { getEnumValues } from "@/helper/common.helper";
 import { paginationResponse } from "@/helper/response.helper";
+import { RespondedOrPendingStatus } from "@/types";
 import HapiJoi from "joi";
 import { designResponse } from "./../designer/designer.response";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
@@ -64,7 +66,19 @@ export default {
 
   getList: Joi.object({
     data: Joi.object({
-      general_inquiries: Joi.array().items(Joi.object(inquires)),
+      general_inquiries: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          created_at: Joi.string(),
+          title: Joi.string(),
+          status: Joi.number(),
+          design_firm: Joi.string(),
+          firm_location: Joi.string().allow(""),
+          inquirer: Joi.string(),
+          inquiry_for: Joi.string(),
+          read: Joi.boolean(),
+        })
+      ),
       pagination: paginationResponse,
     }),
     statusCode: Joi.number(),
