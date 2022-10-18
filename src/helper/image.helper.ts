@@ -1,6 +1,5 @@
 import sharp from "sharp";
-import * as dotenv from "dotenv";
-dotenv.config();
+import {ENVIROMENT} from '@/config';
 
 export const toWebp = async (
   image: any,
@@ -34,5 +33,5 @@ export const getFileURI = (filename?: string | null) => {
   if (!filename) {
     return filename;
   }
-  return `${process.env.SPACES_ENDPOINT}/${process.env.SPACES_BUCKET}${filename}`;
+  return `${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}${filename}`;
 }

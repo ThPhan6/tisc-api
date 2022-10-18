@@ -1,5 +1,5 @@
 import { ISystemType } from "./../type/common.type";
-import * as DotEnv from "dotenv";
+import {ENVIROMENT} from '@/config';
 import * as ejs from "ejs";
 import os from "os";
 import { SYSTEM_TYPE, TARGETED_FOR_TYPES } from "./../constant/common.constant";
@@ -14,11 +14,10 @@ export default class MailService {
   private sendSmtpEmail: object;
   private emailAutoResponderModel: EmailAutoResponderModel;
   public constructor() {
-    DotEnv.config({ path: `${process.cwd()}/.env` });
-    this.fromAddress = process.env.SENDINBLUE_FROM || "";
-    this.frontpageURL = process.env.FE_URL || "";
+    this.fromAddress = ENVIROMENT.SENDINBLUE_FROM || "";
+    this.frontpageURL = ENVIROMENT.FE_URL || "";
     SibApiV3Sdk.ApiClient.instance.authentications["api-key"].apiKey =
-      process.env.SENDINBLUE_API_KEY;
+      ENVIROMENT.SENDINBLUE_API_KEY;
     this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     this.sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     this.emailAutoResponderModel = new EmailAutoResponderModel();
