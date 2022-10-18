@@ -19,48 +19,38 @@ export const inquiry = {
   product_id: Joi.string(),
 };
 
-export const inquires = {
-  ...inquiry,
-  inquirer: Joi.string(),
-  state_name: Joi.string().allow(null),
-  inquiry_for: Joi.string(),
-  country_name: Joi.string().allow(null),
-  design_firm: Joi.string(),
-  firm_location: Joi.string().allow(""),
-};
-
-export const designFirmWithPhoneEmail = {
-  ...designResponse,
-  general_email: Joi.string(),
-  general_phone: Joi.string().allow(""),
-  general_phone_code: Joi.string().allow(""),
-  address: Joi.string().allow(""),
-};
-
-export const inquiryMessage = {
-  id: Joi.string(),
-  inquiry_for: Joi.string(),
-  title: Joi.string(),
-  message: Joi.string(),
-  product_id: Joi.string(),
-  product_collection: Joi.string(),
-  product_description: Joi.string(),
-  product_image: Joi.string(),
-  official_website: Joi.string(),
-  inquirer: Joi.string(),
-  position: Joi.string(),
-  work_email: Joi.string(),
-  work_phone: Joi.string().allow(""),
-  work_phone_code: Joi.string().allow(""),
-};
-
 export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({
-      product_name: Joi.string(),
-      design_firm: Joi.object(designFirmWithPhoneEmail),
-      inquiry_message: Joi.object(inquiryMessage),
+      design_firm: Joi.object({
+        name: Joi.string(),
+        official_website: Joi.string().allow(""),
+        general_email: Joi.string(),
+        general_phone: Joi.string().allow(""),
+        phone_code: Joi.string().allow(""),
+        address: Joi.string().allow(""),
+      }),
+      inquiry_message: Joi.object({
+        id: Joi.string(),
+        inquiry_for: Joi.string(),
+        title: Joi.string(),
+        message: Joi.string(),
+        product: Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          description: Joi.string(),
+          collection: Joi.string(),
+          image: Joi.string(),
+        }),
+        designer: Joi.object({
+          name: Joi.string(),
+          position: Joi.string().allow(""),
+          email: Joi.string(),
+          phone: Joi.string().allow(""),
+          phone_code: Joi.string().allow(""),
+        }),
+      }),
     }).allow(null),
   }) as any,
 

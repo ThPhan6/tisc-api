@@ -131,79 +131,55 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     FILTER general_inquiries.deleted_at == null
     FILTER general_inquiries.id == @id
 
+    FOR user IN users
+    FILTER user.id == general_inquiries.created_by
+
     LET designFirm = (
-      FOR users IN users
-      FILTER users.id == general_inquiries.created_by
-      FOR designers IN designers
-      FILTER designers.id == users.relation_id
-      FOR locations IN locations
-      FILTER locations.id == users.location_id
+      FOR d IN designers
+      FILTER d.id == user.relation_id
+      FOR loc IN locations
+      FILTER loc.relation_id == d.id
       RETURN MERGE(
-        KEEP(designers, 'name', 'official_website'), 
-        {
-          inquirer : CONCAT(users.firstname, " " ,users.lastname),
-          position : users.position,
-          work_email : users.email,
-          work_phone : users.phone,
-          work_phone_code : users.phone_code,
-          general_email : locations.general_email, 
-          general_phone :  locations.general_phone,
-          general_phone_code : locations.phone_code,
-          address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)
-        }
+        KEEP(d, 'name', 'official_website'), 
+        KEEP(loc, 'address', 'general_phone', 'general_email', 'phone_code')
       )
     )
 
-    LET products = (
+    LET product = (
       FOR products IN products
       FILTER products.id == general_inquiries.product_id
-      FOR collections IN collections
-      FILTER collections.id == products.collection_id
+      FOR collection IN collections
+      FILTER collection.id == products.collection_id
       FOR brands IN brands
       FILTER brands.id == products.brand_id
-      RETURN {
-        image : products.images[0],
-        id : products.id,
-        name : products.name,
-        collection : collections.name,
-        description : products.description,
-        official_website : brands.official_websites[0]
-      }
+      RETURN MERGE(
+        KEEP(products, 'id', 'name', 'description'), 
+        {collection: collection.name, image: FIRST(products.images)}
+      )
     )
 
     LET inquiryFor = (
-      FOR inquiryId IN general_inquiries.inquiry_for_ids
-        FOR common_types IN common_types
-        FILTER inquiryId == common_types.id
-        SORT common_types.name ASC
-        RETURN common_types.name
+      FOR common_types IN common_types
+      FILTER common_types.id IN general_inquiries.inquiry_for_ids
+      SORT common_types.name ASC
+      RETURN common_types.name
     )
 
     RETURN {
-      product_name : products[0].name,
-      design_firm : {
-        general_email : designFirm[0].general_email, 
-        general_phone :  designFirm[0].general_phone,
-        general_phone_code : designFirm[0].general_phone_code,
-        address: CONCAT_SEPARATOR(', ', designFirm[0].address, designFirm[0].city_name, designFirm[0].state_name, designFirm[0].country_name),
-        name : designFirm[0].name, 
-        official_website : designFirm[0].official_website
-      },
-      inquiry_message : {
-        id : general_inquiries.id,
-        inquiry_for : inquiryFor[0],
-        title : general_inquiries.title,
-        message : general_inquiries.message,
-        product_id : products[0].id,
-        product_collection : products[0].collection,
-        product_description : products[0].description,
-        product_image : products[0].image,
-        official_website : products[0].official_website.url,
-        inquirer : designFirm[0].inquirer,
-        position : designFirm[0].position,
-        work_email : designFirm[0].work_email,
-        work_phone : designFirm[0].work_phone,
-        work_phone_code : designFirm[0].work_phone_code
+      design_firm: designFirm[0],
+      inquiry_message: {
+        id: general_inquiries.id,
+        inquiry_for: CONCAT_SEPARATOR(', ', inquiryFor),
+        title: general_inquiries.title,
+        message: general_inquiries.message,
+        product: product[0],
+        designer: {
+          name: TRIM(CONCAT(user.firstname, " " , user.lastname)),
+          position: user.position,
+          email: user.email,
+          phone: user.phone,
+          phone_code: designFirm[0].phone_code
+        }
       }
     }
     `;
