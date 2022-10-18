@@ -194,6 +194,66 @@ export default {
         .error(commonFailValidatedMessageFunction("Keywords is required")),
       brand_location_id: Joi.string().allow(""),
       distributor_location_id: Joi.string().allow(""),
+      tips: Joi.array().items(
+        Joi.object({
+          title: Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Product tip title is required"
+              )
+            ),
+          content: Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Product tip content is required"
+              )
+            ),
+        })
+      ),
+      downloads: Joi.array().items(
+        Joi.object({
+          title: Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Product tip title is required"
+              )
+            ),
+          url: Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Product download url is required"
+              )
+            ),
+        })
+      ),
+      catelogue_downloads: Joi.array().items(
+        Joi.object({
+          title: Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Product tip title is required"
+              )
+            ),
+          url: Joi.string()
+            .trim()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Product download url is required"
+              )
+            ),
+        })
+      ),
     },
   },
   update: {

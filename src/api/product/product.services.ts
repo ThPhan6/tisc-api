@@ -66,7 +66,6 @@ class ProductService {
       return pre.concat(cur.subs);
     }, []);
   };
-
   public async create(user_id: string, payload: IProductRequest) {
     const product = await ProductRepository.findBy({
       name: payload.name,
@@ -124,6 +123,10 @@ class ProductService {
       created_by: user_id,
       images: uploadedImages,
       keywords: payload.keywords,
+
+      tips: payload.tips,
+      downloads: payload.downloads,
+      catelogue_downloads: payload.catelogue_downloads,
     });
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
