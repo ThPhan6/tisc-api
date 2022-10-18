@@ -1,5 +1,5 @@
 import { DESIGN_STATUS_OPTIONS } from "@/constants";
-import { DesignerAttributes } from "@/types";
+import { DesignerAttributes, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { designerService } from "./designer.services";
 
