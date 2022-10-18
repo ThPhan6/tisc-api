@@ -57,6 +57,7 @@ export default {
       right_wall: Joi.boolean(),
       room_id: Joi.string().allow(''),
       updated_at: Joi.string().allow(''),
+      updated_by: Joi.string().allow('', null),
       room_id_text: Joi.string().allow(''),
       room_name: Joi.string().allow('')
     }))

@@ -95,6 +95,24 @@ export default class ProjectProductController {
     );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
+  }
+
+  public updateSpecifyProductStatus = async (
+    req: Request & {
+      payload: Partial<ProjectProductAttributes>;
+    },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const response = await projectProductService.updateConsiderProduct(
+      id,
+      req.payload,
+      user,
+    );
+
+    return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public deleteConsiderProduct = async (
