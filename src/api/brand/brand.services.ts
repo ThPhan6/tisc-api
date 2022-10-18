@@ -270,7 +270,7 @@ class BrandService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
-    await locationService.createDefaultLocation(
+    const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
       SYSTEM_TYPE.BRAND
     );
@@ -297,6 +297,7 @@ class BrandService {
       status: USER_STATUSES.PENDING,
       type: SYSTEM_TYPE.BRAND,
       relation_id: createdBrand.id,
+      location_id: defaultLocation?.id,
     });
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);

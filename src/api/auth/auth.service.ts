@@ -8,6 +8,7 @@ import {
   AUTH_EMAIL_TYPE,
   ROLES,
   USER_STATUSES,
+  SYSTEM_TYPE,
 } from "@/constants";
 import { IMessageResponse, UserAttributes, RoleTypeValue } from "@/types";
 import { isEmpty } from "lodash";
@@ -247,6 +248,7 @@ class AuthService {
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
+
     const createdDesign = await designerRepository.create({
       name: payload.company_name || payload.firstname + " Design Firm",
     });
@@ -254,6 +256,11 @@ class AuthService {
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+
+    const defaultLocation = await locationService.createDefaultLocation(
+      createdDesign.id,
+      SYSTEM_TYPE.DESIGN
+    );
 
     const token = await userRepository.generateToken("verification_token");
     const saltHash = createHashWithSalt(payload.password);
@@ -268,15 +275,11 @@ class AuthService {
       verification_token: token,
       type: ROLE_TYPE.DESIGN,
       relation_id: createdDesign.id ?? null,
+      location_id: defaultLocation?.id,
     });
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-
-    await locationService.createDefaultLocation(
-      createdDesign.id,
-      createdUser.type
-    );
 
     await permissionService.initPermission(createdUser);
     await mailService.sendDesignRegisterEmail(createdUser);
