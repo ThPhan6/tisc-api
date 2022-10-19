@@ -286,5 +286,27 @@ export default class LocationService {
     await locationRepository.delete(id);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
+
+  public createDefaultLocation = async (relationId: string, type: number) => {
+    return locationRepository.create({
+      business_name: "Global",
+      functional_type_ids: [""],
+      business_number: "",
+      functional_type: "",
+      country_id: "-1",
+      country_name: "Global",
+      state_id: "",
+      state_name: "",
+      city_id: "",
+      city_name: "",
+      phone_code: "",
+      address: "",
+      postal_code: "",
+      general_phone: "",
+      general_email: "",
+      type,
+      relation_id: relationId,
+    });
+  };
 }
 export const locationService = new LocationService();

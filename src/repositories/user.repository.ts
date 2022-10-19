@@ -141,7 +141,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         FILTER users.relation_id == @relationId
         let locationData = (
           FOR locations IN locations
-            FILTER locations.relation_id == users.relation_id
+            FILTER locations.id == users.location_id
             FILTER locations.deleted_at == null
           RETURN UNSET(locations, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"])
         )
