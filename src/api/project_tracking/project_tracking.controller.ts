@@ -112,7 +112,7 @@ export default class ProjectTrackingController {
           {
             id: v4(),
             label: "Archived",
-            quantity: summary.project.archive,
+            quantity: summary.project.archived,
           },
         ],
       },

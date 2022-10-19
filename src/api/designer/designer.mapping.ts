@@ -112,7 +112,7 @@ export const mappingDesignSummary = (
         {
           id: uuidv4(),
           quantity: projects.filter(
-            (project) => project.status === ProjectStatus.Archive
+            (project) => project.status === ProjectStatus.Archived
           ).length,
           label: "Archived",
         },
@@ -136,7 +136,7 @@ export const mappingGetListDesigner = (
       (projectStatus) => projectStatus == ProjectStatus["On Hold"]
     ).length;
     const countArchived = designerData.projects.filter(
-      (projectStatus) => projectStatus == ProjectStatus.Archive
+      (projectStatus) => projectStatus == ProjectStatus.Archived
     ).length;
     return {
       id: designerData.designer.id,

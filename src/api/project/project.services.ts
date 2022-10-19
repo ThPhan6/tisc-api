@@ -343,7 +343,7 @@ class ProjectService {
         (project) => project.status === ProjectStatus["On Hold"]
       ).length,
       archived: projects.filter(
-        (project) => project.status === ProjectStatus.Archive
+        (project) => project.status === ProjectStatus.Archived
       ).length,
     };
   }

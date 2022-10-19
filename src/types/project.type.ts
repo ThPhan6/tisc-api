@@ -3,7 +3,7 @@ import { UserAttributes, IMessageResponse } from "@/types";
 export enum ProjectStatus {
   "Live",
   "On Hold",
-  "Archive",
+  "Archived",
 }
 
 export type ProjectStatusKey = keyof typeof ProjectStatus;

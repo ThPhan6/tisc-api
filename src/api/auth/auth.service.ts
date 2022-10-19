@@ -250,7 +250,7 @@ class AuthService {
     }
 
     const createdDesign = await designerRepository.create({
-      name: payload.company_name || payload.firstname + " Design Firm",
+      name: payload.company_name || payload.firstname,
     });
 
     if (!createdDesign) {
