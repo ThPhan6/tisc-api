@@ -1,3 +1,4 @@
+import { locationService } from "./../location/location.service";
 import {
   BRAND_STATUSES,
   MESSAGES,
@@ -269,6 +270,11 @@ class BrandService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
+    const defaultLocation = await locationService.createDefaultLocation(
+      createdBrand.id,
+      SYSTEM_TYPE.BRAND
+    );
+
     let verificationToken: string;
     let isDuplicated = true;
 
@@ -291,6 +297,7 @@ class BrandService {
       status: USER_STATUSES.PENDING,
       type: SYSTEM_TYPE.BRAND,
       relation_id: createdBrand.id,
+      location_id: defaultLocation?.id,
     });
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
