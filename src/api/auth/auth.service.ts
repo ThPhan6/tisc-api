@@ -1,3 +1,5 @@
+import { locationService } from "./../location/location.service";
+import { locationRepository } from "@/repositories/location.repository";
 import {
   BRAND_STATUSES,
   DESIGN_STATUSES,
@@ -6,6 +8,7 @@ import {
   AUTH_EMAIL_TYPE,
   ROLES,
   USER_STATUSES,
+  SYSTEM_TYPE,
 } from "@/constants";
 import { IMessageResponse, UserAttributes, RoleTypeValue } from "@/types";
 import { isEmpty } from "lodash";
@@ -30,16 +33,15 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 
-import {mailService} from "@/service/mail.service";
-import {permissionService} from "@/api/permission/permission.service";
+import { mailService } from "@/service/mail.service";
+import { permissionService } from "@/api/permission/permission.service";
 
 import { getRoleType } from "@/constants/role.constant";
-import {brandRepository} from "@/repositories/brand.repository";
-import {designerRepository} from "@/repositories/designer.repository";
+import { brandRepository } from "@/repositories/brand.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
 
 class AuthService {
-
   private responseWithToken = (userId: string, type?: string) => {
     const response = {
       type,
@@ -56,11 +58,7 @@ class AuthService {
     return response;
   };
 
-  private authValidation = (
-    inputPassword: string,
-    user: UserAttributes
-  ) => {
-
+  private authValidation = (inputPassword: string, user: UserAttributes) => {
     if (!user.is_verified) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
     }
@@ -73,7 +71,7 @@ class AuthService {
     if (!comparePassword(inputPassword, user.password)) {
       return errorMessageResponse(MESSAGES.PASSWORD_NOT_CORRECT);
     }
-  }
+  };
 
   private typeValidation = (
     expectType: RoleTypeValue,
@@ -100,7 +98,6 @@ class AuthService {
   public tiscLogin = async (
     payload: IAdminLoginRequest
   ): Promise<ILoginResponse | IMessageResponse> => {
-
     const user = await userRepository.findBy({ email: payload.email });
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
@@ -130,7 +127,11 @@ class AuthService {
       return isInvalid;
     }
 
-    const isIncorrectType = this.typeValidation(ROLE_TYPE.TISC, user.type, "neq");
+    const isIncorrectType = this.typeValidation(
+      ROLE_TYPE.TISC,
+      user.type,
+      "neq"
+    );
     if (isIncorrectType) {
       return isIncorrectType;
     }
@@ -194,10 +195,7 @@ class AuthService {
     }
     let isSuccess = false;
     if (type === AUTH_EMAIL_TYPE.FORGOT_PASSWORD) {
-      isSuccess = await mailService.sendResetPasswordEmail(
-        user,
-        browserName
-      );
+      isSuccess = await mailService.sendResetPasswordEmail(user, browserName);
     }
     if (type === AUTH_EMAIL_TYPE.VERIFICATION) {
       isSuccess = await mailService.sendRegisterEmail(user);
@@ -250,12 +248,19 @@ class AuthService {
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
+
     const createdDesign = await designerRepository.create({
       name: payload.company_name || payload.firstname + " Design Firm",
     });
+
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+
+    const defaultLocation = await locationService.createDefaultLocation(
+      createdDesign.id,
+      SYSTEM_TYPE.DESIGN
+    );
 
     const token = await userRepository.generateToken("verification_token");
     const saltHash = createHashWithSalt(payload.password);
@@ -270,10 +275,12 @@ class AuthService {
       verification_token: token,
       type: ROLE_TYPE.DESIGN,
       relation_id: createdDesign.id ?? null,
+      location_id: defaultLocation?.id,
     });
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
+
     await permissionService.initPermission(createdUser);
     await mailService.sendDesignRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);

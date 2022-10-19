@@ -4,10 +4,12 @@ const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 const locationData = Joi.object({
   id: Joi.string(),
   business_name: Joi.string(),
-  functional_types: Joi.array().items({
-    id: Joi.string(),
-    name: Joi.string(),
-  }),
+  functional_types: Joi.array()
+    .items({
+      id: Joi.string(),
+      name: Joi.string(),
+    })
+    .allow(null, ""),
   functional_type: Joi.any(),
   country_name: Joi.string().allow(""),
   state_name: Joi.any(),
@@ -21,7 +23,7 @@ const locationData = Joi.object({
   business_number: Joi.string().allow(""),
   city_id: Joi.string().allow(""),
   country_id: Joi.string().allow(""),
-  functional_type_ids: Joi.array().items(Joi.string().allow(null)),
+  functional_type_ids: Joi.array().items(Joi.string().allow(null, "")),
   postal_code: Joi.string().allow(null),
   relation_id: Joi.string().allow(null),
   state_id: Joi.string().allow(""),
