@@ -1,6 +1,10 @@
 import DesignerModel from "@/model/designer.models";
 import BaseRepository from "./base.repository";
-import { DesignerAttributes, ListDesignerWithPaginate } from "@/types";
+import {
+  DesignerAttributes,
+  ListDesignerWithPaginate,
+  ProjectStatus,
+} from "@/types";
 import { DesignerDataCustom } from "@/api/designer/designer.type";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
@@ -103,6 +107,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         LET projects = (
           FOR projects IN projects
           FILTER projects.deleted_at == null
+          FILTER projects.design_id == designers.id
           RETURN projects.status
         )
 
@@ -119,7 +124,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
             'updated_at',
             'deleted_at'
           ]),
-          users : LENGTH(users),
+          userCount: LENGTH(users),
           origin_location : originLocation,
           projects : projects,
           assign_team : assignTeams,
@@ -146,6 +151,134 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       )
     `,
       { id }
+    );
+    return designFirm[0];
+  }
+
+  public async getOverallSummary(): Promise<{
+    project: {
+      total: number;
+      live: number;
+      onHold: number;
+      archive: number;
+    };
+    designFirm: {
+      total: number;
+      totalLocation: number;
+      totalUser: number;
+    };
+    countries: {
+      regions: string[];
+      summary: {
+        region: string;
+        count: number;
+      }[];
+    };
+  }> {
+    const designFirm = await this.model.rawQueryV2(
+      `
+      LET designFirm = (
+        FOR d in designers
+        FILTER d.deleted_at == null
+
+        LET loc = (
+          FOR loc IN locations
+          FILTER loc.relation_id == d.id
+          FILTER loc.deleted_at == null
+          LET country = (
+            FOR c in countries
+            FILTER c.id == loc.country_id
+            RETURN c
+          )
+          RETURN MERGE(loc, {country: country[0]})
+        )
+        LET user = (
+          FOR u IN users
+          FILTER u.relation_id == d.id
+          FILTER u.deleted_at == null
+          COLLECT WITH COUNT INTO length
+          RETURN length
+        )
+
+
+        RETURN { firm: d, loc, userCount: user[0] }
+      )
+
+      LET designLoc = (
+        FOR ds IN designFirm
+        RETURN ds.loc
+      )
+      LET locations = FLATTEN(designLoc)
+
+      LET users = (
+        FOR ds IN designFirm
+        RETURN ds.userCount
+      )
+
+      LET regions = (
+        FOR c IN countries
+        FILTER c.region != ""
+        RETURN DISTINCT c.region
+      )
+      LET countries = (
+        FOR loc IN locations
+        FILTER loc.country != null
+        COLLECT group = loc.country.region INTO countryGroup
+        RETURN {
+          region: group,
+          count: COUNT(countryGroup)
+        }
+      )
+
+      LET prj = (
+        FOR ds IN designFirm
+        FOR p IN projects
+        FILTER p.deleted_at == null
+        FILTER p.design_id == ds.firm.id
+        RETURN p
+      )
+      LET live = (
+        FOR p IN prj
+        FILTER p.status == @liveStatus
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+      LET onHold = (
+        FOR p IN prj
+        FILTER p.status == @onHoldStatus
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+      LET archive = (
+        FOR p IN prj
+        FILTER p.status == @archiveStatus
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+
+      RETURN {
+        designFirm: {
+          total: LENGTH(designFirm),
+          totalLocation: LENGTH(locations),
+          totalUser: SUM(users),
+        },
+        countries: {
+          summary: countries,
+          regions
+        },
+        project: {
+          total: LENGTH(prj),
+          live: live[0],
+          onHold: onHold[0],
+          archive: archive[0]
+        },
+      }
+    `,
+      {
+        liveStatus: ProjectStatus.Live,
+        onHoldStatus: ProjectStatus["On Hold"],
+        archiveStatus: ProjectStatus.Archive,
+      }
     );
     return designFirm[0];
   }

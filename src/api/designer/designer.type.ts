@@ -55,7 +55,7 @@ export interface DesignerDataCustom {
     name: string;
     status: 1;
   };
-  users: number;
+  userCount: number;
   origin_location: ILocationAttributes[];
   projects: number[];
   assign_team: {
