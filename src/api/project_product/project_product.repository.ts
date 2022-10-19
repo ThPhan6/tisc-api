@@ -277,9 +277,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     return (await this.model.rawQuery(
       `
       FILTER project_products.id == @id
-      FILTER project_products.deletet_at == null
+      FILTER project_products.deleted_at == null
       FOR project IN projects
-          FILTER project.deletet_at == null
+          FILTER project.deleted_at == null
           FILTER project.id == project_products.project_id
               FOR project_zone IN project_zones
                   FOR area IN project_zone.areas

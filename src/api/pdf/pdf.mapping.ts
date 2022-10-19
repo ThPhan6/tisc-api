@@ -1,4 +1,4 @@
-import {TemplateAttributes, TemplateGroup, TemplateSpecify} from '@/types';
+import {TemplateAttributes, TemplateGroup, TemplateSpecify, TemplateGroupValue} from '@/types';
 import {mapValues, isEmpty} from 'lodash';
 
 export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
@@ -62,10 +62,17 @@ export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
 export const groupSpecifyTemplates = (templates: TemplateAttributes[]) => {
   const response: {
     introTemplates: TemplateAttributes[],
-    specificationTemplates: TemplateAttributes[]
+    specificationTemplates: {
+      [key: TemplateGroupValue]: TemplateAttributes[]
+    }
   } = {
     introTemplates: [],
-    specificationTemplates: [],
+    specificationTemplates: {
+      [TemplateGroup.BrandsAndDistributors]: [],
+      [TemplateGroup.FinishesMaterialAndProducts]: [],
+      [TemplateGroup.SchedulesAndSpecifications]: [],
+      [TemplateGroup.ZonesAreasRooms]: [],
+    },
   };
 
   templates.forEach((template) => {
@@ -75,9 +82,31 @@ export const groupSpecifyTemplates = (templates: TemplateAttributes[]) => {
     ) {
       response.introTemplates.push(template);
     } else {
-      response.specificationTemplates.push(template);
+      response.specificationTemplates[template.group].push(template);
     }
   });
 
   return response;
+}
+
+export const findEjsTemplatePath = (key: string) => {
+  const response = {
+    ///
+    'Brands & Distributors Listing by Category': 'brand_distributor/listing_by_category.ejs',
+    'Brand Contact Reference by Category': 'brand_distributor/brand_contact_reference_by_category.ejs',
+    'Distributor Contact Reference by Category': 'brand_distributor/distributor_contact_by_category.ejs',
+    ///
+    'Finished, Materials & Products Listing by Brand': 'finishes_material_products/listing_by_brand.ejs',
+    'Finished, Materials & Products Listing by Code': 'finishes_material_products/listing_by_code.ejs',
+    'Finished, Materials & Products Reference by Brand': 'finishes_material_products/reference_by_brand.ejs',
+    'Finished, Materials & Products Reference by Code': 'finishes_material_products/reference_by_code.ejs',
+    ///
+    'Finish Schedule by Room': 'schedule_specification/finish_by_room.ejs',
+    'Finishes, Materials & Products Specification': 'schedule_specification/specification.ejs',
+    ///
+    'Project Summary Listing by Area': 'zone_area_room/area.ejs',
+    'Inventory Summary Listing by Room': 'zone_area_room/room.ejs',
+    'Inventory Reference by Code': 'zone_area_room/code.ejs',
+  } as any;
+  return response[key] as string | undefined;
 }

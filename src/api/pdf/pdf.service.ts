@@ -1,19 +1,24 @@
-// import { MESSAGES } from "./../../constant/common.constant";
 import { projectRepository } from "@/repositories/project.repository";
 import { templateRepository } from "@/repositories/template.repository";
 import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
 import {getBufferFile} from '@/service/aws.service';
-// import {projectProductRepository} from '@/api/project_product/project_product.repository';
+import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import { MESSAGES } from "@/constants";
-import { mappingSpecifyPDFTemplate, groupSpecifyTemplates } from "./pdf.mapping";
+import {
+  mappingSpecifyPDFTemplate,
+  groupSpecifyTemplates,
+  findEjsTemplatePath,
+} from "./pdf.mapping";
 import { ProjectPDfData } from "./pdf.type";
 import {
   UserAttributes,
   ProjectProductPDFConfigAttribute,
   ProjectProductPDFConfigWithLocationAndType,
-  ProjectAttributes
+  ProjectAttributes,
+  TemplateGroupValue,
+  TemplateGroup,
 } from "@/types";
-import { isEmpty, merge } from "lodash";
+import { isEmpty, map, merge } from "lodash";
 import {
   errorMessageResponse,
   successResponse,
@@ -88,6 +93,19 @@ export default class PDFService {
     };
   };
 
+  private dynamicRenderEjs = async (title: string, templatePath: string, templateData: any) => {
+    const headerOption = await this.getSpecifyHeader(title);
+    const footerOption = await this.getSpecifyFooter();
+    const templateHtml = await ejs.renderFile(
+      `${this.baseTemplate}/specification/${templatePath}`,
+      {data: templateData}
+    );
+    const html = await this.injectBasePdfTemplate(templateHtml);
+    return await pdfNode
+      .create(html, merge(headerOption, footerOption))
+      .toBuffer();
+  }
+
   // Buffer response
 
 
@@ -108,8 +126,6 @@ export default class PDFService {
     // save payload
     await projectProductPDFConfigRepository.updateByProjectId(projectId, payload);
     const pdfConfig = await projectProductPDFConfigRepository.findWithInfoByProjectId(projectId);
-    console.log('pdfConfig', pdfConfig);
-    console.log('projectData', projectData);
 
     const pdfBuffers: Buffer[] = [];
 
@@ -138,11 +154,32 @@ export default class PDFService {
       }
     }
     //
-    if (!isEmpty(groupTemplate.specificationTemplates)) {
-      await Promise.all(groupTemplate.specificationTemplates.map((template) => {
-
-      }));
-    }
+    await Promise.all(
+      map(groupTemplate.specificationTemplates, async (specificationTemplates, group: TemplateGroupValue) => {
+        if (group == TemplateGroup.BrandsAndDistributors && !isEmpty(templates)) {
+          ///
+          const projectProducts = await projectProductRepository.getModel()
+            .where('project_products.projectId', '==', projectId)
+            .join('locations', 'locations.id', '==', 'project_products.brand_location_id')
+            .join('distributors', 'distributors.id', '==', 'project_products.distributor_location_id')
+            .join('products', 'products.id', '==', 'project_products.product_id')
+            .get(true);
+          ///
+          await Promise.all((specificationTemplates.map(async (template) => {
+            const templatePath = findEjsTemplatePath(template.name);
+            if (templatePath) {
+              pdfBuffers.push(await this.dynamicRenderEjs(
+                template.name,
+                templatePath,
+                {
+                  projectProducts
+                }
+              ));
+            }
+          })));
+        }
+      })
+    );
 
 
     return pdfNode.merge(...pdfBuffers);
@@ -166,8 +203,6 @@ export default class PDFService {
     //   .toBuffer();
 
     ////////
-
-
   };
 
   public getProjectSpecifyConfig = async (
