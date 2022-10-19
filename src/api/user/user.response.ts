@@ -82,15 +82,15 @@ export default {
             firstname: Joi.string(),
             lastname: Joi.string().allow(""),
             gender: Joi.boolean().allow(null),
-            work_location: Joi.string(),
-            department: Joi.string().allow(null),
+            work_location: Joi.any(),
+            department: Joi.any(),
             position: Joi.string().allow(""),
             email: Joi.string(),
             phone: Joi.string().allow(""),
             mobile: Joi.string().allow(""),
             access_level: Joi.string(),
             status: Joi.number(),
-            phone_code: Joi.string(),
+            phone_code: Joi.string().allow(""),
           })
         ),
       })

@@ -103,9 +103,9 @@ export default class LocationController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { brand_id } = req.params;
+    const { brand_id, design_id } = req.params;
     const response = await locationService.getCompanyLocationGroupByCountry(
-      brand_id
+      brand_id || design_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
