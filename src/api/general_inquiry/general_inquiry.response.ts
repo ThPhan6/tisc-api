@@ -30,6 +30,9 @@ export default {
         general_phone: Joi.string().allow(""),
         phone_code: Joi.string().allow(""),
         address: Joi.string().allow(""),
+        city_name: Joi.string().allow(""),
+        state_name: Joi.string().allow(""),
+        country_name: Joi.string().allow(""),
       }),
       inquiry_message: Joi.object({
         id: Joi.string(),

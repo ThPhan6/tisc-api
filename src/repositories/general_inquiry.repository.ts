@@ -141,7 +141,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER loc.relation_id == d.id
       RETURN MERGE(
         KEEP(d, 'name', 'official_website'), 
-        KEEP(loc, 'address', 'general_phone', 'general_email', 'phone_code')
+        KEEP(loc, 'address', 'city_name', 'state_name', 'country_name', 'general_phone', 'general_email', 'phone_code')
       )
     )
 
