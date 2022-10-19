@@ -359,12 +359,10 @@ class ProjectProductService {
       projectProductId,
       {
         ...payload,
-        status: isSpecifying
-          ? ProjectProductStatus.specify
-          : ProjectProductStatus.consider,
-        specified_status: payload.specified_status ?? (isSpecifying
-          ? ProductSpecifyStatus.Specified
-          : undefined),
+        status: isSpecifying ? ProjectProductStatus.specify : payload.status,
+        specified_status:
+          payload.specified_status ??
+          (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
       }
     );
     if (!considerProduct[0]) {
@@ -403,7 +401,6 @@ class ProjectProductService {
       type: notiType,
       created_by: user.id,
     });
-
     return successResponse({
       data: considerProduct[0],
     });
@@ -656,7 +653,9 @@ class ProjectProductService {
         roomIds
       );
       if (rooms.length !== roomIds.length) {
-        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.ROOM_DOES_NOT_EXIST);
+        return errorMessageResponse(
+          MESSAGES.FINISH_SCHEDULE.ROOM_DOES_NOT_EXIST
+        );
       }
     }
 
@@ -733,10 +732,12 @@ class ProjectProductService {
       })
     );
     if (
-      entireAllocation && response.length !== 1 ||
+      (entireAllocation && response.length !== 1) ||
       (!entireAllocation && response.length !== assignRooms.length)
     ) {
-      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+      return errorMessageResponse(
+        MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN
+      );
     }
   };
 }

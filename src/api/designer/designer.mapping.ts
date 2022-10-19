@@ -17,7 +17,7 @@ export const mappingGetListDesigner = (
       (projectStatus) => projectStatus == ProjectStatus["On Hold"]
     ).length;
     const countArchived = designerData.projects.filter(
-      (projectStatus) => projectStatus == ProjectStatus.Archive
+      (projectStatus) => projectStatus == ProjectStatus.Archived
     ).length;
     return {
       id: designerData.designer.id,

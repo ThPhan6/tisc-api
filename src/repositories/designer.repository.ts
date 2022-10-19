@@ -160,7 +160,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       total: number;
       live: number;
       onHold: number;
-      archive: number;
+      archived: number;
     };
     designFirm: {
       total: number;
@@ -249,7 +249,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         COLLECT WITH COUNT INTO length
         RETURN length
       )
-      LET archive = (
+      LET archived = (
         FOR p IN prj
         FILTER p.status == @archiveStatus
         COLLECT WITH COUNT INTO length
@@ -270,14 +270,14 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           total: LENGTH(prj),
           live: live[0],
           onHold: onHold[0],
-          archive: archive[0]
+          archived: archived[0]
         },
       }
     `,
       {
         liveStatus: ProjectStatus.Live,
         onHoldStatus: ProjectStatus["On Hold"],
-        archiveStatus: ProjectStatus.Archive,
+        archiveStatus: ProjectStatus.Archived,
       }
     );
     return designFirm[0];

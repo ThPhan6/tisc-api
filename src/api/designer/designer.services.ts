@@ -107,7 +107,7 @@ class DesignerService {
           },
           {
             id: v4(),
-            quantity: designFirmSummary.project.archive,
+            quantity: designFirmSummary.project.archived,
             label: "Archived",
           },
         ],
