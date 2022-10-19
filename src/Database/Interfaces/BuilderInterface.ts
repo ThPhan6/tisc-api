@@ -38,7 +38,7 @@ export interface JoinBinding {
   table: string;
   first: string;
   second: string;
-  operator: GeneralOperator;
+  operator: Operator;
 }
 
 export interface OrderBinding {

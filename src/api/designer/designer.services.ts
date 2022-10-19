@@ -65,7 +65,7 @@ class DesignerService {
   }
 
   public async getOne(id: string) {
-    const designer = await designerRepository.find(id);
+    const designer = await designerRepository.getOne(id);
 
     if (!designer) {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);
@@ -107,14 +107,13 @@ class DesignerService {
   public async updateDesign(
     designId: string,
     payload: Partial<DesignerAttributes>,
-    userRealtionId : string
+    userRealtionId: string
   ) {
-    if(designId !== userRealtionId) {
-      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE)
+    if (designId !== userRealtionId) {
+      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
     }
-    
+
     const designer = await designerRepository.find(designId);
-    
 
     if (!designer) {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);

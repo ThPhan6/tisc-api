@@ -130,6 +130,25 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       params
     )) as DesignerDataCustom[];
   }
+
+  public async getOne(id: string) {
+    const designFirm = await this.model.rawQuery(
+      `
+      FILTER designers.id == @id
+      LET capabilities = (
+        FOR common_types IN common_types
+        FILTER common_types.id IN designers.capabilities
+        RETURN common_types.name
+      )
+      RETURN MERGE(
+        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status'),
+        {design_capabilities: CONCAT_SEPARATOR(', ', capabilities)}
+      )
+    `,
+      { id }
+    );
+    return designFirm[0];
+  }
 }
 export const designerRepository = new DesignerRepository();
 export default DesignerRepository;
