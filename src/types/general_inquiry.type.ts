@@ -19,7 +19,7 @@ export interface ListGeneralInquiryCustom {
   title: string;
   status: RespondedOrPendingStatus;
   design_firm: string;
-  firm_state_name: string;
+  firm_city_name: string;
   firm_country_name: string;
   inquirer_firstname: string;
   inquirer_lastname: string;
