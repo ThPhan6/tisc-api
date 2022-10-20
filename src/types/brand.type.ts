@@ -1,11 +1,4 @@
-export interface BrandStatus {
-  ACTIVE: 1,
-  INACTIVE: 2,
-  PENDING: 3,
-}
-
-export type BrandStatusValue = BrandStatus[keyof BrandStatus];
-export type BrandStatusKey = "Active" | "Pending" | "Inactive";
+import { ActiveStatus } from "./common.type";
 
 export interface BrandOfficialWebsite {
   country_id: string;
@@ -21,7 +14,7 @@ export interface BrandAttributes {
   mission_n_vision: string;
   official_websites: BrandOfficialWebsite[];
   team_profile_ids: string[];
-  status: BrandStatusValue;
+  status: ActiveStatus;
   created_at: string;
   updated_at: string | null;
 }

@@ -1,11 +1,8 @@
 import { brandService } from "./brand.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { BRAND_STATUS_OPTIONS } from "../../constant/common.constant";
-import {
-  IBrandRequest,
-  IUpdateBrandProfileRequest,
-  IUpdateBrandStatusRequest,
-} from "./brand.type";
+import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
+import { BRAND_STATUS_OPTIONS } from "@/constants";
+import { ActiveStatus } from "@/types";
 
 export default class BrandController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -77,7 +74,7 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public updateBrandStatus = async (
-    req: Request & { payload: IUpdateBrandStatusRequest },
+    req: Request & { payload: { status: ActiveStatus } },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
