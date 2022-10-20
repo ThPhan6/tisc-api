@@ -1,22 +1,23 @@
-import { DesignStatusKey, DesignStatusValue } from "@/types";
+import { ActiveStatus, ActiveStatusKey, ActiveStatusValue } from "@/types";
 
 export const DESIGN_STATUSES: {
-  ACTIVE: DesignStatusValue;
-  INACTIVE: DesignStatusValue;
+  ACTIVE: ActiveStatusValue;
+  INACTIVE: ActiveStatusValue;
 } = {
   ACTIVE: 1,
   INACTIVE: 2,
 };
+
 export const DESIGN_STATUS_OPTIONS: {
-  key: DesignStatusKey;
-  value: DesignStatusValue;
+  key: ActiveStatusKey;
+  value: ActiveStatusValue;
 }[] = [
   {
     key: "Active",
-    value: DESIGN_STATUSES.ACTIVE,
+    value: ActiveStatus.Active,
   },
   {
     key: "Inactive",
-    value: DESIGN_STATUSES.INACTIVE,
+    value: ActiveStatus.Inactive,
   },
 ];

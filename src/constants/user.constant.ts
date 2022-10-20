@@ -1,4 +1,4 @@
-import { ISystemType } from "@/types";
+import { UserType } from "@/types";
 export const TISC_ADMIN_USER_ID = "1110813b-8422-4e94-8d2a-8fdef644480e";
 export const TISC_ADMIN_USER_PASSWORD =
   "$2a$09$Uk42d5scAMr8MkxbzTTsceXpsouiX4aKFXL4NHQ6b.HHBI23rpIgS";
@@ -26,8 +26,8 @@ export const USER_STATUS_OPTIONS = [
   },
 ];
 
-export const SYSTEM_TYPE: ISystemType = {
-  TISC: 1,
-  BRAND: 2,
-  DESIGN: 3,
+export const SYSTEM_TYPE = {
+  TISC: UserType.TISC,
+  BRAND: UserType.Brand,
+  DESIGN: UserType.Designer,
 };

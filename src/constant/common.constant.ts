@@ -1,7 +1,5 @@
 import { ProjectStatus, ProjectStatusValue } from "@/types";
 import {
-  ConsiderProductStatusKey,
-  ConsiderProductStatusValue,
   InterestedInKey,
   InterestedInValue,
   MeasurementUnitKey,
@@ -11,24 +9,12 @@ import {
   TargetedForValue,
   TopicTypeKey,
   TopicTypeValue,
-  ISystemType,
-  BrandStatusKey,
-  BrandStatusValue,
-  DesignStatusKey,
-  DesignStatusValue,
   AttributeType,
   DocumentationType,
-  SpecifiedProductStatusValue,
 } from "../type/common.type";
 export const EMAIL_TYPE = {
   VERIFICATION: "verification",
   FORGOT_PASSWORD: "forgot_password",
-};
-
-export const SYSTEM_TYPE: ISystemType = {
-  TISC: 1,
-  BRAND: 2,
-  DESIGN: 3,
 };
 
 export const VALID_IMAGE_TYPES = [
@@ -39,55 +25,6 @@ export const VALID_IMAGE_TYPES = [
   "image/svg+xml",
 ];
 
-export const BRAND_STATUSES: {
-  ACTIVE: BrandStatusValue;
-  INACTIVE: BrandStatusValue;
-  PENDING: BrandStatusValue;
-} = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-  PENDING: 3,
-};
-
-export const BRAND_STATUS_OPTIONS: {
-  key: BrandStatusKey;
-  value: BrandStatusValue;
-}[] = [
-  {
-    key: "Active",
-    value: BRAND_STATUSES.ACTIVE,
-  },
-  {
-    key: "Pending",
-    value: BRAND_STATUSES.PENDING,
-  },
-  {
-    key: "Inactive",
-    value: BRAND_STATUSES.INACTIVE,
-  },
-];
-
-export const DESIGN_STATUSES: {
-  ACTIVE: DesignStatusValue;
-  INACTIVE: DesignStatusValue;
-} = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-};
-
-export const DESIGN_STATUS_OPTIONS: {
-  key: DesignStatusKey;
-  value: DesignStatusValue;
-}[] = [
-  {
-    key: "Active",
-    value: DESIGN_STATUSES.ACTIVE,
-  },
-  {
-    key: "Inactive",
-    value: DESIGN_STATUSES.INACTIVE,
-  },
-];
 export const MESSAGES = {
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
@@ -429,44 +366,6 @@ export const INTERESTED_IN_OPTIONS: {
     value: INTERESTED_IN.PRODUCT_RECOMMENDATION,
   },
 ];
-
-export const CONSIDERED_PRODUCT_STATUS: {
-  CONSIDERED: ConsiderProductStatusValue;
-  RE_CONSIDERED: ConsiderProductStatusValue;
-  UNLISTED: ConsiderProductStatusValue;
-} = {
-  CONSIDERED: 1,
-  RE_CONSIDERED: 2,
-  UNLISTED: 3,
-};
-
-export const CONSIDERED_PRODUCT_STATUS_OPTIONS: {
-  key: ConsiderProductStatusKey;
-  value: ConsiderProductStatusValue;
-}[] = [
-  {
-    key: "Considered",
-    value: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-  },
-  {
-    key: "Re-considered",
-    value: CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED,
-  },
-  {
-    key: "Unlisted",
-    value: CONSIDERED_PRODUCT_STATUS.UNLISTED,
-  },
-];
-
-export const SPECIFIED_PRODUCT_STATUS: {
-  CANCELLED: SpecifiedProductStatusValue;
-  RE_SPECIFIED: SpecifiedProductStatusValue;
-  SPECIFIED: SpecifiedProductStatusValue;
-} = {
-  CANCELLED: 1,
-  RE_SPECIFIED: 2,
-  SPECIFIED: 3,
-};
 
 export const COMMON_TYPES = {
   SHARING_GROUP: 1,

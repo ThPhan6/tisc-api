@@ -1,5 +1,6 @@
-import * as Joi from "joi";
-import { DESIGN_STATUSES } from "../../constant/common.constant";
+import { ActiveStatus } from "@/types";
+import Joi from "joi";
+
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -61,7 +62,7 @@ export default {
     },
     payload: {
       status: Joi.number()
-        .valid(DESIGN_STATUSES.ACTIVE, DESIGN_STATUSES.INACTIVE)
+        .valid(ActiveStatus.Active, ActiveStatus.Inactive)
         .required()
         .error(commonFailValidatedMessageFunction("Design status is required")),
     },

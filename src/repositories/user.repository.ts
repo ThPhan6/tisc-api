@@ -1,7 +1,7 @@
 import UserModel from "@/model/user.models";
 import BaseRepository from "./base.repository";
-import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
-import { SortOrder, UserAttributes } from "@/types";
+import { USER_STATUSES, SYSTEM_TYPE } from "@/constants";
+import { ActiveStatus, UserAttributes, UserType } from "@/types";
 import { head } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
@@ -29,7 +29,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     verification_token: null,
     reset_password_token: null,
     status: USER_STATUSES.PENDING,
-    type: ROLE_TYPE.TISC,
+    type: UserType.TISC,
     relation_id: "TISC",
     retrieve_favourite: false,
     interested: [],
@@ -89,7 +89,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         })
       `,
       { email }
-    )) as (UserAttributes & { company_status: number })[];
+    )) as (UserAttributes & { company_status: ActiveStatus })[];
     return head(result);
   }
 

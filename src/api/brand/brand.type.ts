@@ -1,10 +1,11 @@
-import { IProductAttributes, IPagination } from "@/types";
 import {
-  BrandStatusValue,
   ICollectionAttributes,
   IDistributorAttributes,
   ILocationAttributes,
+  IProductAttributes,
+  IPagination,
 } from "@/types";
+
 export interface IBrandsResponse {
   data: {
     brands: IBrand[];
@@ -109,10 +110,6 @@ export interface IBrandSummary {
     }[];
   }[];
   statusCode: number;
-}
-
-export interface IUpdateBrandStatusRequest {
-  status: BrandStatusValue;
 }
 
 export interface ListBrandCustom {

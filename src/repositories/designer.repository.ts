@@ -55,80 +55,46 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     const rawQuery = `
       ${limit && offset ? `LIMIT ${offset}, ${limit}` : ``}
       ${sort && order ? `SORT designers.${sort} ${order}` : ``}
-        
-        LET assignTeams = (
-          FOR profileId IN designers.team_profile_ids
-          FOR assignTeam IN users
-          FILTER assignTeam.deleted_at == null
-          FILTER assignTeam.id == profileId
-          RETURN UNSET(assignTeam, [
-            '_id', 
-            '_key', 
-            '_rev', 
-            'deleted_at', 'deleted_by','access_level',
-            'backup_email',
-            'created_at',
-            'department_id',
-            'gender',
-            'interested',
-            'is_verified',
-            'linkedin',
-            'location_id',
-            'mobile',
-            'password',
-            'personal_mobile',
-            'phone',
-            'position',
-            'relation_id',
-            'reset_password_token',
-            'retrieve_favourite',
-            'role_id',
-            'status',
-            'type',
-            'verification_token',
-            'work_location'
-          ])
-        )
 
-        LET users = (
-          FOR users IN users
-          FILTER users.deleted_at == null
-          FILTER users.relation_id == designers.id
-          RETURN users
-        )
-        
-        LET originLocation = (
-          FOR locations IN locations
-          FILTER locations.deleted_at == null
-          FILTER locations.relation_id == designers.id
-          RETURN locations
-        )
+      LET userCount = (
+        FOR users IN users
+        FILTER users.deleted_at == null
+        FILTER users.relation_id == designers.id
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+      
+      LET originLocation = (
+        FOR locations IN locations
+        FILTER locations.deleted_at == null
+        FILTER locations.relation_id == designers.id
+        RETURN locations
+      )
 
-        LET projects = (
-          FOR projects IN projects
-          FILTER projects.deleted_at == null
-          FILTER projects.design_id == designers.id
-          RETURN projects.status
-        )
+      LET projects = (
+        FOR projects IN projects
+        FILTER projects.deleted_at == null
+        FILTER projects.design_id == designers.id
+        RETURN projects.status
+      )
 
-        RETURN MERGE ({
-          designer : UNSET(designers, [
-            '_key',
-            '_id',
-            '_rev',
-            'parent_company',
-            'slogan',
-            'profile_n_philosophy',
-            'official_website',
-            'team_profile_ids',
-            'updated_at',
-            'deleted_at'
-          ]),
-          userCount: LENGTH(users),
-          origin_location : originLocation,
-          projects : projects,
-          assign_team : assignTeams,
-        })
+      RETURN MERGE ({
+        designer : UNSET(designers, [
+          '_key',
+          '_id',
+          '_rev',
+          'parent_company',
+          'slogan',
+          'profile_n_philosophy',
+          'official_website',
+          'team_profile_ids',
+          'updated_at',
+          'deleted_at'
+        ]),
+        userCount: userCount[0],
+        origin_location : originLocation,
+        projects : projects,
+      })
 `;
     return (await this.model.rawQuery(
       rawQuery,
