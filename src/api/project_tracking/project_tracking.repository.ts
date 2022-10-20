@@ -224,21 +224,25 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     LET mapping = (
       FOR pt IN project_trackings
       FILTER pt.brand_id == @brandId
+      FILTER pt.deleted_at == null
 
       LET projects = (
         FOR prj IN projects
         FILTER prj.id == pt.project_id
+        FILTER prj.deleted_at == null
         RETURN prj
       )
 
       LET projectRequests = (
         FOR pr IN project_requests
         FILTER pr.project_tracking_id == pt.id
+        FILTER pr.deleted_at == null
         RETURN pr
       )
 
       LET notifications = (
         FOR ptn IN project_tracking_notifications
+        FILTER ptn.deleted_at == null
         FILTER ptn.project_tracking_id == pt.id
         RETURN ptn
       )
