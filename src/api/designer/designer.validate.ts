@@ -37,7 +37,9 @@ export default {
           return customFilter(value, helpers);
         }, "custom filter validation")
         .error(commonFailValidatedMessageFunction("Invalid filter")),
-      sort: Joi.string(),
+      sort: Joi.string()
+        .valid("created_at", "name", "origin", "main_office") // GetDesignFirmSort
+        .allow(""),
       order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {

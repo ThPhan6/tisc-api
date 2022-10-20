@@ -11,13 +11,14 @@ import { DesignerAttributes, SummaryInfo } from "@/types";
 import { sumBy } from "lodash";
 import { v4 } from "uuid";
 import { settingService } from "../setting/setting.service";
+import { GetDesignFirmSort } from "./designer.type";
 
 class DesignerService {
   public async getList(
     limit: number,
     offset: number,
     filter: any,
-    sort: string,
+    sort: GetDesignFirmSort,
     order: "ASC" | "DESC"
   ) {
     const dataDesigners = await designerRepository.getListDesignerCustom(

@@ -4,8 +4,12 @@ import {
   DesignerAttributes,
   ListDesignerWithPaginate,
   ProjectStatus,
+  SortOrder,
 } from "@/types";
-import { DesignerDataCustom } from "@/api/designer/designer.type";
+import {
+  DesignerDataCustom,
+  GetDesignFirmSort,
+} from "@/api/designer/designer.type";
 import { DesignFirmFunctionalType } from "@/api/location/location.type";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
@@ -48,8 +52,8 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
   public async getListDesignerCustom(
     limit: number,
     offset: number,
-    sort: string,
-    order: "ASC" | "DESC"
+    sort: GetDesignFirmSort,
+    order: SortOrder = "ASC"
   ) {
     const params = {
       satelliteType: DesignFirmFunctionalType.Satellite,
@@ -58,8 +62,12 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       archived: ProjectStatus.Archived,
     };
     const rawQuery = `
-      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
-      ${sort && order ? `SORT designers.${sort} ${order}` : ``}
+      ${
+        sort === "created_at" || sort === "name"
+          ? `SORT designers.${sort} ${order}`
+          : ""
+      }
+
       LET userCount = (
         FOR users IN users
         FILTER users.deleted_at == null
@@ -73,6 +81,10 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FILTER loc.relation_id == designers.id
         RETURN loc
       )
+      ${sort === "origin" ? `SORT firmLocations[0].country_name ${order}` : ""}
+      ${
+        sort === "main_office" ? `SORT firmLocations[0].city_name ${order}` : ""
+      }
       LET satellitesCount = (
         FOR loc IN firmLocations
         FILTER @satelliteType IN loc.functional_type_ids
@@ -86,6 +98,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         RETURN p.status
       )
 
+      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
       RETURN MERGE(
         KEEP(designers, 'id', 'name', 'logo', 'status'), 
         {
