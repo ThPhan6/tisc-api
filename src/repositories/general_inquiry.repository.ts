@@ -38,6 +38,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     }
     return (await query.get()) as GeneralInquiryAttribute[];
   }
+
   public async getListGeneralInquiry(
     userId: string,
     relationId: string,
@@ -83,12 +84,12 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       )
       ${
         sort && sort[0] === "design_firm"
-          ? `SORT designFirm.designer.name ${sortOrder}`
+          ? `SORT designFirm[0].designer.name ${sortOrder}`
           : ""
       }
       ${
         sort && sort[0] == "firm_location"
-          ? `SORT CONCAT_SEPARATOR(' ', designFirm.location.state_name, designFirm.location.country_name) ${sortOrder}`
+          ? `SORT CONCAT_SEPARATOR(' ', designFirm[0].location.city_name, designFirm[0].location.country_name) ${sortOrder}`
           : ""
       }
 
@@ -110,7 +111,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
         title: general_inquiries.title,
         status: general_inquiries.status,
         design_firm: designFirm[0].designer.name,
-        firm_state_name: designFirm[0].location.state_name,
+        firm_city_name: designFirm[0].location.city_name,
         firm_country_name: designFirm[0].location.country_name,
         inquirer_firstname: designFirm[0].user.firstname,
         inquirer_lastname: designFirm[0].user.lastname,
@@ -118,7 +119,6 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
         read: POSITION( general_inquiries.read_by, @userId)
       }
     `;
-
     return (await this.model.rawQuery(
       rawQuery,
       params

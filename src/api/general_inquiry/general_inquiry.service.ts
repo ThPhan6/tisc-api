@@ -71,7 +71,7 @@ class GeneralInquiryService {
 
     const results = generalInquiries.map((el) => {
       const {
-        firm_state_name,
+        firm_city_name,
         firm_country_name,
         inquirer_firstname,
         inquirer_lastname,
@@ -79,8 +79,8 @@ class GeneralInquiryService {
       } = el;
       return {
         ...inquiry,
-        firm_location: firm_state_name
-          ? `${firm_state_name}, ${firm_country_name}`
+        firm_location: firm_city_name
+          ? `${firm_city_name}, ${firm_country_name}`
           : firm_country_name,
         inquirer: `${inquirer_firstname || ""} ${
           inquirer_lastname || ""
