@@ -4,8 +4,13 @@ import {
   DesignerAttributes,
   ListDesignerWithPaginate,
   ProjectStatus,
+  SortOrder,
 } from "@/types";
-import { DesignerDataCustom } from "@/api/designer/designer.type";
+import {
+  DesignerDataCustom,
+  GetDesignFirmSort,
+} from "@/api/designer/designer.type";
+import { DesignFirmFunctionalType } from "@/api/location/location.type";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
   protected model: DesignerModel;
@@ -16,7 +21,6 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     slogan: "",
     profile_n_philosophy: "",
     official_website: "",
-    team_profile_ids: [],
     status: 1,
     capabilities: [],
   };
@@ -48,13 +52,21 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
   public async getListDesignerCustom(
     limit: number,
     offset: number,
-    sort: string,
-    order: "ASC" | "DESC"
+    sort: GetDesignFirmSort,
+    order: SortOrder = "ASC"
   ) {
-    const params = {} as any;
+    const params = {
+      satelliteType: DesignFirmFunctionalType.Satellite,
+      live: ProjectStatus.Live,
+      onHold: ProjectStatus["On Hold"],
+      archived: ProjectStatus.Archived,
+    };
     const rawQuery = `
-      ${limit && offset ? `LIMIT ${offset}, ${limit}` : ``}
-      ${sort && order ? `SORT designers.${sort} ${order}` : ``}
+      ${
+        sort === "created_at" || sort === "name"
+          ? `SORT designers.${sort} ${order}`
+          : ""
+      }
 
       LET userCount = (
         FOR users IN users
@@ -63,39 +75,46 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         COLLECT WITH COUNT INTO length
         RETURN length
       )
-      
-      LET originLocation = (
-        FOR locations IN locations
-        FILTER locations.deleted_at == null
-        FILTER locations.relation_id == designers.id
-        RETURN locations
+      LET firmLocations = (
+        FOR loc IN locations
+        FILTER loc.deleted_at == null
+        FILTER loc.relation_id == designers.id
+        RETURN loc
+      )
+      ${sort === "origin" ? `SORT firmLocations[0].country_name ${order}` : ""}
+      ${
+        sort === "main_office" ? `SORT firmLocations[0].city_name ${order}` : ""
+      }
+      LET satellitesCount = (
+        FOR loc IN firmLocations
+        FILTER @satelliteType IN loc.functional_type_ids
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+      LET projectStatus = (
+        FOR p IN projects
+        FILTER p.deleted_at == null
+        FILTER p.design_id == designers.id
+        RETURN p.status
       )
 
-      LET projects = (
-        FOR projects IN projects
-        FILTER projects.deleted_at == null
-        FILTER projects.design_id == designers.id
-        RETURN projects.status
+      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
+      RETURN MERGE(
+        KEEP(designers, 'id', 'name', 'logo', 'status'), 
+        {
+          capacities: LENGTH(designers.capabilities),
+          designers: userCount[0],
+          origin: firmLocations[0].country_name,
+          main_office: firmLocations[0].city_name,
+          satellites: satellitesCount[0],
+          projects: LENGTH(projectStatus),
+          live: (FOR s IN projectStatus FILTER s == @live COLLECT WITH COUNT INTO length RETURN length)[0],
+          on_hold: (FOR s IN projectStatus FILTER s == @onHold COLLECT WITH COUNT INTO length RETURN length)[0],
+          archived: (FOR s IN projectStatus FILTER s == @archived COLLECT WITH COUNT INTO length RETURN length)[0],
+        }
       )
+    `;
 
-      RETURN MERGE ({
-        designer : UNSET(designers, [
-          '_key',
-          '_id',
-          '_rev',
-          'parent_company',
-          'slogan',
-          'profile_n_philosophy',
-          'official_website',
-          'team_profile_ids',
-          'updated_at',
-          'deleted_at'
-        ]),
-        userCount: userCount[0],
-        origin_location : originLocation,
-        projects : projects,
-      })
-`;
     return (await this.model.rawQuery(
       rawQuery,
       params

@@ -2,7 +2,7 @@ import UserModel from "@/model/user.models";
 import BaseRepository from "./base.repository";
 import { USER_STATUSES, SYSTEM_TYPE } from "@/constants";
 import { ActiveStatus, UserAttributes, UserType } from "@/types";
-import { head } from "lodash";
+import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
@@ -117,7 +117,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     if (sort) {
       query = query.order(sort[0], sort[1]);
     }
-    if (limit && offset) {
+    if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit, offset);
       return await query.paginate();
     }

@@ -45,3 +45,9 @@ export interface DesignerDataCustom {
     updated_at: string | null;
   }[];
 }
+
+export type GetDesignFirmSort =
+  | "created_at"
+  | "name"
+  | "origin"
+  | "main_office";

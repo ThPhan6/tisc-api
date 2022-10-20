@@ -21,7 +21,6 @@ export interface DesignerAttributes {
   slogan: string;
   profile_n_philosophy: string;
   official_website: string;
-  team_profile_ids: string[];
   status: DesignFirmStatus;
   created_at: string;
   updated_at: string | null;
