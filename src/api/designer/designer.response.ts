@@ -38,10 +38,6 @@ export default {
           on_hold: Joi.number(),
           archived: Joi.number(),
           status: Joi.number(),
-          status_key: Joi.any(),
-          assign_team: Joi.any(),
-          created_at: Joi.string(),
-          updated_at: Joi.string().allow(null),
         })
       ),
       pagination: Joi.object(paginationResponse),

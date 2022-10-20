@@ -5,21 +5,14 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import ProjectModel from "@/model/project.model";
 import { designerRepository } from "@/repositories/designer.repository";
 import { uploadLogoOfficeProfile } from "@/service/image.service";
 import { DesignerAttributes, SummaryInfo } from "@/types";
 import { sumBy } from "lodash";
 import { v4 } from "uuid";
 import { settingService } from "../setting/setting.service";
-import { mappingGetListDesigner } from "./designer.mapping";
 
 class DesignerService {
-  private projectModel: ProjectModel;
-  constructor() {
-    this.projectModel = new ProjectModel();
-  }
-
   public async getList(
     limit: number,
     offset: number,
@@ -36,10 +29,9 @@ class DesignerService {
 
     const totalDesigner = await designerRepository.getModel().count();
 
-    const result = mappingGetListDesigner(dataDesigners);
     return successResponse({
       data: {
-        designers: result,
+        designers: dataDesigners,
         pagination: pagination(limit, offset, totalDesigner),
       },
     });
