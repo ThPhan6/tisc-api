@@ -83,12 +83,12 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Design firm name is required")
         ),
-      parent_company: Joi.string(),
+      parent_company: Joi.string().allow(""),
       logo: Joi.string()
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Logo is required")),
-      slogan: Joi.string(),
+      slogan: Joi.string().allow(""),
       profile_n_philosophy: Joi.string()
         .trim()
         .required()
