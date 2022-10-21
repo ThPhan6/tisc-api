@@ -1,4 +1,3 @@
-import { COMMON_TYPES } from "@/constants";
 import GeneralInquiryModel from "@/model/general_inquiry.model";
 import BaseRepository from "@/repositories/base.repository";
 import {
@@ -6,6 +5,7 @@ import {
   ListGeneralInquiryCustom,
   SortValidGeneralInquiry,
 } from "@/types";
+import { isNumber } from "lodash";
 class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
   protected model: GeneralInquiryModel;
   protected DEFAULT_ATTRIBUTE: Partial<GeneralInquiryAttribute> = {
@@ -27,16 +27,37 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
    *
    * @param relationId brand id
    */
-  public async getAllInquiryBy(relationId: string, filter?: any) {
+  public async getAllInquiryBy(
+    relationId: string,
+    filter?: any
+  ): Promise<GeneralInquiryAttribute[]> {
     let query = this.model
       .getQuery()
       .join("products", "products.id", "==", "general_inquiries.product_id")
-      .where("products.brand_id", "==", relationId);
+      .where("products.brand_id", "==", relationId)
+      .where("products.deleted_at", "==", null);
 
-    if (filter?.status) {
+    if (isNumber(filter?.status)) {
       query = query.where("status", "==", filter?.status);
     }
-    return (await query.get()) as GeneralInquiryAttribute[];
+    return query.get();
+  }
+
+  /**
+   *
+   * @param relationId brand id
+   */
+  public async countAllInquiryBy(relationId: string, filter?: any) {
+    let query = this.model
+      .getQuery()
+      .join("products", "products.id", "==", "general_inquiries.product_id")
+      .where("products.brand_id", "==", relationId)
+      .where("products.deleted_at", "==", null);
+
+    if (isNumber(filter?.status)) {
+      query = query.where("status", "==", filter?.status);
+    }
+    return query.count();
   }
 
   public async getListGeneralInquiry(
@@ -66,12 +87,11 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           ? `SORT general_inquiries.created_at ${sortOrder}`
           : ""
       }
-
-      LIMIT @offset, @limit
       
       FOR products IN products 
-      FILTER products.brand_id == @relationId
       FILTER products.id == general_inquiries.product_id
+      FILTER products.brand_id == @relationId
+      FILTER products.deleted_at == null
 
       LET designFirm = (
         FOR u IN users
@@ -105,18 +125,19 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           : ""
       }
 
+      LIMIT @offset, @limit
       RETURN {
         id: general_inquiries.id,
         created_at: general_inquiries.created_at,
         title: general_inquiries.title,
         status: general_inquiries.status,
         design_firm: designFirm[0].designer.name,
-        firm_city_name: designFirm[0].location.city_name,
-        firm_country_name: designFirm[0].location.country_name,
-        inquirer_firstname: designFirm[0].user.firstname,
-        inquirer_lastname: designFirm[0].user.lastname,
+        firm_location: designFirm[0].location.city_name ? 
+            CONCAT(designFirm[0].location.city_name, ', ', designFirm[0].location.country_name) :
+            designFirm[0].location.country_name,
+        inquirer: TRIM(CONCAT(designFirm[0].user.firstname, ' ', designFirm[0].user.lastname)),
         inquiry_for: inquiryFor[0].name,
-        read: POSITION( general_inquiries.read_by, @userId)
+        read: POSITION(general_inquiries.read_by, @userId)
       }
     `;
     return (await this.model.rawQuery(
