@@ -20,7 +20,7 @@ import { userRepository } from "@/repositories/user.repository";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import MailService from "@/service/mail.service";
-import { BrandAttributes, SortOrder } from "@/types";
+import { ActiveStatus, BrandAttributes, SortOrder } from "@/types";
 import { productService } from "../product/product.services";
 import {
   getCountryName,
@@ -28,11 +28,7 @@ import {
   mappingBrandsAlphabet,
   mappingBrandSummary,
 } from "./brand.mapping";
-import {
-  IBrandRequest,
-  IUpdateBrandProfileRequest,
-  IUpdateBrandStatusRequest,
-} from "./brand.type";
+import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
 
 class BrandService {
   private mailService: MailService;
@@ -330,7 +326,7 @@ class BrandService {
 
   public async updateBrandStatus(
     brand_id: string,
-    payload: IUpdateBrandStatusRequest
+    payload: { status: ActiveStatus }
   ) {
     const brand = await brandRepository.find(brand_id);
 

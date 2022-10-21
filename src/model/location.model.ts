@@ -1,4 +1,4 @@
-import { SYSTEM_TYPE } from "../constant/common.constant";
+import { SYSTEM_TYPE } from "@/constants";
 import { removeUnnecessaryArangoFields } from "../query_builder";
 import Model from "./index";
 

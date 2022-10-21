@@ -1,24 +1,23 @@
-import {RoleTypeValue} from '@/types';
-import {ROLE_TYPE, getRoleType} from '@/constants';
+import { UserType } from "@/types";
+import { getRoleType } from "@/constants";
 
-export const validateRoleType = (role: RoleTypeValue, roleId: string) => {
-
+export const validateRoleType = (role: UserType, roleId: string) => {
   const roleType = getRoleType(roleId);
 
   /// TISC ROLE
-  if (role === ROLE_TYPE.TISC && roleType === 'tisc') {
+  if (role === UserType.TISC && roleType === UserType.TISC) {
     return true;
   }
 
   // BRAND ROLE
-  if (role === ROLE_TYPE.BRAND && roleType === 'brand') {
+  if (role === UserType.Brand && roleType === UserType.Brand) {
     return true;
   }
 
   // DESIGN FIRM ROLE
-  if (role === ROLE_TYPE.DESIGN && roleType === 'design') {
+  if (role === UserType.Designer && roleType === UserType.Designer) {
     return true;
   }
 
   return false;
-}
+};

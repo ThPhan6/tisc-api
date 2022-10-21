@@ -3,7 +3,6 @@ import {
   COMMON_TYPES,
   MESSAGES,
   ROLES,
-  ROLE_TYPE,
   USER_STATUSES,
   VALID_IMAGE_TYPES,
 } from "@/constants";
@@ -21,7 +20,7 @@ import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import MailService from "@/service/mail.service";
-import { IMessageResponse, UserAttributes } from "@/types";
+import { IMessageResponse, UserAttributes, UserType } from "@/types";
 import { groupBy, uniq } from "lodash";
 import moment from "moment";
 import {
@@ -142,14 +141,14 @@ export default class UserService {
       interested: user.interested,
     };
 
-    if (user.type === ROLE_TYPE.BRAND) {
+    if (user.type === UserType.Brand) {
       const brand = await brandRepository.find(user.relation_id);
       return successResponse({
         data: { ...result, brand },
       });
     }
 
-    if (user.type === ROLE_TYPE.DESIGN) {
+    if (user.type === UserType.Designer) {
       const design = await this.designModel.find(user.relation_id);
       return successResponse({
         data: { ...result, design },

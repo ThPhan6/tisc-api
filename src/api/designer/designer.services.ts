@@ -1,49 +1,24 @@
-import {
-  COMMON_TYPES,
-  DESIGN_STORE,
-  MESSAGES,
-  VALID_IMAGE_TYPES,
-} from "@/constants";
-import {
-  getDistinctArray,
-  getFileTypeFromBase64,
-  pagination,
-  randomName,
-} from "@/helper/common.helper";
+import { COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
+import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import ProjectModel from "@/model/project.model";
 import { designerRepository } from "@/repositories/designer.repository";
-import { locationRepository } from "@/repositories/location.repository";
-import { deleteFile, isExists } from "@/service/aws.service";
-import {
-  uploadImage,
-  uploadLogoOfficeProfile,
-  validateImageType,
-} from "@/service/image.service";
-import { DesignerAttributes } from "@/types";
-import { object } from "joi";
-import { marketAvailabilityService } from "../market_availability/market_availability.services";
+import { uploadLogoOfficeProfile } from "@/service/image.service";
+import { DesignerAttributes, SummaryInfo } from "@/types";
+import { sumBy } from "lodash";
+import { v4 } from "uuid";
 import { settingService } from "../setting/setting.service";
-import {
-  mappingCountDesigner,
-  mappingDesignSummary,
-  mappingGetListDesigner,
-} from "./designer.mapping";
-class DesignerService {
-  private projectModel: ProjectModel;
-  constructor() {
-    this.projectModel = new ProjectModel();
-  }
+import { GetDesignFirmSort } from "./designer.type";
 
+class DesignerService {
   public async getList(
     limit: number,
     offset: number,
     filter: any,
-    sort: string,
+    sort: GetDesignFirmSort,
     order: "ASC" | "DESC"
   ) {
     const dataDesigners = await designerRepository.getListDesignerCustom(
@@ -55,17 +30,16 @@ class DesignerService {
 
     const totalDesigner = await designerRepository.getModel().count();
 
-    const result = mappingGetListDesigner(dataDesigners);
     return successResponse({
       data: {
-        designers: result,
+        designers: dataDesigners,
         pagination: pagination(limit, offset, totalDesigner),
       },
     });
   }
 
   public async getOne(id: string) {
-    const designer = await designerRepository.find(id);
+    const designer = await designerRepository.getOne(id);
 
     if (!designer) {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);
@@ -77,44 +51,75 @@ class DesignerService {
   }
 
   public async getAllDesignSummary() {
-    const allDesignFirm = await designerRepository.getAll();
+    const designFirmSummary = await designerRepository.getOverallSummary();
+    const results: SummaryInfo[] = [
+      {
+        id: v4(),
+        quantity: designFirmSummary.designFirm.total,
+        label: "DESIGN FIRMS",
+        subs: [
+          {
+            id: v4(),
+            quantity: designFirmSummary.designFirm.totalLocation,
+            label: "Locations",
+          },
+          {
+            id: v4(),
+            quantity: designFirmSummary.designFirm.totalUser,
+            label: "Designers",
+          },
+        ],
+      },
+      {
+        id: v4(),
+        quantity: sumBy(designFirmSummary.countries.summary, "count"),
+        label: "COUNTRIES",
+        subs: designFirmSummary.countries.regions.map((region) => ({
+          id: v4(),
+          quantity:
+            designFirmSummary.countries.summary.find(
+              (el) => el.region === region
+            )?.count || 0,
+          label: region,
+        })),
+      },
+      {
+        id: v4(),
+        quantity: designFirmSummary.project.total,
+        label: "PROJECTS",
+        subs: [
+          {
+            id: v4(),
+            quantity: designFirmSummary.project.live,
+            label: "Live",
+          },
+          {
+            id: v4(),
+            quantity: designFirmSummary.project.onHold,
+            label: "On Hold",
+          },
+          {
+            id: v4(),
+            quantity: designFirmSummary.project.archived,
+            label: "Archived",
+          },
+        ],
+      },
+    ];
 
-    const countDesigner = mappingCountDesigner(allDesignFirm);
-
-    const locations = await locationRepository.getLocationDesign();
-
-    const originLocationIds = await locationRepository.getOriginCountry();
-
-    const countries = await marketAvailabilityService.getRegionCountries(
-      getDistinctArray(originLocationIds)
-    );
-
-    const projects = await this.projectModel.getAll();
-
-    const result = mappingDesignSummary(
-      allDesignFirm,
-      locations,
-      countDesigner,
-      countries,
-      projects
-    );
-
-    return successResponse({
-      data: result,
-    });
+    return successResponse({ data: results });
   }
 
   public async updateDesign(
     designId: string,
     payload: Partial<DesignerAttributes>,
-    userRealtionId : string
+    userRealtionId: string
   ) {
-    if(designId !== userRealtionId) {
-      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE)
+    if (designId !== userRealtionId) {
+      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
     }
-    
+
     const designer = await designerRepository.find(designId);
-    
 
     if (!designer) {
       return errorMessageResponse(MESSAGES.DESIGNER.DESIGN_NOT_FOUND);

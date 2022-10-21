@@ -15,7 +15,8 @@ export const MESSAGES = {
       "You are not in this design firm. So you cannot delete",
     JUST_OWNER_CAN_CREATE:
       "You are not in this design firm. So you cannot create",
-    SOMETHING_WRONG_CONTACT_SYSADMIN: "Something went wrong. Please contact to the administrator!",
+    SOMETHING_WRONG_CONTACT_SYSADMIN:
+      "Something went wrong. Please contact to the administrator!",
   },
 
   FAVOURITE: {
@@ -226,6 +227,7 @@ export const MESSAGES = {
   EMAIL_SENT: "Email sent!",
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
+  ACCOUNT_INACTIVE_LOGIN: "Sorry! Your account was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",

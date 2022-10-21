@@ -1,5 +1,5 @@
 import { PROJECT_STATUS_OPTIONS } from "@/constants";
-import { ProjectAttributes } from "@/types";
+import { ProjectAttributes, ProjectStatus } from "@/types";
 export const mappingProjectGroupByStatus = (projects: ProjectAttributes[]) => {
   return PROJECT_STATUS_OPTIONS.map((projectStatus) => {
     const groupProjects = projects.filter(
@@ -18,7 +18,7 @@ export const mappingProjectGroupByStatus = (projects: ProjectAttributes[]) => {
       };
     });
     return {
-      status_name: projectStatus.key,
+      status_name: ProjectStatus[projectStatus.key],
       count: groupProjects.length,
       projects: removedFieldsOfProject,
     };

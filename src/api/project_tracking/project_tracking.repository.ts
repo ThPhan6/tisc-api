@@ -137,7 +137,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER df.id == project.design_id
       RETURN df
     )
-    ${sort === "design_firm" ? `SORT designFirm.name ${order}` : ""}
+    ${sort === "design_firm" ? `SORT designFirm[0].name ${order}` : ""}
 
     LET members = (
       FOR user IN users
@@ -196,7 +196,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         total: number;
         live: number;
         onHold: number;
-        archive: number;
+        archived: number;
       };
       request: {
         total: number;
@@ -214,7 +214,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       brandId,
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
-      archiveStatus: ProjectStatus.Archive,
+      archiveStatus: ProjectStatus.Archived,
       pending: RespondedOrPendingStatus.Pending,
       responded: RespondedOrPendingStatus.Responded,
       keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
@@ -224,21 +224,25 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     LET mapping = (
       FOR pt IN project_trackings
       FILTER pt.brand_id == @brandId
+      FILTER pt.deleted_at == null
 
       LET projects = (
         FOR prj IN projects
         FILTER prj.id == pt.project_id
+        FILTER prj.deleted_at == null
         RETURN prj
       )
 
       LET projectRequests = (
         FOR pr IN project_requests
         FILTER pr.project_tracking_id == pt.id
+        FILTER pr.deleted_at == null
         RETURN pr
       )
 
       LET notifications = (
         FOR ptn IN project_tracking_notifications
+        FILTER ptn.deleted_at == null
         FILTER ptn.project_tracking_id == pt.id
         RETURN ptn
       )
@@ -270,7 +274,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       COLLECT WITH COUNT INTO length
       RETURN length
     )
-    LET archive = (
+    LET archived = (
       FOR p IN projects
       FILTER p.status == @archiveStatus
       COLLECT WITH COUNT INTO length
@@ -318,7 +322,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         total: LENGTH(projects),
         live: live[0],
         onHold: onHold[0],
-        archive: archive[0]
+        archived: archived[0]
       },
       request: {
         total: COUNT(FLATTEN(allRequest)),

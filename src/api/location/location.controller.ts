@@ -69,14 +69,14 @@ export default class LocationController {
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, order } = req.query;
+    const { limit, offset, filter, sort } = req.query;
     const userId = req.auth.credentials.user_id as string;
     const response = await locationService.getList(
       userId,
       limit,
       offset,
-      sort,
-      order,
+      sort?.[0],
+      sort?.[1],
       filter
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -103,9 +103,9 @@ export default class LocationController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { brand_id } = req.params;
+    const { brand_id, design_id } = req.params;
     const response = await locationService.getCompanyLocationGroupByCountry(
-      brand_id
+      brand_id || design_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

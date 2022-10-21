@@ -101,7 +101,7 @@ class Builder {
   public join(
     table: string,
     first: string,
-    operator: GeneralOperator,
+    operator: Operator,
     second: string
   ) {
     const newJoin = this.bindings.join;
