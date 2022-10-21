@@ -2,6 +2,8 @@ import { pdfService } from "./pdf.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {UserAttributes, ProjectProductPDFConfigAttribute} from '@/types';
 import moment from 'moment';
+import {kebabCase} from 'lodash';
+import {toNonAccentUnicode} from '@/helper/common.helper';
 
 export default class PDFController {
 
@@ -17,7 +19,7 @@ export default class PDFController {
     ///
     return toolkit
       .response(response.pdfBuffer)
-      .header('Content-Disposition', `attachment; filename=project-${response.project.name}-${moment().unix()}.pdf`)
+      .header('Content-Disposition', `attachment; filename="project-${toNonAccentUnicode(kebabCase(response.project.name))}-${moment().unix()}.pdf"`)
       .header('Content-Type', 'application/pdf');
   }
 

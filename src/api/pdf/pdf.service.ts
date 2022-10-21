@@ -15,6 +15,7 @@ import {
   mappingFinishSchedules,
   mappingCodeByRoom,
   mappingPdfZoneArea,
+  mappingMaterialCode,
 } from "./pdf.mapping";
 import { ProjectPDfData } from "./pdf.type";
 import {
@@ -122,10 +123,6 @@ export default class PDFService {
     user: UserAttributes,
     projectId: string,
     payload: Partial<ProjectProductPDFConfigAttribute>
-    // payload: Omit<
-    //   ProjectProductPDFConfigAttribute,
-    //   'created_by' | 'created_at' | 'updated_at' | 'id' | 'project_id'
-    // >
   ) => {
     /// get project Data
     const projectData = await this.getProjectData(projectId, user);
@@ -137,8 +134,6 @@ export default class PDFService {
     // save payload
     await projectProductPDFConfigRepository.updateByProjectId(projectId, payload);
     const pdfConfig = await projectProductPDFConfigRepository.findWithInfoByProjectId(projectId);
-    console.log('projectData', projectData);
-    console.log('pdfConfig', pdfConfig);
     const pdfBuffers: Buffer[] = [];
 
     if (!pdfConfig) {
@@ -192,6 +187,9 @@ export default class PDFService {
             }
             if (templatePath.group === 'code_by_room') {
               data = mappingCodeByRoom(response);
+            }
+            if (templatePath.group === 'material_code_sub_list') {
+              data = mappingMaterialCode(response);
             }
             ////
             return await this.dynamicRenderEjs(

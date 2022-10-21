@@ -1,5 +1,5 @@
 import {TemplateAttributes, TemplateGroup, TemplateSpecify, TemplateGroupValue} from '@/types';
-import {mapValues, isEmpty, uniqBy, uniqWith, isEqual} from 'lodash';
+import {mapValues, isEmpty, uniqBy, uniqWith, isEqual, uniq} from 'lodash';
 import {formatNumberDisplay} from '@/helper/common.helper';
 
 export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
@@ -111,6 +111,7 @@ export const findEjsTemplatePath = (key: string) => {
       path: 'finishes_material_products/listing_by_brand.ejs'
     },
     'Finished, Materials & Products Listing by Code': {
+      group: 'material_code_sub_list',
       path: 'finishes_material_products/listing_by_code.ejs'
     },
     'Finished, Materials & Products Reference by Brand': {
@@ -142,7 +143,7 @@ export const findEjsTemplatePath = (key: string) => {
   } as any;
   return response[key] as {
     path: string;
-    group?: 'category' | 'brand' | 'brand_distributor' | 'finish_schedule' | 'code_by_room'
+    group?: 'category' | 'brand' | 'brand_distributor' | 'finish_schedule' | 'code_by_room' | 'material_code_sub_list'
   } | undefined;
 }
 
@@ -299,4 +300,19 @@ export const mappingPdfZoneArea = (data: any) => {
     total_size: formatNumberDisplay(response.total),
     data: response.zones
   };
+}
+
+export const mappingMaterialCode = (data: any) => {
+  const uniqMaterialSublist = uniq(data.reduce((res :any, item: any) => res.concat(item.master_material_code_name), []));
+  return uniqMaterialSublist.map((materialSubListName: any) => {
+    const groupData = data.filter((item: any) =>
+      item.master_material_code_name == materialSubListName
+    );
+    ///
+    return {
+      name: materialSubListName,
+      data: groupData,
+    };
+  });
+
 }

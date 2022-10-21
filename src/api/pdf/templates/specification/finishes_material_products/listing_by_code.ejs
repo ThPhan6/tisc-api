@@ -18,15 +18,15 @@
           <span class="normal-roboto-bold-8-18 color-white uppercase">product</span>
         </td>
       </tr>
-      <% for(var n=1; n<=3; n++) {%>
+      <% data.forEach(function(item) { %>
 
         <tr class="border-bottom-box-shadow-bold">
           <td class="border-bottom-box-shadow-bold"></td>
           <td class="border-bottom-box-shadow-bold" width="40%" style="padding: 0 4px" colspan="4">
-            <span class="primary-roboto-bold-8-18 "><%= groupData.master_material_code_name %></span>
+            <span class="primary-roboto-bold-8-18 "><%= item.name %></span>
           </td>
         </tr>
-        <% data.forEach(function(groupData, index) { %>
+        <% item.data.forEach(function(groupData, index) { %>
           <tr>
             <td class="primary-roboto-light-8-18">
               <span><%= groupData.material_code.code %></span>
@@ -50,6 +50,6 @@
         <% }) %>
         <tr><td colspan="5" class="border-bottom-box-shadow"></td></tr>
         <tr style="height: 15px;"></tr>
-      <% } %>
+      <% }) %>
     </table>
   </div>
