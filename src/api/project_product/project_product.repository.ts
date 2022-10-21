@@ -222,7 +222,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             collection_name: pro.collection.name,
             specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
             product_id: CONCAT_SEPARATOR(', ', productCode),
-            variant: LENGTH(pro.variant) > 0 ? CONCAT_SEPARATOR('; ', pro.variant) : "Refer to Design Document"
+            variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
           }
         )
       )
