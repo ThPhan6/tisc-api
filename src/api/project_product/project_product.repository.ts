@@ -149,15 +149,79 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     return this.model.rawQuery(rawQuery, params);
   };
 
-  public getSpecifiedProductsForBrandGroup = async (project_id: string) => {
-    return this.model
-      .getQuery()
-      .where("project_id", "==", project_id)
-      .where("status", "==", ProjectProductStatus.specify)
-      .join("products", "products.id", "==", "project_products.product_id")
-      .join("brands", "brands.id", "==", "products.brand_id")
-      .join("collections", "collections.id", "==", "products.collection_id")
-      .get(true);
+  public getSpecifiedProductsForBrandGroup = async (
+    projectId: string,
+    brand_order?: SortOrder
+  ) => {
+    const params = {
+      projectId,
+      specifiedStatus: ProjectProductStatus.specify,
+    };
+    return this.model.rawQueryV2(
+      `
+      LET productsByBrand = (
+        FOR project_products IN project_products
+        FILTER project_products.project_id == @projectId
+        FILTER project_products.status == @specifiedStatus
+        FILTER project_products.deleted_at == null
+
+        FOR product IN products
+        FILTER product.id == project_products.product_id
+        FILTER product.deleted_at == null
+        FOR b IN brands
+        FILTER b.id == product.brand_id
+        FILTER b.deleted_at == null
+        FOR collection IN collections
+        FILTER collection.id == product.collection_id
+        FILTER collection.deleted_at == null
+
+        LET variant = (
+          LET basisIds = (
+            FOR pp IN project_products.specification.attribute_groups
+            FOR basis IN pp.attributes
+            RETURN basis.basis_option_id
+          )
+          FOR basis in bases
+          FOR subBasis in basis.subs
+          FILTER subBasis.subs != null
+          FOR option IN subBasis.subs
+          FILTER option.id IN basisIds
+          RETURN CONCAT(subBasis.name, ': ', option.value_1, ' ', option.unit_1, ' ', option.value_2, ' ', option.unit_2)
+        )
+
+        COLLECT id = b.id, name = b.name INTO products
+        RETURN {
+          id,
+          name,
+          products
+        }
+      )
+      
+      FOR brand IN productsByBrand
+      ${brand_order ? `SORT brand.name ${brand_order}` : ""}      
+
+      LET products = (
+        FOR p IN brand.products
+        RETURN MERGE(
+          UNSET(p.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+          {
+            collection_name: p.collection.name,
+            specifiedDetail: UNSET(p.project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+            product_id: "XXX-000",
+            variant: LENGTH(p.variant) > 0 ? CONCAT_SEPARATOR('; ', p.variant) : "Refer to Design Document"
+          }
+        )
+      )
+
+      RETURN {
+        id: brand.id,
+        name: brand.name,
+        products,
+        count: LENGTH(brand.products),
+      }
+    `,
+      params
+    );
   };
 
   public getSpecifiedProductsForMaterial = async (
@@ -217,6 +281,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       }
     );
   };
+
   public getSpecifiedProductsForZoneGroup = async (
     userId: string,
     projectId: string
