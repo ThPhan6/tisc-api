@@ -11,6 +11,7 @@ const {
   imageTest_1,
   imageTest_2,
   imageTest_3,
+  imageTest_4,
 } = require("../test_files/image.test");
 const uuid = require("uuid").v4;
 let email = "unit-test-phase3@yopmail.com";
@@ -42,7 +43,7 @@ async function insertCollection() {
               name: "Collection",
               brand_id: "${brand.id}",
               created_at: "2022-07-08T03:42:03.042Z",
-              is_deleted: false
+              deleted_at : null
             }) INTO @@model RETURN NEW`,
     bindVars: {
       "@model": "collections",
@@ -183,7 +184,7 @@ async function insertProduct() {
         keywords: ["keyword1", "keyword2", "keyword3", "keyword4", "copy"],
         created_at: "2022-07-15T09:49:35.891Z",
         created_by: "73c97863-299b-4a27-9b79-722cb5accad1",
-        is_deleted: false,
+        deleted_at: null,
       }) INTO @@model RETURN NEW`,
     bindVars: {
       "@model": "products",
@@ -210,7 +211,7 @@ function getProduct() {
   return new Promise(async (resolve) => {
     const product = await db.query({
       query: `FOR data in @@model
-        FILTER data.is_deleted == false
+        FILTER data.deleted_at == null
       return data`,
       bindVars: {
         "@model": "products",
@@ -224,7 +225,7 @@ function getUserUnitTest() {
   return new Promise(async (resolve) => {
     const user = await db.query({
       query: `FOR data in @@model
-              FILTER data.is_deleted == false
+              FILTER data.deleted_at == null
               FILTER data.email == "${email}"
               return data`,
       bindVars: {
@@ -235,47 +236,50 @@ function getUserUnitTest() {
   });
 }
 
-getUserUnitTest().then(async (user) => await insertProduct(user.relation_id));
+// getUserUnitTest().then(async (user) => await insertProduct(user.relation_id));
 async function insertProject(relationId = "") {
   const project = await db.query({
     query: `INSERT ({
-      id: "7015f7e2-d563-44f4-8844-9b40d0221e43",
-      code: "${Math.random()}",
-      name: "1",
-      location: "Vietnam",
-      country_id: "240",
-      state_id: "3806",
-      city_id: "130195",
-      country_name: "Vietnam",
-      state_name: "Đà Nẵng",
-      city_name: "Da Nang",
-      address: "string",
-      phone_code: "84",
-      postal_code: "string",
-      project_type_id: "978ad82a-6da3-4cbc-bf34-3802001586d3",
-      project_type: "Test",
-      building_type_id: "aa4cd798-ebb3-4d35-a19a-e27de439f498",
-      building_type: "Test",
-      measurement_unit: 0,
-      design_due: "string",
-      construction_start: "string",
-      team_profile_ids: [],
-      design_id: "${relationId}",
-      status: 2,
-      created_at: "2022-07-27T09:46:03.184Z",
-      is_deleted: false
-      }
+      "code": "PJH789",
+      "name": "Dự án công trình tiền tỷ, tỷ tỷ tỷ",
+      "location": "Nīlī, Afghanistan",
+      "country_id": "1",
+      "state_id": "3892",
+      "city_id": "102",
+      "country_name": "Afghanistan",
+      "state_name": "Daykundi",
+      "city_name": "Nīlī",
+      "address": "700 Nui Thanh",
+      "phone_code": "93",
+      "postal_code": "23232",
+      "project_type_id": "63671922-a4eb-4b14-8a7f-187e35f0422d",
+      "project_type": "Meetings, Incentives, Conferences, Exhibitions",
+      "building_type_id": "debd8136-5086-4620-ba96-b078ce101b48",
+      "building_type": "Conversation & Restoration",
+      "measurement_unit": 1,
+      "design_due": "2022-10-18",
+      "construction_start": "2022-10-20",
+      "team_profile_ids": [],
+      "product_ids": [],
+      "design_id": "f87d2892-ab8e-445a-a5dd-e39ba4d581b7",
+      "status": 0,
+      "created_at": "2022-10-19 07:42:43",
+      "id": "b8a2c67c-570d-4e92-8ea5-4a582901b021",
+      "updated_at": "2022-10-21 02:37:23",
+      "deleted_at": null
+    }
     ) INTO @@model RETURN NEW`,
     bindVars: {
       "@model": "projects",
     },
   });
 }
+
 function getProject() {
   return new Promise(async (resolve) => {
     const product = await db.query({
       query: `FOR data in @@model
-        FILTER data.is_deleted == false
+        FILTER data.deleted_at == null
       return data`,
       bindVars: {
         "@model": "projects",
@@ -305,7 +309,7 @@ function getConsideredProduct() {
   return new Promise(async (resolve) => {
     const consideredProduct = await db.query({
       query: `FOR data in @@model
-              FILTER data.is_deleted == false
+              FILTER data.deleted_at == null
               return data`,
       bindVars: {
         "@model": "considered_products",
@@ -319,7 +323,7 @@ function verifyUser() {
   return new Promise(async (resolve) => {
     const user = await db.query({
       query: `FOR u IN @@model 
-      FILTER u.is_deleted == false 
+      FILTER u.deleted_at == null 
       FILTER u.email == "${email}" 
       UPDATE u WITH {is_verified : true } IN @@model`,
       bindVars: {
@@ -327,6 +331,21 @@ function verifyUser() {
       },
     });
     resolve(user._result[0]);
+  });
+}
+
+function getCommonType(type) {
+  return new Promise(async (resolve) => {
+    const commonType = await db.query({
+      query: `FOR c IN @@model 
+      FILTER c.deleted_at == null 
+      FILTER c.type == "${type}" 
+    `,
+      bindVars: {
+        "@model": "common_types",
+      },
+    });
+    resolve(commonType._result[0]);
   });
 }
 
@@ -344,4 +363,5 @@ module.exports = {
   getConsideredProduct,
   getUserUnitTest,
   verifyUser,
+  getCommonType,
 };

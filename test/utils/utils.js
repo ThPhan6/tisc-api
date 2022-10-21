@@ -6,6 +6,8 @@ const should = chai.should();
 chai.use(chaiHttp);
 const HOST_URL = process.env.API_URL;
 const tiscAdminToken = process.env.TEST_TISC_ADMIN_TOKEN;
+const designToken = process.env.TEST_DESIGN_TOKEN;
+const brandToken = process.env.TEST_BRAND_TOKEN;
 const { Database } = require("arangojs");
 const db = new Database({
   url: process.env.DATABASE_HOSTNAME,
@@ -17,9 +19,9 @@ const chaiResponse = (
   res,
   done,
   status = 400,
-  properties = ['error', 'message'],
+  properties = ["error", "message"],
   keys = [],
-  callback,
+  callback
 ) => {
   res.should.have.status(status);
   res.should.be.json;
@@ -38,7 +40,9 @@ const chaiResponse = (
       done();
     }
   }
-}
+};
+
+const getMe = () => {};
 module.exports = {
   chaiResponse,
   chai,
@@ -48,4 +52,6 @@ module.exports = {
   tiscAdminToken,
   Database,
   db,
-}
+  designToken,
+  brandToken,
+};

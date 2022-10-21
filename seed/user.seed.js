@@ -25,7 +25,7 @@ const seed = async (db) => {
         is_verified: true,
         status: USER_STATUSES.ACTIVE,
         type: SYSTEM_TYPE.TISC,
-        relation_id: null,
+        relation_id: "TISC",
       },
       {
         ...USER_NULL_ATTRIBUTES,
@@ -38,7 +38,7 @@ const seed = async (db) => {
         is_verified: true,
         status: USER_STATUSES.ACTIVE,
         type: SYSTEM_TYPE.TISC,
-        relation_id: null,
+        relation_id: "TISC",
       },
     ];
 
