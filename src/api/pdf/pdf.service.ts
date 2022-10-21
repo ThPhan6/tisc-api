@@ -3,11 +3,18 @@ import { templateRepository } from "@/repositories/template.repository";
 import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
 import {getBufferFile} from '@/service/aws.service';
 import {projectProductRepository} from '@/api/project_product/project_product.repository';
+import {projectZoneRepository} from '@/repositories/project_zone.repository';
 import { MESSAGES } from "@/constants";
 import {
   mappingSpecifyPDFTemplate,
   groupSpecifyTemplates,
   findEjsTemplatePath,
+  mappingPdfDataByBrand,
+  mappingPdfDataByCategory,
+  mappingPdfDataByLocationAndDistributor,
+  mappingFinishSchedules,
+  mappingCodeByRoom,
+  mappingPdfZoneArea,
 } from "./pdf.mapping";
 import { ProjectPDfData } from "./pdf.type";
 import {
@@ -15,10 +22,8 @@ import {
   ProjectProductPDFConfigAttribute,
   ProjectProductPDFConfigWithLocationAndType,
   ProjectAttributes,
-  TemplateGroupValue,
-  TemplateGroup,
 } from "@/types";
-import { isEmpty, map, merge } from "lodash";
+import { isEmpty, map, merge, isUndefined } from "lodash";
 import {
   errorMessageResponse,
   successResponse,
@@ -29,11 +34,11 @@ import * as ejs from "ejs";
 export default class PDFService {
   private baseTemplate = `${process.cwd()}/src/api/pdf/templates`;
 
-  private injectBasePdfTemplate = (content: string) => {
-    return ejs.renderFile(
+  private injectBasePdfTemplate = async (content: string) => {
+    return await ejs.renderFile(
       `${this.baseTemplate}/layouts/base.layout.ejs`,
       { content }
-    );
+    ) as string;
   };
 
   private getProjectData = async (
@@ -66,11 +71,14 @@ export default class PDFService {
     return await pdfNode.create(html).toBuffer();
   };
 
-  private getSpecifyHeader = async (title: string) => {
+  private getSpecifyHeader = async (title: string, templateData: any) => {
     const headerHtml = await ejs.renderFile(
       `${this.baseTemplate}/layouts/header.layout.ejs`,
-      { title }
-    );
+      {
+        title,
+        ...templateData,
+      }
+    ) as string;
     return {
       header: {
         height: "4.6cm",
@@ -79,10 +87,11 @@ export default class PDFService {
     };
   };
 
-  private getSpecifyFooter = async () => {
+  private getSpecifyFooter = async (templateData: any) => {
     const footerHtml = await ejs.renderFile(
-      `${this.baseTemplate}/layouts/footer.layout.ejs`
-    );
+      `${this.baseTemplate}/layouts/footer.layout.ejs`,
+      templateData
+    ) as string;
     return {
       footer: {
         height: "1.7cm",
@@ -94,12 +103,12 @@ export default class PDFService {
   };
 
   private dynamicRenderEjs = async (title: string, templatePath: string, templateData: any) => {
-    const headerOption = await this.getSpecifyHeader(title);
-    const footerOption = await this.getSpecifyFooter();
+    const headerOption = await this.getSpecifyHeader(title, templateData);
+    const footerOption = await this.getSpecifyFooter(templateData);
     const templateHtml = await ejs.renderFile(
       `${this.baseTemplate}/specification/${templatePath}`,
-      {data: templateData}
-    );
+      templateData
+    ) as string;
     const html = await this.injectBasePdfTemplate(templateHtml);
     return await pdfNode
       .create(html, merge(headerOption, footerOption))
@@ -123,10 +132,13 @@ export default class PDFService {
     if (projectData.message) {
       return projectData.message;
     }
+    /// get zone data
+    const zones = await projectZoneRepository.getListWithTotalsize(projectId);
     // save payload
     await projectProductPDFConfigRepository.updateByProjectId(projectId, payload);
     const pdfConfig = await projectProductPDFConfigRepository.findWithInfoByProjectId(projectId);
-
+    console.log('projectData', projectData);
+    console.log('pdfConfig', pdfConfig);
     const pdfBuffers: Buffer[] = [];
 
     if (!pdfConfig) {
@@ -140,8 +152,7 @@ export default class PDFService {
       .get();
     const groupTemplate = groupSpecifyTemplates(templates);
 
-    if (true) {
-    // if (pdfConfig.has_cover) {
+    if (pdfConfig.has_cover) {
       pdfBuffers.push(
         await this.generateProjectCoverPage(projectData.project, pdfConfig)
       );
@@ -153,56 +164,61 @@ export default class PDFService {
         pdfBuffers.push(...mergeTemplates);
       }
     }
+    // GET PDF DATA
+    const response = await projectProductRepository.getWithBrandAndDistributorInfo(projectId);
     //
+
     await Promise.all(
-      map(groupTemplate.specificationTemplates, async (specificationTemplates, group: TemplateGroupValue) => {
-        if (group == TemplateGroup.BrandsAndDistributors && !isEmpty(templates)) {
-          ///
-          const projectProducts = await projectProductRepository.getModel()
-            .where('project_products.projectId', '==', projectId)
-            .join('locations', 'locations.id', '==', 'project_products.brand_location_id')
-            .join('distributors', 'distributors.id', '==', 'project_products.distributor_location_id')
-            .join('products', 'products.id', '==', 'project_products.product_id')
-            .get(true);
-          ///
-          await Promise.all((specificationTemplates.map(async (template) => {
-            const templatePath = findEjsTemplatePath(template.name);
-            if (templatePath) {
-              pdfBuffers.push(await this.dynamicRenderEjs(
-                template.name,
-                templatePath,
-                {
-                  projectProducts
-                }
-              ));
-            }
-          })));
+      map(groupTemplate.specificationTemplates, async (specificationTemplates) => {
+        if (isEmpty(specificationTemplates)) {
+          return false;
         }
+        await Promise.all((specificationTemplates.map(async (template) => {
+          const templatePath = findEjsTemplatePath(template.name);
+          if (templatePath) {
+            /// mapping data
+            let data = response;
+            if (templatePath.group === 'brand') {
+              data = mappingPdfDataByBrand(response);
+            }
+            if (templatePath.group === 'category') {
+              data = mappingPdfDataByCategory(response);
+            }
+            if (templatePath.group === 'brand_distributor') {
+              data = mappingPdfDataByLocationAndDistributor(response);
+            }
+            if (templatePath.group === 'finish_schedule') {
+              data = mappingFinishSchedules(response);
+            }
+            if (templatePath.group === 'code_by_room') {
+              data = mappingCodeByRoom(response);
+            }
+            ////
+            return await this.dynamicRenderEjs(
+              template.name,
+              templatePath.path,
+              {
+                data,
+                project: projectData.project,
+                config: pdfConfig,
+                user,
+                zones: mappingPdfZoneArea(zones)
+              }
+            );
+          }
+        }))).then((finalBuffers) => {
+          const pdfBufferOnly = finalBuffers.filter((res) => {
+            return !isUndefined(res);
+          }) as Buffer[];
+          pdfBuffers.push(...pdfBufferOnly);
+        });
       })
     );
 
-
-    return pdfNode.merge(...pdfBuffers);
-
-    // // PDFBuffer
-    // const pdfBuffers: Buffer[] = [];
-    //
-    //
-    //
-    // const coverHtml = await ejs.renderFile(
-    //   `${this.baseTemplate}/cover/specify.ejs`
-    // );
-    // const html = await this.injectBasePdfTemplate(coverHtml, "specification");
-    // const headerOption = await this.getSpecifyHeader(
-    //   "finishes, materials & products listing by code"
-    // );
-    // const footerOption = await this.getSpecifyFooter();
-    // console.log(html);
-    // return await pdfNode
-    //   .create(html, merge(headerOption, footerOption))
-    //   .toBuffer();
-
-    ////////
+    return {
+      project: projectData.project,
+      pdfBuffer: pdfNode.merge(...pdfBuffers)
+    };
   };
 
   public getProjectSpecifyConfig = async (

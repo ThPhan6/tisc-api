@@ -1,41 +1,46 @@
 <div class="general-specification-content">
     <table width="100%">
-      <% for(var i=1; i<=2; i++) {%>
+      <% data.forEach(function(item){ %>
         <tr>
             <td height="24" width="50%" class="normal-roboto-bold-8-18 bg-black" colspan="2">
-              <span class="pdlr-8 color-white uppercase">product category name a</span>
+              <span class="pdlr-8 color-white uppercase"><%= item.name %></span>
             </td>
         </tr>
-        <% for(var j=1; j<=6; j++) {%>
+        <% item.data.forEach(function(groupData){ %>
           <tr>
             <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
-              <span class="primary-roboto-bold-8-18">Brand name 1</span><br/>
-              <span>Number street name</span><br/>
-              <span>City name, state name</span><br/>
-              <span>Country name, Postal code</span><br/>
-              <span>www.brandcompany.com</span>
+              <span class="primary-roboto-bold-8-18"><%= groupData.distributor.name %></span><br/>
+              <span><%= groupData.distributor.address %></span><br/>
+              <% if (groupData.distributor.country_id == '-1') { %>
+                <span>GLOBAL</span>
+              <% } else { %>
+                <span><%= groupData.distributor.city_name %>, <%= groupData.distributor.state_name %></span><br/>
+                <span><%= groupData.distributor.country_name %>, <%= groupData.distributor.postal_code %></span><br/>
+                <span><%= project.design_firm_official_website %></span>
+              <% } %>
+
             </td>
             <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
-              <span class="primary-roboto-bold-8-18"></span><br/>
+              <span class="primary-roboto-bold-8-18" style="opacity:0">XXXX</span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-25">contact</span>
-                <span class="primary-roboto-light-8-18">Firstname Lastname</span>
+                <span class="primary-roboto-light-8-18"><%= groupData.distributor.first_name %> <%= groupData.distributor.last_name %></span>
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-13">work email</span>
-                <span class="primary-roboto-light-8-18">email@brandcompany.com</span>
+                <span class="primary-roboto-light-8-18"><%= groupData.distributor.email %></span>
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-10">work phone</span>
-                <span class="primary-roboto-light-8-18">+84 0935458253</span>
+                <span class="primary-roboto-light-8-18">+<%= groupData.distributor.phone_code %> <%= groupData.distributor.phone %></span>
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-8">work mobile</span>
-                <span class="primary-roboto-light-8-18">+84 0935458253</span>
+                <span class="primary-roboto-light-8-18">+<%= groupData.distributor.phone_code %> <%= groupData.distributor.mobile %></span>
               </span><br/>
             </td>
           </tr>
-        <% } %>
-      <% } %>
+        <% }); %>
+      <% }); %>
     </table>
 </div>

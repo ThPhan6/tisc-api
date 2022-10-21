@@ -8,26 +8,34 @@
             Distributor / Supplier
           </td>
       </tr>
-      <% for(var i=1; i<=2; i++) {%>
+      <% data.forEach(function(item){ %>
         <tr>
             <td height="24" width="50%" class="normal-roboto-bold-8-18 bg-black" colspan="2">
-              <span class="pdlr-8 color-white uppercase">product category name a</span>
+              <span class="pdlr-8 color-white uppercase"><%= item.name %></span>
             </td>
         </tr>
-        <% for(var j=1; j<=6; j++) {%>
+        <% item.data.forEach(function(groupData){ %>
           <tr>
             <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
-              <span class="primary-roboto-bold-8-18">Brand name 1</span><br/>
-              <span>Number street name</span><br/>
-              <span>City name, Country name, Postal code</span>
+              <span class="primary-roboto-bold-8-18"><%= groupData.product.brand.name %></span><br/>
+              <span><%= groupData.location.address %></span><br/>
+              <% if (groupData.location.country_id == '-1') { %>
+                <span>GLOBAL</span>
+              <% } else { %>
+                <span><%= groupData.location.city_name %>, <%= groupData.location.country_name %>, <%= groupData.location.postal_code %></span>
+              <% } %>
             </td>
             <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
-              <span class="primary-roboto-bold-8-18">Distributor 2</span><br/>
-              <span>Number street name</span><br/>
-              <span>City name, Country name, Postal code</span>
+              <span class="primary-roboto-bold-8-18"><%= groupData.distributor.name %></span><br/>
+              <span><%= groupData.distributor.address %></span><br/>
+              <% if (groupData.distributor.country_id == '-1') { %>
+                <span>GLOBAL</span>
+              <% } else { %>
+                <span><%= groupData.distributor.city_name %>, <%= groupData.distributor.country_name %>, <%= groupData.distributor.postal_code %></span>
+              <% } %>
             </td>
           </tr>
-        <% } %>
-      <% } %>
+        <% }); %>
+      <% }); %>
     </table>
 </div>

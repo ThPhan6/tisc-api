@@ -17,7 +17,7 @@ export default class PDFRoute implements IRoute {
           path: ROUTES.PDF.GENERATE_PROJECT_PDF,
           options: {
             handler: controller.generateProjectProduct,
-            validate: validate.paramProjectId,
+            validate: validate.downloadProjectPdf,
             description: "Method that generate project PDF specify",
             tags: ["api", "PDF Generator"],
             auth: AUTH_NAMES.PERMISSION,
