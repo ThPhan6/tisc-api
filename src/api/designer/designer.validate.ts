@@ -93,11 +93,11 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Profile & Philosophy")),
-      office_website: Joi.string()
+      official_website: Joi.string()
         .trim()
         .required()
         .error(
-          commonFailValidatedMessageFunction("Office website is required")
+          commonFailValidatedMessageFunction("Official website is required")
         ),
       capabilities: Joi.array().items(
         Joi.string()
