@@ -1,57 +1,55 @@
 <div class="general-specification-content">
-    <table width="100%">
+    <table width="100%" class="dynamic-table">
       <tr class="bg-black">
-        
-        <td width="60">
+
+        <td>
           <span style="padding-left: 8px;" class="normal-roboto-bold-8-18 color-white uppercase">code</span>
         </td>
-        <td width="219" style="padding: 0 4px">
+        <td width="40%" style="padding: 0 4px">
           <span class="normal-roboto-bold-8-18 color-white uppercase">description</span>
         </td>
         <td width="18" style="padding-top: 2px">
             <span class="color-white uppercase"></span>
           </td>
-        <td width="79" style="padding: 0 4px">
+        <td style="padding: 0 4px">
           <span class="normal-roboto-bold-8-18 color-white uppercase">collection</span>
         </td>
-        <td width="96" style="padding: 0 4px">
+        <td  style="padding: 0 4px">
           <span class="normal-roboto-bold-8-18 color-white uppercase">product</span>
         </td>
       </tr>
-      <% for(var i=1; i<=3; i++) {%>
-      <tr class="border-bottom-box-shadow-bold">
-        <td width="60">
-            
+      <% data.forEach(function(item) { %>
+
+        <tr class="border-bottom-box-shadow-bold">
+          <td class="border-bottom-box-shadow-bold"></td>
+          <td class="border-bottom-box-shadow-bold" width="40%" style="padding: 0 4px" colspan="4">
+            <span class="primary-roboto-bold-8-18 "><%= item.name %></span>
           </td>
-        <td width="219" colspan="2">
-          <span class="primary-roboto-bold-8-18 ">Master Material/product sub-list name A</span>
-        </td>
-      </tr>
-      <% for(var j=1; j<=3; j++) {%>
-      <tr>
-       
-        <td width="60" class="primary-roboto-light-8-18">
-          <span>code1</span>
-        </td>
-        <td width="219" style="padding: 0 4px" class="primary-roboto-light-8-18">
-          <span>description text</span>
-        </td>
-        <td width="18" style="padding: 2px 0">
-            <img
-              style="width: 14px; height: 14px; background-color: black; margin: 0"
-            ></img>
-          </td>
-        <td width="79" style="padding: 0 4px" class="primary-roboto-light-8-18">
-          <span>collection name 1</span>
-        </td>
-        <td width="96" style="padding: 0 4px" class="primary-roboto-light-8-18">
-          <span>product description text</span>
-        </td>
-      </tr>
-      <% } %>
-      <tr class="border-bottom-box-shadow"></tr>
-      <tr style="height: 18px;"></tr>
-      <% } %>
+        </tr>
+        <% item.data.forEach(function(groupData, index) { %>
+          <tr>
+            <td class="primary-roboto-light-8-18">
+              <span><%= groupData.material_code.code %></span>
+            </td>
+            <td width="40%" style="padding: 0 4px" class="primary-roboto-light-8-18">
+              <span><%= groupData.description %></span>
+            </td>
+            <td width="18" style="padding-top: <% if (index == 0) { %> 4px <% } else { %> 2px <% } %>">
+                <img
+                  style="width: 14px; height: 14px; background-color: black; margin: 0"
+                  src="<%= groupData.productImage %>"
+                ></img>
+              </td>
+            <td style="padding: 0 4px" class="primary-roboto-light-8-18">
+              <span><%= groupData.product.collection.name %></span>
+            </td>
+            <td style="padding: 0 4px" class="primary-roboto-light-8-18">
+              <span><%= groupData.product.description %></span>
+            </td>
+          </tr>
+        <% }) %>
+        <tr><td colspan="5" class="border-bottom-box-shadow"></td></tr>
+        <tr style="height: 15px;"></tr>
+      <% }) %>
     </table>
   </div>
-  

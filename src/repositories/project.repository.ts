@@ -58,7 +58,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       filter && filter.status
         ? `FILTER projects.status == ${filter.status}`
         : ""
-    } 
+    }
     LIMIT @offset, @limit
     ${sort ? ` SORT projects.${sort[0]} ${sort[1]} ` : ``}
     LET users = (
@@ -72,7 +72,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             avatar : users.avatar
         }
     )
-    
+
     return {
         id: projects.id,
         code: projects.code,
@@ -117,6 +117,21 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       .where("code", "==", code)
       .where("design_id", "==", designId)
       .first();
+  }
+
+  public async findProjectWithDesignData(id: string) {
+    return await this.model
+      .select(
+        'projects.*',
+        'designers.name as design_firm_name',
+        'designers.office_website as design_firm_official_website',
+      )
+      .join('designers', 'designers.id', '==', 'projects.design_id')
+      .where('projects.id', '==', id)
+      .first() as ProjectAttributes & {
+        design_firm_name: string,
+        design_firm_official_website: string,
+      };
   }
 }
 

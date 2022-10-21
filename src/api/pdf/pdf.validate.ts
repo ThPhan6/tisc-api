@@ -10,4 +10,37 @@ export default {
         ),
     },
   },
+  downloadProjectPdf: {
+    params: {
+      project_id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Project ID is required")
+        ),
+    },
+    payload: {
+      location_id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Location is required")
+        ),
+      issuing_for_id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Issue For is required")
+        ),
+      revision: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Revision is required")
+        ),
+      has_cover: Joi.boolean(),
+      document_title: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Document Title is required")
+        ),
+      template_ids: Joi.array().items(Joi.string()),
+    }
+  }
 };

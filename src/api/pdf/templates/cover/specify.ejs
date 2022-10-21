@@ -1,39 +1,35 @@
 <div class="pt-185 pl-150 pr-48">
-  <p class="primary-roboto-light-14 mb-12">project code</p>
-  <p class="primary-roboto-bold-14 mb-12">Project Name here</p>
+  <p class="primary-roboto-light-14 mb-12"><%= project.code %></p>
+  <p class="primary-roboto-bold-14 mb-12"><%= project.name %></p>
   <p class="primary-roboto-light-12 mb-32">
-    <span class="mr-16">City Name</span>
-    <span>Country Name</span>
+    <span class="mr-16"><%= project.city_name %></span>
+    <span><%= project.country_name %></span>
   </p>
-  <p class="primary-roboto-bold-14 uppercase mb-5">document title here</p>
+  <p class="primary-roboto-bold-14 uppercase mb-5"><%= config.document_title %></p>
   <p class="mb-32 divider box-shadow"></p>
   <p class="normal-roboto-light-8-16 mb-8">ISSUED:</p>
-  <p class="primary-roboto-light-8-16">
-    <span class="mr-8">YYYY-MM-DD</span>
-    <span class="mr-8">Content here</span>
-  </p>
-  <p class="primary-roboto-light-8-16 mb-136">
-    <span class="mr-8">YYYY-MM-DD</span>
-    <span class="mr-8">Content here</span>
+  <p class="primary-roboto-light-8-16 mb-152">
+    <span class="mr-8"><%= config.issuing_date %></span>
+    <span class="mr-8"><%= config.common_types.name %></span>
   </p>
   <p class="normal-roboto-light-6 uppercase mb-96">
     GENERAL NOTE:<br/>
     The Manufacturers are responsible for the product quality standards and agree to comply with the requirements for all items specified by the Design Office. The GENERAL contractors are responsible for all specified items, including any product substitutions, which are submitted to the Design Office for approval prior to proceeding with site work. In no event shall the Design Office be liable for any special, direct, indirect, consequential, or incidental damages or any damages whatsoever, whether in an action of contract, negligence or other torts, arising out of or in connection with the specified products. The Design Office reserves the right to make additions, deletions, or modifications to the document contents anytime without prior notice.
   </p>
-  <p class="primary-roboto-bold-12 mb-4">Design Firm Name</p>
+  <p class="primary-roboto-bold-12 mb-4"><%= config.locations.business_name %></p>
   <p class="primary-roboto-light-8-12 mb-4">
-    <span class="mr-8">number, street name,</span>
-    <span class="mr-8">city/town</span>
-    <span class="mr-8">state/province</span>
-    <span class="mr-8">country</span>
-    <span>postal code</span>
+    <span class="mr-8"><%= config.locations.address %>,</span>
+    <span class="mr-8"><%= config.locations.city_name %></span>
+    <span class="mr-8"><%= config.locations.state_name %></span>
+    <span class="mr-8"><%= config.locations.country_name %></span>
+    <span><%= config.locations.postal_code %></span>
   </p>
   <p class="primary-roboto-light-8-12">
     <span class="mr-4 normal-roboto-light-8-12">Tel.:</span>
-    <span class="mr-8">+84 0935458253</span>
+    <span class="mr-8">+<%= config.locations.phone_code %> <%= config.locations.general_phone %></span>
     <span class="mr-4 normal-roboto-light-8-12">Email:</span>
-    <span class="mr-8">vuong.pham@enablestartup.io</span>
+    <span class="mr-8"><%= config.locations.general_email %></span>
     <span class="mr-4 normal-roboto-light-8-12">Website:</span>
-    <span>https://dev-tisc.enabledemo.com/tisc/products/configuration/c0a418b9-2476-4c05-a2e3-c31e31cc0843</span>
+    <span><%= project.design_firm_official_website %></span>
   </p>
 </div>

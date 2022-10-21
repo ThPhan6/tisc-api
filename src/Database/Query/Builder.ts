@@ -138,9 +138,8 @@ class Builder {
   public async first(isCombineJoinSelect: boolean = false) {
     this.bindings = {
       ...this.bindings,
-      isCombineJoinSelect,
     };
-    return head(await this.limit(1).get());
+    return head(await this.limit(1).get(isCombineJoinSelect));
   }
 
   public async count(type: QueryType = QUERY_TYPE.COUNT) {
