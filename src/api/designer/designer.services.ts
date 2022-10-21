@@ -7,7 +7,12 @@ import {
 } from "@/helper/response.helper";
 import { designerRepository } from "@/repositories/designer.repository";
 import { uploadLogoOfficeProfile } from "@/service/image.service";
-import { DesignerAttributes, SummaryInfo } from "@/types";
+import {
+  DesignerAttributes,
+  SummaryInfo,
+  UserAttributes,
+  UserType,
+} from "@/types";
 import { sumBy } from "lodash";
 import { v4 } from "uuid";
 import { settingService } from "../setting/setting.service";
@@ -113,9 +118,9 @@ class DesignerService {
   public async updateDesign(
     designId: string,
     payload: Partial<DesignerAttributes>,
-    userRealtionId: string
+    user: UserAttributes
   ) {
-    if (designId !== userRealtionId) {
+    if (designId !== user.relation_id && user.type !== UserType.TISC) {
       return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
     }
 
