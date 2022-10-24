@@ -15,7 +15,7 @@ class AutoEmailRepository extends BaseRepository<IAutoEmailAttributes> {
   public async getListAutoEmailWithPagination(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: any
   ) {
     let result: ListAutoEmailWithPaginate;
@@ -24,9 +24,9 @@ class AutoEmailRepository extends BaseRepository<IAutoEmailAttributes> {
         .select()
         .order(sort[0], sort[1])
         .paginate(limit, offset);
+    } else {
+      result = await this.model.select().paginate(limit, offset);
     }
-
-    result = await this.model.select().paginate(limit, offset);
     return result;
   }
 }
