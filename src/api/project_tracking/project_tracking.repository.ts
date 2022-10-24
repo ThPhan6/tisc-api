@@ -100,7 +100,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     }
     FILTER project_trackings.brand_id == @brandId
 
-    LIMIT @offset, @limit
     ${sort === "created_at" ? `SORT project_trackings.${sort} ${order}` : ""}
 
     FOR project IN projects
@@ -145,6 +144,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
     )
 
+    LIMIT @offset, @limit
     RETURN {
       project_tracking: UNSET(project_trackings, ['_key','_id','_rev']),
       project,
@@ -358,17 +358,27 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR pr IN project_requests
       FILTER pr.project_tracking_id == @trackingId
       FILTER pr.deleted_at == null
+
       FOR product in products
       FILTER product.id == pr.product_id
+      FILTER product.deleted_at == null
+
       FOR collection in collections
       FILTER collection.id == product.collection_id
+      FILTER collection.deleted_at == null
+
       FOR common_type in common_types
       FILTER common_type.id == FIRST(pr.request_for_ids)
+      FILTER common_type.deleted_at == null
       LET newRequest = ( RETURN POSITION( pr.read_by, @userId) )
+
       FOR u IN users
       FILTER u.id == pr.created_by
+      FILTER u.deleted_at == null
+
       LET loc = (
         FOR loc IN locations
+        FILTER loc.deleted_at == null
         FILTER loc.id == u.location_id
         RETURN loc
       )
@@ -393,20 +403,31 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR notifications IN project_tracking_notifications
       FILTER notifications.project_tracking_id == @trackingId
       FILTER notifications.deleted_at == null
+
       FOR pr in project_products
       FILTER pr.id == notifications.project_product_id
+      FILTER pr.deleted_at == null
+
       FOR p in products
       FILTER p.id == pr.product_id
+      FILTER p.deleted_at == null
+
       FOR c in collections
       FILTER c.id == p.collection_id
-      LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
+      FILTER c.deleted_at == null
+
       FOR u IN users
       FILTER u.id == notifications.created_by
+      FILTER u.deleted_at == null
+
       LET loc = (
         FOR loc IN locations
         FILTER loc.id == u.location_id
+        FILTER loc.deleted_at == null
         RETURN loc
-      )
+        )
+
+      LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
       RETURN MERGE(
         KEEP(notifications, 'id','created_at','type', 'status', 'created_by'),
         {
@@ -426,8 +447,10 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     LET designFirm = (
       FOR designer IN designers
       FILTER designer.id == projects.design_id
+      FILTER designer.deleted_at == null
       FOR loc IN locations
       FILTER loc.relation_id == designer.id
+      FILTER loc.deleted_at == null
       
       LET allLocations = (
         LET mergedUsers = UNION(notifications, projectRequests)
@@ -437,8 +460,10 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         )
         LET designerUserLocations = (
           FOR du IN users
+          FILTER du.deleted_at == null
           FILTER du.id IN UNIQUE(designerUserIds)
           FOR duLoc IN locations
+          FILTER duLoc.deleted_at == null
           FILTER duLoc.id == du.location_id
           COLLECT location = duLoc INTO usersByLocation
           RETURN {location, users: usersByLocation[*].du}

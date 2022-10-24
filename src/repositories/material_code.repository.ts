@@ -5,7 +5,7 @@ import {
 } from "@/types/material_code.type";
 import BaseRepository from "./base.repository";
 import MaterialCodeModel from "@/model/material_code.models";
-import {head} from 'lodash';
+import { head } from "lodash";
 
 class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
   protected model: MaterialCodeModel;
@@ -39,7 +39,10 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
           FILTER code.id == @codeId
     RETURN code`;
 
-    const result = await this.model.rawQuery(rawQuery, params) as IMaterialCodeAttributes['subs'][0]['codes'];
+    const result = (await this.model.rawQuery(
+      rawQuery,
+      params
+    )) as IMaterialCodeAttributes["subs"][0]["codes"];
     return head(result);
   }
 
@@ -115,6 +118,7 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     LET userRelationIds = (
       FOR u IN users
       FILTER u.id == @userId
+      FILTER u.deleted_at == null
       RETURN u.relation_id
     )
     FILTER material_codes.design_id IN userRelationIds
@@ -138,7 +142,10 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
       .first();
   }
 
-  public findByCodeIdAndDesignId = async (codeId: string, relationId: string) => {
+  public findByCodeIdAndDesignId = async (
+    codeId: string,
+    relationId: string
+  ) => {
     const params = { codeId, relationId };
     const rawQuery = `
     FILTER material_codes.deleted_at == null
@@ -148,9 +155,12 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
         FILTER code.id == @codeId
     RETURN code`;
 
-    const result = await this.model.rawQuery(rawQuery, params) as IMaterialCodeAttributes['subs'][0]['codes'];
+    const result = (await this.model.rawQuery(
+      rawQuery,
+      params
+    )) as IMaterialCodeAttributes["subs"][0]["codes"];
     return head(result);
-  }
+  };
 }
 
 export const materialCodeRepository = new MaterialCodeRepository();

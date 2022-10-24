@@ -11,21 +11,6 @@ export const USER_STATUSES = {
   PENDING: 3,
 };
 
-export const USER_STATUS_OPTIONS = [
-  {
-    key: "Activated",
-    value: USER_STATUSES.ACTIVE,
-  },
-  {
-    key: "Pending",
-    value: USER_STATUSES.PENDING,
-  },
-  {
-    key: "Blocked",
-    value: USER_STATUSES.BLOCKED,
-  },
-];
-
 export const SYSTEM_TYPE = {
   TISC: UserType.TISC,
   BRAND: UserType.Brand,

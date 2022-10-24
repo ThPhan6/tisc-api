@@ -65,88 +65,66 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   ) {
     const params = {} as any;
     const rawQuery = `
-      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
-      ${sort && order ? `SORT brands.${sort} ${order}` : ``}
-
       LET assignTeams = (
-        FOR profileId IN brands.team_profile_ids
-        FOR assignTeam IN users
-        FILTER assignTeam.id == profileId
-        RETURN UNSET(assignTeam, [
-          '_id',
-          '_key',
-          '_rev',
-          'deleted_at', 'deleted_by','access_level',
-          'backup_email',
-          'created_at',
-          'department_id',
-          'gender',
-          'interested',
-          'is_verified',
-          'linkedin',
-          'location_id',
-          'mobile',
-          'password',
-          'personal_mobile',
-          'phone',
-          'position',
-          'relation_id',
-          'reset_password_token',
-          'retrieve_favourite',
-          'role_id',
-          'status',
-          'type',
-          'verification_token',
-          'work_location'
-        ])
+        FOR member IN users
+        FILTER member.deleted_at == null
+        FILTER member.id IN brands.team_profile_ids
+        RETURN KEEP(member, 'id', 'email', 'avatar', 'firstname', 'lastname')
       )
 
-        LET users = (
-          FOR users IN users
-          FILTER users.relation_id == brands.id
-          RETURN users
-        )
+      LET users = (
+        FOR users IN users
+        FILTER users.relation_id == brands.id
+        FILTER users.deleted_at == null
+        RETURN users
+      )
 
-        LET locations = (
-            FOR locations  IN locations
-            FILTER locations.relation_id == brands.id
-            return locations
-        )
+      LET locations = (
+        FOR locations  IN locations
+        FILTER locations.relation_id == brands.id
+        FILTER locations.deleted_at == null
+        return locations
+      )
 
-        LET originLocations = (
-            FOR originLocation  IN locations
-            FILTER originLocation.relation_id == brands.id
-            RETURN originLocation
-        )
+      LET distributors = (
+        FOR  distributors IN distributors
+        FILTER distributors.brand_id == brands.id
+        FILTER distributors.deleted_at == null
+        RETURN distributors
+      )
 
-        LET distributors = (
-            FOR  distributors IN distributors
-            FILTER distributors.brand_id == brands.id
-            RETURN distributors
-        )
+      LET collection = (
+        FOR collection IN collections
+        FILTER collection.brand_id == brands.id
+        FILTER collection.deleted_at == null
+        RETURN collection
+      )
 
-        LET collection = (
-            FOR collection IN collections
-            FILTER collection.brand_id == brands.id
-            RETURN collection
-        )
+      LET cards = (
+        FOR products in products
+        FILTER products.brand_id == brands.id
+        FILTER products.deleted_at == null
+        RETURN products
+      )
 
-        LET cards = (
-            FOR products in products
-            FILTER products.brand_id == brands.id
-            RETURN products
-        )
+      ${sort === "name" && order ? `SORT brands.name ${order}` : ``}
+      ${
+        sort === "origin" && order
+          ? `SORT locations[0].country_name ${order}`
+          : ``
+      }
 
-        RETURN {
-            brand : brands,
-            locations : LENGTH(locations),
-            origin_location : originLocations[0],
-            collection : LENGTH(collection),
-            cards : cards,
-            users : LENGTH(users),
-            distributors : distributors,
-            assign_team : assignTeams,
-        }
+      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
+      RETURN {
+        brand: brands,
+        locations: LENGTH(locations),
+        origin_location: locations[0],
+        collection: LENGTH(collection),
+        cards: cards,
+        users: LENGTH(users),
+        distributors: distributors,
+        assign_team: assignTeams,
+      }
     `;
     return (await this.model.rawQuery(rawQuery, params)) as ListBrandCustom[];
   }

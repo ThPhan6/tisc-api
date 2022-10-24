@@ -1,11 +1,5 @@
 import { permissionService } from "@/api/permission/permission.service";
-import {
-  COMMON_TYPES,
-  MESSAGES,
-  ROLES,
-  USER_STATUSES,
-  VALID_IMAGE_TYPES,
-} from "@/constants";
+import { COMMON_TYPES, MESSAGES, ROLES, VALID_IMAGE_TYPES } from "@/constants";
 import { getAccessLevel } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -20,7 +14,12 @@ import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import MailService from "@/service/mail.service";
-import { IMessageResponse, UserAttributes, UserType } from "@/types";
+import {
+  IMessageResponse,
+  UserAttributes,
+  UserStatus,
+  UserType,
+} from "@/types";
 import { groupBy, uniq } from "lodash";
 import moment from "moment";
 import {
@@ -318,7 +317,7 @@ export default class UserService {
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    if (user.status !== USER_STATUSES.PENDING) {
+    if (user.status !== UserStatus.Pending) {
       return errorMessageResponse(MESSAGES.GENERAL.INVITED_ALREADY);
     }
     await this.mailService.sendInviteEmailTeamProfile(user, authenticatedUser);
