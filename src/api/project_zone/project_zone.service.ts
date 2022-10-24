@@ -10,7 +10,7 @@ import {
 } from "@/helper/response.helper";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { ProjectAttributes, SortOrder, UserAttributes } from "@/types";
-import { projectService } from "./../project/project.services";
+import { projectService } from "./../project/project.service";
 import {
   mappingAddProjectZoneId,
   mappingProjectZoneAreas,

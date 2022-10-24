@@ -11,9 +11,9 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
-import CountryStateCityService from "@/service/country_state_city_v1.service";
+import {countryStateCityService} from "@/service/country_state_city.service";
 import { uploadLogoBrand } from "@/service/image.service";
-import MailService from "@/service/mail.service";
+import {mailService} from "@/service/mail.service";
 import {
   ActiveStatus,
   BrandAttributes,
@@ -21,7 +21,7 @@ import {
   SummaryInfo,
   UserStatus,
 } from "@/types";
-import { productService } from "../product/product.services";
+import { productService } from "../product/product.service";
 import {
   getCountryName,
   mappingBrands,
@@ -32,17 +32,11 @@ import { v4 } from "uuid";
 import { sumBy } from "lodash";
 
 class BrandService {
-  private mailService: MailService;
-  private countryStateCityService: CountryStateCityService;
-  constructor() {
-    this.mailService = new MailService();
-    this.countryStateCityService = new CountryStateCityService();
-  }
 
   private async getOfficialWebsites(brand: BrandAttributes) {
     return Promise.all(
       brand.official_websites.map(async (officialWebsite) => {
-        const country = await this.countryStateCityService.getCountryDetail(
+        const country = await countryStateCityService.getCountryDetail(
           officialWebsite.country_id
         );
         return {
@@ -123,7 +117,7 @@ class BrandService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
     }
 
-    await this.mailService.sendInviteEmailTeamProfile(inviteUser, user);
+    await mailService.sendInviteEmailTeamProfile(inviteUser, user);
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }

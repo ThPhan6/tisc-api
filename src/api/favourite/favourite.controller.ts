@@ -1,4 +1,4 @@
-import { productService } from "./../product/product.services";
+import { productService } from "./../product/product.service";
 import {favouriteService} from "./favourite.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
