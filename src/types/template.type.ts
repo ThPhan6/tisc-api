@@ -7,12 +7,14 @@ export enum TemplateGroup {
   ZonesAreasRooms = 6
 }
 
-export type TemplateGroupValue = `${Extract<
-  TemplateGroup,
-  number
->}` extends `${infer N extends number}`
-  ? N
-  : never;
+export type TemplateGroupValue = 1 | 2 | 3 | 4 | 5 | 6;
+// export type TemplateGroupValue = `${Extract<
+//   TemplateGroup,
+//   number
+// >}` extends `${infer N extends number}`
+//   ? N
+//   : never;
+
 
 export interface TemplateAttributes {
   id: string;
@@ -34,4 +36,8 @@ export interface TemplateSpecify {
     name: string;
     items: TemplateAttributes[];
   }[];
+}
+
+export type TemplateGroupType = {
+  [key in TemplateGroupValue]: TemplateAttributes[]
 }
