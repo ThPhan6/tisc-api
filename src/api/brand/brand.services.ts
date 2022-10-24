@@ -14,15 +14,22 @@ import { userRepository } from "@/repositories/user.repository";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import MailService from "@/service/mail.service";
-import { ActiveStatus, BrandAttributes, SortOrder, UserStatus } from "@/types";
+import {
+  ActiveStatus,
+  BrandAttributes,
+  SortOrder,
+  SummaryInfo,
+  UserStatus,
+} from "@/types";
 import { productService } from "../product/product.services";
 import {
   getCountryName,
   mappingBrands,
   mappingBrandsAlphabet,
-  mappingBrandSummary,
 } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
+import { v4 } from "uuid";
+import { sumBy } from "lodash";
 
 class BrandService {
   private mailService: MailService;
@@ -304,17 +311,62 @@ class BrandService {
   }
 
   public async getBrandsSummary() {
-    const dataSummary = await brandRepository.getBrandSummary();
-
-    const userCount = await brandRepository.summaryUserAndLocation(
-      null,
-      "user"
-    );
-
-    const result = await mappingBrandSummary(dataSummary, userCount);
-
+    const summary = await brandRepository.getOverallSummary();
+    const results: SummaryInfo[] = [
+      {
+        id: v4(),
+        quantity: summary.brand.total,
+        label: "BRAND COMPANIES",
+        subs: [
+          {
+            id: v4(),
+            quantity: summary.brand.totalLocation,
+            label: "Locations",
+          },
+          {
+            id: v4(),
+            quantity: summary.brand.totalUser,
+            label: "Teams",
+          },
+        ],
+      },
+      {
+        id: v4(),
+        quantity: sumBy(summary.countries.summary, "count"),
+        label: "COUNTRIES",
+        subs: summary.countries.regions.map((region) => ({
+          id: v4(),
+          quantity:
+            summary.countries.summary.find((el) => el.region === region)
+              ?.count || 0,
+          label: region,
+        })),
+      },
+      {
+        id: v4(),
+        quantity: summary.product.total,
+        label: "PRODUCTS",
+        subs: [
+          {
+            id: v4(),
+            quantity: summary.product.categories,
+            label: "Categories",
+          },
+          {
+            id: v4(),
+            quantity: summary.product.collections,
+            label: "Collections",
+          },
+          {
+            id: v4(),
+            quantity: summary.product.cards,
+            label: "Cards",
+          },
+        ],
+      },
+    ];
     return successResponse({
-      data: result,
+      data: results,
     });
   }
 
