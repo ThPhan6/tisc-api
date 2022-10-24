@@ -1,9 +1,9 @@
-import CollectionService from "./collection.services";
+import CollectionService from "./collection.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ICollectionRequest } from "./collection.type";
 
 export default class CollectionController {
-  constructor() {}
+
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, brand_id } = req.query;
     const response = await CollectionService.getList(brand_id, limit, offset);

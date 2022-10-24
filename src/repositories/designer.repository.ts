@@ -1,4 +1,4 @@
-import DesignerModel from "@/model/designer.models";
+import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
   DesignerAttributes,
@@ -100,7 +100,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
 
       ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
       RETURN MERGE(
-        KEEP(designers, 'id', 'name', 'logo', 'status'), 
+        KEEP(designers, 'id', 'name', 'logo', 'status'),
         {
           capacities: LENGTH(designers.capabilities),
           designers: userCount[0],

@@ -1,8 +1,7 @@
-import DocumentationModel from "@/model/documentation.models";
+import DocumentationModel from "@/model/documentation.model";
 import {
   DocumentationType,
   IDocumentationAttributes,
-  ListDocumentationWithPagination,
   SortOrder,
 } from "@/types";
 import BaseRepository from "./base.repository";

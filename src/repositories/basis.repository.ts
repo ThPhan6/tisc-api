@@ -1,5 +1,5 @@
 import { BasisType } from "@/constants/basis.constant";
-import BasisModel from "@/model/basis.models";
+import BasisModel from "@/model/basis.model";
 import { IBasisAttributes, ListBasisWithPagination } from "@/types/basis.type";
 import BaseRepository from "./base.repository";
 

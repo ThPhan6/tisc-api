@@ -2,7 +2,9 @@ import { FUNCTIONAL_TYPE_OPTIONS, MEASUREMENT_UNIT_OPTIONS } from "@/constants";
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { settingService } from "./setting.service";
+
 export default class SettingController {
+
   public getCountries = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await settingService.getCountries();
     return toolkit.response(response).code(response.statusCode ?? 200);

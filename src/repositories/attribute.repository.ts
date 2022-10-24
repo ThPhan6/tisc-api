@@ -1,4 +1,4 @@
-import AttributeModel from "@/model/attribute.models";
+import AttributeModel from "@/model/attribute.model";
 import {
   IAttributeAttributes,
   ListAttributeWithPagination,

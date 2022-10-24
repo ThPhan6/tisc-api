@@ -150,3 +150,4 @@ export default class CategoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
+export const categoryService = new CategoryService();

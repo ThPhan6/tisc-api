@@ -2,7 +2,7 @@ import {
   ICategoryAttributes,
   ListCategoryWithPaginate,
 } from "@/types/category.type";
-import CategoryModel from "@/model/category.models";
+import CategoryModel from "@/model/category.model";
 import BaseRepository from "./base.repository";
 import { IProductAttributes } from "@/types/product.type";
 
@@ -49,7 +49,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     FILTER categories.id == @mainCategoryId
     FOR subCategory in categories.subs
     FOR category in subCategory.subs
-    FOR products in products 
+    FOR products in products
     FOR productCategoryId in products.category_ids
     FILTER category.id == productCategoryId
     RETURN UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by'])

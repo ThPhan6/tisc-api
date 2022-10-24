@@ -1,13 +1,13 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { productService } from "./product.services";
+import { productService } from "./product.service";
 import {
-  IProductAssignToProject,
   IProductRequest,
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
 
 export default class ProductController {
+
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { category_id, collection_id, brand_id } = req.query;
     const userId = req.auth.credentials.user_id as string;
@@ -99,15 +99,7 @@ export default class ProductController {
     const response = await productService.getProductOptions(id, attribute_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public assign = async (
-    req: Request & { payload: IProductAssignToProject },
-    toolkit: ResponseToolkit
-  ) => {
-    const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await productService.assign(userId, payload);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+
   public shareByEmail = async (
     req: Request & { payload: ShareProductBodyRequest },
     toolkit: ResponseToolkit
