@@ -154,6 +154,11 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
 
     FOR user IN users
     FILTER user.id == general_inquiries.created_by
+    LET userPhoneCode = (
+      FOR loc IN locations
+      FILTER loc.id == user.location_id
+      RETURN loc.phone_code
+    )
 
     LET designFirm = (
       FOR d IN designers
@@ -199,7 +204,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           position: user.position,
           email: user.email,
           phone: user.phone,
-          phone_code: designFirm[0].phone_code
+          phone_code: userPhoneCode[0]
         }
       }
     }
