@@ -1,7 +1,8 @@
 import { marketAvailabilityService } from "./../market_availability/market_availability.services";
-import { BRAND_STATUS_OPTIONS, REGION_KEY } from "@/constants";
+import { REGION_KEY } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
 import {
+  ActiveStatus,
   BrandAttributes,
   ICollectionAttributes,
   ILocationAttributes,
@@ -25,10 +26,6 @@ export const getCountryName = (
 
 export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {
   return dataBrandCustom.map((dataBrand) => {
-    const foundStatus = BRAND_STATUS_OPTIONS.find(
-      (item) => item.value === dataBrand.brand.status
-    );
-
     const coverages = getDistinctArray(
       dataBrand.distributors.reduce((pre: string[], cur) => {
         const temp = [cur.country_id].concat(cur.authorized_country_ids);
@@ -51,23 +48,13 @@ export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {
       });
       return pre;
     }, 0);
+
     return {
-      id: dataBrand.brand.id,
-      name: dataBrand.brand.name,
-      logo: dataBrand.brand.logo,
-      origin: dataBrand.origin_location?.country_name || "",
-      locations: dataBrand.locations,
-      teams: dataBrand.users,
-      distributors: dataBrand.distributors.length,
+      ...dataBrand.brand,
+      status_key: ActiveStatus[dataBrand.brand.status],
       coverages: coverages.length,
       categories: categories.length,
-      collections: dataBrand.collection,
-      cards: dataBrand.cards.length,
-      products: products,
-      assign_team: dataBrand.assign_team,
-      status: dataBrand.brand.status,
-      status_key: foundStatus?.key,
-      created_at: dataBrand.brand.created_at,
+      products,
     };
   });
 };

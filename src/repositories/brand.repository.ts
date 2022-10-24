@@ -72,32 +72,34 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         RETURN KEEP(member, 'id', 'email', 'avatar', 'firstname', 'lastname')
       )
 
-      LET users = (
+      LET totalUsers = (
         FOR users IN users
         FILTER users.relation_id == brands.id
         FILTER users.deleted_at == null
-        RETURN users
+        COLLECT WITH COUNT INTO length
+        return length
       )
 
       LET locations = (
-        FOR locations  IN locations
-        FILTER locations.relation_id == brands.id
-        FILTER locations.deleted_at == null
-        return locations
+        FOR loc IN locations
+        FILTER loc.relation_id == brands.id
+        FILTER loc.deleted_at == null
+        RETURN loc
       )
 
       LET distributors = (
-        FOR  distributors IN distributors
-        FILTER distributors.brand_id == brands.id
-        FILTER distributors.deleted_at == null
-        RETURN distributors
+        FOR d IN distributors
+        FILTER d.brand_id == brands.id
+        FILTER d.deleted_at == null
+        RETURN d
       )
 
-      LET collection = (
+      LET totalCollections = (
         FOR collection IN collections
         FILTER collection.brand_id == brands.id
         FILTER collection.deleted_at == null
-        RETURN collection
+        COLLECT WITH COUNT INTO length
+        return length
       )
 
       LET cards = (
@@ -116,14 +118,21 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
 
       ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
       RETURN {
-        brand: brands,
-        locations: LENGTH(locations),
-        origin_location: locations[0],
-        collection: LENGTH(collection),
-        cards: cards,
-        users: LENGTH(users),
-        distributors: distributors,
-        assign_team: assignTeams,
+        brand: MERGE(
+          KEEP(brands, 'id', 'name', 'logo', 'status', 'created_at'),
+          {
+            origin: locations[0].country_name,
+            locations: LENGTH(locations),
+            cards: LENGTH(cards),
+            teams: totalUsers[0],
+            collections: totalCollections[0],
+            assign_team: assignTeams,
+            distributors: LENGTH(distributors),
+          }
+        ),
+
+        cards,
+        distributors
       }
     `;
     return (await this.model.rawQuery(rawQuery, params)) as ListBrandCustom[];
