@@ -1,4 +1,8 @@
-import { ProductWithCollectionAndBrand } from "@/types/product.type";
+import {
+  ProductWithCollectionAndBrand,
+  ProductTip,
+  ProductDownload,
+} from "@/types/product.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -71,6 +75,9 @@ export interface IProductRequest {
   keywords: string[];
   brand_location_id: string;
   distributor_location_id: string;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -85,6 +92,9 @@ export interface IUpdateProductRequest {
   keywords: string[];
   brand_location_id: string;
   distributor_location_id: string;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
 }
 export interface IProductResponse {
   data: IProduct;

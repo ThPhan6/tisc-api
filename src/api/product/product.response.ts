@@ -36,6 +36,9 @@ export const productResponse = {
     })
   ),
   updated_at: Joi.string().allow(null),
+  tips: Joi.any(),
+  downloads: Joi.any(),
+  catelogue_downloads: Joi.any(),
 };
 
 export default {
