@@ -3,7 +3,7 @@ const moment = require("moment");
 
 const COMMON_TYPES_ATTRIBUTES = require("./constant").COMMON_TYPES_ATTRIBUTES;
 
-const COMMON_TYPE_JSON = require("./common_type.json");
+const COMMON_TYPE_JSON = require("./jsons/common_type.json");
 const seed = async (db) => {
   const commonTypeCollection = await db.collection("common_types");
   const createAndSeed = async (collection) => {

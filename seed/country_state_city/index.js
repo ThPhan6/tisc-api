@@ -14,8 +14,8 @@ db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
 
 const seed = async () => {
   await seedCountry(db);
-  await seedState(db);
-  await seedCity(db);
+  // await seedState(db);
+  // await seedCity(db);
 };
 
 seed();
