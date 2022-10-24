@@ -54,7 +54,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         "brands.id"
       );
     }
-    return await query.count();
+    return query.count();
   }
 
   public async getListBrandCustom(
@@ -65,7 +65,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   ) {
     const params = {} as any;
     const rawQuery = `
-      ${limit && offset ? `LIMIT ${offset}, ${limit}` : ``}
+      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
       ${sort && order ? `SORT brands.${sort} ${order}` : ``}
 
       LET assignTeams = (

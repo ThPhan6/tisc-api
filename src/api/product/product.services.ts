@@ -333,21 +333,37 @@ class ProductService {
     sortName?: string,
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
-    const products = await ProductRepository.getProductBy(
+    let products = await ProductRepository.getProductBy(
       userId,
       brandId,
-      categoryId,
-      collectionId,
+      categoryId === "all" ? undefined : categoryId,
+      collectionId === "all" ? undefined : collectionId,
       keyword,
       sortName,
       orderBy
     );
-
+    let returnedProducts;
+    if (categoryId) {
+      if (categoryId !== "all") {
+        products = products.map((product) => {
+          return {
+            ...product,
+            category_ids: [categoryId],
+            categories: product.categories.filter(
+              (category) => category.id === categoryId
+            ),
+          };
+        });
+      }
+      returnedProducts = mappingByCategory(products);
+    } else if (collectionId) {
+      returnedProducts = mappingByCollections(products);
+    } else {
+      returnedProducts = mappingByBrand(products);
+    }
     return successResponse({
       data: {
-        data: categoryId
-          ? mappingByCategory(products)
-          : mappingByBrand(products),
+        data: returnedProducts,
         brand: await this.brandRepository.find(brandId),
       },
     });

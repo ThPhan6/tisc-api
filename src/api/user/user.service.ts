@@ -3,7 +3,6 @@ import {
   COMMON_TYPES,
   MESSAGES,
   ROLES,
-  ROLE_TYPE,
   USER_STATUSES,
   VALID_IMAGE_TYPES,
 } from "@/constants";
@@ -21,8 +20,8 @@ import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import MailService from "@/service/mail.service";
-import { IMessageResponse, UserAttributes } from "@/types";
-import { isNull, uniq } from "lodash";
+import { IMessageResponse, UserAttributes, UserType } from "@/types";
+import { groupBy, uniq } from "lodash";
 import moment from "moment";
 import {
   IAssignTeamRequest,
@@ -67,9 +66,9 @@ export default class UserService {
       lastname: payload.lastname,
       gender: payload.gender,
       location_id: payload.location_id,
-      work_location: `${
-        location.city_name
-      }, ${location.country_name.toUpperCase()}`,
+      work_location: location.city_name
+        ? `${location.city_name}, ${location.country_name.toUpperCase()}`
+        : `${location.country_name.toUpperCase()}`,
       department_id: department.id,
       position: payload.position,
       email: payload.email,
@@ -142,14 +141,14 @@ export default class UserService {
       interested: user.interested,
     };
 
-    if (user.type === ROLE_TYPE.BRAND) {
+    if (user.type === UserType.Brand) {
       const brand = await brandRepository.find(user.relation_id);
       return successResponse({
         data: { ...result, brand },
       });
     }
 
-    if (user.type === ROLE_TYPE.DESIGN) {
+    if (user.type === UserType.Designer) {
       const design = await this.designModel.find(user.relation_id);
       return successResponse({
         data: { ...result, design },
@@ -330,55 +329,35 @@ export default class UserService {
     const userWithLocations =
       await userRepository.getWithLocationAndDeparmentData(relationId);
 
-    const noLocationName = "Empty Location";
-    let response: {
+    const results: {
       country_name: string;
       count: number;
       users: any[];
-    }[] = [];
+    }[] = Object.entries(
+      groupBy(userWithLocations, "locations.country_name")
+    ).map(([country_name, users]) => ({
+      country_name:
+        country_name === "undefined" ? "Empty Location" : country_name,
+      users: users.map((user) => ({
+        id: user.id,
+        phone_code: user.phone_code,
+        logo: user.avatar,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        gender: user.gender,
+        work_location: user.work_location,
+        department: user.common_types?.name || null,
+        position: user.position,
+        email: user.email,
+        phone: user.phone,
+        mobile: user.mobile,
+        access_level: getAccessLevel(user.role_id),
+        status: user.status,
+      })),
+      count: (users as any[]).length,
+    }));
 
-    userWithLocations.forEach((userWithLocation: any) => {
-      const userData = {
-        id: userWithLocation.id,
-        phone_code: userWithLocation.phone_code,
-        logo: userWithLocation.avatar,
-        firstname: userWithLocation.firstname,
-        lastname: userWithLocation.lastname,
-        gender: userWithLocation.gender,
-        work_location: userWithLocation.work_location,
-        department: userWithLocation.common_types?.name || null,
-        position: userWithLocation.position,
-        email: userWithLocation.email,
-        phone: userWithLocation.phone,
-        mobile: userWithLocation.mobile,
-        access_level: getAccessLevel(userWithLocation.role_id),
-        status: userWithLocation.status,
-      };
-
-      const countryName = isNull(userWithLocation.locations)
-        ? noLocationName
-        : userWithLocation.locations.country_name;
-      let index = response.findIndex(
-        (item) => item.country_name === userWithLocation.locations.country_name
-      );
-
-      if (index === -1) {
-        response.push({
-          country_name: countryName,
-          users: [],
-          count: 0,
-        });
-        index = response.length - 1;
-      }
-
-      // merge users
-      response[index] = {
-        ...response[index],
-        users: [...response[index].users, userData],
-        count: response[index].count + 1,
-      };
-    });
-    return successResponse({ data: response });
+    return successResponse({ data: results });
   };
 
   public assignTeamToBrand = async (

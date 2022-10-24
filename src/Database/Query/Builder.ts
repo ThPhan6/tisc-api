@@ -101,7 +101,7 @@ class Builder {
   public join(
     table: string,
     first: string,
-    operator: GeneralOperator,
+    operator: Operator,
     second: string
   ) {
     const newJoin = this.bindings.join;
@@ -138,9 +138,8 @@ class Builder {
   public async first(isCombineJoinSelect: boolean = false) {
     this.bindings = {
       ...this.bindings,
-      isCombineJoinSelect,
     };
-    return head(await this.limit(1).get());
+    return head(await this.limit(1).get(isCombineJoinSelect));
   }
 
   public async count(type: QueryType = QUERY_TYPE.COUNT) {
@@ -170,11 +169,9 @@ class Builder {
     }
     try {
       if (this.softDelete) {
-        await this.update({ deleted_at: getTimestamps() });
-        return true;
+        return await this.update({ deleted_at: getTimestamps() });
       }
-      await this.query(QUERY_TYPE.DELETE);
-      return true;
+      return await this.query(QUERY_TYPE.DELETE);
     } catch {
       return false;
     }

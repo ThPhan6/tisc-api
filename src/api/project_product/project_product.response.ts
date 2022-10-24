@@ -1,4 +1,4 @@
-import * as HapiJoi from "joi";
+import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 
 export default {
@@ -30,4 +30,36 @@ export default {
       }),
     }),
   }) as any,
+  getFinishScheduleByRoom: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.array().items(Joi.object({
+      back_wall: Joi.boolean(),
+      base: {
+        ceiling: Joi.boolean(),
+        floor: Joi.boolean()
+      },
+      cabinet: {
+        carcass: Joi.boolean(),
+        door: Joi.boolean()
+      },
+      ceiling: Joi.boolean(),
+      created_at: Joi.string().allow(''),
+      created_by: Joi.string().allow(''),
+      door: {
+        frame: Joi.boolean(),
+        panel: Joi.boolean()
+      },
+      floor: Joi.boolean(),
+      front_wall: Joi.boolean(),
+      id: Joi.string().allow(''),
+      left_wall: Joi.boolean(),
+      project_product_id: Joi.string().allow(''),
+      right_wall: Joi.boolean(),
+      room_id: Joi.string().allow(''),
+      updated_at: Joi.string().allow(''),
+      updated_by: Joi.string().allow('', null),
+      room_id_text: Joi.string().allow(''),
+      room_name: Joi.string().allow('')
+    }))
+  })
 };

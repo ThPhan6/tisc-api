@@ -1,0 +1,138 @@
+<div class="general-specification-content">
+  <table width="100%" class="dynamic-table">
+    <tr>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="pdlr-8 color-white uppercase">room id</span>
+      </td>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">room name</span>
+      </td>
+      <td height="24" width="48" class="normal-roboto-bold-8-18 bg-black" style="text-align: center">
+        <span class="color-white uppercase">size</span>
+      </td>
+
+      <td height="24" width="60" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">unit</span>
+      </td>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">quantity</span>
+      </td>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">total</span>
+      </td>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">unit</span>
+      </td>
+    </tr>
+    <% zones.data.forEach(function(zone) { %>
+      <tr>
+        <td colspan="4" class="border-bottom-box-shadow-bold">
+          <span class="primary-roboto-bold-8-18 uppercase"><%= zone.name %></span>
+        </td>
+
+        <td style="text-align: center" class="border-bottom-box-shadow-bold">
+          <span class="normal-roboto-bold-8-18">Zone Total</span>
+        </td>
+        <td class="border-bottom-box-shadow-bold">
+          <span class="primary-roboto-bold-8-18"><%= zone.total_size %></span>
+        </td>
+        <td width="60" class="border-bottom-box-shadow-bold">
+          <span class="primary-roboto-bold-8-18">
+            <% if (project.measurement_unit == 1) { %>
+              <span>sq.ft.</span>
+            <% } else { %>
+              <span>sq.m.</span>
+            <% } %>
+          </span>
+        </td>
+      </tr>
+      <% zone.areas.forEach(function(area) { %>
+        <tr>
+          <td colspan="7">
+            <span class="primary-roboto-bold-8-18 bold-400"><%= area.name %></span>
+          </td>
+        </tr>
+        <% area.rooms.forEach(function(room) { %>
+          <tr>
+            <td>
+              <span class="primary-roboto-light-8-18"><%= room.room_id %></span>
+            </td>
+            <td>
+              <span class="primary-roboto-light-8-18"><%= room.room_name %></span>
+            </td>
+            <td>
+              <span class="primary-roboto-light-8-18"><%= room.room_size %></span>
+            </td>
+            <td>
+              <span class="primary-roboto-light-8-18">
+                <% if (project.measurement_unit == 1) { %>
+                  <span>sq.ft.</span>
+                <% } else { %>
+                  <span>sq.m.</span>
+                <% } %>
+              </span>
+            </td>
+            <td style="text-align: center">
+              <span class="normal-roboto-light-8-18"><%= room.quantity %></span>
+            </td>
+            <td>
+              <span class="primary-roboto-light-8-18"><%= room.total_size %></span>
+            </td>
+            <td >
+              <span class="primary-roboto-light-8-18">
+                <% if (project.measurement_unit == 1) { %>
+                  <span>sq.ft.</span>
+                <% } else { %>
+                  <span>sq.m.</span>
+                <% } %>
+              </span>
+            </td>
+          </tr>
+        <% }) %>
+        <tr>
+          <td colspan="4" class="border-bottom-box-shadow">
+            <span class="primary-roboto-light-8-18"></span>
+          </td>
+          <td width="64" style="text-align: center" class="border-bottom-box-shadow">
+            <span class="normal-roboto-bold-8-18 bold-400">Area Total</span>
+          </td>
+          <td width="33" class="border-bottom-box-shadow">
+            <span class="primary-roboto-light-8-18 bold-400"><%= area.total_size %></span>
+          </td>
+          <td width="29" class="border-bottom-box-shadow">
+            <span class="primary-roboto-light-8-18 bold-400">
+              <% if (project.measurement_unit == 1) { %>
+                <span>sq.ft.</span>
+              <% } else { %>
+                <span>sq.m.</span>
+              <% } %>
+            </span>
+          </td>
+        </tr>
+        <tr style="height: 18px"></tr>
+        <tr><td colspan="7" class="border-bottom-box-shadow"></td></tr>
+      <% }) %>
+    <% }) %>
+
+    <tr>
+      <td colspan="4" class="border-bottom-box-shadow-bold">
+        <span class="primary-roboto-light-8-18"></span>
+      </td>
+      <td style="text-align: center" class="border-bottom-box-shadow-bold">
+        <span class="normal-roboto-bold-8-18 uppercase">grand total</span>
+      </td>
+      <td class="border-bottom-box-shadow-bold">
+        <span class="primary-roboto-bold-8-18"><%= zones.total_size %></span>
+      </td>
+      <td class="border-bottom-box-shadow-bold">
+        <span class="primary-roboto-bold-8-18">
+          <% if (project.measurement_unit == 1) { %>
+            <span>sq.ft.</span>
+          <% } else { %>
+            <span>sq.m.</span>
+          <% } %>
+        </span>
+      </td>
+    </tr>
+  </table>
+</div>

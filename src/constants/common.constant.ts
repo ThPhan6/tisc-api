@@ -19,6 +19,8 @@ export const COMMON_TYPES: CommonTypes = {
   DEPARTMENT: 10,
   REQUEST_FOR: 11,
   ACTION_TASK: 12,
+  ISSUE_FOR: 13,
+  CAPABILITIES: 14,
 };
 
 export const AUTH_NAMES = {
@@ -74,3 +76,8 @@ export const MEASUREMENT_UNIT_OPTIONS: {
     id: MEASUREMENT_UNIT.IMPERIAL,
   },
 ];
+
+export const MEASUREMENT_UNIT_TEXTS = {
+  [MEASUREMENT_UNIT.IMPERIAL]: "sq.ft.",
+  [MEASUREMENT_UNIT.IMPERIAL]: "sq.m.",
+}

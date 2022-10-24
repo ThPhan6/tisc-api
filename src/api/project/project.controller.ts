@@ -2,6 +2,7 @@ import { projectService } from "./project.services";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IProjectRequest } from "./project.type";
 import { PROJECT_STATUS_OPTIONS } from "@/constants";
+import { UserAttributes } from "@/types";
 
 export default class ProjectController {
   public create = async (
@@ -19,8 +20,8 @@ export default class ProjectController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAll = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await projectService.getAll(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.getAll(user.relation_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

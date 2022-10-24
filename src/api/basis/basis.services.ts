@@ -1,6 +1,10 @@
 import { MESSAGES } from "@/constants";
 import { BASIS_TYPES } from "@/constants/basis.constant";
-import { getSummaryTable, isDuplicatedString } from "@/helper/common.helper";
+import {
+  getSummaryTable,
+  isDuplicatedString,
+  toSingleSpaceAndToLowerCase,
+} from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -30,10 +34,9 @@ import {
 } from "./basis.type";
 class BasisService {
   constructor() {}
-
   public async createBasisConversion(payload: IBasisConversionRequest) {
     const conversionGroup = await BasisRepository.findBy({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.CONVERSION,
     });
     if (conversionGroup) {
@@ -58,7 +61,7 @@ class BasisService {
     });
 
     const createdBasisConversion = await BasisRepository.create({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.CONVERSION,
       subs: conversions,
     });
@@ -141,7 +144,7 @@ class BasisService {
     }
     const duplicatedConversionGroup = await BasisRepository.getExistedBasis(
       id,
-      payload.name,
+      toSingleSpaceAndToLowerCase(payload.name),
       BASIS_TYPES.CONVERSION
     );
     if (duplicatedConversionGroup) {
@@ -173,7 +176,7 @@ class BasisService {
       };
     });
     const updatedBasisConversion = await BasisRepository.update(id, {
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.CONVERSION,
       subs: conversions,
     });
@@ -198,7 +201,7 @@ class BasisService {
   public async createBasisOption(payload: IBasisOptionRequest) {
     const basisOptionGroup = await BasisRepository.findBy({
       type: BASIS_TYPES.OPTION,
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (basisOptionGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_EXISTED);
@@ -219,7 +222,7 @@ class BasisService {
     await uploadImage(mappingBasisOption.valid_upload_image);
 
     const createdBasisOption = await BasisRepository.create({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.OPTION,
       subs: mappingBasisOption.basis_option,
     });
@@ -305,7 +308,7 @@ class BasisService {
     }
     const existedGroup = await BasisRepository.getExistedBasis(
       id,
-      payload.name,
+      toSingleSpaceAndToLowerCase(payload.name),
       BASIS_TYPES.OPTION
     );
     if (existedGroup) {
@@ -333,6 +336,7 @@ class BasisService {
     const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
       subs: mappingBasisOption.basis_option,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
@@ -343,7 +347,7 @@ class BasisService {
   public async createBasisPreset(payload: IBasisPresetRequest) {
     const basisOptionGroup = await BasisRepository.findBy({
       type: BASIS_TYPES.PRESET,
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (basisOptionGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);
@@ -359,7 +363,7 @@ class BasisService {
     }
     const presets = mappingBasisPresetCreate(payload);
     const createdBasisPreset = await BasisRepository.create({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.PRESET,
       subs: presets,
     });
@@ -444,7 +448,7 @@ class BasisService {
     }
     const existedGroup = await BasisRepository.getExistedBasis(
       id,
-      payload.name,
+      toSingleSpaceAndToLowerCase(payload.name),
       BASIS_TYPES.PRESET
     );
     if (existedGroup) {
@@ -464,6 +468,7 @@ class BasisService {
     const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
       subs: presets,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);

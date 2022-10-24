@@ -5,7 +5,7 @@ import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./user.response";
-import {getListV2} from "@/validate/common.validate";
+import { getListV2 } from "@/validate/common.validate";
 
 export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

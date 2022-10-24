@@ -1,10 +1,12 @@
+import { RespondedOrPendingStatus } from "./common.type";
+
 export interface GeneralInquiryAttribute {
   id: string;
   product_id: string;
   title: string;
   message: string;
   inquiry_for_ids: string[];
-  status: number;
+  status: RespondedOrPendingStatus;
   read_by: string[];
   created_at: string;
   updated_at: null | string;
@@ -12,18 +14,17 @@ export interface GeneralInquiryAttribute {
 }
 
 export interface ListGeneralInquiryCustom {
-  general_inquiry: GeneralInquiryAttribute;
+  id: string;
+  created_at: string;
+  title: string;
+  status: RespondedOrPendingStatus;
+  design_firm: string;
+  firm_city_name: string;
+  firm_country_name: string;
+  inquirer_firstname: string;
+  inquirer_lastname: string;
   inquiry_for: string;
-  design_firm: {
-    name: string;
-    state_name: string | null;
-    country_name: string | null;
-  };
-  inquiries_for: {
-    id: string;
-    name: string;
-  }[];
-  inquirer: string;
+  read: boolean;
 }
 
 export type SortValidGeneralInquiry =

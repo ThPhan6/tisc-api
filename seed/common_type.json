@@ -329,5 +329,24 @@
   { "type": 12, "name": "Personal meetup" },
   { "type": 12, "name": "Project site visit" },
   { "type": 12, "name": "Share inquiry with distributor" },
-  { "type": 12, "name": "Submit required info" }
+  { "type": 12, "name": "Submit required info" },
+
+  { "type": 13, "name": "Client Approval" },
+  { "type": 13, "name": "Construction Documents" },
+  { "type": 13, "name": "Internal Review" },
+  { "type": 13, "name": "Tender Prequlification" },
+  { "type": 13, "name": "Tender Documents" },
+
+  { "type": 14, "name": "Architecture" },
+  { "type": 14, "name": "Branding" },
+  { "type": 14, "name": "Design & Build" },
+  { "type": 14, "name": "Furniture Design" },
+  { "type": 14, "name": "Graphic Design" },
+  { "type": 14, "name": "Industry Design" },
+  { "type": 14, "name": "Interior Design" },
+  { "type": 14, "name": "Landscape Design" },
+  { "type": 14, "name": "Lighting Design" },
+  { "type": 14, "name": "Master Planning" },
+  { "type": 14, "name": "Multimedia Design" },
+  { "type": 14, "name": "Product Design" }
 ]

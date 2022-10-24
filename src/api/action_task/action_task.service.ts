@@ -6,17 +6,17 @@ import {
 } from "@/helper/response.helper";
 import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
-import { projectRepository } from "@/repositories/project.repository";
 import { RespondedOrPendingStatus, UserAttributes } from "@/types";
 import {
   ActionTaskModelEnum,
   ActionTaskModelKey,
   ActionTaskStatus,
 } from "@/types/action_task.type";
+import { projectRequestRepository } from "../project_tracking/project_request.repository";
 import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";
 import { projectTrackingRepository } from "./../project_tracking/project_tracking.repository";
-import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository copy";
+import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository";
 import {
   ActionTaskRequestCreate,
   ActionTaskRequestUpdateStatus,
@@ -37,7 +37,7 @@ class ActionTaskService {
       createdActionTask = await actionTaskRepository.create({
         model_name: ActionTaskModelEnum[payload.model_name],
         model_id: payload.model_id,
-        status: ActionTaskStatus.To_do_list,
+        status: ActionTaskStatus["To-Do-List"],
         common_type_id: commonTypeId,
         created_by: user.id,
       });
@@ -56,7 +56,7 @@ class ActionTaskService {
         break;
 
       case ActionTaskModelEnum.request:
-        await projectRepository.update(payload.model_id, {
+        await projectRequestRepository.update(payload.model_id, {
           status: RespondedOrPendingStatus.Responded,
         });
         break;

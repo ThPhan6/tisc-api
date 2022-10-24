@@ -1,15 +1,20 @@
+import { locationService } from "./../location/location.service";
 import {
   BRAND_STATUSES,
-  DESIGN_STATUSES,
   MESSAGES,
-  ROLE_TYPE,
   AUTH_EMAIL_TYPE,
   ROLES,
   USER_STATUSES,
+  SYSTEM_TYPE,
 } from "@/constants";
-import { IMessageResponse, UserAttributes, RoleTypeValue } from "@/types";
+import {
+  IMessageResponse,
+  UserAttributes,
+  ActiveStatus,
+  UserType,
+  UserTypeValue,
+} from "@/types";
 import { isEmpty } from "lodash";
-
 import {
   IAdminLoginRequest,
   IResetPasswordRequest,
@@ -19,7 +24,6 @@ import {
 } from "./auth.type";
 import {
   comparePassword,
-  createResetPasswordToken,
   createHash,
   createHashWithSalt,
 } from "@/helper/password.helper";
@@ -30,17 +34,16 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 
-import {mailService} from "@/service/mail.service";
-import {permissionService} from "@/api/permission/permission.service";
+import { mailService } from "@/service/mail.service";
+import { permissionService } from "@/api/permission/permission.service";
 
 import { getRoleType } from "@/constants/role.constant";
-import {brandRepository} from "@/repositories/brand.repository";
-import {designerRepository} from "@/repositories/designer.repository";
+import { brandRepository } from "@/repositories/brand.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
 
 class AuthService {
-
-  private responseWithToken = (userId: string, type?: string) => {
+  private responseWithToken = (userId: string, type?: UserType) => {
     const response = {
       type,
       token: signJwtToken(userId),
@@ -56,11 +59,7 @@ class AuthService {
     return response;
   };
 
-  private authValidation = (
-    inputPassword: string,
-    user: UserAttributes
-  ) => {
-
+  private authValidation = (inputPassword: string, user: UserAttributes) => {
     if (!user.is_verified) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
     }
@@ -73,21 +72,20 @@ class AuthService {
     if (!comparePassword(inputPassword, user.password)) {
       return errorMessageResponse(MESSAGES.PASSWORD_NOT_CORRECT);
     }
-  }
+  };
 
-  private typeValidation = (
-    expectType: RoleTypeValue,
-    type: RoleTypeValue,
+  private checkTypeValidationError = (
+    expectType: UserTypeValue,
+    type: UserTypeValue,
     operation: "eq" | "neq" = "eq"
   ) => {
-    if (type) {
-      if (operation === "eq" && expectType !== type) {
-        return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
-      }
-      if (operation === "neq" && expectType === type) {
-        return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
-      }
+    if (operation === "eq" && expectType !== type) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
     }
+    if (operation === "neq" && expectType === type) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+    return undefined;
   };
 
   private updateNewPassword = async (userId: string, password: string) => {
@@ -100,7 +98,6 @@ class AuthService {
   public tiscLogin = async (
     payload: IAdminLoginRequest
   ): Promise<ILoginResponse | IMessageResponse> => {
-
     const user = await userRepository.findBy({ email: payload.email });
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
@@ -109,7 +106,10 @@ class AuthService {
     if (isInvalid) {
       return isInvalid;
     }
-    const isIncorrectType = this.typeValidation(ROLE_TYPE.TISC, user.type);
+    const isIncorrectType = this.checkTypeValidationError(
+      UserType.TISC,
+      user.type
+    );
     if (isIncorrectType) {
       return isIncorrectType;
     }
@@ -130,17 +130,28 @@ class AuthService {
       return isInvalid;
     }
 
-    const isIncorrectType = this.typeValidation(ROLE_TYPE.TISC, user.type, "neq");
+    const isIncorrectType = this.checkTypeValidationError(
+      UserType.TISC,
+      user.type,
+      "neq"
+    );
     if (isIncorrectType) {
       return isIncorrectType;
     }
 
     //// company status validation
-    if (user.company_status === BRAND_STATUSES.INACTIVE) {
-      return errorMessageResponse(MESSAGES.BRAND_INACTIVE_LOGIN, 401);
+    if (user.company_status === ActiveStatus.Inactive) {
+      return errorMessageResponse(
+        user.type === UserType.Brand
+          ? MESSAGES.BRAND_INACTIVE_LOGIN
+          : user.type === UserType.Designer
+          ? MESSAGES.DESIGN_INACTIVE_LOGIN
+          : MESSAGES.ACCOUNT_INACTIVE_LOGIN,
+        401
+      );
     }
-    if (user.company_status === DESIGN_STATUSES.INACTIVE) {
-      return errorMessageResponse(MESSAGES.DESIGN_INACTIVE_LOGIN, 401);
+    if (user.company_status === ActiveStatus.Pending) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
     }
     ///
     return this.responseWithToken(user.id, getRoleType(user.role_id));
@@ -158,8 +169,8 @@ class AuthService {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
     if (
-      (payload.type === ROLE_TYPE.TISC && user.type !== ROLE_TYPE.TISC) ||
-      (payload.type !== ROLE_TYPE.TISC && user.type === ROLE_TYPE.TISC)
+      (payload.type === UserType.TISC && user.type !== UserType.TISC) ||
+      (payload.type !== UserType.TISC && user.type === UserType.TISC)
     ) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
@@ -194,10 +205,7 @@ class AuthService {
     }
     let isSuccess = false;
     if (type === AUTH_EMAIL_TYPE.FORGOT_PASSWORD) {
-      isSuccess = await mailService.sendResetPasswordEmail(
-        user,
-        browserName
-      );
+      isSuccess = await mailService.sendResetPasswordEmail(user, browserName);
     }
     if (type === AUTH_EMAIL_TYPE.VERIFICATION) {
       isSuccess = await mailService.sendRegisterEmail(user);
@@ -250,12 +258,19 @@ class AuthService {
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
+
     const createdDesign = await designerRepository.create({
-      name: payload.company_name || payload.firstname + " Design Firm",
+      name: payload.company_name || payload.firstname,
     });
+
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+
+    const defaultLocation = await locationService.createDefaultLocation(
+      createdDesign.id,
+      SYSTEM_TYPE.DESIGN
+    );
 
     const token = await userRepository.generateToken("verification_token");
     const saltHash = createHashWithSalt(payload.password);
@@ -268,12 +283,14 @@ class AuthService {
       email: payload.email,
       role_id: ROLES.DESIGN_ADMIN,
       verification_token: token,
-      type: ROLE_TYPE.DESIGN,
+      type: UserType.Designer,
       relation_id: createdDesign.id ?? null,
+      location_id: defaultLocation?.id,
     });
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
+
     await permissionService.initPermission(createdUser);
     await mailService.sendDesignRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);
@@ -315,7 +332,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
     // update brand status after verify the first brand admin
-    if (user.type === ROLE_TYPE.BRAND && user.relation_id) {
+    if (user.type === UserType.Brand && user.relation_id) {
       await brandRepository.update(user.relation_id, {
         status: BRAND_STATUSES.ACTIVE,
       });

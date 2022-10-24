@@ -13,3 +13,5 @@ export const DESIGN_STATUS_OPTIONS = [
     value: DESIGN_STATUSES.INACTIVE,
   },
 ];
+
+export const DESIGN_STORE = "design";

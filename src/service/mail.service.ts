@@ -1,10 +1,11 @@
-import { ISystemType } from "./../type/common.type";
-import * as DotEnv from "dotenv";
+import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { SYSTEM_TYPE, TARGETED_FOR_TYPES } from "./../constant/common.constant";
+import { TARGETED_FOR_TYPES } from "./../constant/common.constant";
 import EmailAutoResponderModel from "../model/auto_email.model";
 import { unescape } from "lodash";
+import { SYSTEM_TYPE } from "@/constants";
+import { UserAttributes, UserType } from "@/types";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 export default class MailService {
@@ -14,11 +15,10 @@ export default class MailService {
   private sendSmtpEmail: object;
   private emailAutoResponderModel: EmailAutoResponderModel;
   public constructor() {
-    DotEnv.config({ path: `${process.cwd()}/.env` });
-    this.fromAddress = process.env.SENDINBLUE_FROM || "";
-    this.frontpageURL = process.env.FE_URL || "";
+    this.fromAddress = ENVIROMENT.SENDINBLUE_FROM || "";
+    this.frontpageURL = ENVIROMENT.FE_URL || "";
     SibApiV3Sdk.ApiClient.instance.authentications["api-key"].apiKey =
-      process.env.SENDINBLUE_API_KEY;
+      ENVIROMENT.SENDINBLUE_API_KEY;
     this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     this.sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     this.emailAutoResponderModel = new EmailAutoResponderModel();
@@ -50,9 +50,7 @@ export default class MailService {
     }
     return result;
   };
-  public async sendRegisterEmail(
-    user: any
-  ): Promise<boolean> {
+  public async sendRegisterEmail(user: any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
         `${process.cwd()}/src/templates/register.ejs`,
@@ -106,7 +104,7 @@ export default class MailService {
   }
 
   public async sendResetPasswordEmail(
-    user: any,
+    user: UserAttributes,
     browserName: string
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
@@ -114,10 +112,11 @@ export default class MailService {
         title: "User password reset request.",
         targeted_for: this.getTargetedFor(user.type),
       });
-      let userType = Object.keys(SYSTEM_TYPE)
-        .find((key) => SYSTEM_TYPE[key as keyof ISystemType] === user.type)
-        ?.toLowerCase();
-      userType = userType === "design" ? "design-firms" : userType;
+
+      const userType =
+        user.type === UserType.Designer
+          ? "design-firms"
+          : UserType[user.type].toLowerCase(); // 'design-firms' | 'tisc' | 'brand'
       const html = await ejs.render(
         unescape(emailAutoResponder?.message || ""),
         {
@@ -183,9 +182,7 @@ export default class MailService {
         .then(() => this.exeAfterSend(resolve));
     });
   }
-  public async sendDesignRegisterEmail(
-    user: any
-  ): Promise<boolean> {
+  public async sendDesignRegisterEmail(user: any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await this.emailAutoResponderModel.findBy({
         title: "Successfully signed-up!",

@@ -1,7 +1,6 @@
 export * from "./user.type";
 export * from "./brand.type";
 export * from "./response.type";
-export * from "./role.type";
 export * from "./design.type";
 export * from "./common.type";
 export * from "./product_favourite.type";
@@ -22,4 +21,7 @@ export * from "./permission.type";
 export * from "./project.type";
 export * from "./documentation.type";
 export * from "./common.type";
+export * from "./project_product_pdf_config.type";
+export * from "./template.type";
+export * from "./project_product_finish_schedule.type";
 export * from "./general_inquiry.type";

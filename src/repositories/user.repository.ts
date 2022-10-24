@@ -1,8 +1,8 @@
 import UserModel from "@/model/user.models";
 import BaseRepository from "./base.repository";
-import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
-import { SortOrder, UserAttributes } from "@/types";
-import { head } from "lodash";
+import { USER_STATUSES, SYSTEM_TYPE } from "@/constants";
+import { ActiveStatus, UserAttributes, UserType } from "@/types";
+import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
@@ -29,7 +29,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     verification_token: null,
     reset_password_token: null,
     status: USER_STATUSES.PENDING,
-    type: ROLE_TYPE.TISC,
+    type: UserType.TISC,
     relation_id: "TISC",
     retrieve_favourite: false,
     interested: [],
@@ -89,7 +89,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         })
       `,
       { email }
-    )) as (UserAttributes & { company_status: number })[];
+    )) as (UserAttributes & { company_status: ActiveStatus })[];
     return head(result);
   }
 
@@ -117,7 +117,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     if (sort) {
       query = query.order(sort[0], sort[1]);
     }
-    if (limit && offset) {
+    if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit, offset);
       return await query.paginate();
     }
@@ -141,7 +141,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         FILTER users.relation_id == @relationId
         let locationData = (
           FOR locations IN locations
-            FILTER locations.relation_id == users.relation_id
+            FILTER locations.id == users.location_id
             FILTER locations.deleted_at == null
           RETURN UNSET(locations, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"])
         )

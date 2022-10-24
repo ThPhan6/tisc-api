@@ -10,13 +10,6 @@ export interface IPagination {
   page_count: number;
 }
 
-export type SystemType = 1 | 2 | 3;
-export interface ISystemType {
-  TISC: SystemType;
-  BRAND: SystemType;
-  DESIGN: SystemType;
-}
-
 export type SortOrder = "ASC" | "DESC";
 
 export type OrderMethodValue = 1 | 2;
@@ -38,9 +31,6 @@ export type InterestedInKey =
 
 export type MeasurementUnitValue = 1 | 2;
 export type MeasurementUnitKey = "Metric" | "Imperial";
-
-export type ProjectStatusValue = 1 | 2 | 3;
-export type ProjectStatusKey = "Live" | "On Hold" | "Archive";
 
 export type RegionKey =
   | "africa"
@@ -67,12 +57,6 @@ export type TopicTypeKey =
   | "Onboard"
   | "Operation"
   | "Other";
-
-export type BrandStatusValue = 1 | 2 | 3;
-export type BrandStatusKey = "Active" | "Pending" | "Inactive";
-
-export type DesignStatusValue = 1 | 2;
-export type DesignStatusKey = "Active" | "Inactive";
 
 export type AttributeType = 1 | 2 | 3;
 export type DocumentationType = 1 | 2 | 3 | 4;

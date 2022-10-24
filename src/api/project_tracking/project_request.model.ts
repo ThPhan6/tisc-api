@@ -6,14 +6,16 @@ export interface ProjectRequestAttributes {
   project_id: string;
   project_tracking_id: string; // project_trackings table
   product_id: string;
+
   title: string;
   message: string;
   request_for_ids: string[]; // common type
   status: RespondedOrPendingStatus;
   read_by: string[]; // user_id[];
+  created_by: string;
+
   created_at: string;
   updated_at: null | string;
-  created_by: string;
 }
 
 export interface CreateProjectRequestBody {

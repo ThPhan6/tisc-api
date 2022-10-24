@@ -1,4 +1,4 @@
-import { SYSTEM_TYPE } from "../constant/common.constant";
+import { UserType } from "@/types";
 import Model from "./index";
 
 export interface IUserAttributes {
@@ -70,7 +70,7 @@ export default class UserModel extends Model<IUserAttributes> {
   public getFirstBrandAdmin = async (brand_id: string) => {
     try {
       const result: any = await this.getBuilder()
-        .builder.where("type", SYSTEM_TYPE.BRAND)
+        .builder.where("type", UserType.Brand)
         .whereNot("is_deleted", true)
         .where("relation_id", brand_id)
         .orderBy("created_at")
@@ -83,7 +83,7 @@ export default class UserModel extends Model<IUserAttributes> {
   public getTiscUsers = async () => {
     try {
       const result: any = await this.getBuilder()
-        .builder.where("type", SYSTEM_TYPE.TISC)
+        .builder.where("type", UserType.TISC)
         .whereNot("is_deleted", true)
         .orderBy("created_at")
         .select();
@@ -93,10 +93,13 @@ export default class UserModel extends Model<IUserAttributes> {
     }
   };
 
-  public getInactiveDesignFirmByBackupData = async (backupEmail: string, personalMobile: string) => {
+  public getInactiveDesignFirmByBackupData = async (
+    backupEmail: string,
+    personalMobile: string
+  ) => {
     try {
       const result: any = await this.getBuilder()
-        .builder.where("type", SYSTEM_TYPE.DESIGN)
+        .builder.where("type", UserType.Designer)
         .where("backup_email", backupEmail)
         .where("personal_mobile", personalMobile)
         .where("is_deleted", true)
@@ -105,5 +108,5 @@ export default class UserModel extends Model<IUserAttributes> {
     } catch (error) {
       return null;
     }
-  }
+  };
 }

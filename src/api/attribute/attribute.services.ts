@@ -1,5 +1,8 @@
 import { ATTRIBUTE_TYPES, BASIS_TYPES, MESSAGES } from "@/constants";
-import { getSummaryTable } from "@/helper/common.helper";
+import {
+  getSummaryTable,
+  toSingleSpaceAndToLowerCase,
+} from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -37,7 +40,7 @@ class AttributeService {
 
   public async create(payload: IAttributeRequest) {
     const attribute = await AttributeRepository.findBy({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (attribute) {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_EXISTED);
@@ -55,7 +58,7 @@ class AttributeService {
       };
     });
     const createdAttribute = await AttributeRepository.create({
-      name: payload.name,
+      name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
       subs: subData,
     });
@@ -143,7 +146,10 @@ class AttributeService {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
     }
     const duplicatedAttributeGroup =
-      await AttributeRepository.getDuplicatedAttribute(id, payload.name);
+      await AttributeRepository.getDuplicatedAttribute(
+        id,
+        toSingleSpaceAndToLowerCase(payload.name)
+      );
     if (duplicatedAttributeGroup) {
       return errorMessageResponse(
         MESSAGES.ATTRIBUTE.GROUP_ATTRIBUTE_DUPLICATED
@@ -158,6 +164,7 @@ class AttributeService {
     const updatedAttribute = await AttributeRepository.update(id, {
       ...payload,
       subs: subData,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);

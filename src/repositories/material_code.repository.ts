@@ -5,6 +5,7 @@ import {
 } from "@/types/material_code.type";
 import BaseRepository from "./base.repository";
 import MaterialCodeModel from "@/model/material_code.models";
+import {head} from 'lodash';
 
 class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
   protected model: MaterialCodeModel;
@@ -32,14 +33,14 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
       codeId,
     };
     const rawQuery = `
-    FOR data IN material_codes
-    FOR sub IN data.subs
-    FOR code IN sub.codes
-    FILTER code.id == @codeId
+    FILTER material_codes.deleted_at == null
+      FOR sub IN material_codes.subs
+        FOR code IN sub.codes
+          FILTER code.id == @codeId
     RETURN code`;
 
-    const result = await this.model.rawQuery(rawQuery, params);
-    return result?._result[0] ?? null;
+    const result = await this.model.rawQuery(rawQuery, params) as IMaterialCodeAttributes['subs'][0]['codes'];
+    return head(result);
   }
 
   public async getListMaterialCode(
@@ -82,6 +83,7 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
     };
     const rawQuery = `
     FILTER material_codes.design_id == @designId
+    FILTER material_codes.deleted_at == null
     FOR sub IN material_codes.subs
     LET subMaterialCode = []
     RETURN {
@@ -109,6 +111,7 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
       userId,
     };
     const rawQuery = `
+    FILTER material_codes.deleted_at == null
     LET userRelationIds = (
       FOR u IN users
       FILTER u.id == @userId
@@ -133,6 +136,20 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
       .where("design_id", "==", designId)
       .where("name", "==", name)
       .first();
+  }
+
+  public findByCodeIdAndDesignId = async (codeId: string, relationId: string) => {
+    const params = { codeId, relationId };
+    const rawQuery = `
+    FILTER material_codes.deleted_at == null
+    FILTER material_codes.relationId == @relationId
+    FOR sub IN material_codes.subs
+      FOR code IN sub.codes
+        FILTER code.id == @codeId
+    RETURN code`;
+
+    const result = await this.model.rawQuery(rawQuery, params) as IMaterialCodeAttributes['subs'][0]['codes'];
+    return head(result);
   }
 }
 

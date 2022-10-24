@@ -10,11 +10,15 @@ export enum ProjectTrackingPriority {
 export interface ProjectTrackingAttributes {
   id: string;
   project_id: string;
+  brand_id: string;
+
   priority: ProjectTrackingPriority;
   assigned_teams: string[]; ///user_id[]; // brand users
+
+  read_by: string[];
+
   created_at: string;
   updated_at: string | null;
-  read_by: string[];
 }
 
 export default class ProjectTrackingModel extends Model<ProjectTrackingAttributes> {

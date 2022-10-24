@@ -1,3 +1,4 @@
+import { locationService } from "./../location/location.service";
 import {
   BRAND_STATUSES,
   MESSAGES,
@@ -19,7 +20,7 @@ import { userRepository } from "@/repositories/user.repository";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import MailService from "@/service/mail.service";
-import { BrandAttributes, SortOrder } from "@/types";
+import { ActiveStatus, BrandAttributes, SortOrder } from "@/types";
 import { productService } from "../product/product.services";
 import {
   getCountryName,
@@ -27,11 +28,7 @@ import {
   mappingBrandsAlphabet,
   mappingBrandSummary,
 } from "./brand.mapping";
-import {
-  IBrandRequest,
-  IUpdateBrandProfileRequest,
-  IUpdateBrandStatusRequest,
-} from "./brand.type";
+import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
 
 class BrandService {
   private mailService: MailService;
@@ -269,6 +266,11 @@ class BrandService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
+    const defaultLocation = await locationService.createDefaultLocation(
+      createdBrand.id,
+      SYSTEM_TYPE.BRAND
+    );
+
     let verificationToken: string;
     let isDuplicated = true;
 
@@ -291,6 +293,7 @@ class BrandService {
       status: USER_STATUSES.PENDING,
       type: SYSTEM_TYPE.BRAND,
       relation_id: createdBrand.id,
+      location_id: defaultLocation?.id,
     });
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
@@ -323,7 +326,7 @@ class BrandService {
 
   public async updateBrandStatus(
     brand_id: string,
-    payload: IUpdateBrandStatusRequest
+    payload: { status: ActiveStatus }
   ) {
     const brand = await brandRepository.find(brand_id);
 

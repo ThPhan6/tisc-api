@@ -11,6 +11,8 @@ export interface CommonTypes {
   DEPARTMENT: 10;
   REQUEST_FOR: 11;
   ACTION_TASK: 12;
+  ISSUE_FOR: 13;
+  CAPABILITIES: 14;
 }
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 
@@ -60,3 +62,16 @@ export enum RespondedOrPendingStatus {
   "Pending",
   "Responded",
 }
+
+export enum ActiveStatus {
+  Active = 1,
+  Inactive = 2,
+  Pending = 3,
+}
+export type ActiveStatusKey = keyof typeof ActiveStatus;
+export type ActiveStatusValue = `${Extract<
+  ActiveStatus,
+  number
+>}` extends `${infer N extends number}`
+  ? N
+  : never;

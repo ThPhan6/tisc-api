@@ -13,7 +13,7 @@ export const PROJECT_STATUS_OPTIONS: {
     value: 1,
   },
   {
-    key: ProjectStatus.Archive,
+    key: ProjectStatus.Archived,
     value: 2,
   },
 ];

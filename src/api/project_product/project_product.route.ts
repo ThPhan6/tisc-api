@@ -1,7 +1,7 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { ROUTES } from "@/constant/api.constant";
+import { ROUTES } from "@/constants/";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import ProjectProductController from "./project_product.controller";
 import validate from "./project_product.validate";
@@ -15,7 +15,7 @@ export default class ProjectProductRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: ROUTES.ASSIGN_PRODUCT_TO_A_PROJECT,
+          path: ROUTES.PROJECT_PRODUCT.ASSIGN_PRODUCT_TO_A_PROJECT,
           options: {
             handler: controller.assignProductToProject,
             validate: validate.assignProductToProject,
@@ -31,7 +31,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT,
+          path: ROUTES.PROJECT_PRODUCT.GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT,
           options: {
             handler: controller.getProjectAssignZoneByProduct,
             validate: validate.getProjectAssignZoneByProduct,
@@ -48,7 +48,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_CONSIDERED_PRODUCT_LIST,
+          path: ROUTES.PROJECT_PRODUCT.GET_CONSIDERED_PRODUCT_LIST,
           options: {
             handler: controller.getConsideredProducts,
             validate: validate.getConsideredProducts,
@@ -65,7 +65,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "PATCH",
-          path: ROUTES.UPDATE_CONSIDERED_PRODUCT_STATUS,
+          path: ROUTES.PROJECT_PRODUCT.UPDATE_CONSIDERED_PRODUCT_STATUS,
           options: {
             handler: controller.updateConsiderProduct,
             validate: validate.updateConsiderProductStatus,
@@ -81,7 +81,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "DELETE",
-          path: ROUTES.DELETE_CONSIDERED_PRODUCT,
+          path: ROUTES.PROJECT_PRODUCT.DELETE_CONSIDERED_PRODUCT,
           options: {
             handler: controller.deleteConsiderProduct,
             validate: validate.deleteConsiderProduct,
@@ -97,9 +97,9 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "PATCH",
-          path: ROUTES.UPDATE_SPECIFIED_PRODUCT_STATUS,
+          path: ROUTES.PROJECT_PRODUCT.UPDATE_SPECIFIED_PRODUCT_STATUS,
           options: {
-            handler: controller.specifyProduct,
+            handler: controller.updateSpecifyProductStatus,
             validate: validate.updateProductSpecifyStatus,
             description: "Method that update specified product status",
             tags: ["api", "Project"],
@@ -113,7 +113,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "PATCH",
-          path: ROUTES.UPDATE_CONSIDERED_PRODUCT_SPECIFY,
+          path: ROUTES.PROJECT_PRODUCT.UPDATE_CONSIDERED_PRODUCT_SPECIFY,
           options: {
             handler: controller.specifyProduct,
             validate: validate.specifyProduct,
@@ -130,7 +130,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_BRAND,
+          path: ROUTES.PROJECT_PRODUCT.GET_SPECIFYING_PRODUCTS_BY_BRAND,
           options: {
             handler: controller.getSpecifiedProductsByBrand,
             validate: validate.getListByBrand,
@@ -147,7 +147,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_MATERIAL,
+          path: ROUTES.PROJECT_PRODUCT.GET_SPECIFYING_PRODUCTS_BY_MATERIAL,
           options: {
             handler: controller.getSpecifiedProductsByMaterial,
             validate: validate.getListByMaterial,
@@ -164,7 +164,7 @@ export default class ProjectProductRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_SPECIFYING_PRODUCTS_BY_ZONE,
+          path: ROUTES.PROJECT_PRODUCT.GET_SPECIFYING_PRODUCTS_BY_ZONE,
           options: {
             handler: controller.getSpecifiedProductsByZone,
             validate: validate.getConsideredProducts,
@@ -175,6 +175,23 @@ export default class ProjectProductRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getSpecifiedProductList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.PROJECT_PRODUCT.GET_LIST_FINISH_SCHEDULE_FOR,
+          options: {
+            handler: controller.getFinishScheduleByRoom,
+            validate: validate.getFinishScheduleByRoom,
+            description: "Method that get list finish schedules each Room",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getFinishScheduleByRoom,
               },
             },
           },

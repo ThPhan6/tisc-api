@@ -5,6 +5,7 @@ import validate from "./general_inquiry.validate";
 import response from "./general_inquiry.response";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import GeneralInquiryController from "./general_inquiry.controller";
+
 export default class GeneralInquiryRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {

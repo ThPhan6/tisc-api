@@ -1,10 +1,17 @@
 import { IPagination } from "@/types";
-export interface DesignStatus {
-  ACTIVE: 1;
-  INACTIVE: 2;
+export enum DesignFirmStatus {
+  Active = 1,
+  Inactive = 2,
 }
-export type DesignStatusValue = DesignStatus[keyof DesignStatus];
-export type DesignStatusKey = "Active" | "Inactive";
+
+export type DesignFirmStatusKey = keyof typeof DesignFirmStatus;
+
+export type DesignFirmStatusValue = `${Extract<
+  DesignFirmStatus,
+  number
+>}` extends `${infer N extends number}`
+  ? N
+  : never;
 
 export interface DesignerAttributes {
   id: string;
@@ -14,10 +21,10 @@ export interface DesignerAttributes {
   slogan: string;
   profile_n_philosophy: string;
   official_website: string;
-  team_profile_ids: string[];
-  status: DesignStatusValue;
+  status: DesignFirmStatus;
   created_at: string;
   updated_at: string | null;
+  capabilities: string[];
 }
 
 export interface ListDesignerWithPaginate {

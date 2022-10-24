@@ -7,10 +7,7 @@ import {
   SortOrder,
 } from "@/types";
 import { v4 } from "uuid";
-import {
-  CreateProjectRequestBody,
-  ProjectRequestAttributes,
-} from "./project_request.model";
+import { ProjectRequestAttributes } from "./project_request.model";
 import ProjectTrackingModel, {
   ProjectTrackingAttributes,
   ProjectTrackingPriority,
@@ -19,7 +16,10 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
-import { ProjectTrackingNotificationStatus } from "./project_tracking_notification.model";
+import {
+  ProjectTrackingNotificationAttributes,
+  ProjectTrackingNotificationStatus,
+} from "./project_tracking_notification.model";
 
 class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes> {
   protected model: ProjectTrackingModel;
@@ -27,6 +27,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
   protected DEFAULT_ATTRIBUTE: Partial<ProjectTrackingAttributes> = {
     id: "",
     project_id: "",
+    brand_id: "",
     read_by: [],
     assigned_teams: [],
     priority: ProjectTrackingPriority.Non,
@@ -34,71 +35,30 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     updated_at: "",
   };
 
-  private getMappingProjectTrackingWithBrandQuery = (noJoin?: boolean) => `
-  LET projectRequests = (
-    FOR project_requests IN project_requests
-    FILTER project_requests.project_tracking_id == project_trackings.id
-    RETURN project_requests
-  )
-  LET requestIds = (
-    FOR project_requests IN projectRequests
-    RETURN project_requests.product_id
-  )
-  LET requestUsers = (
-    FOR project_requests IN projectRequests
-    RETURN project_requests.created_by
-  )
-
-  LET projectProducts = (
-    FOR project_products IN project_products
-    FILTER project_products.project_tracking_id == project_trackings.id
-    RETURN project_products
-  )
-  LET projectProductIds = (
-    FOR project_products IN projectProducts
-    RETURN project_products.product_id
-  )
-  LET ppUsers = (
-    FOR project_products IN projectProducts
-    RETURN project_products.created_by
-  )
-
-  ${noJoin ? "LET products = (" : ""}
-  FOR products IN products
-  FILTER (products.brand_id == @brandId) AND 
-    (products.id IN requestIds OR products.id IN projectProductIds)
-  ${noJoin ? "RETURN products)" : ""}
-    
-  FOR u IN users
-  FILTER u.id IN requestUsers OR u.id IN ppUsers
-
-  FOR designers IN designers
-  FILTER designers.id == u.relation_id
-
-  `;
-
   constructor() {
     super();
     this.model = new ProjectTrackingModel();
   }
 
   public async findOrCreateIfNotExists(
-    payload: CreateProjectRequestBody
+    projectId: string,
+    brandId: string
   ): Promise<ProjectTrackingAttributes> {
     const now = new Date();
     const results = await this.model.rawQueryV2(
-      `UPSERT {project_id: @project_id}
+      `UPSERT {project_id: @projectId, brand_id: @brandId}
       INSERT @payloadWithId
       UPDATE {}
       IN project_trackings
       RETURN NEW
     `,
       {
-        project_id: payload.project_id,
+        brandId,
+        projectId,
         payloadWithId: {
           ...this.DEFAULT_ATTRIBUTE,
-          ...payload,
-          product_id: undefined,
+          project_id: projectId,
+          brand_id: brandId,
           id: v4(),
           created_at: now,
           updated_at: now,
@@ -122,6 +82,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       projectRequests: ProjectRequestAttributes[];
       designFirm: DesignerAttributes;
       members: DesignerAttributes[];
+      notifications: ProjectTrackingNotificationAttributes[];
     }[]
   > {
     const params = {
@@ -137,29 +98,46 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         ? `FILTER project_trackings.priority == @priority`
         : ""
     }
+    FILTER project_trackings.brand_id == @brandId
+
     LIMIT @offset, @limit
     ${sort === "created_at" ? `SORT project_trackings.${sort} ${order}` : ""}
 
-    FOR projects IN projects
-    FILTER projects.id == project_trackings.project_id
+    FOR project IN projects
+    FILTER project.id == project_trackings.project_id
     ${
       typeof filter.project_status === "number"
-        ? "FILTER projects.status == @projectStatus"
+        ? "FILTER project.status == @projectStatus"
         : ""
     }
-    ${sort === "project_name" ? `SORT projects.name ${order}` : ""}
-    ${sort === "project_location" ? `SORT projects.location ${order}` : ""}
-    ${sort === "project_type" ? `SORT projects.project_type ${order}` : ""}
+    ${sort === "project_name" ? `SORT project.name ${order}` : ""}
+    ${sort === "project_location" ? `SORT project.location ${order}` : ""}
+    ${sort === "project_type" ? `SORT project.project_type ${order}` : ""}
 
-    ${this.getMappingProjectTrackingWithBrandQuery(true)}
+    LET projectProducts = (
+      FOR pp IN project_products
+      FILTER pp.project_tracking_id == project_trackings.id
+      RETURN pp
+    )
+
+    LET projectRequests = (
+      FOR pr IN project_requests
+      FILTER pr.project_tracking_id == project_trackings.id
+      RETURN pr
+    )
 
     LET notifications = (
       FOR ptn IN project_tracking_notifications
       FILTER ptn.project_tracking_id == project_trackings.id
       RETURN ptn
     )
-    
-    ${sort === "design_firm" ? `SORT designers.name ${order}` : ""}
+
+    LET designFirm = (
+      FOR df IN designers
+      FILTER df.id == project.design_id
+      RETURN df
+    )
+    ${sort === "design_firm" ? `SORT designFirm[0].name ${order}` : ""}
 
     LET members = (
       FOR user IN users
@@ -169,11 +147,10 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
 
     RETURN {
       project_tracking: UNSET(project_trackings, ['_key','_id','_rev']),
-      project: projects,
+      project,
       projectRequests,
-      designFirm: designers,
+      designFirm: designFirm[0],
       notifications,
-      products,
       members
     }
     `;
@@ -195,6 +172,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         ? `FILTER project_trackings.priority == @priority`
         : ""
     }
+    FILTER project_trackings.brand_id == @brandId
 
     FOR projects IN projects
     FILTER projects.id == project_trackings.project_id
@@ -204,8 +182,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         : ""
     }
     
-    ${this.getMappingProjectTrackingWithBrandQuery(true)}
-
     COLLECT WITH COUNT INTO length
     RETURN length
     `;
@@ -220,7 +196,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         total: number;
         live: number;
         onHold: number;
-        archive: number;
+        archived: number;
       };
       request: {
         total: number;
@@ -238,7 +214,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       brandId,
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
-      archiveStatus: ProjectStatus.Archive,
+      archiveStatus: ProjectStatus.Archived,
       pending: RespondedOrPendingStatus.Pending,
       responded: RespondedOrPendingStatus.Responded,
       keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
@@ -246,19 +222,31 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     };
     const rawQuery = `
     LET mapping = (
-      FOR project_trackings IN project_trackings
+      FOR pt IN project_trackings
+      FILTER pt.brand_id == @brandId
+      FILTER pt.deleted_at == null
 
-      FOR projects IN projects
-      FILTER projects.id == project_trackings.project_id
-  
-      ${this.getMappingProjectTrackingWithBrandQuery(true)}
+      LET projects = (
+        FOR prj IN projects
+        FILTER prj.id == pt.project_id
+        FILTER prj.deleted_at == null
+        RETURN prj
+      )
+
+      LET projectRequests = (
+        FOR pr IN project_requests
+        FILTER pr.project_tracking_id == pt.id
+        FILTER pr.deleted_at == null
+        RETURN pr
+      )
 
       LET notifications = (
         FOR ptn IN project_tracking_notifications
-        FILTER ptn.project_tracking_id == project_trackings.id
+        FILTER ptn.deleted_at == null
+        FILTER ptn.project_tracking_id == pt.id
         RETURN ptn
       )
-      RETURN {projects, projectRequests, notifications}
+      RETURN {projects: projects[0], projectRequests, notifications}
     )
 
     LET projects = (
@@ -286,7 +274,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       COLLECT WITH COUNT INTO length
       RETURN length
     )
-    LET archive = (
+    LET archived = (
       FOR p IN projects
       FILTER p.status == @archiveStatus
       COLLECT WITH COUNT INTO length
@@ -334,7 +322,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         total: LENGTH(projects),
         live: live[0],
         onHold: onHold[0],
-        archive: archive[0]
+        archived: archived[0]
       },
       request: {
         total: COUNT(FLATTEN(allRequest)),
@@ -351,10 +339,15 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     return this.model.rawQueryV2(rawQuery, params);
   };
 
-  public getOne = async (trackingId: string, userId: string) => {
-    const params = { trackingId, userId };
+  public getOne = async (
+    trackingId: string,
+    userId: string,
+    brandId: string
+  ) => {
+    const params = { trackingId, userId, brandId };
     const rawQuery = `
     FILTER project_trackings.id == @trackingId
+    FILTER project_trackings.brand_id == @brandId
     FILTER project_trackings.deleted_at == null
 
     FOR projects IN projects
@@ -362,25 +355,36 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     FILTER projects.deleted_at == null
 
     LET projectRequests = (
-      FOR project_requests IN project_requests
-      FILTER project_requests.project_tracking_id == @trackingId
-      FILTER project_requests.deleted_at == null
+      FOR pr IN project_requests
+      FILTER pr.project_tracking_id == @trackingId
+      FILTER pr.deleted_at == null
       FOR product in products
-      FILTER product.id == project_requests.product_id
+      FILTER product.id == pr.product_id
       FOR collection in collections
       FILTER collection.id == product.collection_id
       FOR common_type in common_types
-      FILTER common_type.id == FIRST(project_requests.request_for_ids)
-      LET newRequest = ( RETURN POSITION( project_requests.read_by, @userId) )
+      FILTER common_type.id == FIRST(pr.request_for_ids)
+      LET newRequest = ( RETURN POSITION( pr.read_by, @userId) )
+      FOR u IN users
+      FILTER u.id == pr.created_by
+      LET loc = (
+        FOR loc IN locations
+        FILTER loc.id == u.location_id
+        RETURN loc
+      )
       RETURN MERGE(
-        KEEP(project_requests, 'created_at','title', 'message', 'status','created_by'),
+        KEEP(pr, 'id','created_at','title', 'message', 'status','created_by'),
         {
           product: MERGE(
             KEEP(product, 'id', 'name', 'images', 'description'), 
             {collection_name: collection.name}
           ),
           newRequest: NOT newRequest[0],
-          requestFor: common_type.name
+          requestFor: common_type.name,
+          designer: MERGE(
+            KEEP(u, 'location_id','firstname','lastname','position','email','position','phone'),
+             {phone_code: loc[0].phone_code}
+          )
         }
       )
     )
@@ -389,38 +393,72 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR notifications IN project_tracking_notifications
       FILTER notifications.project_tracking_id == @trackingId
       FILTER notifications.deleted_at == null
-      FOR product in products
-      FILTER product.id == notifications.product_id
-      FOR collection in collections
-      FILTER collection.id == product.collection_id
+      FOR pr in project_products
+      FILTER pr.id == notifications.project_product_id
+      FOR p in products
+      FILTER p.id == pr.product_id
+      FOR c in collections
+      FILTER c.id == p.collection_id
       LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
+      FOR u IN users
+      FILTER u.id == notifications.created_by
+      LET loc = (
+        FOR loc IN locations
+        FILTER loc.id == u.location_id
+        RETURN loc
+      )
       RETURN MERGE(
-        KEEP(notifications, 'created_at','type', 'status', 'created_by'),
+        KEEP(notifications, 'id','created_at','type', 'status', 'created_by'),
         {
           product: MERGE(
-            KEEP(product, 'id', 'name', 'images', 'description'), 
-            {collection_name: collection.name}
+            KEEP(p, 'id', 'name', 'images', 'description'), 
+            {collection_name: c.name}
           ),
-          newNotification: NOT newNotification[0]
+          newNotification: NOT newNotification[0],
+          designer: MERGE(
+            KEEP(u, 'location_id','firstname','lastname','position','email','position','phone'),
+             {phone_code: loc[0].phone_code}
+          ) 
         }
       )
     )
 
-    LET firstTrackingItem = (
-      RETURN FIRST(UNION(projectRequests, notifications))
-    )
-
     LET designFirm = (
-      FOR users IN users
-      FILTER users.id == firstTrackingItem[0].created_by
-      FOR designers IN designers
-      FILTER designers.id == users.relation_id
-      FOR locations IN locations
-      FILTER locations.relation_id == designers.id
+      FOR designer IN designers
+      FILTER designer.id == projects.design_id
+      FOR loc IN locations
+      FILTER loc.relation_id == designer.id
+      
+      LET allLocations = (
+        LET mergedUsers = UNION(notifications, projectRequests)
+        LET designerUserIds = (
+          FOR mu IN mergedUsers
+          RETURN mu.created_by
+        )
+        LET designerUserLocations = (
+          FOR du IN users
+          FILTER du.id IN UNIQUE(designerUserIds)
+          FOR duLoc IN locations
+          FILTER duLoc.id == du.location_id
+          COLLECT location = duLoc INTO usersByLocation
+          RETURN {location, users: usersByLocation[*].du}
+        )
+        LET groupData = (
+          FOR designerUserLocation IN designerUserLocations
+          LET teamMembers = (
+            FOR u IN designerUserLocation.users
+            RETURN KEEP(u, 'firstname','lastname','position')
+          )
+          RETURN MERGE(
+            KEEP(designerUserLocation.location, 'city_name','country_name','address','general_phone','phone_code','general_email'),
+            {teamMembers: teamMembers}
+          )
+        )
+        RETURN groupData
+      )
       RETURN MERGE(
-        KEEP(designers, 'name', 'official_website'), 
-        KEEP(users, 'phone', 'phone_code', 'email'), 
-        {address: CONCAT_SEPARATOR(', ', locations.address, locations.city_name, locations.state_name, locations.country_name)}
+        KEEP(designer, 'name', 'official_website'),
+        { locations: allLocations[0] }
       )
     )
 

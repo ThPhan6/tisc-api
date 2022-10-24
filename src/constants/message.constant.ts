@@ -15,6 +15,8 @@ export const MESSAGES = {
       "You are not in this design firm. So you cannot delete",
     JUST_OWNER_CAN_CREATE:
       "You are not in this design firm. So you cannot create",
+    SOMETHING_WRONG_CONTACT_SYSADMIN:
+      "Something went wrong. Please contact to the administrator!",
   },
 
   FAVOURITE: {
@@ -201,6 +203,7 @@ export const MESSAGES = {
   CANNOT_UPDATE_TO_OTHER_ROLE: "Cannot update user to this role.",
   PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
+  PRODUCT_ALREADY_ASSIGNED: "Product already assigned to this project",
   JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
   JUST_OWNER_CAN_UPDATE:
     "You are not in this design firm. So you cannot update",
@@ -224,10 +227,18 @@ export const MESSAGES = {
   EMAIL_SENT: "Email sent!",
   BRAND_INACTIVE_LOGIN: "Sorry! Your brand was inactive. Can not login.",
   DESIGN_INACTIVE_LOGIN: "Sorry! Your design firm was inactive. Can not login.",
+  ACCOUNT_INACTIVE_LOGIN: "Sorry! Your account was inactive. Can not login.",
   PROJECT_ZONE_MISSING: "Project zone is missing",
   ZONE_WAS_CONSIDERED: "Space is currently considered, you can not delete it!",
   ZONE_WAS_SPECIFIED: "Space is currently specified, you can not delete it!",
   DESIGNER_NOT_FOUND: "Not found designer.",
-
+  FINISH_SCHEDULE: {
+    ROOM_DOES_NOT_EXIST: "Invalid Rooms. Please check allowcation!",
+    MISSING_ROOM_DATA: "Please update Finish Schedule!",
+  },
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
+  PDF_SPECIFY: {
+    ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
+    NOT_FOUND: 'Please update Issuing information!'
+  },
 };

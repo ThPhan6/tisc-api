@@ -1,3 +1,4 @@
+import {ENVIROMENT} from '@/config';
 import {
   S3,
   ListBucketsCommand,
@@ -6,14 +7,13 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
-var fs = require("fs");
-const bucket = process.env.SPACES_BUCKET || "";
+const bucket = ENVIROMENT.SPACES_BUCKET || "";
 export const s3Client = new S3({
-  endpoint: process.env.SPACES_ENDPOINT || "",
-  region: process.env.SPACES_REGION || "",
+  endpoint: ENVIROMENT.SPACES_ENDPOINT || "",
+  region: ENVIROMENT.SPACES_REGION || "",
   credentials: {
-    accessKeyId: process.env.SPACES_KEY || "",
-    secretAccessKey: process.env.SPACES_SECRET || "",
+    accessKeyId: ENVIROMENT.SPACES_KEY || "",
+    secretAccessKey: ENVIROMENT.SPACES_SECRET || "",
   },
 });
 
@@ -93,7 +93,7 @@ export const deleteFile = async (file_name: string) => {
 };
 
 export const getBufferFile = async (file_name: string) => {
-  const streamToString = (stream: any) =>
+  const streamToString = (stream: any): Promise<Buffer> =>
     new Promise((resolve, reject) => {
       const chunks: any = [];
       stream.on("data", (chunk: any) => chunks.push(chunk));

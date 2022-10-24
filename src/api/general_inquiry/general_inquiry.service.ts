@@ -13,7 +13,6 @@ import {
 } from "@/types";
 import { head, uniq } from "lodash";
 import { settingService } from "./../setting/setting.service";
-import { mappingGeneralInquiries } from "./general_inquiry.mapping";
 import { GeneralInquiryRequest } from "./general_inquiry.type";
 class GeneralInquiryService {
   public async create(user: UserAttributes, payload: GeneralInquiryRequest) {
@@ -49,6 +48,7 @@ class GeneralInquiryService {
   }
 
   public async getList(
+    userId: string,
     relationId: string,
     limit: number,
     offset: number,
@@ -57,27 +57,21 @@ class GeneralInquiryService {
   ) {
     const generalInquiries =
       await generalInquiryRepository.getListGeneralInquiry(
+        userId,
         relationId,
         limit,
         offset,
         sort,
-        {
-          ...filter,
-          status: filter?.status,
-        }
+        filter
       );
-
-    const allInquiry = await generalInquiryRepository.getAllInquiryBy(
+    const total = await generalInquiryRepository.countAllInquiryBy(
       relationId,
-      { ...filter, status: filter?.status }
+      filter
     );
-
-    const result = mappingGeneralInquiries(generalInquiries);
-
     return successResponse({
       data: {
-        general_inquiries: result,
-        pagination: pagination(limit, offset, allInquiry.length),
+        general_inquiries: generalInquiries,
+        pagination: pagination(limit, offset, total),
       },
     });
   }
@@ -89,11 +83,9 @@ class GeneralInquiryService {
 
     return {
       inquires: allInquiry.length,
-
       pending: allInquiry.filter(
         (inquiry) => inquiry.status === RespondedOrPendingStatus.Pending
       ).length,
-
       responded: allInquiry.filter(
         (inquiry) => inquiry.status === RespondedOrPendingStatus.Responded
       ).length,
@@ -114,6 +106,7 @@ class GeneralInquiryService {
     });
 
     const result = await generalInquiryRepository.getDetailGeneralInquiry(id);
+
     return successResponse({ data: head(result) || null });
   }
 }

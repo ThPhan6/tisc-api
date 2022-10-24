@@ -1,5 +1,6 @@
+import { getEnumValues } from "@/helper/common.helper";
 import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
-import * as Joi from "joi";
+import Joi from "joi";
 import {
   OrderMethod,
   ProductConsiderStatus,
@@ -16,7 +17,7 @@ const requiredProjectId = Joi.string()
   .required()
   .error(commonFailValidatedMessageFunction("Project id is required"));
 
-const orderValidate = Joi.string().valid("ASC", "DESC");
+export const orderValidate = Joi.string().valid("ASC", "DESC");
 
 export default {
   assignProductToProject: {
@@ -55,11 +56,7 @@ export default {
     params: { id: requiredConsideredId },
     payload: {
       consider_status: Joi.number()
-        .valid(
-          ProductConsiderStatus.Considered,
-          ProductConsiderStatus["Re-Considered"],
-          ProductConsiderStatus.Unlisted
-        )
+        .valid(...getEnumValues(ProductConsiderStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
@@ -68,11 +65,7 @@ export default {
     params: { id: requiredConsideredId },
     payload: {
       specified_status: Joi.number()
-        .valid(
-          ProductSpecifyStatus.Specified,
-          ProductSpecifyStatus["Re-specified"],
-          ProductSpecifyStatus.Cancelled
-        )
+        .valid(...getEnumValues(ProductSpecifyStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
@@ -124,18 +117,36 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Description is required")),
-      finish_schedules: Joi.array().items(Joi.string().trim().allow(null)),
       quantity: Joi.number()
         .required()
         .error(commonFailValidatedMessageFunction("Quantity is required")),
       unit_type_id: Joi.string().trim().allow(""),
-      order_method: Joi.number().valid(
-        OrderMethod["Custom Order"],
-        OrderMethod["Direct Purchase"]
-      ),
+      order_method: Joi.number().valid(...getEnumValues(OrderMethod)),
       requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       special_instructions: Joi.string().allow(""),
+      finish_schedules: Joi.array().items(
+        Joi.object({
+          floor: Joi.boolean(),
+          base: Joi.object({
+            ceiling: Joi.boolean(),
+            floor: Joi.boolean(),
+          }),
+          front_wall: Joi.boolean(),
+          left_wall: Joi.boolean(),
+          back_wall: Joi.boolean(),
+          right_wall: Joi.boolean(),
+          ceiling: Joi.boolean(),
+          door: Joi.object({
+            frame: Joi.boolean(),
+            panel: Joi.boolean(),
+          }),
+          cabinet: Joi.object({
+            carcass: Joi.boolean(),
+            door: Joi.boolean()
+          }),
+        })
+      ).error(commonFailValidatedMessageFunction("Please update Finish Schedule!")),
     },
   },
   getListByBrand: {
@@ -160,4 +171,16 @@ export default {
       };
     }),
   },
+  getFinishScheduleByRoom: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId
+    }),
+    query: Joi.object({
+      roomIds: Joi.string().trim(),
+    }).custom((value) => {
+      return {
+        roomIds: (value.roomIds && value.roomIds.split) ? value.roomIds.split(',') : []
+      }
+    })
+  }
 };

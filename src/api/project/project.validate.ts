@@ -54,11 +54,7 @@ export default {
           commonFailValidatedMessageFunction("Construction start is required")
         ),
       status: Joi.number()
-        .valid(
-          ProjectStatus.Archive,
-          ProjectStatus.Live,
-          ProjectStatus["On Hold"]
-        )
+        .valid(...getEnumValues(ProjectStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
