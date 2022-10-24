@@ -5,13 +5,13 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import BrandModel from "@/model/brand.model";
-import { ICountryAttributes } from "@/model/country";
-import ProductModel from "@/model/product.model";
+import { ICountryAttributes } from "@/types";
 import CollectionRepository from "@/repositories/collection.repository";
 import { distributorRepository } from "@/repositories/distributor.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
+import {brandRepository} from "@/repositories/brand.repository";
+import {productRepository} from "@/repositories/product.repository";
 import { ICountryStateCity } from "@/types";
 import {
   mappingAuthorizedCountries,
@@ -22,12 +22,6 @@ import {
 } from "./distributor.mapping";
 import { IDistributorRequest } from "./distributor.type";
 class DistributorService {
-  private brandModel: BrandModel;
-  private productModel: ProductModel;
-  constructor() {
-    this.brandModel = new BrandModel();
-    this.productModel = new ProductModel();
-  }
 
   private async updateMarkets(
     payload: IDistributorRequest,
@@ -82,7 +76,7 @@ class DistributorService {
       );
     }
 
-    const brand = await this.brandModel.find(payload.brand_id);
+    const brand = await brandRepository.find(payload.brand_id);
 
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
@@ -190,7 +184,7 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.DISTRIBUTOR.DISTRIBUTOR_NOT_FOUND);
     }
 
-    const brand = await this.brandModel.find(payload.brand_id);
+    const brand = await brandRepository.find(payload.brand_id);
 
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
@@ -345,7 +339,7 @@ class DistributorService {
   }
 
   public async getDistributorGroupByCountry(brandId: string) {
-    const brand = await this.brandModel.find(brandId);
+    const brand = await brandRepository.find(brandId);
 
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
@@ -371,7 +365,7 @@ class DistributorService {
   }
 
   public async getMarketDistributorGroupByCountry(productId: string) {
-    const product = await this.productModel.find(productId);
+    const product = await productRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
     }

@@ -1,6 +1,7 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-import AttributeServices from "./attribute.services";
+import AttributeServices from "./attribute.service";
+
 export default class AttributeController {
   constructor() {}
   public create = async (

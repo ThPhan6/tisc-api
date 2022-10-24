@@ -1,4 +1,4 @@
-import LocationModel from "@/model/location.models";
+import LocationModel from "@/model/location.model";
 import BaseRepository from "./base.repository";
 import { ILocationAttributes, SortOrder } from "@/types";
 import { isNumber } from "lodash";

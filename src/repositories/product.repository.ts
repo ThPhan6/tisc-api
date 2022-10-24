@@ -4,7 +4,7 @@ import {
   ProductWithRelationData,
 } from "@/types/product.type";
 import BaseRepository from "./base.repository";
-import ProductModel from "@/model/product.models";
+import ProductModel from "@/model/product.model";
 import { head, isUndefined } from "lodash";
 
 class ProductRepository extends BaseRepository<IProductAttributes> {
@@ -365,3 +365,4 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
 }
 
 export default new ProductRepository();
+export const productRepository = new ProductRepository();
