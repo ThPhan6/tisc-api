@@ -135,22 +135,3 @@ export interface ListBrandCustom {
   cards: IProductAttributes[];
   distributors: IDistributorAttributes[];
 }
-
-export interface BrandDataSummary {
-  created_at: string;
-  id: string;
-  is_deleted: false;
-  location_ids: string[];
-  logo: null;
-  mission_n_vision: null;
-  name: string;
-  official_websites: string[];
-  parent_company: null;
-  slogan: null;
-  status: number;
-  team_profile_ids: string[];
-  updated_at: null;
-  products: IProductAttributes;
-  locations: ILocationAttributes;
-  collections: ICollectionAttributes;
-}

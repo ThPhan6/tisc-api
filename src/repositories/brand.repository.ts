@@ -94,19 +94,19 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         RETURN d
       )
 
-      LET totalCollections = (
-        FOR collection IN collections
-        FILTER collection.brand_id == brands.id
-        FILTER collection.deleted_at == null
-        COLLECT WITH COUNT INTO length
-        return length
-      )
-
       LET cards = (
         FOR products in products
         FILTER products.brand_id == brands.id
         FILTER products.deleted_at == null
         RETURN products
+      )
+
+      LET totalCollections = (
+        FOR product IN cards
+        FOR collection IN collections
+        FILTER collection.id == product.collection_id
+        FILTER collection.deleted_at == null
+        RETURN DISTINCT collection.id
       )
 
       ${sort === "name" && order ? `SORT brands.name ${order}` : ``}
@@ -125,14 +125,14 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
             locations: LENGTH(locations),
             cards: LENGTH(cards),
             teams: totalUsers[0],
-            collections: totalCollections[0],
+            collections: LENGTH(totalCollections),
             assign_team: assignTeams,
             distributors: LENGTH(distributors),
           }
         ),
 
         cards,
-        distributors
+        distributors,
       }
     `;
     return (await this.model.rawQuery(rawQuery, params)) as ListBrandCustom[];
@@ -148,13 +148,141 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     return (await this.model.select().get()) as BrandAttributes[];
   }
 
-  public async getBrandSummary() {
-    return this.model
-      .getQuery()
-      .join("locations", "locations.relation_id", "==", "brands.id")
-      .join("collections", "collections.brand_id", "==", "brands.id")
-      .join("products", "products.brand_id", "==", "brands.id")
-      .get(true);
+  public async getOverallSummary(): Promise<{
+    brand: {
+      total: number;
+      totalLocation: number;
+      totalUser: number;
+    };
+    countries: {
+      regions: string[];
+      summary: {
+        region: string;
+        count: number;
+      }[];
+    };
+    product: {
+      total: number;
+      categories: number;
+      collections: number;
+      cards: number;
+    };
+  }> {
+    const summary = await this.model.rawQueryV2(
+      `
+      LET brand = (
+        FOR b in brands
+        FILTER b.deleted_at == null
+
+        LET loc = (
+          FOR loc IN locations
+          FILTER loc.relation_id == b.id
+          FILTER loc.deleted_at == null
+          LET country = (
+            FOR c in countries
+            FILTER c.deleted_at == null
+            FILTER c.id == loc.country_id
+            RETURN c
+          )
+          RETURN MERGE(loc, {country: country[0]})
+        )
+        LET user = (
+          FOR u IN users
+          FILTER u.relation_id == b.id
+          FILTER u.deleted_at == null
+          COLLECT WITH COUNT INTO length
+          RETURN length
+        )
+
+        RETURN { brand: b, loc, userCount: user[0] }
+      )
+
+      LET brandLoc = (
+        FOR b IN brand
+        RETURN b.loc
+      )
+      LET locations = FLATTEN(brandLoc)
+
+      LET users = (
+        FOR b IN brand
+        RETURN b.userCount
+      )
+
+      LET regions = (
+        FOR c IN countries
+        FILTER c.region != ""
+        FILTER c.deleted_at == null
+        RETURN DISTINCT c.region
+      )
+      LET countries = (
+        FOR loc IN locations
+        FILTER loc.country != null
+        FILTER loc.deleted_at == null
+        COLLECT group = loc.country.region INTO countryGroup
+        RETURN {
+          region: group,
+          count: COUNT(countryGroup)
+        }
+      )
+
+      LET allProducts = (
+        FOR p IN products
+        FILTER p.deleted_at == null
+        FOR b IN brand
+        FILTER p.brand_id == b.brand.id
+        RETURN DISTINCT p
+      )
+
+      LET categories = (
+        FOR p in allProducts 
+        FOR cate1 IN categories
+        FILTER cate1.deleted_at == null
+        FOR cate2 IN cate1.subs
+        FOR cate3 IN cate2.subs
+        FILTER cate3.id IN p.category_ids
+        RETURN DISTINCT cate3
+      )
+
+      LET allCollection = (
+        FOR p in allProducts
+        FOR coll IN collections
+        FILTER coll.deleted_at == null
+        FILTER coll.id == p.collection_id
+        RETURN DISTINCT coll.id
+      )
+
+      LET productVariants = (
+        LET basisOptionCount = (
+            FOR p IN allProducts
+            FOR specGroup IN p.specification_attribute_groups
+            FOR attribute IN specGroup.attributes
+            FILTER attribute.type == "Options"
+            RETURN LENGTH(attribute.basis_options)
+        )
+        RETURN SUM(basisOptionCount)
+      )
+
+      RETURN {
+        brand: {
+          total: LENGTH(brand),
+          totalLocation: LENGTH(locations),
+          totalUser: SUM(users),
+        },
+        countries: {
+          summary: countries,
+          regions
+        },
+        product: {
+          total: productVariants[0],
+          collections: LENGTH(allCollection),
+          categories: LENGTH(categories),
+          cards: LENGTH(allProducts),
+        },
+      }
+    `,
+      {}
+    );
+    return summary[0];
   }
 }
 
