@@ -36,11 +36,12 @@ export default {
         ),
       has_cover: Joi.boolean(),
       document_title: Joi.string()
-        .required()
         .error(
           commonFailValidatedMessageFunction("Document Title is required")
         ),
-      template_ids: Joi.array().items(Joi.string()),
+      template_ids: Joi.array().items(Joi.string().required()).error(
+        commonFailValidatedMessageFunction("Please select at least one of template")
+      ),
     }
   }
 };
