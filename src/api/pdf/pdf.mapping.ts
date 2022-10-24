@@ -1,4 +1,4 @@
-import {TemplateAttributes, TemplateGroup, TemplateSpecify, TemplateGroupValue} from '@/types';
+import {TemplateAttributes, TemplateGroup, TemplateSpecify, TemplateGroupType} from '@/types';
 import {mapValues, isEmpty, uniqBy, uniqWith, isEqual, uniq} from 'lodash';
 import {formatNumberDisplay} from '@/helper/common.helper';
 
@@ -63,9 +63,7 @@ export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
 export const groupSpecifyTemplates = (templates: TemplateAttributes[]) => {
   const response: {
     introTemplates: TemplateAttributes[],
-    specificationTemplates: {
-      [key: TemplateGroupValue]: TemplateAttributes[]
-    }
+    specificationTemplates: Omit<TemplateGroupType, 1 | 2>
   } = {
     introTemplates: [],
     specificationTemplates: {
