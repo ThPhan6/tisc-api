@@ -1,13 +1,6 @@
-import Model from "./index";
+import { IContactAttributes } from "@/types/contact.type";
+import Model from "@/Database/Model";
 
-export interface IContactAttributes {
-  id: string;
-  name: string;
-  email: string;
-  inquiry: string | null;
-  created_at: any;
-  is_deleted: boolean;
-}
 export const CONTACT_NULL_ATTRIBUTES = {
   id: null,
   name: null,
@@ -16,8 +9,8 @@ export const CONTACT_NULL_ATTRIBUTES = {
   created_at: null,
   is_deleted: false,
 };
+
 export default class ContactModel extends Model<IContactAttributes> {
-  constructor() {
-    super("contacts");
-  }
+  protected table = "contacts";
+  protected softDelete = true;
 }

@@ -6,6 +6,7 @@ import {
 import AutoEmailRepository from "@/repositories/auto_email.repository";
 import { mappingAutoEmails } from "./auto_email.mapping";
 import { IUpdateAutoEmailRequest } from "./auto_email.type";
+
 export default class AutoEmailService {
   private autoEmailRepository: AutoEmailRepository;
   constructor() {
@@ -57,3 +58,4 @@ export default class AutoEmailService {
     });
   }
 }
+export const autoEmailService = new AutoEmailService();

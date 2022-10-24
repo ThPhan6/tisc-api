@@ -1,6 +1,7 @@
-import { documentationService } from "./documentation.services";
+import { documentationService } from "./documentation.service";
 import { IDocumentationRequest, IHowto } from "./documentation.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+
 export default class DocumentationController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, sort } = req.query;

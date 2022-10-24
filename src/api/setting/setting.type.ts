@@ -1,7 +1,9 @@
-import { ICityAttributes } from "../../model/city";
-import { ICountryAttributes } from "../../model/country";
-import { IStateAttributes } from "../../model/state";
-import { IPagination } from "../../type/common.type";
+import {
+  IStateAttributes,
+  ICountryAttributes,
+  ICityAttributes,
+  IPagination
+} from "@/types";
 
 export interface IFunctionalTypesResponse {
   data: {

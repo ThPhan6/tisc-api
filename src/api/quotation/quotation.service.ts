@@ -7,6 +7,7 @@ import {
 import QuotationRepository from "@/repositories/quotation.repository";
 import { successMessageResponse } from "@/helper/response.helper";
 import { IQuotationRequest } from "./quotation.type";
+
 export default class QuotationService {
   private quotationRepository: QuotationRepository;
   constructor() {
@@ -75,3 +76,4 @@ export default class QuotationService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
+export const quotationService = new QuotationService();

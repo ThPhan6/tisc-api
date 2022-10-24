@@ -1,6 +1,6 @@
 import { ProjectAttributes, SortOrder } from "@/types";
 import BaseRepository from "@/repositories/base.repository";
-import ProjectModel from "@/model/project.models";
+import ProjectModel from "@/model/project.model";
 import { forEach } from "lodash";
 
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
@@ -71,7 +71,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     LIMIT @offset, @limit
     RETURN MERGE(
       KEEP(
-        projects, 
+        projects,
         'id','code','name','location','project_type',
         'building_type','design_due','design_id','status'
       ),

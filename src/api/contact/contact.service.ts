@@ -1,10 +1,11 @@
 import ContactRepository from "@/repositories/contact.repository";
-import { MESSAGES } from "@/constant/common.constant";
+import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
 import { IContactRequest } from "./contact.type";
+
 export default class ContactService {
   private contactRepository: ContactRepository;
   constructor() {
@@ -50,3 +51,5 @@ export default class ContactService {
     });
   }
 }
+
+export const contactService = new ContactService();
