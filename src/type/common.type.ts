@@ -10,13 +10,6 @@ export interface IPagination {
   page_count: number;
 }
 
-export type SystemType = 1 | 2 | 3;
-export interface ISystemType {
-  TISC: SystemType;
-  BRAND: SystemType;
-  DESIGN: SystemType;
-}
-
 export type SortOrder = "ASC" | "DESC";
 
 export type OrderMethodValue = 1 | 2;
@@ -39,16 +32,15 @@ export type InterestedInKey =
 export type MeasurementUnitValue = 1 | 2;
 export type MeasurementUnitKey = "Metric" | "Imperial";
 
-export type ProjectStatusValue = 1 | 2 | 3;
-export type ProjectStatusKey = "Live" | "On Hold" | "Archive";
-
 export type RegionKey =
   | "africa"
   | "asia"
   | "europe"
   | "north america"
   | "oceania"
-  | "south america";
+  | "south america"
+  | "americas"
+  | "northern_america";
 
 export type TargetedForValue = 1 | 2 | 3 | 4 | 5;
 export type TargetedForKey =
@@ -66,13 +58,6 @@ export type TopicTypeKey =
   | "Operation"
   | "Other";
 
-export type BrandStatusValue = 1 | 2 | 3;
-export type BrandStatusKey = "Active" | "Pending" | "Inactive";
-
-export type DesignStatusValue = 1 | 2;
-export type DesignStatusKey = "Active" | "Inactive";
-
-export type BasisType = 1 | 2 | 3;
 export type AttributeType = 1 | 2 | 3;
 export type DocumentationType = 1 | 2 | 3 | 4;
 
@@ -83,3 +68,14 @@ export type SpecifiedProductStatusKey =
   | "Cancelled"
   | "Re-specified"
   | "Specified";
+
+export interface ISummaryTale {
+  name: string;
+  value: number;
+}
+
+export interface ValidImage {
+  buffer: Buffer;
+  path: string;
+  mime_type: string;
+}

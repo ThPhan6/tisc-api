@@ -1,38 +1,20 @@
+import { ProjectStatus, ProjectStatusValue } from "@/types";
 import {
-  ConsiderProductStatusKey,
-  ConsiderProductStatusValue,
-  OrderMethodKey,
-  OrderMethodValue,
   InterestedInKey,
   InterestedInValue,
   MeasurementUnitKey,
   MeasurementUnitValue,
-  ProjectStatusKey,
-  ProjectStatusValue,
   RegionKey,
   TargetedForKey,
   TargetedForValue,
   TopicTypeKey,
   TopicTypeValue,
-  ISystemType,
-  BrandStatusKey,
-  BrandStatusValue,
-  DesignStatusKey,
-  DesignStatusValue,
-  BasisType,
   AttributeType,
   DocumentationType,
-  SpecifiedProductStatusValue,
 } from "../type/common.type";
 export const EMAIL_TYPE = {
   VERIFICATION: "verification",
   FORGOT_PASSWORD: "forgot_password",
-};
-
-export const SYSTEM_TYPE: ISystemType = {
-  TISC: 1,
-  BRAND: 2,
-  DESIGN: 3,
 };
 
 export const VALID_IMAGE_TYPES = [
@@ -43,55 +25,6 @@ export const VALID_IMAGE_TYPES = [
   "image/svg+xml",
 ];
 
-export const BRAND_STATUSES: {
-  ACTIVE: BrandStatusValue;
-  INACTIVE: BrandStatusValue;
-  PENDING: BrandStatusValue;
-} = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-  PENDING: 3,
-};
-
-export const BRAND_STATUS_OPTIONS: {
-  key: BrandStatusKey;
-  value: BrandStatusValue;
-}[] = [
-  {
-    key: "Active",
-    value: BRAND_STATUSES.ACTIVE,
-  },
-  {
-    key: "Pending",
-    value: BRAND_STATUSES.PENDING,
-  },
-  {
-    key: "Inactive",
-    value: BRAND_STATUSES.INACTIVE,
-  },
-];
-
-export const DESIGN_STATUSES: {
-  ACTIVE: DesignStatusValue;
-  INACTIVE: DesignStatusValue;
-} = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-};
-
-export const DESIGN_STATUS_OPTIONS: {
-  key: DesignStatusKey;
-  value: DesignStatusValue;
-}[] = [
-  {
-    key: "Active",
-    value: DESIGN_STATUSES.ACTIVE,
-  },
-  {
-    key: "Inactive",
-    value: DESIGN_STATUSES.INACTIVE,
-  },
-];
 export const MESSAGES = {
   SUCCESS: "Success.",
   AVAILABLE: "Available.",
@@ -124,30 +57,19 @@ export const MESSAGES = {
   COLLECTION_EXISTED: "Collection existed.",
   PRODUCT_EXISTED: "Product existed.",
   ATTRIBUTE_EXISTED: "Attribute existed.",
-  BASIS_OPTION_EXISTED: "Basis option existed.",
-  BASIS_PRESET_EXISTED: "Basis preset existed.",
   ATTRIBUTE_DUPLICATED: "Attributes duplicated.",
-  BASIS_OPTION_DUPLICATED: "Basis option names duplicated.",
-  BASIS_PRESET_DUPLICATED: "Basis preset names duplicated.",
   GROUP_ATTRIBUTE_DUPLICATED: "Attribute groups duplicated.",
   ATTRIBUTE_NOT_FOUND: "Attribute not found",
-  BASIS_CONVERSION_EXISTED: "Basis conversion existed",
-  BASIS_CONVERSION_NOT_FOUND: "Basis conversion not found",
-  BASIS_NOT_FOUND: "Basis not found",
-  BASIS_CONVERSION_GROUP_DUPLICATED: "Basis conversion group duplicated.",
-  BASIS_CONVERSION_DUPLICATED: "Conversion duplicated.",
   CATEGORY_DUPLICATED: "Category duplicated",
   SUB_CATEGORY_DUPLICATED: "Sub category duplicated",
   MAIN_CATEGORY_DUPLICATED: "Main category duplicated",
   IMAGE_INVALID: "Image invalid",
-  BASIS_OPTION_NOT_FOUND: "Basis option not found",
   LOCATION_NOT_FOUND: "Location not found",
   PRODUCT_NOT_FOUND: "Product not found",
   PRODUCT_DUPLICATED: "Product duplicated",
   PRODUCT_TIP_NOT_FOUND: "Product tip not found",
   PRODUCT_TIP_EXISTED: "Product tip existed",
   CONTENT_TIP_MAX_WORDS: "Content max 100 words",
-  BASIS_PRESET_NOT_FOUND: "Basis preset not found",
   COLLECTION_NOT_FOUND: "Collection not found",
   CANNOT_DELETE_COLLECTION_HAS_PRODUCT:
     "Cannot delete collection has products.",
@@ -160,8 +82,6 @@ export const MESSAGES = {
   BRAND_EXISTED: "Brand existed",
   DISTRIBUTOR_NOT_FOUND: "Distributor not found",
   DISTRIBUTOR_EXISTED: "Distributor existed",
-  MARKET_AVAILABILITY_EXISTED: "Market availability existed",
-  MARKET_AVAILABILITY_NOT_FOUND: "Market availability not found",
 
   PRODUCT_CATELOGUE_DOWNLOAD_EXISTED: "Product download existed",
   PRODUCT_CATELOGUE_DOWNLOAD_NOT_FOUND: "Product download not found",
@@ -218,15 +138,6 @@ export const MESSAGES = {
     "Can not remove because product is specifying in a project",
 };
 
-export const BASIS_TYPES: {
-  CONVERSION: BasisType;
-  PRESET: BasisType;
-  OPTION: BasisType;
-} = {
-  CONVERSION: 1,
-  PRESET: 2,
-  OPTION: 3,
-};
 export const ATTRIBUTE_TYPES: {
   GENERAL: AttributeType;
   FEATURE: AttributeType;
@@ -236,9 +147,6 @@ export const ATTRIBUTE_TYPES: {
   FEATURE: 2,
   SPECIFICATION: 3,
 };
-
-export const LONG_TEXT_ID = "aa4d21fe-c19b-40e3-aeaa-27423d794e27";
-export const SHORT_TEXT_ID = "66d7e3c1-1c8f-4743-99bf-f607d5379504";
 
 export const BASIS_OPTION_STORE = "basis-option";
 
@@ -341,6 +249,8 @@ export const REGION_KEY: {
   NORTH_AMERICA: RegionKey;
   OCEANIA: RegionKey;
   SOUTH_AMERICA: RegionKey;
+  AMERICAS: RegionKey;
+  NORTHERN_AMERICA: RegionKey;
 } = {
   AFRICA: "africa",
   ASIA: "asia",
@@ -348,6 +258,8 @@ export const REGION_KEY: {
   NORTH_AMERICA: "north america",
   OCEANIA: "oceania",
   SOUTH_AMERICA: "south america",
+  AMERICAS: "americas",
+  NORTHERN_AMERICA: "northern_america",
 };
 
 export const LOGO_PATH = {
@@ -378,30 +290,21 @@ export const LOGO_PATH = {
   MATERIAL: "/logo/material.svg",
 };
 
-export const PROJECT_STATUS: {
-  ARCHIVE: ProjectStatusValue;
-  LIVE: ProjectStatusValue;
-  ON_HOLD: ProjectStatusValue;
-} = {
-  ARCHIVE: 1,
-  LIVE: 2,
-  ON_HOLD: 3,
-};
 export const PROJECT_STATUS_OPTIONS: {
-  key: ProjectStatusKey;
+  key: ProjectStatus;
   value: ProjectStatusValue;
 }[] = [
   {
-    key: "Live",
-    value: PROJECT_STATUS.LIVE,
+    key: ProjectStatus.Live,
+    value: 0,
   },
   {
-    key: "On Hold",
-    value: PROJECT_STATUS.ON_HOLD,
+    key: ProjectStatus["On Hold"],
+    value: 1,
   },
   {
-    key: "Archive",
-    value: PROJECT_STATUS.ARCHIVE,
+    key: ProjectStatus.Archived,
+    value: 2,
   },
 ];
 export const MEASUREMENT_UNIT: {
@@ -463,60 +366,6 @@ export const INTERESTED_IN_OPTIONS: {
     value: INTERESTED_IN.PRODUCT_RECOMMENDATION,
   },
 ];
-
-export const CONSIDERED_PRODUCT_STATUS: {
-  CONSIDERED: ConsiderProductStatusValue;
-  RE_CONSIDERED: ConsiderProductStatusValue;
-  UNLISTED: ConsiderProductStatusValue;
-} = {
-  CONSIDERED: 1,
-  RE_CONSIDERED: 2,
-  UNLISTED: 3,
-};
-
-export const CONSIDERED_PRODUCT_STATUS_OPTIONS: {
-  key: ConsiderProductStatusKey;
-  value: ConsiderProductStatusValue;
-}[] = [
-  {
-    key: "Considered",
-    value: CONSIDERED_PRODUCT_STATUS.CONSIDERED,
-  },
-  {
-    key: "Re-considered",
-    value: CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED,
-  },
-  {
-    key: "Unlisted",
-    value: CONSIDERED_PRODUCT_STATUS.UNLISTED,
-  },
-];
-
-export const ORDER_METHOD: {
-  DIRECT_PURCHASE: OrderMethodValue;
-  CUSTOM_ORDER: OrderMethodValue;
-} = {
-  DIRECT_PURCHASE: 1,
-  CUSTOM_ORDER: 2,
-};
-
-export const ORDER_METHOD_OPTIONS: {
-  key: OrderMethodKey;
-  value: OrderMethodValue;
-}[] = [
-  { key: "Direct Purchase", value: ORDER_METHOD.DIRECT_PURCHASE },
-  { key: "Custom Order", value: ORDER_METHOD.CUSTOM_ORDER },
-];
-
-export const SPECIFIED_PRODUCT_STATUS: {
-  CANCELLED: SpecifiedProductStatusValue;
-  RE_SPECIFIED: SpecifiedProductStatusValue;
-  SPECIFIED: SpecifiedProductStatusValue;
-} = {
-  CANCELLED: 1,
-  RE_SPECIFIED: 2,
-  SPECIFIED: 3,
-};
 
 export const COMMON_TYPES = {
   SHARING_GROUP: 1,

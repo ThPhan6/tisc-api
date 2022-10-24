@@ -1,0 +1,77 @@
+export interface CommonTypes {
+  SHARING_GROUP: 1;
+  SHARING_PURPOSE: 2;
+  PROJECT_BUILDING: 3;
+  FINISH_SCHEDULES: 4;
+  COMPANY_FUNCTIONAL: 5;
+  PROJECT_INSTRUCTION: 6;
+  PROJECT_TYPE: 7;
+  PROJECT_REQUIREMENT: 8;
+  PROJECT_UNIT: 9;
+  DEPARTMENT: 10;
+  REQUEST_FOR: 11;
+  ACTION_TASK: 12;
+  ISSUE_FOR: 13;
+  CAPABILITIES: 14;
+}
+export type CommonTypeValue = CommonTypes[keyof CommonTypes];
+
+export interface CommonTypeAttributes {
+  id: string;
+  name: string;
+  type: CommonTypeValue;
+  relation_id: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface IPagination {
+  page: number;
+  page_size: number;
+  total: number;
+  page_count: number;
+}
+
+export interface ISummaryTale {
+  name: string;
+  value: number;
+}
+
+export interface ValidImage {
+  buffer: Buffer;
+  path: string;
+  mime_type: string;
+}
+
+export type SortOrder = "ASC" | "DESC";
+
+export type MeasurementUnitValue = 1 | 2;
+export type MeasurementUnitKey = "Metric" | "Imperial";
+
+export type FunctionalTypeValue = 1 | 2 | 3;
+export type FunctionalTypeKey = "Main office" | "Satellite office" | "Other";
+
+export type SummaryInfo = {
+  id: string;
+  quantity: number;
+  label: string;
+  subs?: SummaryInfo[];
+};
+
+export enum RespondedOrPendingStatus {
+  "Pending",
+  "Responded",
+}
+
+export enum ActiveStatus {
+  Active = 1,
+  Inactive = 2,
+  Pending = 3,
+}
+export type ActiveStatusKey = keyof typeof ActiveStatus;
+export type ActiveStatusValue = `${Extract<
+  ActiveStatus,
+  number
+>}` extends `${infer N extends number}`
+  ? N
+  : never;

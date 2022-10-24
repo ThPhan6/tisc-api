@@ -1,9 +1,24 @@
+import { paginationResponse } from "@/helper/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
   })
 );
+
+export const designResponse = {
+  name: Joi.string(),
+  parent_company: Joi.string().allow(""),
+  logo: Joi.string().allow(null),
+  slogan: Joi.string().allow(""),
+  profile_n_philosophy: Joi.string().allow(""),
+  official_website: Joi.string().allow(""),
+  team_profile_ids: Joi.array().items(Joi.string().allow(null)),
+  status: Joi.number(),
+  id: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string().allow(null),
+};
 
 export default {
   getList: Joi.object({
@@ -23,18 +38,9 @@ export default {
           on_hold: Joi.number(),
           archived: Joi.number(),
           status: Joi.number(),
-          status_key: Joi.any(),
-          assign_team: Joi.any(),
-          created_at: Joi.string(),
-          updated_at: Joi.string().allow(null),
         })
       ),
-      pagination: Joi.object({
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      }),
+      pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
   }) as any,

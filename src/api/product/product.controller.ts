@@ -1,5 +1,5 @@
-import ProductService from "./product.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { productService } from "./product.services";
 import {
   IProductAssignToProject,
   IProductRequest,
@@ -8,18 +8,14 @@ import {
 } from "./product.type";
 
 export default class ProductController {
-  private service: ProductService;
-  constructor() {
-    this.service = new ProductService();
-  }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { category_id, collection_id, brand_id } = req.query;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getList(
+    const response = await productService.getList(
+      userId,
       brand_id,
       category_id,
-      collection_id,
-      userId
+      collection_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -29,7 +25,7 @@ export default class ProductController {
   ) => {
     const { category_id, brand_id, name, sort, order } = req.query;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getListDesignerBrandProducts(
+    const response = await productService.getListDesignerBrandProducts(
       userId,
       brand_id,
       category_id,
@@ -37,26 +33,26 @@ export default class ProductController {
       sort,
       order
     );
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    return toolkit.response(response).code(response?.statusCode ?? 200);
   };
   public getBrandProductSummary = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
-    const response = await this.service.getBrandProductSummary(brand_id);
+    const response = await productService.getBrandProductSummary(brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.get(id, userId);
+    const response = await productService.get(id, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public duplicate = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.duplicate(id, userId);
+    const response = await productService.duplicate(id, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public create = async (
@@ -65,7 +61,7 @@ export default class ProductController {
   ) => {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.create(userId, payload);
+    const response = await productService.create(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public update = async (
@@ -75,18 +71,18 @@ export default class ProductController {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
-    const response = await this.service.update(id, payload, userId);
+    const response = await productService.update(id, payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.delete(id);
+    const response = await productService.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public likeOrUnlike = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.likeOrUnlike(id, userId);
+    const response = await productService.likeOrUnlike(id, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -95,12 +91,12 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const response = await this.service.getListRestCollectionProduct(id);
+    const response = await productService.getListRestCollectionProduct(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getProductOptions = async (req: Request, toolkit: ResponseToolkit) => {
     const { id, attribute_id } = req.params;
-    const response = await this.service.getProductOptions(id, attribute_id);
+    const response = await productService.getProductOptions(id, attribute_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public assign = async (
@@ -109,7 +105,7 @@ export default class ProductController {
   ) => {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.assign(userId, payload);
+    const response = await productService.assign(userId, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public shareByEmail = async (
@@ -118,15 +114,12 @@ export default class ProductController {
   ) => {
     const payload = req.payload;
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.shareByEmail(payload, userId);
+    const response = await productService.shareByEmail(payload, userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getSharingGroups = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
+  public getSharingGroups = async (req: Request, toolkit: ResponseToolkit) => {
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getSharingGroups(userId);
+    const response = await productService.getSharingGroups(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getSharingPurposes = async (
@@ -134,7 +127,7 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getSharingPurposes(userId);
+    const response = await productService.getSharingPurposes(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

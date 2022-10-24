@@ -1,167 +1,45 @@
-import * as HapiJoi from "joi";
+import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
+
+const locationData = Joi.object({
+  id: Joi.string(),
+  business_name: Joi.string(),
+  functional_types: Joi.array()
+    .items({
+      id: Joi.string(),
+      name: Joi.string(),
+    })
+    .allow(null, ""),
+  functional_type: Joi.any(),
+  country_name: Joi.string().allow(""),
+  state_name: Joi.any(),
+  city_name: Joi.any(),
+  general_phone: Joi.string().allow(""),
+  general_email: Joi.string().allow(""),
+  created_at: Joi.string(),
+  phone_code: Joi.string().allow(""),
+  teams: Joi.number(),
+  address: Joi.string().allow(""),
+  business_number: Joi.string().allow(""),
+  city_id: Joi.string().allow(""),
+  country_id: Joi.string().allow(""),
+  functional_type_ids: Joi.array().items(Joi.string().allow(null, "")),
+  postal_code: Joi.string().allow(""),
+  relation_id: Joi.string().allow(null),
+  state_id: Joi.string().allow(""),
+  type: Joi.number().allow(null),
+  updated_at: Joi.string().allow(null),
+});
+
 export default {
-  countries: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        name: Joi.string(),
-        iso3: Joi.string(),
-        iso2: Joi.string(),
-        numeric_code: Joi.any(),
-        phone_code: Joi.string(),
-        capital: Joi.any(),
-        currency: Joi.string(),
-        currency_name: Joi.string(),
-        currency_symbol: Joi.string(),
-        tld: Joi.string(),
-        native: Joi.any(),
-        region: Joi.any(),
-        subregion: Joi.any(),
-        timezones: Joi.string(),
-        latitude: Joi.number().allow("", null),
-        longitude: Joi.number().allow("", null),
-        emoji: Joi.string(),
-        emojiU: Joi.string(),
-      })
-    ),
-  }) as any,
-  country: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.object({
-      id: Joi.string(),
-      name: Joi.string(),
-      iso3: Joi.string(),
-      iso2: Joi.string(),
-      numeric_code: Joi.any(),
-      phone_code: Joi.string(),
-      capital: Joi.any(),
-      currency: Joi.string(),
-      currency_name: Joi.string(),
-      currency_symbol: Joi.string(),
-      tld: Joi.string(),
-      native: Joi.any(),
-      region: Joi.any(),
-      subregion: Joi.any(),
-      timezones: Joi.string(),
-      latitude: Joi.number().allow("", null),
-      longitude: Joi.number().allow("", null),
-      emoji: Joi.string(),
-      emojiU: Joi.string(),
-    }),
-  }) as any,
-  states: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        name: Joi.string(),
-        country_id: Joi.string(),
-        country_code: Joi.string(),
-        country_name: Joi.string(),
-        state_code: Joi.string(),
-        type: Joi.any(),
-        latitude: Joi.number().allow("", null),
-        longitude: Joi.number().allow("", null),
-      })
-    ),
-  }) as any,
-  state: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.object({
-      id: Joi.string(),
-      name: Joi.string(),
-      country_id: Joi.string(),
-      country_code: Joi.string(),
-      country_name: Joi.string(),
-      state_code: Joi.string(),
-      type: Joi.any(),
-      latitude: Joi.number().allow("", null),
-      longitude: Joi.number().allow("", null),
-    }),
-  }) as any,
-  cities: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        name: Joi.string(),
-        state_id: Joi.string(),
-        state_code: Joi.string(),
-        state_name: Joi.string(),
-        country_id: Joi.string(),
-        country_code: Joi.string(),
-        country_name: Joi.string(),
-        latitude: Joi.number().allow("", null),
-        longitude: Joi.number().allow("", null),
-        wikiDataId: Joi.string().allow("", null),
-      })
-    ),
-  }) as any,
-  city: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.object({
-      id: Joi.string(),
-      name: Joi.string(),
-      state_id: Joi.string(),
-      state_code: Joi.string(),
-      state_name: Joi.string(),
-      country_id: Joi.string(),
-      country_code: Joi.string(),
-      country_name: Joi.string(),
-      latitude: Joi.number().allow("", null),
-      longitude: Joi.number().allow("", null),
-      wikiDataId: Joi.string(),
-    }),
-  }) as any,
   getOne: Joi.object({
     statusCode: Joi.number(),
-    data: Joi.object({
-      id: Joi.string(),
-      business_name: Joi.string(),
-      business_number: Joi.string(),
-      functional_types: Joi.array().items({
-        id: Joi.string(),
-        name: Joi.string(),
-      }),
-      functional_type: Joi.any(),
-      country_id: Joi.string(),
-      state_id: Joi.any(),
-      city_id: Joi.any(),
-      country_name: Joi.string(),
-      state_name: Joi.any(),
-      city_name: Joi.any(),
-      address: Joi.string(),
-      postal_code: Joi.string(),
-      general_phone: Joi.string(),
-      general_email: Joi.string(),
-      created_at: Joi.string(),
-      phone_code: Joi.string(),
-    }),
+    data: locationData,
   }) as any,
   getList: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({
-      locations: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          business_name: Joi.string(),
-          functional_types: Joi.array().items({
-            id: Joi.string(),
-            name: Joi.string(),
-          }),
-          functional_type: Joi.any(),
-          country_name: Joi.string().allow(""),
-          state_name: Joi.any(),
-          city_name: Joi.any(),
-          general_phone: Joi.string().allow(""),
-          general_email: Joi.string().allow(""),
-          created_at: Joi.string(),
-          phone_code: Joi.string().allow(""),
-          teams: Joi.number(),
-        })
-      ),
+      locations: Joi.array().items(locationData),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),
@@ -175,49 +53,7 @@ export default {
     data: Joi.array().items({
       country_name: Joi.string(),
       count: Joi.number(),
-      locations: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          business_name: Joi.string(),
-          business_number: Joi.string(),
-          functional_types: Joi.array().items({
-            id: Joi.string(),
-            name: Joi.string(),
-          }),
-          functional_type: Joi.any(),
-          country_id: Joi.any(),
-          state_id: Joi.any(),
-          city_id: Joi.any(),
-          country_name: Joi.string(),
-          state_name: Joi.any(),
-          city_name: Joi.any(),
-          general_phone: Joi.string(),
-          general_email: Joi.string(),
-          created_at: Joi.string(),
-          phone_code: Joi.string(),
-          postal_code: Joi.string(),
-          address: Joi.string(),
-        })
-      ),
-    }),
-  }) as any,
-  getlistFunctionalType: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.array().items({
-      id: Joi.string(),
-      name: Joi.string(),
-    }),
-  }) as any,
-  getListRegion: Joi.object({
-    statusCode: Joi.number(),
-    data: Joi.array().items({
-      count: Joi.number(),
-      name: Joi.string(),
-      countries: Joi.array().items({
-        id: Joi.string(),
-        name: Joi.string(),
-        phone_code: Joi.string(),
-      }),
+      locations: Joi.array().items(locationData),
     }),
   }) as any,
 };

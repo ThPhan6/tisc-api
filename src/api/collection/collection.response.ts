@@ -13,6 +13,7 @@ export default {
         brand_id: Joi.any(),
         name: Joi.string(),
         created_at: Joi.string(),
+        updated_at: Joi.string().allow(null),
       }),
       pagination: Joi.object({
         page: Joi.number(),
@@ -24,7 +25,13 @@ export default {
     statusCode: Joi.number(),
   }) as any,
   getOne: Joi.object({
-    data: Joi.any(),
+    data: Joi.object({
+      id: Joi.string(),
+      brand_id: Joi.string(),
+      name: Joi.string(),
+      created_at: Joi.string(),
+      updated_at: Joi.string().allow(null),
+    }),
     statusCode: Joi.number(),
   }) as any,
 };

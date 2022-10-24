@@ -1,4 +1,5 @@
-import { IPagination } from "./../../type/common.type";
+import { ActiveStatus, ILocationAttributes, IPagination } from "@/types";
+
 export interface IDesignersResponse {
   data: {
     designers: {
@@ -24,25 +25,29 @@ export interface IDesignersResponse {
   statusCode: number;
 }
 
-export interface IDesignerResponse {
-  data: any;
-  statusCode: number;
-}
-
-export interface IDesignSummary {
-  data: {
+export interface DesignerDataCustom {
+  designer: {
+    created_at: string;
     id: string;
-    quantity: number;
-    label: string;
-    subs: {
-      id: string;
-      quantity: number;
-      label: string;
-    }[];
+    logo: string | null;
+    name: string;
+    status: ActiveStatus;
+  };
+  userCount: number;
+  origin_location: ILocationAttributes[];
+  projects: number[];
+  assign_team: {
+    avatar: string | null;
+    email: string;
+    firstname: string;
+    id: string;
+    lastname: string;
+    updated_at: string | null;
   }[];
-  statusCode: number;
 }
 
-export interface IUpdateDesignStatusRequest {
-  status: number;
-}
+export type GetDesignFirmSort =
+  | "created_at"
+  | "name"
+  | "origin"
+  | "main_office";

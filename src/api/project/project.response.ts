@@ -1,3 +1,6 @@
+import { getEnumValues } from "@/helper/common.helper";
+import { paginationResponse } from "@/helper/response.helper";
+import { ProjectStatus } from "@/types";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -20,12 +23,7 @@ export default {
   }) as any,
   getList: Joi.object({
     data: Joi.object({
-      pagination: {
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      },
+      pagination: paginationResponse,
       projects: Joi.array().items({
         id: Joi.string(),
         code: Joi.string(),
@@ -34,10 +32,12 @@ export default {
         project_type: Joi.string(),
         building_type: Joi.string(),
         design_due: Joi.string(),
-        status: Joi.number(),
-        teams: Joi.array().items({
+        design_id: Joi.string(),
+        status: Joi.number().valid(...getEnumValues(ProjectStatus)),
+        assign_teams: Joi.array().items({
           id: Joi.string(),
-          name: Joi.string(),
+          firstname: Joi.string(),
+          lastname: Joi.string(),
           avatar: Joi.any(),
         }),
       }),
@@ -50,10 +50,6 @@ export default {
       id: Joi.string(),
       name: Joi.string(),
     }),
-  }) as any,
-  getMeasurementUnitOptions: Joi.array().items({
-    key: Joi.string(),
-    value: Joi.number(),
   }) as any,
   getSummary: Joi.object({
     projects: Joi.number(),

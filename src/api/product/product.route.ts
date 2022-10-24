@@ -257,7 +257,7 @@ export default class ProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: ProductResponse.commonTypes
+                200: ProductResponse.commonTypes,
               },
             },
           },
@@ -273,7 +273,7 @@ export default class ProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: ProductResponse.commonTypes
+                200: ProductResponse.commonTypes,
               },
             },
           },

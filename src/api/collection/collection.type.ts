@@ -1,9 +1,5 @@
-import { IPagination } from "./../../type/common.type";
-export interface ICollection {
-  id: string;
-  name: string;
-  created_at: string;
-}
+import { IPagination, ICollection } from "@/types";
+
 export interface ICollectionRequest {
   name: string;
   brand_id: string;

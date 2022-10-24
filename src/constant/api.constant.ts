@@ -209,7 +209,7 @@ export const ROUTES = {
   GET_DISTRIBUTOR_GROUP_BY_COUNTRY:
     "/api/distributor/get-list-group-by-country",
   GET_ALL_PROJECT: "/api/project/get-all",
-  GET_MATERIAL_CODE_GROUP: "/api/material-code/get-list-group/{design_id}",
+  GET_MATERIAL_CODES: "/api/material-code/get-list",
   UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
   UPDATE_BRAND_STATUS: "/api/brand/update-status/{id}",
   GET_LIST_ASSIGNED_PROJECT:
@@ -229,6 +229,33 @@ export const ROUTES = {
   DELETE_PRODUCT_SPECIFIED_STATUS: "/api/specified-product/delete/{id}",
   GET_LIST_QUOTATION_NOT_AUTH: "/api/quotation/landing-page/get-list",
   GET_LIST_FINISH_SCHEDULE_FOR: "/api/finish-schedule-for/get-list",
+
+  GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
+  UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
+
+  ASSIGN_PRODUCT_TO_A_PROJECT: "/api/project/assign-product",
+  GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT:
+    "/api/project/{project_id}/product/{product_id}/assign-zones",
+  GET_CONSIDERED_PRODUCT_LIST:
+    "/api/project/{project_id}/considered-product/get-list",
+  DELETE_CONSIDERED_PRODUCT: "/api/project-product/{id}/delete",
+  UPDATE_CONSIDERED_PRODUCT_STATUS:
+    "/api/project-product/{id}/update-consider-status",
+  UPDATE_SPECIFIED_PRODUCT_STATUS:
+    "/api/project-product/{id}/update-specified-status",
+  UPDATE_CONSIDERED_PRODUCT_SPECIFY: "/api/project-product/{id}/update-specify",
+  GET_SPECIFYING_PRODUCTS_BY_BRAND:
+    "/api/project-product/get-list-by-brand/{project_id}",
+  GET_SPECIFYING_PRODUCTS_BY_MATERIAL:
+    "/api/project-product/get-list-by-material/{project_id}",
+  GET_SPECIFYING_PRODUCTS_BY_ZONE:
+    "/api/project-product/get-list-by-zone/{project_id}",
+
+  CREATE_PRODUCT_REQUEST: "/api/project-tracking/request/create",
+  GET_LIST_PROJECT_TRACKING: "/api/project-tracking/get-list",
+  GET_ONE_PROJECT_TRACKING: "/api/project-tracking/{id}/get-one",
+  UPDATE_PROJECT_TRACKING: "/api/project-tracking/{id}/update",
+  GET_PROJECT_TRACKING_SUMMARY: "/api/project-tracking/summary",
 };
 export const ROUTE_IDS = {
   GET_LIST_BRAND: "1",
@@ -406,7 +433,7 @@ export const ROUTE_IDS = {
   GET_CONSIDERED_PRODUCTS: "164",
   GET_CONSIDERED_PRODUCT_STATUS: "165",
   GET_BRAND_TEAM_GROUP_BY_COUNTRY: "166",
-  SPECIFY_PRODUCT: "167",
+  UPDATE_PRODUCT_SPECIFY: "167",
   GET_REQUIREMENT_TYPES: "168",
   GET_INSTRUCTION_TYPES: "169",
   GET_UNIT_TYPES: "170",
@@ -434,4 +461,11 @@ export const ROUTE_IDS = {
   DELETE_PRODUCT_SPECIFIED_STATUS: "192",
   GET_LIST_QUOTATION_NOT_AUTH: "193",
   GET_LIST_FINISH_SCHEDULE_FOR: "194",
+
+  GET_USER_SPEC_SELECTION: "195",
+  UPDATE_USER_SPEC_SELECTION: "196",
+
+  ASSIGN_PRODUCT_TO_A_PROJECT: "197",
+  GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT: "198",
+  GET_CONSIDERED_PRODUCT_LIST: "199",
 };

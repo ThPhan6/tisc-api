@@ -1,8 +1,7 @@
+import { getEnumValues } from "@/helper/common.helper";
+import { ProjectStatus } from "@/types";
 import * as Joi from "joi";
-import {
-  MEASUREMENT_UNIT,
-  PROJECT_STATUS,
-} from "../../constant/common.constant";
+import { MEASUREMENT_UNIT } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
@@ -55,11 +54,7 @@ export default {
           commonFailValidatedMessageFunction("Construction start is required")
         ),
       status: Joi.number()
-        .valid(
-          PROJECT_STATUS.ARCHIVE,
-          PROJECT_STATUS.LIVE,
-          PROJECT_STATUS.ON_HOLD
-        )
+        .valid(...getEnumValues(ProjectStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
@@ -118,13 +113,10 @@ export default {
           commonFailValidatedMessageFunction("Construction start is required")
         ),
       status: Joi.number()
-        .valid(
-          PROJECT_STATUS.ARCHIVE,
-          PROJECT_STATUS.LIVE,
-          PROJECT_STATUS.ON_HOLD
-        )
+        .valid(...getEnumValues(ProjectStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
+      team_profile_ids: Joi.array().items(Joi.string()).allow(null),
     },
   },
   getWithDesignId: {
@@ -133,6 +125,16 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Design is required")),
+    },
+  },
+  assignTeamProject: {
+    params: {
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project is required")),
+    },
+    payload: {
+      team_profile_ids: Joi.array().items(Joi.string()).allow(null),
     },
   },
 };

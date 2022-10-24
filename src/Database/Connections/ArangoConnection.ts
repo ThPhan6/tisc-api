@@ -1,0 +1,23 @@
+import { Database } from "arangojs";
+import DataParser from '../Parsers/DataParser';
+import {ENVIROMENT} from '@/config';
+
+class Connection extends Database {
+  private saveOpts = {waitForSync: true, returnNew: true};
+  constructor() {
+    super({
+      url: ENVIROMENT.DATABASE_HOSTNAME,
+    });
+    this.useDatabase(ENVIROMENT.DATABASE_NAME || "");
+    this.useBasicAuth(ENVIROMENT.DATABASE_USERNAME, ENVIROMENT.DATABASE_PASSWORD);
+  }
+
+  public async insert(collection: string, data: any) {
+    return DataParser.removeDocumentKey(
+      await this.collection(collection).save(data, this.saveOpts )
+    );
+  }
+}
+
+export type ConnectionInterface = typeof Connection;
+export default Connection;

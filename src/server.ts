@@ -1,13 +1,14 @@
+import { ENVIROMENT } from "@/config";
 import * as hapi from "@hapi/hapi";
 import Router from "./router";
-import * as dotenv from "dotenv";
+
 import * as Inert from "@hapi/inert";
 import * as Vision from "@hapi/vision";
 import * as HapiSwagger from "hapi-swagger";
 import AuthMiddleware from "./middleware/auth.middleware";
+import { slackService } from "./service/slack.service";
 import path from "path";
 
-dotenv.config();
 const swaggerOptions = {
   info: {
     title: "API Documentation",
@@ -40,8 +41,8 @@ const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
 ];
 
 const server: hapi.Server = new hapi.Server({
-  host: process.env.HOST,
-  port: process.env.PORT,
+  host: ENVIROMENT.HOST,
+  port: ENVIROMENT.PORT,
   routes: {
     cors: {
       origin: [`*`],
@@ -60,6 +61,7 @@ const server: hapi.Server = new hapi.Server({
         throw err;
       },
     },
+
     files: {
       relativeTo: path.join(__dirname, "../public"),
     },
@@ -67,22 +69,27 @@ const server: hapi.Server = new hapi.Server({
   debug: { request: ["error"] },
 });
 
+// catch 500 error only and push to TISC slack channel
+server.events.on("response", (event: any) => {
+  if (event.response?.statusCode === 500) {
+    slackService.errorHook(
+      event.path,
+      event.method,
+      event.response?._error?.stack ?? "",
+      event.payload,
+      event.params,
+      event.query
+    );
+  }
+});
+//
+
 async function start() {
   try {
-    await server.validator(require("joi"));
+    server.validator(require("joi"));
     await server.register(plugins);
     AuthMiddleware.registerAll(server);
     await Router.loadRoute(server);
-    server.route({
-      method: "GET",
-      path: "/public/{param*}",
-      options: {
-        auth: false,
-        handler(request, h) {
-          return h.file(request.path.slice(8));
-        },
-      },
-    });
     await server.start();
   } catch (err) {
     console.log(err);

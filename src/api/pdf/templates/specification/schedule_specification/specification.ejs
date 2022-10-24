@@ -1,0 +1,210 @@
+<div class="general-specification-content">
+  <% data.forEach(function(item) { %>
+    <table width="100%" class="dynamic-table">
+      <tr>
+          <td class="border-bottom-box-shadow-bold">
+            <span class="primary-roboto-light-8-18 uppercase"><%= item.material_code.code %></span>
+          </td>
+          <td class="border-bottom-box-shadow-bold" colspan="2">
+            <span class="primary-roboto-light-8-18 uppercase"><%= item.material_code.description %></span>
+          </td>
+          <td style="width: 108px;" class="border-bottom-box-shadow-bold">
+            <span class="normal-garamond-light-8-12 uppercase">date</span>
+            <span class="primary-roboto-light-8-18 uppercase"><%= item.specified_date %></span>
+          </td>
+        </tr>
+      <tr>
+        <td colspan="2">
+          <span class="primary-roboto-bold-8-18"><%= item.location.business_name %></span>
+        </td>
+        <td colspan="2">
+          <span class="primary-roboto-bold-8-18"><%= item.distributor.name %></span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"><%= item.location.address %>,</span>
+        </td>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"><%= item.distributor.address %>,</span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"
+            ><%= item.location.city_name %>, <%= item.location.country_name %>, <%= item.location.postal_code %></span
+          >
+        </td>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"
+            ><%= item.distributor.city_name %>, <%= item.distributor.country_name %>, <%= item.distributor.postal_code %></span
+          >
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">contact</span>
+          </div>
+          <span class="primary-roboto-light-8-18"><%= item.location.general_email %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">contact</span>
+          </div>
+          <span class="primary-roboto-light-8-18"><%= item.distributor.first_name %> <%= item.distributor.last_name %></span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work email</span>
+          </div>
+          <span class="primary-roboto-light-8-18"><%= item.location.general_email %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work email</span>
+          </div>
+          <span class="primary-roboto-light-8-18"
+            ><%= item.distributor.email %></span
+          >
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work phone</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.location.phone_code %> <%= item.location.general_phone %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work phone</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.phone %></span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="border-bottom-box-shadow">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work mobile</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.location.phone_code %> <%= item.location.general_phone %></span>
+        </td>
+        <td colspan="2" class="border-bottom-box-shadow">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work mobile</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.mobile %></span>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top" class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <span class="uppercase normal-garamond-light-8-12">collection</span>
+          <br />
+          <span class="uppercase normal-garamond-light-8-12">specification</span>
+        </td>
+        <td style="vertical-align:top" class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <span><%= item.product.collection.name %></span> <br />
+          <span><%= item.product.description %></span> <br />
+          <% item.options.forEach(function(option) { %>
+            <span><%= option %></span> <br />
+          <% }) %>
+        </td>
+        <td style="vertical-align:top" class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <span class="normal-garamond-light-8-12 uppercase">id</span>
+          <span style="margin-left: 8px">Product SKU #</span>
+        </td>
+        <td style="width: 108px;" class="border-bottom-box-shadow">
+          <img style="width: 108px; height: 108px;" src="<%= item.productImage %>"></img>
+        </td>
+      </tr>
+      <tr >
+        <td class="border-bottom-box-shadow primary-roboto-light-8-18 ">
+          <span class="normal-garamond-light-8-12 uppercase">dimension</span>
+        </td>
+        <td colspan="3" class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <span>L 0000 mm x W 0000 mm x H 0000 mm  (L 000 in x W 000 in x H 000 in)</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="primary-roboto-light-8-18 border-bottom-box-shadow">
+          <span class="normal-garamond-light-8-12 uppercase">weight</span>
+        </td>
+        <td class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <span>oo kg (00 lb)</span>
+        </td>
+        <td class="border-bottom-box-shadow primary-roboto-light-8-18" colspan="2">
+          <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">lead time</span>
+          <span>Time period</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="primary-roboto-light-8-18 border-bottom-box-shadow">
+          <span class="normal-garamond-light-8-12 uppercase">order</span>
+        </td>
+        <td class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <% if (item.order_method == 1) { %>
+            <span>Custom Order</span>
+          <% } else { %>
+            <span>Direct Purchase</span>
+          <% } %>
+        </td>
+        <td class="border-bottom-box-shadow primary-roboto-light-8-18" colspan="2">
+          <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">total qty</span>
+          <span><%= item.quantity %><span style="margin-left:8px"><%= item.unitType %></span></span>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: text-top;" class="border-bottom-box-shadow primary-roboto-light-8-18 ">
+          <span class="normal-garamond-light-8-12 uppercase">location</span>
+        </td>
+        <td colspan="3" class="border-bottom-box-shadow primary-roboto-light-8-18">
+          <p>
+            <% item.finish_schedules.forEach(function(finishSchedule, index) { %>
+              <%= finishSchedule.room_id %>/<%= finishSchedule.room_name %><% if (index < item.finish_schedules.length - 1) { %>,<% } %>
+            <% }) %>
+        </td>
+
+      </tr>
+      <tr style="height: 15px"></tr>
+    </table>
+    <table width='100%'>
+      <tr class="border-bottom-box-shadow-bold">
+          <td>
+            <span class="normal-roboto-bold-8-18">Approval Requirements Prior to Fabrication</span>
+          </td>
+        </tr>
+      <tr>
+          <td>
+            <span class="primary-roboto-light-8-18"><%= item.requirementTypes.join(', ') %></span>
+          </td>
+        </tr>
+        <tr style="height: 15px"></tr>
+      <tr class="border-bottom-box-shadow-bold">
+          <td>
+            <span class="normal-roboto-bold-8-18">General Instructions</span>
+          </td>
+        </tr>
+      <tr>
+          <td>
+            <span  class="primary-roboto-light-8-18"><%= item.instructionTypes.join(', ') %></span>
+          </td>
+        </tr>
+        <tr style="height: 18px"></tr>
+      <tr class="border-bottom-box-shadow-bold">
+          <td>
+            <span  class="normal-roboto-bold-8-18">Special instructions</span>
+          </td>
+        </tr>
+      <tr>
+          <td>
+            <span  class="primary-roboto-light-8-18"><%= item.special_instructions %></span>
+          </td>
+        </tr>
+        <tr style="height: 15px"></tr>
+    </table>
+    <div style="page-break-after:always;"></div>
+    <% }) %>
+  </div>

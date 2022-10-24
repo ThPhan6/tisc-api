@@ -1,4 +1,4 @@
-import { IAttributeGroupHasId } from "../api/product/product.type";
+import { IAttributeGroupWithOptionalId } from "./../api/product/product.type";
 import Model from "./index";
 import { removeUnnecessaryArangoFields } from "../query_builder";
 export interface IProductAttributes {
@@ -9,9 +9,9 @@ export interface IProductAttributes {
   name: string;
   code: string;
   description: string | null;
-  general_attribute_groups: IAttributeGroupHasId[];
-  feature_attribute_groups: IAttributeGroupHasId[];
-  specification_attribute_groups: IAttributeGroupHasId[];
+  general_attribute_groups: IAttributeGroupWithOptionalId[];
+  feature_attribute_groups: IAttributeGroupWithOptionalId[];
+  specification_attribute_groups: IAttributeGroupWithOptionalId[];
   favorites: string[];
   images: string[];
   keywords: string[];
@@ -31,7 +31,7 @@ export interface ProductWithCollectionAndBrand extends IProductAttributes {
     id: string;
     name: string;
     logo: string;
-  }
+  };
 }
 
 export const PRODUCT_NULL_ATTRIBUTES = {

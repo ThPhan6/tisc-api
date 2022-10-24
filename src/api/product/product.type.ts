@@ -1,4 +1,8 @@
-import {ProductWithCollectionAndBrand} from '../../model/product.model';
+import {
+  ProductWithCollectionAndBrand,
+  ProductTip,
+  ProductDownload,
+} from "@/types/product.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -71,6 +75,9 @@ export interface IProductRequest {
   keywords: string[];
   brand_location_id: string;
   distributor_location_id: string;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -85,6 +92,9 @@ export interface IUpdateProductRequest {
   keywords: string[];
   brand_location_id: string;
   distributor_location_id: string;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
 }
 export interface IProductResponse {
   data: IProduct;
@@ -192,8 +202,8 @@ export interface CommonTypeResponse {
   statusCode: number;
 }
 
-
-export interface ProductListResponse extends Omit<ProductWithCollectionAndBrand, 'favorites'| 'is_deleted'> {
+export interface ProductListResponse
+  extends Omit<ProductWithCollectionAndBrand, "favorites" | "is_deleted"> {
   is_liked: boolean;
   favorites: number;
 }
@@ -214,4 +224,14 @@ export interface IDesignerProductsResponse {
     product_count: number;
   };
   statusCode: number;
+}
+
+export interface IAttributeGroupWithOptionalId extends IAttributeGroup {
+  id?: string;
+}
+
+export interface IAttributeGroupWithOptionId {
+  id?: string;
+  name: string;
+  attributes: IProductOptionAttribute[];
 }

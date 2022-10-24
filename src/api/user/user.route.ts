@@ -1,12 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import IRoute from "@/helper/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./user.response";
-import commonValidate from "../../validate/common.validate";
+import { getListV2 } from "@/validate/common.validate";
 
 export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -42,7 +41,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getOne,
+                // 200: response.getOne,
               },
             },
           },
@@ -52,7 +51,7 @@ export default class UserRoute implements IRoute {
           path: ROUTES.GET_LIST_TEAM_PROFILE,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: getListV2,
             description: "Method that get list user",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
@@ -148,27 +147,11 @@ export default class UserRoute implements IRoute {
           },
         },
         {
-          method: "GET",
-          path: ROUTES.GET_DEPARTMENTS,
-          options: {
-            handler: controller.getDepartments,
-            description: "Method that get departments",
-            tags: ["api", "Department"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getListDepartment,
-              },
-            },
-          },
-        },
-        {
           method: "POST",
           path: ROUTES.SEND_INVITE_TEAM_PROFILE,
           options: {
             handler: controller.invite,
-            validate: commonValidate.getOne,
+            validate: validate.getOne,
             description: "Method that invite team profile",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
@@ -184,7 +167,7 @@ export default class UserRoute implements IRoute {
           path: ROUTES.DELETE_TEAM_PROFILE,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: validate.getOne,
             description: "Method that delete team profile",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,

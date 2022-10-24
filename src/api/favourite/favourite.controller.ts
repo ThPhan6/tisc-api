@@ -1,22 +1,17 @@
-import FavouriteService from "./favourite.service";
-import ProductService from "../product/product.service";
+import { productService } from "./../product/product.services";
+import {favouriteService} from "./favourite.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   RetrieveRequestBody,
   FavouriteListRequestQuery,
 } from "./favourite.type";
+import {UserAttributes} from '@/types';
 
 export default class FavouriteController {
-  private favoriteService: FavouriteService;
-  private productService: ProductService;
-  constructor() {
-    this.favoriteService = new FavouriteService();
-    this.productService = new ProductService();
-  }
 
   public skip = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.favoriteService.skip(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await favouriteService.skip(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -25,12 +20,12 @@ export default class FavouriteController {
     toolkit: ResponseToolkit
   ) => {
     const { personal_email, mobile, phone_code } = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.favoriteService.retrieve(
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await favouriteService.retrieve(
       personal_email,
       mobile,
       phone_code,
-      userId
+      user
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -40,9 +35,7 @@ export default class FavouriteController {
     toolkit: ResponseToolkit
   ) => {
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.productService.getFavoriteProductSummary(
-      userId
-    );
+    const response = await productService.getFavoriteProductSummary(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -62,7 +55,7 @@ export default class FavouriteController {
       filterCategoryId = undefined;
     }
     const userId = req.auth.credentials.user_id as string;
-    const response = await this.productService.getFavouriteList(
+    const response = await productService.getFavouriteList(
       userId,
       order,
       filterBrandId,

@@ -11,6 +11,12 @@ export interface IFunctionalTypesResponse {
   statusCode: number;
 }
 
+export enum DesignFirmFunctionalType {
+  "Main office" = "1",
+  "Satellite" = "2",
+  "Other" = "3",
+}
+
 export interface ILocation {
   id: string;
   business_name: string;
@@ -47,7 +53,7 @@ export interface ILocationsResponse {
 
 export interface ILocationRequest {
   business_name: string;
-  business_number: string;
+  business_number?: string;
   functional_type_ids: string[];
   country_id: string;
   state_id: string;

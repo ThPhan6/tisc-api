@@ -1,0 +1,61 @@
+<div class="general-specification-content">
+  <table width="100%" class="dynamic-table">
+    <tr>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="pdlr-8 color-white uppercase">code</span>
+      </td>
+      <td height="24" width="50%" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">description</span>
+      </td>
+      <td height="24" width="48" class="normal-roboto-bold-8-18 bg-black" style="text-align: center">
+        <span class="color-white uppercase">quantity</span>
+      </td>
+
+      <td height="24" width="60" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">unit</span>
+      </td>
+      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+        <span class="color-white uppercase">order method</span>
+      </td>
+    </tr>
+    <% data.forEach(function(item) { %>
+      <tr>
+        <td class="border-bottom-box-shadow-bold">
+          <span class="primary-roboto-bold-8-18"><%= item.room_id %></span>
+        </td>
+        <td class="border-bottom-box-shadow-bold" colspan="4">
+          <span class="primary-roboto-bold-8-18"><%= item.room_name %></span>
+        </td>
+      </tr>
+
+      <% item.data.forEach(function(item) { %>
+        <tr>
+          <td>
+            <span class="primary-roboto-light-8-18"><%= item.material_code.code %></span>
+          </td>
+          <td>
+            <span class="primary-roboto-light-8-18"><%= item.material_code.description %></span>
+          </td>
+
+          <td width="60" style="text-align: center">
+            <span class="primary-roboto-light-8-18"><%= item.quantity %></span>
+          </td>
+          <td>
+            <span class="primary-roboto-light-8-18"><%= item.unitType %></span>
+          </td>
+          <td>
+            <span class="primary-roboto-light-8-18">
+              <% if (item.order_method == 1) { %>
+                <span>Custom Order</span>
+              <% } else { %>
+                <span>Direct Purchase</span>
+              <% } %>
+            </span>
+          </td>
+        </tr>
+      <% }) %>
+      <tr class="border-bottom-box-shadow"></tr>
+      <tr style="height: 18px"></tr>
+    <% }) %>
+  </table>
+</div>

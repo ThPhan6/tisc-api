@@ -5,28 +5,23 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const quotationResponseValidate = {
+  id: Joi.string(),
+  author: Joi.string(),
+  identity: Joi.string(),
+  quotation: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string().allow(null),
+};
+
 export default {
   getOne: Joi.object({
-    data: Joi.object({
-      id: Joi.string(),
-      author: Joi.string(),
-      identity: Joi.string(),
-      quotation: Joi.string(),
-      created_at: Joi.string(),
-    }),
+    data: Joi.object(quotationResponseValidate),
     statusCode: Joi.number(),
   }) as any,
   getList: Joi.object({
     data: Joi.object({
-      quotations: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          author: Joi.string(),
-          identity: Joi.string(),
-          quotation: Joi.string(),
-          created_at: Joi.string(),
-        })
-      ),
+      quotations: Joi.array().items(Joi.object(quotationResponseValidate)),
       pagination: Joi.object({
         page: Joi.number(),
         page_size: Joi.number(),

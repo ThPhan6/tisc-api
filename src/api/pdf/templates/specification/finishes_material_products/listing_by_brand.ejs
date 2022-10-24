@@ -1,0 +1,60 @@
+<div class="general-specification-content">
+  <table width="100%" class="dynamic-table">
+    <tr class="bg-black">
+      <td width="18" style="padding-top: 2px">
+        <span class="color-white uppercase"></span>
+      </td>
+      <td style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">collection</span>
+      </td>
+      <td style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">product</span>
+      </td>
+      <td width="50%" style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">option/variant</span>
+      </td>
+      <td width="40" style="padding: 0 4px">
+        <span class="normal-roboto-bold-8-18 color-white uppercase">code</span>
+      </td>
+    </tr>
+    <% data.forEach(function(item) { %>
+      <tr>
+        <td width="18" style="padding-top: 2px" class="border-bottom-box-shadow-bold">
+          <span></span>
+        </td>
+        <td style="padding: 0 4px" colspan="4" class="border-bottom-box-shadow-bold">
+          <span class="primary-roboto-bold-8-18 "><%= item.name %></span>
+        </td>
+      </tr>
+      <% item.data.forEach(function(groupData, index) { %>
+        <tr>
+          <td width="18" style="padding-top: <% if (index == 0) { %> 4px <% } else { %> 2px <% } %>">
+            <img
+              style="width: 14px; height: 14px; background-color: black; margin: 0;margin-top:2px"
+              src="<%= groupData.productImage %>"
+            ></img>
+          </td>
+          <td  style="padding: 0 4px" class="primary-roboto-light-8-18">
+            <span><%= groupData.product.collection.name %></span>
+          </td>
+          <td  style="padding: 0 4px" class="primary-roboto-light-8-18">
+            <span><%= groupData.product.description %></span>
+          </td>
+          <td width="50%" style="padding: 0 4px" class="primary-roboto-light-8-18">
+            <% if (groupData.specification.is_refer_document) { %>
+              <span>Refer to Design Document</span>
+            <% } else { %>
+              <span><%= groupData.options.join('; ') %></span>
+            <% } %>
+
+          </td>
+          <td width="40" style="padding: 0 4px" class="primary-roboto-light-8-18">
+            <span><%= groupData.material_code.code %></span>
+          </td>
+        </tr>
+      <% }) %>
+      <tr><td colspan="5" class="border-bottom-box-shadow"></td></tr>
+      <tr style="height: 15px;"></tr>
+    <% }) %>
+  </table>
+</div>

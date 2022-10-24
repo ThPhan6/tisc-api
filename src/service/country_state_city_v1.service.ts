@@ -1,3 +1,4 @@
+import {ENVIROMENT} from '@/config';
 import axios from "axios";
 
 export interface ICountry {
@@ -51,7 +52,7 @@ export interface ICity {
   name: string;
 }
 const url = "https://api.countrystatecity.in/v1";
-const api_key = process.env.X_CSCAPI_KEY || "";
+const api_key = ENVIROMENT.X_CSCAPI_KEY || "";
 const options = {
   headers: {
     "Content-Type": "application/json",

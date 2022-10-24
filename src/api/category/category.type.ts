@@ -1,3 +1,4 @@
+import { SubCategoryAttributes } from "@/types/category.type";
 import { IPagination } from "./../../type/common.type";
 export interface ICategoryAttributes {
   id: string;
@@ -14,7 +15,7 @@ export interface CategoryValue {
 
 export interface ICategoryRequest {
   name: string;
-  subs: any;
+  subs: SubCategoryAttributes[];
 }
 
 export interface ICategoryResponse {

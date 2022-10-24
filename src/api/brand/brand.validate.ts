@@ -1,5 +1,6 @@
-import * as Joi from "joi";
-import { BRAND_STATUSES } from "../../constant/common.constant";
+import { getEnumValues } from "@/helper/common.helper";
+import { ActiveStatus } from "@/types";
+import Joi from "joi";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
@@ -114,11 +115,7 @@ export default {
     },
     payload: {
       status: Joi.number()
-        .valid(
-          BRAND_STATUSES.ACTIVE,
-          BRAND_STATUSES.INACTIVE,
-          BRAND_STATUSES.PENDING
-        )
+        .valid(...getEnumValues(ActiveStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status required")),
     },
