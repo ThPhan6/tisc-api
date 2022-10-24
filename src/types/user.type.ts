@@ -20,13 +20,19 @@ export interface UserAttributes {
   is_verified: boolean;
   verification_token: string | null;
   reset_password_token: string | null;
-  status: number;
+  status: UserStatus;
   created_at: string | null;
   updated_at: string | null;
   type: UserType;
   relation_id: string;
   retrieve_favourite: boolean;
   interested: any[];
+}
+
+export enum UserStatus {
+  Active = 1,
+  Blocked = 2,
+  Pending = 3,
 }
 
 export enum UserType {

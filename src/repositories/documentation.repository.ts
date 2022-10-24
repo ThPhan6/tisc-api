@@ -49,6 +49,7 @@ class DocumentationRepository extends BaseRepository<IDocumentationAttributes> {
     FILTER documentations.type == @type
     let user = (
         FOR user in users
+        FILTER user.deleted_at == null
         FILTER documentations.created_by == user.id
         return KEEP(user, "firstname", "lastname", "id")
         )

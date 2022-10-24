@@ -9,8 +9,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import {uniqBy} from 'lodash';
-import {ENVIROMENT} from '@/config';
+import { ENVIROMENT } from "@/config";
 import { BrandAttributes, SortOrder, IProjectZoneAttributes } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
@@ -113,22 +112,26 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
     FOR products IN products
     FILTER products.id == project_products.product_id
+    FILTER products.deleted_at == null
 
     LET brands = (
       FOR brands IN brands
       FILTER brands.id == products.brand_id
+      FILTER brands.deleted_at == null
       RETURN brands
     )
 
     LET collections = (
       FOR collections IN collections
       FILTER collections.id == products.collection_id
+      FILTER collections.deleted_at == null
       RETURN collections
     )
 
     LET users = (
       FOR users IN users
       FILTER users.id == project_products.created_by
+      FILTER users.deleted_at == null
       RETURN users
     )
 
@@ -136,6 +139,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FOR user_product_specifications IN user_product_specifications
       FILTER user_product_specifications.user_id == @userId
       FILTER user_product_specifications.product_id == project_products.product_id
+      FILTER user_product_specifications.deleted_at == null
       RETURN user_product_specifications
     )
 
@@ -175,9 +179,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FILTER b.id == product.brand_id
         FILTER b.deleted_at == null
 
-        FOR collection IN collections
-        FILTER collection.id == product.collection_id
-        FILTER collection.deleted_at == null
+        FOR col IN collections
+        FILTER col.id == product.collection_id
+        FILTER col.deleted_at == null
 
         LET basisOptions = (
           LET basisIds = (
@@ -221,6 +225,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         RETURN MERGE(
           UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
           {
+            brand: UNSET(pro.b, ['_id', '_key', '_rev', 'deleted_at']),
+            collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
             collection_name: pro.collection.name,
             specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
             product_id: CONCAT_SEPARATOR(', ', productCode),
@@ -253,24 +259,30 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER project_products.deleted_at == null
       FOR products IN products
       FILTER products.id == project_products.product_id
+      FILTER products.deleted_at == null
       FOR brands IN brands
       FILTER brands.id == products.brand_id
+      FILTER brands.deleted_at == null
       FOR collections IN collections
       FILTER collections.id == products.collection_id
+      FILTER collections.deleted_at == null
       FOR users IN users
       FILTER users.id == @userId
+      FILTER users.deleted_at == null
       LET unit_type = (
         FOR common_types IN common_types
         FILTER common_types.id == project_products.unit_type_id
+        FILTER common_types.deleted_at == null
         RETURN common_types
       )
       LET code = (
       FOR material_codes IN material_codes
       FILTER material_codes.design_id == users.relation_id
-          FOR sub IN material_codes.subs
-              FOR code IN sub.codes
-              FILTER code.id == project_products.material_code_id
-              RETURN code
+      FILTER material_codes.deleted_at == null
+        FOR sub IN material_codes.subs
+          FOR code IN sub.codes
+          FILTER code.id == project_products.material_code_id
+          RETURN code
       )
       ${
         brand_order || material_code_order
@@ -309,15 +321,20 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     FILTER project_products.deleted_at == null
     FOR products IN products
     FILTER products.id == project_products.product_id
+    FILTER products.deleted_at == null
     FOR brands IN brands
     FILTER brands.id == products.brand_id
+    FILTER brands.deleted_at == null
     FOR collections IN collections
     FILTER collections.id == products.collection_id
+    FILTER collections.deleted_at == null
     FOR users IN users
     FILTER users.id == @userId
+    FILTER users.deleted_at == null
     LET code = (
     FOR material_codes IN material_codes
     FILTER material_codes.design_id == users.relation_id
+    FILTER material_codes.deleted_at == null
         FOR sub IN material_codes.subs
             FOR code IN sub.codes
             FILTER code.id == project_products.material_code_id
@@ -360,13 +377,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER project_products.id == @id
       FILTER project_products.deleted_at == null
       FOR project IN projects
-          FILTER project.deleted_at == null
-          FILTER project.id == project_products.project_id
-              FOR project_zone IN project_zones
-                  FOR area IN project_zone.areas
-                      FOR room IN area.rooms
-                          FILTER room.id IN @roomIds
-                            RETURN room
+      FILTER project.deleted_at == null
+      FILTER project.id == project_products.project_id
+          FOR project_zone IN project_zones
+              FOR area IN project_zone.areas
+                  FOR room IN area.rooms
+                      FILTER room.id IN @roomIds
+                        RETURN room
     `,
       params
     )) as IProjectZoneAttributes["areas"][0]["rooms"];
@@ -377,7 +394,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       `
         FOR project_products IN project_products
           FOR location IN locations
-            FILTER location.id == project_products.brand_location_id
+          FILTER location.id == project_products.brand_location_id
           FILTER location.deleted_at == null
         FOR distributor IN distributors
           FILTER distributor.id == project_products.distributor_location_id
@@ -389,12 +406,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         SORT project_products._key DESC
 
         FOR collection IN collections
-            filter collection.id == products.collection_id
-            filter collection.deleted_at == null
+            FILTER collection.id == products.collection_id
+            FILTER collection.deleted_at == null
 
         FOR brand IN brands
-            filter brand.id == products.brand_id
-            filter brand.deleted_at == null
+            FILTER brand.id == products.brand_id
+            FILTER brand.deleted_at == null
 
         FOR material_code IN material_codes
         FILTER material_code.deleted_at == null
@@ -404,6 +421,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
         LET categories = (
             FOR mainCategory IN categories
+            FILTER mainCategory.deleted_at == null
                 FOR subCategory IN mainCategory.subs
                     FOR category IN subCategory.subs
                         FOR categoryId IN products.category_ids
@@ -500,8 +518,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
       { projectId }
     );
-  }
-
+  };
 }
 export const projectProductRepository = new ProjectProductRepository();
 

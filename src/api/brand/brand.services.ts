@@ -1,11 +1,5 @@
 import { locationService } from "./../location/location.service";
-import {
-  BRAND_STATUSES,
-  MESSAGES,
-  ROLES,
-  SYSTEM_TYPE,
-  USER_STATUSES,
-} from "@/constants";
+import { BRAND_STATUSES, MESSAGES, ROLES, SYSTEM_TYPE } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
@@ -20,7 +14,7 @@ import { userRepository } from "@/repositories/user.repository";
 import CountryStateCityService from "@/service/country_state_city_v1.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import MailService from "@/service/mail.service";
-import { ActiveStatus, BrandAttributes, SortOrder } from "@/types";
+import { ActiveStatus, BrandAttributes, SortOrder, UserStatus } from "@/types";
 import { productService } from "../product/product.services";
 import {
   getCountryName,
@@ -290,7 +284,7 @@ class BrandService {
       role_id: ROLES.BRAND_ADMIN,
       verification_token: verificationToken,
       is_verified: false,
-      status: USER_STATUSES.PENDING,
+      status: UserStatus.Pending,
       type: SYSTEM_TYPE.BRAND,
       relation_id: createdBrand.id,
       location_id: defaultLocation?.id,

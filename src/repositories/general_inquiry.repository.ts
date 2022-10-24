@@ -154,6 +154,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
 
     FOR user IN users
     FILTER user.id == general_inquiries.created_by
+    FILTER user.deleted_at == null
     LET userPhoneCode = (
       FOR loc IN locations
       FILTER loc.id == user.location_id
@@ -163,8 +164,10 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     LET designFirm = (
       FOR d IN designers
       FILTER d.id == user.relation_id
+      FILTER d.deleted_at == null
       FOR loc IN locations
       FILTER loc.relation_id == d.id
+      FILTER loc.deleted_at == null
       RETURN MERGE(
         KEEP(d, 'name', 'official_website'), 
         KEEP(loc, 'address', 'city_name', 'state_name', 'country_name', 'general_phone', 'general_email', 'phone_code')
@@ -174,10 +177,13 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     LET product = (
       FOR products IN products
       FILTER products.id == general_inquiries.product_id
+      FILTER products.deleted_at == null
       FOR collection IN collections
       FILTER collection.id == products.collection_id
+      FILTER collection.deleted_at == null
       FOR brands IN brands
       FILTER brands.id == products.brand_id
+      FILTER brands.deleted_at == null
       RETURN MERGE(
         KEEP(products, 'id', 'name', 'description'), 
         {collection: collection.name, image: FIRST(products.images)}
@@ -186,6 +192,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
 
     LET inquiryFor = (
       FOR common_types IN common_types
+      FILTER common_types.deleted_at == null
       FILTER common_types.id IN general_inquiries.inquiry_for_ids
       SORT common_types.name ASC
       RETURN common_types.name
