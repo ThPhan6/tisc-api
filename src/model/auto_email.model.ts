@@ -1,16 +1,6 @@
-import Model from "./index";
-
-export interface IAutoEmailAttributes {
-  id: string;
-  topic: number;
-  targeted_for: number;
-  title: string;
-  message: string;
-  created_at: string;
-  is_deleted: boolean;
-}
+import Model from "@/Database/Model";
+import { IAutoEmailAttributes } from "@/types/auto_email.type";
 export default class AutoEmailModel extends Model<IAutoEmailAttributes> {
-  constructor() {
-    super("email_autoresponders");
-  }
+  protected table = "email_autoresponders";
+  protected softDelete = true;
 }

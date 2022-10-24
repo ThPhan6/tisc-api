@@ -1,4 +1,4 @@
-import QuotationModel from "@/model/quotation.models";
+import QuotationModel from "@/model/quotation.model";
 import {
   IQuotationAttributes,
   ListQuotationWithPagination,

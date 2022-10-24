@@ -7,8 +7,8 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { validateRoleType } from "@/helper/user.helper";
-import DesignModel from "@/model/designer.model";
 import { brandRepository } from "@/repositories/brand.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
@@ -30,10 +30,8 @@ import {
 
 export default class UserService {
   private mailService: MailService;
-  private designModel: DesignModel;
   constructor() {
     this.mailService = new MailService();
-    this.designModel = new DesignModel();
   }
 
   public create = async (
@@ -148,7 +146,7 @@ export default class UserService {
     }
 
     if (user.type === UserType.Designer) {
-      const design = await this.designModel.find(user.relation_id);
+      const design = await designerRepository.find(user.relation_id);
       return successResponse({
         data: { ...result, design },
       });

@@ -1,10 +1,10 @@
-import { SortOrder } from "./../types/common.type";
+import { SortOrder } from "@/types/common.type";
 import {
   IMaterialCodeAttributes,
   ICodeAttribute,
 } from "@/types/material_code.type";
 import BaseRepository from "./base.repository";
-import MaterialCodeModel from "@/model/material_code.models";
+import MaterialCodeModel from "@/model/material_code.model";
 import { head } from "lodash";
 
 class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {

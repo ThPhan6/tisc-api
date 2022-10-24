@@ -1,8 +1,8 @@
 import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { TARGETED_FOR_TYPES } from "./../constant/common.constant";
-import EmailAutoResponderModel from "../model/auto_email.model";
+import { TARGETED_FOR_TYPES } from "@/constant/common.constant";
+import {autoEmailRepository} from '@/repositories/auto_email.repository';
 import { unescape } from "lodash";
 import { SYSTEM_TYPE } from "@/constants";
 import { UserAttributes, UserType } from "@/types";
@@ -13,7 +13,6 @@ export default class MailService {
   private frontpageURL: string;
   private apiInstance: any;
   private sendSmtpEmail: object;
-  private emailAutoResponderModel: EmailAutoResponderModel;
   public constructor() {
     this.fromAddress = ENVIROMENT.SENDINBLUE_FROM || "";
     this.frontpageURL = ENVIROMENT.FE_URL || "";
@@ -21,7 +20,6 @@ export default class MailService {
       ENVIROMENT.SENDINBLUE_API_KEY;
     this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     this.sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    this.emailAutoResponderModel = new EmailAutoResponderModel();
   }
   private exeAfterSend = (resolve: any) => {
     return (
@@ -108,7 +106,7 @@ export default class MailService {
     browserName: string
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
-      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+      const emailAutoResponder = await autoEmailRepository.findBy({
         title: "User password reset request.",
         targeted_for: this.getTargetedFor(user.type),
       });
@@ -152,7 +150,7 @@ export default class MailService {
     senderUser: any
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
-      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+      const emailAutoResponder = await autoEmailRepository.findBy({
         title: "Welcome to the team!",
         targeted_for: this.getTargetedFor(inviteUser.type),
       });
@@ -184,7 +182,7 @@ export default class MailService {
   }
   public async sendDesignRegisterEmail(user: any): Promise<boolean> {
     return new Promise(async (resolve) => {
-      const emailAutoResponder = await this.emailAutoResponderModel.findBy({
+      const emailAutoResponder = await autoEmailRepository.findBy({
         title: "Successfully signed-up!",
       });
       const html = await ejs.render(

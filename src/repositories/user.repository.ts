@@ -1,4 +1,4 @@
-import UserModel from "@/model/user.models";
+import UserModel from "@/model/user.model";
 import BaseRepository from "./base.repository";
 import { SYSTEM_TYPE } from "@/constants";
 import { ActiveStatus, UserAttributes, UserStatus, UserType } from "@/types";

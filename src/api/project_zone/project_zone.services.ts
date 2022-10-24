@@ -8,9 +8,6 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import ConsideredProductModel from "@/model/considered_product.model";
-import ProjectModel from "@/model/project.model";
-import SpecifiedProductModel from "@/model/specified_product.model";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { ProjectAttributes, SortOrder, UserAttributes } from "@/types";
 import { projectService } from "./../project/project.services";
@@ -21,13 +18,8 @@ import {
   mappingResponseUnitRoomSize,
 } from "./project_zone.mapping";
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
+
 class ProjectZoneService {
-  private consideredProductModel: ConsideredProductModel;
-  private specifiedProductModel: SpecifiedProductModel;
-  constructor() {
-    this.consideredProductModel = new ConsideredProductModel();
-    this.specifiedProductModel = new SpecifiedProductModel();
-  }
 
   private async validateProjectZone(
     payload: IUpdateProjectZoneRequest,
@@ -244,24 +236,6 @@ class ProjectZoneService {
     );
     if (!project || !user) {
       return message;
-    }
-
-    const foundConsideredProduct =
-      await this.consideredProductModel.findConsideredProductByZone(
-        projectZoneId
-      );
-
-    if (foundConsideredProduct.total > 0) {
-      return errorMessageResponse(MESSAGES.ZONE_WAS_CONSIDERED);
-    }
-
-    const foundSpecifiedProduct =
-      await this.specifiedProductModel.findSpecifiedProductByZone(
-        projectZoneId
-      );
-
-    if (foundSpecifiedProduct.total > 0) {
-      return errorMessageResponse(MESSAGES.ZONE_WAS_SPECIFIED);
     }
 
     if (

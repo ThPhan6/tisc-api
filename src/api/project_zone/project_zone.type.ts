@@ -1,6 +1,3 @@
-import { IProjectAttributes } from "@/model/project.model";
-import { IMessageResponse, UserAttributes } from "@/types";
-
 export interface IProjectZoneRequest {
   project_id: string;
   name: string;

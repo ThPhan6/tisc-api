@@ -1,5 +1,5 @@
 import { ListBrandCustom } from "./../api/brand/brand.type";
-import BrandModel from "@/model/brand.models";
+import BrandModel from "@/model/brand.model";
 import BaseRepository from "./base.repository";
 import { BrandAttributes, SortOrder } from "@/types";
 

@@ -1,14 +1,14 @@
 import { distributorRepository } from "@/repositories/distributor.repository";
-import { marketAvailabilityRepository } from "./../../repositories/market_availability.repository";
+import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { MESSAGES } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import BrandModel from "@/model/brand.model";
 import CollectionRepository from "@/repositories/collection.repository";
-import CountryStateCityService from "@/service/country_state_city.service";
+import {brandRepository} from "@/repositories/brand.repository";
+import {countryStateCityService} from "@/service/country_state_city.service";
 import { IRegionCountry } from "@/types";
 import {
   mappingGroupByCollection,
@@ -23,18 +23,12 @@ import {
 } from "./market_availability.type";
 
 class MarketAvailabilityService {
-  private countryStateCityService: CountryStateCityService;
-  private brandModel: BrandModel;
-  constructor() {
-    this.countryStateCityService = new CountryStateCityService();
-    this.brandModel = new BrandModel();
-  }
 
   public async getRegionCountries(ids: string[]) {
     const countries = await Promise.all(
       ids.map(async (country_id) => {
         const countryDetail =
-          await this.countryStateCityService.getCountryDetail(country_id);
+          await countryStateCityService.getCountryDetail(country_id);
         return mappingRegionCountries(countryDetail);
       })
     );
@@ -45,7 +39,7 @@ class MarketAvailabilityService {
   }
 
   public async getBrandRegionCountries(brand_id: string) {
-    const brand = await this.brandModel.find(brand_id);
+    const brand = await brandRepository.find(brand_id);
 
     if (!brand) {
       return [];
