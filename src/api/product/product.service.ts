@@ -12,17 +12,17 @@ import {
 } from "@/helper/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
-import BrandRepository from "@/repositories/brand.repository";
+import {brandRepository} from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import ProductRepository from "@/repositories/product.repository";
-import ProductFavouriteRepository from "@/repositories/product_favourite.repository";
+import {productRepository} from "@/repositories/product.repository";
+import {productFavouriteRepository} from "@/repositories/product_favourite.repository";
 import { userRepository } from "@/repositories/user.repository";
-import CountryStateCityService from "@/service/country_state_city_v1.service";
+import {countryStateCityService} from "@/service/country_state_city.service";
 import {
   uploadImagesProduct,
   validateImageType,
 } from "@/service/image.service";
-import MailService from "@/service/mail.service";
+import {mailService} from "@/service/mail.service";
 import { BasisConversion } from "@/types/basis.type";
 import { difference } from "lodash";
 import {
@@ -38,25 +38,12 @@ import {
   mappingByCollections,
 } from "./product.mapping";
 import {
-  IProductAssignToProject,
   IProductOptionAttribute,
   IProductRequest,
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
 class ProductService {
-  private countryStateCityService: CountryStateCityService;
-  private mailService: MailService;
-
-  private brandRepository: BrandRepository;
-  private productFavouriteRepository: ProductFavouriteRepository;
-
-  constructor() {
-    this.countryStateCityService = new CountryStateCityService();
-    this.mailService = new MailService();
-    this.brandRepository = new BrandRepository();
-    this.productFavouriteRepository = new ProductFavouriteRepository();
-  }
 
   private getAllBasisConversion = async () => {
     const allBasisConversion = await BasisRepository.getAllBy({
@@ -67,7 +54,7 @@ class ProductService {
     }, []);
   };
   public async create(user_id: string, payload: IProductRequest) {
-    const product = await ProductRepository.findBy({
+    const product = await productRepository.findBy({
       name: payload.name,
       brand_id: payload.brand_id,
     });
@@ -98,7 +85,7 @@ class ProductService {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
 
-    const brand = await this.brandRepository.find(payload.brand_id);
+    const brand = await brandRepository.find(payload.brand_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
@@ -110,7 +97,7 @@ class ProductService {
       brand.id
     );
 
-    const createdProduct = await ProductRepository.create({
+    const createdProduct = await productRepository.create({
       brand_id: payload.brand_id,
       collection_id: payload.collection_id,
       category_ids: payload.category_ids,
@@ -135,11 +122,11 @@ class ProductService {
   }
 
   public async duplicate(id: string, user_id: string) {
-    const product = await ProductRepository.find(id);
+    const product = await productRepository.find(id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const created = await ProductRepository.create({
+    const created = await productRepository.create({
       ...product,
       name: product.name + " - copy",
     });
@@ -154,11 +141,11 @@ class ProductService {
     payload: IUpdateProductRequest,
     userId: string
   ) {
-    const product = await ProductRepository.findWithRelationData(id, userId);
+    const product = await productRepository.findWithRelationData(id, userId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const duplicatedProduct = await ProductRepository.getDuplicatedProduct(
+    const duplicatedProduct = await productRepository.getDuplicatedProduct(
       id,
       payload.name,
       product.brand_id
@@ -198,7 +185,7 @@ class ProductService {
           product.brand_id
         );
 
-    const updatedProduct = await ProductRepository.update(id, {
+    const updatedProduct = await productRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
       feature_attribute_groups: saveFeatureAttributeGroups,
@@ -212,14 +199,14 @@ class ProductService {
   }
 
   public async get(id: string, userId: string) {
-    const product = await ProductRepository.findWithRelationData(id, userId);
+    const product = await productRepository.findWithRelationData(id, userId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
 
     const officialWebsites = await Promise.all(
       product.brand.official_websites.map(async (officialWebsite) => {
-        const country = await this.countryStateCityService.getCountryDetail(
+        const country = await countryStateCityService.getCountryDetail(
           officialWebsite.country_id
         );
         return {
@@ -302,7 +289,7 @@ class ProductService {
   }
 
   public getBrandProductSummary = async (brandId: string) => {
-    const products = await ProductRepository.getProductBy(undefined, brandId);
+    const products = await productRepository.getProductBy(undefined, brandId);
     const collections = getUniqueCollections(products);
     const categories = getUniqueProductCategories(products);
     const variants = getTotalVariantOfProducts(products);
@@ -326,7 +313,7 @@ class ProductService {
     sortName?: string,
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
-    let products = await ProductRepository.getProductBy(
+    let products = await productRepository.getProductBy(
       userId,
       brandId,
       categoryId === "all" ? undefined : categoryId,
@@ -357,7 +344,7 @@ class ProductService {
     return successResponse({
       data: {
         data: returnedProducts,
-        brand: await this.brandRepository.find(brandId),
+        brand: await brandRepository.find(brandId),
       },
     });
   };
@@ -370,7 +357,7 @@ class ProductService {
     sortName?: string,
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
-    const products = await ProductRepository.getProductBy(
+    const products = await productRepository.getProductBy(
       userId,
       brandId,
       categoryId,
@@ -386,7 +373,7 @@ class ProductService {
     }
     if (brandId) {
       const variants = getTotalVariantOfProducts(products);
-      const brand = await this.brandRepository.find(brandId);
+      const brand = await brandRepository.find(brandId);
       const collections = getUniqueCollections(products);
       return successResponse({
         data: mappingByCollections(products),
@@ -402,7 +389,7 @@ class ProductService {
   };
 
   public delete = async (productId: string) => {
-    const product = await ProductRepository.find(productId);
+    const product = await productRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -420,7 +407,7 @@ class ProductService {
     //   return errorMessageResponse(MESSAGES.PRODUCT_WAS_SPECIFIED);
     // }
 
-    const isDeleted = await ProductRepository.delete(product.id);
+    const isDeleted = await productRepository.delete(product.id);
     if (isDeleted) {
       return successMessageResponse(MESSAGES.SUCCESS);
     }
@@ -428,11 +415,11 @@ class ProductService {
   };
 
   public getListRestCollectionProduct = async (productId: string) => {
-    const product = await ProductRepository.findWithRelationData(productId);
+    const product = await productRepository.findWithRelationData(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const products = await ProductRepository.getRelatedCollection(
+    const products = await productRepository.getRelatedCollection(
       product.id,
       product.collection_id
     );
@@ -450,21 +437,21 @@ class ProductService {
   };
 
   public likeOrUnlike = async (productId: string, userId: string) => {
-    const favourite = await this.productFavouriteRepository.findBy({
+    const favourite = await productFavouriteRepository.findBy({
       product_id: productId,
       user_id: userId,
     });
     if (!favourite) {
-      await this.productFavouriteRepository.like(productId, userId);
+      await productFavouriteRepository.like(productId, userId);
     } else {
-      await this.productFavouriteRepository.unlike(productId, userId);
+      await productFavouriteRepository.unlike(productId, userId);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
   /* Getting the product options for a product. */
   public getProductOptions = async (productId: string, attributeId: string) => {
-    const product = await ProductRepository.find(productId);
+    const product = await productRepository.find(productId);
     if (!product) {
       return successResponse({ data: [] });
     }
@@ -503,12 +490,8 @@ class ProductService {
     return successResponse({ data: result ?? [] });
   };
 
-  public assign = (_userId: string, _payload: IProductAssignToProject) => {
-    return successMessageResponse(MESSAGES.SUCCESS);
-  };
-
   public getFavoriteProductSummary = async (userId: string) => {
-    const products = await ProductRepository.getFavouriteProducts(userId);
+    const products = await productRepository.getFavouriteProducts(userId);
     const categories = getUniqueProductCategories(products);
     const brands = getUniqueBrands(products);
     return successResponse({
@@ -528,7 +511,7 @@ class ProductService {
     brandId?: string,
     categoryId?: string
   ) => {
-    const products = await ProductRepository.getFavouriteProducts(
+    const products = await productRepository.getFavouriteProducts(
       userId,
       brandId,
       order
@@ -552,7 +535,7 @@ class ProductService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
     }
-    const product = await ProductRepository.findWithRelationData(
+    const product = await productRepository.findWithRelationData(
       payload.product_id
     );
     if (!product) {
@@ -570,7 +553,7 @@ class ProductService {
       COMMON_TYPES.SHARING_PURPOSE
     );
 
-    const sent = await this.mailService.sendShareProductViaEmail(
+    const sent = await mailService.sendShareProductViaEmail(
       payload.to_email,
       user.email,
       payload.title,

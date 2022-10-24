@@ -1,7 +1,7 @@
 import { DESIGN_STATUS_OPTIONS } from "@/constants";
 import { DesignerAttributes, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { designerService } from "./designer.services";
+import { designerService } from "./designer.service";
 
 export default class DesignerController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
