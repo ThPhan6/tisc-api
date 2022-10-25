@@ -16,6 +16,7 @@ import {brandRepository} from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import {productRepository} from "@/repositories/product.repository";
 import {productFavouriteRepository} from "@/repositories/product_favourite.repository";
+import {projectProductRepository} from "@/api/project_product/project_product.repository";
 import { userRepository } from "@/repositories/user.repository";
 import {countryStateCityService} from "@/service/country_state_city.service";
 import {
@@ -393,20 +394,14 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
+    const projectProduct = await projectProductRepository.findBy({
+      product_id: product.id
+    });
 
-    // const consideredProduct = await this.consideredProductModel.findBy({
-    //   product_id: product.id,
-    // });
-    // if (consideredProduct) {
-    //   return errorMessageResponse(MESSAGES.PRODUCT_WAS_CONSIDERED);
-    // }
-    // const specifiedProduct = await this.specifiedProductModel.findBy({
-    //   product_id: product.id,
-    // });
-    // if (specifiedProduct) {
-    //   return errorMessageResponse(MESSAGES.PRODUCT_WAS_SPECIFIED);
-    // }
-
+    if (projectProduct) {
+      return errorMessageResponse(MESSAGES.PRODUCT.WAS_USED_IN_PROJECT);
+    }
+    //
     const isDeleted = await productRepository.delete(product.id);
     if (isDeleted) {
       return successMessageResponse(MESSAGES.SUCCESS);
