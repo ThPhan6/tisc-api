@@ -1,13 +1,25 @@
 import { pdfService } from "./pdf.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {UserAttributes} from '@/types';
-export default class FavouriteController {
+import {UserAttributes, ProjectProductPDFConfigAttribute} from '@/types';
+import moment from 'moment';
+import {kebabCase} from 'lodash';
+import {toNonAccentUnicode} from '@/helper/common.helper';
 
-  public generateProjectProduct = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await pdfService.generateProjectProduct();
+export default class PDFController {
+
+  public generateProjectProduct = async (req: Request & {payload: Partial<ProjectProductPDFConfigAttribute>}, toolkit: ResponseToolkit) => {
+    const user = req.auth.credentials.user as UserAttributes;
+    const projectId = req.params.project_id;
+
+    const response: any = await pdfService.generateProjectProduct(user, projectId, req.payload);
+    ///
+    if (!response.project) {
+      return toolkit.response(response).code(response.statusCode);
+    }
+    ///
     return toolkit
-      .response(response)
-      .header('Content-Disposition', 'attachment; filename=specify.pdf')
+      .response(response.pdfBuffer)
+      .header('Content-Disposition', `attachment; filename="project-${toNonAccentUnicode(kebabCase(response.project.name))}-${moment().unix()}.pdf"`)
       .header('Content-Type', 'application/pdf');
   }
 

@@ -1,13 +1,20 @@
 export enum TemplateGroup {
-  "Introduction",
-  "Preamble",
-  "BrandsAndDistributors",
-  "FinishesMaterialAndProducts",
-  "SchedulesAndSpecifications",
-  "ZonesAreasRooms"
+  Introduction = 1,
+  Preamble = 2,
+  BrandsAndDistributors = 3,
+  FinishesMaterialAndProducts = 4,
+  SchedulesAndSpecifications = 5,
+  ZonesAreasRooms = 6
 }
 
-export type TemplateGroupValue = 0 | 1 | 2 | 3 | 4 | 5;
+export type TemplateGroupValue = 1 | 2 | 3 | 4 | 5 | 6;
+// export type TemplateGroupValue = `${Extract<
+//   TemplateGroup,
+//   number
+// >}` extends `${infer N extends number}`
+//   ? N
+//   : never;
+
 
 export interface TemplateAttributes {
   id: string;
@@ -29,4 +36,8 @@ export interface TemplateSpecify {
     name: string;
     items: TemplateAttributes[];
   }[];
+}
+
+export type TemplateGroupType = {
+  [key in TemplateGroupValue]: TemplateAttributes[]
 }

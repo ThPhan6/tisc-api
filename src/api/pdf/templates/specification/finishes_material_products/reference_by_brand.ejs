@@ -1,161 +1,162 @@
 <div class="general-specification-content">
-  <table width="100%">
-    <tr class="bg-black">
-      <td width="18">
-        <span
-          style="padding-left: 8px"
-          class="normal-roboto-bold-8-18 color-white uppercase"
-          >brand name a</span
-        >
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <span class="primary-roboto-bold-8-18">Brand Company Name</span>
-      </td>
-      <td style="width: 232px">
-        <span class="primary-roboto-bold-8-18">Distributor Company Name</span>
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <span class="primary-roboto-light-8-18">Number street name,</span>
-      </td>
-      <td style="width: 232px">
-        <span class="primary-roboto-light-8-18">Number street name,</span>
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <span class="primary-roboto-light-8-18"
-          >City name, Country name, Postal code</span
-        >
-      </td>
-      <td style="width: 232px">
-        <span class="primary-roboto-light-8-18"
-          >City name, Country name, Postal code</span
-        >
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">contact</span>
-        </div>
-        <span class="primary-roboto-light-8-18">Firstname Lastname</span>
-      </td>
-      <td style="width: 232px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">contact</span>
-        </div>
-        <span class="primary-roboto-light-8-18">Firstname Lastname</span>
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">work email</span>
-        </div>
-        <span class="primary-roboto-light-8-18">email@brandcompany.com</span>
-      </td>
-      <td style="width: 232px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">work email</span>
-        </div>
-        <span class="primary-roboto-light-8-18"
-          >email@distributorcompany.com</span
-        >
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">work phone</span>
-        </div>
-        <span class="primary-roboto-light-8-18">+ 000 000000000</span>
-      </td>
-      <td style="width: 232px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">work phone</span>
-        </div>
-        <span class="primary-roboto-light-8-18">+ 000 000000000</span>
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 240px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">work mobile</span>
-        </div>
-        <span class="primary-roboto-light-8-18">+ 000 000000000</span>
-      </td>
-      <td style="width: 232px">
-        <div style="width: 64px; display: inline-block; ">
-          <span class="uppercase normal-garamond-light-8-12">work mobile</span>
-        </div>
-        <span class="primary-roboto-light-8-18">+ 000 000000000</span>
-      </td>
-    </tr>
-    <tr class="border-bottom-box-shadow"></tr>
-    <tr style="height: 18px"></tr>
+  <table width="100%" class="dynamic-table">
+    <% data.forEach(function(item) { %>
+      <tr>
+        <td colspan="4" class="bg-black">
+          <span
+            style="padding-left: 8px"
+            class="normal-roboto-bold-8-18 color-white uppercase"
+            ><%= item.brand.name %></span
+          >
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span class="primary-roboto-bold-8-18"><%= item.location.business_name %></span>
+        </td>
+        <td colspan="2">
+          <span class="primary-roboto-bold-8-18"><%= item.distributor.name %> </span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"><%= item.location.address %>,</span>
+        </td>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"><%= item.distributor.address %>,</span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"
+            ><%= item.location.city_name %>, <%= item.location.country_name %>, <%= item.location.postal_code %></span
+          >
+        </td>
+        <td colspan="2">
+          <span class="primary-roboto-light-8-18"
+            ><%= item.distributor.city_name %>, <%= item.distributor.country_name %>, <%= item.distributor.postal_code %></span
+          >
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">contact</span>
+          </div>
+          <span class="primary-roboto-light-8-18"><%= item.location.general_email %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">contact</span>
+          </div>
+          <span class="primary-roboto-light-8-18"><%= item.distributor.first_name %> <%= item.distributor.last_name %></span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work email</span>
+          </div>
+          <span class="primary-roboto-light-8-18"><%= item.location.general_email %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work email</span>
+          </div>
+          <span class="primary-roboto-light-8-18"
+            ><%= item.distributor.email %></span
+          >
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work phone</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.location.phone_code %> <%= item.location.general_phone %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work phone</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.phone %></span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work mobile</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.location.phone_code %> <%= item.location.general_phone %></span>
+        </td>
+        <td colspan="2">
+          <div style="width: 64px; display: inline-block; ">
+            <span class="uppercase normal-garamond-light-8-12">work mobile</span>
+          </div>
+          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.mobile %></span>
+        </td>
+      </tr>
+      <tr class=""><td colspan="4" class="border-bottom-box-shadow"></td></tr>
+      <tr style="height: 15px"></tr>
 
-    <% for(var j=1; j<=3; j++) {%>
-    <tr>
-      <td style="width: 72px;">
-        <span  class="primary-roboto-light-8-18 uppercase">code2</span>
-      </td>
-      <td style="width: 168px;">
-        <span  class="primary-roboto-light-8-18 uppercase">Description</span>
-      </td>
-      <td style="width: 124px;">
-        <span></span>
-      </td>
-      <td style="width: 108px;">
-        <span class="normal-garamond-light-8-12 uppercase">order</span>
-        <span class="primary-roboto-light-8-18 uppercase">yyy-mm-dd</span>
-      </td>
-    </tr>
-    <tr class="border-bottom-box-shadow-bold"></tr>
-    <tr>
-      <td style="width: 72px; vertical-align:top" class="primary-roboto-light-8-18">
-        <span class="uppercase normal-garamond-light-8-12">collection</span>
-        <br />
-        <span class="uppercase normal-garamond-light-8-12">specification</span>
-      </td>
-      <td style="width: 168px; vertical-align:top" class="primary-roboto-light-8-18">
-        <span>Collection name</span> <br />
-        <span>Production description</span> <br />
-        <% for(var n=1; n<=3; n++) {%>
-        <span>Option/variant 1</span> <br />
-        <% } %>
-      </td>
-      <td style="width: 124px; vertical-align:top" class="primary-roboto-light-8-18">
-        <span class="normal-garamond-light-8-12 uppercase">id</span>
-        <span>Product SKU #</span>
-      </td>
-      <td  style="width: 108px;">
-        <img
-        style="width: 108px; height: 108px; background-color: black; margin: 0"
-      ></img>
-      </td>
-    </tr>
-    <tr class="border-bottom-box-shadow"></tr>
-    <tr>
-      <td style="width: 72px;" class="primary-roboto-light-8-18 ">
-        <span class="normal-garamond-light-8-12 uppercase">order</span>
-      </td>
-      <td style="width: 168px;" class="primary-roboto-light-8-18">
-        <span>Direct pruchase</span>
-      </td>
-      <td style="width: 124px;" class="primary-roboto-light-8-18">
-        <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">total qty</span>
-        <span>00   Unit type</span>
-      </td>
-      <td style="width: 108px;" class="primary-roboto-light-8-18">
-        <span></span>
-      </td>
-    </tr>
-    <tr class="border-bottom-box-shadow"></tr>
-    <tr style="height: 18px"></tr>
-    <% } %>
+      <% item.data.forEach(function(groupData, index) { %>
+        <tr>
+          <td>
+            <span  class="primary-roboto-light-8-18 uppercase"><%= groupData.material_code.code %></span>
+          </td>
+          <td colspan="2">
+            <span  class="primary-roboto-light-8-18 uppercase"><%= groupData.material_code.description %></span>
+          </td>
+          <td style="width: 108px;">
+            <span class="normal-garamond-light-8-12 uppercase">date</span>
+            <span class="primary-roboto-light-8-18 uppercase"><%= groupData.specified_date %></span>
+          </td>
+        </tr>
+        <tr><td class="border-bottom-box-shadow-bold" colspan="4"></td></tr>
+        <tr>
+          <td style="vertical-align:top" class="primary-roboto-light-8-18">
+            <span class="uppercase normal-garamond-light-8-12">collection</span>
+            <br />
+            <span class="uppercase normal-garamond-light-8-12">specification</span>
+          </td>
+          <td style="vertical-align:top" class="primary-roboto-light-8-18">
+            <span><%= groupData.product.collection.name %></span> <br />
+            <span><%= groupData.product.description %></span> <br />
+            <% groupData.options.forEach(function(option) { %>
+              <span><%= option %></span> <br />
+            <% }) %>
+          </td>
+          <td style="vertical-align:top" class="primary-roboto-light-8-18">
+            <span class="normal-garamond-light-8-12 uppercase">id</span>
+            <span style="margin-left: 8px">Product SKU #</span>
+          </td>
+          <td style="width: 108px;">
+            <img style="width: 108px;height:108px" src="<%= groupData.productImage %>"></img>
+          </td>
+        </tr>
+        <tr><td class="border-bottom-box-shadow" colspan="4"></td></tr>
+        <tr>
+          <td class="primary-roboto-light-8-18 ">
+            <span class="normal-garamond-light-8-12 uppercase">order</span>
+          </td>
+          <td class="primary-roboto-light-8-18">
+            <% if (groupData.order_method == 1) { %>
+              <span>Custom Order</span>
+            <% } else { %>
+              <span>Direct Purchase</span>
+            <% } %>
+          </td>
+          <td class="primary-roboto-light-8-18">
+            <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">total qty</span>
+            <span><%= groupData.quantity %><span style="margin-left:8px"><%= groupData.unitType %></span></span>
+          </td>
+          <td style="width: 108px;" class="primary-roboto-light-8-18">
+            <span></span>
+          </td>
+        </tr>
+        <tr><td class="border-bottom-box-shadow" colspan="4"></td></tr>
+        <tr style="height: 15px"></tr>
+      <% }) %>
+    <% }) %>
   </table>
 </div>

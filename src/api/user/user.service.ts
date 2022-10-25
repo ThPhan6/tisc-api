@@ -1,12 +1,5 @@
 import { permissionService } from "@/api/permission/permission.service";
-import {
-  COMMON_TYPES,
-  MESSAGES,
-  ROLES,
-  ROLE_TYPE,
-  USER_STATUSES,
-  VALID_IMAGE_TYPES,
-} from "@/constants";
+import { COMMON_TYPES, MESSAGES, ROLES, VALID_IMAGE_TYPES } from "@/constants";
 import { getAccessLevel } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -14,14 +7,19 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { validateRoleType } from "@/helper/user.helper";
-import DesignModel from "@/model/designer.model";
 import { brandRepository } from "@/repositories/brand.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import MailService from "@/service/mail.service";
-import { IMessageResponse, UserAttributes } from "@/types";
+import {
+  IMessageResponse,
+  UserAttributes,
+  UserStatus,
+  UserType,
+} from "@/types";
 import { groupBy, uniq } from "lodash";
 import moment from "moment";
 import {
@@ -32,10 +30,8 @@ import {
 
 export default class UserService {
   private mailService: MailService;
-  private designModel: DesignModel;
   constructor() {
     this.mailService = new MailService();
-    this.designModel = new DesignModel();
   }
 
   public create = async (
@@ -142,15 +138,15 @@ export default class UserService {
       interested: user.interested,
     };
 
-    if (user.type === ROLE_TYPE.BRAND) {
+    if (user.type === UserType.Brand) {
       const brand = await brandRepository.find(user.relation_id);
       return successResponse({
         data: { ...result, brand },
       });
     }
 
-    if (user.type === ROLE_TYPE.DESIGN) {
-      const design = await this.designModel.find(user.relation_id);
+    if (user.type === UserType.Designer) {
+      const design = await designerRepository.find(user.relation_id);
       return successResponse({
         data: { ...result, design },
       });
@@ -319,7 +315,7 @@ export default class UserService {
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    if (user.status !== USER_STATUSES.PENDING) {
+    if (user.status !== UserStatus.Pending) {
       return errorMessageResponse(MESSAGES.GENERAL.INVITED_ALREADY);
     }
     await this.mailService.sendInviteEmailTeamProfile(user, authenticatedUser);

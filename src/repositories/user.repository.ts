@@ -1,8 +1,8 @@
-import UserModel from "@/model/user.models";
+import UserModel from "@/model/user.model";
 import BaseRepository from "./base.repository";
-import { USER_STATUSES, ROLE_TYPE, SYSTEM_TYPE } from "@/constants";
-import { SortOrder, UserAttributes } from "@/types";
-import { head } from "lodash";
+import { SYSTEM_TYPE } from "@/constants";
+import { ActiveStatus, UserAttributes, UserStatus, UserType } from "@/types";
+import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
@@ -28,8 +28,8 @@ class UserRepository extends BaseRepository<UserAttributes> {
     is_verified: false,
     verification_token: null,
     reset_password_token: null,
-    status: USER_STATUSES.PENDING,
-    type: ROLE_TYPE.TISC,
+    status: UserStatus.Pending,
+    type: UserType.TISC,
     relation_id: "TISC",
     retrieve_favourite: false,
     interested: [],
@@ -55,7 +55,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
   public async getTiscUsers() {
     return (await this.model
       .where("type", "==", SYSTEM_TYPE.TISC)
-      .where("status", "==", USER_STATUSES.ACTIVE)
+      .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
   public async getInactiveDesignFirmByBackupData(
@@ -82,14 +82,24 @@ class UserRepository extends BaseRepository<UserAttributes> {
       `
         FILTER users.email == @email
         FILTER users.deleted_at == null
-            let brands = (FOR brand in brands FILTER brand.id == users.relation_id RETURN {status: brand.status})
-            let designs = (FOR design in designers FILTER design.id == users.relation_id RETURN {status: design.status})
+        LET brands = (
+          FOR brand IN brands
+          FILTER brand.deleted_at == null
+          FILTER brand.id == users.relation_id
+          RETURN {status: brand.status}
+        )
+        LET designs = (
+          FOR design IN designers
+          FILTER design.deleted_at == null
+          FILTER design.id == users.relation_id
+          RETURN {status: design.status}
+        )
         RETURN MERGE(users, {
           company_status: LENGTH(brands) > 0 ? brands[0].status : (LENGTH(designs) > 0 ? designs[0].status : 0)
         })
       `,
       { email }
-    )) as (UserAttributes & { company_status: number })[];
+    )) as (UserAttributes & { company_status: ActiveStatus })[];
     return head(result);
   }
 
@@ -117,7 +127,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     if (sort) {
       query = query.order(sort[0], sort[1]);
     }
-    if (limit && offset) {
+    if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit, offset);
       return await query.paginate();
     }

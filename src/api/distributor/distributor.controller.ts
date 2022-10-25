@@ -1,8 +1,8 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { distributorService } from "./distributor.services";
+import { distributorService } from "./distributor.service";
 import { IDistributorRequest } from "./distributor.type";
 export default class DistributorController {
-  constructor() {}
+
   public create = async (
     req: Request & { payload: IDistributorRequest },
     toolkit: ResponseToolkit

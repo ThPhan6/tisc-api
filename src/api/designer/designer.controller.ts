@@ -1,7 +1,7 @@
 import { DESIGN_STATUS_OPTIONS } from "@/constants";
 import { DesignerAttributes, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { designerService } from "./designer.services";
+import { designerService } from "./designer.service";
 
 export default class DesignerController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -39,11 +39,7 @@ export default class DesignerController {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await designerService.updateDesign(
-      id,
-      payload,
-      user.relation_id
-    );
+    const response = await designerService.updateDesign(id, payload, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

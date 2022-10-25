@@ -1,8 +1,7 @@
-import DocumentationModel from "@/model/documentation.models";
+import DocumentationModel from "@/model/documentation.model";
 import {
   DocumentationType,
   IDocumentationAttributes,
-  ListDocumentationWithPagination,
   SortOrder,
 } from "@/types";
 import BaseRepository from "./base.repository";
@@ -49,6 +48,7 @@ class DocumentationRepository extends BaseRepository<IDocumentationAttributes> {
     FILTER documentations.type == @type
     let user = (
         FOR user in users
+        FILTER user.deleted_at == null
         FILTER documentations.created_by == user.id
         return KEEP(user, "firstname", "lastname", "id")
         )

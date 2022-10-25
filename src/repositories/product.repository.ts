@@ -4,7 +4,7 @@ import {
   ProductWithRelationData,
 } from "@/types/product.type";
 import BaseRepository from "./base.repository";
-import ProductModel from "@/model/product.models";
+import ProductModel from "@/model/product.model";
 import { head, isUndefined } from "lodash";
 
 class ProductRepository extends BaseRepository<IProductAttributes> {
@@ -23,6 +23,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     images: [],
     keywords: [],
     created_by: "",
+    tips: [],
+    downloads: [],
+    catelogue_downloads: [],
   };
   constructor() {
     super();
@@ -275,6 +278,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     rawQuery += ` FOR brand IN brands
       FILTER products.brand_id == brand.id
       FOR collection IN collections
+      FILTER collection.deleted_at == null
       FILTER products.collection_id == collection.id
       SORT products.name ${order}
       RETURN merge(products, {
@@ -327,6 +331,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     rawQuery += ` FOR brand IN brands
       FILTER products.brand_id == brand.id
       FOR collection IN collections
+      FILTER collection.deleted_at == null
       FILTER products.collection_id == collection.id
       RETURN merge(products, {
         brand: {
@@ -360,3 +365,4 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
 }
 
 export default new ProductRepository();
+export const productRepository = new ProductRepository();

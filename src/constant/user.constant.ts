@@ -18,18 +18,3 @@ export const USER_STATUSES = {
   BLOCKED: 2,
   PENDING: 3,
 };
-
-export const USER_STATUS_OPTIONS = [
-  {
-    key: "Activated",
-    value: USER_STATUSES.ACTIVE,
-  },
-  {
-    key: "Pending",
-    value: USER_STATUSES.PENDING,
-  },
-  {
-    key: "Blocked",
-    value: USER_STATUSES.BLOCKED,
-  },
-];

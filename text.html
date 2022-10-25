@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    p {
+      margin: 0;
+      padding: 0;
+    }
+    table, tr, td {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-spacing: 0 !important;
+    }
+    .primary-roboto-light-14 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 22px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-bold-12 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 20px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-bold-14 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 22px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+
+    .primary-roboto-light-8-12 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 12px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-light-8-16 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 16px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-light-8-18 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 18px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-bold-8-16 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 8px;
+      line-height: 16px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-bold-8-18 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 8px;
+      line-height: 18px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-light-12 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 12px;
+      line-height: 20px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+    .primary-roboto-light-6 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 6px;
+      line-height: 12px;
+      color: #2B39D4;
+      letter-spacing: 0.32px;
+    }
+
+    .normal-roboto-light-6 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 6px;
+      line-height: 12px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-light-8-12 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 12px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-light-8-16 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 18px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-light-8-18 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 18px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-bold-8-18 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 8px;
+      line-height: 18px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-light-14-16 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 16px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-bold-12 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 20px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-roboto-bold-14 {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 16px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-garamond-light-8-12 {
+      font-family: 'Cormorant Garamond';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 12px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .normal-garamond-light-8-18 {
+      font-family: 'Cormorant Garamond';
+      font-style: normal;
+      font-weight: 300;
+      font-size: 8px;
+      line-height: 18px;
+      color: #000000;
+      letter-spacing: 0.32px;
+    }
+    .uppercase {
+      text-transform: uppercase;
+    }
+    .divider {
+      border-bottom: 1px solid #000000;
+    }
+    /* .box-shadow {
+      box-shadow: inset 0px -1px 0px #000000;
+    } */
+    .border-bottom-box-shadow {
+      /* box-shadow: inset 0px -0.5px 0px rgba(0, 0, 0, 0.3); */
+      /* box-shadow: inset 0px -0.5px 0px rgba(0, 0, 0, 0.3); */
+      border-bottom: 1px solid #dddddd;
+    }
+    .mb-5 {
+      margin-bottom: 5px;
+    }
+    .mb-8 {
+      margin-bottom: 8px;
+    }
+    .mb-12 {
+      margin-bottom: 12px;
+    }
+    .mb-32 {
+      margin-bottom: 32px;
+    }
+    .mr-16 {
+      margin-right: 16px;
+    }
+    .mr-8 {
+      margin-right: 8px;
+    }
+    .mb-4 {
+      margin-bottom: 4px;
+    }
+    .pt-185 {
+      padding-top: 185px;
+    }
+    .pl-150 {
+      padding-left: 150px;
+    }
+    .pr-48 {
+      padding-right: 48px;
+    }
+    .header-specification-layout {
+      padding: 32px 64px 0px 64px;
+    }
+    .footer-specification-layout {
+      padding: 0px 64px;
+    }
+    .footer-divider-top {
+      border-top: 1px solid #000000;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    .general-specification-content {
+      padding: 0px 64px;
+    }
+    .mt-4 {
+      margin-top: 4px;
+    }
+    .mr-4 {
+      margin-right: 4px;
+    }
+    .mb-136 {
+      margin-bottom: 136px;
+    }
+    .mb-96 {
+      margin-bottom: 96px;
+    }
+    .pt-4 {
+      padding-top: 4px;
+    }
+    .mb-16 {
+      margin-bottom: 16px;
+    }
+    .bg-black {
+      background: #000000;
+    }
+    .color-white {
+      color: #FFFFFF;
+    }
+    .pdlr-8 {
+      padding: 0px 8px;
+    }
+    .text-center {
+      text-align: center;
+    }
+
+
+  </style>
+  </head>
+  <body>
+    <div class="general-specification-content">
+    <table width="100%">
+      <tr>
+          <td width="50%" class="normal-roboto-bold-12">
+            Brand / Manufacturer
+          </td>
+          <td width="50%" class="normal-roboto-bold-12">
+            Distributor / Supplier
+          </td>
+      </tr>
+
+        <tr>
+            <td height="24" width="50%" class="normal-roboto-bold-8-18 bg-black" colspan="2">
+              <span class="pdlr-8 color-white uppercase">product category name a</span>
+            </td>
+        </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 1 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 2 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 3 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 4 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 5 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 6 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 7 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 8 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 9 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 10 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 11 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 12 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 13 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 14 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 15 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 16 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 17 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 18 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 19 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 20 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+
+        <tr>
+            <td height="24" width="50%" class="normal-roboto-bold-8-18 bg-black" colspan="2">
+              <span class="pdlr-8 color-white uppercase">product category name a</span>
+            </td>
+        </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 2 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 4 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 6 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 8 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 10 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 12 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 14 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 16 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 18 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 20 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 22 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 24 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 26 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 28 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 30 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 32 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 34 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 36 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 38 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+          <tr>
+            <td class="primary-roboto-bold-8-18"> Brand name 40 </td>
+            <td class="primary-roboto-bold-8-18"> Distributor 1 </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+            <td class="primary-roboto-light-8-18"> Number street name </td>
+          </tr>
+          <tr>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+            <td class="primary-roboto-light-8-18 border-bottom-box-shadow"> City name, Country name, Postal code </td>
+          </tr>
+
+
+    </table>
+</div>
+
+  </body>
+</html>

@@ -453,10 +453,6 @@ const DESIGN_NULL_ATTRIBUTES = {
   updated_at: null,
   deleted_at: null,
 };
-const DESIGN_STATUSES = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-};
 const CATEGORY_NULL_ATTRIBUTES = {
   id: null,
   name: null,
@@ -602,7 +598,6 @@ module.exports = {
   BRAND_NULL_ATTRIBUTES,
   BRAND_STATUSES,
   DESIGN_NULL_ATTRIBUTES,
-  DESIGN_STATUSES,
   CATEGORY_NULL_ATTRIBUTES,
   BASIS_NULL_ATTRIBUTES,
   BASIS_TYPES,

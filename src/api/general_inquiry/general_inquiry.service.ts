@@ -64,34 +64,14 @@ class GeneralInquiryService {
         sort,
         filter
       );
-    const allInquiry = await generalInquiryRepository.getAllInquiryBy(
+    const total = await generalInquiryRepository.countAllInquiryBy(
       relationId,
       filter
     );
-
-    const results = generalInquiries.map((el) => {
-      const {
-        firm_state_name,
-        firm_country_name,
-        inquirer_firstname,
-        inquirer_lastname,
-        ...inquiry
-      } = el;
-      return {
-        ...inquiry,
-        firm_location: firm_state_name
-          ? `${firm_state_name}, ${firm_country_name}`
-          : firm_country_name,
-        inquirer: `${inquirer_firstname || ""} ${
-          inquirer_lastname || ""
-        }`.trim(),
-      };
-    });
-
     return successResponse({
       data: {
-        general_inquiries: results,
-        pagination: pagination(limit, offset, allInquiry.length),
+        general_inquiries: generalInquiries,
+        pagination: pagination(limit, offset, total),
       },
     });
   }
@@ -103,11 +83,9 @@ class GeneralInquiryService {
 
     return {
       inquires: allInquiry.length,
-
       pending: allInquiry.filter(
         (inquiry) => inquiry.status === RespondedOrPendingStatus.Pending
       ).length,
-
       responded: allInquiry.filter(
         (inquiry) => inquiry.status === RespondedOrPendingStatus.Responded
       ).length,

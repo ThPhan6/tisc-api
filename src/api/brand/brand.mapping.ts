@@ -1,15 +1,6 @@
-import { marketAvailabilityService } from "./../market_availability/market_availability.services";
-import { BRAND_STATUS_OPTIONS, REGION_KEY } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
-import {
-  BrandAttributes,
-  ICollectionAttributes,
-  ILocationAttributes,
-  IProductAttributes,
-  SummaryInfo,
-} from "@/types";
-import { BrandDataSummary, ListBrandCustom } from "./brand.type";
-import { v4 as uuidv4 } from "uuid";
+import { ActiveStatus, BrandAttributes, ILocationAttributes } from "@/types";
+import { ListBrandCustom } from "./brand.type";
 
 export const getCountryName = (
   originLocation: ILocationAttributes | false | any,
@@ -25,10 +16,6 @@ export const getCountryName = (
 
 export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {
   return dataBrandCustom.map((dataBrand) => {
-    const foundStatus = BRAND_STATUS_OPTIONS.find(
-      (item) => item.value === dataBrand.brand.status
-    );
-
     const coverages = getDistinctArray(
       dataBrand.distributors.reduce((pre: string[], cur) => {
         const temp = [cur.country_id].concat(cur.authorized_country_ids);
@@ -51,23 +38,13 @@ export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {
       });
       return pre;
     }, 0);
+
     return {
-      id: dataBrand.brand.id,
-      name: dataBrand.brand.name,
-      logo: dataBrand.brand.logo,
-      origin: dataBrand.origin_location?.country_name || "",
-      locations: dataBrand.locations,
-      teams: dataBrand.users,
-      distributors: dataBrand.distributors.length,
+      ...dataBrand.brand,
+      status_key: ActiveStatus[dataBrand.brand.status],
       coverages: coverages.length,
       categories: categories.length,
-      collections: dataBrand.collection,
-      cards: dataBrand.cards.length,
-      products: products,
-      assign_team: dataBrand.assign_team,
-      status: dataBrand.brand.status,
-      status_key: foundStatus?.key,
-      created_at: dataBrand.brand.created_at,
+      products,
     };
   });
 };
@@ -188,149 +165,4 @@ export const mappingBrandsAlphabet = (allBrand: BrandAttributes[]) => {
       wxyz: [],
     }
   );
-};
-
-export const mappingBrandSummary = async (
-  brandSummaryData: BrandDataSummary[],
-  userCount: number
-): Promise<SummaryInfo[]> => {
-  let locations: ILocationAttributes[] = [];
-
-  let countries: {
-    id: string;
-    name: string;
-    phone_code: string;
-    region: string;
-  }[] = [];
-
-  let collections: ICollectionAttributes[] = [];
-
-  let cards: IProductAttributes[] = [];
-
-  let categories: any[] = [];
-
-  let products: number = 0;
-
-  for (const data of brandSummaryData) {
-    locations = locations.concat(data.locations);
-
-    collections = collections.concat(data.collections);
-
-    cards = cards.concat(data.products);
-
-    const countryIds = locations.map((location) => {
-      return location.country_id;
-    });
-
-    const distinctCountryIds = getDistinctArray(countryIds);
-    countries = await marketAvailabilityService.getRegionCountries(
-      distinctCountryIds
-    );
-
-    categories = getDistinctArray(
-      cards.reduce((pre: string[], cur) => {
-        return pre.concat(cur.category_ids);
-      }, [])
-    );
-
-    products = cards.reduce((pre: number, cur) => {
-      cur.specification_attribute_groups.forEach((group) => {
-        group.attributes.forEach((attribute) => {
-          if (attribute.type === "Options")
-            pre = pre + (attribute.basis_options?.length || 0);
-        });
-      });
-      return pre;
-    }, 0);
-  }
-
-  return [
-    {
-      id: uuidv4(),
-      quantity: brandSummaryData.length,
-      label: "BRAND COMPANIES",
-      subs: [
-        {
-          id: uuidv4(),
-          quantity: locations.length,
-          label: "Locations",
-        },
-        {
-          id: uuidv4(),
-          quantity: userCount,
-          label: "Teams",
-        },
-      ],
-    },
-    {
-      id: uuidv4(),
-      quantity: countries.length,
-      label: "COUNTRIES",
-      subs: [
-        {
-          id: uuidv4(),
-          quantity: countries.filter(
-            (item) => item.region === REGION_KEY.AFRICA
-          ).length,
-          label: "Africa",
-        },
-        {
-          id: uuidv4(),
-          quantity: countries.filter((item) => item.region === REGION_KEY.ASIA)
-            .length,
-          label: "Asia",
-        },
-        {
-          id: uuidv4(),
-          quantity: countries.filter(
-            (item) => item.region === REGION_KEY.EUROPE
-          ).length,
-          label: "Europe",
-        },
-        {
-          id: uuidv4(),
-          quantity: countries.filter(
-            (item) => item.region === REGION_KEY.NORTH_AMERICA
-          ).length,
-          label: "N.America",
-        },
-        {
-          id: uuidv4(),
-          quantity: countries.filter(
-            (item) => item.region === REGION_KEY.OCEANIA
-          ).length,
-          label: "Oceania",
-        },
-        {
-          id: uuidv4(),
-          quantity: countries.filter(
-            (item) => item.region === REGION_KEY.SOUTH_AMERICA
-          ).length,
-          label: "S.America",
-        },
-      ],
-    },
-    {
-      id: uuidv4(),
-      quantity: products,
-      label: "PRODUCTS",
-      subs: [
-        {
-          id: uuidv4(),
-          quantity: getDistinctArray(categories).length,
-          label: "Categories",
-        },
-        {
-          id: uuidv4(),
-          quantity: collections.length,
-          label: "Collections",
-        },
-        {
-          id: uuidv4(),
-          quantity: cards.length,
-          label: "Cards",
-        },
-      ],
-    },
-  ];
 };

@@ -1,11 +1,16 @@
-import DesignerModel from "@/model/designer.models";
+import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
   DesignerAttributes,
   ListDesignerWithPaginate,
   ProjectStatus,
+  SortOrder,
 } from "@/types";
-import { DesignerDataCustom } from "@/api/designer/designer.type";
+import {
+  DesignerDataCustom,
+  GetDesignFirmSort,
+} from "@/api/designer/designer.type";
+import { DesignFirmFunctionalType } from "@/api/location/location.type";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
   protected model: DesignerModel;
@@ -16,7 +21,6 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     slogan: "",
     profile_n_philosophy: "",
     official_website: "",
-    team_profile_ids: [],
     status: 1,
     capabilities: [],
   };
@@ -48,88 +52,69 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
   public async getListDesignerCustom(
     limit: number,
     offset: number,
-    sort: string,
-    order: "ASC" | "DESC"
+    sort: GetDesignFirmSort,
+    order: SortOrder = "ASC"
   ) {
-    const params = {} as any;
+    const params = {
+      satelliteType: DesignFirmFunctionalType.Satellite,
+      live: ProjectStatus.Live,
+      onHold: ProjectStatus["On Hold"],
+      archived: ProjectStatus.Archived,
+    };
     const rawQuery = `
-      ${limit && offset ? `LIMIT ${offset}, ${limit}` : ``}
-      ${sort && order ? `SORT designers.${sort} ${order}` : ``}
-        
-        LET assignTeams = (
-          FOR profileId IN designers.team_profile_ids
-          FOR assignTeam IN users
-          FILTER assignTeam.deleted_at == null
-          FILTER assignTeam.id == profileId
-          RETURN UNSET(assignTeam, [
-            '_id', 
-            '_key', 
-            '_rev', 
-            'deleted_at', 'deleted_by','access_level',
-            'backup_email',
-            'created_at',
-            'department_id',
-            'gender',
-            'interested',
-            'is_verified',
-            'linkedin',
-            'location_id',
-            'mobile',
-            'password',
-            'personal_mobile',
-            'phone',
-            'position',
-            'relation_id',
-            'reset_password_token',
-            'retrieve_favourite',
-            'role_id',
-            'status',
-            'type',
-            'verification_token',
-            'work_location'
-          ])
-        )
+      ${
+        sort === "created_at" || sort === "name"
+          ? `SORT designers.${sort} ${order}`
+          : ""
+      }
 
-        LET users = (
-          FOR users IN users
-          FILTER users.deleted_at == null
-          FILTER users.relation_id == designers.id
-          RETURN users
-        )
-        
-        LET originLocation = (
-          FOR locations IN locations
-          FILTER locations.deleted_at == null
-          FILTER locations.relation_id == designers.id
-          RETURN locations
-        )
+      LET userCount = (
+        FOR users IN users
+        FILTER users.deleted_at == null
+        FILTER users.relation_id == designers.id
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+      LET firmLocations = (
+        FOR loc IN locations
+        FILTER loc.deleted_at == null
+        FILTER loc.relation_id == designers.id
+        RETURN loc
+      )
+      ${sort === "origin" ? `SORT firmLocations[0].country_name ${order}` : ""}
+      ${
+        sort === "main_office" ? `SORT firmLocations[0].city_name ${order}` : ""
+      }
+      LET satellitesCount = (
+        FOR loc IN firmLocations
+        FILTER @satelliteType IN loc.functional_type_ids
+        COLLECT WITH COUNT INTO length
+        RETURN length
+      )
+      LET projectStatus = (
+        FOR p IN projects
+        FILTER p.deleted_at == null
+        FILTER p.design_id == designers.id
+        RETURN p.status
+      )
 
-        LET projects = (
-          FOR projects IN projects
-          FILTER projects.deleted_at == null
-          FILTER projects.design_id == designers.id
-          RETURN projects.status
-        )
+      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
+      RETURN MERGE(
+        KEEP(designers, 'id', 'name', 'logo', 'status'),
+        {
+          capacities: LENGTH(designers.capabilities),
+          designers: userCount[0],
+          origin: firmLocations[0].country_name,
+          main_office: firmLocations[0].city_name,
+          satellites: satellitesCount[0],
+          projects: LENGTH(projectStatus),
+          live: (FOR s IN projectStatus FILTER s == @live COLLECT WITH COUNT INTO length RETURN length)[0],
+          on_hold: (FOR s IN projectStatus FILTER s == @onHold COLLECT WITH COUNT INTO length RETURN length)[0],
+          archived: (FOR s IN projectStatus FILTER s == @archived COLLECT WITH COUNT INTO length RETURN length)[0],
+        }
+      )
+    `;
 
-        RETURN MERGE ({
-          designer : UNSET(designers, [
-            '_key',
-            '_id',
-            '_rev',
-            'parent_company',
-            'slogan',
-            'profile_n_philosophy',
-            'official_website',
-            'team_profile_ids',
-            'updated_at',
-            'deleted_at'
-          ]),
-          userCount: LENGTH(users),
-          origin_location : originLocation,
-          projects : projects,
-          assign_team : assignTeams,
-        })
-`;
     return (await this.model.rawQuery(
       rawQuery,
       params
@@ -142,6 +127,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       FILTER designers.id == @id
       LET capabilities = (
         FOR common_types IN common_types
+        FILTER common_types.deleted_at == null
         FILTER common_types.id IN designers.capabilities
         RETURN common_types.name
       )
@@ -160,7 +146,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       total: number;
       live: number;
       onHold: number;
-      archive: number;
+      archived: number;
     };
     designFirm: {
       total: number;
@@ -187,6 +173,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           FILTER loc.deleted_at == null
           LET country = (
             FOR c in countries
+            FILTER c.deleted_at == null
             FILTER c.id == loc.country_id
             RETURN c
           )
@@ -218,11 +205,13 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       LET regions = (
         FOR c IN countries
         FILTER c.region != ""
+        FILTER c.deleted_at == null
         RETURN DISTINCT c.region
       )
       LET countries = (
         FOR loc IN locations
         FILTER loc.country != null
+        FILTER loc.deleted_at == null
         COLLECT group = loc.country.region INTO countryGroup
         RETURN {
           region: group,
@@ -249,7 +238,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         COLLECT WITH COUNT INTO length
         RETURN length
       )
-      LET archive = (
+      LET archived = (
         FOR p IN prj
         FILTER p.status == @archiveStatus
         COLLECT WITH COUNT INTO length
@@ -270,14 +259,14 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           total: LENGTH(prj),
           live: live[0],
           onHold: onHold[0],
-          archive: archive[0]
+          archived: archived[0]
         },
       }
     `,
       {
         liveStatus: ProjectStatus.Live,
         onHoldStatus: ProjectStatus["On Hold"],
-        archiveStatus: ProjectStatus.Archive,
+        archiveStatus: ProjectStatus.Archived,
       }
     );
     return designFirm[0];

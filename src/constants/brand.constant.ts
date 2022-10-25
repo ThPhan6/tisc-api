@@ -1,21 +1,29 @@
-import { BrandStatus } from "@/types";
-export const BRAND_STATUSES: BrandStatus = {
-  ACTIVE: 1,
-  INACTIVE: 2,
-  PENDING: 3,
+import { ActiveStatus, ActiveStatusKey, ActiveStatusValue } from "@/types";
+
+export const BRAND_STATUSES: {
+  ACTIVE: ActiveStatus;
+  INACTIVE: ActiveStatus;
+  PENDING: ActiveStatus;
+} = {
+  ACTIVE: ActiveStatus.Active,
+  INACTIVE: ActiveStatus.Inactive,
+  PENDING: ActiveStatus.Pending,
 };
 
-export const BRAND_STATUS_OPTIONS = [
+export const BRAND_STATUS_OPTIONS: {
+  key: ActiveStatusKey;
+  value: ActiveStatusValue;
+}[] = [
   {
     key: "Active",
-    value: BRAND_STATUSES.ACTIVE,
+    value: ActiveStatus.Active,
   },
   {
     key: "Pending",
-    value: BRAND_STATUSES.PENDING,
+    value: ActiveStatus.Pending,
   },
   {
     key: "Inactive",
-    value: BRAND_STATUSES.INACTIVE,
+    value: ActiveStatus.Inactive,
   },
 ];

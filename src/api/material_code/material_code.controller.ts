@@ -1,8 +1,9 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { materialCodeService } from "./material_code.services";
+import { materialCodeService } from "./material_code.service";
 import { IMaterialCodeRequest } from "./material_code.type";
 
 export default class MaterialCodeController {
+
   public create = async (
     req: Request & { payload: IMaterialCodeRequest },
     toolkit: ResponseToolkit

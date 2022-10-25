@@ -1,4 +1,4 @@
-import { projectService } from "./project.services";
+import { projectService } from "./project.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IProjectRequest } from "./project.type";
 import { PROJECT_STATUS_OPTIONS } from "@/constants";

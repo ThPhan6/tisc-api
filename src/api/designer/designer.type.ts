@@ -1,4 +1,5 @@
-import { DesignStatusValue, ILocationAttributes, IPagination } from "@/types";
+import { ActiveStatus, ILocationAttributes, IPagination } from "@/types";
+
 export interface IDesignersResponse {
   data: {
     designers: {
@@ -24,36 +25,13 @@ export interface IDesignersResponse {
   statusCode: number;
 }
 
-export interface IDesignerResponse {
-  data: any;
-  statusCode: number;
-}
-
-export interface IDesignSummary {
-  data: {
-    id: string;
-    quantity: number;
-    label: string;
-    subs: {
-      id: string;
-      quantity: number;
-      label: string;
-    }[];
-  }[];
-  statusCode: number;
-}
-
-export interface IUpdateDesignStatusRequest {
-  status: DesignStatusValue;
-}
-
 export interface DesignerDataCustom {
   designer: {
     created_at: string;
     id: string;
     logo: string | null;
     name: string;
-    status: 1;
+    status: ActiveStatus;
   };
   userCount: number;
   origin_location: ILocationAttributes[];
@@ -67,3 +45,9 @@ export interface DesignerDataCustom {
     updated_at: string | null;
   }[];
 }
+
+export type GetDesignFirmSort =
+  | "created_at"
+  | "name"
+  | "origin"
+  | "main_office";

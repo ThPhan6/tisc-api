@@ -11,12 +11,8 @@ import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
 import { SortOrder } from "@/type/common.type";
-import {
-  BrandAttributes,
-  IProjectZoneAttributes,
-  UserAttributes,
-} from "@/types";
-import { groupBy, orderBy, partition, uniqBy, isEmpty } from "lodash";
+import { IProjectZoneAttributes, UserAttributes } from "@/types";
+import { orderBy, partition, uniqBy, isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -359,12 +355,10 @@ class ProjectProductService {
       projectProductId,
       {
         ...payload,
-        status: isSpecifying
-          ? ProjectProductStatus.specify
-          : ProjectProductStatus.consider,
-        specified_status: payload.specified_status ?? (isSpecifying
-          ? ProductSpecifyStatus.Specified
-          : undefined),
+        status: isSpecifying ? ProjectProductStatus.specify : payload.status,
+        specified_status:
+          payload.specified_status ??
+          (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
       }
     );
     if (!considerProduct[0]) {
@@ -403,7 +397,6 @@ class ProjectProductService {
       type: notiType,
       created_by: user.id,
     });
-
     return successResponse({
       data: considerProduct[0],
     });
@@ -420,9 +413,24 @@ class ProjectProductService {
     if (!deletedRecord[0]) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
+
+    const brand = await projectProductRepository.getProductBrandById(
+      projectProductId
+    );
+
+    const trackingRecord = await projectTrackingRepository.findBy({
+      brand_id: brand[0].id,
+      project_id: deletedRecord[0].project_id,
+    });
+
+    if (!trackingRecord) {
+      console.log("trackingRecord not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
     await projectTrackingNotificationRepository.create({
-      project_tracking_id: deletedRecord[0].project_tracking_id,
-      project_product_id: deletedRecord[0].id,
+      project_tracking_id: trackingRecord.id,
+      project_product_id: projectProductId,
       type: ProjectTrackingNotificationType.Deleted,
       created_by: userId,
     });
@@ -441,60 +449,33 @@ class ProjectProductService {
 
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForBrandGroup(
-        project_id
+        project_id,
+        brand_order
       );
 
-    const brands: BrandAttributes[] = specifiedProducts.flatMap(
-      (el: { brands: BrandAttributes }) => el.brands
-    );
-    const filteredBrands = uniqBy(brands, "id");
+    const total = sumBy(specifiedProducts, "count");
 
-    const sortedBrands = brand_order
-      ? orderBy(filteredBrands, "name", brand_order.toLocaleLowerCase() as any)
-      : filteredBrands;
-
-    const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.products,
-      brand: el.brands,
-      collection: el.collections,
-      specifiedDetail: {
-        ...el,
-        products: undefined,
-        brands: undefined,
-        collections: undefined,
-      },
-      product_id: "XXX-000",
-      variant: "updating",
-    }));
-
-    const groupByBrandProducts = groupBy(mappedProducts, "brand_id");
-
-    const results: any[] = [];
-
-    sortedBrands.forEach((brand) => {
-      results.push({
-        id: brand.id,
-        name: brand.name,
-        products: groupByBrandProducts[brand.id],
-        count: groupByBrandProducts[brand.id].length,
-      });
-    });
-
-    const unlistedCount = specifiedProducts.reduce(
-      (total: number, prod: any) =>
+    const cancelledCount = specifiedProducts.reduce(
+      (total: number, brand: any) =>
         total +
-        (prod.specified_status === ProductSpecifyStatus.Cancelled ? 1 : 0),
+          countBy(
+            brand.products,
+            (p) =>
+              p.specifiedDetail.specified_status ===
+              ProductSpecifyStatus.Cancelled
+          ).true || 0,
       0
     );
+
     return successResponse({
       data: {
-        data: results,
+        data: specifiedProducts,
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - unlistedCount,
+            value: total - cancelledCount,
           },
-          { name: "Cancelled", value: unlistedCount },
+          { name: "Cancelled", value: cancelledCount },
         ],
       },
     });
@@ -656,7 +637,9 @@ class ProjectProductService {
         roomIds
       );
       if (rooms.length !== roomIds.length) {
-        return errorMessageResponse(MESSAGES.FINISH_SCHEDULE.ROOM_DOES_NOT_EXIST);
+        return errorMessageResponse(
+          MESSAGES.FINISH_SCHEDULE.ROOM_DOES_NOT_EXIST
+        );
       }
     }
 
@@ -733,10 +716,12 @@ class ProjectProductService {
       })
     );
     if (
-      entireAllocation && response.length !== 1 ||
+      (entireAllocation && response.length !== 1) ||
       (!entireAllocation && response.length !== assignRooms.length)
     ) {
-      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+      return errorMessageResponse(
+        MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN
+      );
     }
   };
 }

@@ -1,7 +1,9 @@
-import { ICityAttributes } from "../../model/city";
-import { ICountryAttributes } from "../../model/country";
-import { IStateAttributes } from "../../model/state";
-import { IPagination } from "../../type/common.type";
+import {
+  ICityAttributes,
+  ICountryAttributes,
+  IStateAttributes,
+  IPagination
+} from "@/types";
 
 export interface IFunctionalTypesResponse {
   data: {
@@ -9,6 +11,12 @@ export interface IFunctionalTypesResponse {
     name: string;
   }[];
   statusCode: number;
+}
+
+export enum DesignFirmFunctionalType {
+  "Main office" = "1",
+  "Satellite" = "2",
+  "Other" = "3",
 }
 
 export interface ILocation {

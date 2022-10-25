@@ -17,8 +17,19 @@ export interface IProductAttributes {
   created_at: string;
   created_by: string;
   updated_at: string | null;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
 }
 
+export interface ProductTip {
+  title: string;
+  content: string;
+}
+export interface ProductDownload {
+  title: string;
+  url: string;
+}
 export interface ProductWithCollectionAndBrand extends IProductAttributes {
   collection: {
     id: string;

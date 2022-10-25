@@ -1,12 +1,12 @@
-import { BasisConversion } from "@/types/basis.type";
 import { getDistinctArray } from "@/helper/common.helper";
-import { IBasisAttributes } from "@/model/basis.model";
-import { IAttributeAttributes } from "@/types/attribute.type";
 import {
+  IBasisAttributes,
+  IAttributeAttributes,
+  BasisConversion,
   IProductAttributes,
   ProductWithRelationData,
   ProductWithCollectionAndBrand,
-} from "@/types/product.type";
+} from "@/types";
 import { v4 as uuid } from "uuid";
 import {
   IAttributeGroupWithOptionalId,

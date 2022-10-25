@@ -1,4 +1,4 @@
-import DistributorModel from "@/model/distributor.models";
+import DistributorModel from "@/model/distributor.model";
 import { IDistributorAttributes, ListDistributorPagination } from "@/types";
 import BaseRepository from "./base.repository";
 

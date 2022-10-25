@@ -1,6 +1,6 @@
 import { ProjectAttributes, SortOrder } from "@/types";
 import BaseRepository from "@/repositories/base.repository";
-import ProjectModel from "@/model/project.models";
+import ProjectModel from "@/model/project.model";
 import { forEach } from "lodash";
 
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
@@ -58,33 +58,25 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       filter && filter.status
         ? `FILTER projects.status == ${filter.status}`
         : ""
-    } 
-    LIMIT @offset, @limit
-    ${sort ? ` SORT projects.${sort[0]} ${sort[1]} ` : ``}
+    }
     LET users = (
         FOR users in users
+        FILTER users.deleted_at == null
         FOR teamIds in projects.team_profile_ids
         FILTER users.id == teamIds
-        return {
-            id : users.id,
-            firstname : users.firstname,
-            lastname : users.lastname,
-            avatar : users.avatar
-        }
+        RETURN KEEP(users, 'id', 'firstname', 'lastname', 'avatar')
     )
-    
-    return {
-        id: projects.id,
-        code: projects.code,
-        name: projects.name,
-        location: projects.location,
-        project_type: projects.project_type,
-        building_type: projects.building_type,
-        design_due: projects.design_due,
-        design_id: projects.design_id,
-        status: projects.status,
-        assign_teams: users,
-    }
+
+    ${sort ? `SORT projects.${sort[0]} ${sort[1]} ` : ``}
+    LIMIT @offset, @limit
+    RETURN MERGE(
+      KEEP(
+        projects,
+        'id','code','name','location','project_type',
+        'building_type','design_due','design_id','status'
+      ),
+      {assign_teams: users}
+    )
     `;
     return this.model.rawQuery(rawQuery, params);
   }
@@ -117,6 +109,21 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       .where("code", "==", code)
       .where("design_id", "==", designId)
       .first();
+  }
+
+  public async findProjectWithDesignData(id: string) {
+    return (await this.model
+      .select(
+        "projects.*",
+        "designers.name as design_firm_name",
+        "designers.office_website as design_firm_official_website"
+      )
+      .join("designers", "designers.id", "==", "projects.design_id")
+      .where("projects.id", "==", id)
+      .first()) as ProjectAttributes & {
+      design_firm_name: string;
+      design_firm_official_website: string;
+    };
   }
 }
 

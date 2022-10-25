@@ -1,5 +1,6 @@
-import * as Joi from "joi";
-import { DESIGN_STATUSES } from "../../constant/common.constant";
+import { ActiveStatus } from "@/types";
+import Joi from "joi";
+
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -36,7 +37,9 @@ export default {
           return customFilter(value, helpers);
         }, "custom filter validation")
         .error(commonFailValidatedMessageFunction("Invalid filter")),
-      sort: Joi.string(),
+      sort: Joi.string()
+        .valid("created_at", "name", "origin", "main_office") // GetDesignFirmSort
+        .allow(""),
       order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
@@ -61,7 +64,7 @@ export default {
     },
     payload: {
       status: Joi.number()
-        .valid(DESIGN_STATUSES.ACTIVE, DESIGN_STATUSES.INACTIVE)
+        .valid(ActiveStatus.Active, ActiveStatus.Inactive)
         .required()
         .error(commonFailValidatedMessageFunction("Design status is required")),
     },
@@ -80,21 +83,21 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Design firm name is required")
         ),
-      parent_company: Joi.string(),
+      parent_company: Joi.string().allow(""),
       logo: Joi.string()
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Logo is required")),
-      slogan: Joi.string(),
+      slogan: Joi.string().allow(""),
       profile_n_philosophy: Joi.string()
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Profile & Philosophy")),
-      office_website: Joi.string()
+      official_website: Joi.string()
         .trim()
         .required()
         .error(
-          commonFailValidatedMessageFunction("Office website is required")
+          commonFailValidatedMessageFunction("Official website is required")
         ),
       capabilities: Joi.array().items(
         Joi.string()

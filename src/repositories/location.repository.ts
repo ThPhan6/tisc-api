@@ -1,6 +1,7 @@
-import LocationModel from "@/model/location.models";
+import LocationModel from "@/model/location.model";
 import BaseRepository from "./base.repository";
 import { ILocationAttributes, SortOrder } from "@/types";
+import { isNumber } from "lodash";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -26,7 +27,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       query = query.order(sort, order);
     }
 
-    if (limit && offset) {
+    if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit, offset);
       return await query.paginate();
     }

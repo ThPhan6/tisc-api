@@ -1,4 +1,3 @@
-import {RoleTypeValue} from './role.type';
 export interface UserAttributes {
   id: string;
   role_id: string;
@@ -21,18 +20,32 @@ export interface UserAttributes {
   is_verified: boolean;
   verification_token: string | null;
   reset_password_token: string | null;
-  status: number;
+  status: UserStatus;
   created_at: string | null;
   updated_at: string | null;
-  type: RoleTypeValue;
+  type: UserType;
   relation_id: string;
   retrieve_favourite: boolean;
   interested: any[];
 }
 
-export type SystemType = 1 | 2 | 3;
-export interface ISystemType {
-  TISC: SystemType;
-  BRAND: SystemType;
-  DESIGN: SystemType;
+export enum UserStatus {
+  Active = 1,
+  Blocked = 2,
+  Pending = 3,
 }
+
+export enum UserType {
+  TISC = 1,
+  Brand = 2,
+  Designer = 3,
+}
+
+export type UserTypeKey = keyof typeof UserType;
+
+export type UserTypeValue = `${Extract<
+  UserType,
+  number
+>}` extends `${infer N extends number}`
+  ? N
+  : never;

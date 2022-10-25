@@ -1,5 +1,5 @@
 import { SortOrder, IProjectZoneAttributes } from "@/types";
-import ProjectZoneModel from "@/model/project_zone.models";
+import ProjectZoneModel from "@/model/project_zone.model";
 import BaseRepository from "./base.repository";
 
 class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
@@ -64,6 +64,24 @@ class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
       .where("project_id", "==", projectId)
       .order("name", zoneOrder)
       .get();
+  }
+
+  public getListWithTotalsize = async (projectId: string) => {
+    return await this.model.rawQuery(`
+      FILTER project_zones.deleted_at == null
+      FILTER project_zones.project_id == @projectId
+      SORT project_zones.name ASC
+      RETURN merge(project_zones, {
+        total_size: SUM(FOR area IN project_zones.areas FOR room in area.rooms return room.quantity * room.room_size),
+        areas: (FOR area IN project_zones.areas return merge(area, {
+            total_size: SUM(FOR room in area.rooms return room.quantity * room.room_size)
+        }))
+      })`, {projectId}) as IProjectZoneAttributes & {
+        total_size: number;
+        areas: IProjectZoneAttributes['areas'][0] & {
+            total_size: number;
+        }[];
+      }[];
   }
 }
 

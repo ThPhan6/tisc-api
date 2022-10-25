@@ -76,3 +76,8 @@ export const MEASUREMENT_UNIT_OPTIONS: {
     id: MEASUREMENT_UNIT.IMPERIAL,
   },
 ];
+
+export const MEASUREMENT_UNIT_TEXTS = {
+  [MEASUREMENT_UNIT.IMPERIAL]: "sq.ft.",
+  [MEASUREMENT_UNIT.IMPERIAL]: "sq.m.",
+}

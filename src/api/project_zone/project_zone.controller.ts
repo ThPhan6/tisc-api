@@ -1,4 +1,4 @@
-import { projectZoneService } from "./project_zone.services";
+import { projectZoneService } from "./project_zone.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   IProjectZoneRequest,
@@ -6,7 +6,7 @@ import {
 } from "./project_zone.type";
 
 export default class ProjectZoneController {
-  constructor() {}
+
   public create = async (
     req: Request & { payload: IProjectZoneRequest },
     toolkit: ResponseToolkit
