@@ -18,6 +18,7 @@ import {
 import { IMaterialCodeRequest } from "./material_code.type";
 
 class MaterialCodeService {
+
   public async create(userId: string, payload: IMaterialCodeRequest) {
     const user = await userRepository.find(userId);
     if (!user) {

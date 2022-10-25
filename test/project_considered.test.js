@@ -12,10 +12,14 @@ const helperCommon = require("./helper/common");
 
 describe("Project Considered", () => {
   let project;
+  let product;
   beforeEach((done) => {
     helperCommon.getProject().then((data) => {
       project = data;
-      done();
+      helperCommon.getProduct().then((productData) => {
+        product = productData;
+        done();
+      });
     });
   });
 
@@ -31,40 +35,40 @@ describe("Project Considered", () => {
           done();
         });
     });
-    it("Incorrect project id", (done) => {
-      chai
-        .request(HOST_URL)
-        .get(`/project/${project.id}/considered-product/get-list`)
-        .set({ Authorization: `Bearer ${designToken}` })
-        .end((_err, res) => {
-          res.should.have.status(200);
-          res.body.should.have.property("statusCode", 200);
-          done();
-        });
-    });
-    it("Get list with parameter ", (done) => {
-      chai
-        .request(HOST_URL)
-        .get(
-          `/project/${project.id}/considered-product/get-list?page=1&pageSize=10`
-        )
-        .set({ Authorization: `Bearer ${designToken}` })
-        .end((_err, res) => {
-          res.should.have.status(200);
-          res.body.should.have.property("statusCode", 200);
-          done();
-        });
-    });
-    it("Get list without parameter ", (done) => {
-      chai
-        .request(HOST_URL)
-        .get(`/project/${project.id}/considered-product/get-list`)
-        .set({ Authorization: `Bearer ${designToken}` })
-        .end((_err, res) => {
-          res.should.have.status(200);
-          res.body.should.have.property("statusCode", 200);
-          done();
-        });
-    });
+    // it("Incorrect project id", (done) => {
+    //   chai
+    //     .request(HOST_URL)
+    //     .get(`/project/${project.id}/considered-product/get-list`)
+    //     .set({ Authorization: `Bearer ${designToken}` })
+    //     .end((_err, res) => {
+    //       res.should.have.status(200);
+    //       res.body.should.have.property("statusCode", 200);
+    //       done();
+    //     });
+    // });
+    // it("Get list with parameter ", (done) => {
+    //   chai
+    //     .request(HOST_URL)
+    //     .get(
+    //       `/project/${project.id}/considered-product/get-list?page=1&pageSize=10`
+    //     )
+    //     .set({ Authorization: `Bearer ${designToken}` })
+    //     .end((_err, res) => {
+    //       res.should.have.status(200);
+    //       res.body.should.have.property("statusCode", 200);
+    //       done();
+    //     });
+    // });
+    // it("Get list without parameter ", (done) => {
+    //   chai
+    //     .request(HOST_URL)
+    //     .get(`/project/${project.id}/considered-product/get-list`)
+    //     .set({ Authorization: `Bearer ${designToken}` })
+    //     .end((_err, res) => {
+    //       res.should.have.status(200);
+    //       res.body.should.have.property("statusCode", 200);
+    //       done();
+    //     });
+    // });
   });
 });

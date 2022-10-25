@@ -75,7 +75,7 @@ async function getBrand() {
 
 async function getCategory() {
   const category = await db.query({
-    query: `FOR data in @@model 
+    query: `FOR data in @@model
             FOR subCategory in data.subs
             FOR category in subCategory.subs
             RETURN category`,
@@ -152,7 +152,7 @@ async function insertProduct() {
                 conversion_value_1: "",
                 conversion_value_2: ""
               },
-             
+
             ],
           },
         ],
@@ -162,7 +162,7 @@ async function insertProduct() {
             id: "${uuid()}",
             "name": "Options",
             "attributes": [
-              {            
+              {
                 id: "${uuid()}",
                 "basis_id": "${basis.id}",
                 "type": "Options",
@@ -212,12 +212,13 @@ function getProduct() {
     const product = await db.query({
       query: `FOR data in @@model
         FILTER data.deleted_at == null
+        limit 1
       return data`,
       bindVars: {
         "@model": "products",
       },
     });
-    resolve(product._result[0]);
+    resolve((await response.all())[0]);
   });
 }
 
@@ -290,15 +291,16 @@ function getProject() {
     resolve(response[0]);
   });
 }
-function getDesign() {
+function getDesign(relationId) {
   return new Promise(async (resolve) => {
     const design = await db.query({
       query: `FOR data in @@model
               FOR design in designers
-              FILTER data.relation_id == design.id
+              FILTER data.relation_id == @relationId
               return design`,
       bindVars: {
         "@model": "users",
+        "relationId": relationId
       },
     });
     resolve(design._result[0]);
@@ -322,9 +324,9 @@ function getConsideredProduct() {
 function verifyUser() {
   return new Promise(async (resolve) => {
     const user = await db.query({
-      query: `FOR u IN @@model 
-      FILTER u.deleted_at == null 
-      FILTER u.email == "${email}" 
+      query: `FOR u IN @@model
+      FILTER u.deleted_at == null
+      FILTER u.email == "${email}"
       UPDATE u WITH {is_verified : true } IN @@model`,
       bindVars: {
         "@model": "users",
@@ -337,9 +339,9 @@ function verifyUser() {
 function getCommonType(type) {
   return new Promise(async (resolve) => {
     const commonType = await db.query({
-      query: `FOR c IN @@model 
-      FILTER c.deleted_at == null 
-      FILTER c.type == "${type}" 
+      query: `FOR c IN @@model
+      FILTER c.deleted_at == null
+      FILTER c.type == "${type}"
     `,
       bindVars: {
         "@model": "common_types",

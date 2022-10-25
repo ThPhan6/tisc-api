@@ -120,7 +120,7 @@ class DesignerService {
     payload: Partial<DesignerAttributes>,
     user: UserAttributes
   ) {
-    if (designId !== user.relation_id && user.type !== UserType.TISC) {
+    if (designId !== user.relation_id && user.type !== UserType.Designer) {
       return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
     }
 

@@ -34,13 +34,6 @@ describe("Design Firm", () => {
   });
 
   beforeEach((done) => {
-    helperCommon.getDesign().then((data) => {
-      design = data;
-      done();
-    });
-  });
-
-  beforeEach((done) => {
     chai
       .request(HOST_URL)
       .get("/team-profile/get-me")
@@ -48,7 +41,10 @@ describe("Design Firm", () => {
 
       .end((_err, res) => {
         user = res.body.data;
-        done();
+        helperCommon.getDesign(user.relation_id).then((data) => {
+          design = data;
+          done();
+        });
       });
   });
 
@@ -75,7 +71,7 @@ describe("Design Firm", () => {
             logo: imageTest_4,
             slogan: "TISC",
             profile_n_philosophy: "TISC",
-            office_website: "https://tisc.enabledemo.com",
+            official_website: "https://tisc.enabledemo.com",
             capabilities: ["capability"],
           })
           .end((_err, res) => {
@@ -95,7 +91,7 @@ describe("Design Firm", () => {
             logo: imageTest_4,
             slogan: "TISC",
             profile_n_philosophy: "TISC",
-            office_website: "https://tisc.enabledemo.com",
+            official_website: "https://tisc.enabledemo.com",
             capabilities: ["capability"],
           })
           .end((_err, res) => {
@@ -115,7 +111,7 @@ describe("Design Firm", () => {
             logo: "TISC logo",
             slogan: "TISC",
             profile_n_philosophy: "TISC",
-            office_website: "https://tisc.enabledemo.com",
+            official_website: "https://tisc.enabledemo.com",
             capabilities: ["capability"],
           })
           .end((_err, res) => {
@@ -135,7 +131,7 @@ describe("Design Firm", () => {
             logo: imageTest_4,
             slogan: "TISC",
             profile_n_philosophy: "TISC",
-            office_website: "https://tisc.enabledemo.com",
+            official_website: "https://tisc.enabledemo.com",
             capabilities: ["capability"],
           })
           .end((_err, res) => {
