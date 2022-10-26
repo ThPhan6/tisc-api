@@ -10,38 +10,14 @@ import { designerRepository } from "@/repositories/designer.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { FindUserAndProjectResponse, ProjectStatus } from "@/types";
+import { ProjectStatus, UserAttributes } from "@/types";
 import { uniq } from "lodash";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { IProjectRequest } from "./project.type";
 
 class ProjectService {
-  public async findUserAndProject(userId: string, projectId: string) {
-    const res: FindUserAndProjectResponse = {
-      message: errorMessageResponse(MESSAGES.SOMETHING_WRONG),
-    };
 
-    res.user = await userRepository.find(userId);
-    if (!res.user) {
-      res.message = errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-      return res;
-    }
-
-    res.project = await projectRepository.find(projectId);
-    if (!res.project) {
-      res.message = errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
-      return res;
-    }
-
-    return res;
-  }
-
-  public async create(userId: string, payload: IProjectRequest) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
+  public async create(user: UserAttributes, payload: IProjectRequest) {
 
     if (user.type !== SYSTEM_TYPE.DESIGN) {
       return errorMessageResponse(MESSAGES.JUST_DESIGNER_CAN_CREATE);
@@ -143,18 +119,12 @@ class ProjectService {
   }
 
   public async getProjects(
-    userId: string,
+    user: UserAttributes,
     limit: number,
     offset: number,
     filter: any,
     sort: any
   ) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
     const projects = await projectRepository.getListProject(
       user.relation_id,
       limit,
@@ -194,14 +164,11 @@ class ProjectService {
     });
   }
 
-  public async update(id: string, userId: string, payload: IProjectRequest) {
-    const { user, project, message } = await this.findUserAndProject(
-      userId,
-      id
-    );
+  public async update(id: string, user: UserAttributes, payload: IProjectRequest) {
 
-    if (!project || !user) {
-      return message;
+    const project = await projectRepository.find(id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
     if (
@@ -298,15 +265,14 @@ class ProjectService {
     });
   }
 
-  public async delete(id: string, userId: string) {
-    const { user, project, message } = await this.findUserAndProject(
-      userId,
-      id
-    );
+  public async delete(id: string, user: UserAttributes) {
 
-    if (!project || !user) {
-      return message;
+    const project = await projectRepository.find(id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
+
+
 
     if (
       user.type !== SYSTEM_TYPE.DESIGN ||
@@ -324,15 +290,9 @@ class ProjectService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getProjectSummary(userId: string) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
+  public async getProjectSummary(currentUser: UserAttributes) {
     const projects = await projectRepository.getAllBy({
-      design_id: user.relation_id,
+      design_id: currentUser.relation_id,
     });
 
     return {

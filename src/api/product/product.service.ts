@@ -17,7 +17,6 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import {productRepository} from "@/repositories/product.repository";
 import {productFavouriteRepository} from "@/repositories/product_favourite.repository";
 import {projectProductRepository} from "@/api/project_product/project_product.repository";
-import { userRepository } from "@/repositories/user.repository";
 import {countryStateCityService} from "@/service/country_state_city.service";
 import {
   uploadImagesProduct,
@@ -44,6 +43,8 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
+import {UserAttributes} from '@/types';
+
 class ProductService {
 
   private getAllBasisConversion = async () => {
@@ -54,7 +55,7 @@ class ProductService {
       return pre.concat(cur.subs);
     }, []);
   };
-  public async create(user_id: string, payload: IProductRequest) {
+  public async create(user: UserAttributes, payload: IProductRequest) {
     const product = await productRepository.findBy({
       name: payload.name,
       brand_id: payload.brand_id,
@@ -108,7 +109,7 @@ class ProductService {
       general_attribute_groups: saveGeneralAttributeGroups,
       feature_attribute_groups: saveFeatureAttributeGroups,
       specification_attribute_groups: saveSpecificationAttributeGroups,
-      created_by: user_id,
+      created_by: user.id,
       images: uploadedImages,
       keywords: payload.keywords,
 
@@ -119,10 +120,10 @@ class ProductService {
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(createdProduct.id, user_id);
+    return await this.get(createdProduct.id, user);
   }
 
-  public async duplicate(id: string, user_id: string) {
+  public async duplicate(id: string, user: UserAttributes) {
     const product = await productRepository.find(id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
@@ -134,15 +135,15 @@ class ProductService {
     if (!created) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return successResponse(await this.get(created.id, user_id));
+    return successResponse(await this.get(created.id, user));
   }
 
   public async update(
     id: string,
     payload: IUpdateProductRequest,
-    userId: string
+    user: UserAttributes
   ) {
-    const product = await productRepository.findWithRelationData(id, userId);
+    const product = await productRepository.findWithRelationData(id, user.id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -196,11 +197,11 @@ class ProductService {
     if (!updatedProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(id, userId);
+    return await this.get(id, user);
   }
 
-  public async get(id: string, userId: string) {
-    const product = await productRepository.findWithRelationData(id, userId);
+  public async get(id: string, user: UserAttributes) {
+    const product = await productRepository.findWithRelationData(id, user.id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
@@ -306,7 +307,7 @@ class ProductService {
     });
   };
   public getList = async (
-    userId: string,
+    user: UserAttributes,
     brandId: string,
     categoryId?: string,
     collectionId?: string,
@@ -315,7 +316,7 @@ class ProductService {
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
     let products = await productRepository.getProductBy(
-      userId,
+      user.id,
       brandId,
       categoryId === "all" ? undefined : categoryId,
       collectionId === "all" ? undefined : collectionId,
@@ -351,7 +352,7 @@ class ProductService {
   };
 
   public getListDesignerBrandProducts = async (
-    userId: string,
+    user: UserAttributes,
     brandId?: string,
     categoryId?: string,
     keyword?: string,
@@ -359,7 +360,7 @@ class ProductService {
     orderBy: "ASC" | "DESC" = "ASC"
   ) => {
     const products = await productRepository.getProductBy(
-      userId,
+      user.id,
       brandId,
       categoryId,
       undefined,
@@ -431,15 +432,15 @@ class ProductService {
     });
   };
 
-  public likeOrUnlike = async (productId: string, userId: string) => {
+  public likeOrUnlike = async (productId: string, user: UserAttributes) => {
     const favourite = await productFavouriteRepository.findBy({
       product_id: productId,
-      user_id: userId,
+      user_id: user.id,
     });
     if (!favourite) {
-      await productFavouriteRepository.like(productId, userId);
+      await productFavouriteRepository.like(productId, user.id);
     } else {
-      await productFavouriteRepository.unlike(productId, userId);
+      await productFavouriteRepository.unlike(productId, user.id);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   };
@@ -485,8 +486,8 @@ class ProductService {
     return successResponse({ data: result ?? [] });
   };
 
-  public getFavoriteProductSummary = async (userId: string) => {
-    const products = await productRepository.getFavouriteProducts(userId);
+  public getFavoriteProductSummary = async (user: UserAttributes) => {
+    const products = await productRepository.getFavouriteProducts(user.id);
     const categories = getUniqueProductCategories(products);
     const brands = getUniqueBrands(products);
     return successResponse({
@@ -501,13 +502,13 @@ class ProductService {
   };
 
   public getFavouriteList = async (
-    userId: string,
+    user: UserAttributes,
     order: "ASC" | "DESC" = "ASC",
     brandId?: string,
     categoryId?: string
   ) => {
     const products = await productRepository.getFavouriteProducts(
-      userId,
+      user.id,
       brandId,
       order
     );
@@ -524,12 +525,8 @@ class ProductService {
 
   public shareByEmail = async (
     payload: ShareProductBodyRequest,
-    userId: string
+    user: UserAttributes
   ) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST);
-    }
     const product = await productRepository.findWithRelationData(
       payload.product_id
     );
@@ -565,31 +562,6 @@ class ProductService {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
     }
     return successMessageResponse(MESSAGES.EMAIL_SENT);
-  };
-
-  public getSharingGroups = async (userId: string) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return successResponse({ data: [] });
-    }
-    return successResponse({
-      data: await commonTypeRepository.getAllByRelationAndType(
-        user.relation_id,
-        COMMON_TYPES.SHARING_GROUP
-      ),
-    });
-  };
-  public getSharingPurposes = async (userId: string) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return successResponse({ data: [] });
-    }
-    return successResponse({
-      data: await commonTypeRepository.getAllByRelationAndType(
-        user.relation_id,
-        COMMON_TYPES.SHARING_PURPOSE
-      ),
-    });
   };
 }
 
