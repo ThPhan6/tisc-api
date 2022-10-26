@@ -58,7 +58,10 @@ export default class PermissionService {
       return errorMessageResponse(MESSAGES.PERMISSION.NO_MODIFY_ADMIN_PERM);
     }
 
-    if (companyPermission.permission_id === 'permission_13_0') {
+    if (
+      companyPermission.permission_id === 'permission_13_0' &&
+      companyPermission.accessable == true
+    ) {
       // project overal listing
       await companyPermissionRepository.getModel()
         .whereIn('permission_id', [
