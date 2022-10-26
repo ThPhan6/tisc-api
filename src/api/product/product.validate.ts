@@ -337,4 +337,11 @@ export default {
         .error(commonFailValidatedMessageFunction("Message is required")),
     },
   },
+  publicSharingProduct: {
+    query: {
+      hash: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Hash is required")),
+    },
+  },
 };

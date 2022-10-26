@@ -5,7 +5,6 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { materialCodeRepository } from "@/repositories/material_code.repository";
-import { userRepository } from "@/repositories/user.repository";
 import { SortOrder } from "@/types/common.type";
 import { projectProductRepository } from "./../project_product/project_product.repository";
 import {
@@ -16,14 +15,10 @@ import {
   mappingSummaryMaterialCode,
 } from "./material_code.mapping";
 import { IMaterialCodeRequest } from "./material_code.type";
+import {UserAttributes} from '@/types';
 
 class MaterialCodeService {
-
-  public async create(userId: string, payload: IMaterialCodeRequest) {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
+  public async create(user: UserAttributes, payload: IMaterialCodeRequest) {
     const newPayload = mappingDataCreate(payload);
     const createdMaterialCode = await materialCodeRepository.create({
       ...newPayload,
@@ -90,8 +85,8 @@ class MaterialCodeService {
     });
   }
 
-  public async getListCodeMaterialCode(user_id: string) {
-    const materialCodes = await materialCodeRepository.getCodesByUser(user_id);
+  public async getListCodeMaterialCode(user: UserAttributes) {
+    const materialCodes = await materialCodeRepository.getCodesByUser(user.id);
     return successResponse({
       data: materialCodes,
     });
@@ -99,14 +94,9 @@ class MaterialCodeService {
 
   public async update(
     id: string,
-    userId: string,
+    user: UserAttributes,
     payload: IMaterialCodeRequest
   ) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
 
     const materialCode = await materialCodeRepository.find(id);
 
@@ -146,13 +136,7 @@ class MaterialCodeService {
     return successResponse({ data: updatedMaterialCode });
   }
 
-  public async delete(id: string, userId: string) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
-    }
-
+  public async delete(id: string) {
     const materialCode = await materialCodeRepository.find(id);
 
     if (!materialCode) {

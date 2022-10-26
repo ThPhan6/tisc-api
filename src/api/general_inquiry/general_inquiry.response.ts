@@ -26,7 +26,7 @@ export default {
       design_firm: Joi.object({
         name: Joi.string(),
         official_website: Joi.string().allow(""),
-        general_email: Joi.string(),
+        general_email: Joi.string().allow(""),
         general_phone: Joi.string().allow(""),
         phone_code: Joi.string().allow(""),
         address: Joi.string().allow(""),
@@ -47,9 +47,9 @@ export default {
           image: Joi.string(),
         }),
         designer: Joi.object({
-          name: Joi.string(),
+          name: Joi.string().allow(""),
           position: Joi.string().allow(""),
-          email: Joi.string(),
+          email: Joi.string().allow(""),
           phone: Joi.string().allow(""),
           phone_code: Joi.string().allow(""),
         }),

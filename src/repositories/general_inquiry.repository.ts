@@ -87,8 +87,8 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           ? `SORT general_inquiries.created_at ${sortOrder}`
           : ""
       }
-      
-      FOR products IN products 
+
+      FOR products IN products
       FILTER products.id == general_inquiries.product_id
       FILTER products.brand_id == @relationId
       FILTER products.deleted_at == null
@@ -96,10 +96,10 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       LET designFirm = (
         FOR u IN users
         FILTER u.id == general_inquiries.created_by
-        FOR d IN designers 
+        FOR d IN designers
         FILTER d.id == u.relation_id
-        FOR loc IN locations 
-        FILTER loc.relation_id == d.id
+        FOR loc IN locations
+        FILTER loc.id == u.location_id
         RETURN { designer: d, location: loc, user: u }
       )
       ${
@@ -132,7 +132,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
         title: general_inquiries.title,
         status: general_inquiries.status,
         design_firm: designFirm[0].designer.name,
-        firm_location: designFirm[0].location.city_name ? 
+        firm_location: designFirm[0].location.city_name ?
             CONCAT(designFirm[0].location.city_name, ', ', designFirm[0].location.country_name) :
             designFirm[0].location.country_name,
         inquirer: TRIM(CONCAT(designFirm[0].user.firstname, ' ', designFirm[0].user.lastname)),
@@ -166,10 +166,10 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER d.id == user.relation_id
       FILTER d.deleted_at == null
       FOR loc IN locations
-      FILTER loc.relation_id == d.id
+      FILTER loc.id == user.location_id
       FILTER loc.deleted_at == null
       RETURN MERGE(
-        KEEP(d, 'name', 'official_website'), 
+        KEEP(d, 'name', 'official_website'),
         KEEP(loc, 'address', 'city_name', 'state_name', 'country_name', 'general_phone', 'general_email', 'phone_code')
       )
     )
@@ -185,7 +185,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER brands.id == products.brand_id
       FILTER brands.deleted_at == null
       RETURN MERGE(
-        KEEP(products, 'id', 'name', 'description'), 
+        KEEP(products, 'id', 'name', 'description'),
         {collection: collection.name, image: FIRST(products.images)}
       )
     )

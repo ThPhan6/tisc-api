@@ -181,7 +181,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         ? "FILTER projects.status == @projectStatus"
         : ""
     }
-    
+
     COLLECT WITH COUNT INTO length
     RETURN length
     `;
@@ -261,7 +261,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR pr in mapping
       RETURN pr.notifications
     )
-   
+
     LET live = (
       FOR p IN projects
       FILTER p.status == @liveStatus
@@ -284,13 +284,13 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     LET allRequest = (
       FOR prs IN projectRequests
       FOR pr IN prs
-      RETURN pr 
+      RETURN pr
     )
     LET pending = (
       FOR prs IN projectRequests
       FOR pr IN prs
       FILTER pr.status == @pending
-      RETURN pr 
+      RETURN pr
     )
     LET responded = (
       FOR prs IN projectRequests
@@ -386,7 +386,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         KEEP(pr, 'id','created_at','title', 'message', 'status','created_by'),
         {
           product: MERGE(
-            KEEP(product, 'id', 'name', 'images', 'description'), 
+            KEEP(product, 'id', 'name', 'images', 'description'),
             {collection_name: collection.name}
           ),
           newRequest: NOT newRequest[0],
@@ -406,7 +406,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
 
       FOR pr in project_products
       FILTER pr.id == notifications.project_product_id
-      FILTER pr.deleted_at == null
 
       FOR p in products
       FILTER p.id == pr.product_id
@@ -432,14 +431,14 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         KEEP(notifications, 'id','created_at','type', 'status', 'created_by'),
         {
           product: MERGE(
-            KEEP(p, 'id', 'name', 'images', 'description'), 
+            KEEP(p, 'id', 'name', 'images', 'description'),
             {collection_name: c.name}
           ),
           newNotification: NOT newNotification[0],
           designer: MERGE(
             KEEP(u, 'location_id','firstname','lastname','position','email','position','phone'),
              {phone_code: loc[0].phone_code}
-          ) 
+          )
         }
       )
     )
@@ -451,7 +450,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR loc IN locations
       FILTER loc.relation_id == designer.id
       FILTER loc.deleted_at == null
-      
+
       LET allLocations = (
         LET mergedUsers = UNION(notifications, projectRequests)
         LET designerUserIds = (
@@ -511,7 +510,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     const rawQuery = `
       FOR ${modelName} IN ${modelName}
       FILTER ${modelName}.id == @modelId
-      UPDATE ${modelName} WITH { 
+      UPDATE ${modelName} WITH {
         ${attributeName}: UNIQUE( PUSH( ${modelName}.${attributeName}, @newValue ) ),
         updated_at: @now
        } IN ${modelName}
