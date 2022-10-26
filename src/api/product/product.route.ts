@@ -278,22 +278,6 @@ export default class ProductRoute implements IRoute {
             },
           },
         },
-        {
-          method: "GET",
-          path: ROUTES.GET_PUBLIC_SHARING_PRODUCT,
-          options: {
-            handler: controller.getPublicSharingProduct,
-            validate: validate.publicSharingProduct,
-            description: "Method that get public sharing product",
-            tags: ["api", "Product"],
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: ProductResponse.getOne,
-              },
-            },
-          },
-        },
       ]);
 
       resolve(true);

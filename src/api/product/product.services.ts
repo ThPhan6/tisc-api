@@ -585,9 +585,11 @@ class ProductService {
         email: payload.to_email,
         product_id: product.id,
       };
-      url = `${process.env.FE_URL}/products&hash=${encrypt(
-        JSON.stringify(hashObj)
-      )}`;
+      const signature = Buffer.from(encrypt(JSON.stringify(hashObj))).toString(
+        "base64"
+      );
+      console.log("signature", signature);
+      url = `${process.env.FE_URL}/shared-product/${product.id}?signature=${signature}`;
     }
     const sent = await this.mailService.sendShareProductViaEmail(
       payload.to_email,
@@ -617,11 +619,11 @@ class ProductService {
     const product: any = await this.get(hashObj.product_id);
     const brandLocations =
       await this.locationService.getCompanyLocationGroupByCountry(
-        product.brand_id
+        product.data.brand_id
       );
     const marketLocations =
       await this.locationService.getMarketLocationGroupByCountry(
-        product.brand_id
+        product.data.id
       );
     const productDownload: any = await this.productDownloadService.get(
       hashObj.product_id

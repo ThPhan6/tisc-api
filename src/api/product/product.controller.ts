@@ -130,12 +130,4 @@ export default class ProductController {
     const response = await productService.getSharingPurposes(userId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getPublicSharingProduct = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const { hash } = req.query;
-    const response = await productService.getPublicSharingProduct(hash);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
 }
