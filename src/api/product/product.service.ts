@@ -4,7 +4,7 @@ import {
   COMMON_TYPES,
   MESSAGES,
 } from "@/constants";
-import { encrypt } from "@/helper/cryptojs.helper";
+import { getProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
 import {
   errorMessageResponse,
@@ -545,21 +545,8 @@ class ProductService {
       user.relation_id,
       COMMON_TYPES.SHARING_PURPOSE
     );
-    const receiver = await userRepository.findBy({
-      email: payload.to_email,
-    });
-    let url = "";
-    if (!receiver) {
-      let hashObj = {
-        email: payload.to_email,
-        product_id: product.id,
-      };
-      const signature = Buffer.from(encrypt(JSON.stringify(hashObj))).toString(
-        "base64"
-      );
-      console.log("signature", signature);
-      url = `${process.env.FE_URL}/shared-product/${product.id}?signature=${signature}`;
-    }
+    const receiver = await userRepository.findBy({email: payload.to_email});
+    const sharedUrl = getProductSharedUrl(user, receiver, product);
     const sent = await mailService.sendShareProductViaEmail(
       payload.to_email,
       user.email,
@@ -571,7 +558,7 @@ class ProductService {
       product.collection.name ?? "N/A",
       product.name ?? "N/A",
       `${user.firstname ?? ""} ${user.lastname ?? ""}`,
-      url
+      sharedUrl
     );
     if (!sent) {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
