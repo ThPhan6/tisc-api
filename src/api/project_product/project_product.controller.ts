@@ -15,7 +15,7 @@ export default class ProjectProductController {
     const currentUser = req.auth.credentials.user as UserAttributes;
     const upsertResponse = await projectProductService.assignProductToProduct(
       req.payload,
-      currentUser.id
+      currentUser
     );
 
     return toolkit
@@ -44,10 +44,10 @@ export default class ProjectProductController {
   ) => {
     const { project_id } = req.params;
     const { zone_order, area_order, room_order, brand_order } = req.query;
-    const currentUserId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
 
     const zoneResponse = await projectProductService.getConsideredProducts(
-      currentUserId,
+      user,
       project_id,
       zone_order,
       area_order,
@@ -123,7 +123,7 @@ export default class ProjectProductController {
     const user = req.auth.credentials.user as UserAttributes;
     const response = await projectProductService.deleteConsiderProduct(
       id,
-      user.id
+      user
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -147,9 +147,9 @@ export default class ProjectProductController {
   ) => {
     const { project_id } = req.params;
     const { brand_order, material_order } = req.query;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await projectProductService.getSpecifiedProductsByMaterial(
-      userId,
+      user,
       project_id,
       brand_order,
       material_order
@@ -163,9 +163,9 @@ export default class ProjectProductController {
   ) => {
     const { project_id } = req.params;
     const { zone_order, area_order, room_order, brand_order } = req.query;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await projectProductService.getSpecifiedProductsByZone(
-      userId,
+      user,
       project_id,
       zone_order,
       area_order,

@@ -1,11 +1,12 @@
 import {permissionService} from "./permission.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import {UserAttributes} from '@/types';
 
 export default class PermissionController {
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await permissionService.getList(userId);
+    const user = req.auth.credentials.user_ as UserAttributes;
+    const response = await permissionService.getList(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
 

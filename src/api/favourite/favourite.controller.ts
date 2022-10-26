@@ -1,4 +1,4 @@
-import { productService } from "./../product/product.services";
+import { productService } from "./../product/product.service";
 import {favouriteService} from "./favourite.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
@@ -34,8 +34,8 @@ export default class FavouriteController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await productService.getFavoriteProductSummary(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await productService.getFavoriteProductSummary(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -54,9 +54,9 @@ export default class FavouriteController {
     if (filterCategoryId === "all") {
       filterCategoryId = undefined;
     }
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await productService.getFavouriteList(
-      userId,
+      user,
       order,
       filterBrandId,
       filterCategoryId

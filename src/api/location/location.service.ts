@@ -63,11 +63,7 @@ export default class LocationService {
     );
   };
 
-  public getFunctionalTypes = async (userId: string) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return successResponse({ data: [] });
-    }
+  public getFunctionalTypes = async (user: UserAttributes) => {
     const functionTypes = await commonTypeRepository.getAllByRelationAndType(
       user.relation_id,
       COMMON_TYPES.COMPANY_FUNCTIONAL
@@ -75,11 +71,7 @@ export default class LocationService {
     return successResponse({ data: functionTypes });
   };
 
-  public create = async (userId: string, payload: ILocationRequest) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
+  public create = async (user: UserAttributes, payload: ILocationRequest) => {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
@@ -123,14 +115,10 @@ export default class LocationService {
   };
 
   public update = async (
-    userId: string,
+    user: UserAttributes,
     id: string,
     payload: ILocationRequest
   ) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
@@ -192,17 +180,13 @@ export default class LocationService {
   };
 
   public getList = async (
-    userId: string,
+    user: UserAttributes,
     limit?: number,
     offset?: number,
     sort?: string,
     order?: SortOrder,
     _filter?: any
   ) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
     const response = await locationRepository.getLocationPagination(
       limit,
       offset,
@@ -219,11 +203,7 @@ export default class LocationService {
     });
   };
 
-  public getListWithGroup = async (userId: string) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
+  public getListWithGroup = async (user: UserAttributes) => {
     return this.getCompanyLocationGroupByCountry(user.relation_id);
   };
 
@@ -267,13 +247,9 @@ export default class LocationService {
     });
   };
   public delete = async (
-    userId: string,
+    user: UserAttributes,
     id: string
   ): Promise<IMessageResponse> => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
 
     const location = await locationRepository.find(id);
     if (!location) {

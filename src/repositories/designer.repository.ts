@@ -1,4 +1,4 @@
-import DesignerModel from "@/model/designer.models";
+import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
   DesignerAttributes,
@@ -100,7 +100,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
 
       ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
       RETURN MERGE(
-        KEEP(designers, 'id', 'name', 'logo', 'status'), 
+        KEEP(designers, 'id', 'name', 'logo', 'status'),
         {
           capacities: LENGTH(designers.capabilities),
           designers: userCount[0],
@@ -127,6 +127,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       FILTER designers.id == @id
       LET capabilities = (
         FOR common_types IN common_types
+        FILTER common_types.deleted_at == null
         FILTER common_types.id IN designers.capabilities
         RETURN common_types.name
       )
@@ -172,6 +173,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           FILTER loc.deleted_at == null
           LET country = (
             FOR c in countries
+            FILTER c.deleted_at == null
             FILTER c.id == loc.country_id
             RETURN c
           )
@@ -203,11 +205,13 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       LET regions = (
         FOR c IN countries
         FILTER c.region != ""
+        FILTER c.deleted_at == null
         RETURN DISTINCT c.region
       )
       LET countries = (
         FOR loc IN locations
         FILTER loc.country != null
+        FILTER loc.deleted_at == null
         COLLECT group = loc.country.region INTO countryGroup
         RETURN {
           region: group,

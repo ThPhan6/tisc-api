@@ -1,4 +1,4 @@
-import AutoEmailModel from "@/model/auto_email.models";
+import AutoEmailModel from "@/model/auto_email.model";
 import {
   IAutoEmailAttributes,
   ListAutoEmailWithPaginate,
@@ -31,3 +31,4 @@ class AutoEmailRepository extends BaseRepository<IAutoEmailAttributes> {
   }
 }
 export default AutoEmailRepository;
+export const autoEmailRepository = new AutoEmailRepository();

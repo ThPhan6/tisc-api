@@ -4,6 +4,7 @@ import {
   ILocationAttributes,
   IProductAttributes,
   IPagination,
+  ActiveStatus,
 } from "@/types";
 
 export interface IBrandsResponse {
@@ -116,47 +117,21 @@ export interface ListBrandCustom {
   brand: {
     id: string;
     name: string;
-    parent_company: string | null;
     logo: string | null;
-    slogan: null;
-    mission_n_vision: string | null;
-    official_websites: string[];
-    team_profile_ids: string[];
-    location_ids: string[];
-    status: number;
+    status: ActiveStatus;
     created_at: string;
-    updated_at: string | null;
+    origin: string;
+    locations: number;
+    teams: number;
+    collection: number;
+    assign_team: {
+      avatar: string;
+      email: string;
+      firstname: string;
+      id: string;
+      lastname: string;
+    }[];
   };
-  locations: number;
-  origin_location: ILocationAttributes;
-  collection: number;
   cards: IProductAttributes[];
-  users: number;
   distributors: IDistributorAttributes[];
-  assign_team: {
-    avatar: string;
-    email: string;
-    firstname: string;
-    id: string;
-    lastname: string;
-  }[];
-}
-
-export interface BrandDataSummary {
-  created_at: string;
-  id: string;
-  is_deleted: false;
-  location_ids: string[];
-  logo: null;
-  mission_n_vision: null;
-  name: string;
-  official_websites: string[];
-  parent_company: null;
-  slogan: null;
-  status: number;
-  team_profile_ids: string[];
-  updated_at: null;
-  products: IProductAttributes;
-  locations: ILocationAttributes;
-  collections: ICollectionAttributes;
 }

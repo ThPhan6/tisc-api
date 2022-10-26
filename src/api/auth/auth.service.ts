@@ -4,7 +4,6 @@ import {
   MESSAGES,
   AUTH_EMAIL_TYPE,
   ROLES,
-  USER_STATUSES,
   SYSTEM_TYPE,
 } from "@/constants";
 import {
@@ -13,6 +12,7 @@ import {
   ActiveStatus,
   UserType,
   UserTypeValue,
+  UserStatus,
 } from "@/types";
 import { isEmpty } from "lodash";
 import {
@@ -63,10 +63,10 @@ class AuthService {
     if (!user.is_verified) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
     }
-    if (user.status === USER_STATUSES.PENDING) {
+    if (user.status === UserStatus.Pending) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
     }
-    if (user.status === USER_STATUSES.BLOCKED) {
+    if (user.status === UserStatus.Blocked) {
       return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
     }
     if (!comparePassword(inputPassword, user.password)) {
@@ -304,7 +304,7 @@ class AuthService {
     const updatedUser = await userRepository.update(user.id, {
       verification_token: null,
       is_verified: true,
-      status: USER_STATUSES.ACTIVE,
+      status: UserStatus.Active,
     });
     if (!updatedUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
@@ -325,7 +325,7 @@ class AuthService {
       verification_token: null,
       is_verified: true,
       password: saltHash.hash,
-      status: USER_STATUSES.ACTIVE,
+      status: UserStatus.Active,
     });
 
     if (!updatedUser) {

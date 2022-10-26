@@ -1,15 +1,17 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { materialCodeService } from "./material_code.services";
+import { materialCodeService } from "./material_code.service";
 import { IMaterialCodeRequest } from "./material_code.type";
+import {UserAttributes} from '@/types';
 
 export default class MaterialCodeController {
+
   public create = async (
     req: Request & { payload: IMaterialCodeRequest },
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await materialCodeService.create(userId, payload);
+    const response = await materialCodeService.create(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {
@@ -36,8 +38,8 @@ export default class MaterialCodeController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await materialCodeService.getListCodeMaterialCode(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await materialCodeService.getListCodeMaterialCode(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -45,16 +47,15 @@ export default class MaterialCodeController {
     req: Request & { payload: IMaterialCodeRequest },
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
     const payload = req.payload;
-    const response = await materialCodeService.update(id, userId, payload);
+    const response = await materialCodeService.update(id, user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
     const { id } = req.params;
-    const response = await materialCodeService.delete(id, userId);
+    const response = await materialCodeService.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

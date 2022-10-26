@@ -60,6 +60,7 @@ export const MESSAGES = {
   PRODUCT: {
     PRODUCT_EXISTED: "Product existed.",
     PRODUCT_NOT_FOUND: "Product not found",
+    WAS_USED_IN_PROJECT: "This product is using in some projects!"
   },
 
   MARKET_AVAILABILITY: {

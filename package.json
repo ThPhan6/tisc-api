@@ -1,5 +1,5 @@
 {
-  "name": "hapi",
+  "name": "TISC",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -53,6 +53,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
+    "build": "ttsc",
     "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"npm run compile\"",
     "compile": "ttsc && node ./dist/server.js",
     "create_db": "node migration/create_database",

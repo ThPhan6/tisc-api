@@ -1,11 +1,5 @@
 import { permissionService } from "@/api/permission/permission.service";
-import {
-  COMMON_TYPES,
-  MESSAGES,
-  ROLES,
-  USER_STATUSES,
-  VALID_IMAGE_TYPES,
-} from "@/constants";
+import { COMMON_TYPES, MESSAGES, ROLES, VALID_IMAGE_TYPES } from "@/constants";
 import { getAccessLevel } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -13,14 +7,19 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { validateRoleType } from "@/helper/user.helper";
-import DesignModel from "@/model/designer.model";
 import { brandRepository } from "@/repositories/brand.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { deleteFile, upload } from "@/service/aws.service";
 import MailService from "@/service/mail.service";
-import { IMessageResponse, UserAttributes, UserType } from "@/types";
+import {
+  IMessageResponse,
+  UserAttributes,
+  UserStatus,
+  UserType,
+} from "@/types";
 import { groupBy, uniq } from "lodash";
 import moment from "moment";
 import {
@@ -31,10 +30,8 @@ import {
 
 export default class UserService {
   private mailService: MailService;
-  private designModel: DesignModel;
   constructor() {
     this.mailService = new MailService();
-    this.designModel = new DesignModel();
   }
 
   public create = async (
@@ -88,18 +85,14 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    return await this.get(createdUser.id, authenticatedUser);
+    return await this.get(createdUser, authenticatedUser);
   };
 
   public get = async (
-    userId: string,
+    user: UserAttributes,
     authenticatedUser: UserAttributes,
     withPermission: boolean = false
   ) => {
-    const user = await userRepository.find(userId);
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
 
     if (
       !validateRoleType(authenticatedUser.type, user.role_id) ||
@@ -109,7 +102,7 @@ export default class UserService {
     }
 
     const permissions = withPermission
-      ? await permissionService.getList(user.id, true)
+      ? await permissionService.getList(user, true)
       : undefined;
 
     const result = {
@@ -149,7 +142,7 @@ export default class UserService {
     }
 
     if (user.type === UserType.Designer) {
-      const design = await this.designModel.find(user.relation_id);
+      const design = await designerRepository.find(user.relation_id);
       return successResponse({
         data: { ...result, design },
       });
@@ -197,7 +190,7 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    return await this.get(user.id, authenticatedUser);
+    return await this.get(user, authenticatedUser);
   };
 
   public updateMe = async (user: UserAttributes, payload: IUpdateMeRequest) => {
@@ -210,7 +203,7 @@ export default class UserService {
     if (!updatedUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
-    return await this.get(user.id, user);
+    return await this.get(user, user);
   };
 
   public delete = async (userId: string, authenticatedUser: UserAttributes) => {
@@ -318,7 +311,7 @@ export default class UserService {
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    if (user.status !== USER_STATUSES.PENDING) {
+    if (user.status !== UserStatus.Pending) {
       return errorMessageResponse(MESSAGES.GENERAL.INVITED_ALREADY);
     }
     await this.mailService.sendInviteEmailTeamProfile(user, authenticatedUser);

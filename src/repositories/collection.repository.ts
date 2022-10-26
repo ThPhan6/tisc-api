@@ -1,4 +1,4 @@
-import CollectionModel from "@/model/collection.models";
+import CollectionModel from "@/model/collection.model";
 import {
   ICollectionAttributes,
   ListCollectionPaginate,

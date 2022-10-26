@@ -1,4 +1,4 @@
-import { projectService } from "./project.services";
+import { projectService } from "./project.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IProjectRequest } from "./project.type";
 import { PROJECT_STATUS_OPTIONS } from "@/constants";
@@ -10,8 +10,8 @@ export default class ProjectController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await projectService.create(userId, payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.create(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
@@ -30,9 +30,9 @@ export default class ProjectController {
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort } = req.query;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await projectService.getProjects(
-      userId,
+      user,
       limit,
       offset,
       filter,
@@ -46,22 +46,22 @@ export default class ProjectController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await projectService.update(id, userId, payload);
+    const response = await projectService.update(id, user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
-    const response = await projectService.delete(id, userId);
+    const response = await projectService.delete(id, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getProjectSummary = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await projectService.getProjectSummary(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.getProjectSummary(user);
     return toolkit.response(response).code(200);
   };
 

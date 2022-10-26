@@ -35,10 +35,7 @@ export default {
           commonFailValidatedMessageFunction("Revision is required")
         ),
       has_cover: Joi.boolean(),
-      document_title: Joi.string()
-        .error(
-          commonFailValidatedMessageFunction("Document Title is required")
-        ),
+      document_title: Joi.string(),
       template_ids: Joi.array().items(Joi.string().required()).error(
         commonFailValidatedMessageFunction("Please select at least one of template")
       ),
