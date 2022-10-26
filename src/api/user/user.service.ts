@@ -85,14 +85,19 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    return await this.get(createdUser, authenticatedUser);
+    return await this.get(createdUser.id, authenticatedUser);
   };
 
   public get = async (
-    user: UserAttributes,
+    userId: string,
     authenticatedUser: UserAttributes,
     withPermission: boolean = false
   ) => {
+
+    const user = await userRepository.find(userId);
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
+    }
 
     if (
       !validateRoleType(authenticatedUser.type, user.role_id) ||
@@ -190,7 +195,7 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    return await this.get(user, authenticatedUser);
+    return await this.get(user.id, authenticatedUser);
   };
 
   public updateMe = async (user: UserAttributes, payload: IUpdateMeRequest) => {
@@ -203,7 +208,7 @@ export default class UserService {
     if (!updatedUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
-    return await this.get(user, user);
+    return await this.get(user.id, user);
   };
 
   public delete = async (userId: string, authenticatedUser: UserAttributes) => {
