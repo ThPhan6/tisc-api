@@ -4,6 +4,7 @@ import {
   COMMON_TYPES,
   MESSAGES,
 } from "@/constants";
+import { getProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
 import {
   errorMessageResponse,
@@ -12,17 +13,18 @@ import {
 } from "@/helper/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
-import {brandRepository} from "@/repositories/brand.repository";
+import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import {productRepository} from "@/repositories/product.repository";
-import {productFavouriteRepository} from "@/repositories/product_favourite.repository";
-import {projectProductRepository} from "@/api/project_product/project_product.repository";
-import {countryStateCityService} from "@/service/country_state_city.service";
+import { productRepository } from "@/repositories/product.repository";
+import { productFavouriteRepository } from "@/repositories/product_favourite.repository";
+import { projectProductRepository } from "@/api/project_product/project_product.repository";
+import { countryStateCityService } from "@/service/country_state_city.service";
+import { userRepository } from "@/repositories/user.repository";
 import {
   uploadImagesProduct,
   validateImageType,
 } from "@/service/image.service";
-import {mailService} from "@/service/mail.service";
+import { mailService } from "@/service/mail.service";
 import { BasisConversion } from "@/types/basis.type";
 import { difference } from "lodash";
 import {
@@ -43,10 +45,9 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 
 class ProductService {
-
   private getAllBasisConversion = async () => {
     const allBasisConversion = await BasisRepository.getAllBy({
       type: BASIS_TYPES.CONVERSION,
@@ -396,7 +397,7 @@ class ProductService {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
     const projectProduct = await projectProductRepository.findBy({
-      product_id: product.id
+      product_id: product.id,
     });
 
     if (projectProduct) {
@@ -544,7 +545,8 @@ class ProductService {
       user.relation_id,
       COMMON_TYPES.SHARING_PURPOSE
     );
-
+    const receiver = await userRepository.findBy({email: payload.to_email});
+    const sharedUrl = getProductSharedUrl(user, receiver, product);
     const sent = await mailService.sendShareProductViaEmail(
       payload.to_email,
       user.email,
@@ -556,7 +558,7 @@ class ProductService {
       product.collection.name ?? "N/A",
       product.name ?? "N/A",
       `${user.firstname ?? ""} ${user.lastname ?? ""}`,
-      ""
+      sharedUrl
     );
     if (!sent) {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);

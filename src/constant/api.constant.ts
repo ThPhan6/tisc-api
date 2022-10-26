@@ -181,6 +181,7 @@ export const ROUTES = {
   SHARE_PRODUCT_BY_EMAIL: "/api/product/share-via-email",
   GET_SHARING_GROUPS: "/api/product/sharing-groups",
   GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
+  GET_PUBLIC_SHARING_PRODUCT: "/api/product/public-sharing-product",
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",
