@@ -20,7 +20,7 @@ export default class UserController {
   };
   public getMe = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await userService.get(user, user, true);
+    const response = await userService.get(user.id, user, true);
     return toolkit.response(response).code(response.statusCode);
   };
 
