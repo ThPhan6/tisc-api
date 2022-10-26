@@ -2,7 +2,7 @@ import { brandService } from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
 import { BRAND_STATUS_OPTIONS } from "@/constants";
-import { ActiveStatus } from "@/types";
+import { ActiveStatus, UserAttributes } from "@/types";
 
 export default class BrandController {
 
@@ -17,7 +17,7 @@ export default class BrandController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  
+
   public getListCard = async (req: Request, toolkit: ResponseToolkit) => {
     const { filter, sort } = req.query;
     const response = await brandService.getListCard(filter, sort);
@@ -40,9 +40,9 @@ export default class BrandController {
 
   public invite = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
 
-    const response = await brandService.invite(userId, id);
+    const response = await brandService.invite(user, id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -59,9 +59,9 @@ export default class BrandController {
     req: Request & { payload: IUpdateBrandProfileRequest },
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await brandService.updateBrandProfile(userId, payload);
+    const response = await brandService.updateBrandProfile(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -69,9 +69,9 @@ export default class BrandController {
     req: Request & { payload: { logo: any } },
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const logo = req.payload.logo;
-    const response = await brandService.updateLogo(userId, logo);
+    const response = await brandService.updateLogo(user, logo);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -1,6 +1,7 @@
 import { documentationService } from "./documentation.service";
 import { IDocumentationRequest, IHowto } from "./documentation.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import {UserAttributes} from '@/types';
 
 export default class DocumentationController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -20,8 +21,8 @@ export default class DocumentationController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await documentationService.create(payload, userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await documentationService.create(payload, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -31,8 +32,8 @@ export default class DocumentationController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await documentationService.update(id, payload, userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await documentationService.update(id, payload, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public updateHowtos = async (
@@ -48,8 +49,8 @@ export default class DocumentationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getHowto = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await documentationService.getHowto(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await documentationService.getHowto(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

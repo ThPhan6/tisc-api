@@ -1,14 +1,13 @@
 import { errorMessageResponse } from "@/helper/response.helper";
 import { SYSTEM_TYPE } from "@/constants";
-import { userRepository } from "@/repositories/user.repository";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { locationService } from "./location.service";
 import { ILocationRequest } from "./location.type";
+import {UserAttributes} from '@/types';
 
 export default class LocationController {
-  private async validateBusinessNumber(userId: string, businessNumber: string) {
-    const user = await userRepository.find(userId);
-    if (user && SYSTEM_TYPE.DESIGN !== user.type && businessNumber === "") {
+  private async validateBusinessNumber(user: UserAttributes, businessNumber: string) {
+    if (SYSTEM_TYPE.DESIGN !== user.type && businessNumber === "") {
       return false;
     }
     return true;
@@ -20,10 +19,10 @@ export default class LocationController {
   ) => {
     const payload = req.payload;
 
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
 
     const businessNumber = this.validateBusinessNumber(
-      userId,
+      user,
       payload.business_number as string
     );
 
@@ -33,7 +32,7 @@ export default class LocationController {
         .code(400);
     }
 
-    const response = await locationService.create(userId, payload);
+    const response = await locationService.create(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -45,10 +44,10 @@ export default class LocationController {
 
     const payload = req.payload;
 
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
 
     const businessNumber = this.validateBusinessNumber(
-      userId,
+      user,
       payload.business_number as string
     );
 
@@ -58,7 +57,7 @@ export default class LocationController {
         .code(400);
     }
 
-    const response = await locationService.update(userId, id, payload);
+    const response = await locationService.update(user, id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -70,9 +69,9 @@ export default class LocationController {
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort } = req.query;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await locationService.getList(
-      userId,
+      user,
       limit,
       offset,
       sort?.[0],
@@ -83,8 +82,8 @@ export default class LocationController {
   };
 
   public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await locationService.getListWithGroup(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await locationService.getListWithGroup(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -112,8 +111,8 @@ export default class LocationController {
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await locationService.delete(userId, id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await locationService.delete(user, id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

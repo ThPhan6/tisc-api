@@ -9,8 +9,8 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
+import { projectRepository } from "@/repositories/project.repository";
 import { ProjectAttributes, SortOrder, UserAttributes } from "@/types";
-import { projectService } from "./../project/project.service";
 import {
   mappingAddProjectZoneId,
   mappingProjectZoneAreas,
@@ -95,13 +95,11 @@ class ProjectZoneService {
     }
   }
 
-  public async create(userId: string, payload: IUpdateProjectZoneRequest) {
-    const { project, user, message } = await projectService.findUserAndProject(
-      userId,
-      payload.project_id
-    );
-    if (!project || !user) {
-      return message;
+  public async create(user: UserAttributes, payload: IUpdateProjectZoneRequest) {
+
+    const project = await projectRepository.find(payload.project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
     await this.validateProjectZone(payload, user, project);
@@ -128,20 +126,18 @@ class ProjectZoneService {
   }
 
   public async getList(
-    userId: string,
+    user: UserAttributes,
     projectId: string,
     zoneOrder: SortOrder,
     areaOrder: SortOrder,
     roomNameOrder: SortOrder,
     roomIdOrder: SortOrder
   ) {
-    const { project, user, message } = await projectService.findUserAndProject(
-      userId,
-      projectId
-    );
-    if (!project || !user) {
-      return message;
+    const project = await projectRepository.find(projectId);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
+
     if (
       project.design_id !== user.relation_id &&
       user.type !== SYSTEM_TYPE.DESIGN
@@ -195,18 +191,15 @@ class ProjectZoneService {
     });
   }
 
-  public async getOne(userId: string, projectZoneId: string) {
+  public async getOne(user: UserAttributes, projectZoneId: string) {
     const projectZone = await projectZoneRepository.find(projectZoneId);
     if (!projectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const { project, user, message } = await projectService.findUserAndProject(
-      userId,
-      projectZone.project_id
-    );
-    if (!project || !user) {
-      return message;
+    const project = await projectRepository.find(projectZone.project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
     if (
@@ -223,19 +216,16 @@ class ProjectZoneService {
     });
   }
 
-  public async delete(userId: string, projectZoneId: string) {
+  public async delete(user: UserAttributes, projectZoneId: string) {
     const projectZone = await projectZoneRepository.find(projectZoneId);
 
     if (!projectZone) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const { project, user, message } = await projectService.findUserAndProject(
-      userId,
-      projectZone.project_id
-    );
-    if (!project || !user) {
-      return message;
+    const project = await projectRepository.find(projectZone.project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
     if (
@@ -257,7 +247,7 @@ class ProjectZoneService {
   }
 
   public async update(
-    userId: string,
+    user: UserAttributes,
     projectZoneId: string,
     payload: IUpdateProjectZoneRequest
   ) {
@@ -267,12 +257,9 @@ class ProjectZoneService {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_NOT_FOUND, 404);
     }
 
-    const { project, user, message } = await projectService.findUserAndProject(
-      userId,
-      projectZone.project_id
-    );
-    if (!project || !user) {
-      return message;
+    const project = await projectRepository.find(projectZone.project_id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
     await this.validateProjectZone(payload, user, project, projectZoneId);
