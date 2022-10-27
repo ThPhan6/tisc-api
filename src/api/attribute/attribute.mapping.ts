@@ -6,7 +6,7 @@ import {
 } from "@/constants";
 import { isDuplicatedString, sortObjectArray } from "@/helper/common.helper";
 import {
-  IAttributeAttributes,
+  AttributeProps,
   IBasisAttributes,
   IContentType,
   SubAttribute,
@@ -27,7 +27,7 @@ export const getBasisType = (type: number) => {
   }
 };
 
-export const countAttribute = (attributes: IAttributeAttributes[]) => {
+export const countAttribute = (attributes: AttributeProps[]) => {
   return attributes.reduce((pre, cur) => {
     return pre + cur.subs.length;
   }, 0);
@@ -96,7 +96,7 @@ export const checkAttributeDuplicateByName = (
 };
 
 export const mappingSubAttribute = (
-  attribute: IAttributeAttributes,
+  attribute: AttributeProps,
   contentTypes: IContentType[]
 ) => {
   return attribute.subs.map((item) => {
@@ -128,12 +128,12 @@ export const mappingSubAttribute = (
 };
 
 export const getListAttributeWithSort = (
-  attributes: IAttributeAttributes[],
+  attributes: AttributeProps[],
   contentTypes: IContentType[],
   attribute_order: "ASC" | "DESC",
   content_type_order: "ASC" | "DESC"
 ) => {
-  return attributes.map((attribute: IAttributeAttributes) => {
+  return attributes.map((attribute: AttributeProps) => {
     const newSubs = mappingSubAttribute(attribute, contentTypes);
     let sortedSubs = newSubs;
     if (attribute_order) {
@@ -152,7 +152,7 @@ export const getListAttributeWithSort = (
 };
 
 export const mappingSubAttributeUpdate = (
-  attribute: IAttributeAttributes,
+  attribute: AttributeProps,
   payload: IUpdateAttributeRequest
 ) => {
   return payload.subs.map((item) => {
@@ -248,7 +248,7 @@ export const mappingContentTypeList = (
 };
 
 export const mappingAttributeData = (
-  attributes: IAttributeAttributes[],
+  attributes: AttributeProps[],
   subsBasis: any
 ) => {
   return attributes.map((attribute) => {

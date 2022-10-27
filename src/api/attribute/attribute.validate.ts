@@ -1,5 +1,6 @@
+import { getEnumValues } from "@/helper/common.helper";
+import { AttributeType } from "@/types";
 import * as Joi from "joi";
-import { ATTRIBUTE_TYPES } from "../../constant/common.constant";
 import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
@@ -17,11 +18,7 @@ export default {
   create: {
     payload: {
       type: Joi.number()
-        .valid(
-          ATTRIBUTE_TYPES.GENERAL,
-          ATTRIBUTE_TYPES.FEATURE,
-          ATTRIBUTE_TYPES.SPECIFICATION
-        )
+        .valid(...getEnumValues(AttributeType))
         .required()
         .error(
           commonFailValidatedMessageFunction("Attribute type is required")
@@ -89,11 +86,7 @@ export default {
   getListWithMultipleSort: {
     query: Joi.object({
       type: Joi.number()
-        .valid(
-          ATTRIBUTE_TYPES.GENERAL,
-          ATTRIBUTE_TYPES.FEATURE,
-          ATTRIBUTE_TYPES.SPECIFICATION
-        )
+        .valid(...getEnumValues(AttributeType))
         .error(
           commonFailValidatedMessageFunction("Attribute type is required")
         ),
