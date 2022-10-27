@@ -7,9 +7,9 @@ export interface SubAttribute {
   basis?: any;
 }
 
-export interface IAttributeAttributes {
+export interface AttributeProps {
   id: string;
-  type: number;
+  type: AttributeType;
   name: string;
   subs: SubAttribute[];
   created_at: string;
@@ -39,9 +39,13 @@ export interface IContentType {
   name_2?: string;
 }
 
-export type AttributeType = 1 | 2 | 3;
+export enum AttributeType {
+  General = 1,
+  Feature = 2,
+  Specification = 3,
+}
 
 export interface ListAttributeWithPagination {
   pagination: IPagination;
-  data: IAttributeAttributes[];
+  data: AttributeProps[];
 }
