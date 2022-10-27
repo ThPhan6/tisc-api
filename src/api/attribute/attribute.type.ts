@@ -1,8 +1,4 @@
-import {
-  AttributeResponseData,
-  IAttributeAttributes,
-  IPagination,
-} from "@/types";
+import { AttributeResponseData, AttributeProps, IPagination } from "@/types";
 export interface IAttributeResponse {
   data: AttributeResponseData;
   statusCode: number;
@@ -50,9 +46,9 @@ export interface IContentTypesResponse {
 
 export interface IGetAllAttributeResponse {
   data: {
-    general: IAttributeAttributes[];
-    feature: IAttributeAttributes[];
-    specification: IAttributeAttributes[];
+    general: AttributeProps[];
+    feature: AttributeProps[];
+    specification: AttributeProps[];
   };
   statusCode: number;
 }

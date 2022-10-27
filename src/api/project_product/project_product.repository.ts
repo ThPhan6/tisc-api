@@ -192,6 +192,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           LET productCode = (
             FOR specGroup IN product.specification_attribute_groups
             FOR attribute IN specGroup.attributes
+            FILTER attribute.type == "Options"
             FOR basisOption IN attribute.basis_options
             FILTER basisOption.option_code NOT IN [null, '']
             FILTER basisOption.id IN basisIds

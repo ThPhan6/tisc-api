@@ -9,7 +9,6 @@ import {
   TargetedForValue,
   TopicTypeKey,
   TopicTypeValue,
-  AttributeType,
   DocumentationType,
 } from "../type/common.type";
 export const EMAIL_TYPE = {
@@ -136,16 +135,6 @@ export const MESSAGES = {
     "Can not remove because product is considering in a project",
   PRODUCT_WAS_SPECIFIED:
     "Can not remove because product is specifying in a project",
-};
-
-export const ATTRIBUTE_TYPES: {
-  GENERAL: AttributeType;
-  FEATURE: AttributeType;
-  SPECIFICATION: AttributeType;
-} = {
-  GENERAL: 1,
-  FEATURE: 2,
-  SPECIFICATION: 3,
 };
 
 export const BASIS_OPTION_STORE = "basis-option";
