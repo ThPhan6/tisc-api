@@ -137,16 +137,18 @@ export default class CategoryService {
   }
 
   public async delete(id: string) {
-    const deletedCategory = await this.categoryRepository.findAndDelete(id);
-    if (!deletedCategory) {
-      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
-    }
     const products = await this.categoryRepository.findProductByMainCategoryId(
       id
     );
     if (products.length) {
       return errorMessageResponse(MESSAGES.CATEGORY_IN_PRODUCT);
     }
+
+    const deletedCategory = await this.categoryRepository.findAndDelete(id);
+    if (!deletedCategory) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
+    }
+
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
