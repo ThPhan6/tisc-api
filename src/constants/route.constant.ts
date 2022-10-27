@@ -296,5 +296,8 @@ export const ROUTES = {
     GENERATE_PROJECT_PDF: "/api/pdf/project/{project_id}/generate",
     GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
   },
+  PRE_SPECFICATION: {
+    GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
+    UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
+  },
 };
-

@@ -27,6 +27,7 @@ export default class AuthMiddleware {
     ROUTES.GET_LIST_COLLECTION,
     ROUTES.GET_BRAND_LOCATIONS_COUNTRY_GROUP,
     ROUTES.GET_MARKET_DISTRIBUTOR_COUNTRY_GROUP,
+    ROUTES.PRE_SPECFICATION.GET_USER_SPEC_SELECTION,
   ];
 
   public static registration = (server: Server) => {
