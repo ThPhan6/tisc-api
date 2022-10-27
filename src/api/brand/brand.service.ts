@@ -20,6 +20,7 @@ import {
   SortOrder,
   SummaryInfo,
   UserStatus,
+  UserAttributes,
 } from "@/types";
 import { productService } from "../product/product.service";
 import {
@@ -98,7 +99,7 @@ class BrandService {
     });
   }
 
-  public async invite(current_user_id: string, id: string) {
+  public async invite(currentUser: UserAttributes, id: string) {
     const brand = await brandRepository.find(id);
 
     if (!brand) {
@@ -109,20 +110,18 @@ class BrandService {
       return errorMessageResponse(MESSAGES.GENERAL.INVITED);
     }
 
-    const user = await userRepository.find(current_user_id);
-
     const inviteUser = await userRepository.getAdminOfCompany(brand.id);
 
-    if (!user || !inviteUser) {
+    if (!inviteUser) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
     }
 
-    await mailService.sendInviteEmailTeamProfile(inviteUser, user);
+    await mailService.sendInviteEmailTeamProfile(inviteUser, currentUser);
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getListCard(filter: any, sort: any) {
+  public async getListCard(_filter: any, sort: any) {
     const brands = await brandRepository.getAllBrandsWithSort(sort);
 
     const result = await Promise.all(
@@ -168,14 +167,9 @@ class BrandService {
   }
 
   public async updateBrandProfile(
-    userId: string,
+    user: UserAttributes,
     payload: IUpdateBrandProfileRequest
   ) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
 
     if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
@@ -205,12 +199,7 @@ class BrandService {
     });
   }
 
-  public async updateLogo(user_id: string, logo: any) {
-    const user = await userRepository.find(user_id);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
+  public async updateLogo(user: UserAttributes, logo: any) {
 
     if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);

@@ -1,13 +1,14 @@
 import AttributeModel from "@/model/attribute.model";
 import {
-  IAttributeAttributes,
+  AttributeType,
+  AttributeProps,
   ListAttributeWithPagination,
 } from "@/types/attribute.type";
 import BaseRepository from "./base.repository";
 
-class AttributeRepository extends BaseRepository<IAttributeAttributes> {
+class AttributeRepository extends BaseRepository<AttributeProps> {
   protected model: AttributeModel;
-  protected DEFAULT_ATTRIBUTE: Partial<IAttributeAttributes> = {
+  protected DEFAULT_ATTRIBUTE: Partial<AttributeProps> = {
     id: "",
     type: 1,
     name: "",
@@ -23,16 +24,16 @@ class AttributeRepository extends BaseRepository<IAttributeAttributes> {
       return (await this.model
         .where("id", "!=", id)
         .where("name", "==", name)
-        .first()) as IAttributeAttributes;
+        .first()) as AttributeProps;
     } catch (error) {
       return false;
     }
   }
 
-  public async getByType(type: number) {
+  public async getByType(type: AttributeType) {
     return (await this.model
       .where("type", "==", type)
-      .get()) as IAttributeAttributes[];
+      .get()) as AttributeProps[];
   }
 
   public async getListWithPagination(

@@ -30,7 +30,7 @@ import {
 class ProjectProductService {
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
-    userId: string
+    user: UserAttributes
   ) => {
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
@@ -55,7 +55,7 @@ class ProjectProductService {
 
     const newProjectProductRecord = await projectProductRepository.create({
       ...payload,
-      created_by: userId,
+      created_by: user.id,
     });
 
     if (!newProjectProductRecord) {
@@ -72,7 +72,7 @@ class ProjectProductService {
     await projectTrackingNotificationRepository.create({
       project_tracking_id: projectTracking.id,
       project_product_id: newProjectProductRecord.id,
-      created_by: userId,
+      created_by: user.id,
     });
 
     return successResponse({
@@ -186,7 +186,7 @@ class ProjectProductService {
   };
 
   public getConsideredProducts = async (
-    userId: string,
+    user: UserAttributes,
     project_id: string,
     zone_order: SortOrder,
     area_order: SortOrder,
@@ -206,7 +206,7 @@ class ProjectProductService {
     const consideredProducts =
       await projectProductRepository.getConsideredProductsByProject(
         project_id,
-        userId
+        user.id
       );
 
     const mappedConsideredProducts = consideredProducts.map((el: any) => ({
@@ -404,7 +404,7 @@ class ProjectProductService {
 
   public deleteConsiderProduct = async (
     projectProductId: string,
-    userId: string
+    user: UserAttributes
   ) => {
     const deletedRecord = await projectProductRepository.findAndDelete(
       projectProductId
@@ -432,7 +432,7 @@ class ProjectProductService {
       project_tracking_id: trackingRecord.id,
       project_product_id: projectProductId,
       type: ProjectTrackingNotificationType.Deleted,
-      created_by: userId,
+      created_by: user.id,
     });
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
@@ -482,7 +482,7 @@ class ProjectProductService {
   };
 
   public getSpecifiedProductsByMaterial = async (
-    user_id: string,
+    user: UserAttributes,
     project_id: string,
     brand_order?: SortOrder,
     material_order?: SortOrder
@@ -494,7 +494,7 @@ class ProjectProductService {
 
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForMaterial(
-        user_id,
+        user.id,
         project_id,
         brand_order,
         material_order
@@ -536,7 +536,7 @@ class ProjectProductService {
   };
 
   public getSpecifiedProductsByZone = async (
-    user_id: string,
+    user: UserAttributes,
     project_id: string,
     zone_order: SortOrder,
     area_order: SortOrder,
@@ -555,7 +555,7 @@ class ProjectProductService {
 
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForZoneGroup(
-        user_id,
+        user.id,
         project_id
       );
     const mappedProducts = specifiedProducts.map((el: any) => ({

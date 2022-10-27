@@ -93,9 +93,10 @@ export default class UserService {
     authenticatedUser: UserAttributes,
     withPermission: boolean = false
   ) => {
+
     const user = await userRepository.find(userId);
     if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
     }
 
     if (
@@ -106,7 +107,7 @@ export default class UserService {
     }
 
     const permissions = withPermission
-      ? await permissionService.getList(user.id, true)
+      ? await permissionService.getList(user, true)
       : undefined;
 
     const result = {

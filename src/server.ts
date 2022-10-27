@@ -49,7 +49,7 @@ const server: hapi.Server = new hapi.Server({
       credentials: true,
       exposedHeaders: ["content-type", "content-length"],
       maxAge: 86400,
-      headers: ["Accept", "Content-Type", "Authorization"],
+      headers: ["Accept", "Content-Type", "Authorization", "Signature"],
     },
     validate: {
       options: {

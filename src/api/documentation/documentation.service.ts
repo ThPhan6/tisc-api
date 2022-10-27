@@ -10,19 +10,15 @@ import { documentationRepository } from "@/repositories/documentation.repository
 import { userRepository } from "@/repositories/user.repository";
 import { mappingGroupGeneralDocumentation } from "./documentation.mapping";
 import { IDocumentationRequest, IHowto } from "./documentation.type";
+import {UserAttributes} from '@/types';
 
 class DocumentationService {
-  public async create(payload: IDocumentationRequest, userId: string) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
+  public async create(payload: IDocumentationRequest, user: UserAttributes) {
 
     const createdDocumentation = await documentationRepository.create({
       title: payload.title,
       document: payload.document,
-      created_by: userId,
+      created_by: user.id,
       updated_at: getTimestamps(),
       type: DOCUMENTATION_TYPES.GENERAL,
     });
@@ -85,15 +81,7 @@ class DocumentationService {
     });
   }
 
-  public async getHowto(userId: string) {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return successResponse({
-        data: [],
-      });
-    }
-
+  public async getHowto(user: UserAttributes) {
     return successResponse({
       data: await documentationRepository.getHowtosByType(
         user.type + 1,
@@ -119,7 +107,7 @@ class DocumentationService {
   public async update(
     id: string,
     payload: IDocumentationRequest,
-    userId: string
+    user: UserAttributes
   ) {
     const documentation = await documentationRepository.find(id);
 
@@ -129,7 +117,7 @@ class DocumentationService {
 
     const updatedDocumentation = await documentationRepository.update(id, {
       ...payload,
-      created_by: userId,
+      created_by: user.id,
       updated_at: getTimestamps(),
     });
 

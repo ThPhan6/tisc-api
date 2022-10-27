@@ -1,6 +1,5 @@
 import { permissionRepository } from "@/repositories/permission.repository";
 import { companyPermissionRepository } from "@/repositories/company_permission.repository";
-import { userRepository } from "@/repositories/user.repository";
 import { ROLES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
@@ -25,13 +24,7 @@ export default class PermissionService {
     return [ROLES.DESIGN_ADMIN, ROLES.DESIGN_TEAM];
   };
 
-  public getList = async (userId: string, withRole: boolean = false) => {
-    const user = await userRepository.find(userId);
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
+  public getList = async (user: UserAttributes, withRole: boolean = false) => {
     let companyPermissions =
       await companyPermissionRepository.getAllByCompanyIdAndRoleId(
         user.relation_id,
@@ -65,9 +58,29 @@ export default class PermissionService {
       return errorMessageResponse(MESSAGES.PERMISSION.NO_MODIFY_ADMIN_PERM);
     }
 
-    await companyPermissionRepository.update(id, {
-      accessable: !companyPermission.accessable,
-    });
+    if (
+      companyPermission.permission_id === 'permission_13_0' &&
+      companyPermission.accessable == true
+    ) {
+      // project overal listing
+      await companyPermissionRepository.getModel()
+        .whereIn('permission_id', [
+          'permission_13_0',
+          'permission_13_1',
+          'permission_13_2',
+          'permission_13_3',
+          'permission_13_4',
+        ])
+        .where('relation_id', '==', companyPermission.relation_id)
+        .where('role_id', '==', companyPermission.role_id)
+        .update({
+          accessable: false
+        })
+    } else {
+      await companyPermissionRepository.update(id, {
+        accessable: !companyPermission.accessable,
+      });
+    }
 
     return successMessageResponse(MESSAGES.SUCCESS);
   };

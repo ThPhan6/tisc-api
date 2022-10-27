@@ -1,4 +1,4 @@
-import { ATTRIBUTE_TYPES, BASIS_TYPES, MESSAGES } from "@/constants";
+import { BASIS_TYPES, MESSAGES } from "@/constants";
 import {
   getSummaryTable,
   toSingleSpaceAndToLowerCase,
@@ -10,6 +10,7 @@ import {
 } from "@/helper/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
+import { AttributeType } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
   checkAttributeDuplicateByName,
@@ -118,14 +119,14 @@ class AttributeService {
     const summary = [
       {
         name:
-          attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
+          attribute_type === AttributeType.Specification
             ? "Specification Group"
             : "Attribute Group",
         value: summaryTable.countGroup,
       },
       {
         name:
-          attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
+          attribute_type === AttributeType.Specification
             ? "Specification"
             : "Attribute",
         value: summaryTable.countSub,
@@ -205,15 +206,15 @@ class AttributeService {
     const bases = await BasisRepository.getAll();
     const subsBasis = getSubBasisAttribute(bases);
     const returnedGeneralAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(ATTRIBUTE_TYPES.GENERAL),
+      await AttributeRepository.getByType(AttributeType.General),
       subsBasis
     );
     const returnedFeatureAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(ATTRIBUTE_TYPES.FEATURE),
+      await AttributeRepository.getByType(AttributeType.Feature),
       subsBasis
     );
     const returnedSpecificationAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(ATTRIBUTE_TYPES.SPECIFICATION),
+      await AttributeRepository.getByType(AttributeType.Specification),
       subsBasis
     );
     return successResponse({
