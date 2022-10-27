@@ -6,12 +6,24 @@ const {
   HOST_URL,
   Database,
   db,
-  designToken,
-  getMe,
+  insertTempData,
+  removeByKeys,
+  signJwtToken,
 } = require("./utils/utils");
 
 const { imageTest_4 } = require("./test_files/image.test");
 const helperCommon = require("./helper/common");
+
+const {brand, brandLocation, userBrand} = require("./temp-data/brand.js");
+const {product} = require("./temp-data/product.js");
+const {general, feature, specification} = require("./temp-data/attribute.js");
+const {option, conversion} = require("./temp-data/basis.js");
+const {category} = require("./temp-data/category.js");
+const {collection} = require("./temp-data/collection.js");
+const {project, zones} = require("./temp-data/project.js");
+const {designFirm, designFirmLocation, userDesignFirm} = require("./temp-data/design-firm.js");
+jjj
+
 
 describe("Design Firm", () => {
   let design;
@@ -22,6 +34,33 @@ describe("Design Firm", () => {
   let user;
   let tracking;
   let product;
+
+  //
+  let designToken;
+  //
+
+  before((done) => {
+    insertTempData('brands', brand).then((res) => {
+      brandData = res.new;
+      insertTempData('locations', brandLocation).then((res) => {
+        brandLocation = res.new
+        insertTempData('locations', brandLocation).then((res) => {
+
+        })
+        attribute
+        basis
+        category
+        collection
+        // insertTempData('users', userBrand).then((res) => {
+        //   userData = res.new;
+        //   brandToken = signJwtToken(userData.id);
+        //   done();
+        // });
+      });
+    });
+  });
+
+
   beforeEach((done) => {
     helperCommon.insertProduct();
     done();

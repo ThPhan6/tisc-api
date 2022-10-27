@@ -14,7 +14,7 @@ const db = new Database({
 });
 db.useDatabase(process.env.DATABASE_NAME || "");
 db.useBasicAuth(process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD);
-
+const Jwt = require("@hapi/jwt");
 const chaiResponse = (
   res,
   done,
@@ -42,7 +42,31 @@ const chaiResponse = (
   }
 };
 
-const getMe = () => {};
+const insertTempData = (collection, data) => {
+  return db.collection(collection).save(data, {waitForSync: true, returnNew: true});
+}
+
+const removeByKeys = (collection, keys) => {
+  return db.collection(collection).removeByKeys(keys, {waitForSync: true, returnNew: true})
+}
+
+const signJwtToken = (user_id) => {
+  return Jwt.token.generate(
+    {
+      aud: "urn:audience:test",
+      iss: "urn:issuer:test",
+      user_id,
+    },
+    {
+      key: "aU7h3GiHb2o8H!q!ndwSqYqh&K$LCeyI",
+      algorithm: "HS512",
+    },
+    {
+      ttlSec: 2592000,
+    }
+  );
+}
+
 module.exports = {
   chaiResponse,
   chai,
@@ -54,4 +78,7 @@ module.exports = {
   db,
   designToken,
   brandToken,
+  insertTempData,
+  removeByKeys,
+  signJwtToken,
 };

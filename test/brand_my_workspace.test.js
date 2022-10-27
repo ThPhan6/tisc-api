@@ -7,10 +7,43 @@ const {
   Database,
   db,
   brandToken,
+  insertTempData,
+  removeByKeys,
+  signJwtToken,
 } = require("./utils/utils");
-const helperCommon = require("./helper/common");
+const {brand, userBrand, brandLocation} = require("./temp-data/brand.js");
+
 
 describe("Brand My Workspace", () => {
+  let brandToken;
+  let brandData;
+  let brandLocation;
+  let userData;
+
+  before((done) => {
+    insertTempData('brands', brand).then((res) => {
+      brandData = res.new;
+      insertTempData('locations', brandLocation).then((res) => {
+        brandLocation = res.new
+        insertTempData('users', userBrand).then((res) => {
+          userData = res.new;
+          brandToken = signJwtToken(userData.id);
+          done();
+        });
+      });
+    });
+  });
+
+  after((done) => {
+    removeByKeys('brands', [brandData._key]).then(() => {
+      removeByKeys('locations', [brandLocation._key]).then(() => {
+        removeByKeys('users', [userData._key]).then(() => {
+          done()
+        });
+      });
+    });
+  });
+
   describe("Get list", () => {
     it("Get list with parameter ", (done) => {
       chai
