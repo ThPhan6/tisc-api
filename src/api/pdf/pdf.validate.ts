@@ -34,9 +34,9 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Issue Date is required")
         ),
-      revision: Joi.string(),
+      revision: Joi.string().allow(''),
       has_cover: Joi.boolean(),
-      document_title: Joi.string(),
+      document_title: Joi.string().allow(''),
       template_ids: Joi.array().items(Joi.string().required()).error(
         commonFailValidatedMessageFunction("Please select at least one template")
       ),

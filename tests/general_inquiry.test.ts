@@ -10,7 +10,7 @@ import {projectData, zonesData} from "./temp-data/project";
 import {designFirmData, designFirmLocationData, userDesignFirmData} from "./temp-data/design-firm";
 import {apiService} from './helpers/api.helper';
 
-describe("General Inquiry & Project Tracking", () => {
+describe("General Inquiry", () => {
   let generalInquiry: any;
   let brand = {
     company: {},

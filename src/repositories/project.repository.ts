@@ -1,7 +1,7 @@
 import { ProjectAttributes, SortOrder } from "@/types";
 import BaseRepository from "@/repositories/base.repository";
 import ProjectModel from "@/model/project.model";
-import { forEach } from "lodash";
+import { forEach, isNumber } from "lodash";
 
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected model: ProjectModel;
@@ -55,7 +55,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     const rawQuery = `
     FILTER projects.design_id == @design_id
     ${
-      filter && filter.status
+      isNumber(filter?.status)
         ? `FILTER projects.status == ${filter.status}`
         : ""
     }
