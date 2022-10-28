@@ -165,13 +165,6 @@ export default class ProjectTrackingController {
     const currentUser = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
 
-    await projectTrackingRepository.updateUniqueAttribute(
-      "project_trackings",
-      "read_by",
-      id,
-      currentUser.id
-    );
-
     const response = await projectTrackingRepository.getOne(
       id,
       currentUser.id,
@@ -179,10 +172,20 @@ export default class ProjectTrackingController {
     );
 
     if (!response.length) {
-      return toolkit.response(
-        errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404)
-      );
+      return toolkit
+        .response(
+          errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404)
+        )
+        .code(404);
     }
+
+    const updateTrackingResponse =
+      await projectTrackingRepository.updateUniqueAttribute(
+        "project_trackings",
+        "read_by",
+        id,
+        currentUser.id
+      );
 
     return toolkit.response(
       successResponse({

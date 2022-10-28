@@ -103,12 +103,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
                 id: collection.id,
                 name: collection.name
             },
-            brand: {
-                id: brand.id,
-                name: brand.name,
-                logo: brand.logo,
-                official_websites: brand.official_websites
-            },
+            brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
             favorites: favourite[0],
             is_liked: liked[0] > 0
           }
