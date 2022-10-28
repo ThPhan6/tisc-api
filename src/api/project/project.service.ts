@@ -16,9 +16,7 @@ import { mappingProjectGroupByStatus } from "./project.mapping";
 import { IProjectRequest } from "./project.type";
 
 class ProjectService {
-
   public async create(user: UserAttributes, payload: IProjectRequest) {
-
     if (user.type !== SYSTEM_TYPE.DESIGN) {
       return errorMessageResponse(MESSAGES.JUST_DESIGNER_CAN_CREATE);
     }
@@ -164,8 +162,11 @@ class ProjectService {
     });
   }
 
-  public async update(id: string, user: UserAttributes, payload: IProjectRequest) {
-
+  public async update(
+    id: string,
+    user: UserAttributes,
+    payload: IProjectRequest
+  ) {
     const project = await projectRepository.find(id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
@@ -176,17 +177,6 @@ class ProjectService {
       project.design_id !== user.relation_id
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
-    }
-
-    if (payload.team_profile_ids.length) {
-      const userIds = uniq(payload.team_profile_ids);
-
-      const assignedTeam = await projectRepository.update(id, {
-        team_profile_ids: userIds,
-      });
-      return successResponse({
-        data: assignedTeam,
-      });
     }
 
     const projectExisted = await projectRepository.getProjectExist(
@@ -238,8 +228,6 @@ class ProjectService {
 
     locationParts.push(countryStateCity.country_name);
 
-    //assign team
-
     const updatedProject = await projectRepository.update(id, {
       ...payload,
       location: locationParts.join(", "),
@@ -254,6 +242,9 @@ class ProjectService {
       project_type_id: projectType.id,
       building_type: buildingType.name,
       building_type_id: buildingType.id,
+      team_profile_ids: payload.team_profile_ids
+        ? uniq(payload.team_profile_ids)
+        : undefined,
     });
 
     if (!updatedProject) {
@@ -266,13 +257,10 @@ class ProjectService {
   }
 
   public async delete(id: string, user: UserAttributes) {
-
     const project = await projectRepository.find(id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
-
-
 
     if (
       user.type !== SYSTEM_TYPE.DESIGN ||

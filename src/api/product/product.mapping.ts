@@ -1,7 +1,7 @@
 import { getDistinctArray } from "@/helper/common.helper";
 import {
   IBasisAttributes,
-  IAttributeAttributes,
+  AttributeProps,
   BasisConversion,
   IProductAttributes,
   ProductWithRelationData,
@@ -152,7 +152,7 @@ export const mappingAttribute = (
 
 export const mappingAttributeOrBasis = (
   //change any when update basis
-  all_attribute: IAttributeAttributes[] | any
+  all_attribute: AttributeProps[] | any
 ) => {
   return all_attribute.reduce((pre: any, cur: any) => {
     return pre.concat(cur.subs);
@@ -161,7 +161,7 @@ export const mappingAttributeOrBasis = (
 
 export const mappingAttributeGroups = (
   attribute_groups: IAttributeGroupWithOptionId[],
-  all_specification_attribute: IAttributeAttributes[],
+  all_specification_attribute: AttributeProps[],
   all_basis_conversion: IBasisAttributes[],
   all_basis_option_value?: IBasisAttributes[]
 ) => {
@@ -175,11 +175,12 @@ export const mappingAttributeGroups = (
           let newBasisOptions: any = attribute.basis_options;
           if (all_basis_option_value) {
             if (attribute.basis_options) {
-
               newBasisOptions = attribute.basis_options.map((basisOption) => {
                 let foundBasisOption: any = {};
                 all_basis_option_value?.forEach((item) => {
-                  const foundedOption = item.subs.find((sub: any) => sub.id === basisOption.id);
+                  const foundedOption = item.subs.find(
+                    (sub: any) => sub.id === basisOption.id
+                  );
                   if (foundedOption) {
                     foundBasisOption = foundedOption;
                   }

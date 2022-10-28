@@ -1,9 +1,4 @@
-import {
-  ATTRIBUTE_TYPES,
-  BASIS_TYPES,
-  COMMON_TYPES,
-  MESSAGES,
-} from "@/constants";
+import { BASIS_TYPES, COMMON_TYPES, MESSAGES } from "@/constants";
 import { getProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
 import {
@@ -45,7 +40,7 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { UserAttributes } from "@/types";
+import { AttributeType, UserAttributes } from "@/types";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -221,20 +216,20 @@ class ProductService {
     );
 
     const allFeatureAttributeGroup = await AttributeRepository.getByType(
-      ATTRIBUTE_TYPES.FEATURE
+      AttributeType.Feature
     );
     const allFeatureAttribute: any[] = mappingAttributeOrBasis(
       allFeatureAttributeGroup
     );
 
     const allGeneralAttributeGroup = await AttributeRepository.getByType(
-      ATTRIBUTE_TYPES.GENERAL
+      AttributeType.General
     );
     const allGeneralAttribute: any[] = mappingAttributeOrBasis(
       allGeneralAttributeGroup
     );
     const allSpecificationAttributeGroup = await AttributeRepository.getByType(
-      ATTRIBUTE_TYPES.SPECIFICATION
+      AttributeType.Specification
     );
     const allSpecificationAttribute: any[] = mappingAttributeOrBasis(
       allSpecificationAttributeGroup
@@ -511,6 +506,7 @@ class ProductService {
     const products = await productRepository.getFavouriteProducts(
       user.id,
       brandId,
+      categoryId,
       order
     );
     if (categoryId) {
@@ -545,7 +541,7 @@ class ProductService {
       user.relation_id,
       COMMON_TYPES.SHARING_PURPOSE
     );
-    const receiver = await userRepository.findBy({email: payload.to_email});
+    const receiver = await userRepository.findBy({ email: payload.to_email });
     const sharedUrl = getProductSharedUrl(user, receiver, product);
     const sent = await mailService.sendShareProductViaEmail(
       payload.to_email,
