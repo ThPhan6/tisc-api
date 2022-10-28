@@ -24,7 +24,7 @@ export default class PDFRoute implements IRoute {
           },
         },
         {
-          method: "POST",
+          method: "GET",
           path: ROUTES.PDF.GET_PROJECT_PDF_CONFIG,
           options: {
             handler: controller.getProjectSpecifyConfig,
