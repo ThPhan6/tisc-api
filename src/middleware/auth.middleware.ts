@@ -8,14 +8,9 @@ import { verifyJwtToken } from "@/helper/jwt.helper";
 import {UserAttributes} from '@/types';
 import {base64ToString, decrypt} from '@/helper/cryptojs.helper';
 
-
 export const throwError = async () => {
   throw Boom.unauthorized("Invalid token signature");
 }
-
-
-
-
 
 export default class AuthMiddleware {
 
@@ -143,7 +138,7 @@ export default class AuthMiddleware {
   public static authenticate = async (request: Request) => {
     let user: UserAttributes;
     if (AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(request.route.path) &&
-      !request.headers.authorization
+      request.headers.signature
     ) {
       user = await AuthMiddleware.parseSignature(
         request,
