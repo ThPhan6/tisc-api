@@ -44,74 +44,63 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     sortOrder?: "ASC" | "DESC"
   ) => {
     return `
-          ${
-            filterCategoryId
-              ? ` for cat_id in products.category_ids filter cat_id == @categoryId `
-              : ``
-          }
-          ${filterProductId ? ` filter products.id == @productId ` : ``}
-          filter products.deleted_at == null
-          ${
-            keyword
-              ? ` FILTER LOWER(products.name) like concat('%',@keyword, '%') `
-              : ``
-          }
-          ${
-            sortName && sortOrder
-              ? ` SORT products.${sortName} ${sortOrder} `
-              : ``
-          }
-          let categories = (
-              for mainCategory in categories
-                  for subCategory in mainCategory.subs
-                      for category in subCategory.subs
-                          for categoryId in products.category_ids
-                          filter categoryId == category.id
-              return category
-          )
-          for brand in brands
-              filter brand.id == products.brand_id
-              filter brand.deleted_at == null
-              ${filterBrandId ? `filter brand.id == @brandId` : ``}
-          for collection in collections
-              filter collection.id == products.collection_id
-              filter collection.deleted_at == null
+      ${filterCategoryId ? ` FILTER @categoryId IN products.category_ids` : ``}
+      ${filterProductId ? ` filter products.id == @productId ` : ``}
+      filter products.deleted_at == null
+      ${
+        keyword
+          ? ` FILTER LOWER(products.name) like concat('%',@keyword, '%') `
+          : ``
+      }
+      ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ``}
+      let categories = (
+          for mainCategory in categories
+              for subCategory in mainCategory.subs
+                  for category in subCategory.subs
+                      FILTER category.id in products.category_ids
+                      ${
+                        filterCategoryId
+                          ? ` FILTER category.id == @categoryId`
+                          : ``
+                      }
+          return category
+      )
+      for brand in brands
+          filter brand.id == products.brand_id
+          filter brand.deleted_at == null
+          ${filterBrandId ? `filter brand.id == @brandId` : ``}
+      for collection in collections
+          filter collection.id == products.collection_id
+          filter collection.deleted_at == null
+          ${filterCollectionId ? `filter collection.id == @collectionId` : ``}
+      let favourite = (
+          for product_favourite in product_favourites
+              filter product_favourite.product_id == products.id
+          COLLECT WITH COUNT INTO length RETURN length
+      )
+      let liked = (
+          for product_favourite in product_favourites
+              filter product_favourite.product_id == products.id
               ${
-                filterCollectionId
-                  ? `filter collection.id == @collectionId`
+                withFavourite
+                  ? `filter product_favourite.created_by == @userId`
                   : ``
               }
-          let favourite = (
-              for product_favourite in product_favourites
-                  filter product_favourite.product_id == products.id
-              COLLECT WITH COUNT INTO length RETURN length
-          )
-          let liked = (
-              for product_favourite in product_favourites
-                  filter product_favourite.product_id == products.id
-                  ${
-                    withFavourite
-                      ? `filter product_favourite.created_by == @userId`
-                      : ``
-                  }
-              COLLECT WITH COUNT INTO length RETURN length
-          )
-          ${filterLiked ? `filter liked[0] > 0` : ``}
-          return MERGE(UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
-            categories: categories,
-            collection: {
-                id: collection.id,
-                name: collection.name
-            },
-            brand: {
-                id: brand.id,
-                name: brand.name,
-                logo: brand.logo,
-                official_websites: brand.official_websites
-            },
-            favorites: favourite[0],
-            is_liked: liked[0] > 0
-          }
+          COLLECT WITH COUNT INTO length RETURN length
+      )
+      ${filterLiked ? `filter liked[0] > 0` : ``}
+      RETURN MERGE(
+        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), 
+        {
+          categories: categories,
+          collection: {
+              id: collection.id,
+              name: collection.name
+          },
+          brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
+          favorites: favourite[0],
+          is_liked: liked[0] > 0
+        }
       )`;
   };
 
@@ -177,12 +166,13 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   public getFavouriteProducts = (
     userId: string,
     brandId?: string,
+    categoryId?: string,
     order?: "ASC" | "DESC"
   ) => {
     return this.getProductBy(
       userId,
       brandId,
-      undefined,
+      categoryId,
       undefined,
       undefined,
       isUndefined(order) ? undefined : "name",
