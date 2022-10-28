@@ -1,6 +1,7 @@
 import ProjectProductModel, {
   ProjectProductAttributes,
 } from "@/api/project_product/project_product.model";
+import {ProductSpecifyStatus} from '@/api/project_product/project_product.type';
 import BaseRepository from "@/repositories/base.repository";
 import {
   AssignProductToProjectRequest,
@@ -213,9 +214,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         COLLECT id = b.id, name = b.name INTO products
         RETURN { id, name, products }
       )
-      
+
       FOR brand IN productsByBrand
-      ${brand_order ? `SORT brand.name ${brand_order}` : ""}      
+      ${brand_order ? `SORT brand.name ${brand_order}` : ""}
 
       LET products = (
         FOR pro IN brand.products
@@ -390,10 +391,22 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     )) as IProjectZoneAttributes["areas"][0]["rooms"];
   };
 
+
+
   public getWithBrandAndDistributorInfo = (projectId: string) => {
+
+    const specifyStatuses = [
+      ProductSpecifyStatus['Specified'],
+      ProductSpecifyStatus['Re-specified'],
+    ];
+
     return this.model.rawQueryV2(
       `
         FOR project_products IN project_products
+          FILTER project_products.deleted_at == null
+          FILTER project_products.project_id == @projectId
+          FILTER project_products.specified_status IN @specifyStatuses
+          SORT project_products._key DESC
           FOR location IN locations
           FILTER location.id == project_products.brand_location_id
           FILTER location.deleted_at == null
@@ -402,9 +415,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FILTER distributor.deleted_at == null
         FOR products IN products FILTER products.id == project_products.product_id
           FILTER products.deleted_at == null
-          FILTER project_products.deleted_at == null
-          FILTER project_products.project_id == @projectId
-        SORT project_products._key DESC
 
         FOR collection IN collections
             FILTER collection.id == products.collection_id
@@ -517,7 +527,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           }
         )`,
 
-      { projectId }
+      { projectId, specifyStatuses }
     );
   };
 }
