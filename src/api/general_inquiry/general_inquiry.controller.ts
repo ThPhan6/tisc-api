@@ -48,6 +48,6 @@ export default class GeneralInquiryController {
 
     const response = await generalInquiryService.getOne(id, user);
 
-    return toolkit.response(response).code(200);
+    return toolkit.response(response).code(response.statusCode ?? 200);
   }
 }

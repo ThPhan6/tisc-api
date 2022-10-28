@@ -1,4 +1,4 @@
-import { getEnumKeys } from "@/helper/common.helper";
+import { getEnumKeys, getEnumValues } from "@/helper/common.helper";
 import {
   ActionTaskModelEnum,
   ActionTaskStatus,
@@ -35,12 +35,7 @@ export default {
     },
     payload: {
       status: Joi.number()
-        .valid(
-          ActionTaskStatus["To-Do-List"],
-          ActionTaskStatus["In Progress"],
-          ActionTaskStatus["Cancelled"],
-          ActionTaskStatus["Completed"]
-        )
+        .valid(...getEnumValues(ActionTaskStatus))
         .required()
         .error(commonFailValidatedMessageFunction("Status is required")),
     },
