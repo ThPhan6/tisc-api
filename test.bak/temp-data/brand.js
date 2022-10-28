@@ -1,5 +1,5 @@
 module.exports = {
-  brand: {
+  brandData: {
     "name": "Enable Startup",
     "parent_company": "",
     "logo": "/brand-logo/1263-Shirt-S-Black-Back_1666604600238.png",
@@ -18,7 +18,7 @@ module.exports = {
     "updated_at": "2022-10-25 06:47:06",
     "deleted_at": null
   },
-  brandLocation: {
+  brandLocationData: {
     "business_name": "Global",
     "functional_type_ids": [
       ""
@@ -43,7 +43,7 @@ module.exports = {
     "updated_at": "2022-10-25 08:33:11",
     "deleted_at": null
   },
-  userBrand: {
+  userBrandData: {
     "role_id": "62ad5077-6183-435e-97f8-81c35065504e",
     "firstname": "Enable",
     "lastname": "Startup",

@@ -1,5 +1,5 @@
 module.exports = {
-  general: {
+  generalData: {
     "id": "GENERAL-XXXX-XXXX-XXXX",
     "type": 1,
     "name": "GENERAL ATTRIBUTE",
@@ -12,7 +12,7 @@ module.exports = {
     ],
     "created_at": "2022-06-22T09:18:53.673Z",
   },
-  feature: {
+  featureData: {
     "id": "FEATURE-XXXX-XXXX-XXX",
     "type": 2,
     "name": "thickness",
@@ -26,7 +26,7 @@ module.exports = {
     "created_at": "2022-06-24T03:24:47.419Z",
     "updated_at": "2022-10-24 10:28:55"
   },
-  specification: {
+  specificationData: {
     "id": "SPECIFICATION-XXXX-XXXX",
     "type": 3,
     "name": "natural stone thickness",

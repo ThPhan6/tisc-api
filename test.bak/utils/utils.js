@@ -42,8 +42,9 @@ const chaiResponse = (
   }
 };
 
-const insertTempData = (collection, data) => {
-  return db.collection(collection).save(data, {waitForSync: true, returnNew: true});
+const insertTempData = async (collection, data) => {
+  const response = await db.collection(collection).save(data, {waitForSync: true, returnNew: true});
+  return response.new;
 }
 
 const removeByKeys = (collection, keys) => {

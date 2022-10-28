@@ -1,5 +1,5 @@
 module.exports = {
-  project: {
+  projectData: {
     "code": "PJ323",
     "name": "Dự án xây dựng cầu Thiên Phước",
     "location": "Albania",
@@ -28,7 +28,7 @@ module.exports = {
     "updated_at": null,
     "deleted_at": null
   },
-  zones: {
+  zonesData: {
     "project_id": "PROJECT-TESTING-XXXX-XXXX",
     "name": "Zone 1",
     "areas": [

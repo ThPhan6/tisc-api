@@ -14,96 +14,111 @@ const {
 const { imageTest_4 } = require("./test_files/image.test");
 const helperCommon = require("./helper/common");
 
-const {brand, brandLocation, userBrand} = require("./temp-data/brand.js");
-const {product} = require("./temp-data/product.js");
-const {general, feature, specification} = require("./temp-data/attribute.js");
-const {option, conversion} = require("./temp-data/basis.js");
-const {category} = require("./temp-data/category.js");
-const {collection} = require("./temp-data/collection.js");
-const {project, zones} = require("./temp-data/project.js");
-const {designFirm, designFirmLocation, userDesignFirm} = require("./temp-data/design-firm.js");
-jjj
+const {brandData, brandLocationData, userBrandData} = require("./temp-data/brand.js");
+const {productData} = require("./temp-data/product.js");
+const {generalData, featureData, specificationData} = require("./temp-data/attribute.js");
+const {optionData, conversionData} = require("./temp-data/basis.js");
+const {categoryData} = require("./temp-data/category.js");
+const {collectionData} = require("./temp-data/collection.js");
+const {projectData, zonesData} = require("./temp-data/project.js");
+const {designFirmData, designFirmLocationData, userDesignFirmData} = require("./temp-data/design-firm.js");
 
 
 describe("Design Firm", () => {
-  let design;
   let locationId;
   let teamProfileId;
   let materialCodeId;
-  let project;
-  let user;
   let tracking;
-  let product;
+  let brand = {
+    company: {},
+    location: {},
+    user: {},
+    token: ""
+  }
+  let design = {
+    company: {},
+    location: {},
+    user: {},
+    token: ""
+  }
+  let product = {
+    data: {},
+    category: {},
+    collection: {},
+    attribute: {
+      general: {},
+      feature: {},
+      specification: {},
+    },
+    basis: {
+      option: {},
+      conversion: {}
+    },
+  }
+  let project = {
+    data: {},
+    zones: {},
+  }
 
-  //
-  let designToken;
-  //
 
-  before((done) => {
-    insertTempData('brands', brand).then((res) => {
-      brandData = res.new;
-      insertTempData('locations', brandLocation).then((res) => {
-        brandLocation = res.new
-        insertTempData('locations', brandLocation).then((res) => {
-
-        })
-        attribute
-        basis
-        category
-        collection
-        // insertTempData('users', userBrand).then((res) => {
-        //   userData = res.new;
-        //   brandToken = signJwtToken(userData.id);
-        //   done();
-        // });
-      });
-    });
+  before(async () => {
+    /// = BRAND
+    brand.company = await insertTempData('brands', brandData);
+    brand.location = await insertTempData('locations', brandLocationData);
+    brand.user = await insertTempData('users', userBrandData);
+    brand.token = signJwtToken(brand.user.id);
+    /// DESIGN FIRM
+    design.company = await insertTempData('designers', designFirmData);
+    design.location = await insertTempData('locations', designFirmLocationData);
+    design.user = await insertTempData('users', userDesignFirmData);
+    design.token = signJwtToken(design.user.id);
+    /// PRODUCT
+    product.data = await insertTempData('products', productData);
+    product.category = await insertTempData('categories', categoryData);
+    product.collection = await insertTempData('collections', collectionData);
+    product.attribute.general = await insertTempData('attributes', generalData);
+    product.attribute.feature = await insertTempData('attributes', featureData);
+    product.attribute.specification = await insertTempData('attributes', specificationData);
+    product.basis.option = await insertTempData('bases', optionData);
+    product.basis.conversion = await insertTempData('bases', conversionData);
+    // PROJECT
+    project.data = await insertTempData('projects', projectData);
+    project.zones = await insertTempData('project_zones', zonesData);
+    //
   });
 
+  after(async () => {
+    ///
+    await removeByKeys('brands', [brand.company._key]);
+    await removeByKeys('designers', [design.company._key]);
+    ///
+    await removeByKeys('locations', [brand.location._key, design.location._key]);
+    await removeByKeys('users', [brand.user._key, design.user._key]);
 
-  beforeEach((done) => {
-    helperCommon.insertProduct();
-    done();
-  });
-  beforeEach((done) => {
-    helperCommon.getProduct().then((data) => {
-      product = data;
-      done();
-    });
-  });
-
-  beforeEach((done) => {
-    chai
-      .request(HOST_URL)
-      .get("/team-profile/get-me")
-      .set({ Authorization: `Bearer ${designToken}` })
-
-      .end((_err, res) => {
-        user = res.body.data;
-        helperCommon.getDesign(user.relation_id).then((data) => {
-          design = data;
-          done();
-        });
-      });
+    await removeByKeys('products', [product.data._key]);
+    await removeByKeys('categories', [product.category._key]);
+    await removeByKeys('collections', [product.collection._key]);
+    await removeByKeys('attributes', [
+      product.attribute.general._key,
+      product.attribute.feature._key,
+      product.attribute.specification._key,
+    ]);
+    await removeByKeys('bases', [
+      product.basis.option._key,
+      product.basis.conversion._key,
+    ]);
+    await removeByKeys('projects', [project.data._key]);
+    await removeByKeys('project_zones', [project.zones._key]);
   });
 
-  helperCommon.getUserUnitTest().then((user) => {
-    helperCommon.insertProject(user.relation_id);
-  });
-  beforeEach((done) => {
-    helperCommon.getProject().then((data) => {
-      project = data;
-      done();
-    });
-  });
 
   describe("Office Profile", () => {
     describe("Update design office profile", () => {
       it("Incorrect design id", (done) => {
         chai
           .request(HOST_URL)
-          .patch(`/design/office-profile/${design.id}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .patch(`/design/office-profile/${design.company.id}-123`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "Testing 4",
             parent_company: "TISC",
@@ -122,8 +137,8 @@ describe("Design Firm", () => {
       it("Correct design id", (done) => {
         chai
           .request(HOST_URL)
-          .patch(`/design/office-profile/${design.id}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .patch(`/design/office-profile/${design.company.id}`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "Testing 4",
             parent_company: "TISC",
@@ -142,8 +157,8 @@ describe("Design Firm", () => {
       it("Incorrect logo", (done) => {
         chai
           .request(HOST_URL)
-          .patch(`/design/office-profile/${design.id}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .patch(`/design/office-profile/${design.company.id}`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "Testing 4",
             parent_company: "TISC",
@@ -162,8 +177,8 @@ describe("Design Firm", () => {
       it("Correct logo", (done) => {
         chai
           .request(HOST_URL)
-          .patch(`/design/office-profile/${design.id}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .patch(`/design/office-profile/${design.company.id}`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "Testing 4",
             parent_company: "TISC",
@@ -188,7 +203,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/location/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             functional_type_ids: ["string"],
             country_id: "string",
@@ -209,7 +224,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/location/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             business_name: "TISC",
             business_number: "TISC",
@@ -236,7 +251,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/location/get-list?page=1&pageSize=10`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -247,7 +262,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/location/get-list`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -261,7 +276,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/location/get-one/${locationId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(404);
             res.body.should.have.property("statusCode", 404);
@@ -272,7 +287,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/location/get-one/${locationId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -286,7 +301,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/location/update/${locationId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             business_name: "TISC",
             business_number: "TISC",
@@ -309,7 +324,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/location/update/${locationId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             business_name: "TISC",
             business_number: "TISC",
@@ -332,7 +347,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/location/update/${locationId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             functional_type_ids: ["string"],
             country_id: "string",
@@ -353,7 +368,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/location/update/${locationId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             business_name: "TISC",
             business_number: "TISC",
@@ -381,7 +396,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/team-profile/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             position: "string",
             email: "string",
@@ -399,7 +414,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/team-profile/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             firstname: "TISC",
             lastname: "DESIGN",
@@ -426,7 +441,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/team-profile/get-list?page=1&pageSize=10`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -437,7 +452,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/team-profile/get-list`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -451,7 +466,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/team-profile/get-one/${teamProfileId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(404);
             res.body.should.have.property("statusCode", 404);
@@ -462,7 +477,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/team-profile/get-one/${teamProfileId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -476,7 +491,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/team-profile/update/${teamProfileId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             firstname: "TISC",
             lastname: "DESIGN",
@@ -499,7 +514,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/team-profile/update/${teamProfileId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             firstname: "TISC",
             lastname: "DESIGN",
@@ -522,7 +537,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/team-profile/update/${teamProfileId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             department_id: "test",
             position: "CEO",
@@ -541,7 +556,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/team-profile/update/${teamProfileId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             firstname: "TISC",
             lastname: "DESIGN",
@@ -569,7 +584,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/material-code/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             subs: [
               {
@@ -593,7 +608,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/material-code/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "Material Code test",
             subs: [
@@ -622,7 +637,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/material-code/get-list?page=1&pageSize=10`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -633,7 +648,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/material-code/get-list`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -647,7 +662,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/material-code/get-one/${materialCodeId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(404);
             res.body.should.have.property("statusCode", 404);
@@ -658,7 +673,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/material-code/get-one/${materialCodeId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -672,7 +687,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/material-code/update/${materialCodeId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "material code update",
             subs: [
@@ -697,7 +712,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/material-code/update/${materialCodeId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "material code update",
             subs: [
@@ -722,7 +737,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/material-code/update/${materialCodeId}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             subs: [
               {
@@ -746,7 +761,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .put(`/material-code/update/${materialCodeId}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             name: "material code update",
             subs: [
@@ -775,8 +790,8 @@ describe("Design Firm", () => {
       it("Incorrect design id", (done) => {
         chai
           .request(HOST_URL)
-          .get(`/team-profile/design/${design.id}-123`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .get(`/team-profile/design/${design.company.id}-123`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.have.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -786,8 +801,8 @@ describe("Design Firm", () => {
       it("Correct design id", (done) => {
         chai
           .request(HOST_URL)
-          .get(`/team-profile/design/${design.id}`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .get(`/team-profile/design/${design.company.id}`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.have.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -799,8 +814,8 @@ describe("Design Firm", () => {
       it("Incorrect project id", (done) => {
         chai
           .request(HOST_URL)
-          .post(`project/${project?.id}/assign-team`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .post(`project/${project.data.id}/assign-team`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.have.status(404);
             res.body.should.have.property("statusCode", 404);
@@ -810,8 +825,8 @@ describe("Design Firm", () => {
       it("Correct project id", (done) => {
         chai
           .request(HOST_URL)
-          .post(`/project/${project?.id}/assign-team`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .post(`/project/${project.data.id}/assign-team`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.have.status(404);
             res.body.should.have.property("statusCode", 404);
@@ -821,29 +836,13 @@ describe("Design Firm", () => {
     });
   });
 
-  // describe("PDF", () => {
-  //   describe("Config PDF", () => {
-  //     it("Incorrect project id", (done) => {
-  //       chai
-  //         .request(HOST_URL)
-  //         .post(`/pdf/project/config/{project_id}`)
-  //         .set({ Authorization: `Bearer ${designToken}` })
-  //         .end((_err, res) => {
-  //           res.should.have.status(404);
-  //           res.body.should.have.property("statusCode", 404);
-  //           done();
-  //         });
-  //     });
-  //   });
-  // });
-
   describe("Project tracking", () => {
     describe("Create project request", () => {
       it("Incorrect payload inputs", (done) => {
         chai
           .request(HOST_URL)
           .post(`/project-tracking/request/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             title: "TISC",
             message: "TISC",
@@ -859,10 +858,10 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/project-tracking/request/create`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
-            product_id: product.id,
-            project_id: project.id,
+            product_id: product.data.id,
+            project_id: project.data.id,
             title: "TISC",
             message: "TISC",
             request_for_ids: ["request_for"],
@@ -880,7 +879,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/project-tracking/get-list`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -891,7 +890,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/project-tracking/get-list`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -904,7 +903,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/project-tracking/${tracking.id}-123/get-one`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             // res.should.status(500);
             // res.body.should.have.property("statusCode", 500);
@@ -915,7 +914,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/project-tracking/${tracking.id}/get-one`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             // res.should.status(500);
             // res.body.should.have.property("statusCode", 500);
@@ -928,7 +927,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .patch(`/project-tracking/${tracking.id}-123/update`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             priority: "Non",
             assigned_teams: ["string"],
@@ -944,7 +943,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .patch(`/project-tracking/${tracking.id}/update`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             priority: "Non",
             assigned_teams: ["string"],
@@ -960,7 +959,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .patch(`/project-tracking/${tracking.id}/update`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             read_by: ["string"],
           })
@@ -974,7 +973,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .patch(`/project-tracking/${tracking.id}/update`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             priority: "Non",
             assigned_teams: ["string"],
@@ -995,7 +994,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(`/project/get-all`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -1008,9 +1007,9 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .get(
-            `/project/${project.id}-123/product/${product.id}-123/assign-zones`
+            `/project/${project.data.id}-123/product/${product.data.id}-123/assign-zones`
           )
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(404);
             res.body.should.have.property("statusCode", 404);
@@ -1020,8 +1019,8 @@ describe("Design Firm", () => {
       it("Incorrect project id & product id", (done) => {
         chai
           .request(HOST_URL)
-          .get(`/project/${project.id}/product/${product.id}/assign-zones`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .get(`/project/${project.data.id}/product/${product.data.id}/assign-zones`)
+          .set({ Authorization: `Bearer ${design.token}` })
           .end((_err, res) => {
             res.should.status(200);
             res.body.should.have.property("statusCode", 200);
@@ -1035,7 +1034,7 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/project/assign-product`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             product_id: "string",
             project_id: "string",
@@ -1053,16 +1052,16 @@ describe("Design Firm", () => {
         chai
           .request(HOST_URL)
           .post(`/project/assign-product`)
-          .set({ Authorization: `Bearer ${designToken}` })
+          .set({ Authorization: `Bearer ${design.token}` })
           .send({
             entire_allocation: true,
-            product_id: "string",
-            project_id: "string",
-            allocation: ["string"],
+            product_id: product.data.id,
+            project_id: project.data.id,
+            allocation: [""],
           })
           .end((_err, res) => {
-            res.should.status(400);
-            res.body.should.have.property("statusCode", 400);
+            res.should.status(200);
+            res.body.should.have.property("statusCode", 200);
             done();
           });
       });
@@ -1074,7 +1073,7 @@ describe("Design Firm", () => {
       chai
         .request(HOST_URL)
         .delete(`/location/delete/${locationId}-123`)
-        .set({ Authorization: `Bearer ${designToken}` })
+        .set({ Authorization: `Bearer ${design.token}` })
         .end((_err, res) => {
           res.should.status(404);
           res.body.should.have.property("statusCode", 404);
@@ -1085,7 +1084,7 @@ describe("Design Firm", () => {
       chai
         .request(HOST_URL)
         .delete(`/location/delete/${locationId}`)
-        .set({ Authorization: `Bearer ${designToken}` })
+        .set({ Authorization: `Bearer ${design.token}` })
         .end((_err, res) => {
           res.should.status(200);
           res.body.should.have.property("statusCode", 200);
@@ -1099,7 +1098,7 @@ describe("Design Firm", () => {
       chai
         .request(HOST_URL)
         .delete(`/team-profile/delete/${teamProfileId}-123`)
-        .set({ Authorization: `Bearer ${designToken}` })
+        .set({ Authorization: `Bearer ${design.token}` })
         .end((_err, res) => {
           res.should.status(404);
           res.body.should.have.property("statusCode", 404);
@@ -1110,7 +1109,7 @@ describe("Design Firm", () => {
       chai
         .request(HOST_URL)
         .delete(`/team-profile/delete/${teamProfileId}`)
-        .set({ Authorization: `Bearer ${designToken}` })
+        .set({ Authorization: `Bearer ${design.token}` })
         .end((_err, res) => {
           res.should.status(200);
           res.body.should.have.property("statusCode", 200);
@@ -1124,7 +1123,7 @@ describe("Design Firm", () => {
       chai
         .request(HOST_URL)
         .delete(`/material-code/delete/${materialCodeId}-123`)
-        .set({ Authorization: `Bearer ${designToken}` })
+        .set({ Authorization: `Bearer ${design.token}` })
         .end((_err, res) => {
           res.should.status(404);
           res.body.should.have.property("statusCode", 404);
@@ -1135,7 +1134,7 @@ describe("Design Firm", () => {
       chai
         .request(HOST_URL)
         .delete(`/material-code/delete/${materialCodeId}`)
-        .set({ Authorization: `Bearer ${designToken}` })
+        .set({ Authorization: `Bearer ${design.token}` })
         .end((_err, res) => {
           res.should.status(200);
           res.body.should.have.property("statusCode", 200);

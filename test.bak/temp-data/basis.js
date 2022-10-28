@@ -1,5 +1,5 @@
 module.exports = {
-  option: {
+  optionData: {
     "id": "4bBafad9-9bc9-479b-bda0-9326c9bb66c3",
     "type": 3,
     "name": "Stone standard thickness",
@@ -27,7 +27,7 @@ module.exports = {
     ],
     "created_at": "2022-06-17T08:10:59.700Z",
   },
-  conversion: {
+  conversionData: {
     "id": "b2aeh240-d77b-41b2-8a60-2aa8346c3e44",
     "type": 1,
     "name": "Weight",
@@ -43,5 +43,5 @@ module.exports = {
       },
     ],
     "created_at": "2022-06-17T08:10:59.700Z",
-  },  
+  },
 }

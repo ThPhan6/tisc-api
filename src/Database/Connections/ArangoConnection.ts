@@ -21,3 +21,4 @@ class Connection extends Database {
 
 export type ConnectionInterface = typeof Connection;
 export default Connection;
+export const connection = new Connection();

@@ -1,5 +1,5 @@
 module.exports = {
-  collection : {
+  collectionData: {
     "brand_id": "BRAND-TESTING-XXXX-XXXX",
     "name": "Ceramic",
     "id": "COLLECTION-TESTING-XXXX-XXXX",

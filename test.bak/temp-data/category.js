@@ -1,5 +1,5 @@
 module.exports = {
-  category : {
+  categoryData: {
     "id": "MAIN-CATEGORY-TESTING-XXX-XXXX",
     "name": "Architectural material",
     "subs": [

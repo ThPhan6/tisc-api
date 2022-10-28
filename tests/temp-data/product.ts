@@ -1,5 +1,5 @@
-module.exports = {
-  product: {
+
+  export const productData = {
     "id": "PRODUCT-TESTING-XXXX-XXXX",
     "brand_id": "BRAND-TESTING-XXXX-XXXX",
     "collection_id": "COLLECTION-TESTING-XXXX-XXXX",
@@ -95,5 +95,4 @@ module.exports = {
     "created_at": "2022-10-24 10:32:31",
     "updated_at": "2022-10-24 10:33:05",
     "deleted_at": null
-  },
-}
+  }

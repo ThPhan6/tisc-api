@@ -4,7 +4,8 @@ import { projectProductPDFConfigRepository } from "@/repositories/project_produc
 import {getBufferFile} from '@/service/aws.service';
 import {projectProductRepository} from '@/api/project_product/project_product.repository';
 import {projectZoneRepository} from '@/repositories/project_zone.repository';
-import { MESSAGES } from "@/constants";
+import {commonTypeRepository} from '@/repositories/common_type.repository';
+import { MESSAGES, COMMON_TYPES } from "@/constants";
 import {
   mappingSpecifyPDFTemplate,
   groupSpecifyTemplates,
@@ -131,6 +132,16 @@ export default class PDFService {
     }
     /// get zone data
     const zones = await projectZoneRepository.getListWithTotalsize(projectId);
+    // save issuing_for
+    if (!payload.issuing_for_id) {
+      return errorMessageResponse(MESSAGES.PDF_SPECIFY.NOT_FOUND);
+    }
+    const issueFor = await commonTypeRepository.findOrCreate(
+      payload.issuing_for_id,
+      user.relation_id,
+      COMMON_TYPES.ISSUE_FOR
+    );
+    payload.issuing_for_id = issueFor.id;
     // save payload
     await projectProductPDFConfigRepository.updateByProjectId(projectId, payload);
     const pdfConfig = await projectProductPDFConfigRepository.findWithInfoByProjectId(projectId);
