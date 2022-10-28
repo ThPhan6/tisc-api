@@ -412,7 +412,8 @@ const USER_NULL_ATTRIBUTES = {
   created_at: null,
   type: null,
   relation_id: null,
-  is_deleted: false,
+  updated_at: null,
+  deleted_at: null,
 };
 const BRAND_NULL_ATTRIBUTES = {
   id: null,
@@ -427,7 +428,7 @@ const BRAND_NULL_ATTRIBUTES = {
   status: null,
   created_at: null,
   updated_at: null,
-  is_deleted: false,
+  deleted_at: null,
 };
 const BRAND_STATUSES = {
   ACTIVE: 1,
@@ -450,14 +451,15 @@ const DESIGN_NULL_ATTRIBUTES = {
   status: null,
   created_at: null,
   updated_at: null,
-  is_deleted: false,
+  deleted_at: null,
 };
 const CATEGORY_NULL_ATTRIBUTES = {
   id: null,
   name: null,
   subs: null,
   created_at: null,
-  is_deleted: false,
+  updated_at: null,
+  deleted_at: null,
 };
 
 const BASIS_NULL_ATTRIBUTES = {
@@ -466,7 +468,8 @@ const BASIS_NULL_ATTRIBUTES = {
   name: null,
   subs: null,
   created_at: null,
-  is_deleted: false,
+  updated_at: null,
+  deleted_at: null,
 };
 const BASIS_TYPES = {
   CONVERSION: 1,
@@ -477,7 +480,8 @@ const DEPARTMENT_NULL_ATTRIBUTES = {
   id: null,
   name: null,
   created_at: null,
-  is_deleted: false,
+  updated_at: null,
+  deleted_at: null,
   type: 0,
 };
 

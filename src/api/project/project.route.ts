@@ -170,7 +170,7 @@ export default class ProjectRoute implements IRoute {
           method: "PATCH",
           path: ROUTES.ASSIGN_TEAM_PROJECT,
           options: {
-            handler: controller.update,
+            handler: controller.partialUpdate,
             validate: validate.assignTeamProject,
             description: "Method that assign team to project",
             tags: ["api", "Project"],

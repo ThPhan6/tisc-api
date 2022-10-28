@@ -44,15 +44,15 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     sortOrder?: "ASC" | "DESC"
   ) => {
     return `
-      ${filterCategoryId ? ` FILTER @categoryId IN products.category_ids` : ``}
-      ${filterProductId ? ` filter products.id == @productId ` : ``}
+      ${filterCategoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
+      ${filterProductId ? ` filter products.id == @productId ` : ""}
       filter products.deleted_at == null
       ${
         keyword
           ? ` FILTER LOWER(products.name) like concat('%',@keyword, '%') `
-          : ``
+          : ""
       }
-      ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ``}
+      ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
       let categories = (
           for mainCategory in categories
               for subCategory in mainCategory.subs
@@ -61,47 +61,43 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
                       ${
                         filterCategoryId
                           ? ` FILTER category.id == @categoryId`
-                          : ``
+                          : ""
                       }
           return category
       )
       for brand in brands
           filter brand.id == products.brand_id
           filter brand.deleted_at == null
-          ${filterBrandId ? `filter brand.id == @brandId` : ``}
+          ${filterBrandId ? `filter brand.id == @brandId` : ""}
       for collection in collections
           filter collection.id == products.collection_id
           filter collection.deleted_at == null
-          ${filterCollectionId ? `filter collection.id == @collectionId` : ``}
+          ${filterCollectionId ? `filter collection.id == @collectionId` : ""}
+          
       let favourite = (
           for product_favourite in product_favourites
               filter product_favourite.product_id == products.id
           COLLECT WITH COUNT INTO length RETURN length
       )
       let liked = (
-          for product_favourite in product_favourites
-              filter product_favourite.product_id == products.id
-              ${
-                withFavourite
-                  ? `filter product_favourite.created_by == @userId`
-                  : ``
-              }
-          COLLECT WITH COUNT INTO length RETURN length
+        for product_favourite in product_favourites
+        filter product_favourite.product_id == products.id
+        ${withFavourite ? `filter product_favourite.created_by == @userId` : ""}
+        COLLECT WITH COUNT INTO length RETURN length
       )
-      ${filterLiked ? `filter liked[0] > 0` : ``}
+      ${filterLiked ? `filter liked[0] > 0` : ""}
       RETURN MERGE(
-        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), 
-        {
-          categories: categories,
-          collection: {
-              id: collection.id,
-              name: collection.name
-          },
-          brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
-          favorites: favourite[0],
-          is_liked: liked[0] > 0
-        }
-      )`;
+        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+        categories: categories,
+        collection: {
+            id: collection.id,
+            name: collection.name
+        },
+        brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
+        favorites: favourite[0],
+        is_liked: liked[0] > 0
+      }
+    )`;
   };
 
   public async findWithRelationData(productId: string, userId?: string) {

@@ -8,6 +8,7 @@ const seedPermission = require("./permission.seed").seed;
 const seedUser = require("./user.seed").seed;
 const seedCommonType = require("./common_types.seed").seed;
 const templateSeed = require("./template.seed").seed;
+const seedBasis = require("./basis.seed").seed;
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ const seed = async () => {
   await seedUser(db);
   await templateSeed(db);
   await seedCommonType(db);
+  await seedBasis(db);
 };
 
 seed();

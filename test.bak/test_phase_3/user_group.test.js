@@ -7,8 +7,8 @@ const {
   Database,
   db,
   tiscAdminToken,
-} = require("./utils/utils");
-const helperCommon = require("./helper/common");
+} = require("../utils/utils");
+const helperCommon = require("../helper/common");
 
 describe("user group", () => {
   let token = tiscAdminToken;

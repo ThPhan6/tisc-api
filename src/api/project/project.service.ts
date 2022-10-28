@@ -256,6 +256,28 @@ class ProjectService {
     });
   }
 
+  public partialUpdate = async (id: string, payload: Partial<IProjectRequest>) => {
+    const project = await projectRepository.find(id);
+    if (!project) {
+      return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
+    }
+    const updatedProject = await projectRepository.update(id, {
+      ...payload,
+      team_profile_ids: payload.team_profile_ids
+        ? uniq(payload.team_profile_ids)
+        : undefined,
+    });
+
+    if (!updatedProject) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+
+    return successResponse({
+      data: updatedProject,
+    });
+
+  }
+
   public async delete(id: string, user: UserAttributes) {
     const project = await projectRepository.find(id);
     if (!project) {
