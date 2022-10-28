@@ -22,9 +22,12 @@ import {
   userDesignFirmData,
 } from "./temp-data/design-firm";
 import { apiService } from "./helpers/api.helper";
+import { ROUTES } from "../src/constants/route.constant";
+import { ActionTaskStatus } from "../src/types/action_task.type";
 
 describe("General Inquiry", () => {
-  let generalInquiry: any;
+  let inquiry: any;
+  let inquiryTask: any;
   let brand = {
     company: {},
     location: {},
@@ -118,34 +121,184 @@ describe("General Inquiry", () => {
     await removeByKeys("project_zones", [project.zones._key]);
   });
 
-  describe("General Inquiry", () => {
-    describe("Create project request", () => {
-      it("Incorrect payload inputs", async () => {
-        (
-          await apiService
-            .getInstance()
-            .setToken(design.token)
-            .post(`/project-tracking/request/create`, {
-              title: "TISC",
-              message: "TISC",
-              request_for_ids: ["request_for"],
-            })
-        ).shouldError();
-      });
-      it("Correct payload inputs", async () => {
-        const response = await apiService
+  describe("Create Inquiry request", () => {
+    it("Incorrect payload inputs", async () => {
+      (
+        await apiService
           .getInstance()
           .setToken(design.token)
-          .post(`/project-tracking/request/create`, {
-            product_id: product.data.id,
-            project_id: project.data.id,
-            title: "TISC",
-            message: "TISC",
-            request_for_ids: ["request_for"],
-          });
-        // inquiry = response.get();
-        response.shouldSuccess();
-      });
+          .post(ROUTES.GENERAL_INQUIRY.CREATE, {
+            "product_id": "ABC",
+            "title":"What is this product for ?",
+            "message":"Hello Enable",
+            "inquiry_for_ids":["ABC"]
+          })
+      ).shouldError(404);
+    });
+    it("Correct payload inputs", async () => {
+      const response = await apiService
+        .getInstance()
+        .setToken(design.token)
+        .post(ROUTES.GENERAL_INQUIRY.CREATE, {
+          "product_id": product.data.id,
+          "title":"What is this product for ?",
+          "message":"Hello Enable",
+          "inquiry_for_ids":["ABC"]
+        });
+      inquiry = response.get();
+      response.shouldSuccess();
     });
   });
+
+  describe("Get List Inquiry request", () => {
+    it("Get List Without pagination", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(ROUTES.GENERAL_INQUIRY.GET_LIST)
+      ).shouldSuccess();
+    });
+    it("Get List pagination", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(`${ROUTES.GENERAL_INQUIRY.GET_LIST}?page=1&pageSize=10`)
+      ).shouldSuccess();
+    });
+  });
+  describe("Get Inquiry Summary", () => {
+    it("Get Inquiry Summary", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(ROUTES.GENERAL_INQUIRY.SUMMARY)
+      ).shouldSuccess();
+    });
+    it("Get List pagination", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(`${ROUTES.GENERAL_INQUIRY.GET_LIST}?page=1&pageSize=10`)
+      ).shouldSuccess();
+    });
+  });
+
+  describe("Get Inquiry request detail", () => {
+    it("Incorrect ID", async () => {
+      (await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(
+            ROUTES.GENERAL_INQUIRY.GET_ONE.replace(
+              "{id}",
+              inquiry.id + "_123"
+            )
+          )
+      ).shouldError(404);
+    });
+    it("Correct ID", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(
+            ROUTES.GENERAL_INQUIRY.GET_ONE.replace(
+              "{id}",
+              inquiry.id
+            )
+          )
+      ).shouldSuccess();
+    });
+  });
+
+  describe("Create action task for an inquiry request", () => {
+    it("Incorrect payload inputs", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .post(ROUTES.ACTION_TASK.CREATE, {
+            common_type_ids: ["Some action"],
+          })
+      ).shouldError();
+    });
+    it("Correct payload inputs", async () => {
+      const response = await apiService
+        .getInstance()
+        .setToken(brand.token)
+        .post(ROUTES.ACTION_TASK.CREATE, {
+          common_type_ids: ["Some action"],
+          model_id: inquiry.id,
+          model_name: "inquiry",
+        });
+      inquiryTask = response.get();
+      response.shouldSuccess();
+    });
+  });
+
+  describe("Update action task status", () => {
+    it("Incorrect action task id", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .patch(
+            ROUTES.ACTION_TASK.UPDATE.replace(
+              "{id}",
+              inquiryTask.id + "_123"
+            ),
+            { status: ActionTaskStatus["In Progress"] }
+          )
+      ).shouldError(404);
+    });
+    it("Correct action task id", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .patch(
+            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
+            { status: ActionTaskStatus["In Progress"] }
+          )
+      ).shouldSuccess();
+    });
+    it("Incorrect payload inputs", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .patch(
+            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
+            { status: 99 }
+          )
+      ).shouldError();
+    });
+    it("Correct payload inputs", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .patch(
+            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
+            { status: ActionTaskStatus["In Progress"] }
+          )
+      ).shouldSuccess();
+    });
+  });
+
+  describe("Get list action task", () => {
+    it("Correct data response", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(brand.token)
+          .get(`${ROUTES.ACTION_TASK.GET_LIST}?model_id=${inquiryTask.id}&model_name=inquiry`)
+      ).shouldSuccess();
+    });
+  });
+
 });

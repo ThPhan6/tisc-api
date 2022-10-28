@@ -51,6 +51,15 @@ export default class ProjectController {
     const response = await projectService.update(id, user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public partialUpdate = async (
+    req: Request & { payload: Partial<IProjectRequest> },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await projectService.partialUpdate(id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
