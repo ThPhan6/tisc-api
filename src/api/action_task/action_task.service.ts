@@ -71,7 +71,7 @@ class ActionTaskService {
         break;
     }
 
-    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+    return successResponse({ data: createdActionTask });
   }
 
   public async getList(
