@@ -1,5 +1,5 @@
 import HapiJoi from "joi";
-import {productResponse} from '@/api/product/product.response';
+import { productResponse } from "@/api/product/product.response";
 
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -21,12 +21,14 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           logo: Joi.string().allow(null),
+          mission_n_vision: Joi.string(),
+          slogan: Joi.string().allow(null),
           official_websites: Joi.array().items(
             Joi.object({
               url: Joi.string(),
               country_id: Joi.string(),
             })
-          )
+          ),
         })
       ),
       category_count: Joi.number(),

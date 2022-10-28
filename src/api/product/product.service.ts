@@ -506,6 +506,7 @@ class ProductService {
     const products = await productRepository.getFavouriteProducts(
       user.id,
       brandId,
+      categoryId,
       order
     );
     if (categoryId) {
