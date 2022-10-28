@@ -85,7 +85,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       ${
         sort && sort[0] === "created_at"
           ? `SORT general_inquiries.created_at ${sortOrder}`
-          : ""
+          : "SORT general_inquiries.created_at DESC"
       }
 
       FOR products IN products

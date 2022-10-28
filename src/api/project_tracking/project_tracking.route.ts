@@ -1,11 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { ROUTES } from "@/constant/api.constant";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import ProjectTrackingController from "./project_tracking.controller";
 import validate from "./project_tracking.validate";
 import response from "./project_tracking.response";
+import { ROUTES } from "@/constants";
 
 export default class ProjectTrackingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -15,7 +15,7 @@ export default class ProjectTrackingRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: ROUTES.CREATE_PRODUCT_REQUEST,
+          path: ROUTES.PROJECT_TRACKING.CREATE,
           options: {
             handler: controller.createProjectRequest,
             validate: validate.createProjectRequest,
@@ -32,7 +32,7 @@ export default class ProjectTrackingRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_LIST_PROJECT_TRACKING,
+          path: ROUTES.PROJECT_TRACKING.GET_LIST,
           options: {
             handler: controller.getListProjectTracking,
             validate: validate.getList,
@@ -49,7 +49,7 @@ export default class ProjectTrackingRoute implements IRoute {
         },
         {
           method: "PATCH",
-          path: ROUTES.UPDATE_PROJECT_TRACKING,
+          path: ROUTES.PROJECT_TRACKING.UPDATE,
           options: {
             handler: controller.updateProjectTracking,
             validate: validate.updateProjectTracking,
@@ -65,7 +65,7 @@ export default class ProjectTrackingRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_PROJECT_TRACKING_SUMMARY,
+          path: ROUTES.PROJECT_TRACKING.GET_SUMMARY,
           options: {
             handler: controller.getProjectTrackingSummary,
             description: "Method that get project tracking summary info",
@@ -81,7 +81,7 @@ export default class ProjectTrackingRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_ONE_PROJECT_TRACKING,
+          path: ROUTES.PROJECT_TRACKING.GET_ONE,
           options: {
             handler: controller.getProjectTrackingDetail,
             validate: validate.getOne,
