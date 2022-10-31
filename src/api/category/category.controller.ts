@@ -1,8 +1,8 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {categoryService} from "./category.service";
+import { categoryService } from "./category.service";
 import { ICategoryRequest } from "./category.type";
-export default class CategoryController {
 
+export default class CategoryController {
   public create = async (
     req: Request & { payload: ICategoryRequest },
     toolkit: ResponseToolkit
@@ -17,6 +17,8 @@ export default class CategoryController {
       limit,
       offset,
       filter,
+      sort,
+      order,
       main_category_order,
       sub_category_order,
       category_order,
@@ -25,6 +27,8 @@ export default class CategoryController {
       limit,
       offset,
       filter,
+      sort,
+      order,
       main_category_order,
       sub_category_order,
       category_order
