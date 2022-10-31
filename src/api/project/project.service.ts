@@ -135,7 +135,8 @@ class ProjectService {
     );
 
     const totalProject = await projectRepository.countProjectBy(
-      user.relation_id
+      user.relation_id,
+      filter
     );
 
     return successResponse({
@@ -256,7 +257,10 @@ class ProjectService {
     });
   }
 
-  public partialUpdate = async (id: string, payload: Partial<IProjectRequest>) => {
+  public partialUpdate = async (
+    id: string,
+    payload: Partial<IProjectRequest>
+  ) => {
     const project = await projectRepository.find(id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
@@ -275,8 +279,7 @@ class ProjectService {
     return successResponse({
       data: updatedProject,
     });
-
-  }
+  };
 
   public async delete(id: string, user: UserAttributes) {
     const project = await projectRepository.find(id);
