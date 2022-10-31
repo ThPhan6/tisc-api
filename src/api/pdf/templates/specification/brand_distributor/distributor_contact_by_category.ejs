@@ -14,8 +14,18 @@
               <% if (groupData.distributor.country_id == '-1') { %>
                 <span>GLOBAL</span>
               <% } else { %>
-                <span><%= groupData.distributor.city_name %>, <%= groupData.distributor.state_name %></span><br/>
-                <span><%= groupData.distributor.country_name %>, <%= groupData.distributor.postal_code %></span><br/>
+                <span>
+                  <% if (groupData.distributor.city_name) { %>
+                    <%= groupData.distributor.city_name %>,
+                  <% } %>
+                  <%= groupData.distributor.state_name %>
+                </span><br/>
+                <span>
+                  <% if (groupData.distributor.country_name) { %>
+                    <%= groupData.distributor.country_name %>,
+                  <% } %>
+                  <%= groupData.distributor.postal_code %>
+                </span><br/>
                 <span><%= project.design_firm_official_website %></span>
               <% } %>
 

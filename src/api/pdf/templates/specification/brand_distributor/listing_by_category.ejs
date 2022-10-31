@@ -22,7 +22,15 @@
               <% if (groupData.location.country_id == '-1') { %>
                 <span>GLOBAL</span>
               <% } else { %>
-                <span><%= groupData.location.city_name %>, <%= groupData.location.country_name %>, <%= groupData.location.postal_code %></span>
+                <span>
+                  <% if (groupData.location.city_name) { %>
+                    <%= groupData.location.city_name %>,
+                  <% } %>
+                  <% if (groupData.location.country_name) { %>
+                    <%= groupData.location.country_name %>,
+                  <% } %>
+                  <%= groupData.location.postal_code %>
+                </span>
               <% } %>
             </td>
             <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
@@ -31,7 +39,15 @@
               <% if (groupData.distributor.country_id == '-1') { %>
                 <span>GLOBAL</span>
               <% } else { %>
-                <span><%= groupData.distributor.city_name %>, <%= groupData.distributor.country_name %>, <%= groupData.distributor.postal_code %></span>
+                <span>
+                  <% if (groupData.distributor.city_name) { %>
+                    <%= groupData.distributor.city_name %>,
+                  <% } %>
+                  <% if (groupData.distributor.country_name) { %>
+                    <%= groupData.distributor.country_name %>,
+                  <% } %>
+                  <%= groupData.distributor.postal_code %>
+                </span>
               <% } %>
             </td>
           </tr>
