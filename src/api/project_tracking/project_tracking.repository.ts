@@ -115,13 +115,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     ${sort === "project_location" ? `SORT project.location ${order}` : ""}
     ${sort === "project_type" ? `SORT project.project_type ${order}` : ""}
 
-    LET projectProducts = (
-      FOR pp IN project_products
-      FILTER pp.project_tracking_id == project_trackings.id
-      FILTER pp.deleted_at == null
-      RETURN pp
-    )
-
     LET projectRequests = (
       FOR pr IN project_requests
       FILTER pr.project_tracking_id == project_trackings.id
@@ -235,12 +228,9 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER pt.brand_id == @brandId
       FILTER pt.deleted_at == null
 
-      LET projects = (
-        FOR prj IN projects
-        FILTER prj.id == pt.project_id
-        FILTER prj.deleted_at == null
-        RETURN prj
-      )
+      FOR prj IN projects
+      FILTER prj.id == pt.project_id
+      FILTER prj.deleted_at == null
 
       LET projectRequests = (
         FOR pr IN project_requests
@@ -255,7 +245,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         FILTER ptn.project_tracking_id == pt.id
         RETURN ptn
       )
-      RETURN {projects: projects[0], projectRequests, notifications}
+      RETURN {projects: prj, projectRequests, notifications}
     )
 
     LET projects = (
