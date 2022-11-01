@@ -1,6 +1,9 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { ProjectStatus } from "@/types";
-import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
+import {
+  commonFailValidatedMessageFunction,
+  getListValidation,
+} from "@/validate/common.validate";
 import * as Joi from "joi";
 import { ProjectTrackingPriority } from "./project_tracking.model";
 
@@ -28,24 +31,8 @@ export default {
         .error(commonFailValidatedMessageFunction("Request for is required")),
     },
   },
-  getList: {
-    query: Joi.object({
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
+  getList: getListValidation({
+    query: {
       project_status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .allow(null)
@@ -68,21 +55,12 @@ export default {
         "project_type",
         "design_firm"
       ),
-      order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        project_status: value.project_status,
-        priority: value.priority,
-        sort: value.sort ? value.sort : "created_at",
-        order: value.order ? value.order : "DESC",
-      };
+    },
+    custom: (value) => ({
+      project_status: value.project_status,
+      priority: value.priority,
     }),
-  },
+  }),
   updateProjectTracking: {
     params: {
       id: Joi.string()

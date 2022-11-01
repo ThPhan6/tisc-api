@@ -1,10 +1,8 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {quotationService} from "./quotation.service";
+import { quotationService } from "./quotation.service";
 import { IQuotationRequest } from "./quotation.type";
 
 export default class QuotationController {
-
-
   public create = async (
     req: Request & { payload: IQuotationRequest },
     toolkit: ResponseToolkit
@@ -14,8 +12,14 @@ export default class QuotationController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort } = req.query;
-    const response = await quotationService.getList(limit, offset, filter, sort);
+    const { limit, offset, filter, sort, order } = req.query;
+    const response = await quotationService.getList(
+      limit,
+      offset,
+      filter,
+      sort,
+      order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {

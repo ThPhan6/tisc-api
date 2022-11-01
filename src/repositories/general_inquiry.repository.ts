@@ -3,6 +3,7 @@ import BaseRepository from "@/repositories/base.repository";
 import {
   GeneralInquiryAttribute,
   ListGeneralInquiryCustom,
+  SortOrder,
   SortValidGeneralInquiry,
 } from "@/types";
 import { isNumber } from "lodash";
@@ -66,9 +67,9 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     limit: number,
     offset: number,
     sort: SortValidGeneralInquiry,
+    order: SortOrder = "DESC",
     filter: any
   ) {
-    const sortOrder = sort?.[1] || "ASC";
     const params = {
       userId,
       relationId,
@@ -83,9 +84,9 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
           : ""
       }
       ${
-        sort && sort[0] === "created_at"
-          ? `SORT general_inquiries.created_at ${sortOrder}`
-          : "SORT general_inquiries.created_at DESC"
+        sort === "created_at"
+          ? `SORT general_inquiries.created_at ${order}`
+          : ""
       }
 
       FOR products IN products
@@ -106,13 +107,13 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
         RETURN { designer: d, location: loc, user: u }
       )
       ${
-        sort && sort[0] === "design_firm"
-          ? `SORT designFirm[0].designer.name ${sortOrder}`
+        sort === "design_firm"
+          ? `SORT designFirm[0].designer.name ${order}`
           : ""
       }
       ${
-        sort && sort[0] == "firm_location"
-          ? `SORT CONCAT_SEPARATOR(' ', designFirm[0].location.city_name, designFirm[0].location.country_name) ${sortOrder}`
+        sort == "firm_location"
+          ? `SORT CONCAT_SEPARATOR(' ', designFirm[0].location.city_name, designFirm[0].location.country_name) ${order}`
           : ""
       }
 
@@ -123,11 +124,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
         SORT common_types.name ASC
         RETURN common_types
       )
-      ${
-        sort && sort[0] === "inquiry_for"
-          ? `SORT FIRST(inquiryFor).name ${sortOrder}`
-          : ""
-      }
+      ${sort === "inquiry_for" ? `SORT FIRST(inquiryFor).name ${order}` : ""}
 
       LIMIT @offset, @limit
       RETURN {

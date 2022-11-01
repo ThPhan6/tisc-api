@@ -7,6 +7,7 @@ import {
 import QuotationRepository from "@/repositories/quotation.repository";
 import { successMessageResponse } from "@/helper/response.helper";
 import { IQuotationRequest } from "./quotation.type";
+import { SortOrder } from "@/types";
 
 export default class QuotationService {
   private quotationRepository: QuotationRepository;
@@ -29,13 +30,20 @@ export default class QuotationService {
     return successResponse({ data: createdQuotation });
   }
 
-  public async getList(limit: number, offset: number, filter: any, sort: any) {
+  public async getList(
+    limit: number,
+    offset: number,
+    filter: any,
+    sort: string,
+    order: SortOrder
+  ) {
     const quotations =
       await this.quotationRepository.getListQuotationWithPagination(
         limit,
         offset,
         filter,
-        sort
+        sort,
+        order
       );
     if (!quotations) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);

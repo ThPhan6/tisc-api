@@ -1,6 +1,8 @@
 import { generalMessageResponse } from "./../../helper/response.helper";
 import * as Hapi from "@hapi/hapi";
-import commonValidate from "../../validate/common.validate";
+import commonValidate, {
+  getListValidation,
+} from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { ROUTES } from "../../constant/api.constant";
@@ -36,7 +38,7 @@ export default class QuotationRoute implements IRoute {
           path: ROUTES.GET_LIST_QUOTATION,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: getListValidation(),
             description: "Method that get list inspirational quotation",
             tags: ["api", "Inspirational Quotation"],
             auth: AUTH_NAMES.PERMISSION,
