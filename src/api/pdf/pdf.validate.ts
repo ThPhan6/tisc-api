@@ -41,5 +41,8 @@ export default {
           )
         ),
     },
+    query: {
+      responseType: Joi.string().valid('stream', 'base64').allow('')
+    }
   },
 };
