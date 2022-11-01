@@ -2,7 +2,21 @@
   <div class="footer-divider-top">
     <p class="primary-roboto-bold-8-16 uppercase text-center"><%= project.design_firm_name %></p>
     <p class="primary-roboto-light-6 text-center">
-      <span class="mr-8"><%= config.locations.address %>, <%= config.locations.city_name %>, <%= config.locations.state_name %>, <%= config.locations.country_name %>, <%= config.locations.postal_code %></span>
+      <span class="mr-8">
+        <% if (config.locations.address) { %>
+          <%= config.locations.address %>,
+        <% } %>
+        <% if (config.locations.city_name) { %>
+          <%= config.locations.city_name %>,
+        <% } %>
+        <% if (config.locations.state_name) { %>
+          <%= config.locations.state_name %>,
+        <% } %>
+        <% if (config.locations.country_name) { %>
+          <%= config.locations.country_name %>,
+        <% } %>
+        <%= config.locations.postal_code %>
+      </span>
       <span class="mr-8 normal-roboto-light-6">Tel:</span>
       <span class="mr-8">+<%= config.locations.phone_code %> <%= config.locations.general_phone %></span>
       <span class="mr-8 normal-roboto-light-6">Email: </span>
