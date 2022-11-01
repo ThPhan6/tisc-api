@@ -251,7 +251,8 @@ class BrandService {
 
     const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
-      SYSTEM_TYPE.BRAND
+      SYSTEM_TYPE.BRAND,
+      payload.email
     );
 
     let verificationToken: string;
