@@ -120,18 +120,79 @@ class UserRepository extends BaseRepository<UserAttributes> {
     relationId?: string | null,
     sort?: any
   ) => {
-    let query = this.getModel().getQuery();
+    const params: any = {};
     if (relationId) {
-      query = query.where("relation_id", "==", relationId);
+      params.relationId = relationId;
     }
     if (sort) {
-      query = query.order(sort[0], sort[1]);
+      params.sortOrder = sort[1];
     }
+
+    let query = `
+      For user in users
+        filter user.deleted_at == null
+        ${relationId ? ` filter user.relation_id == @relationId ` : ''}
+        For role in roles
+          filter role.deleted_at == null
+          filter role.id == user.role_id
+        For location in locations
+          filter location.deleted_at == null
+          filter location.id == user.location_id
+        LET work_location = location.city_name ? CONCAT(location.city_name, ', ', UPPER(location.country_name)) : UPPER(location.country_name)
+        let status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${UserStatus.Blocked} ? 'Blocked' : 'Pending'))
+     `;
+
+    if (sort) {
+      if (sort[0] === 'firstname') {
+        query += ` sort user.firstname @sortOrder `;
+      }
+      if (
+        sort[0] === 'work_location' ||
+        sort[0] === 'status'
+      ) {
+        query += ` sort ${sort[0]} @sortOrder `;
+      }
+      if (sort[0] === 'access_level') {
+        query += ` sort role.name @sortOrder `;
+      }
+    } else {
+      query += `sort user.created_at DESC`;
+    }
+    //
+
+    ///
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit, offset);
-      return await query.paginate();
+      let totalRecords = await this.model.rawQueryV2(`${query} COLLECT WITH COUNT INTO length RETURN length`, params);
+      totalRecords = (head(totalRecords) ?? 0) as number;
+      query += ` LIMIT ${offset}, ${limit} `;
+      query += `return merge(
+          KEEP(user, 'id','firstname','lastname','fullname','position','email','phone','status','avatar','created_at'),
+          {
+              work_location: work_location,
+              phone_code: location.phone_code,
+              access_level: role.name
+          }
+      )`;
+      const response = await this.model.rawQueryV2(query, params);
+      return {
+        pagination: {
+          page: offset / limit + 1,
+          page_size: limit,
+          total: totalRecords,
+          page_count: Math.ceil(totalRecords / limit),
+        },
+        data: response,
+      };
     }
-    const response = await query.get();
+    query += `return merge(
+        KEEP(user, 'id','firstname','lastname','fullname','position','email','phone','status','avatar','created_at'),
+        {
+            work_location: work_location,
+            phone_code: location.phone_code,
+            access_level: role.name
+        }
+    )`;
+    const response = await this.model.rawQueryV2(query, params);
     const totalSize = (response.length ?? 0) as number;
     return {
       pagination: {
