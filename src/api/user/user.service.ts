@@ -281,24 +281,6 @@ export default class UserService {
       authenticatedUser.relation_id,
       sort
     );
-
-    result.data = result.data.map((user: UserAttributes) => {
-      return {
-        id: user.id,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        fullname: `${user.firstname} ${user.lastname}`,
-        work_location: user.work_location,
-        position: user.position,
-        email: user.email,
-        phone: user.phone,
-        access_level: getAccessLevel(user.role_id),
-        status: user.status,
-        avatar: user.avatar,
-        created_at: user.created_at,
-        phone_code: user.phone_code,
-      };
-    });
     return successResponse({
       data: {
         users: result.data,
