@@ -269,7 +269,8 @@ class AuthService {
 
     const defaultLocation = await locationService.createDefaultLocation(
       createdDesign.id,
-      SYSTEM_TYPE.DESIGN
+      SYSTEM_TYPE.DESIGN,
+      payload.email
     );
 
     const token = await userRepository.generateToken("verification_token");
