@@ -51,11 +51,12 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
 
     const rawQuery = `
     FILTER categories.id == @mainCategoryId
+    FILTER categories.deleted_at == null
     FOR subCategory in categories.subs
     FOR category in subCategory.subs
     FOR products in products
-    FOR productCategoryId in products.category_ids
-    FILTER category.id == productCategoryId
+    FILTER products.deleted_at == null
+    FILTER category.id IN products.category_ids
     RETURN UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by'])
     `;
     return (await this.model.rawQuery(

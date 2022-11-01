@@ -47,6 +47,7 @@ class DocumentationRepository extends BaseRepository<IDocumentationAttributes> {
 
     const rawQuery = `
     FILTER documentations.type == @type
+    FILTER documentations.deleted_at == null
     let user = (
       FOR user in users
       FILTER user.deleted_at == null

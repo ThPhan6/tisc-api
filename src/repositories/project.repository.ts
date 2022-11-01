@@ -53,6 +53,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       limit,
     };
     const rawQuery = `
+    FILTER projects.deleted_at == null
     FILTER projects.design_id == @design_id
     ${
       isNumber(filter?.status)
