@@ -10,7 +10,7 @@ import {
 } from "@/helper/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
-import { AttributeType } from "@/types";
+import { AttributeType, SortOrder } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
   checkAttributeDuplicateByName,
@@ -92,9 +92,9 @@ class AttributeService {
     limit: number,
     offset: number,
     filter: any,
-    group_order: "ASC" | "DESC",
-    attribute_order: "ASC" | "DESC",
-    content_type_order: "ASC" | "DESC"
+    group_order: SortOrder | undefined,
+    attribute_order: SortOrder,
+    content_type_order: SortOrder
   ) {
     const contentTypes = await this.getFlatListContentType();
     const attributeWithPagination =

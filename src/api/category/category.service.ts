@@ -57,8 +57,6 @@ export default class CategoryService {
     limit: number,
     offset: number,
     filter: any,
-    sort: string,
-    order: SortOrder,
     mainCategoryOrder: SortOrder | undefined,
     subCategoryOrder: SortOrder,
     categoryOrder: SortOrder
@@ -67,8 +65,6 @@ export default class CategoryService {
       limit,
       offset,
       filter,
-      sort,
-      order,
       mainCategoryOrder
     );
 
