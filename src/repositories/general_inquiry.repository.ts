@@ -95,10 +95,13 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
 
       LET designFirm = (
         FOR u IN users
+        FILTER u.deleted_at == null
         FILTER u.id == general_inquiries.created_by
         FOR d IN designers
+        FILTER d.deleted_at == null
         FILTER d.id == u.relation_id
         FOR loc IN locations
+        FILTER loc.deleted_at == null
         FILTER loc.id == u.location_id
         RETURN { designer: d, location: loc, user: u }
       )
@@ -115,6 +118,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
 
       LET inquiryFor = (
         FOR common_types IN common_types
+        FILTER common_types.deleted_at == null
         FILTER common_types.id IN general_inquiries.inquiry_for_ids
         SORT common_types.name ASC
         RETURN common_types
@@ -157,6 +161,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     FILTER user.deleted_at == null
     LET userPhoneCode = (
       FOR loc IN locations
+      FILTER loc.deleted_at == null
       FILTER loc.id == user.location_id
       RETURN loc.phone_code
     )

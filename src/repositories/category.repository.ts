@@ -5,6 +5,7 @@ import {
 import CategoryModel from "@/model/category.model";
 import BaseRepository from "./base.repository";
 import { IProductAttributes } from "@/types/product.type";
+import { SortOrder } from "@/types";
 
 class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   protected model: CategoryModel;
@@ -32,12 +33,14 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     limit: number,
     offset: number,
     filter: any,
-    mainCategoryOrder: "ASC" | "DESC"
-  ) {
-    return (await this.model
+    sort: string,
+    order: SortOrder,
+    mainCategoryOrder?: SortOrder
+  ): Promise<ListCategoryWithPaginate> {
+    return this.model
       .select()
-      .order("name", mainCategoryOrder)
-      .paginate(limit, offset)) as ListCategoryWithPaginate;
+      .order(mainCategoryOrder ? "name" : sort, mainCategoryOrder || order)
+      .paginate(limit, offset);
   }
 
   public async findProductByMainCategoryId(mainCategoryId: string) {
@@ -47,11 +50,12 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
 
     const rawQuery = `
     FILTER categories.id == @mainCategoryId
+    FILTER categories.deleted_at == null
     FOR subCategory in categories.subs
     FOR category in subCategory.subs
     FOR products in products
-    FOR productCategoryId in products.category_ids
-    FILTER category.id == productCategoryId
+    FILTER products.deleted_at == null
+    FILTER category.id IN products.category_ids
     RETURN UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by'])
     `;
     return (await this.model.rawQuery(

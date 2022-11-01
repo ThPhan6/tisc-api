@@ -35,11 +35,11 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     limit: number,
     offset: number,
     type: BasisType,
-    groupOrder: "ASC" | "DESC"
+    groupOrder?: "ASC" | "DESC"
   ) {
     return (await this.model
       .where("type", "==", type)
-      .order("name", groupOrder)
+      .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")
       .paginate(limit, offset)) as ListBasisWithPagination;
   }
 }
