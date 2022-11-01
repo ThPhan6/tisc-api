@@ -33,6 +33,7 @@ import {
   IUpdateBasisOptionRequest,
   IUpdateBasisPresetRequest,
 } from "./basis.type";
+
 class BasisService {
   constructor() {}
   public async createBasisConversion(payload: IBasisConversionRequest) {

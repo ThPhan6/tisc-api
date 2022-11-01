@@ -1,4 +1,5 @@
 import AttributeModel from "@/model/attribute.model";
+import { SortOrder } from "@/types";
 import {
   AttributeType,
   AttributeProps,
@@ -40,12 +41,12 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     limit: number,
     offset: number,
     type: number,
-    group_order: "ASC" | "DESC"
-  ) {
-    return (await this.model
+    groupOrder?: SortOrder
+  ): Promise<ListAttributeWithPagination> {
+    return this.model
       .where("type", "==", type)
-      .order("name", group_order)
-      .paginate(limit, offset)) as ListAttributeWithPagination;
+      .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")
+      .paginate(limit, offset);
   }
 }
 

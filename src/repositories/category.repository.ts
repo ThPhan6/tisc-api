@@ -33,13 +33,14 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     limit: number,
     offset: number,
     filter: any,
-    sort: string,
-    order: SortOrder,
     mainCategoryOrder?: SortOrder
   ): Promise<ListCategoryWithPaginate> {
     return this.model
       .select()
-      .order(mainCategoryOrder ? "name" : sort, mainCategoryOrder || order)
+      .order(
+        mainCategoryOrder ? "name" : "created_at",
+        mainCategoryOrder || "DESC"
+      )
       .paginate(limit, offset);
   }
 

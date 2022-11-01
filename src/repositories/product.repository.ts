@@ -125,9 +125,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     collectionId?: string,
     keyword?: string,
     sort?: string,
-    order: "ASC" | "DESC" = "ASC",
+    order: "ASC" | "DESC" = "DESC",
     likedOnly: boolean = false
-  ) {
+  ): Promise<ProductWithRelationData[]> {
     //
     const params = {} as any;
     if (userId) {
@@ -143,7 +143,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       params.collectionId = collectionId;
     }
     //
-    return (await this.model.rawQuery(
+    return this.model.rawQuery(
       this.getProductQuery(
         undefined,
         brandId,
@@ -152,11 +152,11 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         !isUndefined(userId),
         likedOnly,
         keyword,
-        sort,
+        sort || "created_at",
         order
       ),
       params
-    )) as ProductWithRelationData[];
+    );
   }
 
   public getFavouriteProducts = (
