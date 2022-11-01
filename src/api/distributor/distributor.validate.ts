@@ -1,16 +1,9 @@
 import Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
-const customFilter = (value: any, helpers: any) => {
-  try {
-    const filter = JSON.parse(decodeURIComponent(value));
-    if (typeof filter === "object") {
-      return filter;
-    }
-    return helpers.error("any.invalid");
-  } catch (error) {
-    return helpers.error("any.invalid");
-  }
-};
+import {
+  commonFailValidatedMessageFunction,
+  getListValidation,
+} from "../../validate/common.validate";
+
 export default {
   create: {
     payload: {
@@ -146,52 +139,15 @@ export default {
         ),
     },
   },
-  getList: {
-    query: Joi.object({
+  getList: getListValidation({
+    query: {
       brand_id: Joi.string()
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Brand id is required")),
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-
-      sort: Joi.string(),
-      order: Joi.string().valid("ASC", "DESC"),
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          return customFilter(value, helpers);
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-    }).custom((value) => {
-      return {
-        brand_id: value.brand_id,
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        filter: value.filter,
-        sort: value.sort ? value.sort : "created_at",
-        order: value.order ? value.order : "ASC",
-        type: value.type,
-      };
-    }),
-  } as any,
+    },
+    custom: (value) => ({ brand_id: value.brand_id }),
+  }),
   getWithBrandId: {
     query: {
       brand_id: Joi.string()

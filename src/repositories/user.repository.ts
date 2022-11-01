@@ -1,7 +1,13 @@
 import UserModel from "@/model/user.model";
 import BaseRepository from "./base.repository";
 import { SYSTEM_TYPE } from "@/constants";
-import { ActiveStatus, UserAttributes, UserStatus, UserType } from "@/types";
+import {
+  ActiveStatus,
+  SortOrder,
+  UserAttributes,
+  UserStatus,
+  UserType,
+} from "@/types";
 import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
@@ -118,20 +124,19 @@ class UserRepository extends BaseRepository<UserAttributes> {
     limit?: number,
     offset?: number,
     relationId?: string | null,
-    sort?: any
+    sort?: string,
+    order?: SortOrder
   ) => {
     const params: any = {};
     if (relationId) {
       params.relationId = relationId;
     }
-    if (sort) {
-      params.sortOrder = sort[1];
-    }
+    params.sortOrder = order || "DESC";
 
     let query = `
       For user in users
         filter user.deleted_at == null
-        ${relationId ? ` filter user.relation_id == @relationId ` : ''}
+        ${relationId ? ` filter user.relation_id == @relationId ` : ""}
         For role in roles
           filter role.deleted_at == null
           filter role.id == user.role_id
@@ -139,30 +144,26 @@ class UserRepository extends BaseRepository<UserAttributes> {
           filter location.deleted_at == null
           filter location.id == user.location_id
         LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
-        let status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${UserStatus.Blocked} ? 'Blocked' : 'Pending'))
+        LET status = (user.status == ${
+          UserStatus.Active
+        } ? 'Activated' : (user.status == ${
+      UserStatus.Blocked
+    } ? 'Blocked' : 'Pending'))
      `;
 
-    if (sort) {
-      if (sort[0] === 'firstname') {
-        query += ` sort user.firstname @sortOrder `;
-      }
-      if (
-        sort[0] === 'work_location' ||
-        sort[0] === 'status'
-      ) {
-        query += ` sort ${sort[0]} @sortOrder `;
-      }
-      if (sort[0] === 'access_level') {
-        query += ` sort role.name @sortOrder `;
-      }
+    if (sort === "work_location" || sort === "status") {
+      query += ` sort ${sort} @sortOrder `;
+    } else if (sort === "access_level") {
+      query += ` sort role.name @sortOrder `;
     } else {
-      query += `sort user.created_at DESC`;
+      query += ` sort user.${sort} @sortOrder `;
     }
-    //
 
-    ///
     if (isNumber(limit) && isNumber(offset)) {
-      let totalRecords = await this.model.rawQueryV2(`${query} COLLECT WITH COUNT INTO length RETURN length`, params);
+      let totalRecords = await this.model.rawQueryV2(
+        `${query} COLLECT WITH COUNT INTO length RETURN length`,
+        params
+      );
       totalRecords = (head(totalRecords) ?? 0) as number;
       query += ` LIMIT ${offset}, ${limit} `;
       query += `return merge(

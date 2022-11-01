@@ -12,21 +12,6 @@ export const customFilter = (value: any, helpers: any) => {
   }
 };
 
-export const getListParamsValidation = (value: any) => ({
-  limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-  offset:
-    !value.page || !value.pageSize ? 0 : (value.page - 1) * value.pageSize,
-  filter: value.filter,
-  sort: value.sort || "created_at",
-  order: value.order || "DESC",
-});
-
-export const getAllParamsValidation = (value: any) => ({
-  filter: value.filter,
-  sort: value.sort || "created_at",
-  order: value.order || "DESC",
-});
-
 export const commonFailValidatedMessageFunction = (message: string) => {
   return new Error(message);
 };
@@ -173,43 +158,3 @@ export default {
     },
   },
 };
-
-export const getListV2 = {
-  query: Joi.object({
-    page: Joi.number()
-      .min(1)
-      .custom((value, helpers) => {
-        if (!Number.isInteger(value)) return helpers.error("any.invalid");
-        return value;
-      })
-      .error(commonFailValidatedMessageFunction("Page must be an integer")),
-
-    pageSize: Joi.number()
-      .min(1)
-      .custom((value, helpers) => {
-        if (!Number.isInteger(value)) return helpers.error("any.invalid");
-        return value;
-      })
-      .error(
-        commonFailValidatedMessageFunction("Page Size must be an integer")
-      ),
-
-    sort: Joi.string(),
-    order: orderValidation,
-    filter: Joi.string()
-      .custom((value, helpers) => {
-        return customFilter(value, helpers);
-      }, "custom filter validation")
-      .error(commonFailValidatedMessageFunction("Invalid filter")),
-  }).custom((value) => {
-    return {
-      limit: !value.page || !value.pageSize ? undefined : value.pageSize,
-      offset:
-        !value.page || !value.pageSize
-          ? undefined
-          : (value.page - 1) * value.pageSize,
-      filter: value.filter,
-      sort: value.sort ? [value.sort, value.order] : undefined,
-    };
-  }),
-} as any;

@@ -5,13 +5,13 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { ICountryAttributes } from "@/types";
+import { ICountryAttributes, SortOrder } from "@/types";
 import CollectionRepository from "@/repositories/collection.repository";
 import { distributorRepository } from "@/repositories/distributor.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import {brandRepository} from "@/repositories/brand.repository";
-import {productRepository} from "@/repositories/product.repository";
+import { brandRepository } from "@/repositories/brand.repository";
+import { productRepository } from "@/repositories/product.repository";
 import { ICountryStateCity } from "@/types";
 import {
   mappingAuthorizedCountries,
@@ -22,7 +22,6 @@ import {
 } from "./distributor.mapping";
 import { IDistributorRequest } from "./distributor.type";
 class DistributorService {
-
   private async updateMarkets(
     payload: IDistributorRequest,
     removeCountryIds?: string[],
@@ -317,7 +316,7 @@ class DistributorService {
     offset: number,
     filter: any,
     sort: string,
-    order: "ASC" | "DESC"
+    order: SortOrder
   ) {
     const distributors =
       await distributorRepository.getListDistributorWithPagination(
