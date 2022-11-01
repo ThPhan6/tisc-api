@@ -20,22 +20,46 @@
       </tr>
       <tr>
         <td colspan="2">
-          <span class="primary-roboto-light-8-18"><%= item.location.address %>,</span>
+          <span class="primary-roboto-light-8-18">
+            <% if (item.location.city_name) { %>
+              <%= item.location.address %>,
+            <% } else { %>
+              Empty Address
+            <% } %>
+          </span>
         </td>
         <td colspan="2">
-          <span class="primary-roboto-light-8-18"><%= item.distributor.address %>,</span>
+          <span class="primary-roboto-light-8-18">
+            <% if (item.distributor.city_name) { %>
+              <%= item.distributor.address %>,
+            <% } else { %>
+              Empty Address
+            <% } %>
+          </span>
         </td>
       </tr>
       <tr>
         <td colspan="2">
-          <span class="primary-roboto-light-8-18"
-            ><%= item.location.city_name %>, <%= item.location.country_name %>, <%= item.location.postal_code %></span
-          >
+          <span class="primary-roboto-light-8-18">
+            <% if (item.location.city_name) { %>
+              <%= item.location.city_name %>,
+            <% } %>
+            <% if (item.location.country_name) { %>
+              <%= item.location.country_name %>,
+            <% } %>
+            <%= item.location.postal_code %>
+          </span>
         </td>
         <td colspan="2">
-          <span class="primary-roboto-light-8-18"
-            ><%= item.distributor.city_name %>, <%= item.distributor.country_name %>, <%= item.distributor.postal_code %></span
-          >
+          <span class="primary-roboto-light-8-18">
+            <% if (item.distributor.city_name) { %>
+              <%= item.distributor.city_name %>,
+            <% } %>
+            <% if (item.distributor.country_name) { %>
+              <%= item.distributor.country_name %>,
+            <% } %>
+            <%= item.distributor.postal_code %>
+          </span>
         </td>
       </tr>
       <tr>

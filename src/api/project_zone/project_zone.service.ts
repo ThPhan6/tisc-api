@@ -10,7 +10,12 @@ import {
 } from "@/helper/response.helper";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectRepository } from "@/repositories/project.repository";
-import { ProjectAttributes, SortOrder, UserAttributes } from "@/types";
+import {
+  ProjectAttributes,
+  SortOrder,
+  UserAttributes,
+  UserType,
+} from "@/types";
 import {
   mappingAddProjectZoneId,
   mappingProjectZoneAreas,
@@ -20,7 +25,6 @@ import {
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
 
 class ProjectZoneService {
-
   private async validateProjectZone(
     payload: IUpdateProjectZoneRequest,
     user: UserAttributes,
@@ -95,8 +99,10 @@ class ProjectZoneService {
     }
   }
 
-  public async create(user: UserAttributes, payload: IUpdateProjectZoneRequest) {
-
+  public async create(
+    user: UserAttributes,
+    payload: IUpdateProjectZoneRequest
+  ) {
     const project = await projectRepository.find(payload.project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
@@ -140,7 +146,7 @@ class ProjectZoneService {
 
     if (
       project.design_id !== user.relation_id &&
-      user.type !== SYSTEM_TYPE.DESIGN
+      user.type !== UserType.Designer
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
     }
@@ -185,7 +191,7 @@ class ProjectZoneService {
     ];
     return successResponse({
       data: {
-        project_zones: projectZones,
+        project_zones: mappingProjectZones.data,
         summary,
       },
     });

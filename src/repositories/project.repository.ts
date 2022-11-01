@@ -81,7 +81,13 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     return this.model.rawQuery(rawQuery, params);
   }
 
-  public async countProjectBy(designId: string) {
+  public async countProjectBy(designId: string, filter: any) {
+    if (typeof filter?.status === "number") {
+      return this.model
+        .where("design_id", "==", designId)
+        .where("status", "==", filter.status)
+        .count();
+    }
     return this.model.where("design_id", "==", designId).count();
   }
 
