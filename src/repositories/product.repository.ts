@@ -55,6 +55,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
       let categories = (
           for mainCategory in categories
+          FILTER mainCategory.deleted_at == null
               for subCategory in mainCategory.subs
                   for category in subCategory.subs
                       FILTER category.id in products.category_ids
@@ -76,11 +77,13 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           
       let favourite = (
           for product_favourite in product_favourites
+          FILTER product_favourite.deleted_at == null
               filter product_favourite.product_id == products.id
           COLLECT WITH COUNT INTO length RETURN length
       )
       let liked = (
         for product_favourite in product_favourites
+        FILTER product_favourite.deleted_at == null
         filter product_favourite.product_id == products.id
         ${withFavourite ? `filter product_favourite.created_by == @userId` : ""}
         COLLECT WITH COUNT INTO length RETURN length
@@ -246,7 +249,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   ): Promise<ProductWithCollectionAndBrand[]> => {
     const params = { userId } as any;
     let rawQuery = `
-        FILTER products.is_deleted == false
+        FILTER products.deleted_at == null
         FOR userId IN products.favorites
           FILTER userId == @userId
     `;
@@ -263,6 +266,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     /// join brands
     rawQuery += ` FOR brand IN brands
       FILTER products.brand_id == brand.id
+      FILTER brand.deleted_at == null
       FOR collection IN collections
       FILTER collection.deleted_at == null
       FILTER products.collection_id == collection.id
@@ -296,7 +300,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     categoryId?: string
   ): Promise<ProductWithCollectionAndBrand[]> => {
     const params = {} as any;
-    let rawQuery = ` FILTER products.is_deleted == false `;
+    let rawQuery = ` FILTER products.deleted_at == null `;
     if (brandId) {
       rawQuery += ` FILTER products.brand_id == @brandId `;
       params.brandId = brandId;
@@ -315,6 +319,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     }
     /// join brands
     rawQuery += ` FOR brand IN brands
+      FILTER brand.deleted_at == null
       FILTER products.brand_id == brand.id
       FOR collection IN collections
       FILTER collection.deleted_at == null
