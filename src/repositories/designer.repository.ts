@@ -125,6 +125,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     const designFirm = await this.model.rawQuery(
       `
       FILTER designers.id == @id
+      FILTER designers.deleted_at == null
       LET capabilities = (
         FOR common_types IN common_types
         FILTER common_types.deleted_at == null
