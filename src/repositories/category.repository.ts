@@ -5,6 +5,7 @@ import {
 import CategoryModel from "@/model/category.model";
 import BaseRepository from "./base.repository";
 import { IProductAttributes } from "@/types/product.type";
+import { SortOrder } from "@/types";
 
 class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   protected model: CategoryModel;
@@ -32,12 +33,14 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     limit: number,
     offset: number,
     filter: any,
-    mainCategoryOrder: "ASC" | "DESC"
-  ) {
-    return (await this.model
+    sort: string,
+    order: SortOrder,
+    mainCategoryOrder?: SortOrder
+  ): Promise<ListCategoryWithPaginate> {
+    return this.model
       .select()
-      .order("name", mainCategoryOrder)
-      .paginate(limit, offset)) as ListCategoryWithPaginate;
+      .order(mainCategoryOrder ? "name" : sort, mainCategoryOrder || order)
+      .paginate(limit, offset);
   }
 
   public async findProductByMainCategoryId(mainCategoryId: string) {

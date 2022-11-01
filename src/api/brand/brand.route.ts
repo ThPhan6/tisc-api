@@ -1,6 +1,8 @@
 import * as Hapi from "@hapi/hapi";
 import BrandController from "./brand.controller";
-import commonValidate from "../../validate/common.validate";
+import commonValidate, {
+  getAllValidation,
+} from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
@@ -11,6 +13,7 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./brand.response";
 import validate from "./brand.validate";
 import Joi from "joi";
+
 export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -55,7 +58,7 @@ export default class BrandRoute implements IRoute {
           path: ROUTES.GET_LIST_BRAND_CARD,
           options: {
             handler: controller.getListCard,
-            validate: commonValidate.getAll,
+            validate: getAllValidation(),
             description: "Method that get list brand card",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,

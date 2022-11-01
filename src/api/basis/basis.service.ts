@@ -12,6 +12,7 @@ import {
 } from "@/helper/response.helper";
 import BasisRepository from "@/repositories/basis.repository";
 import { uploadImage } from "@/service/image.service";
+import { SortOrder } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
   addCountBasis,
@@ -79,8 +80,8 @@ class BasisService {
     limit: number,
     offset: number,
     filter: any,
-    conversion_group_order: "ASC" | "DESC",
-    conversion_between_order: "ASC" | "DESC"
+    conversion_group_order: SortOrder | undefined,
+    conversion_between_order: SortOrder
   ) {
     const conversionGroups = await BasisRepository.getListBasisWithPagination(
       limit,
@@ -261,8 +262,8 @@ class BasisService {
     limit: number,
     offset: number,
     filter: any,
-    groupOrder: "ASC" | "DESC",
-    optionOrder: "ASC" | "DESC"
+    groupOrder: SortOrder | undefined,
+    optionOrder: SortOrder
   ) {
     const basisOptionGroups = await BasisRepository.getListBasisWithPagination(
       limit,
@@ -401,8 +402,8 @@ class BasisService {
     limit: number,
     offset: number,
     filter: any,
-    groupOrder: "ASC" | "DESC",
-    presetOrder: "ASC" | "DESC"
+    groupOrder: SortOrder | undefined,
+    presetOrder: SortOrder
   ) {
     const basisPresetGroups = await BasisRepository.getListBasisWithPagination(
       limit,

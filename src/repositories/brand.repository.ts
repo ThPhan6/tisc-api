@@ -1,7 +1,12 @@
 import { ListBrandCustom } from "./../api/brand/brand.type";
 import BrandModel from "@/model/brand.model";
 import BaseRepository from "./base.repository";
-import { BrandAttributes, SortOrder } from "@/types";
+import {
+  ActiveStatus,
+  BrandAttributes,
+  GetUserGroupBrandSort,
+  SortOrder,
+} from "@/types";
 
 class BrandRepository extends BaseRepository<BrandAttributes> {
   protected model: BrandModel;
@@ -13,7 +18,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     mission_n_vision: "",
     official_websites: [],
     team_profile_ids: [],
-    status: 3,
+    status: ActiveStatus.Pending,
   };
 
   constructor() {
@@ -60,7 +65,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   public async getListBrandCustom(
     limit: number,
     offset: number,
-    sort: string,
+    sort: GetUserGroupBrandSort,
     order: SortOrder
   ) {
     const params = {} as any;
@@ -109,14 +114,13 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         RETURN DISTINCT collection.id
       )
 
-      ${sort === "name" && order ? `SORT brands.name ${order}` : ``}
       ${
-        sort === "origin" && order
+        sort === "origin"
           ? `SORT locations[0].country_name ${order}`
-          : ``
+          : `SORT brands.${sort} ${order}`
       }
 
-      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ``}
+      ${limit || offset ? `LIMIT ${offset}, ${limit}` : ""}
       RETURN {
         brand: MERGE(
           KEEP(brands, 'id', 'name', 'logo', 'status', 'created_at'),
@@ -138,14 +142,11 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     return (await this.model.rawQuery(rawQuery, params)) as ListBrandCustom[];
   }
 
-  public async getAllBrandsWithSort(sort?: any) {
-    if (sort) {
-      return (await this.model
-        .select()
-        .order(sort[0], sort[1])
-        .get()) as BrandAttributes[];
-    }
-    return (await this.model.select().get()) as BrandAttributes[];
+  public async getAllBrandsWithSort(sort: string, order: SortOrder) {
+    return (await this.model
+      .select()
+      .order(sort, order)
+      .get()) as BrandAttributes[];
   }
 
   public async getOverallSummary(): Promise<{

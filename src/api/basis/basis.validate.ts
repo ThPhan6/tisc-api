@@ -1,5 +1,9 @@
 import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import {
+  commonFailValidatedMessageFunction,
+  getListValidation,
+  orderValidation,
+} from "../../validate/common.validate";
 
 const customFilter = (value: any, helpers: any) => {
   try {
@@ -89,36 +93,33 @@ export default {
             "Basis option group name is missing"
           )
         ),
-      subs: Joi.array()
-        .items({
-          name: Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis option sub-group name is missing"
-              )
-            ),
-          is_have_image: Joi.valid(true, false),
-          subs: Joi.array()
-            .items({
-              image: Joi.string().when("....is_have_image", {
-                is: true,
-                then: Joi.required(),
-                otherwise: Joi.optional().allow(""),
-              }),
-              value_1: Joi.string().allow(""),
-              value_2: Joi.string().allow(""),
-              unit_1: Joi.string().allow(""),
-              unit_2: Joi.string().allow(""),
-            })
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis option value is missing"
-              )
-            ),
-        })
+      subs: Joi.array().items({
+        name: Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis option sub-group name is missing"
+            )
+          ),
+        is_have_image: Joi.valid(true, false),
+        subs: Joi.array()
+          .items({
+            image: Joi.string().when("....is_have_image", {
+              is: true,
+              then: Joi.required(),
+              otherwise: Joi.optional().allow(""),
+            }),
+            value_1: Joi.string().allow(""),
+            value_2: Joi.string().allow(""),
+            unit_1: Joi.string().allow(""),
+            unit_2: Joi.string().allow(""),
+          })
+          .required()
+          .error(
+            commonFailValidatedMessageFunction("Basis option value is missing")
+          ),
+      }),
     },
   },
   updateBasisOption: {
@@ -137,78 +138,46 @@ export default {
             "Basis option group name is missing"
           )
         ),
-      subs: Joi.array()
-        .items({
-          id: Joi.string(),
-          name: Joi.string()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis option sub-group name is missing"
-              )
-            ),
-          is_have_image: Joi.valid(true, false),
-          subs: Joi.array()
-            .items({
-              id: Joi.string(),
-              image: Joi.string().when("....is_have_image", {
-                is: true,
-                then: Joi.required(),
-                otherwise: Joi.optional().allow(""),
-              }),
-              value_1: Joi.string().allow(""),
-              value_2: Joi.string().allow(""),
-              unit_1: Joi.string().allow(""),
-              unit_2: Joi.string().allow(""),
-            })
-            .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Basis option value is missing"
-              )
-            ),
-        })
+      subs: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis option sub-group name is missing"
+            )
+          ),
+        is_have_image: Joi.valid(true, false),
+        subs: Joi.array()
+          .items({
+            id: Joi.string(),
+            image: Joi.string().when("....is_have_image", {
+              is: true,
+              then: Joi.required(),
+              otherwise: Joi.optional().allow(""),
+            }),
+            value_1: Joi.string().allow(""),
+            value_2: Joi.string().allow(""),
+            unit_1: Joi.string().allow(""),
+            unit_2: Joi.string().allow(""),
+          })
+          .required()
+          .error(
+            commonFailValidatedMessageFunction("Basis option value is missing")
+          ),
+      }),
     },
   },
-  getListBasisOption: {
-    query: Joi.object({
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          return customFilter(value, helpers);
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-      group_order: Joi.string().valid("ASC", "DESC"),
-      option_order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        filter: value.filter,
-        group_order: value.group_order ? value.group_order : "ASC",
-        option_order: value.option_order ? value.option_order : "ASC",
-      };
+  getListBasisOption: getListValidation({
+    query: {
+      group_order: orderValidation,
+      preset_order: orderValidation,
+    },
+    custom: (value) => ({
+      group_order: value.group_order,
+      preset_order: value.preset_order || "ASC",
     }),
-  } as any,
-
+  }),
   createBasisPreset: {
     payload: {
       name: Joi.string()
@@ -280,84 +249,24 @@ export default {
       }),
     },
   },
-  getListBasisPreset: {
-    query: Joi.object({
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          return customFilter(value, helpers);
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-      group_order: Joi.string().valid("ASC", "DESC"),
-      preset_order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        filter: value.filter,
-        group_order: value.group_order ? value.group_order : "ASC",
-        preset_order: value.preset_order ? value.preset_order : "ASC",
-      };
+  getListBasisPreset: getListValidation({
+    query: {
+      group_order: orderValidation,
+      preset_order: orderValidation,
+    },
+    custom: (value) => ({
+      group_order: value.group_order,
+      preset_order: value.preset_order || "ASC",
     }),
-  } as any,
-  getListBasisConversion: {
-    query: Joi.object({
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          return customFilter(value, helpers);
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-      conversion_group_order: Joi.string().valid("ASC", "DESC"),
-      conversion_between_order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        filter: value.filter,
-        conversion_group_order: value.conversion_group_order
-          ? value.conversion_group_order
-          : "ASC",
-        conversion_between_order: value.conversion_between_order
-          ? value.conversion_between_order
-          : "ASC",
-      };
+  }),
+  getListBasisConversion: getListValidation({
+    query: {
+      conversion_group_order: orderValidation,
+      conversion_between_order: orderValidation,
+    },
+    custom: (value) => ({
+      conversion_group_order: value.conversion_group_order,
+      conversion_between_order: value.conversion_between_order || "ASC",
     }),
-  } as any,
+  }),
 };

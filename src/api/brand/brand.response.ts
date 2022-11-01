@@ -89,6 +89,7 @@ export default {
     data: Joi.array().items({
       id: Joi.string(),
       name: Joi.string(),
+      created_at: Joi.string(),
       logo: Joi.any(),
       country: Joi.any(),
       category_count: Joi.number(),
