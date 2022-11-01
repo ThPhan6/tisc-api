@@ -1,7 +1,6 @@
 import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
-  successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
 import { fillObject } from "@/helper/common.helper";
@@ -414,11 +413,11 @@ class ProjectProductService {
     projectProductId: string,
     user: UserAttributes
   ) => {
-    const deletedRecord = await projectProductRepository.findAndDelete(
+    const projectProduct = await projectProductRepository.find(
       projectProductId
     );
 
-    if (!deletedRecord[0]) {
+    if (!projectProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
 
@@ -428,7 +427,7 @@ class ProjectProductService {
 
     const trackingRecord = await projectTrackingRepository.findBy({
       brand_id: brand[0].id,
-      project_id: deletedRecord[0].project_id,
+      project_id: projectProduct.project_id,
     });
 
     if (!trackingRecord) {
@@ -443,9 +442,11 @@ class ProjectProductService {
       created_by: user.id,
     });
 
+    await projectProductRepository.delete(projectProduct.id);
+
     return successResponse({
       data: {
-        ...deletedRecord[0],
+        ...projectProduct,
         project_tracking_id: trackingRecord.id,
         notification_id: notification?.id,
       },
