@@ -69,14 +69,18 @@ class ProjectProductService {
         product.brand_id
       );
 
-    await projectTrackingNotificationRepository.create({
+    const notification = await projectTrackingNotificationRepository.create({
       project_tracking_id: projectTracking.id,
       project_product_id: newProjectProductRecord.id,
       created_by: user.id,
     });
 
     return successResponse({
-      data: newProjectProductRecord,
+      data: {
+        ...newProjectProductRecord,
+        project_tracking_id: projectTracking.id,
+        notification_id: notification?.id,
+      },
     });
   };
 
@@ -391,14 +395,18 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    await projectTrackingNotificationRepository.create({
+    const notification = await projectTrackingNotificationRepository.create({
       project_tracking_id: trackingRecord.id,
       project_product_id: considerProduct[0].id,
       type: notiType,
       created_by: user.id,
     });
     return successResponse({
-      data: considerProduct[0],
+      data: {
+        ...considerProduct[0],
+        project_tracking_id: trackingRecord.id,
+        notification_id: notification?.id,
+      },
     });
   };
 
@@ -428,14 +436,20 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    await projectTrackingNotificationRepository.create({
+    const notification = await projectTrackingNotificationRepository.create({
       project_tracking_id: trackingRecord.id,
       project_product_id: projectProductId,
       type: ProjectTrackingNotificationType.Deleted,
       created_by: user.id,
     });
 
-    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+    return successResponse({
+      data: {
+        ...deletedRecord[0],
+        project_tracking_id: trackingRecord.id,
+        notification_id: notification?.id,
+      },
+    });
   };
 
   public getSpecifiedProductsByBrand = async (
