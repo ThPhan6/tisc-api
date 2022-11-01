@@ -138,7 +138,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         For location in locations
           filter location.deleted_at == null
           filter location.id == user.location_id
-        LET work_location = location.city_name ? CONCAT(location.city_name, ', ', UPPER(location.country_name)) : UPPER(location.country_name)
+        LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
         let status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${UserStatus.Blocked} ? 'Blocked' : 'Pending'))
      `;
 
