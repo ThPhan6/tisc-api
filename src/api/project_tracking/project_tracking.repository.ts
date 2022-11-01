@@ -46,7 +46,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
   ): Promise<ProjectTrackingAttributes> {
     const now = new Date();
     const results = await this.model.rawQueryV2(
-      `UPSERT {project_id: @projectId, brand_id: @brandId}
+      `UPSERT {project_id: @projectId, brand_id: @brandId, deleted_at: null}
       INSERT @payloadWithId
       UPDATE {}
       IN project_trackings
@@ -93,17 +93,19 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       projectStatus: filter.project_status,
     };
     const rawQuery = `
+    FILTER project_trackings.brand_id == @brandId
+    FILTER project_trackings.deleted_at == null
     ${
       typeof filter.priority === "number"
         ? `FILTER project_trackings.priority == @priority`
         : ""
     }
-    FILTER project_trackings.brand_id == @brandId
 
     ${sort === "created_at" ? `SORT project_trackings.${sort} ${order}` : ""}
 
     FOR project IN projects
     FILTER project.id == project_trackings.project_id
+    FILTER project.deleted_at == null
     ${
       typeof filter.project_status === "number"
         ? "FILTER project.status == @projectStatus"
@@ -116,24 +118,28 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     LET projectProducts = (
       FOR pp IN project_products
       FILTER pp.project_tracking_id == project_trackings.id
+      FILTER pp.deleted_at == null
       RETURN pp
     )
 
     LET projectRequests = (
       FOR pr IN project_requests
       FILTER pr.project_tracking_id == project_trackings.id
+      FILTER pr.deleted_at == null
       RETURN pr
     )
 
     LET notifications = (
       FOR ptn IN project_tracking_notifications
       FILTER ptn.project_tracking_id == project_trackings.id
+      FILTER ptn.deleted_at == null
       RETURN ptn
     )
 
     LET designFirm = (
       FOR df IN designers
       FILTER df.id == project.design_id
+      FILTER df.deleted_at == null
       RETURN df
     )
     ${sort === "design_firm" ? `SORT designFirm[0].name ${order}` : ""}
@@ -141,6 +147,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     LET members = (
       FOR user IN users
       FILTER user.id IN project_trackings.assigned_teams
+      FILTER user.deleted_at == null
       RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
     )
 
@@ -167,14 +174,16 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       projectStatus: filter.project_status,
     };
     const rawQuery = `
+    FILTER project_trackings.deleted_at == null
+    FILTER project_trackings.brand_id == @brandId
     ${
       typeof filter.priority === "number"
         ? `FILTER project_trackings.priority == @priority`
         : ""
     }
-    FILTER project_trackings.brand_id == @brandId
 
     FOR projects IN projects
+    FILTER projects.deleted_at == null
     FILTER projects.id == project_trackings.project_id
     ${
       typeof filter.project_status === "number"
@@ -510,6 +519,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     const rawQuery = `
       FOR ${modelName} IN ${modelName}
       FILTER ${modelName}.id == @modelId
+      FILTER ${modelName}.deleted_at == null
       UPDATE ${modelName} WITH {
         ${attributeName}: UNIQUE( PUSH( ${modelName}.${attributeName}, @newValue ) ),
         updated_at: @now

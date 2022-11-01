@@ -30,7 +30,7 @@ class UserProductSpecificationRepository extends BaseRepository<UserProductSpeci
   ) {
     const now = new Date();
     return this.model.rawQueryV2(
-      `UPSERT {product_id: '${product_id}', user_id: '${user_id}'}
+      `UPSERT {product_id: '${product_id}', user_id: '${user_id}', deleted_at: null}
       INSERT @payloadWithId
       UPDATE @payload
       IN user_product_specifications

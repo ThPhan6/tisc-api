@@ -11,9 +11,9 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
-import {countryStateCityService} from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/service/country_state_city.service";
 import { uploadLogoBrand } from "@/service/image.service";
-import {mailService} from "@/service/mail.service";
+import { mailService } from "@/service/mail.service";
 import {
   ActiveStatus,
   BrandAttributes,
@@ -21,6 +21,7 @@ import {
   SummaryInfo,
   UserStatus,
   UserAttributes,
+  GetUserGroupBrandSort,
 } from "@/types";
 import { productService } from "../product/product.service";
 import {
@@ -33,7 +34,6 @@ import { v4 } from "uuid";
 import { sumBy } from "lodash";
 
 class BrandService {
-
   private async getOfficialWebsites(brand: BrandAttributes) {
     return Promise.all(
       brand.official_websites.map(async (officialWebsite) => {
@@ -53,7 +53,7 @@ class BrandService {
     limit: number,
     offset: number,
     filter: any,
-    sort: string,
+    sort: GetUserGroupBrandSort,
     order: SortOrder
   ) {
     const dataBrandCustom = await brandRepository.getListBrandCustom(
@@ -121,8 +121,8 @@ class BrandService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getListCard(_filter: any, sort: any) {
-    const brands = await brandRepository.getAllBrandsWithSort(sort);
+  public async getListCard(_filter: any, sort: string, order: SortOrder) {
+    const brands = await brandRepository.getAllBrandsWithSort(sort, order);
 
     const result = await Promise.all(
       brands.map(async (brand) => {
@@ -151,6 +151,7 @@ class BrandService {
 
         return {
           id: brand.id,
+          created_at: brand.created_at,
           name: brand.name,
           logo: brand.logo,
           country: getCountryName(originLocation, headquarterLocation),
@@ -170,7 +171,6 @@ class BrandService {
     user: UserAttributes,
     payload: IUpdateBrandProfileRequest
   ) {
-
     if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
     }
@@ -200,7 +200,6 @@ class BrandService {
   }
 
   public async updateLogo(user: UserAttributes, logo: any) {
-
     if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
     }

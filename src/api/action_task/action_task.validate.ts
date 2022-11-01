@@ -20,7 +20,6 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Model is missing")),
       model_name: Joi.string()
-        //ActionTaskModelEnum
         .valid(...getEnumKeys(ActionTaskModelEnum))
         .required()
         .error(commonFailValidatedMessageFunction("Model name is missing")),
@@ -46,9 +45,7 @@ export default {
         .required()
         .error(commonFailValidatedMessageFunction("Model is missing")),
       model_name: Joi.string()
-        //ActionTaskModelEnum
         .valid(...getEnumKeys(ActionTaskModelEnum))
-
         .required()
         .error(commonFailValidatedMessageFunction("Model name is missing")),
     },

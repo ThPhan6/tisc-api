@@ -9,6 +9,7 @@ import {
   successMessageResponse,
 } from "@/helper/response.helper";
 import CategoryRepository from "@/repositories/category.repository";
+import { SortOrder } from "@/types";
 import {
   checkCategoryDuplicateByName,
   mappingCategoriesUpdate,
@@ -56,14 +57,18 @@ export default class CategoryService {
     limit: number,
     offset: number,
     filter: any,
-    mainCategoryOrder: "ASC" | "DESC",
-    subCategoryOrder: "ASC" | "DESC",
-    categoryOrder: "ASC" | "DESC"
+    sort: string,
+    order: SortOrder,
+    mainCategoryOrder: SortOrder | undefined,
+    subCategoryOrder: SortOrder,
+    categoryOrder: SortOrder
   ) {
     const categories = await this.categoryRepository.getAllCategoriesSortByName(
       limit,
       offset,
       filter,
+      sort,
+      order,
       mainCategoryOrder
     );
 

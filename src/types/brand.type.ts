@@ -18,3 +18,5 @@ export interface BrandAttributes {
   created_at: string;
   updated_at: string | null;
 }
+
+export type GetUserGroupBrandSort = "name" | "origin" | "status";

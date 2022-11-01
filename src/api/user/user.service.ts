@@ -93,7 +93,6 @@ export default class UserService {
     authenticatedUser: UserAttributes,
     withPermission: boolean = false
   ) => {
-
     const user = await userRepository.find(userId);
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
@@ -339,7 +338,7 @@ export default class UserService {
       users: users.map((user) => ({
         id: user.id,
         phone_code: user.phone_code,
-        logo: user.avatar,
+        avatar: user.avatar,
         firstname: user.firstname,
         lastname: user.lastname,
         gender: user.gender,
@@ -389,8 +388,8 @@ export default class UserService {
         id: user.id,
         role_id: user.role_id,
         avatar: user.avatar,
-        first_name: user.firstname,
-        last_name: user.lastname,
+        firstname: user.firstname,
+        lastname: user.lastname,
         is_assigned: isAssigned,
       };
     });

@@ -1,7 +1,7 @@
 import ProjectProductModel, {
   ProjectProductAttributes,
 } from "@/api/project_product/project_product.model";
-import {ProductSpecifyStatus} from '@/api/project_product/project_product.type';
+import { ProductSpecifyStatus } from "@/api/project_product/project_product.type";
 import BaseRepository from "@/repositories/base.repository";
 import {
   AssignProductToProjectRequest,
@@ -362,6 +362,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     return this.model.rawQuery(
       `
       FILTER project_products.id == @id
+      FILTER project_products.deleted_at == null
       FOR p in products
       FILTER p.id == project_products.product_id
       FOR b IN brands
@@ -391,13 +392,10 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     )) as IProjectZoneAttributes["areas"][0]["rooms"];
   };
 
-
-
   public getWithBrandAndDistributorInfo = (projectId: string) => {
-
     const specifyStatuses = [
-      ProductSpecifyStatus['Specified'],
-      ProductSpecifyStatus['Re-specified'],
+      ProductSpecifyStatus["Specified"],
+      ProductSpecifyStatus["Re-specified"],
     ];
 
     return this.model.rawQueryV2(
