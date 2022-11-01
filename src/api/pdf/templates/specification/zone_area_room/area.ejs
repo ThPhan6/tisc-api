@@ -4,23 +4,22 @@
       <td height="24" class="normal-roboto-bold-8-18 bg-black">
         <span class="pdlr-8 color-white uppercase">room id</span>
       </td>
-      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+      <td height="24" class="normal-roboto-bold-8-18 bg-black" width="40%">
         <span class="color-white uppercase">room name</span>
       </td>
       <td height="24" width="48" class="normal-roboto-bold-8-18 bg-black" style="text-align: center">
         <span class="color-white uppercase">size</span>
       </td>
-
-      <td height="24" width="60" class="normal-roboto-bold-8-18 bg-black">
+      <td height="24" width="40" class="normal-roboto-bold-8-18 bg-black">
         <span class="color-white uppercase">unit</span>
       </td>
-      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+      <td height="24" class="normal-roboto-bold-8-18 bg-black" style="text-align: center">
         <span class="color-white uppercase">quantity</span>
       </td>
       <td height="24" class="normal-roboto-bold-8-18 bg-black">
         <span class="color-white uppercase">total</span>
       </td>
-      <td height="24" class="normal-roboto-bold-8-18 bg-black">
+      <td height="24" width="24" class="normal-roboto-bold-8-18 bg-black">
         <span class="color-white uppercase">unit</span>
       </td>
     </tr>
@@ -36,7 +35,7 @@
         <td class="border-bottom-box-shadow-bold">
           <span class="primary-roboto-bold-8-18"><%= zone.total_size %></span>
         </td>
-        <td width="60" class="border-bottom-box-shadow-bold">
+        <td class="border-bottom-box-shadow-bold">
           <span class="primary-roboto-bold-8-18">
             <% if (project.measurement_unit == 1) { %>
               <span>sq.ft.</span>
@@ -60,7 +59,7 @@
             <td>
               <span class="primary-roboto-light-8-18"><%= room.room_name %></span>
             </td>
-            <td>
+            <td style="text-align: center">
               <span class="primary-roboto-light-8-18"><%= room.room_size %></span>
             </td>
             <td>
@@ -93,13 +92,13 @@
           <td colspan="4" class="border-bottom-box-shadow">
             <span class="primary-roboto-light-8-18"></span>
           </td>
-          <td width="64" style="text-align: center" class="border-bottom-box-shadow">
+          <td style="text-align: center" class="border-bottom-box-shadow">
             <span class="normal-roboto-bold-8-18 bold-400">Area Total</span>
           </td>
-          <td width="33" class="border-bottom-box-shadow">
+          <td class="border-bottom-box-shadow">
             <span class="primary-roboto-light-8-18 bold-400"><%= area.total_size %></span>
           </td>
-          <td width="29" class="border-bottom-box-shadow">
+          <td class="border-bottom-box-shadow">
             <span class="primary-roboto-light-8-18 bold-400">
               <% if (project.measurement_unit == 1) { %>
                 <span>sq.ft.</span>
