@@ -8,8 +8,6 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
-import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { uploadLogoBrand } from "@/service/image.service";
@@ -23,12 +21,7 @@ import {
   UserAttributes,
   GetUserGroupBrandSort,
 } from "@/types";
-import { productService } from "../product/product.service";
-import {
-  getCountryName,
-  mappingBrands,
-  mappingBrandsAlphabet,
-} from "./brand.mapping";
+import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
 import { v4 } from "uuid";
 import { sumBy } from "lodash";
@@ -125,47 +118,8 @@ class BrandService {
 
   public async getListCard(_filter: any, sort: string, order: SortOrder) {
     const brands = await brandRepository.getAllBrandsWithSort(sort, order);
-
-    const result = await Promise.all(
-      brands.map(async (brand) => {
-        const originLocation = await locationRepository.getOriginLocation(
-          brand.id
-        );
-
-        const headquarter = await commonTypeRepository.findBy({
-          name: "headquarter",
-        });
-
-        const headquarterLocation =
-          await locationRepository.getFirstHeadquarterLocation(
-            brand.id,
-            headquarter?.id || ""
-          );
-
-        const brandSummary: any = await productService.getBrandProductSummary(
-          brand.id
-        );
-
-        const teamProfiles = await userRepository.getTeamProfile(
-          brand.team_profile_ids,
-          ["id", "firstname", "lastname", "avatar"]
-        );
-
-        return {
-          id: brand.id,
-          created_at: brand.created_at,
-          name: brand.name,
-          logo: brand.logo,
-          country: getCountryName(originLocation, headquarterLocation),
-          category_count: brandSummary.data.category_count,
-          collection_count: brandSummary.data.collection_count,
-          card_count: brandSummary.data.card_count,
-          teams: teamProfiles,
-        };
-      })
-    );
     return successResponse({
-      data: result,
+      data: brands,
     });
   }
 

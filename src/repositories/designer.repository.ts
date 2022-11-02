@@ -5,6 +5,7 @@ import {
   ListDesignerWithPaginate,
   ProjectStatus,
   SortOrder,
+  UserStatus,
 } from "@/types";
 import {
   DesignerDataCustom,
@@ -60,12 +61,14 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       live: ProjectStatus.Live,
       onHold: ProjectStatus["On Hold"],
       archived: ProjectStatus.Archived,
+      activeStatus: UserStatus.Active,
     };
     const rawQuery = `
 
       LET userCount = (
         FOR users IN users
         FILTER users.deleted_at == null
+        FILTER users.status == @activeStatus
         FILTER users.relation_id == designers.id
         COLLECT WITH COUNT INTO length
         RETURN length
@@ -184,6 +187,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
           FOR u IN users
           FILTER u.relation_id == d.id
           FILTER u.deleted_at == null
+          FILTER u.status == @activeStatus
           COLLECT WITH COUNT INTO length
           RETURN length
         )
@@ -268,6 +272,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         liveStatus: ProjectStatus.Live,
         onHoldStatus: ProjectStatus["On Hold"],
         archiveStatus: ProjectStatus.Archived,
+        activeStatus: UserStatus.Active,
       }
     );
     return designFirm[0];
