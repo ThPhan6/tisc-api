@@ -4,17 +4,6 @@ import {
 } from "@/validate/common.validate";
 import Joi from "joi";
 
-const customFilter = (value: any, helpers: any) => {
-  try {
-    const filter = JSON.parse(decodeURIComponent(value));
-    if (typeof filter === "object") {
-      return filter;
-    }
-    return helpers.error("any.invalid");
-  } catch (error) {
-    return helpers.error("any.invalid");
-  }
-};
 export default {
   create: {
     payload: {

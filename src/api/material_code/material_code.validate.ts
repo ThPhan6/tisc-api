@@ -1,5 +1,8 @@
 import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
+import {
+  commonFailValidatedMessageFunction,
+  orderValidation,
+} from "@/validate/common.validate";
 
 export default {
   create: {
@@ -33,24 +36,15 @@ export default {
   getWithDesignId: {
     query: Joi.object({
       design_id: Joi.string().allow(null),
-      // .trim()
-      // .required()
-      // .error(commonFailValidatedMessageFunction("Design is required")),
-      main_material_code_order: Joi.string().valid("ASC", "DESC"),
-      sub_material_code_order: Joi.string().valid("ASC", "DESC"),
-      material_code_order: Joi.string().valid("ASC", "DESC"),
+      main_material_code_order: orderValidation,
+      sub_material_code_order: orderValidation,
+      material_code_order: orderValidation,
     }).custom((value) => {
       return {
         design_id: value.design_id ? value.design_id : "",
-        main_material_code_order: value.main_material_code_order
-          ? value.main_material_code_order
-          : "ASC",
-        sub_material_code_order: value.sub_material_code_order
-          ? value.sub_material_code_order
-          : "ASC",
-        material_code_order: value.material_code_order
-          ? value.material_code_order
-          : "ASC",
+        main_material_code_order: value.main_material_code_order,
+        sub_material_code_order: value.sub_material_code_order || "ASC",
+        material_code_order: value.material_code_order || "ASC",
       };
     }),
   },

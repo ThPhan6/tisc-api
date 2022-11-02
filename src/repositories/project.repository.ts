@@ -44,7 +44,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     designId: string,
     limit: number,
     offset: number,
-    sort: any,
+    sort: string,
+    order: SortOrder,
     filter: any
   ) {
     const params = {
@@ -68,13 +69,13 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN KEEP(users, 'id', 'firstname', 'lastname', 'avatar')
     )
 
-    ${sort ? `SORT projects.${sort[0]} ${sort[1]} ` : ``}
+    ${sort ? `SORT projects.${sort} ${order} ` : ``}
     LIMIT @offset, @limit
     RETURN MERGE(
       KEEP(
         projects,
         'id','code','name','location','project_type',
-        'building_type','design_due','design_id','status'
+        'building_type','design_due','design_id','status','created_at'
       ),
       {assign_teams: users}
     )

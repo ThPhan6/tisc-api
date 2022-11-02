@@ -62,5 +62,5 @@ export interface BuilderBinding {
 }
 
 export interface DynamicValueBinding {
-  [key: string]: ValueBinding;
+  [key: string]: ValueBinding | undefined;
 }

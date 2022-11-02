@@ -10,7 +10,7 @@ import { designerRepository } from "@/repositories/designer.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { ProjectStatus, UserAttributes } from "@/types";
+import { ProjectStatus, SortOrder, UserAttributes } from "@/types";
 import { uniq } from "lodash";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { IProjectRequest } from "./project.type";
@@ -121,13 +121,15 @@ class ProjectService {
     limit: number,
     offset: number,
     filter: any,
-    sort: any
+    sort: string,
+    order: SortOrder
   ) {
     const projects = await projectRepository.getListProject(
       user.relation_id,
       limit,
       offset,
       sort,
+      order,
       {
         ...filter,
         status: filter?.status,
