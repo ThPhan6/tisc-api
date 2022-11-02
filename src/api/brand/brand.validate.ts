@@ -9,6 +9,7 @@ import {
 export default {
   getList: getListValidation({
     query: {
+      haveProduct: Joi.bool().allow(null),
       sort: Joi.valid(
         "name",
         "origin",
