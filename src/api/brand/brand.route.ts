@@ -8,11 +8,11 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./brand.response";
 import validate from "./brand.validate";
 import Joi from "joi";
+import { ROUTES } from "@/constants";
 
 export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

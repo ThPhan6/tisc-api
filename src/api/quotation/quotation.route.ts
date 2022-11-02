@@ -5,11 +5,12 @@ import commonValidate, {
 } from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import validate from "./quotation.validate";
 import response from "./quotation.response";
 import QuotationController from "./quotation.controller";
+import { ROUTES } from "@/constants";
+
 export default class QuotationRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {

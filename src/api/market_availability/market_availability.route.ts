@@ -1,12 +1,13 @@
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import * as Hapi from "@hapi/hapi";
-import { ROUTES } from "../../constant/api.constant";
 import IRoute from "../../helper/route.helper";
 import MarketAvailabilityController from "./market_availability.controller";
 import validate from "./market_availability.validate";
 import commonValidate from "../../validate/common.validate";
 import response from "./market_availability.response";
+import { ROUTES } from "@/constants";
+
 export default class MarketAvailabilityRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {

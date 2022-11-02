@@ -4,9 +4,9 @@ import commonValidate from "@/validate/common.validate";
 import validate from "./attribute.validate";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { ROUTES } from "@/constant/api.constant";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import response from "./attribute.response";
+import { ROUTES } from "@/constants";
 
 export default class AttributeRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

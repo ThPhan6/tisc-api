@@ -2,11 +2,11 @@ import * as Hapi from "@hapi/hapi";
 import ProductController from "./product.controller";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import ProductResponse from "./product.response";
 import commonValidate from "../../validate/common.validate";
 import validate from "./product.validate";
+import { ROUTES } from "@/constants";
 
 export default class ProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
