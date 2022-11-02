@@ -6,6 +6,8 @@ import {
   BrandAttributes,
   GetUserGroupBrandSort,
   SortOrder,
+  UserAttributes,
+  UserStatus,
 } from "@/types";
 
 class BrandRepository extends BaseRepository<BrandAttributes> {
@@ -81,6 +83,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       LET assignTeams = (
         FOR member IN users
         FILTER member.deleted_at == null
+        FILTER member.status == @activeStatus
         FILTER member.id IN brands.team_profile_ids
         RETURN KEEP(member, 'id', 'email', 'avatar', 'firstname', 'lastname')
       )
@@ -147,14 +150,84 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         distributors,
       }
     `;
-    return (await this.model.rawQuery(rawQuery, {})) as ListBrandCustom[];
+    return (await this.model.rawQuery(rawQuery, {
+      activeStatus: UserStatus.Active,
+    })) as ListBrandCustom[];
   }
 
-  public async getAllBrandsWithSort(sort: string, order: SortOrder) {
-    return (await this.model
-      .select()
-      .order(sort, order)
-      .get()) as BrandAttributes[];
+  public async getAllBrandsWithSort(
+    sort: string,
+    order: SortOrder
+  ): Promise<{
+    id: string;
+    created_at: string;
+    name: string;
+    logo: string;
+    country: string;
+    category_count: number;
+    collection_count: number;
+    card_count: number;
+    teams: Pick<UserAttributes, "id" | "firstname" | "lastname" | "avatar">[];
+  }> {
+    return this.model.rawQuery(
+      `
+      FILTER brands.deleted_at == null
+
+      LET locations = (
+        FOR loc IN locations
+        FILTER loc.relation_id == brands.id
+        FILTER loc.deleted_at == null
+        RETURN loc
+      )
+
+      LET cards = (
+        FOR products in products
+        FILTER products.brand_id == brands.id
+        FILTER products.deleted_at == null
+        RETURN products
+      )
+      
+      LET categories = (
+        FOR product IN cards
+        FOR categories IN categories
+        FILTER categories.deleted_at == null
+        FOR subCategory IN categories.subs
+        FOR category IN subCategory.subs
+        FILTER category.id IN product.category_ids
+        RETURN DISTINCT category.id
+      )
+
+      LET collections = (
+        FOR product IN cards
+        FOR collection IN collections
+        FILTER collection.id == product.collection_id
+        FILTER collection.deleted_at == null
+        RETURN DISTINCT collection.id
+      )
+
+      LET teams = (
+        FOR user IN users
+        FILTER user.deleted_at == null
+        FILTER user.status == @activeStatus
+        FILTER user.id IN brands.team_profile_ids
+        RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
+      )
+
+      SORT brands.@sort @order
+
+      RETURN MERGE(
+        KEEP(brands, 'id', 'created_at', 'name', 'logo'),
+        {
+          country: locations[0].country_name ? locations[0].country_name : 'N/A',
+          category_count: LENGTH(categories),
+          collection_count: LENGTH(collections),
+          card_count: LENGTH(cards),
+          teams
+        }
+      )
+    `,
+      { sort, order, activeStatus: UserStatus.Active }
+    );
   }
 
   public async getOverallSummary(): Promise<{
@@ -199,6 +272,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
           FOR u IN users
           FILTER u.relation_id == b.id
           FILTER u.deleted_at == null
+          FILTER u.status == @activeStatus
           COLLECT WITH COUNT INTO length
           RETURN length
         )
@@ -289,7 +363,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         },
       }
     `,
-      {}
+      { activeStatus: UserStatus.Active }
     );
     return summary[0];
   }
