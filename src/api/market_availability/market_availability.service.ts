@@ -7,9 +7,9 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import CollectionRepository from "@/repositories/collection.repository";
-import {brandRepository} from "@/repositories/brand.repository";
-import {countryStateCityService} from "@/service/country_state_city.service";
-import { IRegionCountry } from "@/types";
+import { brandRepository } from "@/repositories/brand.repository";
+import { countryStateCityService } from "@/service/country_state_city.service";
+import { IRegionCountry, SortOrder } from "@/types";
 import {
   mappingGroupByCollection,
   mappingRegionCountries,
@@ -23,12 +23,12 @@ import {
 } from "./market_availability.type";
 
 class MarketAvailabilityService {
-
   public async getRegionCountries(ids: string[]) {
     const countries = await Promise.all(
       ids.map(async (country_id) => {
-        const countryDetail =
-          await countryStateCityService.getCountryDetail(country_id);
+        const countryDetail = await countryStateCityService.getCountryDetail(
+          country_id
+        );
         return mappingRegionCountries(countryDetail);
       })
     );
@@ -171,14 +171,16 @@ class MarketAvailabilityService {
     limit: number,
     offset: number,
     filter: any,
-    sort: any
+    sort: string,
+    order: SortOrder
   ) {
     const collections =
       await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
         brandId,
-        sort
+        sort,
+        order
       );
 
     const result = await Promise.all(

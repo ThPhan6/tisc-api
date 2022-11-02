@@ -5,10 +5,9 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 
 export default class ProductController {
-
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { category_id, collection_id, brand_id } = req.query;
     const user = req.auth.credentials.user as UserAttributes;

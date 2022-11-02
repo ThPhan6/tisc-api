@@ -1,5 +1,9 @@
 import DistributorModel from "@/model/distributor.model";
-import { IDistributorAttributes, ListDistributorPagination } from "@/types";
+import {
+  IDistributorAttributes,
+  ListDistributorPagination,
+  SortOrder,
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class DistributorRepository extends BaseRepository<IDistributorAttributes> {
@@ -57,20 +61,13 @@ class DistributorRepository extends BaseRepository<IDistributorAttributes> {
     offset: number,
     brandId: string,
     sort: string,
-    order: "ASC" | "DESC"
-  ) {
-    if (sort && order) {
-      return (await this.model
-        .select()
-        .where("brand_id", "==", brandId)
-        .order(sort, order)
-        .paginate(limit, offset)) as ListDistributorPagination;
-    }
-
-    return (await this.model
+    order: SortOrder
+  ): Promise<ListDistributorPagination> {
+    return this.model
       .select()
       .where("brand_id", "==", brandId)
-      .paginate(limit, offset)) as ListDistributorPagination;
+      .order(sort, order)
+      .paginate(limit, offset);
   }
 }
 

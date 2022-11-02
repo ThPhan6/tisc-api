@@ -4,6 +4,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import AutoEmailRepository from "@/repositories/auto_email.repository";
+import { SortOrder } from "@/types";
 import { mappingAutoEmails } from "./auto_email.mapping";
 import { IUpdateAutoEmailRequest } from "./auto_email.type";
 
@@ -27,13 +28,20 @@ export default class AutoEmailService {
     });
   }
 
-  public async getList(limit: number, offset: number, filter: any, sort: any) {
+  public async getList(
+    limit: number,
+    offset: number,
+    filter: any,
+    sort: string,
+    order: SortOrder
+  ) {
     const autoEmails =
       await this.autoEmailRepository.getListAutoEmailWithPagination(
         limit,
         offset,
         filter,
-        sort
+        sort,
+        order
       );
     if (!autoEmails) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);

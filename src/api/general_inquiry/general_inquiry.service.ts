@@ -8,6 +8,7 @@ import { generalInquiryRepository } from "@/repositories/general_inquiry.reposit
 import productRepository from "@/repositories/product.repository";
 import {
   RespondedOrPendingStatus,
+  SortOrder,
   SortValidGeneralInquiry,
   UserAttributes,
 } from "@/types";
@@ -53,6 +54,7 @@ class GeneralInquiryService {
     limit: number,
     offset: number,
     sort: SortValidGeneralInquiry,
+    order: SortOrder,
     filter: any
   ) {
     const generalInquiries =
@@ -62,6 +64,7 @@ class GeneralInquiryService {
         limit,
         offset,
         sort,
+        order,
         filter
       );
     const total = await generalInquiryRepository.countAllInquiryBy(

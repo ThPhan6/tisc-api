@@ -357,6 +357,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR pr IN project_requests
       FILTER pr.project_tracking_id == @trackingId
       FILTER pr.deleted_at == null
+      SORT pr.created_at DESC
 
       FOR product in products
       FILTER product.id == pr.product_id
@@ -402,6 +403,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FOR notifications IN project_tracking_notifications
       FILTER notifications.project_tracking_id == @trackingId
       FILTER notifications.deleted_at == null
+      SORT notifications.created_at DESC
 
       FOR pr in project_products
       FILTER pr.id == notifications.project_product_id
@@ -423,7 +425,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         FILTER loc.id == u.location_id
         FILTER loc.deleted_at == null
         RETURN loc
-        )
+      )
 
       LET newNotification = ( RETURN POSITION( notifications.read_by, @userId) )
       RETURN MERGE(

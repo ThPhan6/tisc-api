@@ -503,7 +503,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         RETURN merge(
           project_products,
           {
-            specified_date: DATE_FORMAT(project_products.updated_at, '%yyyy-%mm,-%dd'),
+            specified_date: DATE_FORMAT(project_products.updated_at, '%yyyy-%mm-%dd'),
             location: location,
             distributor: distributor,
             product: merge(

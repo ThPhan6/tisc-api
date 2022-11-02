@@ -4,10 +4,9 @@ import {
 } from "@/constant/common.constant";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IUpdateAutoEmailRequest } from "./auto_email.type";
-import {autoEmailService} from "./auto_email.service";
+import { autoEmailService } from "./auto_email.service";
 
 export default class AutoEmailController {
-
   public getListTopic = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(TOPIC_OPTIONS).code(200);
   };
@@ -18,8 +17,14 @@ export default class AutoEmailController {
     return toolkit.response(TARGETED_FOR_OPTIONS).code(200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort } = req.query;
-    const response = await autoEmailService.getList(limit, offset, filter, sort);
+    const { limit, offset, filter, sort, order } = req.query;
+    const response = await autoEmailService.getList(
+      limit,
+      offset,
+      filter,
+      sort,
+      order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {

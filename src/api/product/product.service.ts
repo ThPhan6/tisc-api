@@ -40,7 +40,7 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { AttributeType, UserAttributes } from "@/types";
+import { AttributeType, SortOrder, UserAttributes } from "@/types";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -309,7 +309,7 @@ class ProductService {
     collectionId?: string,
     keyword?: string,
     sortName?: string,
-    orderBy: "ASC" | "DESC" = "DESC"
+    orderBy?: "ASC" | "DESC"
   ) => {
     let products = await productRepository.getProductBy(
       user.id,
@@ -353,7 +353,7 @@ class ProductService {
     categoryId?: string,
     keyword?: string,
     sortName?: string,
-    orderBy: "ASC" | "DESC" = "ASC"
+    orderBy?: "ASC" | "DESC"
   ) => {
     const products = await productRepository.getProductBy(
       user.id,
@@ -366,7 +366,7 @@ class ProductService {
     );
     if (categoryId || !brandId) {
       return successResponse({
-        data: mappingByBrand(products),
+        data: sortBy(mappingByBrand(products), "name"),
       });
     }
     if (brandId) {
@@ -374,7 +374,7 @@ class ProductService {
       const brand = await brandRepository.find(brandId);
       const collections = getUniqueCollections(products);
       return successResponse({
-        data: mappingByCollections(products),
+        data: sortBy(mappingByCollections(products), "name"),
         brand_summary: {
           brand_name: brand?.name ?? "",
           brand_logo: brand?.logo ?? "",
@@ -499,9 +499,9 @@ class ProductService {
 
   public getFavouriteList = async (
     user: UserAttributes,
-    order: "ASC" | "DESC" = "ASC",
     brandId?: string,
-    categoryId?: string
+    categoryId?: string,
+    order?: SortOrder
   ) => {
     const products = await productRepository.getFavouriteProducts(
       user.id,
@@ -509,14 +509,9 @@ class ProductService {
       categoryId,
       order
     );
-    if (categoryId) {
-      return successResponse({
-        data: mappingByCategory(products),
-      });
-    }
-    /// default group by brand
+    const mappingFunction = categoryId ? mappingByCategory : mappingByBrand;
     return successResponse({
-      data: mappingByBrand(products),
+      data: sortBy(mappingFunction(products), "name"),
     });
   };
 

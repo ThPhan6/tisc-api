@@ -1,5 +1,5 @@
 import * as Hapi from "@hapi/hapi";
-import commonValidate from "@/validate/common.validate";
+import commonValidate, { getListValidation } from "@/validate/common.validate";
 import IRoute from "@/helper/route.helper";
 import {
   commonResponse,
@@ -87,7 +87,7 @@ export default class ProjectRoute implements IRoute {
           path: ROUTES.GET_LIST_PROJECT,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: getListValidation(),
             description: "Method that get list project",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,
