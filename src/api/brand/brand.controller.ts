@@ -6,13 +6,14 @@ import { ActiveStatus, UserAttributes } from "@/types";
 
 export default class BrandController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, order } = req.query;
+    const { limit, offset, filter, sort, order, haveProduct } = req.query;
     const response = await brandService.getList(
       limit,
       offset,
       filter,
       sort,
-      order
+      order,
+      haveProduct
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

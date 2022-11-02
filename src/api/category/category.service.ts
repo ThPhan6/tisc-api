@@ -1,6 +1,7 @@
 import { MESSAGES } from "@/constant/common.constant";
 import {
   getSummaryTable,
+  pagination,
   toSingleSpaceAndToLowerCase,
 } from "@/helper/common.helper";
 import {
@@ -59,17 +60,22 @@ export default class CategoryService {
     filter: any,
     mainCategoryOrder: SortOrder | undefined,
     subCategoryOrder: SortOrder,
-    categoryOrder: SortOrder
+    categoryOrder: SortOrder,
+    haveProduct?: boolean
   ) {
     const categories = await this.categoryRepository.getAllCategoriesSortByName(
       limit,
       offset,
       filter,
-      mainCategoryOrder
+      mainCategoryOrder,
+      haveProduct
+    );
+    const total = await this.categoryRepository.getAllCategoriesCount(
+      haveProduct
     );
 
     const sortedCategories = mappingSortCategory(
-      categories.data,
+      categories,
       subCategoryOrder,
       categoryOrder
     );
@@ -93,7 +99,7 @@ export default class CategoryService {
       data: {
         categories: sortedCategories,
         summary,
-        pagination: categories.pagination,
+        pagination: pagination(limit, offset, total[0]),
       },
     });
   }

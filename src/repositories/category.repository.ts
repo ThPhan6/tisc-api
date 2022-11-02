@@ -33,15 +33,61 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
     limit: number,
     offset: number,
     filter: any,
-    mainCategoryOrder?: SortOrder
-  ): Promise<ListCategoryWithPaginate> {
-    return this.model
-      .select()
-      .order(
-        mainCategoryOrder ? "name" : "created_at",
+    mainCategoryOrder?: SortOrder,
+    haveProduct?: boolean
+  ): Promise<ICategoryAttributes[]> {
+    return this.model.rawQuery(
+      `
+      FILTER categories.deleted_at == null
+
+      ${
+        haveProduct
+          ? `
+        LET haveProduct = LENGTH(
+          FOR subCategory IN categories.subs
+          FOR category IN subCategory.subs
+          FOR p IN products 
+          FILTER category.id IN p.category_ids
+          LIMIT 1 RETURN true)
+        FILTER haveProduct > 0
+      `
+          : ""
+      } 
+
+      SORT categories.${mainCategoryOrder ? "name" : "created_at"} ${
         mainCategoryOrder || "DESC"
-      )
-      .paginate(limit, offset);
+      }
+      LIMIT @offset, @limit
+      RETURN UNSET(categories, ['_id', '_key', '_rev', 'deleted_at'])
+    `,
+      { limit, offset }
+    );
+  }
+
+  public async getAllCategoriesCount(haveProduct?: boolean): Promise<number[]> {
+    return this.model.rawQuery(
+      `
+      FILTER categories.deleted_at == null
+
+      ${
+        haveProduct
+          ? `
+        LET haveProduct = LENGTH(
+          FOR subCategory IN categories.subs
+          FOR category IN subCategory.subs
+          FOR p IN products 
+          FILTER category.id IN p.category_ids
+          LIMIT 1 RETURN true)
+        FILTER haveProduct > 0
+      `
+          : ""
+      }
+      COLLECT WITH COUNT INTO length
+
+      RETURN length
+    `,
+      {}
+    );
   }
 
   public async findProductByMainCategoryId(mainCategoryId: string) {

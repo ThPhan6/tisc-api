@@ -66,10 +66,18 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     limit: number,
     offset: number,
     sort: GetUserGroupBrandSort,
-    order: SortOrder
+    order: SortOrder,
+    haveProduct?: boolean
   ) {
-    const params = {} as any;
     const rawQuery = `
+      ${
+        haveProduct
+          ? `
+        LET haveProduct = LENGTH(FOR p IN products FILTER p.brand_id == brands.id LIMIT 1 RETURN true)
+        FILTER haveProduct > 0
+      `
+          : ""
+      } 
       LET assignTeams = (
         FOR member IN users
         FILTER member.deleted_at == null
@@ -139,7 +147,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         distributors,
       }
     `;
-    return (await this.model.rawQuery(rawQuery, params)) as ListBrandCustom[];
+    return (await this.model.rawQuery(rawQuery, {})) as ListBrandCustom[];
   }
 
   public async getAllBrandsWithSort(sort: string, order: SortOrder) {

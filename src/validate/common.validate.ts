@@ -80,6 +80,7 @@ export const getListValidation = (options?: {
 
     ...options?.query,
   }).custom((value, helpers) => ({
+    ...value,
     limit: !value.page || !value.pageSize ? 10 : value.pageSize,
     offset:
       !value.page || !value.pageSize ? 0 : (value.page - 1) * value.pageSize,
