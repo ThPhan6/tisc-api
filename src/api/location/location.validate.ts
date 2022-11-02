@@ -1,7 +1,6 @@
-import { SYSTEM_TYPE } from "@/constants";
 import {
   commonFailValidatedMessageFunction,
-  getListV2,
+  getListValidation,
 } from "@/validate/common.validate";
 import Joi from "joi";
 
@@ -133,5 +132,5 @@ export default {
         .error(commonFailValidatedMessageFunction("General email is required")),
     },
   },
-  getList: getListV2,
+  getList: getListValidation(),
 };

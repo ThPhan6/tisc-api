@@ -47,7 +47,7 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
   }
 
   public async getListMaterialCode(
-    mainMaterialCodeOrder: SortOrder,
+    mainMaterialCodeOrder?: SortOrder,
     designId?: string
   ) {
     let query = "";
@@ -57,7 +57,11 @@ class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {
 
     query += `
     FILTER material_codes.deleted_at == null
-    SORT material_codes.name ${mainMaterialCodeOrder}
+    SORT ${
+      mainMaterialCodeOrder
+        ? `material_codes.name ${mainMaterialCodeOrder}`
+        : "material_codes.created_at DESC"
+    }
     LET subs = (
       FOR sub IN material_codes.subs
       RETURN {

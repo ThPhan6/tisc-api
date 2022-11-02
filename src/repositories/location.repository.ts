@@ -15,17 +15,15 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     limit?: number,
     offset?: number,
     relationId?: string | null,
-    sort?: string,
-    order: SortOrder = "ASC"
+    sort: string = "created_at",
+    order: SortOrder = "DESC"
   ) => {
     let query = this.getModel().getQuery();
     if (relationId) {
       query = query.where("relation_id", "==", relationId);
     }
 
-    if (sort && order) {
-      query = query.order(sort, order);
-    }
+    query = query.order(sort, order);
 
     if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit, offset);

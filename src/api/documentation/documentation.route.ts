@@ -8,6 +8,7 @@ import {
 } from "@/helper/response.helper";
 import response from "./documentation.response";
 import { AUTH_NAMES, ROUTES } from "@/constants";
+
 export default class DocumentationRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {

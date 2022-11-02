@@ -39,7 +39,7 @@ export default class UserController {
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort } = req.query;
+    const { limit, offset, filter, sort, order } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
 
     const response = await userService.getList(
@@ -47,6 +47,7 @@ export default class UserController {
       limit,
       offset,
       sort,
+      order,
       filter
     );
     return toolkit.response(response).code(response.statusCode);

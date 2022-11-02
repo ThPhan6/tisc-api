@@ -1,4 +1,5 @@
 import QuotationModel from "@/model/quotation.model";
+import { SortOrder } from "@/types";
 import {
   IQuotationAttributes,
   ListQuotationWithPagination,
@@ -22,17 +23,10 @@ class QuotationRepository extends BaseRepository<IQuotationAttributes> {
     limit: number,
     offset: number,
     filter: any,
-    sort: any
-  ) {
-    if (sort) {
-      return (await this.model
-        .select()
-        .order(sort[0], sort[1])
-        .paginate(limit, offset)) as ListQuotationWithPagination;
-    }
-    return (await this.model
-      .select()
-      .paginate(limit, offset)) as ListQuotationWithPagination;
+    sort: string,
+    order: SortOrder
+  ): Promise<ListQuotationWithPagination> {
+    return this.model.select().order(sort, order).paginate(limit, offset);
   }
 }
 export default QuotationRepository;

@@ -5,7 +5,7 @@ import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./user.response";
-import { getListV2 } from "@/validate/common.validate";
+import { getListValidation } from "@/validate/common.validate";
 
 export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -51,7 +51,7 @@ export default class UserRoute implements IRoute {
           path: ROUTES.GET_LIST_TEAM_PROFILE,
           options: {
             handler: controller.getList,
-            validate: getListV2,
+            validate: getListValidation(),
             description: "Method that get list user",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
