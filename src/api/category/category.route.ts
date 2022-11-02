@@ -8,7 +8,7 @@ import IRoute from "../../helper/route.helper";
 import CategoryController from "./category.controller";
 import productSettingResponse from "./category.reponse";
 import validate from "./category.validate";
-import commonValidate from "../../validate/common.validate";
+import { getOneValidation } from "../../validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class CategoryRoute implements IRoute {
@@ -56,7 +56,7 @@ export default class CategoryRoute implements IRoute {
           path: ROUTES.GET_ONE_CATEGORY,
           options: {
             handler: controller.getById,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get category",
             tags: ["api", "Category"],
             auth: AUTH_NAMES.PERMISSION,
@@ -90,7 +90,7 @@ export default class CategoryRoute implements IRoute {
           path: ROUTES.DELETE_CATEGORY,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete category",
             tags: ["api", "Category"],
             auth: AUTH_NAMES.PERMISSION,

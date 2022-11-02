@@ -6,7 +6,7 @@ import { AUTH_NAMES } from "@/constant/auth.constant";
 import validate from "./distributor.validate";
 import response from "./distributor.response";
 import DistributorController from "./distributor.controller";
-import commonValidate from "@/validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class DistributorRoute implements IRoute {
@@ -53,7 +53,7 @@ export default class DistributorRoute implements IRoute {
           path: ROUTES.GET_ONE_DISTRIBUTOR,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one distributor",
             tags: ["api", "Distributor"],
             auth: AUTH_NAMES.GENERAL,
@@ -87,7 +87,7 @@ export default class DistributorRoute implements IRoute {
           path: ROUTES.DELETE_DISTRIBUTOR,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete distributor",
             tags: ["api", "Distributor"],
             auth: AUTH_NAMES.GENERAL,

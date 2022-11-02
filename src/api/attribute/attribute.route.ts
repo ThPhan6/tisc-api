@@ -1,6 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import AttributeController from "./attribute.controller";
-import commonValidate from "@/validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import validate from "./attribute.validate";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
@@ -36,7 +36,7 @@ export default class AttributeRoute implements IRoute {
           path: ROUTES.GET_ONE_ATTRIBUTE,
           options: {
             handler: controller.get,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one attribute",
             tags: ["api", "Attribute"],
             auth: AUTH_NAMES.PERMISSION,
@@ -86,7 +86,7 @@ export default class AttributeRoute implements IRoute {
           path: ROUTES.DELETE_ATTRIBUTE,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete one attribute",
             tags: ["api", "Attribute"],
             auth: AUTH_NAMES.PERMISSION,
