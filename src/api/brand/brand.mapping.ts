@@ -2,18 +2,6 @@ import { getDistinctArray } from "@/helper/common.helper";
 import { ActiveStatus, BrandAttributes, ILocationAttributes } from "@/types";
 import { ListBrandCustom } from "./brand.type";
 
-export const getCountryName = (
-  originLocation: ILocationAttributes | false | any,
-  headquarterLocation: ILocationAttributes | false | any
-) => {
-  if (!originLocation) {
-    return "N/A";
-  }
-  return headquarterLocation
-    ? headquarterLocation.country_name
-    : originLocation.country_name;
-};
-
 export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {
   return dataBrandCustom.map((dataBrand) => {
     const coverages = getDistinctArray(
