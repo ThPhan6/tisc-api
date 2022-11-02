@@ -16,6 +16,7 @@ import { deleteFile, upload } from "@/service/aws.service";
 import MailService from "@/service/mail.service";
 import {
   IMessageResponse,
+  SortOrder,
   UserAttributes,
   UserStatus,
   UserType,
@@ -272,14 +273,16 @@ export default class UserService {
     authenticatedUser: UserAttributes,
     limit?: number,
     offset?: number,
-    sort?: any,
+    sort?: string,
+    order?: SortOrder,
     _filter?: any
   ) => {
     const result = await userRepository.getPagination(
       limit,
       offset,
       authenticatedUser.relation_id,
-      sort
+      sort,
+      order
     );
     return successResponse({
       data: {

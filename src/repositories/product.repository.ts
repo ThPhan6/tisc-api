@@ -6,6 +6,7 @@ import {
 import BaseRepository from "./base.repository";
 import ProductModel from "@/model/product.model";
 import { head, isUndefined } from "lodash";
+import { SortOrder } from "@/types";
 
 class ProductRepository extends BaseRepository<IProductAttributes> {
   protected model: ProductModel;
@@ -41,7 +42,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     filterLiked: boolean = false,
     keyword?: string,
     sortName?: string,
-    sortOrder?: "ASC" | "DESC"
+    sortOrder?: SortOrder
   ) => {
     return `
       ${filterCategoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
@@ -128,24 +129,17 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     collectionId?: string,
     keyword?: string,
     sort?: string,
-    order: "ASC" | "DESC" = "DESC",
+    order: SortOrder = "DESC",
     likedOnly: boolean = false
   ): Promise<ProductWithRelationData[]> {
-    //
-    const params = {} as any;
-    if (userId) {
-      params.userId = userId;
-    }
-    if (brandId) {
-      params.brandId = brandId;
-    }
-    if (categoryId) {
-      params.categoryId = categoryId;
-    }
-    if (collectionId) {
-      params.collectionId = collectionId;
-    }
-    //
+    const params = {
+      userId,
+      brandId,
+      categoryId,
+      collectionId,
+      keyword,
+    };
+
     return this.model.rawQuery(
       this.getProductQuery(
         undefined,
@@ -166,7 +160,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     userId: string,
     brandId?: string,
     categoryId?: string,
-    order?: "ASC" | "DESC"
+    order?: SortOrder
   ) => {
     return this.getProductBy(
       userId,
@@ -174,7 +168,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       categoryId,
       undefined,
       undefined,
-      isUndefined(order) ? undefined : "name",
+      order ? "name" : undefined,
       order,
       true
     );
@@ -243,7 +237,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
 
   public getUserFavouriteProducts = async (
     userId: string,
-    order: "ASC" | "DESC" = "ASC",
+    order: SortOrder = "ASC",
     brandId?: string,
     categoryId?: string
   ): Promise<ProductWithCollectionAndBrand[]> => {
@@ -295,7 +289,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   public getCustomList = async (
     keyword?: string,
     sort_name?: string,
-    sort_order: "ASC" | "DESC" = "ASC",
+    sort_order: SortOrder = "ASC",
     brandId?: string,
     categoryId?: string
   ): Promise<ProductWithCollectionAndBrand[]> => {

@@ -9,7 +9,9 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import AutoEmailController from "./auto_email.controller";
 import validate from "./auto_email.validate";
 import response from "./auto_email.response";
-import commonValidate from "../../validate/common.validate";
+import commonValidate, {
+  getListValidation,
+} from "../../validate/common.validate";
 
 export default class AutoEmailRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -51,7 +53,11 @@ export default class AutoEmailRoute implements IRoute {
           path: ROUTES.GET_LIST_EMAIL_AUTO,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: getListValidation({
+              custom: (value) => ({
+                sort: value.sort || "updated_at",
+              }),
+            }),
             description: "Method that get list auto email",
             tags: ["api", "Auto Email"],
             auth: AUTH_NAMES.PERMISSION,

@@ -1,4 +1,5 @@
 import AutoEmailModel from "@/model/auto_email.model";
+import { SortOrder } from "@/types";
 import {
   IAutoEmailAttributes,
   ListAutoEmailWithPaginate,
@@ -16,13 +17,14 @@ class AutoEmailRepository extends BaseRepository<IAutoEmailAttributes> {
     limit: number,
     offset: number,
     _filter: any,
-    sort: any
+    sort: string,
+    order: SortOrder
   ) {
     let result: ListAutoEmailWithPaginate;
     if (sort) {
       result = await this.model
         .select()
-        .order(sort[0], sort[1])
+        .order(sort, order)
         .paginate(limit, offset);
     } else {
       result = await this.model.select().paginate(limit, offset);

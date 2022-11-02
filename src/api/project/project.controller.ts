@@ -29,14 +29,15 @@ export default class ProjectController {
     return toolkit.response(PROJECT_STATUS_OPTIONS).code(200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort } = req.query;
+    const { limit, offset, filter, sort, order } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await projectService.getProjects(
       user,
       limit,
       offset,
       filter,
-      sort
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

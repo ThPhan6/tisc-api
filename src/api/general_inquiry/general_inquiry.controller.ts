@@ -18,7 +18,7 @@ export default class GeneralInquiryController {
   }
 
   public async getList(req: Request, toolkit: ResponseToolkit) {
-    const { limit, offset, sort, filter } = req.query;
+    const { limit, offset, sort, order, filter } = req.query;
 
     const user = req.auth.credentials.user as UserAttributes;
 
@@ -28,6 +28,7 @@ export default class GeneralInquiryController {
       limit,
       offset,
       sort,
+      order,
       filter
     );
     return toolkit.response(response).code(response.statusCode ?? 200);

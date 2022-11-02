@@ -15,7 +15,7 @@ import {
   mappingSummaryMaterialCode,
 } from "./material_code.mapping";
 import { IMaterialCodeRequest } from "./material_code.type";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 
 class MaterialCodeService {
   public async create(user: UserAttributes, payload: IMaterialCodeRequest) {
@@ -44,7 +44,7 @@ class MaterialCodeService {
   }
 
   public async getMaterialCodes(
-    mainMaterialCodeOrder: SortOrder,
+    mainMaterialCodeOrder: SortOrder | undefined,
     subMaterialCodeOrder: SortOrder,
     materialCodeOrder: SortOrder,
     designId?: string
@@ -97,7 +97,6 @@ class MaterialCodeService {
     user: UserAttributes,
     payload: IMaterialCodeRequest
   ) {
-
     const materialCode = await materialCodeRepository.find(id);
 
     if (!materialCode) {

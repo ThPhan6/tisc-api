@@ -1,14 +1,13 @@
 import { productService } from "./../product/product.service";
-import {favouriteService} from "./favourite.service";
+import { favouriteService } from "./favourite.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import {
   RetrieveRequestBody,
   FavouriteListRequestQuery,
 } from "./favourite.type";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 
 export default class FavouriteController {
-
   public skip = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
     const response = await favouriteService.skip(user);
@@ -44,22 +43,13 @@ export default class FavouriteController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id, category_id, order } = req.query;
-    //
-    let filterBrandId = brand_id;
-    if (filterBrandId === "all") {
-      filterBrandId = undefined;
-    }
-    //
-    let filterCategoryId = category_id;
-    if (filterCategoryId === "all") {
-      filterCategoryId = undefined;
-    }
     const user = req.auth.credentials.user as UserAttributes;
+
     const response = await productService.getFavouriteList(
       user,
-      order,
-      filterBrandId,
-      filterCategoryId
+      brand_id === "all" ? undefined : brand_id,
+      category_id === "all" ? undefined : category_id,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

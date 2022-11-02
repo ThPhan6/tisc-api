@@ -1,4 +1,5 @@
 import CollectionModel from "@/model/collection.model";
+import { SortOrder } from "@/types";
 import {
   ICollectionAttributes,
   ListCollectionPaginate,
@@ -20,19 +21,14 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
     limit: number,
     offset: number,
     brandId: string,
-    sort?: any
-  ) {
-    if (sort) {
-      return (await this.model
-        .select()
-        .where("brand_id", "==", brandId)
-        .order(sort[0], sort[1])
-        .paginate(limit, offset)) as ListCollectionPaginate;
-    }
-    return (await this.model
+    sort: string = "created_at",
+    order: SortOrder = "DESC"
+  ): Promise<ListCollectionPaginate> {
+    return this.model
       .select()
       .where("brand_id", "==", brandId)
-      .paginate(limit, offset)) as ListCollectionPaginate;
+      .order(sort === "collection_name" ? "name" : sort, order)
+      .paginate(limit, offset);
   }
 
   public async getByBrand(brandId: string) {

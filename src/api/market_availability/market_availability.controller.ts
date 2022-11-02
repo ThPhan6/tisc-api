@@ -3,7 +3,6 @@ import { marketAvailabilityService } from "./market_availability.service";
 import { IUpdateMarketAvailabilityRequest } from "./market_availability.type";
 
 export default class MarketAvailabilityController {
-
   public update = async (
     req: Request & { payload: IUpdateMarketAvailabilityRequest },
     toolkit: ResponseToolkit
@@ -21,13 +20,14 @@ export default class MarketAvailabilityController {
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, brand_id } = req.query;
+    const { limit, offset, filter, sort, order, brand_id } = req.query;
     const response = await marketAvailabilityService.getList(
       brand_id,
       limit,
       offset,
       filter,
-      sort
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

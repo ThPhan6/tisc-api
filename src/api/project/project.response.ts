@@ -2,6 +2,7 @@ import { getEnumValues } from "@/helper/common.helper";
 import { paginationResponse } from "@/helper/response.helper";
 import { ProjectStatus } from "@/types";
 import * as HapiJoi from "joi";
+
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -31,6 +32,7 @@ export default {
         location: Joi.any(),
         project_type: Joi.string(),
         building_type: Joi.string(),
+        created_at: Joi.string(),
         design_due: Joi.string(),
         design_id: Joi.string(),
         status: Joi.number().valid(...getEnumValues(ProjectStatus)),

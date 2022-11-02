@@ -161,11 +161,11 @@ export default {
     noSorting: true,
     query: {
       group_order: orderValidation,
-      preset_order: orderValidation,
+      option_order: orderValidation,
     },
     custom: (value) => ({
       group_order: value.group_order,
-      preset_order: value.preset_order || "ASC",
+      option_order: value.option_order || "ASC",
     }),
   }),
   createBasisPreset: {
