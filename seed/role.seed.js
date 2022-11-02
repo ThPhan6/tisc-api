@@ -9,32 +9,32 @@ const seed = async (db) => {
     const records = [
       {
         id: ROLES.TISC_ADMIN,
-        name: "TISC admin",
+        name: "TISC Admin",
         created_at: moment(),
       },
       {
         id: ROLES.TISC_CONSULTANT_TEAM,
-        name: "TISC consultant team",
+        name: "TISC Consultant Team",
         created_at: moment(),
       },
       {
         id: ROLES.BRAND_ADMIN,
-        name: "Brand admin",
+        name: "Brand Admin",
         created_at: moment(),
       },
       {
         id: ROLES.BRAND_TEAM,
-        name: "Brand team",
+        name: "Brand Team",
         created_at: moment(),
       },
       {
         id: ROLES.DESIGN_ADMIN,
-        name: "Design admin",
+        name: "Design Admin",
         created_at: moment(),
       },
       {
         id: ROLES.DESIGN_TEAM,
-        name: "Design team",
+        name: "Design Team",
         created_at: moment(),
       },
     ];

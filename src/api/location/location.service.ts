@@ -263,7 +263,7 @@ export default class LocationService {
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public createDefaultLocation = async (relationId: string, type: number) => {
+  public createDefaultLocation = async (relationId: string, type: number, email: string) => {
     return locationRepository.create({
       business_name: "Global",
       functional_type_ids: [""],
@@ -279,7 +279,7 @@ export default class LocationService {
       address: "",
       postal_code: "",
       general_phone: "",
-      general_email: "",
+      general_email: email,
       type,
       relation_id: relationId,
     });

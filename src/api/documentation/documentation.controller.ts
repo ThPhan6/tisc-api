@@ -1,12 +1,17 @@
 import { documentationService } from "./documentation.service";
 import { IDocumentationRequest, IHowto } from "./documentation.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 
 export default class DocumentationController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, sort } = req.query;
-    const response = await documentationService.getList(limit, offset, sort);
+    const { limit, offset, sort, order } = req.query;
+    const response = await documentationService.getList(
+      limit,
+      offset,
+      sort,
+      order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

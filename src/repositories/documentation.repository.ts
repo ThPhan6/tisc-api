@@ -35,25 +35,26 @@ class DocumentationRepository extends BaseRepository<IDocumentationAttributes> {
     type: DocumentationType,
     limit: number,
     offset: number,
-    sort: any
+    sort: string,
+    order: SortOrder = "DESC"
   ) {
     const params = {
       type,
       limit,
       offset,
     };
-    const prefix = sort && sort[0] == "firstname" ? "user" : "documentations";
+    const prefix = sort == "firstname" ? "user" : "documentations";
 
     const rawQuery = `
     FILTER documentations.type == @type
     FILTER documentations.deleted_at == null
     let user = (
-        FOR user in users
-        FILTER user.deleted_at == null
-        FILTER documentations.created_by == user.id
-        return KEEP(user, "firstname", "lastname", "id")
-        )
-        ${sort ? `SORT ${prefix}.${sort[0]} ${sort[1]}` : ""}
+      FOR user in users
+      FILTER user.deleted_at == null
+      FILTER documentations.created_by == user.id
+      return KEEP(user, "firstname", "lastname", "id")
+    )
+    ${`SORT ${prefix}.${sort} ${order}`}
 
     LIMIT @offset,@limit
     RETURN merge(UNSET(documentations,[

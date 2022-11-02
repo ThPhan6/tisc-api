@@ -21,7 +21,7 @@ import {
 } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
 import { BasisConversion } from "@/types/basis.type";
-import { difference } from "lodash";
+import { difference, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -309,7 +309,7 @@ class ProductService {
     collectionId?: string,
     keyword?: string,
     sortName?: string,
-    orderBy: "ASC" | "DESC" = "ASC"
+    orderBy: "ASC" | "DESC" = "DESC"
   ) => {
     let products = await productRepository.getProductBy(
       user.id,
@@ -341,7 +341,7 @@ class ProductService {
     }
     return successResponse({
       data: {
-        data: returnedProducts,
+        data: sortBy(returnedProducts, "name"),
         brand: await brandRepository.find(brandId),
       },
     });

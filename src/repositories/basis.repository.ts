@@ -1,5 +1,6 @@
 import { BasisType } from "@/constants/basis.constant";
 import BasisModel from "@/model/basis.model";
+import { SortOrder } from "@/types";
 import { IBasisAttributes, ListBasisWithPagination } from "@/types/basis.type";
 import BaseRepository from "./base.repository";
 
@@ -35,12 +36,12 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     limit: number,
     offset: number,
     type: BasisType,
-    groupOrder?: "ASC" | "DESC"
-  ) {
-    return (await this.model
+    groupOrder?: SortOrder
+  ): Promise<ListBasisWithPagination> {
+    return this.model
       .where("type", "==", type)
       .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")
-      .paginate(limit, offset)) as ListBasisWithPagination;
+      .paginate(limit, offset);
   }
 }
 export default new BasisRepository();
