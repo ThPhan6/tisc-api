@@ -138,7 +138,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         For location in locations
           filter location.deleted_at == null
           filter location.id == user.location_id
-        LET work_location = location.city_name ? CONCAT(location.city_name, ', ', UPPER(location.country_name)) : UPPER(location.country_name)
+        LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
         let status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${UserStatus.Blocked} ? 'Blocked' : 'Pending'))
      `;
 
@@ -210,12 +210,9 @@ class UserRepository extends BaseRepository<UserAttributes> {
       FOR users IN users
         FILTER users.deleted_at == null
         FILTER users.relation_id == @relationId
-        let locationData = (
-          FOR locations IN locations
-            FILTER locations.id == users.location_id
-            FILTER locations.deleted_at == null
-          RETURN UNSET(locations, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"])
-        )
+        FOR locations IN locations
+          FILTER locations.id == users.location_id
+          FILTER locations.deleted_at == null
         let commontypeData = (
           FOR common_types IN common_types
             FILTER common_types.id == users.department_id
@@ -226,7 +223,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
       RETURN merge(
         users,
         {
-          locations: locationData.length == 0 ? null : locationData[0],
+          locations: UNSET(locations, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"]),
           common_types: commontypeData.length == 0 ? null : commontypeData[0]
         }
     )`;

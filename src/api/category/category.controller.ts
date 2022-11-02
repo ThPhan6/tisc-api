@@ -17,8 +17,6 @@ export default class CategoryController {
       limit,
       offset,
       filter,
-      sort,
-      order,
       main_category_order,
       sub_category_order,
       category_order,
@@ -27,8 +25,6 @@ export default class CategoryController {
       limit,
       offset,
       filter,
-      sort,
-      order,
       main_category_order,
       sub_category_order,
       category_order

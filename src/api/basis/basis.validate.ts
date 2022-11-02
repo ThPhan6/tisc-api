@@ -5,17 +5,6 @@ import {
   orderValidation,
 } from "../../validate/common.validate";
 
-const customFilter = (value: any, helpers: any) => {
-  try {
-    const filter = JSON.parse(decodeURIComponent(value));
-    if (typeof filter === "object") {
-      return filter;
-    }
-    return helpers.error("any.invalid");
-  } catch (error) {
-    return helpers.error("any.invalid");
-  }
-};
 export default {
   createBasisConversion: {
     payload: {
@@ -169,6 +158,7 @@ export default {
     },
   },
   getListBasisOption: getListValidation({
+    noSorting: true,
     query: {
       group_order: orderValidation,
       preset_order: orderValidation,
@@ -250,6 +240,7 @@ export default {
     },
   },
   getListBasisPreset: getListValidation({
+    noSorting: true,
     query: {
       group_order: orderValidation,
       preset_order: orderValidation,
@@ -260,6 +251,7 @@ export default {
     }),
   }),
   getListBasisConversion: getListValidation({
+    noSorting: true,
     query: {
       conversion_group_order: orderValidation,
       conversion_between_order: orderValidation,

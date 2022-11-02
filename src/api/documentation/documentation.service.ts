@@ -7,14 +7,12 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { documentationRepository } from "@/repositories/documentation.repository";
-import { userRepository } from "@/repositories/user.repository";
 import { mappingGroupGeneralDocumentation } from "./documentation.mapping";
 import { IDocumentationRequest, IHowto } from "./documentation.type";
-import {UserAttributes} from '@/types';
+import { SortOrder, UserAttributes } from "@/types";
 
 class DocumentationService {
   public async create(payload: IDocumentationRequest, user: UserAttributes) {
-
     const createdDocumentation = await documentationRepository.create({
       title: payload.title,
       document: payload.document,
@@ -32,13 +30,19 @@ class DocumentationService {
     });
   }
 
-  public async getList(limit: number, offset: number, sort: any) {
+  public async getList(
+    limit: number,
+    offset: number,
+    sort: string,
+    order: SortOrder
+  ) {
     const generalDocumentations =
       await documentationRepository.getDocumentationsByType(
         DOCUMENTATION_TYPES.GENERAL,
         limit,
         offset,
-        sort
+        sort,
+        order
       );
 
     const totalDocumentation =

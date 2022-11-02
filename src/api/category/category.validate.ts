@@ -69,6 +69,7 @@ export default {
     },
   },
   getListCategory: getListValidation({
+    noSorting: true,
     query: {
       main_category_order: orderValidation,
       sub_category_order: orderValidation,
