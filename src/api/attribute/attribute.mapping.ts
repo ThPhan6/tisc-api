@@ -9,8 +9,10 @@ import {
   AttributeProps,
   IBasisAttributes,
   IContentType,
+  SortOrder,
   SubAttribute,
 } from "@/types";
+import { orderBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
@@ -130,22 +132,22 @@ export const mappingSubAttribute = (
 export const getListAttributeWithSort = (
   attributes: AttributeProps[],
   contentTypes: IContentType[],
-  attribute_order: "ASC" | "DESC",
-  content_type_order: "ASC" | "DESC"
+  attribute_order?: SortOrder,
+  content_type_order?: SortOrder
 ) => {
   return attributes.map((attribute: AttributeProps) => {
     const newSubs = mappingSubAttribute(attribute, contentTypes);
-    let sortedSubs = newSubs;
-    if (attribute_order) {
-      sortedSubs = sortObjectArray(newSubs, "name", attribute_order);
-    }
-    if (content_type_order) {
-      sortedSubs = sortObjectArray(newSubs, "content_type", content_type_order);
-    }
+
     const { type, ...rest } = {
       ...attribute,
-      count: sortedSubs.length,
-      subs: sortedSubs,
+      count: newSubs.length,
+      subs: orderBy(
+        newSubs,
+        content_type_order ? "content_type" : "name", // Default sort by name
+        (content_type_order
+          ? content_type_order.toLowerCase()
+          : attribute_order?.toLowerCase()) as "asc" | "desc"
+      ),
     };
     return rest;
   });

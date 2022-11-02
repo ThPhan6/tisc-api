@@ -85,14 +85,10 @@ export default {
           commonFailValidatedMessageFunction("Attribute type is required")
         ),
       group_order: orderValidation,
+      // attribute_order & content_type_order are the same level
+      // just sort one at a time
       attribute_order: orderValidation,
       content_type_order: orderValidation,
     },
-    custom: (value) => ({
-      type: value.type,
-      group_order: value.group_order,
-      attribute_order: value.attribute_order || "ASC",
-      content_type_order: value.content_type_order || "ASC",
-    }),
   }),
 };
