@@ -54,13 +54,15 @@ class BrandService {
     offset: number,
     filter: any,
     sort: GetUserGroupBrandSort,
-    order: SortOrder
+    order: SortOrder,
+    haveProduct?: boolean
   ) {
     const dataBrandCustom = await brandRepository.getListBrandCustom(
       limit,
       offset,
       sort,
-      order
+      order,
+      haveProduct
     );
 
     const totalBrand = await brandRepository.getModel().count();
