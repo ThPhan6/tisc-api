@@ -23,7 +23,7 @@
         <span class="color-white uppercase">unit</span>
       </td>
     </tr>
-    <% zones.data.forEach(function(zone) { %>
+    <% zones.data.forEach(function(zone, zoneIndex) { %>
       <tr>
         <td colspan="4" class="border-bottom-box-shadow-bold">
           <span class="primary-roboto-bold-8-18 uppercase"><%= zone.name %></span>
@@ -38,14 +38,14 @@
         <td class="border-bottom-box-shadow-bold">
           <span class="primary-roboto-bold-8-18">
             <% if (project.measurement_unit == 1) { %>
-              <span>sq.ft.</span>
+              sq.ft.
             <% } else { %>
-              <span>sq.m.</span>
+              sq.m.
             <% } %>
           </span>
         </td>
       </tr>
-      <% zone.areas.forEach(function(area) { %>
+      <% zone.areas.forEach(function(area, areaIndex) { %>
         <tr>
           <td colspan="7">
             <span class="primary-roboto-bold-8-18 bold-400"><%= area.name %></span>
@@ -65,9 +65,9 @@
             <td>
               <span class="primary-roboto-light-8-18">
                 <% if (project.measurement_unit == 1) { %>
-                  <span>sq.ft.</span>
+                  sq.ft.
                 <% } else { %>
-                  <span>sq.m.</span>
+                  sq.m.
                 <% } %>
               </span>
             </td>
@@ -80,9 +80,9 @@
             <td >
               <span class="primary-roboto-light-8-18">
                 <% if (project.measurement_unit == 1) { %>
-                  <span>sq.ft.</span>
+                  sq.ft.
                 <% } else { %>
-                  <span>sq.m.</span>
+                  sq.m.
                 <% } %>
               </span>
             </td>
@@ -101,36 +101,44 @@
           <td class="border-bottom-box-shadow">
             <span class="primary-roboto-light-8-18 bold-400">
               <% if (project.measurement_unit == 1) { %>
-                <span>sq.ft.</span>
+                sq.ft.
               <% } else { %>
-                <span>sq.m.</span>
+                sq.m.
               <% } %>
             </span>
           </td>
         </tr>
-        <tr style="height: 18px"></tr>
-        <tr><td colspan="7" class="border-bottom-box-shadow"></td></tr>
+          <% if (areaIndex == zone.areas.length - 1) { %>
+            <% if (zoneIndex == zones.data.length - 1) { %>
+              <tr><td style="height: 18px" colspan="7" class="border-bottom-box-shadow-bold"></td></tr>
+            <% } else { %>
+              <tr><td style="height: 18px" colspan="7"></td></tr>
+            <% } %>
+          <% } else { %>
+            <tr><td style="height: 18px" colspan="7" class="border-bottom-box-shadow"></td></tr>
+          <% } %>
       <% }) %>
     <% }) %>
-
-    <tr>
-      <td colspan="4" class="border-bottom-box-shadow-bold">
-        <span class="primary-roboto-light-8-18"></span>
+    <tr class="primary-roboto-bold-8-18">
+      <td
+        colspan="4"
+        class="border-bottom-box-shadow-bold"></td>
+      <td
+        style="text-align: center"
+        class="border-bottom-box-shadow-bold uppercase">
+        grand total
       </td>
-      <td style="text-align: center" class="border-bottom-box-shadow-bold">
-        <span class="normal-roboto-bold-8-18 uppercase">grand total</span>
+      <td
+        class="border-bottom-box-shadow-bold">
+        <%= zones.total_size %>
       </td>
-      <td class="border-bottom-box-shadow-bold">
-        <span class="primary-roboto-bold-8-18"><%= zones.total_size %></span>
-      </td>
-      <td class="border-bottom-box-shadow-bold">
-        <span class="primary-roboto-bold-8-18">
-          <% if (project.measurement_unit == 1) { %>
-            <span>sq.ft.</span>
-          <% } else { %>
-            <span>sq.m.</span>
-          <% } %>
-        </span>
+      <td
+        class="border-bottom-box-shadow-bold">
+        <% if (project.measurement_unit == 1) { %>
+          sq.ft.
+        <% } else { %>
+          sq.m.
+        <% } %>
       </td>
     </tr>
   </table>
