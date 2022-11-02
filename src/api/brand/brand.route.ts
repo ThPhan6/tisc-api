@@ -1,7 +1,8 @@
 import * as Hapi from "@hapi/hapi";
 import BrandController from "./brand.controller";
-import commonValidate, {
+import {
   getAllValidation,
+  getOneValidation,
 } from "../../validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import {
@@ -91,7 +92,7 @@ export default class BrandRoute implements IRoute {
           path: ROUTES.GET_ONE_BRAND,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
@@ -108,7 +109,7 @@ export default class BrandRoute implements IRoute {
           path: ROUTES.SEND_EMAIL_INVITE_BRAND,
           options: {
             handler: controller.invite,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that invite brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,

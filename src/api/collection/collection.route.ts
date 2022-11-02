@@ -8,7 +8,7 @@ import {
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import CollectionResponse from "./collection.response";
 import validate from "./collection.validate";
-import commonValidate from "../../validate/common.validate";
+import { getOneValidation } from "../../validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class CollectionRoute implements IRoute {
@@ -56,7 +56,7 @@ export default class CollectionRoute implements IRoute {
           path: ROUTES.DELETE_COLLECTION,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete collection",
             tags: ["api", "Collection"],
             auth: AUTH_NAMES.GENERAL,
