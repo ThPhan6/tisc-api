@@ -124,7 +124,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       .select(
         "projects.*",
         "designers.name as design_firm_name",
-        "designers.office_website as design_firm_official_website"
+        "designers.official_website as design_firm_official_website"
       )
       .join("designers", "designers.id", "==", "projects.design_id")
       .where("projects.id", "==", id)
