@@ -68,11 +68,11 @@ export default class QuotationService {
 
   public async update(id: string, payload: IQuotationRequest) {
     const quotation = await this.quotationRepository.findAndUpdate(id, payload);
-    if (!quotation) {
+    if (!quotation[0]) {
       return errorMessageResponse(MESSAGES.QUOTATION_NOT_FOUND);
     }
     return successResponse({
-      data: quotation,
+      data: quotation[0],
     });
   }
 
