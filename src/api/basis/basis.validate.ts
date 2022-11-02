@@ -246,7 +246,6 @@ export default {
       preset_order: orderValidation,
     },
     custom: (value) => ({
-      group_order: value.group_order,
       preset_order: value.preset_order || "ASC",
     }),
   }),
@@ -257,7 +256,6 @@ export default {
       conversion_between_order: orderValidation,
     },
     custom: (value) => ({
-      conversion_group_order: value.conversion_group_order,
       conversion_between_order: value.conversion_between_order || "ASC",
     }),
   }),
