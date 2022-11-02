@@ -20,6 +20,7 @@ export default class CategoryController {
       main_category_order,
       sub_category_order,
       category_order,
+      haveProduct,
     } = req.query;
     const response = await categoryService.getList(
       limit,
@@ -27,7 +28,8 @@ export default class CategoryController {
       filter,
       main_category_order,
       sub_category_order,
-      category_order
+      category_order,
+      haveProduct
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

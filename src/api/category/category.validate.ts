@@ -71,12 +71,12 @@ export default {
   getListCategory: getListValidation({
     noSorting: true,
     query: {
+      haveProduct: Joi.bool().allow(null),
       main_category_order: orderValidation,
       sub_category_order: orderValidation,
       category_order: orderValidation,
     },
     custom: (value) => ({
-      main_category_order: value.main_category_order,
       sub_category_order: value.sub_category_order || "ASC",
       category_order: value.category_order || "ASC",
     }),
