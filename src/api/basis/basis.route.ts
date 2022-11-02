@@ -2,14 +2,14 @@ import {
   generalMessageResponse,
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
-import { ROUTES } from "@/constant/api.constant";
 import IRoute from "@/helper/route.helper";
 import commonValidate from "@/validate/common.validate";
 import BasisController from "./basis.controller";
 import validate from "./basis.validate";
 import response from "./basis.response";
+
 const getFailActionPayloadFile = (
   _request: any,
   _h: any,

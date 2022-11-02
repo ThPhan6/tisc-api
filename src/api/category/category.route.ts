@@ -4,12 +4,13 @@ import {
 } from "../../helper/response.helper";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import * as Hapi from "@hapi/hapi";
-import { ROUTES } from "../../constant/api.constant";
 import IRoute from "../../helper/route.helper";
 import CategoryController from "./category.controller";
 import productSettingResponse from "./category.reponse";
 import validate from "./category.validate";
 import commonValidate from "../../validate/common.validate";
+import { ROUTES } from "@/constants";
+
 export default class CategoryRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {

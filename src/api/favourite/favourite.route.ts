@@ -7,9 +7,9 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./favourite.response";
+import { ROUTES } from "@/constants";
 
 export default class FavouriteRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

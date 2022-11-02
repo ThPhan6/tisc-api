@@ -4,7 +4,6 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import AutoEmailController from "./auto_email.controller";
 import validate from "./auto_email.validate";
@@ -12,6 +11,7 @@ import response from "./auto_email.response";
 import commonValidate, {
   getListValidation,
 } from "../../validate/common.validate";
+import { ROUTES } from "@/constants";
 
 export default class AutoEmailRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
