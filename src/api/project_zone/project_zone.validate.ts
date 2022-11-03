@@ -1,6 +1,7 @@
 import * as Joi from "joi";
 import {
   errorMessage,
+  orderValidation,
   requireNumberValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -34,19 +35,16 @@ export default {
   getList: {
     query: Joi.object({
       project_id: requireStringValidation("Project"),
-      zone_order: Joi.string().valid("ASC", "DESC"),
-      area_order: Joi.string().valid("ASC", "DESC"),
-      room_name_order: Joi.string().valid("ASC", "DESC"),
-      room_id_order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        project_id: value.project_id,
-        zone_order: value.zone_order ? value.zone_order : "ASC",
-        area_order: value.area_order ? value.area_order : "ASC",
-        room_name_order: value.room_name_order ? value.room_name_order : "",
-        room_id_order: value.room_id_order ? value.room_id_order : "",
-      };
-    }),
+      zone_order: orderValidation,
+      area_order: orderValidation,
+      // room_name_order & room_id_order are the same level
+      // just sort one at a time
+      room_name_order: orderValidation,
+      room_id_order: orderValidation,
+    }).custom((value) => ({
+      area_order: value.area_order || "ASC",
+      room_name_order: value.room_name_order || "ASC",
+    })),
   },
   getOne: {
     params: {
