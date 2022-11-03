@@ -12,7 +12,7 @@ import path from "path";
 const swaggerOptions = {
   info: {
     title: "API Documentation",
-    version: "3.0.0",
+    version: ENVIROMENT.API_VERSION,
   },
   grouping: "tags",
   sortEndpoints: "ordered",
