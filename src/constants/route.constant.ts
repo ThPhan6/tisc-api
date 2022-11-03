@@ -300,4 +300,17 @@ export const ROUTES = {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
   },
+  AUTH: {
+    TISC_LOGIN: "/api/auth/login",
+    DESIGN_REGISTER: "/api/auth/register",
+    BRAND_DESIGN_LOGIN: "/api/auth/brand-design/login",
+    VALIDATE_EMAIL: "/api/auth/check-email/{email}",
+    VALIDATE_RESET_TOKEN: "/api/auth/is-valid-reset-password-token/{token}",
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    RESET_PASSWORD: "/api/auth/reset-password",
+    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
+    CREATE_PASSWORD_VERIFY: "/api/auth/create-password-verify/{verification_token}",
+    ACCOUNT_VERIFY: "/api/auth/verify/{verification_token}",
+    RESEND_EMAIL: "/api/auth/resend-email/{type}/{email}",
+  }
 };

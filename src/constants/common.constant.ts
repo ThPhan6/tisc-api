@@ -27,6 +27,7 @@ export const AUTH_NAMES = {
   GENERAL: "general",
   ADMIN: "admin",
   PERMISSION: "permission",
+  CAPTCHA: 'reCaptcha',
 };
 
 export const FUNCTIONAL_TYPE: {

@@ -6,6 +6,7 @@ import * as Inert from "@hapi/inert";
 import * as Vision from "@hapi/vision";
 import * as HapiSwagger from "hapi-swagger";
 import AuthMiddleware from "./middleware/auth.middleware";
+import CaptchaMiddleware from "./middleware/captcha.middleware";
 import { slackService } from "./service/slack.service";
 import path from "path";
 
@@ -89,6 +90,7 @@ async function start() {
     server.validator(require("joi"));
     await server.register(plugins);
     AuthMiddleware.registerAll(server);
+    CaptchaMiddleware.registerAll(server);
     await Router.loadRoute(server);
     await server.start();
   } catch (err) {
