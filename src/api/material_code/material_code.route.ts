@@ -2,11 +2,10 @@ import * as Hapi from "@hapi/hapi";
 import MaterialCodeController from "./material_code.controller";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import ProductResponse from "./material_code.response";
 import validate from "./material_code.validate";
 import { getOneValidation } from "@/validate/common.validate";
-import { ROUTES } from "@/constants";
 
 export default class MaterialCodeRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

@@ -92,12 +92,12 @@ class ProjectTrackingService {
       designFirm: el.designFirm?.name,
       projectStatus: ProjectStatus[el.project.status],
       requestCount: el.projectRequests.length,
-      newRequest: el.projectRequests.some((el) =>
-        el.read_by ? el.read_by.includes(user.id) === false : true
+      newRequest: el.projectRequests.some((item) =>
+        item.read_by ? item.read_by.includes(user.id) === false : true
       ),
       notificationCount: el.notifications.length,
-      newNotification: el.notifications.some((el) =>
-        el.read_by ? el.read_by.includes(user.id) === false : true
+      newNotification: el.notifications.some((item) =>
+        item.read_by ? item.read_by.includes(user.id) === false : true
       ),
       newTracking: el.project_tracking.read_by
         ? el.project_tracking.read_by.includes(user.id) === false

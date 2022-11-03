@@ -26,3 +26,4 @@ export * from "./general_inquiry.type";
 export * from "./common_type.type";
 
 export * from "@/api/brand/brand.type";
+export * from "@/api/action_task/action_task.type";

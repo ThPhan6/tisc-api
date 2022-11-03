@@ -20,7 +20,6 @@ import {
   validateImageType,
 } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
-import { BasisConversion } from "@/types/basis.type";
 import { difference, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,
@@ -40,7 +39,12 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { AttributeType, SortOrder, UserAttributes } from "@/types";
+import {
+  AttributeType,
+  SortOrder,
+  UserAttributes,
+  BasisConversion,
+} from "@/types";
 
 class ProductService {
   private getAllBasisConversion = async () => {

@@ -60,23 +60,6 @@ export default class ProjectTrackingController {
     return toolkit.response(response).code(200);
   };
 
-  public getProjectTracking = async (
-    req: Request & { payload: Partial<ProjectTrackingAttributes> },
-    toolkit: ResponseToolkit
-  ) => {
-    const { id } = req.params;
-    const response = await projectTrackingRepository.update(id, req.payload);
-
-    if (response === false) {
-      const errorResponse = errorMessageResponse(
-        "Update project tracking failed."
-      );
-      return toolkit.response(errorResponse).code(errorResponse.statusCode);
-    }
-
-    return toolkit.response(response).code(200);
-  };
-
   public getProjectTrackingSummary = async (
     req: Request,
     toolkit: ResponseToolkit

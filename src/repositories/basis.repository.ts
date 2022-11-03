@@ -1,7 +1,6 @@
 import { BasisType } from "@/constants/basis.constant";
 import BasisModel from "@/model/basis.model";
-import { SortOrder } from "@/types";
-import { IBasisAttributes, ListBasisWithPagination } from "@/types/basis.type";
+import { SortOrder, IBasisAttributes, ListBasisWithPagination } from "@/types";
 import BaseRepository from "./base.repository";
 
 class BasisRepository extends BaseRepository<IBasisAttributes> {

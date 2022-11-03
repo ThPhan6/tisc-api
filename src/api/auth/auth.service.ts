@@ -5,6 +5,7 @@ import {
   AUTH_EMAIL_TYPE,
   ROLES,
   SYSTEM_TYPE,
+  getRoleType,
 } from "@/constants";
 import {
   IMessageResponse,
@@ -37,7 +38,6 @@ import {
 import { mailService } from "@/service/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
 
-import { getRoleType } from "@/constants/role.constant";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";

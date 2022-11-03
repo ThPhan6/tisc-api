@@ -1,5 +1,5 @@
 import { AUTH_NAMES, ROUTES } from "@/constants";
-import { Server, Request } from "@hapi/hapi";
+import { Server, Request, ResponseToolkit } from "@hapi/hapi";
 import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
 import { userRepository } from "@/repositories/user.repository";
@@ -10,6 +10,15 @@ import { base64ToString, decrypt } from "@/helper/cryptojs.helper";
 
 export const throwError = async () => {
   throw Boom.unauthorized("Invalid token signature");
+};
+
+const customScheme = (_server: Server) => {
+  return {
+    authenticate: async (request: Request, h: ResponseToolkit) => {
+      const credential = await AuthMiddleware.authenticate(request);
+      return h.authenticated(credential);
+    },
+  };
 };
 
 export default class AuthMiddleware {
@@ -25,23 +34,9 @@ export default class AuthMiddleware {
   ];
 
   public static registration = (server: Server) => {
-    server.auth.scheme(AUTH_NAMES.GENERAL, (_server: Server) => {
-      return {
-        authenticate: async (request, h) => {
-          const credential = await AuthMiddleware.authenticate(request);
-          return h.authenticated(credential);
-        },
-      };
-    });
+    server.auth.scheme(AUTH_NAMES.GENERAL, customScheme);
 
-    server.auth.scheme(AUTH_NAMES.PERMISSION, (_server: Server) => {
-      return {
-        authenticate: async (request, h) => {
-          const credential = await AuthMiddleware.authenticate(request);
-          return h.authenticated(credential);
-        },
-      };
-    });
+    server.auth.scheme(AUTH_NAMES.PERMISSION, customScheme);
 
     ///
     server.auth.strategy(AUTH_NAMES.PERMISSION, AUTH_NAMES.PERMISSION);

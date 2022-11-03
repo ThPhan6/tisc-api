@@ -1,5 +1,5 @@
 import { ArangoDocument } from "../Interfaces";
-import { isArray } from "lodash";
+import { clone, isArray } from "lodash";
 import { getTimestamps } from "../Utils/Time";
 import { v4 as uuid } from "uuid";
 
@@ -12,7 +12,14 @@ class DataParser {
     }
 
     if (data.new) {
-      const { _key, _id, _rev, deleted_at, deleted_by, ...newData } = data.new;
+      const {
+        _key: _newKey,
+        _id: _newId,
+        _rev: _newRev,
+        deleted_at: _newDeletedAt,
+        deleted_by: _deletedBy,
+        ...newData
+      } = data.new;
       return newData;
     }
 

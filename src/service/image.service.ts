@@ -1,5 +1,4 @@
-import { VALID_IMAGE_TYPES } from "@/constants";
-import { DESIGN_STORE, MESSAGES } from "@/constants";
+import { VALID_IMAGE_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
 import {
   getFileTypeFromBase64,
   randomName,

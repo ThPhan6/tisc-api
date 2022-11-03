@@ -1,12 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { AUTH_NAMES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./project_zone.validate";
 import response from "./project_zone.response";
 import ProjectZoneController from "./project_zone.controller";
 import { getOneValidation } from "@/validate/common.validate";
-import { ROUTES } from "@/constants";
 
 export default class ProjectZoneRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
