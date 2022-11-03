@@ -42,7 +42,6 @@ export default {
     }).custom((value) => {
       return {
         design_id: value.design_id ? value.design_id : "",
-        main_material_code_order: value.main_material_code_order,
         sub_material_code_order: value.sub_material_code_order || "ASC",
         material_code_order: value.material_code_order || "ASC",
       };
