@@ -723,7 +723,7 @@ class ProjectProductService {
             room_id: entireAllocation ? "" : assignRooms[index],
           }
         );
-        return await projectProductFinishScheduleRepository.upsert(
+        return projectProductFinishScheduleRepository.upsert(
           upsertData,
           user.id
         );

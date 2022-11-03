@@ -7,7 +7,6 @@ import { head, isEmpty } from "lodash";
 import {
   BuilderBinding,
   Operator,
-  GeneralOperator,
   Sequence,
   ValueBinding,
   QueryType,
@@ -132,7 +131,7 @@ class Builder {
       ...this.bindings,
       isCombineJoinSelect,
     };
-    return await this.query();
+    return this.query();
   }
 
   public async first(isCombineJoinSelect: boolean = false) {
@@ -169,9 +168,9 @@ class Builder {
     }
     try {
       if (this.softDelete) {
-        return await this.update({ deleted_at: getTimestamps() });
+        return this.update({ deleted_at: getTimestamps() });
       }
-      return await this.query(QUERY_TYPE.DELETE);
+      return this.query(QUERY_TYPE.DELETE);
     } catch {
       return false;
     }
@@ -191,7 +190,7 @@ class Builder {
       bindVars,
     });
 
-    return await response.all();
+    return response.all();
   }
 
   public async rawQueryV2(query: string, bindVars: Object) {
@@ -199,7 +198,7 @@ class Builder {
       query,
       bindVars,
     });
-    return await response.all();
+    return response.all();
   }
 
   private async query(
@@ -209,7 +208,7 @@ class Builder {
     const response = await this.connection.query(
       this.grammar.compileQuery(this.bindings, type, dataUpdate)
     );
-    return await response.all();
+    return response.all();
   }
 }
 

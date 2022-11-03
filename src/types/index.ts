@@ -1,6 +1,5 @@
 export * from "./common.type";
 export * from "./user.type";
-export * from "./brand.type";
 export * from "./response.type";
 export * from "./design.type";
 export * from "./product_favourite.type";
@@ -25,3 +24,5 @@ export * from "./template.type";
 export * from "./project_product_finish_schedule.type";
 export * from "./general_inquiry.type";
 export * from "./common_type.type";
+
+export * from "@/api/brand/brand.type";

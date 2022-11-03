@@ -22,7 +22,7 @@ export default class HtmlPdfService {
         .create(html, {
           format: "Letter",
         })
-        .toBuffer((err, buffer) => {
+        .toBuffer((_err, buffer) => {
           resolve(Buffer.isBuffer(buffer));
         });
     });

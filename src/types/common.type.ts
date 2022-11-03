@@ -74,22 +74,3 @@ export type TopicTypeKey =
   | "Onboard"
   | "Operation"
   | "Other";
-
-export type SpecifiedProductGetlistType = "brand" | "material" | "space";
-
-export type SpecifiedProductStatusValue = 1 | 2 | 3;
-export type SpecifiedProductStatusKey =
-  | "Cancelled"
-  | "Re-specified"
-  | "Specified";
-
-export interface ISummaryTale {
-  name: string;
-  value: number;
-}
-
-export interface ValidImage {
-  buffer: Buffer;
-  path: string;
-  mime_type: string;
-}

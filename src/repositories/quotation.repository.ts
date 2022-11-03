@@ -22,7 +22,7 @@ class QuotationRepository extends BaseRepository<IQuotationAttributes> {
   public async getListQuotationWithPagination(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: string,
     order: SortOrder
   ): Promise<ListQuotationWithPagination> {
