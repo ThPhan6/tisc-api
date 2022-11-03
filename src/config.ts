@@ -8,6 +8,7 @@ export const jwtConfig = {
 
 export const ENVIROMENT = {
   NODE_ENV: process.env.NODE_ENV ?? 'dev',
+  API_VERSION: process.env.API_VERSION ?? '1.0.0',
   HOST: process.env.HOST ?? '',
   PORT: process.env.PORT ?? '',
   DATABASE_HOSTNAME: process.env.DATABASE_HOSTNAME ?? '',
