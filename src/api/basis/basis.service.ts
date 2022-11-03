@@ -35,7 +35,6 @@ import {
 } from "./basis.type";
 
 class BasisService {
-  constructor() {}
   public async createBasisConversion(payload: IBasisConversionRequest) {
     const conversionGroup = await BasisRepository.findBy({
       name: toSingleSpaceAndToLowerCase(payload.name),

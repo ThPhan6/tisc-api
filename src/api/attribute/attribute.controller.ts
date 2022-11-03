@@ -3,7 +3,6 @@ import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 import AttributeServices from "./attribute.service";
 
 export default class AttributeController {
-  constructor() {}
   public create = async (
     req: Request & { payload: IAttributeRequest },
     toolkit: ResponseToolkit
