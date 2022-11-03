@@ -1,9 +1,9 @@
 import CollectionModel from "@/model/collection.model";
-import { SortOrder } from "@/types";
 import {
+  SortOrder,
   ICollectionAttributes,
   ListCollectionPaginate,
-} from "@/types/collection.type";
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class CollectionRepository extends BaseRepository<ICollectionAttributes> {

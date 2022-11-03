@@ -1,8 +1,5 @@
 import { getEnumKeys, getEnumValues } from "@/helper/common.helper";
-import {
-  ActionTaskModelEnum,
-  ActionTaskStatus,
-} from "@/types/action_task.type";
+import { ActionTaskModelEnum, ActionTaskStatus } from "@/types";
 import {
   errorMessage,
   requireStringValidation,

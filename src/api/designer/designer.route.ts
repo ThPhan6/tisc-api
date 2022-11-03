@@ -6,10 +6,9 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./designer.response";
 import validate from "./designer.validate";
-import { ROUTES } from "@/constants";
 
 export default class DesignerRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

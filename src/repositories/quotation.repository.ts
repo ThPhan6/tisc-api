@@ -1,9 +1,9 @@
 import QuotationModel from "@/model/quotation.model";
-import { SortOrder } from "@/types";
 import {
+  SortOrder,
   IQuotationAttributes,
   ListQuotationWithPagination,
-} from "@/types/quotation.type";
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class QuotationRepository extends BaseRepository<IQuotationAttributes> {

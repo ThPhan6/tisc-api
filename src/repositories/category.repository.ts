@@ -1,7 +1,6 @@
 import CategoryModel from "@/model/category.model";
 import BaseRepository from "./base.repository";
-import { IProductAttributes } from "@/types/product.type";
-import { SortOrder, ICategoryAttributes } from "@/types";
+import { SortOrder, ICategoryAttributes, IProductAttributes } from "@/types";
 
 class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   protected model: CategoryModel;

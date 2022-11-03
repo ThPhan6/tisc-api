@@ -1,8 +1,4 @@
-import { SortOrder } from "@/types";
-import {
-  IMaterialCodeAttributes,
-  ICodeAttribute,
-} from "@/types/material_code.type";
+import { SortOrder, IMaterialCodeAttributes, ICodeAttribute } from "@/types";
 import BaseRepository from "./base.repository";
 import MaterialCodeModel from "@/model/material_code.model";
 import { head } from "lodash";

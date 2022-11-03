@@ -1,5 +1,4 @@
-import { MESSAGES } from "@/constants";
-import { BASIS_TYPES } from "@/constants/basis.constant";
+import { MESSAGES, BASIS_TYPES } from "@/constants";
 import {
   getSummaryTable,
   isDuplicatedString,

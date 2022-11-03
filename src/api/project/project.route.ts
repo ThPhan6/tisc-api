@@ -8,11 +8,10 @@ import {
   commonResponse,
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
-import { ROUTES } from "@/constants";
 export default class ProjectRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
