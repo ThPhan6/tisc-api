@@ -2,7 +2,7 @@ import { getEnumValues } from "@/helper/common.helper";
 import { ActiveStatus, GetUserGroupBrandSort } from "@/types";
 import Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireEmailValidation,
   requireStringValidation,
@@ -31,9 +31,7 @@ export default {
           url: Joi.string(),
         })
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Official website is required")
-        ),
+        .error(errorMessage("Official website is required")),
     },
   },
   invite: {
@@ -57,7 +55,7 @@ export default {
       status: Joi.number()
         .valid(...getEnumValues(ActiveStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status required")),
+        .error(errorMessage("Status required")),
     },
   },
 };

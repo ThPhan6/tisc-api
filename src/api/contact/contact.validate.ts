@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
 
@@ -14,12 +14,12 @@ export default {
         .email()
         .regex(regexEmail)
         .required()
-        .error(commonFailValidatedMessageFunction("Email invalid")),
+        .error(errorMessage("Email invalid")),
       inquiry: Joi.string()
         .trim()
         .required()
         .max(250)
-        .error(commonFailValidatedMessageFunction("Message is required")),
+        .error(errorMessage("Message is required")),
     },
   },
   getById: { params: { id: requireStringValidation("Contact id") } },

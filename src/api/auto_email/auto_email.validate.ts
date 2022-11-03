@@ -1,7 +1,7 @@
 import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constant/common.constant";
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
 
@@ -18,7 +18,7 @@ export default {
           TOPIC_TYPES.OTHER
         )
         .required()
-        .error(commonFailValidatedMessageFunction("Topic type is required")),
+        .error(errorMessage("Topic type is required")),
       targeted_for: Joi.number()
         .valid(
           TARGETED_FOR_TYPES.TISC_TEAM,
@@ -28,9 +28,7 @@ export default {
           TARGETED_FOR_TYPES.GENERAL
         )
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Targeted for type is required")
-        ),
+        .error(errorMessage("Targeted for type is required")),
       title: requireStringValidation("Title"),
       message: requireStringValidation("Message"),
     },

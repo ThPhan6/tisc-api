@@ -2,7 +2,7 @@ import { ActiveStatus } from "@/types";
 import Joi from "joi";
 
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -27,7 +27,7 @@ export default {
       status: Joi.number()
         .valid(ActiveStatus.Active, ActiveStatus.Inactive)
         .required()
-        .error(commonFailValidatedMessageFunction("Design status is required")),
+        .error(errorMessage("Design status is required")),
     },
   },
   updateDesign: {

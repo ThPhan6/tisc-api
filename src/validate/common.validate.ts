@@ -12,9 +12,7 @@ export const customFilter = (value: any, helpers: any) => {
   }
 };
 
-export const commonFailValidatedMessageFunction = (message: string) => {
-  return new Error(message);
-};
+export const errorMessage = (message: string) => new Error(message);
 
 export const orderValidation = Joi.string().valid("ASC", "DESC");
 
@@ -23,7 +21,7 @@ const defaultGetListQueryValidation: Joi.PartialSchemaMap<any> = {
     .custom((value, helpers) => {
       return customFilter(value, helpers);
     }, "custom filter validation")
-    .error(commonFailValidatedMessageFunction("Invalid filter")),
+    .error(errorMessage("Invalid filter")),
 };
 
 const defaultGetListWithSortingQueryValidation: Joi.PartialSchemaMap<any> = {
@@ -63,16 +61,14 @@ export const getListValidation = (options?: {
         if (!Number.isInteger(value)) return helpers.error("any.invalid");
         return value;
       })
-      .error(commonFailValidatedMessageFunction("Page must be an integer")),
+      .error(errorMessage("Page must be an integer")),
     pageSize: Joi.number()
       .min(1)
       .custom((value, helpers) => {
         if (!Number.isInteger(value)) return helpers.error("any.invalid");
         return value;
       })
-      .error(
-        commonFailValidatedMessageFunction("Page Size must be an integer")
-      ),
+      .error(errorMessage("Page Size must be an integer")),
 
     ...(options?.noSorting
       ? defaultGetListQueryValidation
@@ -91,9 +87,7 @@ export const getListValidation = (options?: {
 
 export const getOneValidation = {
   params: {
-    id: Joi.string()
-      .required()
-      .error(commonFailValidatedMessageFunction("Id can not be empty")),
+    id: Joi.string().required().error(errorMessage("Id can not be empty")),
   },
 };
 
@@ -102,16 +96,14 @@ export const requireStringValidation = (fieldName: string, full?: "full") =>
     .trim()
     .required()
     .error(
-      commonFailValidatedMessageFunction(
-        full === "full" ? fieldName : `${fieldName} is required`
-      )
+      errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
 
 export const requireEmailValidation = (fieldName: string = "Email") =>
   Joi.string()
     .email()
     .required()
-    .error(commonFailValidatedMessageFunction(`${fieldName} is required`));
+    .error(errorMessage(`${fieldName} is required`));
 
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
@@ -119,22 +111,18 @@ const regexPassword =
 export const requirePasswordValidation = Joi.string()
   .required()
   .regex(regexPassword)
-  .error(commonFailValidatedMessageFunction("Password is required and valid"));
+  .error(errorMessage("Password is required and valid"));
 
 export const requireNumberValidation = (fieldName: string, full?: "full") =>
   Joi.number()
     .required()
     .error(
-      commonFailValidatedMessageFunction(
-        full === "full" ? fieldName : `${fieldName} is required`
-      )
+      errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
 
 export const requireBooleanValidation = (fieldName: string, full?: "full") =>
   Joi.boolean()
     .required()
     .error(
-      commonFailValidatedMessageFunction(
-        full === "full" ? fieldName : `${fieldName} is required`
-      )
+      errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );

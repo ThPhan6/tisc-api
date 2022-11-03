@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   orderValidation,
   requireStringValidation,
@@ -22,11 +22,7 @@ export default {
           })
         )
         .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Basis conversion sub-group name is required"
-          )
-        ),
+        .error(errorMessage("Basis conversion sub-group name is required")),
     },
   },
   updateBasisConversion: {
@@ -48,11 +44,7 @@ export default {
           })
         )
         .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Basis conversion sub-group is required"
-          )
-        ),
+        .error(errorMessage("Basis conversion sub-group is required")),
     },
   },
   createBasisOption: {
@@ -62,11 +54,7 @@ export default {
         name: Joi.string()
           .trim()
           .required()
-          .error(
-            commonFailValidatedMessageFunction(
-              "Basis option sub-group name is required"
-            )
-          ),
+          .error(errorMessage("Basis option sub-group name is required")),
         is_have_image: Joi.valid(true, false),
         subs: Joi.array()
           .items({
@@ -81,9 +69,7 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(
-            commonFailValidatedMessageFunction("Basis option value is required")
-          ),
+          .error(errorMessage("Basis option value is required")),
       }),
     },
   },
@@ -111,9 +97,7 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(
-            commonFailValidatedMessageFunction("Basis option value is required")
-          ),
+          .error(errorMessage("Basis option value is required")),
       }),
     },
   },
@@ -141,9 +125,7 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(
-            commonFailValidatedMessageFunction("Basis preset value is required")
-          ),
+          .error(errorMessage("Basis preset value is required")),
       }),
     },
   },
@@ -165,9 +147,7 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(
-            commonFailValidatedMessageFunction("Basis preset value is required")
-          ),
+          .error(errorMessage("Basis preset value is required")),
       }),
     },
   },

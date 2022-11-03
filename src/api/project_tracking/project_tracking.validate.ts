@@ -1,7 +1,7 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { ProjectStatus } from "@/types";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -21,7 +21,7 @@ export default {
       request_for_ids: Joi.array()
         .items(Joi.string())
         .required()
-        .error(commonFailValidatedMessageFunction("Request for is required")),
+        .error(errorMessage("Request for is required")),
     },
   },
   getList: getListValidation({
@@ -29,17 +29,11 @@ export default {
       project_status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .allow(null)
-        .error(
-          commonFailValidatedMessageFunction(
-            "Invalid Project status filter value"
-          )
-        ),
+        .error(errorMessage("Invalid Project status filter value")),
       priority: Joi.number()
         .valid(...getEnumValues(ProjectTrackingPriority))
         .allow(null)
-        .error(
-          commonFailValidatedMessageFunction("Invalid priority filter value")
-        ),
+        .error(errorMessage("Invalid priority filter value")),
       sort: Joi.string().valid(
         //GetProjectListSort
         "created_at",

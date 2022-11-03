@@ -1,5 +1,5 @@
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireEmailValidation,
   requireStringValidation,
@@ -28,16 +28,12 @@ export default {
       business_number: Joi.string()
         .required()
         .allow("")
-        .error(
-          commonFailValidatedMessageFunction("Business number is required")
-        ),
+        .error(errorMessage("Business number is required")),
 
       functional_type_ids: Joi.array()
         .items(requireStringValidation("Functional type"))
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Functional type is required")
-        ),
+        .error(errorMessage("Functional type is required")),
       country_id: requireStringValidation("Country"),
       state_id: Joi.string().trim().allow(""),
       city_id: Joi.string().trim().allow(""),
@@ -57,9 +53,7 @@ export default {
       functional_type_ids: Joi.array()
         .items(requireStringValidation("Functional type"))
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Functional type is required")
-        ),
+        .error(errorMessage("Functional type is required")),
       country_id: requireStringValidation("Country id"),
       state_id: Joi.string().trim().allow(""),
       city_id: Joi.string().trim().allow(""),

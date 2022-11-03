@@ -1,6 +1,6 @@
 import { getEnumValues } from "@/helper/common.helper";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
 import Joi from "joi";
@@ -55,7 +55,7 @@ export default {
       consider_status: Joi.number()
         .valid(...getEnumValues(ProductConsiderStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
     },
   },
   updateProductSpecifyStatus: {
@@ -64,7 +64,7 @@ export default {
       specified_status: Joi.number()
         .valid(...getEnumValues(ProductSpecifyStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
     },
   },
   deleteConsiderProduct: {
@@ -77,11 +77,7 @@ export default {
         is_refer_document: Joi.boolean()
           .valid(true, false)
           .required()
-          .error(
-            commonFailValidatedMessageFunction(
-              "Is refer to document is missing"
-            )
-          ),
+          .error(errorMessage("Is refer to document is missing")),
         attribute_groups: Joi.array().items({
           id: Joi.string(),
           attributes: Joi.array().items({
@@ -99,7 +95,7 @@ export default {
       description: requireStringValidation("Description"),
       quantity: Joi.number()
         .required()
-        .error(commonFailValidatedMessageFunction("Quantity is required")),
+        .error(errorMessage("Quantity is required")),
       unit_type_id: Joi.string().trim().allow(""),
       order_method: Joi.number().valid(...getEnumValues(OrderMethod)),
       requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
@@ -128,9 +124,7 @@ export default {
             }),
           })
         )
-        .error(
-          commonFailValidatedMessageFunction("Please update Finish Schedule!")
-        ),
+        .error(errorMessage("Please update Finish Schedule!")),
     },
   },
   getListByBrand: {

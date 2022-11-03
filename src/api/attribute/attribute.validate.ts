@@ -1,7 +1,7 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { AttributeType } from "@/types";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   orderValidation,
   requireStringValidation,
@@ -14,9 +14,7 @@ export default {
       type: Joi.number()
         .valid(...getEnumValues(AttributeType))
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Attribute type is required")
-        ),
+        .error(errorMessage("Attribute type is required")),
       name: requireStringValidation("Attribute group name"),
       subs: Joi.array()
         .items(
@@ -25,15 +23,11 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Attribute group item is required"
-              )
-            )
+            .error(errorMessage("Attribute group item is required"))
         )
         .required()
         .error(
-          commonFailValidatedMessageFunction(
+          errorMessage(
             "Attribute group items is required at least 1 valid data"
           )
         ),
@@ -53,15 +47,11 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(
-              commonFailValidatedMessageFunction(
-                "Attribute group item is required"
-              )
-            )
+            .error(errorMessage("Attribute group item is required"))
         )
         .required()
         .error(
-          commonFailValidatedMessageFunction(
+          errorMessage(
             "Attribute group items is required at least 1 valid data"
           )
         ),
@@ -72,9 +62,7 @@ export default {
     query: {
       type: Joi.number()
         .valid(...getEnumValues(AttributeType))
-        .error(
-          commonFailValidatedMessageFunction("Attribute type is required")
-        ),
+        .error(errorMessage("Attribute type is required")),
       group_order: orderValidation,
       // attribute_order & content_type_order are the same level
       // just sort one at a time

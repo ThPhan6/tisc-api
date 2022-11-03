@@ -3,7 +3,7 @@ import { ProjectStatus } from "@/types";
 import * as Joi from "joi";
 import { MEASUREMENT_UNIT } from "@/constant/common.constant";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
 
@@ -22,15 +22,13 @@ export default {
       measurement_unit: Joi.number()
         .valid(MEASUREMENT_UNIT.METRIC, MEASUREMENT_UNIT.IMPERIAL)
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Measurement unit is required")
-        ),
+        .error(errorMessage("Measurement unit is required")),
       design_due: requireStringValidation("Design due"),
       construction_start: requireStringValidation("Construction start"),
       status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
     },
   },
   update: {
@@ -50,15 +48,13 @@ export default {
       measurement_unit: Joi.number()
         .valid(MEASUREMENT_UNIT.METRIC, MEASUREMENT_UNIT.IMPERIAL)
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Measurement unit is required")
-        ),
+        .error(errorMessage("Measurement unit is required")),
       design_due: requireStringValidation("Design due"),
       construction_start: requireStringValidation("Construction start"),
       status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
       team_profile_ids: Joi.array().items(Joi.string()).allow(null),
     },
   },

@@ -1,6 +1,6 @@
 import { EMAIL_TYPE } from "@/constant/common.constant";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireEmailValidation,
   requirePasswordValidation,
   requireStringValidation,
@@ -30,7 +30,7 @@ export default {
         .valid(Joi.ref("password"))
         .required()
         .error(
-          commonFailValidatedMessageFunction(
+          errorMessage(
             "Password confirmation is required and match with password"
           )
         ),
@@ -51,7 +51,7 @@ export default {
         .valid(Joi.ref("password"))
         .required()
         .error(
-          commonFailValidatedMessageFunction(
+          errorMessage(
             "Password confirmation is required and match with password"
           )
         ),
@@ -62,9 +62,7 @@ export default {
       type: Joi.string()
         .valid(EMAIL_TYPE.FORGOT_PASSWORD, EMAIL_TYPE.VERIFICATION)
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Type email resend is required")
-        ),
+        .error(errorMessage("Type email resend is required")),
       email: requireEmailValidation(),
     },
   },
@@ -76,7 +74,7 @@ export default {
         .valid(Joi.ref("password"))
         .required()
         .error(
-          commonFailValidatedMessageFunction(
+          errorMessage(
             "Password confirmation is required and match with password"
           )
         ),

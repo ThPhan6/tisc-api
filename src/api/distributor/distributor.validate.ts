@@ -1,6 +1,6 @@
 import Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -20,25 +20,21 @@ export default {
       gender: Joi.boolean()
         .required()
         .valid(true, false)
-        .error(commonFailValidatedMessageFunction("Gender is required")),
+        .error(errorMessage("Gender is required")),
       email: Joi.string()
         .email()
         .required()
-        .error(commonFailValidatedMessageFunction("Work email is required")),
+        .error(errorMessage("Work email is required")),
       phone: requireStringValidation("Work phone"),
       mobile: requireStringValidation("Work mobile"),
       authorized_country_ids: Joi.array()
         .items(Joi.string().trim().required())
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Authorized country is required")
-        ),
+        .error(errorMessage("Authorized country is required")),
       coverage_beyond: Joi.boolean()
         .required()
         .valid(true, false)
-        .error(
-          commonFailValidatedMessageFunction("Coverage beyond is required")
-        ),
+        .error(errorMessage("Coverage beyond is required")),
     },
   },
 
@@ -59,25 +55,21 @@ export default {
       gender: Joi.boolean()
         .required()
         .valid(true, false)
-        .error(commonFailValidatedMessageFunction("Gender is required")),
+        .error(errorMessage("Gender is required")),
       email: Joi.string()
         .email()
         .required()
-        .error(commonFailValidatedMessageFunction("Work email is required")),
+        .error(errorMessage("Work email is required")),
       phone: requireStringValidation("Work phone"),
       mobile: requireStringValidation("Work mobile"),
       authorized_country_ids: Joi.array()
         .items(Joi.string().trim().required())
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Authorized country is required")
-        ),
+        .error(errorMessage("Authorized country is required")),
       coverage_beyond: Joi.boolean()
         .required()
         .valid(true, false)
-        .error(
-          commonFailValidatedMessageFunction("Coverage beyond is required")
-        ),
+        .error(errorMessage("Coverage beyond is required")),
     },
   },
   getList: getListValidation({
