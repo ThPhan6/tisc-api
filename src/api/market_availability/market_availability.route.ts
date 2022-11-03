@@ -4,7 +4,7 @@ import * as Hapi from "@hapi/hapi";
 import IRoute from "../../helper/route.helper";
 import MarketAvailabilityController from "./market_availability.controller";
 import validate from "./market_availability.validate";
-import { getOneValidation } from "../../validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import response from "./market_availability.response";
 import { ROUTES } from "@/constants";
 

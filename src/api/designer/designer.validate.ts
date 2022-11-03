@@ -4,7 +4,8 @@ import Joi from "joi";
 import {
   commonFailValidatedMessageFunction,
   getListValidation,
-} from "../../validate/common.validate";
+  requireStringValidation,
+} from "@/validate/common.validate";
 import { GetDesignFirmSort } from "./designer.type";
 
 export default {
@@ -20,10 +21,7 @@ export default {
   }),
   updateDesignStatus: {
     params: {
-      id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Design is required")),
+      id: requireStringValidation("Design"),
     },
     payload: {
       status: Joi.number()
@@ -34,43 +32,17 @@ export default {
   },
   updateDesign: {
     params: {
-      id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Design is required")),
+      id: requireStringValidation("Design"),
     },
     payload: {
-      name: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Design firm name is required")
-        ),
+      name: requireStringValidation("Design firm name"),
       parent_company: Joi.string().allow(""),
-      logo: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Logo is required")),
+      logo: requireStringValidation("Logo"),
       slogan: Joi.string().allow(""),
-      profile_n_philosophy: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Profile & Philosophy")),
-      official_website: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Official website is required")
-        ),
+      profile_n_philosophy: requireStringValidation("Profile & Philosophy"),
+      official_website: requireStringValidation("Official website"),
       capabilities: Joi.array().items(
-        Joi.string()
-          .trim()
-          .required()
-          .error(
-            commonFailValidatedMessageFunction(
-              "Design capabilities is required"
-            )
-          )
+        requireStringValidation("Design capabilities")
       ),
     },
   },

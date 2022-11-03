@@ -1,32 +1,17 @@
 import {
-  commonFailValidatedMessageFunction,
   getListValidation,
+  requireStringValidation,
 } from "@/validate/common.validate";
 import Joi from "joi";
 
 export default {
   create: {
     payload: {
-      product_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Product id is required")),
-
-      title: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Title is required")),
-
-      message: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Message is required")),
-
+      product_id: requireStringValidation("Product id"),
+      title: requireStringValidation("Title"),
+      message: requireStringValidation("Message"),
       inquiry_for_ids: Joi.array().items(
-        Joi.string()
-          .trim()
-          .required()
-          .error(commonFailValidatedMessageFunction("Inquiry for is required"))
+        requireStringValidation("Inquiry for")
       ),
     },
   },
@@ -41,9 +26,5 @@ export default {
       ),
     },
   }),
-  getOne: {
-    params: {
-      id: Joi.string(),
-    },
-  },
+  getOne: { params: { id: Joi.string() } },
 };

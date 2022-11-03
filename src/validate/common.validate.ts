@@ -97,8 +97,44 @@ export const getOneValidation = {
   },
 };
 
-export const requireStringValidation = (fieldName: string) =>
+export const requireStringValidation = (fieldName: string, full?: "full") =>
   Joi.string()
     .trim()
     .required()
+    .error(
+      commonFailValidatedMessageFunction(
+        full === "full" ? fieldName : `${fieldName} is required`
+      )
+    );
+
+export const requireEmailValidation = (fieldName: string = "Email") =>
+  Joi.string()
+    .email()
+    .required()
     .error(commonFailValidatedMessageFunction(`${fieldName} is required`));
+
+const regexPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
+
+export const requirePasswordValidation = Joi.string()
+  .required()
+  .regex(regexPassword)
+  .error(commonFailValidatedMessageFunction("Password is required and valid"));
+
+export const requireNumberValidation = (fieldName: string, full?: "full") =>
+  Joi.number()
+    .required()
+    .error(
+      commonFailValidatedMessageFunction(
+        full === "full" ? fieldName : `${fieldName} is required`
+      )
+    );
+
+export const requireBooleanValidation = (fieldName: string, full?: "full") =>
+  Joi.boolean()
+    .required()
+    .error(
+      commonFailValidatedMessageFunction(
+        full === "full" ? fieldName : `${fieldName} is required`
+      )
+    );

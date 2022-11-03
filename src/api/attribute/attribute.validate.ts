@@ -1,11 +1,12 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { AttributeType } from "@/types";
-import * as Joi from "joi";
 import {
   commonFailValidatedMessageFunction,
   getListValidation,
   orderValidation,
-} from "../../validate/common.validate";
+  requireStringValidation,
+} from "@/validate/common.validate";
+import * as Joi from "joi";
 
 export default {
   create: {
@@ -16,11 +17,7 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Attribute type is required")
         ),
-      name: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Attribute group name is required")
-        ),
+      name: requireStringValidation("Attribute group name"),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -44,16 +41,10 @@ export default {
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Attribute id is required")),
+      id: requireStringValidation("Attribute id"),
     },
     payload: {
-      name: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Attribute group name is required")
-        ),
+      name: requireStringValidation("Attribute group name"),
       subs: Joi.array()
         .items(
           Joi.object({

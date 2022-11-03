@@ -4,7 +4,7 @@ import IRoute from "../../helper/route.helper";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import response from "./permission.response";
-import { getOneValidation } from "../../validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class PermissionRoute implements IRoute {

@@ -5,7 +5,7 @@ import { AUTH_NAMES } from "../../constant/auth.constant";
 import validate from "./project_zone.validate";
 import response from "./project_zone.response";
 import ProjectZoneController from "./project_zone.controller";
-import { getOneValidation } from "../../validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class ProjectZoneRoute implements IRoute {
