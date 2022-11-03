@@ -4,14 +4,15 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import AutoEmailController from "./auto_email.controller";
 import validate from "./auto_email.validate";
 import response from "./auto_email.response";
-import commonValidate, {
+import {
   getListValidation,
-} from "../../validate/common.validate";
+  getOneValidation,
+} from "@/validate/common.validate";
+import { ROUTES } from "@/constants";
 
 export default class AutoEmailRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -74,7 +75,7 @@ export default class AutoEmailRoute implements IRoute {
           path: ROUTES.GET_ONE_EMAIL_AUTO,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one auto email",
             tags: ["api", "Auto Email"],
             auth: AUTH_NAMES.PERMISSION,

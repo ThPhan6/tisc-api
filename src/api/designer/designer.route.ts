@@ -1,6 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import DesignerController from "./designer.controller";
-import commonValidate from "@/validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import IRoute from "@/helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
@@ -39,7 +39,7 @@ export default class DesignerRoute implements IRoute {
           path: ROUTES.DESIGN_FIRM.GET_ONE_DESIGN_FIRM,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one design firm",
             tags: ["api", "Designer"],
             auth: AUTH_NAMES.PERMISSION,

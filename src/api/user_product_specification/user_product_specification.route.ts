@@ -1,10 +1,10 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { ROUTES } from "@/constant/api.constant";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import UserProductSpecificationController from "./user_product_specification.controller";
 import validate from "./user_product_specification.validate";
+import { ROUTES } from "@/constants";
 
 export default class UserProductSpecificationRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -14,7 +14,7 @@ export default class UserProductSpecificationRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: ROUTES.UPDATE_USER_SPEC_SELECTION,
+          path: ROUTES.PRE_SPECFICATION.UPDATE_USER_SPEC_SELECTION,
           options: {
             handler: controller.selectSpecification,
             validate: validate.selectSpecification,
@@ -26,7 +26,7 @@ export default class UserProductSpecificationRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_USER_SPEC_SELECTION,
+          path: ROUTES.PRE_SPECFICATION.GET_USER_SPEC_SELECTION,
           options: {
             handler: controller.getSelectedSpecification,
             validate: validate.getSelectedSpecification,

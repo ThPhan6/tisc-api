@@ -1,59 +1,39 @@
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
-} from "../../validate/common.validate";
+  requireStringValidation,
+} from "@/validate/common.validate";
 
 export default {
   create: {
     payload: {
-      collection_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Collection is required")),
+      collection_id: requireStringValidation("Collection"),
       country_ids: Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .required()
-            .error(commonFailValidatedMessageFunction("Country is required"))
-        )
+        .items(requireStringValidation("Country"))
         .required()
-        .error(commonFailValidatedMessageFunction("Country is required")),
+        .error(errorMessage("Country is required")),
     },
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Collection is required")),
+      id: requireStringValidation("Collection"),
     },
     payload: {
       country_ids: Joi.array()
-        .items(
-          Joi.string()
-            .required()
-            .error(commonFailValidatedMessageFunction("Country is required"))
-        )
+        .items(requireStringValidation("Country"))
         .required()
-        .error(commonFailValidatedMessageFunction("Country is required")),
+        .error(errorMessage("Country is required")),
     },
   },
   getList: getListValidation({
     query: {
-      brand_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
+      brand_id: requireStringValidation("Brand id"),
     },
-    custom: (value) => ({ brand_id: value.brand_id }),
   }),
   getWithBrandId: {
     params: {
-      brand_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Collection is required")),
+      brand_id: requireStringValidation("Collection"),
     },
   },
 };
