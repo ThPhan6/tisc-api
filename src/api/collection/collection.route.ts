@@ -5,11 +5,11 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
+import { ROUTES } from "../../constant/api.constant";
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import CollectionResponse from "./collection.response";
 import validate from "./collection.validate";
-import { getOneValidation } from "@/validate/common.validate";
-import { ROUTES } from "@/constants";
+import commonValidate from "../../validate/common.validate";
 
 export default class CollectionRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -56,7 +56,7 @@ export default class CollectionRoute implements IRoute {
           path: ROUTES.DELETE_COLLECTION,
           options: {
             handler: controller.delete,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that delete collection",
             tags: ["api", "Collection"],
             auth: AUTH_NAMES.GENERAL,

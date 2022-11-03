@@ -1,135 +1,257 @@
 import * as Joi from "joi";
-import {
-  errorMessage,
-  requireStringValidation,
-} from "@/validate/common.validate";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+
 
 export const productPayloadValidate = {
-  brand_id: requireStringValidation("Brand id"),
-  collection_id: requireStringValidation("Collection"),
+  brand_id: Joi.string()
+    .required()
+    .error(commonFailValidatedMessageFunction("Brand id is required")),
+  collection_id: Joi.string()
+    .required()
+    .error(commonFailValidatedMessageFunction("Please select collection")),
   category_ids: Joi.array()
     .items(Joi.string().required())
     .required()
-    .error(errorMessage("Please select category")),
-  name: requireStringValidation("Name"),
+    .error(commonFailValidatedMessageFunction("Please select category")),
+  name: Joi.string()
+    .required()
+    .error(commonFailValidatedMessageFunction("Name is required")),
   description: Joi.string().allow(""),
   general_attribute_groups: Joi.array()
     .items(
       Joi.object({
-        name: requireStringValidation("General attribute title"),
+        name: Joi.string()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "General attribute title is required"
+            )
+          ),
         attributes: Joi.array()
           .items({
-            id: requireStringValidation("Attribute"),
-            basis_id: requireStringValidation("General attribute basis"),
+            id: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Attribute is required")
+              ),
+            basis_id: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "General attribute basis is required"
+                )
+              ),
             basis_value_id: Joi.any(),
             type: Joi.string()
               .valid("Text", "Conversions", "Presets", "Options")
               .required()
-              .error(errorMessage("General attribute type is required")),
+              .error(
+                commonFailValidatedMessageFunction(
+                  "General attribute type is required"
+                )
+              ),
             text: Joi.any(),
             conversion_value_1: Joi.any(),
             conversion_value_2: Joi.any(),
           })
           .required()
-          .error(errorMessage("General attributes is required")),
+          .error(
+            commonFailValidatedMessageFunction(
+              "General attributes is required"
+            )
+          ),
       })
     )
     .required()
-    .error(errorMessage("General attribute groups is required")),
+    .error(
+      commonFailValidatedMessageFunction(
+        "General attribute groups is required"
+      )
+    ),
   feature_attribute_groups: Joi.array()
     .items(
       Joi.object({
-        name: requireStringValidation("Feature attribute title"),
+        name: Joi.string()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Feature attribute title is required"
+            )
+          ),
         attributes: Joi.array()
           .items({
-            id: requireStringValidation("Attribute"),
-            basis_id: requireStringValidation("Feature attribute basis"),
+            id: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Attribute is required")
+              ),
+            basis_id: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Feature attribute basis is required"
+                )
+              ),
             basis_value_id: Joi.any(),
             type: Joi.string()
               .valid("Text", "Conversions", "Presets", "Options")
               .required()
-              .error(errorMessage("Feature attribute type is required")),
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Feature attribute type is required"
+                )
+              ),
             text: Joi.any(),
             conversion_value_1: Joi.any(),
             conversion_value_2: Joi.any(),
           })
           .required()
-          .error(errorMessage("Feature attributes is required")),
+          .error(
+            commonFailValidatedMessageFunction(
+              "Feature attributes is required"
+            )
+          ),
       })
     )
     .required()
-    .error(errorMessage("Feature attribute groups is required")),
+    .error(
+      commonFailValidatedMessageFunction(
+        "Feature attribute groups is required"
+      )
+    ),
   specification_attribute_groups: Joi.array()
     .items(
       Joi.object({
-        name: requireStringValidation("Specification attribute name"),
-        attributes: Joi.array()
-          .items(
-            Joi.object({
-              id: requireStringValidation("Attribute"),
-              basis_id: Joi.any()
-                .required()
-                .error(
-                  errorMessage("Specification attribute basis is required")
-                ),
-              basis_value_id: Joi.any(),
-              type: Joi.string()
-                .valid("Text", "Conversions", "Presets", "Options")
-                .required()
-                .error(
-                  errorMessage("Specification attribute type is required")
-                ),
-              text: Joi.any(),
-              conversion_value_1: Joi.any(),
-              conversion_value_2: Joi.any(),
-              basis_options: [
-                Joi.array().items(
-                  Joi.object({
-                    id: Joi.string(),
-                    option_code: Joi.string(),
-                  })
-                ),
-                Joi.any(),
-              ],
-            })
-          )
+        name: Joi.string()
           .required()
-          .error(errorMessage("Specification attributes is required")),
+          .error(
+            commonFailValidatedMessageFunction(
+              "Specification attribute name is required"
+            )
+          ),
+        attributes: Joi.array()
+          .items({
+            id: Joi.string()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction("Attribute is required")
+              ),
+            basis_id: Joi.any()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Specification attribute basis is required"
+                )
+              ),
+            basis_value_id: Joi.any(),
+            type: Joi.string()
+              .valid("Text", "Conversions", "Presets", "Options")
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Specification attribute type is required"
+                )
+              ),
+            text: Joi.any(),
+            conversion_value_1: Joi.any(),
+            conversion_value_2: Joi.any(),
+            basis_options: [
+              Joi.array().items({
+                id: Joi.string(),
+                option_code: Joi.string(),
+              }),
+              Joi.any(),
+            ],
+          })
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Specification attributes is required"
+            )
+          ),
       })
     )
     .required()
-    .error(errorMessage("Specification attribute groups is required")),
+    .error(
+      commonFailValidatedMessageFunction(
+        "Specification attribute groups is required"
+      )
+    ),
   images: Joi.array()
     .min(3)
     .max(9)
     .items(Joi.string())
     .required()
-    .error(errorMessage("Images is required at least 3 valid data")),
+    .error(
+      commonFailValidatedMessageFunction("Images is required at least 3 valid data")
+    ),
   keywords: Joi.array()
     .items(Joi.string().allow(""))
     .required()
-    .error(errorMessage("Keywords is required")),
+    .error(commonFailValidatedMessageFunction("Keywords is required")),
   brand_location_id: Joi.string().allow(""),
   distributor_location_id: Joi.string().allow(""),
   tips: Joi.array().items(
     Joi.object({
-      title: requireStringValidation("Product tip title"),
-      content: requireStringValidation("Product tip content"),
+      title: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product tip title is required"
+          )
+        ),
+      content: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product tip content is required"
+          )
+        ),
     })
   ),
   downloads: Joi.array().items(
     Joi.object({
-      title: requireStringValidation("Product tip title"),
-      url: requireStringValidation("Product download url"),
+      title: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product tip title is required"
+          )
+        ),
+      url: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product download url is required"
+          )
+        ),
     })
   ),
   catelogue_downloads: Joi.array().items(
     Joi.object({
-      title: requireStringValidation("Product tip title"),
-      url: requireStringValidation("Product download url"),
+      title: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product tip title is required"
+          )
+        ),
+      url: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Product download url is required"
+          )
+        ),
     })
   ),
-};
+}
 
 export default {
   create: {
@@ -137,13 +259,17 @@ export default {
   },
   update: {
     params: {
-      id: requireStringValidation("Id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
     },
     payload: productPayloadValidate,
   },
   getList: {
     query: Joi.object({
-      brand_id: requireStringValidation("Brand id"),
+      brand_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand id is required")),
       category_id: Joi.string(),
       collection_id: Joi.string(),
     }),
@@ -159,37 +285,63 @@ export default {
   } as any,
   getBrandProductSummary: {
     params: {
-      brand_id: requireStringValidation("Brand id"),
+      brand_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand id is required")),
     },
   },
   getProductOptions: {
     params: {
-      id: requireStringValidation("Id"),
-      attribute_id: requireStringValidation("Attribute Id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
+      attribute_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Attribute Id is required")),
     },
   },
   assign: {
     payload: {
       considered_product_id: Joi.string().optional(),
       is_entire: Joi.boolean().required(),
-      product_id: requireStringValidation("Product id"),
-      project_id: requireStringValidation("Project id"),
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+      project_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Project id is required")),
       project_zone_ids: Joi.array().items(Joi.string()),
     },
   },
   shareByEmail: {
     payload: {
-      product_id: requireStringValidation("Product id"),
-      sharing_group: requireStringValidation("Sharing Group"),
-      sharing_purpose: requireStringValidation("Sharing Purpose"),
-      to_email: requireStringValidation("Email"),
-      title: requireStringValidation("Title"),
-      message: requireStringValidation("Message"),
+      product_id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product id is required")),
+      sharing_group: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Sharing Group is required")),
+      sharing_purpose: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Sharing Purpose is required")
+        ),
+      to_email: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      title: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Title is required")),
+      message: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Message is required")),
     },
   },
   publicSharingProduct: {
     query: {
-      hash: requireStringValidation("Hash"),
+      hash: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Hash is required")),
     },
   },
 };

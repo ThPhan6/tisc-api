@@ -1,15 +1,21 @@
 import * as Joi from "joi";
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
   orderValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
+} from "../../validate/common.validate";
 
 export default {
   createBasisConversion: {
     payload: {
-      name: requireStringValidation("Basis conversion group name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion group name is missing"
+          )
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -22,15 +28,30 @@ export default {
           })
         )
         .required()
-        .error(errorMessage("Basis conversion sub-group name is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion sub-group name is missing"
+          )
+        ),
     },
   },
   updateBasisConversion: {
     params: {
-      id: requireStringValidation("Basis conversion id"),
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Basis conversion id is required")
+        ),
     },
     payload: {
-      name: requireStringValidation("Basis conversion group name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion group name is missing"
+          )
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -44,17 +65,32 @@ export default {
           })
         )
         .required()
-        .error(errorMessage("Basis conversion sub-group is required")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis conversion sub-group is missing"
+          )
+        ),
     },
   },
   createBasisOption: {
     payload: {
-      name: requireStringValidation("Basis option group name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis option group name is missing"
+          )
+        ),
       subs: Joi.array().items({
         name: Joi.string()
           .trim()
           .required()
-          .error(errorMessage("Basis option sub-group name is required")),
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis option sub-group name is missing"
+            )
+          ),
         is_have_image: Joi.valid(true, false),
         subs: Joi.array()
           .items({
@@ -69,19 +105,37 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(errorMessage("Basis option value is required")),
+          .error(
+            commonFailValidatedMessageFunction("Basis option value is missing")
+          ),
       }),
     },
   },
   updateBasisOption: {
     params: {
-      id: requireStringValidation("Basis option id"),
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Basis option id is required")
+        ),
     },
     payload: {
-      name: requireStringValidation("Basis option group name"),
+      name: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis option group name is missing"
+          )
+        ),
       subs: Joi.array().items({
         id: Joi.string(),
-        name: requireStringValidation("Basis option sub-group name"),
+        name: Joi.string()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis option sub-group name is missing"
+            )
+          ),
         is_have_image: Joi.valid(true, false),
         subs: Joi.array()
           .items({
@@ -97,7 +151,9 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(errorMessage("Basis option value is required")),
+          .error(
+            commonFailValidatedMessageFunction("Basis option value is missing")
+          ),
       }),
     },
   },
@@ -114,9 +170,23 @@ export default {
   }),
   createBasisPreset: {
     payload: {
-      name: requireStringValidation("Basis preset group name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction(
+            "Basis preset group name is missing"
+          )
+        ),
       subs: Joi.array().items({
-        name: requireStringValidation("Basis preset sub-group name"),
+        name: Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis preset sub-group name is missing"
+            )
+          ),
         subs: Joi.array()
           .items({
             value_1: Joi.string().allow(""),
@@ -125,19 +195,35 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(errorMessage("Basis preset value is required")),
+          .error(
+            commonFailValidatedMessageFunction("Basis preset value is missing")
+          ),
       }),
     },
   },
   updateBasisPreset: {
     params: {
-      id: requireStringValidation("Basis preset"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Basis preset is missing")),
     },
     payload: {
-      name: requireStringValidation("Basis group name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Basis group name is missing")
+        ),
       subs: Joi.array().items({
         id: Joi.string(),
-        name: requireStringValidation("Basis preset sub-group name"),
+        name: Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Basis preset sub-group name is missing"
+            )
+          ),
         subs: Joi.array()
           .items({
             id: Joi.string(),
@@ -147,7 +233,9 @@ export default {
             unit_2: Joi.string().allow(""),
           })
           .required()
-          .error(errorMessage("Basis preset value is required")),
+          .error(
+            commonFailValidatedMessageFunction("Basis preset value is missing")
+          ),
       }),
     },
   },

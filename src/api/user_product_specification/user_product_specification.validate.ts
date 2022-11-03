@@ -1,15 +1,19 @@
 import * as Joi from "joi";
-import { requireStringValidation } from "@/validate/common.validate";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
   getSelectedSpecification: {
     params: {
-      id: requireStringValidation("Product Id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product Id is required")),
     },
   },
   selectSpecification: {
     params: {
-      id: requireStringValidation("Product Id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Product Id is required")),
     },
     payload: {
       specification: Joi.object({
@@ -19,8 +23,8 @@ export default {
             id: Joi.string(),
             attributes: Joi.array().items(
               Joi.object({
-                id: requireStringValidation("Attribute id"),
-                basis_option_id: requireStringValidation("Basis option id"),
+                id: Joi.string().required(),
+                basis_option_id: Joi.string().required(),
               })
             ),
           })

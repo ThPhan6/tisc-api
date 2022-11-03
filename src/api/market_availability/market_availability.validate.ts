@@ -1,39 +1,59 @@
 import * as Joi from "joi";
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
+} from "../../validate/common.validate";
 
 export default {
   create: {
     payload: {
-      collection_id: requireStringValidation("Collection"),
-      country_ids: Joi.array()
-        .items(requireStringValidation("Country"))
+      collection_id: Joi.string()
+        .trim()
         .required()
-        .error(errorMessage("Country is required")),
+        .error(commonFailValidatedMessageFunction("Collection is required")),
+      country_ids: Joi.array()
+        .items(
+          Joi.string()
+            .trim()
+            .required()
+            .error(commonFailValidatedMessageFunction("Country is required"))
+        )
+        .required()
+        .error(commonFailValidatedMessageFunction("Country is required")),
     },
   },
   update: {
     params: {
-      id: requireStringValidation("Collection"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Collection is required")),
     },
     payload: {
       country_ids: Joi.array()
-        .items(requireStringValidation("Country"))
+        .items(
+          Joi.string()
+            .required()
+            .error(commonFailValidatedMessageFunction("Country is required"))
+        )
         .required()
-        .error(errorMessage("Country is required")),
+        .error(commonFailValidatedMessageFunction("Country is required")),
     },
   },
   getList: getListValidation({
     query: {
-      brand_id: requireStringValidation("Brand id"),
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand id is required")),
     },
+    custom: (value) => ({ brand_id: value.brand_id }),
   }),
   getWithBrandId: {
     params: {
-      brand_id: requireStringValidation("Collection"),
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Collection is required")),
     },
   },
 };

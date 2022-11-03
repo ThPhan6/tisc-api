@@ -1,18 +1,34 @@
 import * as Joi from "joi";
 import {
+  commonFailValidatedMessageFunction,
   orderValidation,
-  requireStringValidation,
 } from "@/validate/common.validate";
 
 export default {
   create: {
     payload: {
-      name: requireStringValidation("Material name"),
+      name: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Material name is missing")),
       subs: Joi.array().items({
-        name: requireStringValidation("Sub-list name"),
+        name: Joi.string()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction("Sub-list name is missing")
+          ),
         codes: Joi.array().items({
-          code: requireStringValidation("Sub-list Code"),
-          description: requireStringValidation("Sub-list description"),
+          code: Joi.string()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction("Sub-list Code is missing")
+            ),
+          description: Joi.string()
+            .required()
+            .error(
+              commonFailValidatedMessageFunction(
+                "Sub-list description is missing"
+              )
+            ),
         }),
       }),
     },
@@ -34,18 +50,36 @@ export default {
 
   update: {
     params: {
-      id: requireStringValidation("Material code id"),
+      id: Joi.string()
+        .required()
+        .error(() => new Error("Material code id is required")),
     },
     payload: {
-      name: requireStringValidation("Main material code name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(() => new Error("Main material code name is missing")),
       subs: Joi.array().items(
         Joi.object({
           id: Joi.string().allow(null),
-          name: requireStringValidation("Sub-list name"),
+          name: Joi.string()
+            .trim()
+            .required()
+            .error(() => new Error("Sub-list name is missing")),
           codes: Joi.array().items({
             id: Joi.string().allow(null),
-            code: requireStringValidation("Sub-list Code"),
-            description: requireStringValidation("Sub-list description"),
+            code: Joi.string()
+              .trim()
+              .required()
+              .error(() => new Error("Sub-list Code is missing")),
+            description: Joi.string()
+              .trim()
+              .required()
+              .error(
+                commonFailValidatedMessageFunction(
+                  "Sub-list description is missing"
+                )
+              ),
           }),
         })
       ),

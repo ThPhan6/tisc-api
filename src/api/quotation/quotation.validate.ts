@@ -1,19 +1,42 @@
-import { requireStringValidation } from "@/validate/common.validate";
-
-const quotationPayload = {
-  author: requireStringValidation("Author"),
-  identity: requireStringValidation("Identity"),
-  quotation: requireStringValidation("Quote"),
-};
+import * as Joi from "joi";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 export default {
   create: {
-    payload: quotationPayload,
+    payload: {
+      author: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Author is required")),
+      identity: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Identity is required")),
+      quotation: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Quote is required")),
+    },
   },
   update: {
     params: {
-      id: requireStringValidation("Quote id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Quote id is required")),
     },
-    payload: quotationPayload,
+    payload: {
+      author: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Author is required")),
+      identity: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Identity is required")),
+      quotation: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Quote is required")),
+    },
   },
 };

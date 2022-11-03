@@ -5,7 +5,7 @@ import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import { AUTH_NAMES } from "@/constant/auth.constant";
 import ProductResponse from "./material_code.response";
 import validate from "./material_code.validate";
-import { getOneValidation } from "@/validate/common.validate";
+import commonValidate from "@/validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class MaterialCodeRoute implements IRoute {
@@ -36,7 +36,7 @@ export default class MaterialCodeRoute implements IRoute {
           path: ROUTES.MATERIAL_CODE.GET_MATERIAL_CODE,
           options: {
             handler: controller.get,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that create material code",
             tags: ["api", "Material code"],
             auth: AUTH_NAMES.PERMISSION,
@@ -102,7 +102,7 @@ export default class MaterialCodeRoute implements IRoute {
           method: "DELETE",
           path: ROUTES.MATERIAL_CODE.DELETE_MATERIAL_CODE,
           options: {
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             handler: controller.delete,
             description: "Method that delete material code",
             tags: ["api", "Material code"],

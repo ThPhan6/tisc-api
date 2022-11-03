@@ -2,10 +2,9 @@ import { ActiveStatus } from "@/types";
 import Joi from "joi";
 
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
+} from "../../validate/common.validate";
 import { GetDesignFirmSort } from "./designer.type";
 
 export default {
@@ -21,28 +20,57 @@ export default {
   }),
   updateDesignStatus: {
     params: {
-      id: requireStringValidation("Design"),
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
     },
     payload: {
       status: Joi.number()
         .valid(ActiveStatus.Active, ActiveStatus.Inactive)
         .required()
-        .error(errorMessage("Design status is required")),
+        .error(commonFailValidatedMessageFunction("Design status is required")),
     },
   },
   updateDesign: {
     params: {
-      id: requireStringValidation("Design"),
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
     },
     payload: {
-      name: requireStringValidation("Design firm name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Design firm name is required")
+        ),
       parent_company: Joi.string().allow(""),
-      logo: requireStringValidation("Logo"),
+      logo: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Logo is required")),
       slogan: Joi.string().allow(""),
-      profile_n_philosophy: requireStringValidation("Profile & Philosophy"),
-      official_website: requireStringValidation("Official website"),
+      profile_n_philosophy: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Profile & Philosophy")),
+      official_website: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Official website is required")
+        ),
       capabilities: Joi.array().items(
-        requireStringValidation("Design capabilities")
+        Joi.string()
+          .trim()
+          .required()
+          .error(
+            commonFailValidatedMessageFunction(
+              "Design capabilities is required"
+            )
+          )
       ),
     },
   },

@@ -2,11 +2,9 @@ import { getEnumValues } from "@/helper/common.helper";
 import { ActiveStatus, GetUserGroupBrandSort } from "@/types";
 import Joi from "joi";
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
-  requireEmailValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
+} from "../../validate/common.validate";
 
 export default {
   getList: getListValidation({
@@ -21,41 +19,69 @@ export default {
   }),
   updateBrandProfile: {
     payload: {
-      name: requireStringValidation("Brand name"),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand name is required")),
       parent_company: Joi.string().trim().allow(""),
       slogan: Joi.string().trim().allow(""),
-      mission_n_vision: requireStringValidation("Mission and vision"),
+      mission_n_vision: Joi.string()
+        .trim()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Mission and vision is required")
+        ),
       official_websites: Joi.array()
         .items({
           country_id: Joi.string(),
           url: Joi.string(),
         })
         .required()
-        .error(errorMessage("Official website is required")),
+        .error(
+          commonFailValidatedMessageFunction("Official website is required")
+        ),
     },
   },
   invite: {
     payload: {
-      email: requireEmailValidation(),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("email is required")),
     },
   },
   create: {
     payload: {
-      name: requireStringValidation("Brand Name"),
-      first_name: requireStringValidation("First name"),
-      last_name: requireStringValidation("Last name"),
-      email: requireEmailValidation(),
+      name: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand Name is required")),
+      first_name: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("First name is required")),
+      last_name: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Last name is required")),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
     },
   },
   updateBrandStatus: {
     params: {
-      id: requireStringValidation("Brand"),
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
     },
     payload: {
       status: Joi.number()
         .valid(...getEnumValues(ActiveStatus))
         .required()
-        .error(errorMessage("Status required")),
+        .error(commonFailValidatedMessageFunction("Status required")),
     },
   },
 };

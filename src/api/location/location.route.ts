@@ -1,6 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import LocationController from "./location.controller";
-import { getOneValidation } from "@/validate/common.validate";
+import commonValidate from "@/validate/common.validate";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import response from "./location.response";
@@ -52,7 +52,7 @@ export default class LocationRoute implements IRoute {
           path: ROUTES.GET_ONE_LOCATION,
           options: {
             handler: controller.get,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that get one location",
             tags: ["api", "Location"],
             auth: AUTH_NAMES.PERMISSION,
@@ -154,7 +154,7 @@ export default class LocationRoute implements IRoute {
           path: ROUTES.DELETE_LOCATION,
           options: {
             handler: controller.delete,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that delete location",
             tags: ["api", "Location"],
             auth: AUTH_NAMES.PERMISSION,
