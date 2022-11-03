@@ -7,7 +7,7 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import response from "./favourite.response";
 import { ROUTES } from "@/constants";
 

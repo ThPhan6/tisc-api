@@ -2,7 +2,7 @@ import { generalMessageResponse } from "@/helper/response.helper";
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import validate from "./distributor.validate";
 import response from "./distributor.response";
 import DistributorController from "./distributor.controller";

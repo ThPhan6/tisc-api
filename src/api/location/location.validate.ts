@@ -6,6 +6,22 @@ import {
 } from "@/validate/common.validate";
 import Joi from "joi";
 
+const locationValidate = {
+  business_name: requireStringValidation("Business name"),
+  business_number: requireStringValidation("Business number"),
+  functional_type_ids: Joi.array()
+    .items(requireStringValidation("Functional type"))
+    .required()
+    .error(errorMessage("Functional type is required")),
+  country_id: requireStringValidation("Country"),
+  state_id: Joi.string().trim().allow(""),
+  city_id: Joi.string().trim().allow(""),
+  address: requireStringValidation("Address"),
+  postal_code: requireStringValidation("Postal code"),
+  general_phone: requireStringValidation("General phone"),
+  general_email: requireEmailValidation("General email"),
+};
+
 export default {
   getMarketLocationsCountryGroup: {
     params: {
@@ -23,45 +39,13 @@ export default {
     },
   },
   create: {
-    payload: {
-      business_name: requireStringValidation("Business name"),
-      business_number: Joi.string()
-        .required()
-        .allow("")
-        .error(errorMessage("Business number is required")),
-
-      functional_type_ids: Joi.array()
-        .items(requireStringValidation("Functional type"))
-        .required()
-        .error(errorMessage("Functional type is required")),
-      country_id: requireStringValidation("Country"),
-      state_id: Joi.string().trim().allow(""),
-      city_id: Joi.string().trim().allow(""),
-      address: requireStringValidation("Address"),
-      postal_code: requireStringValidation("Postal code"),
-      general_phone: requireStringValidation("General phone"),
-      general_email: requireEmailValidation("General email"),
-    },
+    payload: locationValidate,
   },
   update: {
     params: {
       id: requireStringValidation("Location id"),
     },
-    payload: {
-      business_name: requireStringValidation("Business name"),
-      business_number: Joi.string().allow(""),
-      functional_type_ids: Joi.array()
-        .items(requireStringValidation("Functional type"))
-        .required()
-        .error(errorMessage("Functional type is required")),
-      country_id: requireStringValidation("Country id"),
-      state_id: Joi.string().trim().allow(""),
-      city_id: Joi.string().trim().allow(""),
-      address: requireStringValidation("Address"),
-      postal_code: requireStringValidation("Postal code"),
-      general_phone: requireStringValidation("General phone"),
-      general_email: requireEmailValidation("General email"),
-    },
+    payload: locationValidate,
   },
   getList: getListValidation(),
 };

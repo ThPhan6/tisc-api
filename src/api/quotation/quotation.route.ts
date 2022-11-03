@@ -6,7 +6,7 @@ import {
 } from "@/validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import validate from "./quotation.validate";
 import response from "./quotation.response";
 import QuotationController from "./quotation.controller";

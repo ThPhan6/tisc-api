@@ -2,7 +2,7 @@ import * as Hapi from "@hapi/hapi";
 import MaterialCodeController from "./material_code.controller";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import ProductResponse from "./material_code.response";
 import validate from "./material_code.validate";
 import { getOneValidation } from "@/validate/common.validate";

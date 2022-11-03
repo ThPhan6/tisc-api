@@ -1,5 +1,5 @@
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
 import IRoute from "../../helper/route.helper";
 import MarketAvailabilityController from "./market_availability.controller";

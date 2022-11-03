@@ -5,7 +5,7 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import CollectionResponse from "./collection.response";
 import validate from "./collection.validate";
 import { getOneValidation } from "@/validate/common.validate";

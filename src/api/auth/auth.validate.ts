@@ -1,4 +1,4 @@
-import { EMAIL_TYPE } from "@/constant/common.constant";
+import { AUTH_EMAIL_TYPE } from "@/constants";
 import {
   errorMessage,
   requireEmailValidation,
@@ -60,7 +60,7 @@ export default {
   resendEmail: {
     params: {
       type: Joi.string()
-        .valid(EMAIL_TYPE.FORGOT_PASSWORD, EMAIL_TYPE.VERIFICATION)
+        .valid(AUTH_EMAIL_TYPE.FORGOT_PASSWORD, AUTH_EMAIL_TYPE.VERIFICATION)
         .required()
         .error(errorMessage("Type email resend is required")),
       email: requireEmailValidation(),

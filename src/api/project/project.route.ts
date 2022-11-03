@@ -8,7 +8,7 @@ import {
   commonResponse,
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";

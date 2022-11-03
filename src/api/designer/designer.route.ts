@@ -6,7 +6,7 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import response from "./designer.response";
 import validate from "./designer.validate";
 import { ROUTES } from "@/constants";

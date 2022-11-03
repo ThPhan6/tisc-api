@@ -6,11 +6,11 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import response from "./brand.response";
 import validate from "./brand.validate";
 import Joi from "joi";
-import { ROUTES } from "@/constants";
+import { imageOptionPayload, ROUTES } from "@/constants";
 
 export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -177,21 +177,7 @@ export default class BrandRoute implements IRoute {
             description: "Method that update brand logo",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
-            payload: {
-              maxBytes: 1024 * 1024 * 5,
-              multipart: {
-                output: "stream",
-              },
-              parse: true,
-              failAction: (_request, _h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload file size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
-            },
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

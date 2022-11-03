@@ -1,4 +1,4 @@
-import { SortOrder } from "@/types/common.type";
+import { SortOrder } from "@/types";
 import {
   IMaterialCodeAttributes,
   ICodeAttribute,
