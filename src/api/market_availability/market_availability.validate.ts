@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -12,7 +12,7 @@ export default {
       country_ids: Joi.array()
         .items(requireStringValidation("Country"))
         .required()
-        .error(commonFailValidatedMessageFunction("Country is required")),
+        .error(errorMessage("Country is required")),
     },
   },
   update: {
@@ -23,7 +23,7 @@ export default {
       country_ids: Joi.array()
         .items(requireStringValidation("Country"))
         .required()
-        .error(commonFailValidatedMessageFunction("Country is required")),
+        .error(errorMessage("Country is required")),
     },
   },
   getList: getListValidation({

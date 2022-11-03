@@ -4,7 +4,7 @@ import {
   ActionTaskStatus,
 } from "@/types/action_task.type";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
 import Joi from "joi";
@@ -19,7 +19,7 @@ export default {
       model_name: Joi.string()
         .valid(...getEnumKeys(ActionTaskModelEnum))
         .required()
-        .error(commonFailValidatedMessageFunction("Model name is required")),
+        .error(errorMessage("Model name is required")),
     },
   },
   update: {
@@ -30,7 +30,7 @@ export default {
       status: Joi.number()
         .valid(...getEnumValues(ActionTaskStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
     },
   },
   getList: {
@@ -39,7 +39,7 @@ export default {
       model_name: Joi.string()
         .valid(...getEnumKeys(ActionTaskModelEnum))
         .required()
-        .error(commonFailValidatedMessageFunction("Model name is required")),
+        .error(errorMessage("Model name is required")),
     },
   },
 };

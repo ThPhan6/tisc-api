@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   getListValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -17,7 +17,7 @@ export default {
         }),
       })
         .required()
-        .error(commonFailValidatedMessageFunction("Document is required")),
+        .error(errorMessage("Document is required")),
     },
   },
   getById: {
@@ -39,7 +39,7 @@ export default {
         }),
       })
         .required()
-        .error(commonFailValidatedMessageFunction("Document is required")),
+        .error(errorMessage("Document is required")),
     },
   },
   updateHowto: {
@@ -55,7 +55,7 @@ export default {
           }),
         })
           .required()
-          .error(commonFailValidatedMessageFunction("Document is required")),
+          .error(errorMessage("Document is required")),
       }),
     },
   },

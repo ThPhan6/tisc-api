@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 import {
-  commonFailValidatedMessageFunction,
+  errorMessage,
   requireNumberValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
@@ -24,7 +24,7 @@ export default {
                 })
               )
               .required()
-              .error(commonFailValidatedMessageFunction("Room is missing")),
+              .error(errorMessage("Room is missing")),
           })
         )
         .required(),
@@ -76,7 +76,7 @@ export default {
                 })
               )
               .required()
-              .error(commonFailValidatedMessageFunction("Room is missing")),
+              .error(errorMessage("Room is missing")),
           })
         )
         .required(),
