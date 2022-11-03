@@ -5,9 +5,9 @@ name: TISC CI
 
 on:
   push:
-    branches: [master, dev, staging, bugs/sonar]
+    branches: [master, dev, staging, bugs/sonar, quality]
   pull_request:
-    branches: [master, dev, staging]
+    branches: [master, dev, staging, quality]
 
 jobs:
   quality-control:
