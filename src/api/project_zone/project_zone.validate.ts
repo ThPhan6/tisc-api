@@ -1,49 +1,26 @@
 import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import {
+  commonFailValidatedMessageFunction,
+  requireNumberValidation,
+  requireStringValidation,
+} from "@/validate/common.validate";
 
 export default {
   create: {
     payload: {
-      project_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project is missing")),
-      name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Zone is missing")),
+      project_id: requireStringValidation("Project"),
+      name: requireStringValidation("Zone"),
       areas: Joi.array()
         .items(
           Joi.object({
-            name: Joi.string()
-              .trim()
-              .required()
-              .error(commonFailValidatedMessageFunction("Area is missing")),
+            name: requireStringValidation("Area"),
             rooms: Joi.array()
               .items(
                 Joi.object({
-                  room_name: Joi.string()
-                    .trim()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Room is missing")
-                    ),
-                  room_id: Joi.string()
-                    .trim()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Room ID is missing")
-                    ),
-                  room_size: Joi.number()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Room Size is missing")
-                    ),
-                  quantity: Joi.number()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Quantity is missing")
-                    ),
+                  room_name: requireStringValidation("Room"),
+                  room_id: requireStringValidation("Room ID"),
+                  room_size: requireNumberValidation("Room Size"),
+                  quantity: requireNumberValidation("Quantity"),
                 })
               )
               .required()
@@ -51,16 +28,12 @@ export default {
           })
         )
         .required(),
-      // .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 
   getList: {
     query: Joi.object({
-      project_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project is required")),
+      project_id: requireStringValidation("Project"),
       zone_order: Joi.string().valid("ASC", "DESC"),
       area_order: Joi.string().valid("ASC", "DESC"),
       room_name_order: Joi.string().valid("ASC", "DESC"),
@@ -77,62 +50,29 @@ export default {
   },
   getOne: {
     params: {
-      id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project zone is required")),
+      id: requireStringValidation("Project zone"),
     },
   },
   update: {
     params: {
-      id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project zone is required")),
+      id: requireStringValidation("Project zone"),
     },
     payload: {
-      project_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Project is missing")),
-      name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Zone is missing")),
+      project_id: requireStringValidation("Project"),
+      name: requireStringValidation("Zone"),
       areas: Joi.array()
         .items(
           Joi.object({
             id: Joi.string().trim().allow(""),
-            name: Joi.string()
-              .trim()
-              .required()
-              .error(commonFailValidatedMessageFunction("Area is missing")),
+            name: requireStringValidation("Area"),
             rooms: Joi.array()
               .items(
                 Joi.object({
                   id: Joi.string().trim().allow(""),
-                  room_name: Joi.string()
-                    .trim()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Room is missing")
-                    ),
-                  room_id: Joi.string()
-                    .trim()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Room ID is missing")
-                    ),
-                  room_size: Joi.number()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Room Size is missing")
-                    ),
-                  quantity: Joi.number()
-                    .required()
-                    .error(
-                      commonFailValidatedMessageFunction("Quantity is missing")
-                    ),
+                  room_name: requireStringValidation("Room"),
+                  room_id: requireStringValidation("Room ID"),
+                  room_size: requireNumberValidation("Room Size"),
+                  quantity: requireNumberValidation("Quantity"),
                 })
               )
               .required()
@@ -140,7 +80,6 @@ export default {
           })
         )
         .required(),
-      // .error(commonFailValidatedMessageFunction("Area is missing")),
     },
   },
 };

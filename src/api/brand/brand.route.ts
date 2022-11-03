@@ -1,9 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import BrandController from "./brand.controller";
-import {
-  getAllValidation,
-  getOneValidation,
-} from "../../validate/common.validate";
+import { getAllValidation, getOneValidation } from "@/validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,

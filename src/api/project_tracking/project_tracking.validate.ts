@@ -3,28 +3,21 @@ import { ProjectStatus } from "@/types";
 import {
   commonFailValidatedMessageFunction,
   getListValidation,
+  requireStringValidation,
 } from "@/validate/common.validate";
 import * as Joi from "joi";
 import { ProjectTrackingPriority } from "./project_tracking.model";
 
-const requiredProductId = Joi.string()
-  .required()
-  .error(commonFailValidatedMessageFunction("Product id is required"));
-const requiredProjectId = Joi.string()
-  .required()
-  .error(commonFailValidatedMessageFunction("Project id is required"));
+const requiredProductId = requireStringValidation("Product id");
+const requiredProjectId = requireStringValidation("Project id");
 
 export default {
   createProjectRequest: {
     payload: {
       product_id: requiredProductId,
       project_id: requiredProjectId,
-      title: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Title is required")),
-      message: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Message is required")),
+      title: requireStringValidation("Title"),
+      message: requireStringValidation("Message"),
       request_for_ids: Joi.array()
         .items(Joi.string())
         .required()
@@ -63,11 +56,7 @@ export default {
   }),
   updateProjectTracking: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Project tracking id is required")
-        ),
+      id: requireStringValidation("Project tracking id"),
     },
     payload: {
       priority: Joi.number()
@@ -79,11 +68,7 @@ export default {
   },
   getOne: {
     params: Joi.object({
-      id: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Project tracking id is required")
-        ),
+      id: requireStringValidation("Project tracking id"),
     }),
   },
 };

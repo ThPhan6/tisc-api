@@ -4,7 +4,9 @@ import Joi from "joi";
 import {
   commonFailValidatedMessageFunction,
   getListValidation,
-} from "../../validate/common.validate";
+  requireEmailValidation,
+  requireStringValidation,
+} from "@/validate/common.validate";
 
 export default {
   getList: getListValidation({
@@ -19,18 +21,10 @@ export default {
   }),
   updateBrandProfile: {
     payload: {
-      name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand name is required")),
+      name: requireStringValidation("Brand name"),
       parent_company: Joi.string().trim().allow(""),
       slogan: Joi.string().trim().allow(""),
-      mission_n_vision: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Mission and vision is required")
-        ),
+      mission_n_vision: requireStringValidation("Mission and vision"),
       official_websites: Joi.array()
         .items({
           country_id: Joi.string(),
@@ -44,38 +38,20 @@ export default {
   },
   invite: {
     payload: {
-      email: Joi.string()
-        .email()
-        .required()
-        .error(commonFailValidatedMessageFunction("email is required")),
+      email: requireEmailValidation(),
     },
   },
   create: {
     payload: {
-      name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand Name is required")),
-      first_name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("First name is required")),
-      last_name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Last name is required")),
-      email: Joi.string()
-        .email()
-        .required()
-        .error(commonFailValidatedMessageFunction("Email is required")),
+      name: requireStringValidation("Brand Name"),
+      first_name: requireStringValidation("First name"),
+      last_name: requireStringValidation("Last name"),
+      email: requireEmailValidation(),
     },
   },
   updateBrandStatus: {
     params: {
-      id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand is required")),
+      id: requireStringValidation("Brand"),
     },
     payload: {
       status: Joi.number()

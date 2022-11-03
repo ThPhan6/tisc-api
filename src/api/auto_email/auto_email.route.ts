@@ -11,7 +11,7 @@ import response from "./auto_email.response";
 import {
   getListValidation,
   getOneValidation,
-} from "../../validate/common.validate";
+} from "@/validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class AutoEmailRoute implements IRoute {

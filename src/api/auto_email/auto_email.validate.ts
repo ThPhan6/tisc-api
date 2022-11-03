@@ -1,21 +1,13 @@
-import {
-  TOPIC_TYPES,
-  TARGETED_FOR_TYPES,
-} from "../../constant/common.constant";
+import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constant/common.constant";
 import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import {
+  commonFailValidatedMessageFunction,
+  requireStringValidation,
+} from "@/validate/common.validate";
 
 export default {
   update: {
-    params: {
-      id: Joi.string()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction(
-            "Email autoresponders id is required"
-          )
-        ),
-    },
+    params: { id: requireStringValidation("Email autoresponders id") },
     payload: {
       topic: Joi.number()
         .valid(
@@ -39,13 +31,8 @@ export default {
         .error(
           commonFailValidatedMessageFunction("Targeted for type is required")
         ),
-      title: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Title is required")),
-      message: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Message is required")),
+      title: requireStringValidation("Title"),
+      message: requireStringValidation("Message"),
     },
   },
 };

@@ -8,7 +8,7 @@ import {
 import { AUTH_NAMES } from "../../constant/auth.constant";
 import CollectionResponse from "./collection.response";
 import validate from "./collection.validate";
-import { getOneValidation } from "../../validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import { ROUTES } from "@/constants";
 
 export default class CollectionRoute implements IRoute {
