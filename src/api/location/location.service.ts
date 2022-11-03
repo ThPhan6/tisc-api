@@ -50,6 +50,7 @@ export default class LocationService {
         let functionalTypes;
         if (functionalTypeOption) {
           functionalTypes = functionalTypeOption;
+        } else {
           functionalTypes = await commonTypeRepository.getByListIds(
             location.functional_type_ids
           );
