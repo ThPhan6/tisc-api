@@ -1,4 +1,4 @@
-import { MESSAGES } from "@/constant/common.constant";
+import { MESSAGES } from "@/constants";
 import {
   getSummaryTable,
   pagination,

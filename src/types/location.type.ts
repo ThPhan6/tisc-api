@@ -111,3 +111,22 @@ export type RegionKey =
   | "south america"
   | "americas"
   | "northern_america";
+
+export enum DesignFirmFunctionalType {
+  "Main office" = "1",
+  "Satellite" = "2",
+  "Other" = "3",
+}
+
+export interface LocationRequest {
+  business_name: string;
+  business_number?: string;
+  functional_type_ids: string[];
+  country_id: string;
+  state_id: string;
+  city_id: string;
+  address: string;
+  postal_code: string;
+  general_phone: string;
+  general_email: string;
+}

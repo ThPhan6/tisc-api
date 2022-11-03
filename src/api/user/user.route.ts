@@ -3,7 +3,7 @@ import UserController from "./user.controller";
 import validate from "./user.validate";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { AUTH_NAMES, ROUTES } from "@/constants";
+import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
 import response from "./user.response";
 import { getListValidation } from "@/validate/common.validate";
 
@@ -123,21 +123,7 @@ export default class UserRoute implements IRoute {
             description: "Method that update user avatar",
             tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
-            payload: {
-              maxBytes: 1024 * 1024 * 5,
-              multipart: {
-                output: "stream",
-              },
-              parse: true,
-              failAction: (_request, _h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload file size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
-            },
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

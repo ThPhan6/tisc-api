@@ -4,7 +4,7 @@ import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import AutoEmailController from "./auto_email.controller";
 import validate from "./auto_email.validate";
 import response from "./auto_email.response";

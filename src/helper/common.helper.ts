@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { ROLES } from "../constant/user.constant";
+import { ROLES } from "@/constants";
 import { template } from "lodash";
 
 export const isDuplicatedString = (values: string[]) => {

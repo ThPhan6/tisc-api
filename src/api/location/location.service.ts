@@ -1,5 +1,4 @@
-import { MESSAGES, SYSTEM_TYPE } from "@/constants";
-import { COMMON_TYPES } from "@/constants/common.constant";
+import { COMMON_TYPES, MESSAGES, SYSTEM_TYPE } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -14,12 +13,12 @@ import { countryStateCityService } from "@/service/country_state_city.service";
 import {
   ILocationAttributes,
   IMessageResponse,
+  LocationRequest,
   SortOrder,
   UserAttributes,
 } from "@/types";
 import { head } from "lodash";
 import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
-import { ILocationRequest } from "./location.type";
 
 export default class LocationService {
   private async getFunctionalType(
@@ -71,7 +70,7 @@ export default class LocationService {
     return successResponse({ data: functionTypes });
   };
 
-  public create = async (user: UserAttributes, payload: ILocationRequest) => {
+  public create = async (user: UserAttributes, payload: LocationRequest) => {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
@@ -117,7 +116,7 @@ export default class LocationService {
   public update = async (
     user: UserAttributes,
     id: string,
-    payload: ILocationRequest
+    payload: LocationRequest
   ) => {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
@@ -250,7 +249,6 @@ export default class LocationService {
     user: UserAttributes,
     id: string
   ): Promise<IMessageResponse> => {
-
     const location = await locationRepository.find(id);
     if (!location) {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
@@ -263,7 +261,11 @@ export default class LocationService {
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public createDefaultLocation = async (relationId: string, type: number, email: string) => {
+  public createDefaultLocation = async (
+    relationId: string,
+    type: number,
+    email: string
+  ) => {
     return locationRepository.create({
       business_name: "Global",
       functional_type_ids: [""],

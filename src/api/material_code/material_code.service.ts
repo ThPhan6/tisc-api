@@ -5,7 +5,6 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { materialCodeRepository } from "@/repositories/material_code.repository";
-import { SortOrder } from "@/types/common.type";
 import { projectProductRepository } from "./../project_product/project_product.repository";
 import {
   mappingCheckDuplicatePayload,
@@ -15,7 +14,7 @@ import {
   mappingSummaryMaterialCode,
 } from "./material_code.mapping";
 import { IMaterialCodeRequest } from "./material_code.type";
-import { UserAttributes } from "@/types";
+import { UserAttributes, SortOrder } from "@/types";
 
 class MaterialCodeService {
   public async create(user: UserAttributes, payload: IMaterialCodeRequest) {

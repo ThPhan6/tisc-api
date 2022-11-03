@@ -1,7 +1,7 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import ProjectTrackingController from "./project_tracking.controller";
 import validate from "./project_tracking.validate";
 import response from "./project_tracking.response";

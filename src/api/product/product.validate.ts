@@ -4,6 +4,49 @@ import {
   requireStringValidation,
 } from "@/validate/common.validate";
 
+const attributeGroupsValidate = (
+  type: "General" | "Feature" | "Specification"
+) => {
+  const isSpec = type === "Specification";
+  return Joi.array()
+    .items(
+      Joi.object({
+        name: requireStringValidation(`${type} attribute title`),
+        attributes: Joi.array()
+          .items({
+            id: requireStringValidation("Attribute"),
+            basis_id: isSpec
+              ? Joi.any()
+                  .required()
+                  .error(
+                    errorMessage("Specification attribute basis is required")
+                  )
+              : requireStringValidation(`${type} attribute basis`),
+            basis_value_id: Joi.any(),
+            type: Joi.string()
+              .valid("Text", "Conversions", "Presets", "Options")
+              .required()
+              .error(errorMessage(`${type} attribute type is required`)),
+            text: Joi.any(),
+            conversion_value_1: Joi.any(),
+            conversion_value_2: Joi.any(),
+          })
+          .required()
+          .error(errorMessage(`${type} attributes is required`)),
+        basis_options: isSpec
+          ? Joi.array().items(
+              Joi.object({
+                id: Joi.string(),
+                option_code: Joi.string(),
+              })
+            )
+          : Joi.any(),
+      })
+    )
+    .required()
+    .error(errorMessage(`${type} attribute groups is required`));
+};
+
 export const productPayloadValidate = {
   brand_id: requireStringValidation("Brand id"),
   collection_id: requireStringValidation("Collection"),
@@ -13,92 +56,9 @@ export const productPayloadValidate = {
     .error(errorMessage("Please select category")),
   name: requireStringValidation("Name"),
   description: Joi.string().allow(""),
-  general_attribute_groups: Joi.array()
-    .items(
-      Joi.object({
-        name: requireStringValidation("General attribute title"),
-        attributes: Joi.array()
-          .items({
-            id: requireStringValidation("Attribute"),
-            basis_id: requireStringValidation("General attribute basis"),
-            basis_value_id: Joi.any(),
-            type: Joi.string()
-              .valid("Text", "Conversions", "Presets", "Options")
-              .required()
-              .error(errorMessage("General attribute type is required")),
-            text: Joi.any(),
-            conversion_value_1: Joi.any(),
-            conversion_value_2: Joi.any(),
-          })
-          .required()
-          .error(errorMessage("General attributes is required")),
-      })
-    )
-    .required()
-    .error(errorMessage("General attribute groups is required")),
-  feature_attribute_groups: Joi.array()
-    .items(
-      Joi.object({
-        name: requireStringValidation("Feature attribute title"),
-        attributes: Joi.array()
-          .items({
-            id: requireStringValidation("Attribute"),
-            basis_id: requireStringValidation("Feature attribute basis"),
-            basis_value_id: Joi.any(),
-            type: Joi.string()
-              .valid("Text", "Conversions", "Presets", "Options")
-              .required()
-              .error(errorMessage("Feature attribute type is required")),
-            text: Joi.any(),
-            conversion_value_1: Joi.any(),
-            conversion_value_2: Joi.any(),
-          })
-          .required()
-          .error(errorMessage("Feature attributes is required")),
-      })
-    )
-    .required()
-    .error(errorMessage("Feature attribute groups is required")),
-  specification_attribute_groups: Joi.array()
-    .items(
-      Joi.object({
-        name: requireStringValidation("Specification attribute name"),
-        attributes: Joi.array()
-          .items(
-            Joi.object({
-              id: requireStringValidation("Attribute"),
-              basis_id: Joi.any()
-                .required()
-                .error(
-                  errorMessage("Specification attribute basis is required")
-                ),
-              basis_value_id: Joi.any(),
-              type: Joi.string()
-                .valid("Text", "Conversions", "Presets", "Options")
-                .required()
-                .error(
-                  errorMessage("Specification attribute type is required")
-                ),
-              text: Joi.any(),
-              conversion_value_1: Joi.any(),
-              conversion_value_2: Joi.any(),
-              basis_options: [
-                Joi.array().items(
-                  Joi.object({
-                    id: Joi.string(),
-                    option_code: Joi.string(),
-                  })
-                ),
-                Joi.any(),
-              ],
-            })
-          )
-          .required()
-          .error(errorMessage("Specification attributes is required")),
-      })
-    )
-    .required()
-    .error(errorMessage("Specification attribute groups is required")),
+  general_attribute_groups: attributeGroupsValidate("General"),
+  feature_attribute_groups: attributeGroupsValidate("Feature"),
+  specification_attribute_groups: attributeGroupsValidate("Specification"),
   images: Joi.array()
     .min(3)
     .max(9)

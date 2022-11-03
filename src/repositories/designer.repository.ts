@@ -2,6 +2,7 @@ import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
   DesignerAttributes,
+  DesignFirmFunctionalType,
   ListDesignerWithPaginate,
   ProjectStatus,
   SortOrder,
@@ -11,7 +12,6 @@ import {
   DesignerDataCustom,
   GetDesignFirmSort,
 } from "@/api/designer/designer.type";
-import { DesignFirmFunctionalType } from "@/api/location/location.type";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
   protected model: DesignerModel;

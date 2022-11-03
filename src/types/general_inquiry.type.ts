@@ -1,4 +1,4 @@
-import { RespondedOrPendingStatus } from "./common.type";
+import { RespondedOrPendingStatus } from "@/types";
 
 export interface GeneralInquiryAttribute {
   id: string;

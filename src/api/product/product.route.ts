@@ -2,11 +2,11 @@ import * as Hapi from "@hapi/hapi";
 import ProductController from "./product.controller";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import ProductResponse from "./product.response";
 import { getOneValidation } from "@/validate/common.validate";
 import validate from "./product.validate";
-import { ROUTES } from "@/constants";
+import { imageOptionPayload, ROUTES } from "@/constants";
 
 export default class ProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -107,21 +107,7 @@ export default class ProductRoute implements IRoute {
             description: "Method that create one product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,
-            payload: {
-              maxBytes: 1024 * 1024 * 5,
-              multipart: {
-                output: "stream",
-              },
-              parse: true,
-              failAction: (_request, _h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload file size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
-            },
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

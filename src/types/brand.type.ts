@@ -1,4 +1,4 @@
-import { ActiveStatus } from "./common.type";
+import { ActiveStatus } from "@/types";
 
 export interface BrandOfficialWebsite {
   country_id: string;

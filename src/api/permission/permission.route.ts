@@ -1,7 +1,7 @@
 import * as Hapi from "@hapi/hapi";
 import PermissionController from "./permission.controller";
 import IRoute from "../../helper/route.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES } from "@/constants";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import response from "./permission.response";
 import { getOneValidation } from "@/validate/common.validate";

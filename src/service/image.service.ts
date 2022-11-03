@@ -1,4 +1,4 @@
-import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
+import { VALID_IMAGE_TYPES } from "@/constants";
 import { DESIGN_STORE, MESSAGES } from "@/constants";
 import {
   getFileTypeFromBase64,
@@ -9,8 +9,7 @@ import { toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { deleteFile, isExists, upload } from "@/service/aws.service";
-import { ValidImage } from "@/type/common.type";
-import { BrandAttributes } from "@/types";
+import { BrandAttributes, ValidImage } from "@/types";
 import moment from "moment";
 
 export const validateImageType = async (images: string[]) => {

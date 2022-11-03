@@ -1,4 +1,4 @@
-import { MESSAGES } from "@/constant/common.constant";
+import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
@@ -8,8 +8,8 @@ import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
 import { marketAvailabilityService } from "../market_availability/market_availability.service";
 import { ICollectionRequest } from "./collection.type";
-class CollectionService {
 
+class CollectionService {
   public async create(payload: ICollectionRequest) {
     const collection = await CollectionRepository.findBy({
       name: payload.name,

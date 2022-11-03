@@ -1,4 +1,4 @@
-import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constant/common.constant";
+import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constants";
 import * as Joi from "joi";
 import {
   errorMessage,
