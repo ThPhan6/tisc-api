@@ -25,8 +25,6 @@ import {
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
 class AttributeService {
-  constructor() {}
-
   private async getFlatListContentType() {
     const conversionGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.CONVERSION

@@ -1,7 +1,6 @@
 import * as pdf from "html-pdf";
 
 export default class HtmlPdfService {
-  constructor() {}
   public createHtmlString = () => {
     return `<!DOCTYPE html>
       <html>
