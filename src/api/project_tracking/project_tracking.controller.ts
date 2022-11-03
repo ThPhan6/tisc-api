@@ -179,13 +179,12 @@ export default class ProjectTrackingController {
         .code(404);
     }
 
-    const updateTrackingResponse =
-      await projectTrackingRepository.updateUniqueAttribute(
-        "project_trackings",
-        "read_by",
-        id,
-        currentUser.id
-      );
+    await projectTrackingRepository.updateUniqueAttribute(
+      "project_trackings",
+      "read_by",
+      id,
+      currentUser.id
+    );
 
     return toolkit.response(
       successResponse({

@@ -314,7 +314,7 @@ class DistributorService {
     brandId: string,
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: string,
     order: SortOrder
   ) {

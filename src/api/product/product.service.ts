@@ -116,7 +116,7 @@ class ProductService {
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(createdProduct.id, user);
+    return this.get(createdProduct.id, user);
   }
 
   public async duplicate(id: string, user: UserAttributes) {
@@ -193,7 +193,7 @@ class ProductService {
     if (!updatedProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(id, user);
+    return this.get(id, user);
   }
 
   public async get(id: string, user: UserAttributes) {

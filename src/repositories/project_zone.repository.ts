@@ -67,7 +67,8 @@ class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
   }
 
   public getListWithTotalsize = async (projectId: string) => {
-    return await this.model.rawQuery(`
+    return (await this.model.rawQuery(
+      `
       FILTER project_zones.deleted_at == null
       FILTER project_zones.project_id == @projectId
       SORT project_zones.name ASC
@@ -76,13 +77,17 @@ class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {
         areas: (FOR area IN project_zones.areas return merge(area, {
             total_size: SUM(FOR room in area.rooms return room.quantity * room.room_size)
         }))
-      })`, {projectId}) as IProjectZoneAttributes & {
+      })`,
+      { projectId }
+    )) as IProjectZoneAttributes &
+      {
         total_size: number;
-        areas: IProjectZoneAttributes['areas'][0] & {
+        areas: IProjectZoneAttributes["areas"][0] &
+          {
             total_size: number;
-        }[];
+          }[];
       }[];
-  }
+  };
 }
 
 export const projectZoneRepository = new ProjectZoneRepository();
