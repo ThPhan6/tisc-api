@@ -2,14 +2,14 @@ import {
   generalMessageResponse,
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
-import { AUTH_NAMES, ROUTES } from "@/constants";
+import { AUTH_NAMES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
+import { ROUTES } from "@/constant/api.constant";
 import IRoute from "@/helper/route.helper";
-import { getOneValidation } from "@/validate/common.validate";
+import commonValidate from "@/validate/common.validate";
 import BasisController from "./basis.controller";
 import validate from "./basis.validate";
 import response from "./basis.response";
-
 const getFailActionPayloadFile = (
   _request: any,
   _h: any,
@@ -68,7 +68,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_ONE_BASIS_CONVERSION,
           options: {
             handler: controller.getBasisConversionById,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that get basis conversion",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
@@ -102,7 +102,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.DELETE_BASIS_CONVERSION,
           options: {
             handler: controller.deleteBasis,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that delete basis conversion",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
@@ -141,7 +141,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_ONE_BASIS_OPTION,
           options: {
             handler: controller.getBasisOption,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that get one basis option",
             tags: ["api", "Basis option"],
             auth: AUTH_NAMES.PERMISSION,
@@ -197,7 +197,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.DELETE_BASIS_OPTION,
           options: {
             handler: controller.deleteBasis,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that delete basis option",
             tags: ["api", "Basis option"],
             auth: AUTH_NAMES.PERMISSION,
@@ -230,7 +230,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_ONE_BASIS_PRESET,
           options: {
             handler: controller.getBasisPreset,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that get one basis preset",
             tags: ["api", "Basis preset"],
             auth: AUTH_NAMES.PERMISSION,
@@ -281,7 +281,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.DELETE_BASIS_PRESET,
           options: {
             handler: controller.deleteBasis,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that delete basis preset",
             tags: ["api", "Basis preset"],
             auth: AUTH_NAMES.PERMISSION,

@@ -1,36 +1,50 @@
-import { EMAIL_TYPE } from "@/constant/common.constant";
-import {
-  errorMessage,
-  requireEmailValidation,
-  requirePasswordValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
 import * as Joi from "joi";
+import { EMAIL_TYPE } from "../../constant/common.constant";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+
+const regexPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
 
 export default {
   isValidResetPasswordToken: {
     params: {
-      token: requireStringValidation("Token"),
+      token: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Token is required")),
     },
   },
   login: {
     payload: {
-      email: requireEmailValidation(),
-      password: requireStringValidation("Password"),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      password: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Password is required")),
     },
   },
   register: {
     payload: {
-      email: requireEmailValidation(),
-      firstname: requireStringValidation("First name"),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
+      firstname: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("First name is required")),
       lastname: Joi.string(),
       company_name: Joi.string().allow(null, ""),
-      password: requirePasswordValidation,
+      password: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Password is required and valid")
+        ),
       confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
         .error(
-          errorMessage(
+          commonFailValidatedMessageFunction(
             "Password confirmation is required and match with password"
           )
         ),
@@ -38,20 +52,33 @@ export default {
   },
   verify: {
     params: {
-      verification_token: requireStringValidation("Verification token"),
+      verification_token: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Verification token is required")
+        ),
     },
   },
   createPasswordAndVerify: {
     params: {
-      verification_token: requireStringValidation("Verification token"),
+      verification_token: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Verification token is required")
+        ),
     },
     payload: {
-      password: requirePasswordValidation,
+      password: Joi.string()
+        .required()
+        .regex(regexPassword)
+        .error(
+          commonFailValidatedMessageFunction("Password is required and valid")
+        ),
       confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
         .error(
-          errorMessage(
+          commonFailValidatedMessageFunction(
             "Password confirmation is required and match with password"
           )
         ),
@@ -62,19 +89,33 @@ export default {
       type: Joi.string()
         .valid(EMAIL_TYPE.FORGOT_PASSWORD, EMAIL_TYPE.VERIFICATION)
         .required()
-        .error(errorMessage("Type email resend is required")),
-      email: requireEmailValidation(),
+        .error(
+          commonFailValidatedMessageFunction("Type email resend is required")
+        ),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
     },
   },
   resetPassword: {
     payload: {
-      reset_password_token: requireStringValidation("Reset password token"),
-      password: requirePasswordValidation,
+      reset_password_token: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Reset password is required")
+        ),
+      password: Joi.string()
+        .required()
+        .regex(regexPassword)
+        .error(
+          commonFailValidatedMessageFunction("Password is required and valid")
+        ),
       confirmed_password: Joi.any()
         .valid(Joi.ref("password"))
         .required()
         .error(
-          errorMessage(
+          commonFailValidatedMessageFunction(
             "Password confirmation is required and match with password"
           )
         ),
@@ -82,13 +123,19 @@ export default {
   },
   forgotPassword: {
     payload: {
-      email: requireEmailValidation(),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
       type: Joi.number(),
     },
   },
   checkEmail: {
     params: {
-      email: requireEmailValidation(),
+      email: Joi.string()
+        .email()
+        .required()
+        .error(commonFailValidatedMessageFunction("Email is required")),
     },
   },
 };

@@ -1,6 +1,6 @@
 import * as Hapi from "@hapi/hapi";
 import PDFController from "./pdf.controller";
-// import commonValidate from "@/validate/common.validate";
+// import commonValidate from "../../validate/common.validate";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import validate from "./pdf.validate";
 import response from "./pdf.response";

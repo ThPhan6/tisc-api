@@ -1,12 +1,11 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { AttributeType } from "@/types";
+import * as Joi from "joi";
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
   orderValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
-import * as Joi from "joi";
+} from "../../validate/common.validate";
 
 export default {
   create: {
@@ -14,8 +13,14 @@ export default {
       type: Joi.number()
         .valid(...getEnumValues(AttributeType))
         .required()
-        .error(errorMessage("Attribute type is required")),
-      name: requireStringValidation("Attribute group name"),
+        .error(
+          commonFailValidatedMessageFunction("Attribute type is required")
+        ),
+      name: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Attribute group name is required")
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -23,11 +28,15 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(errorMessage("Attribute group item is required"))
+            .error(
+              commonFailValidatedMessageFunction(
+                "Attribute group item is required"
+              )
+            )
         )
         .required()
         .error(
-          errorMessage(
+          commonFailValidatedMessageFunction(
             "Attribute group items is required at least 1 valid data"
           )
         ),
@@ -35,10 +44,16 @@ export default {
   },
   update: {
     params: {
-      id: requireStringValidation("Attribute id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Attribute id is required")),
     },
     payload: {
-      name: requireStringValidation("Attribute group name"),
+      name: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Attribute group name is required")
+        ),
       subs: Joi.array()
         .items(
           Joi.object({
@@ -47,11 +62,15 @@ export default {
             basis_id: Joi.string(),
           })
             .required()
-            .error(errorMessage("Attribute group item is required"))
+            .error(
+              commonFailValidatedMessageFunction(
+                "Attribute group item is required"
+              )
+            )
         )
         .required()
         .error(
-          errorMessage(
+          commonFailValidatedMessageFunction(
             "Attribute group items is required at least 1 valid data"
           )
         ),
@@ -62,7 +81,9 @@ export default {
     query: {
       type: Joi.number()
         .valid(...getEnumValues(AttributeType))
-        .error(errorMessage("Attribute type is required")),
+        .error(
+          commonFailValidatedMessageFunction("Attribute type is required")
+        ),
       group_order: orderValidation,
       // attribute_order & content_type_order are the same level
       // just sort one at a time

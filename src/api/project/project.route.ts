@@ -1,8 +1,5 @@
 import * as Hapi from "@hapi/hapi";
-import {
-  getListValidation,
-  getOneValidation,
-} from "@/validate/common.validate";
+import commonValidate, { getListValidation } from "@/validate/common.validate";
 import IRoute from "@/helper/route.helper";
 import {
   commonResponse,
@@ -41,7 +38,7 @@ export default class ProjectRoute implements IRoute {
           path: ROUTES.GET_ONE_PROJECT,
           options: {
             handler: controller.getOne,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that get one project",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,
@@ -124,7 +121,7 @@ export default class ProjectRoute implements IRoute {
           path: ROUTES.DELETE_PROJECT,
           options: {
             handler: controller.delete,
-            validate: getOneValidation,
+            validate: commonValidate.getOne,
             description: "Method that delete project",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,

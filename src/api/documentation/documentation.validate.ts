@@ -1,14 +1,17 @@
 import * as Joi from "joi";
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
+} from "../../validate/common.validate";
 
 export default {
   create: {
     payload: {
-      title: requireStringValidation("Title"),
+      title: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Title is required")),
+
       document: Joi.object({
         document: Joi.string(),
         question_and_answer: Joi.array().items({
@@ -17,20 +20,27 @@ export default {
         }),
       })
         .required()
-        .error(errorMessage("Document is required")),
+        .error(commonFailValidatedMessageFunction("Document is required")),
     },
   },
   getById: {
     params: {
-      id: requireStringValidation("Document id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Document id is required")),
     },
   },
   update: {
     params: {
-      id: requireStringValidation("Document id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Document id is required")),
     },
     payload: {
-      title: requireStringValidation("Title"),
+      title: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Title is required")),
       document: Joi.object({
         document: Joi.string(),
         question_and_answer: Joi.array().items({
@@ -39,14 +49,19 @@ export default {
         }),
       })
         .required()
-        .error(errorMessage("Document is required")),
+        .error(commonFailValidatedMessageFunction("Document is required")),
     },
   },
   updateHowto: {
     payload: {
       data: Joi.array().items({
-        id: requireStringValidation("Id"),
-        title: requireStringValidation("Title"),
+        id: Joi.string()
+          .required()
+          .error(commonFailValidatedMessageFunction("Id is required")),
+        title: Joi.string()
+          .trim()
+          .required()
+          .error(commonFailValidatedMessageFunction("Title is required")),
         document: Joi.object({
           document: Joi.string().trim().allow(""),
           question_and_answer: Joi.array().items({
@@ -55,7 +70,7 @@ export default {
           }),
         })
           .required()
-          .error(errorMessage("Document is required")),
+          .error(commonFailValidatedMessageFunction("Document is required")),
       }),
     },
   },

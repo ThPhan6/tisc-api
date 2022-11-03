@@ -1,27 +1,34 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { ProjectStatus } from "@/types";
 import {
-  errorMessage,
+  commonFailValidatedMessageFunction,
   getListValidation,
-  requireStringValidation,
 } from "@/validate/common.validate";
 import * as Joi from "joi";
 import { ProjectTrackingPriority } from "./project_tracking.model";
 
-const requiredProductId = requireStringValidation("Product id");
-const requiredProjectId = requireStringValidation("Project id");
+const requiredProductId = Joi.string()
+  .required()
+  .error(commonFailValidatedMessageFunction("Product id is required"));
+const requiredProjectId = Joi.string()
+  .required()
+  .error(commonFailValidatedMessageFunction("Project id is required"));
 
 export default {
   createProjectRequest: {
     payload: {
       product_id: requiredProductId,
       project_id: requiredProjectId,
-      title: requireStringValidation("Title"),
-      message: requireStringValidation("Message"),
+      title: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Title is required")),
+      message: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Message is required")),
       request_for_ids: Joi.array()
         .items(Joi.string())
         .required()
-        .error(errorMessage("Request for is required")),
+        .error(commonFailValidatedMessageFunction("Request for is required")),
     },
   },
   getList: getListValidation({
@@ -29,11 +36,17 @@ export default {
       project_status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .allow(null)
-        .error(errorMessage("Invalid Project status filter value")),
+        .error(
+          commonFailValidatedMessageFunction(
+            "Invalid Project status filter value"
+          )
+        ),
       priority: Joi.number()
         .valid(...getEnumValues(ProjectTrackingPriority))
         .allow(null)
-        .error(errorMessage("Invalid priority filter value")),
+        .error(
+          commonFailValidatedMessageFunction("Invalid priority filter value")
+        ),
       sort: Joi.string().valid(
         //GetProjectListSort
         "created_at",
@@ -50,7 +63,11 @@ export default {
   }),
   updateProjectTracking: {
     params: {
-      id: requireStringValidation("Project tracking id"),
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Project tracking id is required")
+        ),
     },
     payload: {
       priority: Joi.number()
@@ -62,7 +79,11 @@ export default {
   },
   getOne: {
     params: Joi.object({
-      id: requireStringValidation("Project tracking id"),
+      id: Joi.string()
+        .required()
+        .error(
+          commonFailValidatedMessageFunction("Project tracking id is required")
+        ),
     }),
   },
 };

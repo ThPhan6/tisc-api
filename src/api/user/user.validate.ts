@@ -1,22 +1,47 @@
 import Joi from "joi";
-import {
-  requireBooleanValidation,
-  requireEmailValidation,
-  requireStringValidation,
-} from "@/validate/common.validate";
+import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
 
 const userPayload = {
-  firstname: requireStringValidation("First name"),
-  lastname: requireStringValidation("Last name"),
-  gender: requireBooleanValidation("Gender"),
-  location_id: requireStringValidation("Work location"),
-  department_id: requireStringValidation("Department"),
-  position: requireStringValidation("Position"),
-  email: requireEmailValidation("Work email"),
-  phone: requireStringValidation("Phone"),
-  mobile: requireStringValidation("Mobile"),
-  role_id: requireStringValidation("Access level"),
-};
+  firstname: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("First name is required")),
+  lastname: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Last name is required")),
+  gender: Joi.boolean()
+    .required()
+    .error(commonFailValidatedMessageFunction("Gender is required")),
+  location_id: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Work location is required")),
+  department_id: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Department is required")),
+  position: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Position is required")),
+  email: Joi.string()
+    .email()
+    .required()
+    .error(commonFailValidatedMessageFunction("Work email is required")),
+  phone: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Phone is required")),
+  mobile: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Mobile is required")),
+  role_id: Joi.string()
+    .trim()
+    .required()
+    .error(commonFailValidatedMessageFunction("Access level is required")),
+}
 
 export default {
   create: {
@@ -38,29 +63,43 @@ export default {
   },
   update: {
     params: {
-      id: requireStringValidation("Id"),
+      id: Joi.string()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
     },
     payload: userPayload,
   },
   getOne: {
     params: {
-      id: requireStringValidation("Id"),
+      id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Id is required")),
     },
   },
   getWithBrandId: {
     params: {
-      brand_id: requireStringValidation("Brand"),
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
     },
   },
   getWithDesignId: {
     params: {
-      design_id: requireStringValidation("Design"),
+      design_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Design is required")),
     },
   },
 
   assignTeam: {
     params: {
-      brand_id: requireStringValidation("Brand"),
+      brand_id: Joi.string()
+        .trim()
+        .required()
+        .error(commonFailValidatedMessageFunction("Brand is required")),
     },
     payload: {
       user_ids: Joi.array().items(Joi.string()),
