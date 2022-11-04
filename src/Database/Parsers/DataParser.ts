@@ -1,5 +1,5 @@
 import { ArangoDocument } from "../Interfaces";
-import { clone, isArray } from "lodash";
+import { isArray } from "lodash";
 import { getTimestamps } from "../Utils/Time";
 import { v4 as uuid } from "uuid";
 

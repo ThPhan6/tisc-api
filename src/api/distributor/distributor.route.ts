@@ -1,7 +1,9 @@
-import { generalMessageResponse } from "@/helper/response.helper";
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import {
+  defaultRouteOptionResponseStatus,
+  generalMessageResponse,
+} from "@/helper/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./distributor.validate";
 import response from "./distributor.response";
