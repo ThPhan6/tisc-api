@@ -75,6 +75,14 @@ export default class ProjectController {
     return toolkit.response(response).code(200);
   };
 
+  public getProjectOverallSummary = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await projectService.getProjectOverallSummary();
+    return toolkit.response(response).code(200);
+  };
+
   public getProjectGroupByStatus = async (
     req: Request,
     toolkit: ResponseToolkit

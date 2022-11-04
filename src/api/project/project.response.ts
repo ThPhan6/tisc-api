@@ -1,6 +1,7 @@
 import { getEnumValues } from "@/helper/common.helper";
 import { paginationResponse } from "@/helper/response.helper";
 import { ProjectStatus } from "@/types";
+import { getSummaryResponseValidate } from "@/validate/common.response";
 import * as HapiJoi from "joi";
 
 const Joi = HapiJoi.defaults((schema) =>
@@ -80,4 +81,10 @@ export default {
     ),
     statusCode: Joi.number(),
   },
+  getSummaryOverall: getSummaryResponseValidate({
+    space: Joi.object({
+      metric: Joi.number(),
+      imperial: Joi.number(),
+    }),
+  }),
 };

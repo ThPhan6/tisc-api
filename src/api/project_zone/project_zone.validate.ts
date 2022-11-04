@@ -42,6 +42,7 @@ export default {
       room_name_order: orderValidation,
       room_id_order: orderValidation,
     }).custom((value) => ({
+      ...value,
       area_order: value.area_order || "ASC",
       room_name_order: value.room_name_order || "ASC",
     })),

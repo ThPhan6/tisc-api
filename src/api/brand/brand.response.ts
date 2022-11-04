@@ -1,28 +1,11 @@
 import { paginationResponse } from "@/helper/response.helper";
+import { getSummaryResponseValidate } from "@/validate/common.response";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
   })
 );
-
-export const getSummaryResponseValidate = Joi.object({
-  data: Joi.array().items(
-    Joi.object({
-      id: Joi.string(),
-      quantity: Joi.number(),
-      label: Joi.string(),
-      subs: Joi.array().items(
-        Joi.object({
-          id: Joi.string(),
-          quantity: Joi.number(),
-          label: Joi.string(),
-        })
-      ),
-    })
-  ),
-  statusCode: Joi.number(),
-});
 
 export default {
   getList: Joi.object({
@@ -69,7 +52,7 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
-  getAllBrandSummary: getSummaryResponseValidate as any,
+  getAllBrandSummary: getSummaryResponseValidate(),
   brandProfile: Joi.object({
     data: Joi.object({
       id: Joi.string(),

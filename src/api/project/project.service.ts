@@ -10,8 +10,9 @@ import { designerRepository } from "@/repositories/designer.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { ProjectStatus, SortOrder, UserAttributes } from "@/types";
-import { uniq } from "lodash";
+import { ProjectStatus, SortOrder, SummaryInfo, UserAttributes } from "@/types";
+import { sumBy, uniq } from "lodash";
+import { v4 } from "uuid";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { IProjectRequest } from "./project.type";
 
@@ -321,6 +322,80 @@ class ProjectService {
         (project) => project.status === ProjectStatus.Archived
       ).length,
     };
+  }
+
+  public async getProjectOverallSummary() {
+    const summary = await projectRepository.getOverallSummary();
+    const results: SummaryInfo[] = [
+      {
+        id: v4(),
+        quantity: summary.projects.total,
+        label: "PROJECTS",
+        subs: [
+          {
+            id: v4(),
+            quantity: summary.projects.live,
+            label: "Live",
+          },
+          {
+            id: v4(),
+            quantity: summary.projects.onHold,
+            label: "On Hold",
+          },
+          {
+            id: v4(),
+            quantity: summary.projects.archived,
+            label: "Archived",
+          },
+        ],
+      },
+      {
+        id: v4(),
+        quantity: sumBy(summary.countries.summary, "count"),
+        label: "COUNTRIES",
+        subs: summary.countries.regions.map((region) => ({
+          id: v4(),
+          quantity:
+            summary.countries.summary.find((el) => el.region === region)
+              ?.count || 0,
+          label: region,
+        })),
+      },
+      {
+        id: v4(),
+        quantity: summary.products.total,
+        label: "PRODUCTS",
+        subs: [
+          {
+            id: v4(),
+            quantity: summary.products.consider,
+            label: "Considered",
+          },
+          {
+            id: v4(),
+            quantity: summary.products.unlisted,
+            label: "Unlisted",
+          },
+          {
+            id: v4(),
+            quantity: summary.products.deleted,
+            label: "Deleted",
+          },
+          {
+            id: v4(),
+            quantity: summary.products.specified,
+            label: "Specified",
+          },
+          {
+            id: v4(),
+            quantity: summary.products.cancelled,
+            label: "Cancelled",
+          },
+        ],
+      },
+    ];
+
+    return successResponse({ data: results, space: summary.space });
   }
 
   public async getProjectGroupByStatus(designId: string) {
