@@ -147,13 +147,6 @@ class AuthService {
 
     //// company status validation
     if (user.company_status === ActiveStatus.Inactive) {
-      let message;
-      if (user.type === UserType.Brand) {
-        message = MESSAGES.BRAND_INACTIVE_LOGIN;
-      }
-      if (user.type === UserType.Designer) {
-        message = MESSAGES.DESIGN_INACTIVE_LOGIN;
-      }
       return errorMessageResponse(errorMessage[user.type], 401);
     }
     if (user.company_status === ActiveStatus.Pending) {
