@@ -6,6 +6,21 @@ import {
   requireStringValidation,
 } from "@/validate/common.validate";
 
+const basisOptionsValidate = Joi.array()
+  .items({
+    image: Joi.string().when("....is_have_image", {
+      is: true,
+      then: Joi.required(),
+      otherwise: Joi.optional().allow(""),
+    }),
+    value_1: Joi.string().allow(""),
+    value_2: Joi.string().allow(""),
+    unit_1: Joi.string().allow(""),
+    unit_2: Joi.string().allow(""),
+  })
+  .required()
+  .error(errorMessage("Basis option value is required"));
+
 export default {
   createBasisConversion: {
     payload: {
@@ -56,20 +71,7 @@ export default {
           .required()
           .error(errorMessage("Basis option sub-group name is required")),
         is_have_image: Joi.valid(true, false),
-        subs: Joi.array()
-          .items({
-            image: Joi.string().when("....is_have_image", {
-              is: true,
-              then: Joi.required(),
-              otherwise: Joi.optional().allow(""),
-            }),
-            value_1: Joi.string().allow(""),
-            value_2: Joi.string().allow(""),
-            unit_1: Joi.string().allow(""),
-            unit_2: Joi.string().allow(""),
-          })
-          .required()
-          .error(errorMessage("Basis option value is required")),
+        subs: basisOptionsValidate,
       }),
     },
   },
@@ -83,21 +85,7 @@ export default {
         id: Joi.string(),
         name: requireStringValidation("Basis option sub-group name"),
         is_have_image: Joi.valid(true, false),
-        subs: Joi.array()
-          .items({
-            id: Joi.string(),
-            image: Joi.string().when("....is_have_image", {
-              is: true,
-              then: Joi.required(),
-              otherwise: Joi.optional().allow(""),
-            }),
-            value_1: Joi.string().allow(""),
-            value_2: Joi.string().allow(""),
-            unit_1: Joi.string().allow(""),
-            unit_2: Joi.string().allow(""),
-          })
-          .required()
-          .error(errorMessage("Basis option value is required")),
+        subs: basisOptionsValidate,
       }),
     },
   },
