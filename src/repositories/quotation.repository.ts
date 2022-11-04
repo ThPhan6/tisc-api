@@ -1,9 +1,9 @@
 import QuotationModel from "@/model/quotation.model";
-import { SortOrder } from "@/types";
 import {
+  SortOrder,
   IQuotationAttributes,
   ListQuotationWithPagination,
-} from "@/types/quotation.type";
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class QuotationRepository extends BaseRepository<IQuotationAttributes> {
@@ -22,7 +22,7 @@ class QuotationRepository extends BaseRepository<IQuotationAttributes> {
   public async getListQuotationWithPagination(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: string,
     order: SortOrder
   ): Promise<ListQuotationWithPagination> {

@@ -1,5 +1,5 @@
-import { IQuotationAttributes } from "@/types/quotation.type";
-import { IPagination } from "@/types";
+import { IPagination, IQuotationAttributes } from "@/types";
+
 export interface IQuotationRequest {
   author: string;
   identity: string;

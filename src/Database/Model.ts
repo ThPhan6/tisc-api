@@ -75,24 +75,27 @@ class Model<DataType> {
     return this.getQuery().paginate(limit, offset);
   }
 
-  public async insert(data: Partial<DataType> | Partial<DataType>[]) {
-    return (await this.connection.insert(
+  public async insert(
+    data: Partial<DataType> | Partial<DataType>[]
+  ): Promise<DataType | DataType[]> {
+    return this.connection.insert(
       this.table,
       DataParser.combineInsertData(data)
-    )) as DataType | DataType[];
+    );
   }
+
   public async delete(id: string) {
     if (this.softDelete) {
-      return await this.getQuery().where("id", "==", id).delete();
+      return this.getQuery().where("id", "==", id).delete();
     }
   }
 
   public async rawQuery(query: string, bindVars: DynamicValueBinding) {
-    return await this.getQuery().rawQuery(query, bindVars);
+    return this.getQuery().rawQuery(query, bindVars);
   }
 
   public async rawQueryV2(query: string, bindVars: DynamicValueBinding) {
-    return await this.getQuery().rawQueryV2(query, bindVars);
+    return this.getQuery().rawQueryV2(query, bindVars);
   }
 }
 //

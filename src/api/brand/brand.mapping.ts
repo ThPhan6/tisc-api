@@ -1,5 +1,5 @@
 import { getDistinctArray } from "@/helper/common.helper";
-import { ActiveStatus, BrandAttributes, ILocationAttributes } from "@/types";
+import { ActiveStatus, BrandAttributes } from "@/types";
 import { ListBrandCustom } from "./brand.type";
 
 export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {

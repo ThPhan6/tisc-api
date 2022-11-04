@@ -25,32 +25,35 @@ export const mappingGroupGeneralDocumentation = (
     );
     switch (documentation.number) {
       case 1:
-        return (privacyPolicy = {
+        privacyPolicy = {
           id: documentation.id,
           title: documentation.title,
           document: {
             ...documentation.document,
             document,
           },
-        });
+        };
+        break;
       case 2:
-        return (termsOfServices = {
+        termsOfServices = {
           id: documentation.id,
           title: documentation.title,
           document: {
             ...documentation.document,
             document,
           },
-        });
+        };
+        break;
       case 3:
-        return (cookiePolicy = {
+        cookiePolicy = {
           id: documentation.id,
           title: documentation.title,
           document: {
             ...documentation.document,
             document,
           },
-        });
+        };
+        break;
       default:
         break;
     }

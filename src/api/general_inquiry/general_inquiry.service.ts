@@ -63,9 +63,9 @@ class GeneralInquiryService {
         relationId,
         limit,
         offset,
+        filter,
         sort,
-        order,
-        filter
+        order
       );
     const total = await generalInquiryRepository.countAllInquiryBy(
       relationId,

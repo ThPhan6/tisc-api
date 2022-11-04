@@ -9,8 +9,7 @@ import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
-import { SortOrder } from "@/type/common.type";
-import { IProjectZoneAttributes, UserAttributes } from "@/types";
+import { IProjectZoneAttributes, UserAttributes, SortOrder } from "@/types";
 import { orderBy, partition, uniqBy, isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
@@ -496,6 +495,30 @@ class ProjectProductService {
     });
   };
 
+  private mappingSpecifiedData = (products: any[]) =>
+    products.map((el: any) => ({
+      ...el.product,
+      brand: el.brand,
+      collection: el.collection,
+      specifiedDetail: {
+        ...el.project_products,
+        unit_type: el.unit_type?.name,
+        material_code: el.material_code?.code,
+        order_method_name: OrderMethod[el.project_products.order_method],
+      },
+    }));
+
+  private countCancelledSpecifiedProductTotal = (products: any[]) =>
+    products.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.project_products?.specified_status ===
+        ProductSpecifyStatus.Cancelled
+          ? 1
+          : 0),
+      0
+    );
+
   public getSpecifiedProductsByMaterial = async (
     user: UserAttributes,
     project_id: string,
@@ -515,36 +538,20 @@ class ProjectProductService {
         material_order
       );
 
-    const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.product,
-      brand: el.brand,
-      collection: el.collection,
-      specifiedDetail: {
-        ...el.project_products,
-        unit_type: el.unit_type?.name,
-        material_code: el.material_code?.code,
-        order_method_name: OrderMethod[el.project_products.order_method],
-      },
-    }));
+    const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
 
-    const unlistedCount = specifiedProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.project_products.specified_status ===
-        ProductSpecifyStatus.Cancelled
-          ? 1
-          : 0),
-      0
-    );
+    const cancelledCount =
+      this.countCancelledSpecifiedProductTotal(specifiedProducts);
+
     return successResponse({
       data: {
         data: mappedProducts,
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - unlistedCount,
+            value: specifiedProducts.length - cancelledCount,
           },
-          { name: "Cancelled", value: unlistedCount },
+          { name: "Cancelled", value: cancelledCount },
         ],
       },
     });
@@ -573,17 +580,8 @@ class ProjectProductService {
         user.id,
         project_id
       );
-    const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.product,
-      brand: el.brand,
-      collection: el.collection,
-      specifiedDetail: {
-        ...el.project_products,
-        unit_type: el.unit_type?.name,
-        material_code: el.material_code?.code,
-        order_method_name: OrderMethod[el.project_products.order_method],
-      },
-    }));
+
+    const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
 
     const [entireConsideredProducts, allocatedProducts] = partition(
       mappedProducts,
@@ -607,24 +605,18 @@ class ProjectProductService {
       },
     ].concat(mappedAllocatedProducts);
 
-    const unlistedCount = specifiedProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.project_products.specified_status ===
-        ProductSpecifyStatus.Cancelled
-          ? 1
-          : 0),
-      0
-    );
+    const cancelledCount =
+      this.countCancelledSpecifiedProductTotal(specifiedProducts);
+
     return successResponse({
       data: {
         data: results,
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - unlistedCount,
+            value: specifiedProducts.length - cancelledCount,
           },
-          { name: "Cancelled", value: unlistedCount },
+          { name: "Cancelled", value: cancelledCount },
         ],
       },
     });
@@ -724,7 +716,7 @@ class ProjectProductService {
             room_id: entireAllocation ? "" : assignRooms[index],
           }
         );
-        return await projectProductFinishScheduleRepository.upsert(
+        return projectProductFinishScheduleRepository.upsert(
           upsertData,
           user.id
         );

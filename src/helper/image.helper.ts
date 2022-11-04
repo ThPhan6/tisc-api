@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import {ENVIROMENT} from '@/config';
+import { ENVIROMENT } from "@/config";
 
 export const toWebp = async (
   image: any,
@@ -26,7 +26,7 @@ export const toWebp = async (
       height = 150;
       break;
   }
-  return await sharp(image).resize(width, height).toBuffer();
+  return sharp(image).resize(width, height).toBuffer();
 };
 
 export const getFileURI = (filename?: string | null) => {
@@ -34,4 +34,4 @@ export const getFileURI = (filename?: string | null) => {
     return filename;
   }
   return `${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}${filename}`;
-}
+};

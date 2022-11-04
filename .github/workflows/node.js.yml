@@ -5,49 +5,49 @@ name: TISC CI
 
 on:
   push:
-    branches: [ master, dev, staging, bugs/sonar ]
+    branches: [master, dev, staging, bugs/sonar]
   pull_request:
-    branches: [ master, dev, staging ]
+    branches: [master, dev, staging]
 
 jobs:
   quality-control:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev' # run this job only for the dev branch
     steps:
-    - uses: actions/checkout@v3
-    - name: Quality Control with Sonar
-      uses: sonarsource/sonarqube-scan-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-   # - run: npm ci
-   # - run: npm run build --if-present
-   # - run: npm test
+      - uses: actions/checkout@v3
+      - name: Quality Control with Sonar
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    # - run: npm ci
+    # - run: npm run build --if-present
+    # - run: npm test
   deploy-dev-server:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev' # run this job only for the dev branch
     steps:
-    # DigitalOcean Droplet already have deploy files
-    - uses: actions/checkout@v3
-    - name: Deploy TISC API to DigitalOcean Droplet
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DEV_SERVER_IP }}
-        username: ${{ secrets.DEV_SERVER_USERNAME }}
-        key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
-        port: ${{ secrets.DEV_SERVER_PORT }}
-        script: /var/www/dev/cdScript.sh dev
+      # DigitalOcean Droplet already have deploy files
+      - uses: actions/checkout@v3
+      - name: Deploy TISC API to DigitalOcean Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_SERVER_IP }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEV_SERVER_PORT }}
+          script: /var/www/dev/cdScript.sh dev
   deploy-staging-server:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/staging' # run this job only for the staging branch
     steps:
-    # DigitalOcean Droplet already have deploy files
-    - uses: actions/checkout@v3
-    - name: Deploy TISC API to DigitalOcean Droplet
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DEV_SERVER_IP }}
-        username: ${{ secrets.DEV_SERVER_USERNAME }}
-        key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
-        port: ${{ secrets.DEV_SERVER_PORT }}
-        script: /var/www/cdScript.sh staging
+      # DigitalOcean Droplet already have deploy files
+      - uses: actions/checkout@v3
+      - name: Deploy TISC API to DigitalOcean Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_SERVER_IP }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEV_SERVER_PORT }}
+          script: /var/www/cdScript.sh staging

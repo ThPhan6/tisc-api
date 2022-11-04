@@ -27,7 +27,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
 
     if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit, offset);
-      return await query.paginate();
+      return query.paginate();
     }
     const response = await query.get();
     const totalSize = (response.length ?? 0) as number;

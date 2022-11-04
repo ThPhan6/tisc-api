@@ -1,5 +1,4 @@
-import { IAutoEmailAttributes } from "@/types/auto_email.type";
-import { IPagination } from "@/types";
+import { IAutoEmailAttributes, IPagination } from "@/types";
 export interface IUpdateAutoEmailRequest {
   topic: number;
   targeted_for: number;

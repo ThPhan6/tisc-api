@@ -86,7 +86,7 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    return await this.get(createdUser.id, authenticatedUser);
+    return this.get(createdUser.id, authenticatedUser);
   };
 
   public get = async (
@@ -195,7 +195,7 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    return await this.get(user.id, authenticatedUser);
+    return this.get(user.id, authenticatedUser);
   };
 
   public updateMe = async (user: UserAttributes, payload: IUpdateMeRequest) => {
@@ -208,7 +208,7 @@ export default class UserService {
     if (!updatedUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
-    return await this.get(user.id, user);
+    return this.get(user.id, user);
   };
 
   public delete = async (userId: string, authenticatedUser: UserAttributes) => {

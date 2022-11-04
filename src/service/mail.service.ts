@@ -1,10 +1,9 @@
 import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { TARGETED_FOR_TYPES } from "@/constant/common.constant";
-import {autoEmailRepository} from '@/repositories/auto_email.repository';
+import { TARGETED_FOR_TYPES, SYSTEM_TYPE } from "@/constants";
+import { autoEmailRepository } from "@/repositories/auto_email.repository";
 import { unescape } from "lodash";
-import { SYSTEM_TYPE } from "@/constants";
 import { UserAttributes, UserType } from "@/types";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 

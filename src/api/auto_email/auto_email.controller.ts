@@ -1,7 +1,4 @@
-import {
-  TOPIC_OPTIONS,
-  TARGETED_FOR_OPTIONS,
-} from "@/constant/common.constant";
+import { TOPIC_OPTIONS, TARGETED_FOR_OPTIONS } from "@/constants";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IUpdateAutoEmailRequest } from "./auto_email.type";
 import { autoEmailService } from "./auto_email.service";

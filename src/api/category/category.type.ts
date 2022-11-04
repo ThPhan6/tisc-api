@@ -1,5 +1,5 @@
-import { SubCategoryAttributes } from "@/types/category.type";
-import { IPagination } from "./../../type/common.type";
+import { Pagination, SubCategoryAttributes } from "@/types";
+
 export interface ICategoryAttributes {
   id: string;
   name: string;
@@ -45,7 +45,7 @@ export interface ICategoriesResponse {
       name: string;
       value: number;
     }[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

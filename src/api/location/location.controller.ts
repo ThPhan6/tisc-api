@@ -2,8 +2,7 @@ import { errorMessageResponse } from "@/helper/response.helper";
 import { SYSTEM_TYPE } from "@/constants";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { locationService } from "./location.service";
-import { ILocationRequest } from "./location.type";
-import { UserAttributes } from "@/types";
+import { LocationRequest, UserAttributes } from "@/types";
 
 export default class LocationController {
   private async validateBusinessNumber(
@@ -17,7 +16,7 @@ export default class LocationController {
   }
 
   public create = async (
-    req: Request & { payload: ILocationRequest },
+    req: Request & { payload: LocationRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
@@ -40,7 +39,7 @@ export default class LocationController {
   };
 
   public update = async (
-    req: Request & { payload: ILocationRequest },
+    req: Request & { payload: LocationRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
