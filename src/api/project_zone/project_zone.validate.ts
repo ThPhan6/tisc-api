@@ -1,5 +1,8 @@
 import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import {
+  commonFailValidatedMessageFunction,
+  orderValidation,
+} from "../../validate/common.validate";
 
 export default {
   create: {
@@ -61,19 +64,17 @@ export default {
         .trim()
         .required()
         .error(commonFailValidatedMessageFunction("Project is required")),
-      zone_order: Joi.string().valid("ASC", "DESC"),
-      area_order: Joi.string().valid("ASC", "DESC"),
-      room_name_order: Joi.string().valid("ASC", "DESC"),
-      room_id_order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        project_id: value.project_id,
-        zone_order: value.zone_order ? value.zone_order : "ASC",
-        area_order: value.area_order ? value.area_order : "ASC",
-        room_name_order: value.room_name_order ? value.room_name_order : "",
-        room_id_order: value.room_id_order ? value.room_id_order : "",
-      };
-    }),
+      zone_order: orderValidation,
+      area_order: orderValidation,
+      // room_name_order & room_id_order are the same level
+      // just sort one at a time
+      room_name_order: orderValidation,
+      room_id_order: orderValidation,
+    }).custom((value) => ({
+      ...value,
+      area_order: value.area_order || "ASC",
+      room_name_order: value.room_name_order || "ASC",
+    })),
   },
   getOne: {
     params: {

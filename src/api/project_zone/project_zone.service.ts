@@ -134,7 +134,7 @@ class ProjectZoneService {
   public async getList(
     user: UserAttributes,
     projectId: string,
-    zoneOrder: SortOrder,
+    zoneOrder: SortOrder | undefined,
     areaOrder: SortOrder,
     roomNameOrder: SortOrder,
     roomIdOrder: SortOrder
