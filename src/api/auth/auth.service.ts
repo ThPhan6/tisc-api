@@ -42,6 +42,12 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
 
+const errorMessage = {
+  [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
+  [UserType.Designer]: MESSAGES.DESIGN_INACTIVE_LOGIN,
+  [UserType.TISC]: MESSAGES.ACCOUNT_INACTIVE_LOGIN,
+};
+
 class AuthService {
   private responseWithToken = (userId: string, type?: UserType) => {
     const response = {
@@ -141,14 +147,14 @@ class AuthService {
 
     //// company status validation
     if (user.company_status === ActiveStatus.Inactive) {
-      return errorMessageResponse(
-        user.type === UserType.Brand
-          ? MESSAGES.BRAND_INACTIVE_LOGIN
-          : user.type === UserType.Designer
-          ? MESSAGES.DESIGN_INACTIVE_LOGIN
-          : MESSAGES.ACCOUNT_INACTIVE_LOGIN,
-        401
-      );
+      let message;
+      if (user.type === UserType.Brand) {
+        message = MESSAGES.BRAND_INACTIVE_LOGIN;
+      }
+      if (user.type === UserType.Designer) {
+        message = MESSAGES.DESIGN_INACTIVE_LOGIN;
+      }
+      return errorMessageResponse(errorMessage[user.type], 401);
     }
     if (user.company_status === ActiveStatus.Pending) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
