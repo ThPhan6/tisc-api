@@ -17,8 +17,14 @@ class Connection extends Database {
       await this.collection(collection).save(data, this.saveOpts )
     );
   }
+
+  public removeByKeys (collection: string, keys: string[]) {
+    return this.collection(collection).removeByKeys(
+      keys, this.saveOpts
+    );
+  }
 }
 
-export type ConnectionInterface = typeof Connection;
 export default Connection;
 export const connection = new Connection();
+export type ConnectionInterface = typeof connection;

@@ -97,22 +97,6 @@ export const ROUTES = {
   GET_LIST_REST_COLLECTION_PRODUCT:
     "/api/product/get-list-rest-collection-product/{id}",
 
-  CREATE_PRODUCT_TIP: "/api/product-tip/create",
-  GET_LIST_PRODUCT_TIP: "/api/product-tip/get-list",
-  GET_ONE_PRODUCT_TIP: "/api/product-tip/get-one/{product_id}",
-  EDIT_PRODUCT_TIP: "/api/product-tip/update/{product_id}",
-  DELETE_PRODUCT_TIP: "/api/product-tip/delete/{product_id}",
-  GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
-    "/api/product-tip/get-list-by-product/{id}",
-
-  CREATE_PRODUCT_DOWNLOAD: "/api/product-download/create",
-  GET_LIST_PRODUCT_DOWNLOAD: "/api/product-download/get-list",
-  GET_ONE_PRODUCT_DOWNLOAD: "/api/product-download/get-one/{product_id}",
-  EDIT_PRODUCT_DOWNLOAD: "/api/product-download/update/{product_id}",
-  DELETE_PRODUCT_DOWNLOAD: "/api/product-download/delete/{product_id}",
-  GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID:
-    "/api/product-download/get-list-by-product/{id}",
-
   GET_LIST_AUTO_EMAIL_TOPIC: "/api/email-auto/get-list-topic",
   GET_LIST_AUTO_EMAIL_TARGETED_FOR: "/api/email-auto/get-list-targeted-for",
 
@@ -131,11 +115,11 @@ export const ROUTES = {
   GET_LIST_DISTRIBUTOR: "/api/distributor/get-list",
   GET_ONE_DISTRIBUTOR: "/api/distributor/get-one/{id}",
   GET_MARKET_DISTRIBUTOR_COUNTRY_GROUP: "/api/distributor/market/{product_id}",
-  CREATE_MARKET_AVAILABILITY: "/api/market-availability/create",
+
   UPDATE_MARKET_AVAILABILITY: "/api/market-availability/update/{id}",
-  DELETE_MARKET_AVAILABILITY: "/api/market-availability/delete/{id}",
   GET_LIST_MARKET_AVAILABILITY: "/api/market-availability/get-list",
   GET_ONE_MARKET_AVAILABILITY: "/api/market-availability/get-one/{id}",
+
   UPDATE_DESIGN_PROFILE: "/api/design/update-profile",
   CREATE_PROJECT_ZONE: "/api/project-zone/create",
   UPDATE_PROJECT_ZONE: "/api/project-zone/update/{id}",
@@ -148,16 +132,6 @@ export const ROUTES = {
   GET_LIST_MATERIAL_CODE: "/api/material-code/get-list",
   GET_ONE_MATERIAL_CODE: "/api/material-code/get-one/{id}",
   GET_ALL_ATTRIBUTE: "/api/attribute/get-all",
-
-  CREATE_PRODUCT_CATELOGUE_DOWNLOAD: "/api/product-catelogue-download/create",
-  GET_LIST_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/get-list",
-  GET_ONE_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/get-one/{product_id}",
-  EDIT_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/update/{product_id}",
-  DELETE_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/delete/{product_id}",
 
   GET_COUNTRY: "/api/location/get-country/{id}",
   GET_STATE: "/api/location/get-state/{id}",
@@ -173,7 +147,6 @@ export const ROUTES = {
   GET_PROJECT_TYPES: "/api/project/project-types",
   GET_BUILDING_TYPES: "/api/project/building-types",
   GET_PRODUCT_OPTIONS: "/api/product/{id}/attribute/{attribute_id}/get-options",
-  ASSIGN_PRODUCT_TO_PROJECT: "/api/product/assign",
   SHARE_PRODUCT_BY_EMAIL: "/api/product/share-via-email",
   GET_SHARING_GROUPS: "/api/product/sharing-groups",
   GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
@@ -181,15 +154,9 @@ export const ROUTES = {
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
-  GET_CONSIDERED_PRODUCTS: "/api/considered-product/get-list/{project_id}",
-  GET_CONSIDERED_PRODUCT_STATUS: "/api/considered-product/status",
   GET_BRAND_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/brand/{brand_id}",
-  SPECIFY_PRODUCT: "/api/specified-product/specify",
-  GET_REQUIREMENT_TYPES: "/api/requirement-type/get-list",
-  GET_INSTRUCTION_TYPES: "/api/instruction-type/get-list",
-  GET_UNIT_TYPES: "/api/unit-type/get-list",
-  GET_ONE_SPECIFIED_PRODUCT:
-    "/api/specified-product/get-one/{considered_product_id}",
+
+
   GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "/api/location/design/{design_id}",
   GET_DESIGN_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/design/{design_id}",
   GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
@@ -211,8 +178,6 @@ export const ROUTES = {
   GET_LIST_ASSIGNED_PROJECT:
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
   GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-team-profile/{brand_id}",
-  UPDATE_STATUS_CONSIDER_PRODUCT: "/api/considered-product/update-status/{id}",
-  DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{id}",
   GET_LIST_POLICY_LANDING_PAGE: "/api/documentation/get-list-policy",
   FAVOURITE: {
     SKIP: "/api/favourite/skip",
