@@ -23,9 +23,8 @@ import {
   mappingSubAttributeUpdate,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-class AttributeService {
-  constructor() {}
 
+class AttributeService {
   private async getFlatListContentType() {
     const conversionGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.CONVERSION
@@ -91,7 +90,7 @@ class AttributeService {
     attribute_type: number,
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     group_order: SortOrder | undefined,
     attribute_order?: SortOrder,
     content_type_order?: SortOrder

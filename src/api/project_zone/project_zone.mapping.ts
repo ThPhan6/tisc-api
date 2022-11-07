@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { IProjectZoneAttributes, ProjectAttributes, SortOrder } from "@/types";
 import { sortObjectArray } from "@/helper/common.helper";
 import { MEASUREMENT_UNIT } from "@/constants";
+import { orderBy } from "lodash";
 
 export const mappingAddProjectZoneId = (payload: IUpdateProjectZoneRequest) => {
   return payload.areas.map((area) => {
@@ -71,10 +72,12 @@ export const mappingResponseProjectZones = (
       return {
         ...area,
         count: area.rooms.length,
-        rooms: sortObjectArray(
+        rooms: orderBy(
           rooms,
-          roomNameOrder ? "room_name" : roomIdOrder ? "room_id" : "",
-          roomNameOrder ? roomNameOrder : roomIdOrder
+          roomIdOrder ? "room_id" : "room_name", // Default sort by room name
+          (roomIdOrder
+            ? roomIdOrder.toLowerCase()
+            : roomNameOrder?.toLowerCase()) as "asc" | "desc"
         ),
       };
     });

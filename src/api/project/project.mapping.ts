@@ -1,5 +1,6 @@
 import { PROJECT_STATUS_OPTIONS } from "@/constants";
 import { ProjectAttributes, ProjectStatus } from "@/types";
+
 export const mappingProjectGroupByStatus = (projects: ProjectAttributes[]) => {
   return PROJECT_STATUS_OPTIONS.map((projectStatus) => {
     const groupProjects = projects.filter(

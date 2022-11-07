@@ -2,11 +2,10 @@ import * as Hapi from "@hapi/hapi";
 import ProductController from "./product.controller";
 import IRoute from "../../helper/route.helper";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
 import ProductResponse from "./product.response";
-import commonValidate from "../../validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import validate from "./product.validate";
+import { imageOptionPayload, ROUTES, AUTH_NAMES } from "@/constants";
 
 export default class ProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -53,7 +52,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.LIKE_OR_UNLIKE_PRODUCT,
           options: {
             handler: controller.likeOrUnlike,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that like or unlike product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.GENERAL,
@@ -86,7 +85,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.GET_ONE_PRODUCT,
           options: {
             handler: controller.get,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.GENERAL,
@@ -107,21 +106,7 @@ export default class ProductRoute implements IRoute {
             description: "Method that create one product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,
-            payload: {
-              maxBytes: 1024 * 1024 * 5,
-              multipart: {
-                output: "stream",
-              },
-              parse: true,
-              failAction: (_request, _h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload file size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
-            },
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -135,7 +120,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.DUPLICATE_PRODUCT,
           options: {
             handler: controller.duplicate,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that duplicate product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,
@@ -169,7 +154,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.DELETE_PRODUCT,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,
@@ -185,7 +170,7 @@ export default class ProductRoute implements IRoute {
           path: ROUTES.GET_LIST_REST_COLLECTION_PRODUCT,
           options: {
             handler: controller.getListRestCollectionProduct,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get list rest collection product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.GENERAL,

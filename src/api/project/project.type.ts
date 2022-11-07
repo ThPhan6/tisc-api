@@ -56,3 +56,12 @@ export interface IProjectGroupByStatusResponse {
   }[];
   statusCode: number;
 }
+
+export type ProjectListingSort =
+  | "created_at"
+  | "name"
+  | "status"
+  | "country_name"
+  | "city_name"
+  | "building_type"
+  | "project_type";

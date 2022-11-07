@@ -5,14 +5,13 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { ICountryAttributes, SortOrder } from "@/types";
+import { ICountryAttributes, SortOrder, ICountryStateCity } from "@/types";
 import CollectionRepository from "@/repositories/collection.repository";
 import { distributorRepository } from "@/repositories/distributor.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { productRepository } from "@/repositories/product.repository";
-import { ICountryStateCity } from "@/types";
 import {
   mappingAuthorizedCountries,
   mappingAuthorizedCountriesName,
@@ -21,6 +20,8 @@ import {
   mappingResultGetList,
 } from "./distributor.mapping";
 import { IDistributorRequest } from "./distributor.type";
+import { isEqual } from "lodash";
+
 class DistributorService {
   private async updateMarkets(
     payload: IDistributorRequest,
@@ -273,8 +274,10 @@ class DistributorService {
     }
     if (
       payload.country_id !== distributor.country_id ||
-      payload.authorized_country_ids.sort().toString() !==
-        distributor.authorized_country_ids.sort().toString()
+      isEqual(
+        payload.authorized_country_ids,
+        distributor.authorized_country_ids
+      ) === false
     ) {
       const oldCountryIds = getDistinctArray(
         distributor.authorized_country_ids.concat([distributor.country_id])
@@ -314,7 +317,7 @@ class DistributorService {
     brandId: string,
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: string,
     order: SortOrder
   ) {

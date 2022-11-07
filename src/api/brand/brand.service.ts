@@ -45,7 +45,7 @@ class BrandService {
   public async getList(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: GetUserGroupBrandSort,
     order: SortOrder,
     haveProduct?: boolean

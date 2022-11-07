@@ -3,8 +3,9 @@ import BaseRepository from "@/repositories/base.repository";
 import {
   ActionTaskAttribute,
   ActionTaskModelEnum,
-} from "@/types/action_task.type";
-import { ActionTaskStatus } from "./../types/action_task.type";
+  ActionTaskStatus,
+} from "@/types";
+
 class ActionTaskRepository extends BaseRepository<ActionTaskAttribute> {
   protected model: ActionTaskModel;
   protected DEFAULT_ATTRIBUTE: Partial<ActionTaskAttribute> = {

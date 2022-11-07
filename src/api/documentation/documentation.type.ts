@@ -1,5 +1,4 @@
-import { IDocument, IDocumentation } from "@/types";
-import { IPagination } from "./../../type/common.type";
+import { IDocument, IDocumentation, Pagination } from "@/types";
 
 export interface IDocumentationRequest {
   title: string;
@@ -30,7 +29,7 @@ export interface IDocumentationResponse {
 export interface IDocumentationsResponse {
   data: {
     documentations: IDocumentation[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

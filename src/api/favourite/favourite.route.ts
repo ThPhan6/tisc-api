@@ -1,14 +1,12 @@
 import * as Hapi from "@hapi/hapi";
 import FavouriteController from "./favourite.controller";
-// import commonValidate from "../../validate/common.validate";
 import validate from "./favourite.validate";
 import IRoute from "../../helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./favourite.response";
 
 export default class FavouriteRoute implements IRoute {

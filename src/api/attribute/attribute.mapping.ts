@@ -4,7 +4,7 @@ import {
   MESSAGES,
   SHORT_TEXT_ID,
 } from "@/constants";
-import { isDuplicatedString, sortObjectArray } from "@/helper/common.helper";
+import { isDuplicatedString } from "@/helper/common.helper";
 import {
   AttributeProps,
   IBasisAttributes,

@@ -152,6 +152,9 @@ export const ROUTES = {
   GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
+  GET_PROJECT_SUMMARY_OVERALL: "/api/project/get-summary-overall",
+  GET_PROJECT_LISTING: "/api/project/listing",
+  GET_ONE_PROJECT_LISTING: "/api/project/listing/{id}",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
   GET_BRAND_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/brand/{brand_id}",

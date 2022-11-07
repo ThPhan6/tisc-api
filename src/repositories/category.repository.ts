@@ -1,11 +1,6 @@
-import {
-  ICategoryAttributes,
-  ListCategoryWithPaginate,
-} from "@/types/category.type";
 import CategoryModel from "@/model/category.model";
 import BaseRepository from "./base.repository";
-import { IProductAttributes } from "@/types/product.type";
-import { SortOrder } from "@/types";
+import { SortOrder, ICategoryAttributes, IProductAttributes } from "@/types";
 
 class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   protected model: CategoryModel;
@@ -20,10 +15,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   }
   public async getDuplicatedCategory(id: string, name: string) {
     try {
-      return await this.model
-        .where("id", "!=", id)
-        .where("name", "==", name)
-        .first();
+      return this.model.where("id", "!=", id).where("name", "==", name).first();
     } catch (error) {
       return false;
     }
@@ -32,7 +24,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
   public async getAllCategoriesSortByName(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     mainCategoryOrder?: SortOrder,
     haveProduct?: boolean
   ): Promise<ICategoryAttributes[]> {

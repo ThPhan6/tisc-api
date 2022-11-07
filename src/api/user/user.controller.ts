@@ -6,7 +6,7 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import { INTERESTED_IN_OPTIONS } from "@/constant/common.constant";
+import { INTERESTED_IN_OPTIONS } from "@/constants";
 
 export default class UserController {
   public create = async (

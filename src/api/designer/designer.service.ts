@@ -22,7 +22,7 @@ class DesignerService {
   public async getList(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: GetDesignFirmSort,
     order: "ASC" | "DESC"
   ) {

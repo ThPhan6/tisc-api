@@ -20,7 +20,6 @@ import {
   validateImageType,
 } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
-import { BasisConversion } from "@/types/basis.type";
 import { difference, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,
@@ -40,7 +39,12 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { AttributeType, SortOrder, UserAttributes } from "@/types";
+import {
+  AttributeType,
+  SortOrder,
+  UserAttributes,
+  BasisConversion,
+} from "@/types";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -116,7 +120,7 @@ class ProductService {
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(createdProduct.id, user);
+    return this.get(createdProduct.id, user);
   }
 
   public async duplicate(id: string, user: UserAttributes) {
@@ -193,7 +197,7 @@ class ProductService {
     if (!updatedProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    return await this.get(id, user);
+    return this.get(id, user);
   }
 
   public async get(id: string, user: UserAttributes) {

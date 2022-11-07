@@ -174,7 +174,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
               access_level: role.name
           }
       )`;
-      const response = await this.model.rawQueryV2(query, params);
+      const result = await this.model.rawQueryV2(query, params);
       return {
         pagination: {
           page: offset / limit + 1,
@@ -182,7 +182,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
           total: totalRecords,
           page_count: Math.ceil(totalRecords / limit),
         },
-        data: response,
+        data: result,
       };
     }
     query += `return merge(

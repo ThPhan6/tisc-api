@@ -53,7 +53,7 @@ class MarketAvailabilityService {
       }, [])
     );
 
-    return await this.getRegionCountries(distinctCountryIds);
+    return this.getRegionCountries(distinctCountryIds);
   }
 
   public async create(payload: IMarketAvailabilityRequest) {
@@ -170,7 +170,7 @@ class MarketAvailabilityService {
     brandId: string,
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: string,
     order: SortOrder
   ) {

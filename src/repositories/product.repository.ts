@@ -1,12 +1,12 @@
-import {
-  IProductAttributes,
-  ProductWithCollectionAndBrand,
-  ProductWithRelationData,
-} from "@/types/product.type";
 import BaseRepository from "./base.repository";
 import ProductModel from "@/model/product.model";
 import { head, isUndefined } from "lodash";
-import { SortOrder } from "@/types";
+import {
+  SortOrder,
+  IProductAttributes,
+  ProductWithCollectionAndBrand,
+  ProductWithRelationData,
+} from "@/types";
 
 class ProductRepository extends BaseRepository<IProductAttributes> {
   protected model: ProductModel;

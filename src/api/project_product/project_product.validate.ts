@@ -1,5 +1,8 @@
 import { getEnumValues } from "@/helper/common.helper";
-import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
+import {
+  errorMessage,
+  requireStringValidation,
+} from "@/validate/common.validate";
 import Joi from "joi";
 import {
   OrderMethod,
@@ -7,15 +10,9 @@ import {
   ProductSpecifyStatus,
 } from "./project_product.type";
 
-const requiredConsideredId = Joi.string()
-  .required()
-  .error(commonFailValidatedMessageFunction("Considered product is required"));
-const requiredProductId = Joi.string()
-  .required()
-  .error(commonFailValidatedMessageFunction("Product id is required"));
-const requiredProjectId = Joi.string()
-  .required()
-  .error(commonFailValidatedMessageFunction("Project id is required"));
+const requiredConsideredId = requireStringValidation("Considered product");
+const requiredProductId = requireStringValidation("Product id");
+const requiredProjectId = requireStringValidation("Project id");
 
 export const orderValidate = Joi.string().valid("ASC", "DESC");
 
@@ -45,10 +42,10 @@ export default {
       brand_order: orderValidate,
     }).custom((value) => {
       return {
-        zone_order: value.zone_order ?? "ASC",
-        area_order: value.area_order ?? "ASC",
-        room_order: value.room_order ?? "ASC",
-        brand_order: value.brand_order ?? "ASC",
+        zone_order: value.zone_order || "ASC",
+        area_order: value.area_order || "ASC",
+        room_order: value.room_order || "ASC",
+        brand_order: value.brand_order || "ASC",
       };
     }),
   },
@@ -58,7 +55,7 @@ export default {
       consider_status: Joi.number()
         .valid(...getEnumValues(ProductConsiderStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
     },
   },
   updateProductSpecifyStatus: {
@@ -67,7 +64,7 @@ export default {
       specified_status: Joi.number()
         .valid(...getEnumValues(ProductSpecifyStatus))
         .required()
-        .error(commonFailValidatedMessageFunction("Status is required")),
+        .error(errorMessage("Status is required")),
     },
   },
   deleteConsiderProduct: {
@@ -80,11 +77,7 @@ export default {
         is_refer_document: Joi.boolean()
           .valid(true, false)
           .required()
-          .error(
-            commonFailValidatedMessageFunction(
-              "Is refer to document is missing"
-            )
-          ),
+          .error(errorMessage("Is refer to document is missing")),
         attribute_groups: Joi.array().items({
           id: Joi.string(),
           attributes: Joi.array().items({
@@ -93,60 +86,45 @@ export default {
           }),
         }),
       }),
-      brand_location_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand location is missing")),
-      distributor_location_id: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Distributor location is missing")
-        ),
+      brand_location_id: requireStringValidation("Brand location"),
+      distributor_location_id: requireStringValidation("Distributor location"),
       entire_allocation: Joi.boolean(),
       allocation: Joi.array().items(Joi.string().allow("")),
-      material_code_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Material code is required")),
-      suffix_code: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Suffix code is required")),
-      description: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Description is required")),
+      material_code_id: requireStringValidation("Material code"),
+      suffix_code: requireStringValidation("Suffix code"),
+      description: requireStringValidation("Description"),
       quantity: Joi.number()
         .required()
-        .error(commonFailValidatedMessageFunction("Quantity is required")),
+        .error(errorMessage("Quantity is required")),
       unit_type_id: Joi.string().trim().allow(""),
       order_method: Joi.number().valid(...getEnumValues(OrderMethod)),
       requirement_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       instruction_type_ids: Joi.array().items(Joi.string().trim().allow(null)),
       special_instructions: Joi.string().allow(""),
-      finish_schedules: Joi.array().items(
-        Joi.object({
-          floor: Joi.boolean(),
-          base: Joi.object({
-            ceiling: Joi.boolean(),
+      finish_schedules: Joi.array()
+        .items(
+          Joi.object({
             floor: Joi.boolean(),
-          }),
-          front_wall: Joi.boolean(),
-          left_wall: Joi.boolean(),
-          back_wall: Joi.boolean(),
-          right_wall: Joi.boolean(),
-          ceiling: Joi.boolean(),
-          door: Joi.object({
-            frame: Joi.boolean(),
-            panel: Joi.boolean(),
-          }),
-          cabinet: Joi.object({
-            carcass: Joi.boolean(),
-            door: Joi.boolean()
-          }),
-        })
-      ).error(commonFailValidatedMessageFunction("Please update Finish Schedule!")),
+            base: Joi.object({
+              ceiling: Joi.boolean(),
+              floor: Joi.boolean(),
+            }),
+            front_wall: Joi.boolean(),
+            left_wall: Joi.boolean(),
+            back_wall: Joi.boolean(),
+            right_wall: Joi.boolean(),
+            ceiling: Joi.boolean(),
+            door: Joi.object({
+              frame: Joi.boolean(),
+              panel: Joi.boolean(),
+            }),
+            cabinet: Joi.object({
+              carcass: Joi.boolean(),
+              door: Joi.boolean(),
+            }),
+          })
+        )
+        .error(errorMessage("Please update Finish Schedule!")),
     },
   },
   getListByBrand: {
@@ -173,14 +151,15 @@ export default {
   },
   getFinishScheduleByRoom: {
     params: Joi.object({
-      project_product_id: requiredConsideredId
+      project_product_id: requiredConsideredId,
     }),
     query: Joi.object({
       roomIds: Joi.string().trim(),
     }).custom((value) => {
       return {
-        roomIds: (value.roomIds && value.roomIds.split) ? value.roomIds.split(',') : []
-      }
-    })
-  }
+        roomIds:
+          value.roomIds && value.roomIds.split ? value.roomIds.split(",") : [],
+      };
+    }),
+  },
 };

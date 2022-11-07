@@ -1,5 +1,7 @@
 import { paginationResponse } from "@/helper/response.helper";
+import { getSummaryResponseValidate } from "@/validate/common.response";
 import * as HapiJoi from "joi";
+
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -44,26 +46,10 @@ export default {
       pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getOne: Joi.object({
     data: Joi.any(),
     statusCode: Joi.number(),
-  }) as any,
-  getAllDesignSummary: Joi.object({
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        quantity: Joi.number(),
-        label: Joi.string(),
-        subs: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            quantity: Joi.number(),
-            label: Joi.string(),
-          })
-        ),
-      })
-    ),
-    statusCode: Joi.number(),
   }),
+  getAllDesignSummary: getSummaryResponseValidate(),
 };
