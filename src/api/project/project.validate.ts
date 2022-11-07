@@ -4,6 +4,7 @@ import * as Joi from "joi";
 import { MEASUREMENT_UNIT } from "@/constants";
 import {
   errorMessage,
+  getListValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
 
@@ -55,4 +56,18 @@ export default {
       team_profile_ids: Joi.array().items(Joi.string()).allow(null),
     },
   },
+  getProjectListing: getListValidation({
+    query: {
+      sort: Joi.string().valid(
+        // ProjectListingSort
+        "created_at",
+        "name",
+        "status",
+        "country_name",
+        "city_name",
+        "building_type",
+        "project_type"
+      ),
+    },
+  }),
 };

@@ -3,6 +3,9 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IProjectRequest } from "./project.type";
 import { PROJECT_STATUS_OPTIONS } from "@/constants";
 import { UserAttributes } from "@/types";
+import { projectRepository } from "@/repositories/project.repository";
+import { successResponse } from "@/helper/response.helper";
+import { pagination } from "@/helper/common.helper";
 
 export default class ProjectController {
   public create = async (
@@ -75,6 +78,14 @@ export default class ProjectController {
     return toolkit.response(response).code(200);
   };
 
+  public getProjectOverallSummary = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await projectService.getProjectOverallSummary();
+    return toolkit.response(response).code(200);
+  };
+
   public getProjectGroupByStatus = async (
     req: Request,
     toolkit: ResponseToolkit
@@ -82,5 +93,27 @@ export default class ProjectController {
     const { design_id } = req.query;
     const response = await projectService.getProjectGroupByStatus(design_id);
     return toolkit.response(response).code(200);
+  };
+
+  public getProjectListing = async (req: Request, toolkit: ResponseToolkit) => {
+    const { limit, offset, sort, order } = req.query;
+
+    const result = await projectRepository.getProjectListing(
+      limit,
+      offset,
+      sort,
+      order
+    );
+
+    return toolkit
+      .response(
+        successResponse({
+          data: {
+            projects: result[0].projects,
+            pagination: pagination(limit, offset, result[0].total),
+          },
+        })
+      )
+      .code(200);
   };
 }
