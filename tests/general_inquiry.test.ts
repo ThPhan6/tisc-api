@@ -23,7 +23,7 @@ import {
 } from "./temp-data/design-firm";
 import { apiService } from "./helpers/api.helper";
 import { ROUTES } from "@/constants/route.constant";
-import { ActionTaskStatus } from "@/types/action_task.type";
+import { ActionTaskStatus } from "@/types";
 
 describe("General Inquiry", () => {
   let inquiry: any;
@@ -72,15 +72,24 @@ describe("General Inquiry", () => {
     brand.token = signJwtToken(brand.user.id);
     /// DESIGN FIRM
     design.company = await connection.insert("designers", designFirmData);
-    design.location = await connection.insert("locations", designFirmLocationData);
+    design.location = await connection.insert(
+      "locations",
+      designFirmLocationData
+    );
     design.user = await connection.insert("users", userDesignFirmData);
     design.token = signJwtToken(design.user.id);
     /// PRODUCT
     product.data = await connection.insert("products", productData);
     product.category = await connection.insert("categories", categoryData);
     product.collection = await connection.insert("collections", collectionData);
-    product.attribute.general = await connection.insert("attributes", generalData);
-    product.attribute.feature = await connection.insert("attributes", featureData);
+    product.attribute.general = await connection.insert(
+      "attributes",
+      generalData
+    );
+    product.attribute.feature = await connection.insert(
+      "attributes",
+      featureData
+    );
     product.attribute.specification = await connection.insert(
       "attributes",
       specificationData
@@ -128,10 +137,10 @@ describe("General Inquiry", () => {
           .getInstance()
           .setToken(design.token)
           .post(ROUTES.GENERAL_INQUIRY.CREATE, {
-            "product_id": "ABC",
-            "title":"What is this product for ?",
-            "message":"Hello Enable",
-            "inquiry_for_ids":["ABC"]
+            product_id: "ABC",
+            title: "What is this product for ?",
+            message: "Hello Enable",
+            inquiry_for_ids: ["ABC"],
           })
       ).shouldError(404);
     });
@@ -140,10 +149,10 @@ describe("General Inquiry", () => {
         .getInstance()
         .setToken(design.token)
         .post(ROUTES.GENERAL_INQUIRY.CREATE, {
-          "product_id": product.data.id,
-          "title":"What is this product for ?",
-          "message":"Hello Enable",
-          "inquiry_for_ids":["ABC"]
+          product_id: product.data.id,
+          title: "What is this product for ?",
+          message: "Hello Enable",
+          inquiry_for_ids: ["ABC"],
         });
       inquiry = response.get();
       response.shouldSuccess();
@@ -189,14 +198,12 @@ describe("General Inquiry", () => {
 
   describe("Get Inquiry request detail", () => {
     it("Incorrect ID", async () => {
-      (await apiService
+      (
+        await apiService
           .getInstance()
           .setToken(brand.token)
           .get(
-            ROUTES.GENERAL_INQUIRY.GET_ONE.replace(
-              "{id}",
-              inquiry.id + "_123"
-            )
+            ROUTES.GENERAL_INQUIRY.GET_ONE.replace("{id}", inquiry.id + "_123")
           )
       ).shouldError(404);
     });
@@ -205,12 +212,7 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .get(
-            ROUTES.GENERAL_INQUIRY.GET_ONE.replace(
-              "{id}",
-              inquiry.id
-            )
-          )
+          .get(ROUTES.GENERAL_INQUIRY.GET_ONE.replace("{id}", inquiry.id))
       ).shouldSuccess();
     });
   });
@@ -247,10 +249,7 @@ describe("General Inquiry", () => {
           .getInstance()
           .setToken(brand.token)
           .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace(
-              "{id}",
-              inquiryTask.id + "_123"
-            ),
+            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id + "_123"),
             { status: ActionTaskStatus["In Progress"] }
           )
       ).shouldError(404);
@@ -260,10 +259,9 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
-            { status: ActionTaskStatus["In Progress"] }
-          )
+          .patch(ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id), {
+            status: ActionTaskStatus["In Progress"],
+          })
       ).shouldSuccess();
     });
     it("Incorrect payload inputs", async () => {
@@ -271,10 +269,9 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
-            { status: 99 }
-          )
+          .patch(ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id), {
+            status: 99,
+          })
       ).shouldError();
     });
     it("Correct payload inputs", async () => {
@@ -282,10 +279,9 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
-            { status: ActionTaskStatus["In Progress"] }
-          )
+          .patch(ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id), {
+            status: ActionTaskStatus["In Progress"],
+          })
       ).shouldSuccess();
     });
   });
@@ -296,9 +292,10 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .get(`${ROUTES.ACTION_TASK.GET_LIST}?model_id=${inquiryTask.id}&model_name=inquiry`)
+          .get(
+            `${ROUTES.ACTION_TASK.GET_LIST}?model_id=${inquiryTask.id}&model_name=inquiry`
+          )
       ).shouldSuccess();
     });
   });
-
 });

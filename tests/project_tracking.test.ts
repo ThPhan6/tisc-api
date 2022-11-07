@@ -23,7 +23,7 @@ import {
 } from "./temp-data/design-firm";
 import { apiService } from "./helpers/api.helper";
 import { ROUTES } from "@/constants/route.constant";
-import { ActionTaskStatus } from "@/types/action_task.type";
+import { ActionTaskStatus } from "@/types";
 
 describe("Project Tracking", () => {
   let productRequest: any;
@@ -72,15 +72,24 @@ describe("Project Tracking", () => {
     brand.token = signJwtToken(brand.user.id);
     /// DESIGN FIRM
     design.company = await connection.insert("designers", designFirmData);
-    design.location = await connection.insert("locations", designFirmLocationData);
+    design.location = await connection.insert(
+      "locations",
+      designFirmLocationData
+    );
     design.user = await connection.insert("users", userDesignFirmData);
     design.token = signJwtToken(design.user.id);
     /// PRODUCT
     product.data = await connection.insert("products", productData);
     product.category = await connection.insert("categories", categoryData);
     product.collection = await connection.insert("collections", collectionData);
-    product.attribute.general = await connection.insert("attributes", generalData);
-    product.attribute.feature = await connection.insert("attributes", featureData);
+    product.attribute.general = await connection.insert(
+      "attributes",
+      generalData
+    );
+    product.attribute.feature = await connection.insert(
+      "attributes",
+      featureData
+    );
     product.attribute.specification = await connection.insert(
       "attributes",
       specificationData

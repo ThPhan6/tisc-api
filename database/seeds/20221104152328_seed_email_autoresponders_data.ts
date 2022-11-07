@@ -1,21 +1,17 @@
-import {ConnectionInterface} from '@/Database/Connections/ArangoConnection';
-import {v4 as uuid} from 'uuid';
-import moment from 'moment';
-import {
-  TOPIC_TYPES,
-  TARGETED_FOR_TYPES,
-} from "@/constant/common.constant";
+import { ConnectionInterface } from "@/Database/Connections/ArangoConnection";
+import { v4 as uuid } from "uuid";
+import moment from "moment";
+import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constants";
 
 export const up = (connection: ConnectionInterface) => {
-  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
-  return connection.insert(
-    'email_autoresponders', [
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.MESSAGES,
-        targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
-        title: "TISC live demo session is booked",
-        message: `
+  const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+  return connection.insert("email_autoresponders", [
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
+      title: "TISC live demo session is booked",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -164,16 +160,16 @@ export const up = (connection: ConnectionInterface) => {
 
         </html>
         `,
-        deleted_at: null,
-        updated_at: currentTime,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.OPERATION,
-        targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
-        title: "User password reset request.",
-        message: `
+      deleted_at: null,
+      updated_at: currentTime,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.OPERATION,
+      targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
+      title: "User password reset request.",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -291,16 +287,16 @@ export const up = (connection: ConnectionInterface) => {
         </body>
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.OPERATION,
-        targeted_for: TARGETED_FOR_TYPES.BRAND,
-        title: "User password reset request.",
-        message: `
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.OPERATION,
+      targeted_for: TARGETED_FOR_TYPES.BRAND,
+      title: "User password reset request.",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -418,16 +414,16 @@ export const up = (connection: ConnectionInterface) => {
         </body>
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.OPERATION,
-        targeted_for: TARGETED_FOR_TYPES.DESIGN_FIRM,
-        title: "User password reset request.",
-        message: `
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.OPERATION,
+      targeted_for: TARGETED_FOR_TYPES.DESIGN_FIRM,
+      title: "User password reset request.",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -545,16 +541,16 @@ export const up = (connection: ConnectionInterface) => {
         </body>
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.MESSAGES,
-        targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
-        title: "Successfully signed-up!",
-        message: `
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
+      title: "Successfully signed-up!",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -690,16 +686,16 @@ export const up = (connection: ConnectionInterface) => {
 
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.ONBOARD,
-        targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
-        title: "Welcome to the team!",
-        message: `
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.ONBOARD,
+      targeted_for: TARGETED_FOR_TYPES.TISC_TEAM,
+      title: "Welcome to the team!",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -837,16 +833,16 @@ export const up = (connection: ConnectionInterface) => {
 
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.ONBOARD,
-        targeted_for: TARGETED_FOR_TYPES.BRAND,
-        title: "Welcome to the team!",
-        message: `
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.ONBOARD,
+      targeted_for: TARGETED_FOR_TYPES.BRAND,
+      title: "Welcome to the team!",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -984,16 +980,16 @@ export const up = (connection: ConnectionInterface) => {
 
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-      {
-        id: uuid(),
-        topic: TOPIC_TYPES.ONBOARD,
-        targeted_for: TARGETED_FOR_TYPES.DESIGN_FIRM,
-        title: "Welcome to the team!",
-        message: `
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.ONBOARD,
+      targeted_for: TARGETED_FOR_TYPES.DESIGN_FIRM,
+      title: "Welcome to the team!",
+      message: `
         <!DOCTYPE html>
         <html lang="en" dir="ltr">
 
@@ -1131,10 +1127,9 @@ export const up = (connection: ConnectionInterface) => {
 
         </html>
         `,
-        deleted_at: null,
-        updated_at: null,
-        created_at: currentTime,
-      },
-    ]
-  );
-}
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+  ]);
+};
