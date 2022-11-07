@@ -185,6 +185,23 @@ export default class ProjectRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.GET_ONE_PROJECT_LISTING,
+          options: {
+            validate: validate.getOneProjectListing,
+            handler: controller.getProjectListingDetail,
+            description: "Method that get project listing detail",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getProjectListingDetail,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.GET_PROJECT_GROUP_BY_STATUS,
           options: {
             handler: controller.getProjectGroupByStatus,
