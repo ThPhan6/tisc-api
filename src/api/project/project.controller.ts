@@ -116,4 +116,21 @@ export default class ProjectController {
       )
       .code(200);
   };
+
+  public getProjectListingDetail = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+
+    const result = await projectRepository.getProjectListingDetail(id);
+
+    return toolkit
+      .response(
+        successResponse({
+          data: result[0],
+        })
+      )
+      .code(200);
+  };
 }

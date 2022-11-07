@@ -1,4 +1,9 @@
-import { ProjectAttributes, ProjectStatus, SortOrder } from "@/types";
+import {
+  ProjectAttributes,
+  ProjectStatus,
+  SortOrder,
+  UserStatus,
+} from "@/types";
 import BaseRepository from "@/repositories/base.repository";
 import ProjectModel from "@/model/project.model";
 import { forEach, isNumber } from "lodash";
@@ -433,6 +438,176 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       metricUnit: MEASUREMENT_UNIT.METRIC,
       feetToMeter: 0.3048,
       meterToFeet: 3.28084,
+    });
+  }
+
+  public async getProjectListingDetail(projectId: string) {
+    const rawQuery = `
+      FOR prj IN projects
+      FILTER prj.id == @projectId
+      FILTER prj.deleted_at == null
+
+      FOR d IN designers
+      FILTER d.id == prj.design_id
+
+      LET spacing = (
+        FOR z IN project_zones
+        FILTER z.deleted_at == null
+        FILTER z.project_id == prj.id
+        RETURN KEEP(z, 'id', 'name', 'areas')
+      )
+
+      LET area = SUM(
+        FOR space IN spacing
+        FOR area IN space.areas
+        FOR room IN area.rooms
+        RETURN room.sub_total
+      )
+
+      LET prjProducts = (
+        FOR pp IN project_products
+        FILTER pp.project_id == prj.id
+        FOR p IN products
+        FILTER p.deleted == null
+        RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
+      )
+
+      LET deleted = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+
+      LET considerPrjProducts = (
+        FOR pp IN prjProducts
+        FILTER pp.status == @considerStatus
+        FILTER pp.deleted_at == null
+        FOR p IN products
+        FILTER p.id == pp.product_id
+        RETURN MERGE(pp, {
+          product: MERGE(
+            KEEP(p, 'id', 'brand_id', 'name'),
+            {image: FIRST(p.images)} )
+          }
+        )
+      )
+      LET unlisted = (
+        FOR pp IN considerPrjProducts
+        FILTER pp.consider_status == @unlistedStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET considerProductBrands = (
+        FOR pp IN considerPrjProducts
+        FOR b IN brands
+        FILTER b.id == pp.product.brand_id
+        FILTER b.deleted_at == null
+        COLLECT brand = pp.product.brand_id INTO brandGroup
+        RETURN {
+          name: FIRST(brandGroup[*].b.name),
+          logo: FIRST(brandGroup[*].b.logo),
+          products: brandGroup[*].pp.product
+        }
+      )
+
+      LET specifiedPrjProducts = (
+        FOR pp IN prjProducts
+        FILTER pp.status == @specifiedStatus
+        FILTER pp.deleted_at == null
+        FOR p IN products
+        FILTER p.id == pp.product_id
+        RETURN MERGE(pp, {
+          product: MERGE(
+            KEEP(p, 'id', 'brand_id', 'name'),
+            {image: FIRST(p.images)} )
+          }
+        )
+      )
+      LET cancelled = (
+        FOR pp IN specifiedPrjProducts
+        FILTER pp.specified_status == @cancelledStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET products = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        RETURN DISTINCT pp.product_id
+      )
+      LET specifiedProductBrands = (
+        FOR pp IN specifiedPrjProducts
+        FOR b IN brands
+        FILTER b.id == pp.product.brand_id
+        FILTER b.deleted_at == null
+        COLLECT brand = pp.product.brand_id INTO brandGroup
+        RETURN {
+          name: FIRST(brandGroup[*].b.name),
+          logo: FIRST(brandGroup[*].b.logo),
+          products: brandGroup[*].pp.product
+        }
+      )
+
+      LET members = (
+        FOR u IN users
+        FILTER u.deleted_at == null
+        FILTER u.status == @activeStatus
+        FILTER u.id IN prj.team_profile_ids
+        FOR loc IN locations
+        FILTER loc.id == u.location_id
+        FOR common_types IN common_types
+        FILTER common_types.id == u.department_id
+        FILTER common_types.deleted_at == null
+        FOR role in roles
+        FILTER role.deleted_at == null
+        FILTER role.id == u.role_id
+        RETURN MERGE(
+          KEEP(u, 'id', 'firstname', 'lastname', 'gender', 'position', 'email', 'phone', 'mobile', 'status'),
+          {
+            department: common_types.name,
+            phone_code: loc.phone_code,
+            access_level: role.name,
+            work_location: CONCAT(loc.address, ', ', loc.city_name, loc.city_name == '' ? '' : ', ', loc.country_name, ', ', loc.postal_code),
+          }
+        )
+      )
+
+      RETURN {
+        basic: MERGE(
+          KEEP(prj, 'code', 'status', 'name', 'project_type', 'building_type', 'measurement_unit', 'design_due', 'construction_start', 'updated_at'),
+          {
+            address: CONCAT(prj.address, ', ', prj.city_name, prj.city_name == '' ? '' : ', ', prj.country_name, ', ', prj.postal_code),
+            designFirm: KEEP(d, 'name', 'logo')
+          }
+        ),
+        spacing: {
+          zones: spacing,
+          metricArea: prj.measurement_unit == @metricUnit ? area : area * @feetToMeter,
+          imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFeet : area,
+        },
+        considered: {
+          brands: considerProductBrands,
+          deleted: deleted[0],
+          consider: LENGTH(considerPrjProducts) - unlisted[0],
+          unlisted: unlisted[0],
+        },
+        specified: {
+          brands: specifiedProductBrands,
+          deleted: deleted[0],
+          specified: LENGTH(specifiedPrjProducts) - cancelled[0],
+          cancelled: cancelled[0],
+        },
+        members
+      }
+    `;
+
+    return this.model.rawQueryV2(rawQuery, {
+      projectId,
+      metricUnit: MEASUREMENT_UNIT.METRIC,
+      feetToMeter: 0.3048,
+      meterToFeet: 3.28084,
+      considerStatus: ProjectProductStatus.consider,
+      specifiedStatus: ProjectProductStatus.specify,
+      unlistedStatus: ProductConsiderStatus.Unlisted,
+      cancelledStatus: ProductSpecifyStatus.Cancelled,
+      activeStatus: UserStatus.Active,
     });
   }
 }

@@ -70,4 +70,5 @@ export default {
       ),
     },
   }),
+  getOneProjectListing: { params: { id: requireStringValidation("Project") } },
 };
