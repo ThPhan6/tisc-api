@@ -31,11 +31,12 @@ class DataParser {
     if (isArray(data)) {
       return data.map((item) => this.combineInsertData(item));
     }
+    const now = getTimestamps();
     return {
       ...data,
       id: uuid(),
-      created_at: getTimestamps(),
-      updated_at: data.updated_at || null,
+      created_at: now,
+      updated_at: now,
       deleted_at: null,
     };
   }
