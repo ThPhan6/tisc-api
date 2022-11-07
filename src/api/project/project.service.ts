@@ -395,7 +395,7 @@ class ProjectService {
       },
     ];
 
-    return successResponse({ data: results, space: summary.space });
+    return successResponse({ data: results, area: summary.area });
   }
 
   public async getProjectGroupByStatus(designId: string) {

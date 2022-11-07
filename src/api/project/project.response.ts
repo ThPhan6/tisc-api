@@ -14,7 +14,7 @@ export default {
   getOne: Joi.object({
     data: Joi.any(),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getAll: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
@@ -22,7 +22,7 @@ export default {
       name: Joi.string(),
     }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getList: Joi.object({
     data: Joi.object({
       pagination: paginationResponse,
@@ -46,20 +46,20 @@ export default {
       }),
     }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getlistType: Joi.object({
     statusCode: Joi.number(),
     data: Joi.array().items({
       id: Joi.string(),
       name: Joi.string(),
     }),
-  }) as any,
+  }),
   getSummary: Joi.object({
     projects: Joi.number(),
     live: Joi.number(),
     on_hold: Joi.number(),
     archived: Joi.number(),
-  }) as any,
+  }),
   getProjectGroupByStatus: {
     data: Joi.array().items(
       Joi.object({
@@ -82,9 +82,37 @@ export default {
     statusCode: Joi.number(),
   },
   getSummaryOverall: getSummaryResponseValidate({
-    space: Joi.object({
+    area: Joi.object({
       metric: Joi.number(),
       imperial: Joi.number(),
     }),
+  }),
+  getProjectListing: Joi.object({
+    data: Joi.object({
+      pagination: paginationResponse,
+      projects: Joi.array().items(
+        Joi.object({
+          created_at: Joi.string(),
+          id: Joi.string(),
+          name: Joi.string(),
+          status: Joi.string(),
+          project_type: Joi.string(),
+          building_type: Joi.string(),
+          country_name: Joi.string(),
+          city_name: Joi.string(),
+          design_due: Joi.string(),
+          design_id: Joi.string(),
+          metricArea: Joi.number(),
+          imperialArea: Joi.number(),
+          productCount: Joi.number(),
+          deleted: Joi.number(),
+          consider: Joi.number(),
+          unlisted: Joi.number(),
+          specified: Joi.number(),
+          cancelled: Joi.number(),
+        })
+      ),
+    }),
+    statusCode: Joi.number(),
   }),
 };

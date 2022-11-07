@@ -7,6 +7,8 @@ import {
   ProductSpecifyStatus,
   ProjectProductStatus,
 } from "@/api/project_product/project_product.type";
+import { ProjectListingSort } from "@/api/project/project.type";
+import { MEASUREMENT_UNIT } from "@/constants";
 
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected model: ProjectModel;
@@ -160,7 +162,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       specified: number;
       cancelled: number;
     };
-    space: {
+    area: {
       metric: number;
       imperial: number;
     };
@@ -249,15 +251,16 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       )
 
       LET products = (
-        FOR p IN prjProducts
-        RETURN DISTINCT p.product_id
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        RETURN DISTINCT pp.product_id
       )
 
       LET space = (
         FOR prj IN allProjects
         FOR z IN project_zones
         FILTER z.project_id == prj.id
-        COLLECT unit = prj.measurement_unit == 2 ? 'metric' : 'imperial'
+        COLLECT unit = prj.measurement_unit == @metricUnit ? 'metric' : 'imperial'
         INTO unitGroup
         RETURN {unit, areas: FLATTEN(unitGroup[*].z.areas), prj: unitGroup[*].prj}
       )
@@ -298,7 +301,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           specified: LENGTH(specifiedPrjProducts) - cancelled[0],
           cancelled: cancelled[0],
         },
-        space: {
+        area: {
           metric,
           imperial,
         },
@@ -312,9 +315,125 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         specifiedStatus: ProjectProductStatus.specify,
         unlistedStatus: ProductConsiderStatus.Unlisted,
         cancelledStatus: ProductSpecifyStatus.Cancelled,
+        metricUnit: MEASUREMENT_UNIT.METRIC,
       }
     );
     return overallSummary[0];
+  }
+
+  public async getProjectListing(
+    limit: number,
+    offset: number,
+    sort: ProjectListingSort,
+    order: SortOrder
+  ) {
+    const rawQuery = `
+      LET allProjects = (
+        FOR prj IN projects
+        FILTER prj.deleted_at == null
+        RETURN prj
+      )
+
+      LET projects = (
+        FOR prj IN allProjects
+
+        LET prjProducts = (
+          FOR pp IN project_products
+          FILTER pp.project_id == prj.id
+          FOR p IN products
+          FILTER p.deleted == null
+          RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
+        )
+
+        LET deleted = (
+          FOR pp IN prjProducts
+          FILTER pp.deleted_at != null
+          COLLECT WITH COUNT INTO length RETURN length
+        )
+
+        LET considerPrjProducts = (
+          FOR pp IN prjProducts
+          FILTER pp.status == @considerStatus
+          FILTER pp.deleted_at == null
+          RETURN pp
+        )
+        LET unlisted = (
+          FOR pp IN considerPrjProducts
+          FILTER pp.consider_status == @unlistedStatus
+          COLLECT WITH COUNT INTO length RETURN length
+        )
+
+        LET specifiedPrjProducts = (
+          FOR pp IN prjProducts
+          FILTER pp.status == @specifiedStatus
+          FILTER pp.deleted_at == null
+          RETURN pp
+        )
+
+        LET cancelled = (
+          FOR pp IN specifiedPrjProducts
+          FILTER pp.specified_status == @cancelledStatus
+          COLLECT WITH COUNT INTO length RETURN length
+        )
+
+        LET products = (
+          FOR pp IN prjProducts
+          FILTER pp.deleted_at != null
+          RETURN DISTINCT pp.product_id
+        )
+
+        LET area = SUM(
+          FOR z IN project_zones
+          FILTER z.deleted_at == null
+          FILTER z.project_id == prj.id
+          FOR area IN z.areas
+          FOR room IN area.rooms
+          RETURN room.sub_total
+        )
+
+        LET status = prj.status == @liveStatus ? 'Live' : prj.status == @onHoldStatus ? 'On Hold' : 'Archived'
+
+        SORT ${sort === "status" ? `${sort} @order` : "prj.@sort @order"}
+        LIMIT @offset, @limit
+        RETURN MERGE(
+          KEEP(prj, 'id', 'created_at', 'name', 'project_type', 'building_type', 'country_name'),
+          {
+            status,
+            city_name: prj.city_name == '' ? 'N/A' : prj.city_name,
+            metricArea: prj.measurement_unit == @metricUnit ? area : area * @feetToMeter,
+            imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFeet : area,
+            productCount: LENGTH(products),
+            deleted: deleted[0],
+            consider: LENGTH(considerPrjProducts) - unlisted[0],
+            unlisted: unlisted[0],
+            specified: LENGTH(specifiedPrjProducts) - cancelled[0],
+            cancelled: cancelled[0],
+          }
+        )
+      )
+      
+      LIMIT @offset, @limit
+      RETURN {
+        projects,
+        total: LENGTH(allProjects),
+      }
+    `;
+
+    return this.model.rawQueryV2(rawQuery, {
+      offset,
+      limit,
+      sort: sort === "status" ? undefined : sort,
+      order,
+      liveStatus: ProjectStatus.Live,
+      onHoldStatus: ProjectStatus["On Hold"],
+      considerStatus: ProjectProductStatus.consider,
+      specifiedStatus: ProjectProductStatus.specify,
+      unlistedStatus: ProductConsiderStatus.Unlisted,
+      cancelledStatus: ProductSpecifyStatus.Cancelled,
+      metricUnit: MEASUREMENT_UNIT.METRIC,
+      feetToMeter: 0.3048,
+      meterToFeet: 3.28084,
+    });
   }
 }
 

@@ -31,7 +31,6 @@ const defaultGetListWithSortingQueryValidation: Joi.PartialSchemaMap<any> = {
 };
 
 const getDefaultGetListQueryCustom = (value: any) => ({
-  filter: value.filter,
   sort: value.sort || "created_at",
   order: value.order || "DESC",
 });
