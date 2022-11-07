@@ -21,6 +21,7 @@ const brandResponse = Joi.array().items(
         brand_id: Joi.string(),
         name: Joi.string(),
         image: Joi.string(),
+        status: Joi.number(),
       })
     ),
   })
@@ -177,6 +178,7 @@ export default {
           id: Joi.string(),
           firstname: Joi.string().allow(""),
           lastname: Joi.string().allow(""),
+          avatar: Joi.string().allow(null),
           gender: Joi.boolean(),
           position: Joi.string().allow(""),
           email: Joi.string().allow(""),

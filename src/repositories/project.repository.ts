@@ -145,6 +145,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       design_firm_official_website: string;
     };
   }
+
   public async getOverallSummary(): Promise<{
     projects: {
       total: number;
@@ -332,6 +333,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     sort: ProjectListingSort,
     order: SortOrder
   ) {
+    console.log("offset", offset);
+    console.log("limit", limit);
     const rawQuery = `
       LET allProjects = (
         FOR prj IN projects
@@ -406,7 +409,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             status,
             city_name: prj.city_name == '' ? 'N/A' : prj.city_name,
             metricArea: prj.measurement_unit == @metricUnit ? area : area * @feetToMeter,
-            imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFeet : area,
+            imperialArea: prj.measurement_unit == @metricUnit ? area * (1 / @feetToMeter) : area,
             productCount: LENGTH(products),
             deleted: deleted[0],
             consider: LENGTH(considerPrjProducts) - unlisted[0],
@@ -417,7 +420,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         )
       )
       
-      LIMIT @offset, @limit
       RETURN {
         projects,
         total: LENGTH(allProjects),
@@ -437,7 +439,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       cancelledStatus: ProductSpecifyStatus.Cancelled,
       metricUnit: MEASUREMENT_UNIT.METRIC,
       feetToMeter: 0.3048,
-      meterToFeet: 3.28084,
     });
   }
 
@@ -487,7 +488,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN MERGE(pp, {
           product: MERGE(
             KEEP(p, 'id', 'brand_id', 'name'),
-            {image: FIRST(p.images)} )
+            { image: FIRST(p.images), status: pp.consider_status } )
           }
         )
       )
@@ -518,7 +519,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN MERGE(pp, {
           product: MERGE(
             KEEP(p, 'id', 'brand_id', 'name'),
-            {image: FIRST(p.images)} )
+            { image: FIRST(p.images), status: pp.specified_status } )
           }
         )
       )
@@ -559,7 +560,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER role.deleted_at == null
         FILTER role.id == u.role_id
         RETURN MERGE(
-          KEEP(u, 'id', 'firstname', 'lastname', 'gender', 'position', 'email', 'phone', 'mobile', 'status'),
+          KEEP(u, 'id', 'firstname', 'lastname', 'gender', 'avatar', 'position', 'email', 'phone', 'mobile', 'status'),
           {
             department: common_types.name,
             phone_code: loc.phone_code,
@@ -580,7 +581,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         spacing: {
           zones: spacing,
           metricArea: prj.measurement_unit == @metricUnit ? area : area * @feetToMeter,
-          imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFeet : area,
+          imperialArea: prj.measurement_unit == @metricUnit ? area * (1 / @feetToMeter) : area,
         },
         considered: {
           brands: considerProductBrands,
@@ -602,7 +603,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       projectId,
       metricUnit: MEASUREMENT_UNIT.METRIC,
       feetToMeter: 0.3048,
-      meterToFeet: 3.28084,
       considerStatus: ProjectProductStatus.consider,
       specifiedStatus: ProjectProductStatus.specify,
       unlistedStatus: ProductConsiderStatus.Unlisted,
