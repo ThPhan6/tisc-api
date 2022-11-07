@@ -1,0 +1,371 @@
+import {ConnectionInterface} from '@/Database/Connections/ArangoConnection';
+import {v4 as uuid} from 'uuid';
+import moment from 'moment';
+
+const records = [
+  {
+    "type": 1,
+    "name": "Architects/Interior Designers"
+  },
+  { "type": 1, "name": "Builders/Contractors" },
+  { "type": 1, "name": "Clients/Customers" },
+  { "type": 1, "name": "Distributors/Sales Agents" },
+  { "type": 1, "name": "Internal Team Members" },
+  {
+    "type": 1,
+    "name": "Other Professional Consultants"
+  },
+  { "type": 2, "name": "Approval/Confirmation" },
+  { "type": 2, "name": "Comment/Feedback" },
+  { "type": 2, "name": "General Review/Sharing" },
+  {
+    "type": 2,
+    "name": "Internal Evaluation/Discussion"
+  },
+  {
+    "type": 2,
+    "name": "Project Proposal/Submission"
+  },
+  {
+    "type": 2,
+    "name": "Recommendation/Suggestion"
+  },
+  { "type": 4, "name": "Base @ Celling + Floor" },
+  { "type": 4, "name": "Base @ Celling" },
+  { "type": 4, "name": "Base @ Floor" },
+  { "type": 4, "name": "Cabinet Carcass + Door" },
+  { "type": 4, "name": "Cabinet Carcass" },
+  { "type": 4, "name": "Cabinet Door" },
+  { "type": 4, "name": "Celling Surface" },
+  {
+    "type": 4,
+    "name": "Door Frame + Door Panel"
+  },
+  { "type": 4, "name": "Door Frame" },
+  { "type": 4, "name": "Door Panel" },
+  { "type": 4, "name": "Floor Surface" },
+  { "type": 4, "name": "Wall Surface" },
+  { "type": 4, "name": "Wall-East" },
+  { "type": 4, "name": "Wall-South" },
+  { "type": 4, "name": "Wall-West" },
+  { "type": 4, "name": "Wall-North" },
+  { "type": 5, "name": "Business Office" },
+  { "type": 5, "name": "Headquarter" },
+  { "type": 5, "name": "Regional Office" },
+  { "type": 5, "name": "Local Office" },
+  { "type": 5, "name": "Experience Center" },
+  { "type": 5, "name": "Showroom & Gallery" },
+  {
+    "type": 5,
+    "name": "Customer & Service Center"
+  },
+  {
+    "type": 5,
+    "name": "Factory & Fabrication Shop"
+  },
+  {
+    "type": 5,
+    "name": "Logistic Facility & Warehouse"
+  },
+  { "type": 3, "name": "Addition & Alteration" },
+  { "type": 3, "name": "Concept & Competition" },
+  {
+    "type": 3,
+    "name": "Conversation & Restoration"
+  },
+  {
+    "type": 3,
+    "name": "Iterior Fit-out & Renovation"
+  },
+  {
+    "type": 3,
+    "name": "Landscaping & Outdoorm Space"
+  },
+  {
+    "type": 3,
+    "name": "Master & Urban Planning"
+  },
+  {
+    "type": 3,
+    "name": "New Building & Construction"
+  },
+  {
+    "type": 6,
+    "name": "Image included for reference only"
+  },
+  {
+    "type": 6,
+    "name": "Refer to control sample for actual finish"
+  },
+  {
+    "type": 6,
+    "name": "Product conforms to code and regulation"
+  },
+  {
+    "type": 6,
+    "name": "Product conforms to industry standards"
+  },
+  {
+    "type": 7,
+    "name": "Airport, Station, Transportation Hub"
+  },
+  {
+    "type": 7,
+    "name": "Apartment, Condo, Multi-unit Housing"
+  },
+  {
+    "type": 7,
+    "name": "Arena, Sports Hall, Stadium"
+  },
+  {
+    "type": 7,
+    "name": "Bank Building, High-Security Facility"
+  },
+  {
+    "type": 7,
+    "name": "Club, Entertainment, Gaming Complex"
+  },
+  {
+    "type": 7,
+    "name": "Cultural Space, Gallery, Museum"
+  },
+  {
+    "type": 7,
+    "name": "Commerce, Retail Store, Shopping Mall"
+  },
+  { "type": 7, "name": "Data Center, IT Facility" },
+  {
+    "type": 7,
+    "name": "Distribution Center, Factory, Warehouse"
+  },
+  {
+    "type": 7,
+    "name": "Educational Space, Library, School"
+  },
+  {
+    "type": 7,
+    "name": "Food & Beverage, Hospitality Outlet"
+  },
+  {
+    "type": 7,
+    "name": "Government, Institutional Building"
+  },
+  {
+    "type": 7,
+    "name": "Healthcare, Hospital, Medical Facility"
+  },
+  {
+    "type": 7,
+    "name": "Hotel, Resort, Motel, Lodging Facility"
+  },
+  {
+    "type": 7,
+    "name": "Landscaping, Park, Playground"
+  },
+  {
+    "type": 7,
+    "name": "Meetings, Incentives, Conferences, Exhibitions"
+  },
+  { "type": 7, "name": "Mixed-Use Development" },
+  {
+    "type": 7,
+    "name": "Office Building, Workplace Space"
+  },
+  {
+    "type": 7,
+    "name": "Prison, Confinement Facility"
+  },
+  {
+    "type": 7,
+    "name": "Public Space, Monument, Open Plaza"
+  },
+  {
+    "type": 7,
+    "name": "Religion Building, Worship Facility"
+  },
+  {
+    "type": 7,
+    "name": "Single House, Private Residence"
+  },
+  { "type": 8, "name": "Cutting" },
+  { "type": 8, "name": "Finishing Sample" },
+  { "type": 8, "name": "Flame Certificate" },
+  { "type": 8, "name": "LEED Certificate" },
+  { "type": 8, "name": "Prototype" },
+  { "type": 8, "name": "Seaming Diagram" },
+  { "type": 8, "name": "Shop Drawings" },
+  { "type": 8, "name": "Strike-off" },
+  { "type": 9, "name": "Not Applicable" },
+  { "type": 9, "name": "Average" },
+  { "type": 9, "name": "Bag" },
+  { "type": 9, "name": "Bale" },
+  { "type": 9, "name": "Band" },
+  { "type": 9, "name": "Bar" },
+  { "type": 9, "name": "Barrel" },
+  { "type": 9, "name": "Bin" },
+  { "type": 9, "name": "Block" },
+  { "type": 9, "name": "Board Feet" },
+  { "type": 9, "name": "Bolt" },
+  { "type": 9, "name": "Bottle" },
+  { "type": 9, "name": "Box" },
+  { "type": 9, "name": "Bowl" },
+  { "type": 9, "name": "Bucket" },
+  { "type": 9, "name": "Bulk" },
+  { "type": 9, "name": "Bundle" },
+  { "type": 9, "name": "Can" },
+  { "type": 9, "name": "Capsule" },
+  { "type": 9, "name": "Card" },
+  { "type": 9, "name": "Carton" },
+  { "type": 9, "name": "Cartridge" },
+  { "type": 9, "name": "Case" },
+  { "type": 9, "name": "Cassette" },
+  { "type": 9, "name": "Centimeter" },
+  { "type": 9, "name": "Coil" },
+  { "type": 9, "name": "Container" },
+  { "type": 9, "name": "Cord" },
+  { "type": 9, "name": "Count" },
+  { "type": 9, "name": "Crate" },
+  { "type": 9, "name": "Cubic Centimeter" },
+  { "type": 9, "name": "Cubic Feet" },
+  { "type": 9, "name": "Cubic Inche" },
+  { "type": 9, "name": "Cubic Meter" },
+  { "type": 9, "name": "Cubic Yard" },
+  { "type": 9, "name": "Cup" },
+  { "type": 9, "name": "Cylinder" },
+  { "type": 9, "name": "Diameter" },
+  { "type": 9, "name": "Display" },
+  { "type": 9, "name": "Dozen" },
+  { "type": 9, "name": "Drum" },
+  { "type": 9, "name": "Each" },
+  { "type": 9, "name": "Feet" },
+  { "type": 9, "name": "Gallon" },
+  { "type": 9, "name": "Gauge" },
+  { "type": 9, "name": "Grain" },
+  { "type": 9, "name": "Gram" },
+  { "type": 9, "name": "Gross" },
+  { "type": 9, "name": "Hank" },
+  { "type": 9, "name": "Inch" },
+  { "type": 9, "name": "Jar" },
+  { "type": 9, "name": "Jug" },
+  { "type": 9, "name": "Keg" },
+  { "type": 9, "name": "Kilogram" },
+  { "type": 9, "name": "Kit" },
+  { "type": 9, "name": "Length" },
+  { "type": 9, "name": "Linear Centimeter" },
+  { "type": 9, "name": "Linear Foot" },
+  { "type": 9, "name": "Linear Meter" },
+  { "type": 9, "name": "Linear Yard" },
+  { "type": 9, "name": "Link" },
+  { "type": 9, "name": "Liter" },
+  { "type": 9, "name": "Lot" },
+  { "type": 9, "name": "Meter" },
+  { "type": 9, "name": "Order" },
+  { "type": 9, "name": "Ounce" },
+  { "type": 9, "name": "Pack" },
+  { "type": 9, "name": "Package" },
+  { "type": 9, "name": "Packet" },
+  { "type": 9, "name": "Pad" },
+  { "type": 9, "name": "Page" },
+  { "type": 9, "name": "Pail" },
+  { "type": 9, "name": "Pair" },
+  { "type": 9, "name": "Pallet" },
+  { "type": 9, "name": "Piece" },
+  { "type": 9, "name": "Pint" },
+  { "type": 9, "name": "Plate" },
+  { "type": 9, "name": "Pound" },
+  { "type": 9, "name": "Quart" },
+  { "type": 9, "name": "Quarter" },
+  { "type": 9, "name": "Rack" },
+  { "type": 9, "name": "Ream" },
+  { "type": 9, "name": "Reel" },
+  { "type": 9, "name": "Rod" },
+  { "type": 9, "name": "Roll" },
+  { "type": 9, "name": "Sachet" },
+  { "type": 9, "name": "Sack" },
+  { "type": 9, "name": "Set" },
+  { "type": 9, "name": "Sheet" },
+  { "type": 9, "name": "Single" },
+  { "type": 9, "name": "Sleeve" },
+  { "type": 9, "name": "Spool" },
+  { "type": 9, "name": "Square Foot" },
+  { "type": 9, "name": "Square Meter" },
+  { "type": 9, "name": "Square Yard" },
+  { "type": 9, "name": "Stack" },
+  { "type": 9, "name": "Tablet" },
+  { "type": 9, "name": "Tank" },
+  { "type": 9, "name": "Tray" },
+  { "type": 9, "name": "Ton" },
+  { "type": 9, "name": "Tub" },
+  { "type": 9, "name": "Tube" },
+  { "type": 9, "name": "Unit" },
+  { "type": 9, "name": "Vial" },
+  { "type": 9, "name": "Yard" },
+
+  { "type": 10, "name": "Accounting/Finance" },
+  { "type": 10, "name": "Communication & PR" },
+  { "type": 10, "name": "Corporate & Management" },
+  { "type": 10, "name": "Client/Customer Service" },
+  { "type": 10, "name": "Design & Creativity" },
+  { "type": 10, "name": "Human Resource" },
+  { "type": 10, "name": "Legal & Advisory" },
+  { "type": 10, "name": "Marketing & Sales" },
+  { "type": 10, "name": "Operation & Project Management" },
+  { "type": 10, "name": "Production & Manufacturing" },
+  { "type": 10, "name": "Research & Development" },
+  { "type": 10, "name": "3rd Party & External Consultant" },
+
+  { "type": 11, "name": "Brochure/Catalogue" },
+  { "type": 11, "name": "Demonstration & Performance Review" },
+  { "type": 11, "name": "Lunch & Learn" },
+  { "type": 11, "name": "Request Project Proposal" },
+  { "type": 11, "name": "Request Project Quotation" },
+  { "type": 11, "name": "Sample Submission" },
+  { "type": 11, "name": "Showroom Visit" },
+  { "type": 11, "name": "Technical Documentation" },
+  { "type": 11, "name": "Update Material Library & Resource Room" },
+
+  { "type": 12, "name": "Call follow up" },
+  { "type": 12, "name": "Design office visit" },
+  { "type": 12, "name": "Design office visit" },
+  { "type": 12, "name": "Email follow up" },
+  { "type": 12, "name": "Internal discussion & review" },
+  { "type": 12, "name": "Invite showroom visit" },
+  { "type": 12, "name": "Personal meetup" },
+  { "type": 12, "name": "Project site visit" },
+  { "type": 12, "name": "Share inquiry with distributor" },
+  { "type": 12, "name": "Submit required info" },
+
+  { "type": 13, "name": "Client Approval" },
+  { "type": 13, "name": "Construction Documents" },
+  { "type": 13, "name": "Internal Review" },
+  { "type": 13, "name": "Tender Prequlification" },
+  { "type": 13, "name": "Tender Documents" },
+
+  { "type": 14, "name": "Architecture" },
+  { "type": 14, "name": "Branding" },
+  { "type": 14, "name": "Design & Build" },
+  { "type": 14, "name": "Furniture Design" },
+  { "type": 14, "name": "Graphic Design" },
+  { "type": 14, "name": "Industry Design" },
+  { "type": 14, "name": "Interior Design" },
+  { "type": 14, "name": "Landscape Design" },
+  { "type": 14, "name": "Lighting Design" },
+  { "type": 14, "name": "Master Planning" },
+  { "type": 14, "name": "Multimedia Design" },
+  { "type": 14, "name": "Product Design" }
+];
+
+export const up = (connection: ConnectionInterface) => {
+  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+  return connection.insert(
+    'common_types', records.map((item) => ({
+      id: uuid(),
+      type: item.type,
+      name: item.name,
+      created_at: currentTime,
+      updated_at: currentTime,
+      deleted_at: null,
+      relation_id: null
+    }))
+  );
+}
