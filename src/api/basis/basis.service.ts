@@ -142,6 +142,11 @@ class BasisService {
         404
       );
     }
+
+    if (basisConversionGroup.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_MODIFY_MASTER_DATA);
+    }
+
     const duplicatedConversionGroup = await BasisRepository.getExistedBasis(
       id,
       toSingleSpaceAndToLowerCase(payload.name),
@@ -191,10 +196,14 @@ class BasisService {
   }
 
   public async deleteBasis(id: string) {
-    const basisConversion = await BasisRepository.findAndDelete(id);
+    const basisConversion = await BasisRepository.find(id);
     if (!basisConversion) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_NOT_FOUND, 404);
     }
+    if (basisConversion.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_DELETE_MASTER_DATA);
+    }
+    await BasisRepository.delete(id);
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
