@@ -1,8 +1,9 @@
-import { IPagination, ICollection } from "@/types";
+import { IPagination, ICollection, CollectionRelationType } from "@/types";
 
 export interface ICollectionRequest {
   name: string;
-  brand_id: string;
+  relation_id: string;
+  relation_type: CollectionRelationType;
 }
 export interface ICollectionResponse {
   data: ICollection;

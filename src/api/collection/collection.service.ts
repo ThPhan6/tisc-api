@@ -8,25 +8,29 @@ import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
 import { marketAvailabilityService } from "../market_availability/market_availability.service";
 import { ICollectionRequest } from "./collection.type";
+import {CollectionRelationType} from '@/types';
 
 class CollectionService {
+
   public async create(payload: ICollectionRequest) {
     const collection = await CollectionRepository.findBy({
       name: payload.name,
-      brand_id: payload.brand_id,
+      relation_id: payload.relation_id,
+      relation_type: payload.relation_type
     });
     if (collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_EXISTED);
     }
     const createdCollection = await CollectionRepository.create({
       name: payload.name,
-      brand_id: payload.brand_id,
+      relation_id: payload.relation_id,
+      relation_type: payload.relation_type
     });
     if (!createdCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
     const authorizedBrandCountries =
-      await marketAvailabilityService.getBrandRegionCountries(payload.brand_id);
+      await marketAvailabilityService.getBrandRegionCountries(payload.relation_id);
     await marketAvailabilityService.create({
       collection_id: createdCollection.id,
       country_ids: authorizedBrandCountries.map((item) =>
@@ -36,12 +40,18 @@ class CollectionService {
     return successResponse({ data: createdCollection });
   }
 
-  public async getList(brand_id: string, limit: number, offset: number) {
+  public async getList(
+    relation_id: string,
+    type: CollectionRelationType,
+    limit: number,
+    offset: number
+  ) {
     const collections =
       await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
-        brand_id
+        relation_id,
+        type
       );
     return successResponse({
       data: {
@@ -49,6 +59,14 @@ class CollectionService {
         pagination: collections.pagination,
       },
     });
+  }
+
+  public async update(id: string, name: string) {
+    const collection = await CollectionRepository.findAndUpdate(id, { name });
+    if (!collection) {
+      return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async delete(id: string) {

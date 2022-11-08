@@ -18,7 +18,7 @@ export default class CollectionRoute implements IRoute {
       server.route([
         {
           method: "GET",
-          path: ROUTES.GET_LIST_COLLECTION,
+          path: ROUTES.COLLECTION.GET_LIST,
           options: {
             handler: controller.getList,
             validate: validate.getList,
@@ -35,7 +35,7 @@ export default class CollectionRoute implements IRoute {
         },
         {
           method: "POST",
-          path: ROUTES.CREATE_COLLECTION,
+          path: ROUTES.COLLECTION.CREATE,
           options: {
             handler: controller.create,
             validate: validate.create,
@@ -51,8 +51,25 @@ export default class CollectionRoute implements IRoute {
           },
         },
         {
+          method: "PATCH",
+          path: ROUTES.COLLECTION.UPDATE,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update name of collection",
+            tags: ["api", "Collection"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
           method: "DELETE",
-          path: ROUTES.DELETE_COLLECTION,
+          path: ROUTES.COLLECTION.DELETE,
           options: {
             handler: controller.delete,
             validate: getOneValidation,
