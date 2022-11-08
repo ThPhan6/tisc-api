@@ -1,4 +1,4 @@
-export interface IPagination {
+export interface Pagination {
   page: number;
   page_size: number;
   total: number;
@@ -44,13 +44,6 @@ export type ActiveStatusValue = `${Extract<
   ? N
   : never;
 
-export interface Pagination {
-  page: number;
-  page_size: number;
-  total: number;
-  page_count: number;
-}
-
 export type InterestedInValue = 1 | 2 | 3 | 4 | 5;
 export type InterestedInKey =
   | "Brand Factory/Showroom Visits"
@@ -74,3 +67,8 @@ export type TopicTypeKey =
   | "Onboard"
   | "Operation"
   | "Other";
+
+export enum MeasurementUnit {
+  Imperial = 1,
+  Metric = 2,
+}

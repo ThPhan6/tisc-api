@@ -40,11 +40,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     construction_start: "",
     team_profile_ids: [],
 
-    product_ids: [],
-
     design_id: "",
     status: 0,
-    created_at: "",
   };
 
   constructor() {

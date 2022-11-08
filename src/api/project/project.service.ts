@@ -14,10 +14,10 @@ import { ProjectStatus, SortOrder, SummaryInfo, UserAttributes } from "@/types";
 import { sumBy, uniq } from "lodash";
 import { v4 } from "uuid";
 import { mappingProjectGroupByStatus } from "./project.mapping";
-import { IProjectRequest } from "./project.type";
+import { CreateProjectRequest } from "./project.type";
 
 class ProjectService {
-  public async create(user: UserAttributes, payload: IProjectRequest) {
+  public async create(user: UserAttributes, payload: CreateProjectRequest) {
     if (user.type !== SYSTEM_TYPE.DESIGN) {
       return errorMessageResponse(MESSAGES.JUST_DESIGNER_CAN_CREATE);
     }
@@ -169,7 +169,7 @@ class ProjectService {
   public async update(
     id: string,
     user: UserAttributes,
-    payload: IProjectRequest
+    payload: CreateProjectRequest
   ) {
     const project = await projectRepository.find(id);
     if (!project) {
@@ -262,7 +262,7 @@ class ProjectService {
 
   public partialUpdate = async (
     id: string,
-    payload: Partial<IProjectRequest>
+    payload: Partial<CreateProjectRequest>
   ) => {
     const project = await projectRepository.find(id);
     if (!project) {

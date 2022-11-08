@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface IDistributorAttributes {
   id: string;
@@ -27,6 +27,6 @@ export interface IDistributorAttributes {
 }
 
 export interface ListDistributorPagination {
-  pagination: IPagination;
+  pagination: Pagination;
   data: IDistributorAttributes[];
 }

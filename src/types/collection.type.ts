@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface ICollectionAttributes {
   brand_id: string;
@@ -9,7 +9,7 @@ export interface ICollectionAttributes {
 }
 
 export interface ListCollectionPaginate {
-  pagination: IPagination;
+  pagination: Pagination;
   data: ICollectionAttributes[];
 }
 

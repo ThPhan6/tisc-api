@@ -1,6 +1,6 @@
 import { projectService } from "./project.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { IProjectRequest } from "./project.type";
+import { CreateProjectRequest } from "./project.type";
 import { PROJECT_STATUS_OPTIONS } from "@/constants";
 import { UserAttributes } from "@/types";
 import { projectRepository } from "@/repositories/project.repository";
@@ -9,7 +9,7 @@ import { pagination } from "@/helper/common.helper";
 
 export default class ProjectController {
   public create = async (
-    req: Request & { payload: IProjectRequest },
+    req: Request & { payload: CreateProjectRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
@@ -46,7 +46,7 @@ export default class ProjectController {
   };
 
   public update = async (
-    req: Request & { payload: IProjectRequest },
+    req: Request & { payload: CreateProjectRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
@@ -56,7 +56,7 @@ export default class ProjectController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public partialUpdate = async (
-    req: Request & { payload: Partial<IProjectRequest> },
+    req: Request & { payload: Partial<CreateProjectRequest> },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
