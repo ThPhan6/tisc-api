@@ -8,3 +8,6 @@ export const up = async (connection: ConnectionInterface) => {
     unique: true,
   });
 }
+export const down = (connection: ConnectionInterface) => {
+  return connection.collection('seeds').truncate();
+}
