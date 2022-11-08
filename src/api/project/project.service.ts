@@ -18,7 +18,7 @@ import {
   UserAttributes,
   UserType,
 } from "@/types";
-import { isEqual, sumBy, uniq } from "lodash";
+import { isEqual, pick, sumBy, uniq } from "lodash";
 import { v4 } from "uuid";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { CreateProjectRequest } from "./project.type";
@@ -112,11 +112,12 @@ class ProjectService {
   }
 
   public async getProject(id: string) {
-    const project = await projectRepository.find(id);
+    const project = await projectRepository.getProjectWithLocation(id);
 
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
+    const { location, ...data } = project;
 
     return successResponse({
       data: project,
@@ -131,6 +132,8 @@ class ProjectService {
     sort: string,
     order: SortOrder
   ) {
+    await projectRepository.syncProjectLocations();
+
     const projects = await projectRepository.getListProject(
       user.relation_id,
       limit,
@@ -150,7 +153,7 @@ class ProjectService {
 
     return successResponse({
       data: {
-        projects: projects,
+        projects,
         pagination: pagination(limit, offset, totalProject),
       },
     });
@@ -178,6 +181,7 @@ class ProjectService {
     payload: CreateProjectRequest
   ) {
     const project = await projectRepository.getProjectWithLocation(id);
+
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
@@ -211,8 +215,8 @@ class ProjectService {
         );
 
     const buildingType = isEqual(
-      project.project_type_id,
-      payload.project_type_id
+      project.building_type_id,
+      payload.building_type_id
     )
       ? { name: project.building_type, id: project.building_type_id }
       : await commonTypeRepository.findOrCreate(
@@ -221,37 +225,48 @@ class ProjectService {
           COMMON_TYPES.PROJECT_BUILDING
         );
 
-    const isValidGeoLocation =
-      await countryStateCityService.validateLocationData(
+    const locationHaveUpdated =
+      isEqual(
+        pick(payload, ["country_id", "state_id", "city_id"]),
+        pick(project, ["country_id", "state_id", "city_id"])
+      ) === false;
+
+    if (locationHaveUpdated) {
+      const isValidGeoLocation =
+        await countryStateCityService.validateLocationData(
+          payload.country_id,
+          payload.state_id,
+          payload.city_id
+        );
+
+      if (isValidGeoLocation !== true) {
+        return isValidGeoLocation;
+      }
+
+      const projectLocation = await countryStateCityService.getCountryStateCity(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
-    if (isValidGeoLocation !== true) {
-      return isValidGeoLocation;
-    }
+      const updatedLocation = await locationRepository.findAndUpdate(
+        project.location_id,
+        {
+          country_id: projectLocation.country_id,
+          state_id: projectLocation.state_id,
+          city_id: projectLocation.city_id,
+          country_name: projectLocation.country_name,
+          state_name: projectLocation.state_name,
+          city_name: projectLocation.city_name,
+          phone_code: projectLocation.phone_code,
+          address: payload.address,
+          postal_code: payload.postal_code,
+        }
+      );
 
-    let countryStateCity = await countryStateCityService.getCountryStateCity(
-      payload.country_id,
-      payload.city_id,
-      payload.state_id
-    );
-
-    const location = await locationRepository.create({
-      country_id: countryStateCity.country_id,
-      state_id: countryStateCity.state_id,
-      city_id: countryStateCity.city_id,
-      country_name: countryStateCity.country_name,
-      state_name: countryStateCity.state_name,
-      city_name: countryStateCity.city_name,
-      phone_code: countryStateCity.phone_code,
-      address: payload.address,
-      postal_code: payload.postal_code,
-    });
-
-    if (!location) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      if (!updatedLocation) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      }
     }
 
     const updatedProject = await projectRepository.update(id, {
@@ -419,14 +434,8 @@ class ProjectService {
       return errorMessageResponse(MESSAGES.DESIGN_NOT_FOUND, 404);
     }
 
-    const user = await userRepository.findBy({ relation_id: design.id });
-
-    if (!user) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
     const projects = await projectRepository.getAllBy({
-      design_id: user.relation_id,
+      design_id: designId,
     });
 
     const result = mappingProjectGroupByStatus(projects);

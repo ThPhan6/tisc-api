@@ -90,6 +90,12 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       .where("functional_type_ids", "in", headquarterId, "inverse")
       .first();
   }
+
+  public getShortLocationQuery = (key: string) =>
+    `${key}.city_name == '' ? ${key}.country_name : CONCAT(${key}.city_name, ', ', ${key}.country_name)`;
+
+  public getFullLocationQuery = (key: string) =>
+    `CONCAT(${key}.address, ', ', ${key}.city_name, ${key}.city_name == '' ? '' : ', ', ${key}.state_name, ${key}.state_name == '' ? '' : ', ', ${key}.country_name, ', ', ${key}.postal_code)`;
 }
 
 export const locationRepository = new LocationRepository();
