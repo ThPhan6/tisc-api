@@ -1,4 +1,5 @@
 import {
+  ILocationAttributes,
   ProjectAttributes,
   ProjectStatus,
   SortOrder,
@@ -21,16 +22,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected DEFAULT_ATTRIBUTE: Partial<ProjectAttributes> = {
     code: "",
     name: "",
-    location: "",
-    country_id: "",
-    state_id: "",
-    city_id: "",
-    country_name: "",
-    state_name: "",
-    city_name: "",
-    address: "",
-    phone_code: "",
-    postal_code: "",
+    location_id: "",
     project_type_id: "",
     project_type: "",
     building_type_id: "",
@@ -126,6 +118,23 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       .where("code", "==", code)
       .where("design_id", "==", designId)
       .first();
+  }
+
+  public async getProjectWithLocation(
+    id: string
+  ): Promise<ProjectAttributes & { location: ILocationAttributes }> {
+    const project = await this.model.rawQuery(
+      `
+        FOR projects IN projects
+        FILTER projects.deleted_at == null
+        FILTER projects.id == @id
+        FOR loc IN locations
+        FILTER loc.id == projects.location_id
+        RETURN MERGE(projects, {location: loc})
+    `,
+      { id }
+    );
+    return project[0];
   }
 
   public async findProjectWithDesignData(id: string) {

@@ -1,23 +1,13 @@
-import { IMessageResponse, UserAttributes } from "@/types";
-
 export interface ProjectAttributes {
   id: string;
   code: string;
   name: string;
-  location: string;
-  country_id: string;
-  state_id: string;
-  city_id: string;
-  country_name: string;
-  state_name: string;
-  city_name: string;
-  address: string;
-  phone_code: string;
-  postal_code: string;
+  location_id: string;
   project_type: string;
   project_type_id: string;
   building_type: string;
   building_type_id: string;
+
   measurement_unit: number;
   design_due: string;
   construction_start: string;
@@ -46,12 +36,6 @@ export type ProjectStatusValue = `${Extract<
   ? N
   : never;
 
-export interface FindUserAndProjectResponse {
-  user?: UserAttributes;
-  project?: ProjectAttributes;
-  message: IMessageResponse;
-}
-
 export interface CreateProjectRequest {
   code: string;
   name: string;
@@ -67,48 +51,6 @@ export interface CreateProjectRequest {
   construction_start: string;
   status: number;
   team_profile_ids: string[];
-}
-
-export interface IProjectResponse {
-  data: any;
-  statusCode: number;
-}
-export interface IProjectsResponse {
-  data: any;
-  statusCode: number;
-}
-export interface IAllProjectResponse {
-  data: {
-    id: string;
-    code: string;
-    name: string;
-  }[];
-  statusCode: number;
-}
-
-export interface IProjectSummaryResponse {
-  projects: number;
-  live: number;
-  on_hold: number;
-  archived: number;
-}
-
-export interface IProjectGroupByStatusResponse {
-  data: {
-    status_name: string;
-    count: number;
-    projects: {
-      code: string;
-      name: string;
-      location: string;
-      building_type: string;
-      type: string;
-      measurement_unit: number;
-      design_due: string;
-      construction_start: string;
-    }[];
-  }[];
-  statusCode: number;
 }
 
 export type ProjectListingSort =
