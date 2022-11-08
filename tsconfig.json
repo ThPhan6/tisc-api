@@ -22,6 +22,6 @@
     "strict": true,
     "skipLibCheck": true  /* Skip type checking all .d.ts files. */
   },
-  "include": ["./src/**/*", "./database", "./tests", "./console"],
+  "include": ["./src/**/*"],
   "exclude": ["node_modules"]
 }

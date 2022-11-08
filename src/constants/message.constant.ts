@@ -17,6 +17,8 @@ export const MESSAGES = {
       "You are not in this design firm. So you cannot create",
     SOMETHING_WRONG_CONTACT_SYSADMIN:
       "Something went wrong. Please contact to the administrator!",
+    CAN_NOT_MODIFY_MASTER_DATA: "Can not modify master data",
+    CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
   },
 
   FAVOURITE: {
