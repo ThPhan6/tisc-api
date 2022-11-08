@@ -116,7 +116,7 @@ export default {
           project_type: Joi.string(),
           building_type: Joi.string(),
           country_name: Joi.string(),
-          city_name: Joi.string(),
+          city_name: Joi.string().allow(""),
           design_due: Joi.string(),
           design_id: Joi.string(),
           metricArea: Joi.number(),
