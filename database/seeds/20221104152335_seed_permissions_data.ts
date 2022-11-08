@@ -583,7 +583,7 @@ const permissionData = [
 				name: "Office Profile",
 				type: 3,
 				index: 38,
-				id: "permission_14_1",
+				id: "permission_14_0",
 				routes: [
 					ROUTES.DESIGN_FIRM.UPDATE_DESIGN_FIRM,
 				]
@@ -593,7 +593,7 @@ const permissionData = [
 				name: "Locations",
 				type: 3,
 				index: 39,
-				id: "permission_14_2",
+				id: "permission_14_1",
 				routes: [
 					ROUTES.GET_LIST_LOCATION,
 					ROUTES.CREATE_LOCATION,
@@ -607,7 +607,7 @@ const permissionData = [
 				name: "Team Profiles",
 				type: 3,
 				index: 40,
-				id: "permission_14_3",
+				id: "permission_14_2",
 				routes: [
 					ROUTES.GET_LIST_TEAM_PROFILE,
 					ROUTES.GET_LIST_LOCATION_WITH_GROUP,
@@ -624,7 +624,7 @@ const permissionData = [
 				name: "Material/Product Code",
 				type: 3,
 				index: 41,
-				id: "permission_14_4",
+				id: "permission_14_3",
 				routes: [
 					ROUTES.CREATE_MATERIAL_CODE,
 					ROUTES.UPDATE_MATERIAL_CODE,
