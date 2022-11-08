@@ -12,6 +12,8 @@ export interface AttributeProps {
   type: AttributeType;
   name: string;
   subs: SubAttribute[];
+  master?: boolean,
+  selectable?: boolean,
   created_at: string;
   updated_at: string | null;
 }

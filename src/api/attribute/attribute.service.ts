@@ -142,9 +142,15 @@ class AttributeService {
 
   public async update(id: string, payload: IUpdateAttributeRequest) {
     const attribute = await AttributeRepository.find(id);
+
     if (!attribute) {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
     }
+
+    if (attribute.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_MODIFY_MASTER_DATA);
+    }
+
     const duplicatedAttributeGroup =
       await AttributeRepository.getDuplicatedAttribute(
         id,
@@ -173,10 +179,14 @@ class AttributeService {
   }
 
   public async delete(id: string) {
-    const deletedAttribute = await AttributeRepository.findAndDelete(id);
-    if (!deletedAttribute) {
+    const attribute = await AttributeRepository.find(id);
+    if (!attribute) {
       return errorMessageResponse(MESSAGES.CATEGORY.CATEGORY_NOT_FOUND, 404);
     }
+    if (attribute.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_DELETE_MASTER_DATA);
+    }
+    await AttributeRepository.delete(id);
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 

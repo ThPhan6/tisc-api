@@ -3,6 +3,7 @@ export interface IBasisAttributes {
   type: number;
   name: string;
   subs: any;
+  master?: boolean;
   created_at: string;
   updated_at: boolean;
 }
