@@ -2,6 +2,7 @@ import BaseRepository from "@/repositories/base.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import {
   DesignerAttributes,
+  LocationType,
   ProjectAttributes,
   ProjectStatus,
   RespondedOrPendingStatus,
@@ -351,7 +352,12 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     userId: string,
     brandId: string
   ) => {
-    const params = { trackingId, userId, brandId };
+    const params = {
+      trackingId,
+      userId,
+      brandId,
+      designLocation: LocationType.designer,
+    };
     const rawQuery = `
     FILTER project_trackings.id == @trackingId
     FILTER project_trackings.brand_id == @brandId
@@ -460,6 +466,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER designer.deleted_at == null
       FOR loc IN locations
       FILTER loc.relation_id == designer.id
+      FILTER loc.type == @designLocation
       FILTER loc.deleted_at == null
 
       LET allLocations = (
