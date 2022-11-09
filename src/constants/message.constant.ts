@@ -19,6 +19,10 @@ export const MESSAGES = {
       "Something went wrong. Please contact to the administrator!",
   },
 
+  LOCATION: {
+    USER_USED: 'This location is using in Team Profile'
+  },
+
   FAVOURITE: {
     ALREADY_SKIPPED: "You skipped already",
     ALREADY_RETRIEVED: "You retrieved already",
