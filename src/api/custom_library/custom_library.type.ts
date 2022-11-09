@@ -1,14 +1,33 @@
+export enum CustomLibraryCompanyType {
+  Brand,
+  Distributor
+}
+
+export type CustomLibraryCompanyTypeValue = 0 | 1;
+
 export interface CustomLibraryBasicAttribute {
   name: string;
   content: string;
 }
-export interface CustomLibraryContact {
+
+export interface CustomLibraryVendorContact {
   first_name: string;
   last_name: string;
   position: string;
   work_email: string;
   work_phone: string;
   work_mobile: string;
+}
+
+export interface CustomLibraryCompanyAttribute {
+  id: string;
+  website_uri: string;
+  location_id: string; // locations
+  associate_company_ids: string[];
+  type: CustomLibraryCompanyTypeValue;
+  contacts: CustomLibraryVendorContact[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CustomLibraryAttribute {
@@ -29,10 +48,8 @@ export interface CustomLibraryAttribute {
      }[];
    }[];
    collection_id: string;
-   brand_location_id: string; /// locations
-   brand_contacts: CustomLibraryContact[];
-   distributor_location_id: string; /// locations
-   distributor_contacts: CustomLibraryContact[];
+   custom_library_company_id: string; /// custom_library_companies
+   relation_id: string;
    created_at: string;
    updated_at: string;
 }

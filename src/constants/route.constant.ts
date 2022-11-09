@@ -270,6 +270,12 @@ export const ROUTES = {
     GET_LIST: "/api/custom-library/list",
     DELETE: "/api/custom-library/delete/{id}",
   },
+  CUSTOM_LIBRARY_COMPANY: {
+    CREATE: "/api/custom-library/company/create",
+    UPDATE: "/api/custom-library/company/update/{id}",
+    GET_LIST: "/api/custom-library/company/list",
+    DELETE: "/api/custom-library/company/delete/{id}",
+  },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",

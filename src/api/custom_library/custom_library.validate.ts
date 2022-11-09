@@ -1,8 +1,11 @@
 import Joi from "joi";
 import {
-  errorMessage,
   requireStringValidation,
+  requireEmailValidation,
+  getOneValidation,
 } from "@/validate/common.validate";
+import {getEnumValues} from '@/helper/common.helper';
+import {CustomLibraryCompanyType} from '@/api/custom_library/custom_library.type';
 
 
 export const customLibraryBasicAttributeValidate = Joi.object({
@@ -29,7 +32,7 @@ export const customLibraryOptionValidate = Joi.object({
   }))
 })
 
-export const customLibraryPayloadValidate = {
+export const customLibraryPayloadValidate = Joi.object({
   name: requireStringValidation('Product name'),
   description: requireStringValidation('Product description'),
   images: Joi.array().items(Joi.string().trim()),
@@ -37,32 +40,37 @@ export const customLibraryPayloadValidate = {
   specification: Joi.array().items(customLibraryBasicAttributeValidate),
   options: Joi.array().items(customLibraryOptionValidate),
   collection_id: requireStringValidation('Collection'),
-  // brand_location: Joi.object({
-  //   id: Joi.
-  // }),
-  // distributor_location_id: requireStringValidation('Distributor Address'),
-  // attribute: Joi.array().items(customLibraryBasicAttributeValidate),
-  // brand_contacts: CustomLibraryContact[];
-  // distributor_location_id: string; /// locations
-  // distributor_contacts: CustomLibraryContact[];
-};
+  custom_library_company_id: requireStringValidation('Brand Company'),
+});
+
+export const customLibraryCompanyValidate = Joi.object({
+  name: requireStringValidation('Company name'),
+  website_uri: requireStringValidation('Website'),
+  associate_company_ids: Joi.array().items(Joi.string().trim()).allow(null),
+  country_id: requireStringValidation("Country"),
+  state_id: Joi.string().trim().allow(""),
+  city_id: Joi.string().trim().allow(""),
+  address: requireStringValidation("Address"),
+  postal_code: requireStringValidation("Postal code"),
+  general_phone: requireStringValidation("General phone"),
+  general_email: requireEmailValidation("General email"),
+  contacts: Joi.array().items(customLibraryContactValidate),
+  type: Joi.number().valid(...getEnumValues(CustomLibraryCompanyType))
+});
 
 export default {
-  create: {
+  createProduct: {
     payload: customLibraryPayloadValidate,
   },
-  update: {
-    params: {
-      id: requireStringValidation("Id"),
-    },
+  updateProduct: {
+    getOneValidation,
     payload: customLibraryPayloadValidate,
   },
-  getList: {
-    query: Joi.object({
-      brand_id: requireStringValidation("Brand id"),
-      category_id: Joi.string(),
-      collection_id: Joi.string(),
-    }),
-  } as any,
-
+  createCompany: {
+    payload: customLibraryCompanyValidate
+  },
+  updateCompany: {
+    getOneValidation,
+    payload: customLibraryCompanyValidate
+  },
 };
