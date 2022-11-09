@@ -4,6 +4,7 @@ export const distributorResponse = {
   id: Joi.string(),
   brand_id: Joi.string(),
   name: Joi.string(),
+  location_id: Joi.string(),
   country_name: Joi.string(),
   country_id: Joi.string(),
   state_name: Joi.string().allow(""),

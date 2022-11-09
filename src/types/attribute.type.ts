@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface SubAttribute {
   id: string;
@@ -48,6 +48,6 @@ export enum AttributeType {
 }
 
 export interface ListAttributeWithPagination {
-  pagination: IPagination;
+  pagination: Pagination;
   data: AttributeProps[];
 }

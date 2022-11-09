@@ -1,4 +1,4 @@
-import { ActiveStatus, ILocationAttributes, IPagination } from "@/types";
+import { ActiveStatus, ILocationAttributes, Pagination } from "@/types";
 
 export interface IDesignersResponse {
   data: {
@@ -20,7 +20,7 @@ export interface IDesignersResponse {
       assign_team: any;
       created_at: string;
     }[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

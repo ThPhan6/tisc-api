@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export enum CollectionRelation {
   Brand,
@@ -16,7 +16,7 @@ export interface ICollectionAttributes {
 }
 
 export interface ListCollectionPaginate {
-  pagination: IPagination;
+  pagination: Pagination;
   data: ICollectionAttributes[];
 }
 

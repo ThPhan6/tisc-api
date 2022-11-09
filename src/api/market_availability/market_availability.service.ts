@@ -1,4 +1,3 @@
-import { distributorRepository } from "@/repositories/distributor.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { MESSAGES } from "@/constants";
 import { getDistinctArray } from "@/helper/common.helper";
@@ -9,7 +8,12 @@ import {
 import CollectionRepository from "@/repositories/collection.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { IRegionCountry, SortOrder, CollectionRelation } from "@/types";
+import {
+  IRegionCountry,
+  SortOrder,
+  CollectionRelation,
+  IDistributorAttributes,
+} from "@/types";
 import {
   mappingGroupByCollection,
   mappingRegionCountries,
@@ -21,6 +25,7 @@ import {
   IMarketAvailabilityResponse,
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
+import { locationRepository } from "@/repositories/location.repository";
 
 class MarketAvailabilityService {
   public async getRegionCountries(ids: string[]) {
@@ -45,7 +50,11 @@ class MarketAvailabilityService {
       return [];
     }
 
-    const distributors = await distributorRepository.getAllBy({ brand_id });
+    const distributors =
+      await locationRepository.getListWithLocation<IDistributorAttributes>(
+        "distributors",
+        `FILTER distributors.brand_id == '${brand_id}'`
+      );
 
     const distinctCountryIds = getDistinctArray(
       distributors.reduce((pre: any[], cur) => {
@@ -205,7 +214,10 @@ class MarketAvailabilityService {
   }
 
   public async getMarketAvailabilityGroupByCollection(relationId: string) {
-    const collections = await CollectionRepository.getByRelation(relationId, CollectionRelation.Brand);
+    const collections = await CollectionRepository.getByRelation(
+      relationId,
+      CollectionRelation.Brand
+    );
 
     const marketAvailabilities = await Promise.all(
       collections.map(async (collection) => {

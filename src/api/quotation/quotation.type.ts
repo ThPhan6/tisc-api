@@ -1,4 +1,4 @@
-import { IPagination, IQuotationAttributes } from "@/types";
+import { Pagination, IQuotationAttributes } from "@/types";
 
 export interface IQuotationRequest {
   author: string;
@@ -14,7 +14,7 @@ export interface IQuotationResponse {
 export interface IQuotationsResponse {
   data: {
     quotations: IQuotationAttributes[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }
