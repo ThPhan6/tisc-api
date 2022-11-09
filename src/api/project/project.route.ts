@@ -12,6 +12,7 @@ import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
+
 export default class ProjectRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {

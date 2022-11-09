@@ -1,4 +1,4 @@
-import { AttributeResponseData, AttributeProps, IPagination } from "@/types";
+import { AttributeResponseData, AttributeProps, Pagination } from "@/types";
 export interface IAttributeResponse {
   data: AttributeResponseData;
   statusCode: number;
@@ -10,7 +10,7 @@ export interface IAttributesResponse {
       name: string;
       value: number;
     }[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

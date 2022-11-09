@@ -14,10 +14,12 @@ import {
   ILocationAttributes,
   IMessageResponse,
   LocationRequest,
+  LocationType,
   SortOrder,
   UserAttributes,
+  UserType,
 } from "@/types";
-import { head } from "lodash";
+import { head, isEqual } from "lodash";
 import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
 
 export default class LocationService {
@@ -75,8 +77,8 @@ export default class LocationService {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {
@@ -105,7 +107,12 @@ export default class LocationService {
       postal_code: payload.postal_code,
       general_phone: payload.general_phone,
       general_email: payload.general_email,
-      type: user.type,
+      type:
+        user.type === UserType.Brand
+          ? LocationType.brand
+          : user.type === UserType.Designer
+          ? LocationType.designer
+          : undefined,
       relation_id: user.relation_id,
     });
     if (!createdLocation) {
@@ -122,8 +129,8 @@ export default class LocationService {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {
@@ -146,7 +153,7 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
     }
     if (
-      user.type !== location.type ||
+      isEqual(user.type, location.type) === false ||
       user.relation_id !== location.relation_id
     ) {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE, 404);

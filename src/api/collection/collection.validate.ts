@@ -1,18 +1,35 @@
+import Joi from "joi";
 import {
   getListValidation,
   requireStringValidation,
+  errorMessage,
+  getOneValidation,
 } from "@/validate/common.validate";
+import { getEnumValues } from "@/helper/common.helper";
+import {CollectionRelation} from '@/types';
 
 export default {
   create: {
     payload: {
       name: requireStringValidation("Collection name"),
-      brand_id: requireStringValidation("Brand"),
+      relation_id: requireStringValidation("Relation"),
+      relation_type: Joi.number().required()
+        .valid(...getEnumValues(CollectionRelation))
+        .error(errorMessage("Relation Type is required")),
+    },
+  },
+  update: {
+    ...getOneValidation,
+    payload: {
+      name: requireStringValidation("Collection name"),
     },
   },
   getList: getListValidation({
     query: {
-      brand_id: requireStringValidation("Brand"),
+      relation_id: requireStringValidation("Relation"),
+      relation_type: Joi.number().required()
+        .valid(...getEnumValues(CollectionRelation))
+        .error(errorMessage("Relation Type is required")),
     },
   }),
 };

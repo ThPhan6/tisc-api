@@ -5,6 +5,7 @@ import {
   ActiveStatus,
   BrandAttributes,
   GetUserGroupBrandSort,
+  LocationType,
   SortOrder,
   UserAttributes,
   UserStatus,
@@ -42,28 +43,6 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       .get()) as Pick<BrandAttributes, "id" | "name">[];
   }
 
-  public async summaryUserAndLocation(
-    brandId?: string | null,
-    type?: "user" | "location"
-  ) {
-    let query = this.model.getQuery();
-    if (brandId) {
-      query = query.where("brands.id", "==", brandId);
-    }
-    if (type === "user") {
-      query = query.join("users", "users.relation_id", "==", "brands.id");
-    }
-    if (type === "location") {
-      query = query.join(
-        "locations",
-        "location.relation_id",
-        "==",
-        "brands.id"
-      );
-    }
-    return query.count();
-  }
-
   public async getListBrandCustom(
     limit: number,
     offset: number,
@@ -96,9 +75,10 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         return length
       )
 
-      LET locations = (
+      LET brandLocations = (
         FOR loc IN locations
         FILTER loc.relation_id == brands.id
+        FILTER loc.type == @brandLocation
         FILTER loc.deleted_at == null
         RETURN loc
       )
@@ -107,7 +87,9 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FOR d IN distributors
         FILTER d.brand_id == brands.id
         FILTER d.deleted_at == null
-        RETURN d
+        FOR loc IN locations
+        FILTER loc.id == d.location_id
+        RETURN MERGE(d, loc)
       )
 
       LET cards = (
@@ -127,7 +109,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
 
       ${
         sort === "origin"
-          ? `SORT locations[0].country_name ${order}`
+          ? `SORT brandLocations[0].country_name ${order}`
           : `SORT brands.${sort} ${order}`
       }
 
@@ -136,8 +118,8 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         brand: MERGE(
           KEEP(brands, 'id', 'name', 'logo', 'status', 'created_at'),
           {
-            origin: locations[0].country_name,
-            locations: LENGTH(locations),
+            origin: brandLocations[0].country_name,
+            locations: LENGTH(brandLocations),
             cards: LENGTH(cards),
             teams: totalUsers[0],
             collections: LENGTH(totalCollections),
@@ -152,6 +134,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     `;
     return (await this.model.rawQuery(rawQuery, {
       activeStatus: UserStatus.Active,
+      brandLocation: LocationType.brand,
     })) as ListBrandCustom[];
   }
 
@@ -176,6 +159,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       LET locations = (
         FOR loc IN locations
         FILTER loc.relation_id == brands.id
+        FILTER loc.type == @brandLocation
         FILTER loc.deleted_at == null
         RETURN loc
       )
@@ -226,7 +210,12 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         }
       )
     `,
-      { sort, order, activeStatus: UserStatus.Active }
+      {
+        sort,
+        order,
+        activeStatus: UserStatus.Active,
+        brandLocation: LocationType.brand,
+      }
     );
   }
 
@@ -259,6 +248,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         LET loc = (
           FOR loc IN locations
           FILTER loc.relation_id == b.id
+          FILTER loc.type == @brandLocation
           FILTER loc.deleted_at == null
           LET country = (
             FOR c in countries
@@ -363,7 +353,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         },
       }
     `,
-      { activeStatus: UserStatus.Active }
+      { activeStatus: UserStatus.Active, brandLocation: LocationType.brand }
     );
     return summary[0];
   }

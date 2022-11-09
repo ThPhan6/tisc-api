@@ -10,7 +10,7 @@ export const mappingProjectGroupByStatus = (projects: ProjectAttributes[]) => {
       return {
         code: groupProject.code,
         name: groupProject.name,
-        location: groupProject.location,
+        // location: groupProject.location,
         building_type: groupProject.building_type,
         type: groupProject.project_type,
         measurement_unit: groupProject.measurement_unit,

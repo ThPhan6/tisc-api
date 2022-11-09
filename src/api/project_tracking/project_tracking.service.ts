@@ -87,7 +87,7 @@ class ProjectTrackingService {
       priority: el.project_tracking.priority,
       priorityName: ProjectTrackingPriority[el.project_tracking.priority],
       projectName: el.project.name,
-      projectLocation: el.project.location,
+      projectLocation: el.projectLocation,
       projectType: el.project.project_type,
       designFirm: el.designFirm?.name,
       projectStatus: ProjectStatus[el.project.status],

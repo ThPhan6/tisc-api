@@ -47,8 +47,10 @@ export default {
     payload: distributorValidate,
   },
   getList: getListValidation({
-    query: { brand_id: requireStringValidation("Brand id") },
-    custom: (value) => ({ brand_id: value.brand_id }),
+    query: {
+      brand_id: requireStringValidation("Brand id"),
+      sort: Joi.string().valid("name", "country_name", "city_name"), //GetListDistributorSort
+    },
   }),
   getWithBrandId: {
     query: { brand_id: requireStringValidation("Brand id") },

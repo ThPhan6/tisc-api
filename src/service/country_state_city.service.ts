@@ -139,8 +139,8 @@ class CountryStateCityService {
 
   public validateLocationData = async (
     countryId: string,
-    stateId: string,
-    cityId: string
+    cityId: string,
+    stateId: string
   ) => {
     const country = await this.getCountryDetail(countryId);
     if (!country.id) {
@@ -148,6 +148,7 @@ class CountryStateCityService {
     }
     ////////////////////////
     const states = await this.getStatesByCountry(countryId);
+
     if (!isEmpty(states)) {
       if (!stateId || stateId === "") {
         return errorMessageResponse(MESSAGES.STATE_REQUIRED, 400);

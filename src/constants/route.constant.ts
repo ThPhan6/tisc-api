@@ -92,8 +92,6 @@ export const ROUTES = {
   GET_LIST_CONTACT: "/api/contact/list",
   GET_ONE_CONTACT: "/api/contact/get-one/{id}",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
-  GET_LIST_COLLECTION: "/api/collection/get-list",
-  CREATE_COLLECTION: "/api/collection/create",
   GET_LIST_REST_COLLECTION_PRODUCT:
     "/api/product/get-list-rest-collection-product/{id}",
 
@@ -142,7 +140,6 @@ export const ROUTES = {
   UPDATE_HOWTO: "/api/documentation/howto/update",
   GET_ALL_HOWTO: "/api/documentation/howto/get-all",
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
-  DELETE_COLLECTION: "/api/collection/delete/{id}",
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
   GET_PROJECT_TYPES: "/api/project/project-types",
   GET_BUILDING_TYPES: "/api/project/building-types",
@@ -280,4 +277,10 @@ export const ROUTES = {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
   },
+  COLLECTION: {
+    GET_LIST: "/api/collection/get-list",
+    CREATE: "/api/collection/create",
+    UPDATE: "/api/collection/update/{id}",
+    DELETE: "/api/collection/delete/{id}",
+  }
 };
