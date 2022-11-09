@@ -260,6 +260,11 @@ export default class LocationService {
     if (user.relation_id !== location.relation_id) {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE);
     }
+    const totalUserInLocation = await userRepository.countUserInLocation(location.id);
+    if (totalUserInLocation > 0) {
+      return errorMessageResponse(MESSAGES.LOCATION.USER_USED);
+    }
+
     await locationRepository.delete(id);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
