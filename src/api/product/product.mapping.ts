@@ -210,7 +210,7 @@ export const mappingAttributeGroups = (
         }
       }
       /// add basis option
-      if (allBasisOptions) {
+      if (allBasisOptions && newBasisOptions) {
         response.text = `Selected ${newBasisOptions?.length || 0} item ${newBasisOptions?.length !== 1 ? 's' : ''}`;
         response.basis_options = newBasisOptions;
       }
