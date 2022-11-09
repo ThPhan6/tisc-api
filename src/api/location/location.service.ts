@@ -75,8 +75,8 @@ export default class LocationService {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {
@@ -122,8 +122,8 @@ export default class LocationService {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {

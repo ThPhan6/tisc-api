@@ -17,8 +17,8 @@ export interface ProjectAttributes {
   status: ProjectStatus;
 
   created_at: string;
-  updated_at: boolean;
-  deleted_at: boolean;
+  updated_at: string;
+  deleted_at: string;
 }
 
 export enum ProjectStatus {

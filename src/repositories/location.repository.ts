@@ -96,6 +96,48 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
 
   public getFullLocationQuery = (key: string) =>
     `CONCAT(${key}.address, ', ', ${key}.city_name, ${key}.city_name == '' ? '' : ', ', ${key}.state_name, ${key}.state_name == '' ? '' : ', ', ${key}.country_name, ', ', ${key}.postal_code)`;
+
+  public async getOneWithLocation<Model>(
+    modelName: string,
+    modelId: string
+  ): Promise<Model & ILocationAttributes> {
+    const result = await this.model.rawQueryV2(
+      `
+          FOR ${modelName} IN ${modelName}
+          FILTER ${modelName}.deleted_at == null
+          FILTER ${modelName}.id == @modelId
+          FOR loc IN locations
+          FILTER loc.id == ${modelName}.location_id
+          RETURN MERGE(
+            UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']), 
+            KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
+              'city_name', 'phone_code', 'address', 'postal_code')
+          )
+        `,
+      { modelId }
+    );
+    return result[0];
+  }
+
+  public async getListWithLocation<Model>(
+    modelName: string,
+    raw: string = ""
+  ): Promise<Array<Model & ILocationAttributes>> {
+    const rawQuery = `
+      FOR ${modelName} IN ${modelName}
+      FILTER ${modelName}.deleted_at == null
+      FOR loc IN locations
+      FILTER loc.id == ${modelName}.location_id
+      ${raw}
+      RETURN MERGE(
+        UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']),
+        KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
+          'city_name', 'phone_code', 'address', 'postal_code')
+      )
+    `;
+    const result = await this.model.rawQueryV2(rawQuery, {});
+    return result;
+  }
 }
 
 export const locationRepository = new LocationRepository();

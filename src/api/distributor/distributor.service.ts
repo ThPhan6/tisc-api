@@ -1,11 +1,16 @@
 import { MESSAGES } from "@/constants";
-import { getDistinctArray } from "@/helper/common.helper";
+import { getDistinctArray, pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { ICountryAttributes, SortOrder, ICountryStateCity } from "@/types";
+import {
+  ICountryAttributes,
+  SortOrder,
+  ICountryStateCity,
+  IDistributorAttributes,
+} from "@/types";
 import CollectionRepository from "@/repositories/collection.repository";
 import { distributorRepository } from "@/repositories/distributor.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
@@ -19,8 +24,12 @@ import {
   mappingMarketDistributorGroupByCountry,
   mappingResultGetList,
 } from "./distributor.mapping";
-import { IDistributorRequest } from "./distributor.type";
-import { isEqual } from "lodash";
+import {
+  GetListDistributorSort,
+  IDistributorRequest,
+} from "./distributor.type";
+import { isEqual, pick } from "lodash";
+import { locationRepository } from "@/repositories/location.repository";
 
 class DistributorService {
   private async updateMarkets(
@@ -82,11 +91,16 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
     }
 
-    await countryStateCityService.validateLocationData(
-      payload.country_id,
-      payload.city_id,
-      payload.state_id
-    );
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.city_id,
+        payload.state_id
+      );
+
+    if (isValidGeoLocation !== true) {
+      return isValidGeoLocation;
+    }
 
     const countryStateCity = await countryStateCityService.getCountryStateCity(
       payload.country_id,
@@ -98,6 +112,23 @@ class DistributorService {
       return errorMessageResponse(
         MESSAGES.COUNTRY_STATE_CITY.COUNTRY_STATE_CITY_NOT_FOUND
       );
+    }
+
+    const locationInfo = {
+      country_id: countryStateCity.country_id,
+      state_id: countryStateCity.state_id,
+      city_id: countryStateCity.city_id,
+      country_name: countryStateCity.country_name,
+      state_name: countryStateCity.state_name,
+      city_name: countryStateCity.city_name,
+      phone_code: countryStateCity.phone_code,
+      address: payload.address,
+      postal_code: payload.postal_code,
+    };
+    const location = await locationRepository.create(locationInfo);
+
+    if (!location) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
     const authorizedCountries = await countryStateCityService.getCountries(
@@ -114,15 +145,8 @@ class DistributorService {
     const createdDistributor = await distributorRepository.create({
       brand_id: payload.brand_id,
       name: payload.name,
-      country_name: countryStateCity.country_name,
-      country_id: countryStateCity.country_id,
-      state_id: countryStateCity.state_id,
-      state_name: countryStateCity.state_name,
-      city_name: countryStateCity.city_name,
-      city_id: countryStateCity.city_id,
-      address: payload.address,
-      phone_code: countryStateCity.phone_code,
-      postal_code: payload.postal_code,
+      location_id: location.id,
+      ...locationInfo, // Remove this when the location refactor official run
       first_name: payload.first_name,
       last_name: payload.last_name,
       gender: payload.gender,
@@ -149,7 +173,11 @@ class DistributorService {
   }
 
   public async getOne(id: string) {
-    const distributor = await distributorRepository.find(id);
+    const distributor =
+      await locationRepository.getOneWithLocation<IDistributorAttributes>(
+        "distributors",
+        id
+      );
 
     if (!distributor) {
       return errorMessageResponse(
@@ -178,7 +206,11 @@ class DistributorService {
   }
 
   public async update(id: string, payload: IDistributorRequest) {
-    const distributor = await distributorRepository.find(id);
+    const distributor =
+      await locationRepository.getOneWithLocation<IDistributorAttributes>(
+        "distributors",
+        id
+      );
 
     if (!distributor) {
       return errorMessageResponse(MESSAGES.DISTRIBUTOR.DISTRIBUTOR_NOT_FOUND);
@@ -200,49 +232,59 @@ class DistributorService {
     if (existedDistributor) {
       return errorMessageResponse(MESSAGES.DISTRIBUTOR.DISTRIBUTOR_EXISTED);
     }
+    const locationHaveUpdated =
+      isEqual(
+        pick(payload, ["country_id", "state_id", "city_id"]),
+        pick(distributor, ["country_id", "state_id", "city_id"])
+      ) === false;
 
-    await countryStateCityService.validateLocationData(
-      payload.country_id,
-      payload.city_id,
-      payload.state_id
-    );
+    const { country_id, city_id, state_id, ...customPayload } = payload;
+    let locationInfo: Partial<
+      ICountryStateCity & { address: string; postal_code: string }
+    > = {};
 
-    let newPayload: any = payload;
-    let countryStateCity: ICountryStateCity | false = false;
-
-    if (
-      payload.country_id !== distributor.country_id ||
-      payload.state_id !== distributor.state_id ||
-      payload.city_id !== distributor.city_id
-    ) {
-      countryStateCity = await countryStateCityService.getCountryStateCity(
-        payload.country_id,
-        payload.city_id,
-        payload.state_id
-      );
-      if (!countryStateCity) {
-        return errorMessageResponse(
-          MESSAGES.COUNTRY_STATE_CITY.COUNTRY_STATE_CITY_NOT_FOUND
+    if (locationHaveUpdated) {
+      const isValidGeoLocation =
+        await countryStateCityService.validateLocationData(
+          country_id,
+          city_id,
+          state_id
         );
+
+      if (isValidGeoLocation !== true) {
+        return isValidGeoLocation;
       }
-      newPayload = {
-        ...newPayload,
-        country_name: countryStateCity.country_name,
-        country_id: countryStateCity.country_id,
-        state_id: countryStateCity.state_id,
-        state_name: countryStateCity.state_name,
-        city_name: countryStateCity.city_name,
-        city_id: countryStateCity.city_id,
-        phone_code: countryStateCity.phone_code,
+
+      const projectLocation = await countryStateCityService.getCountryStateCity(
+        country_id,
+        city_id,
+        state_id
+      );
+
+      locationInfo = {
+        ...projectLocation,
+        address: payload.address,
+        postal_code: payload.postal_code,
       };
+
+      const updatedLocation = await locationRepository.findAndUpdate(
+        distributor.location_id,
+        locationInfo
+      );
+
+      if (!updatedLocation) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      }
     }
 
     let authorizedCountries: ICountryAttributes[] | false = false;
-    let authorizedCountriesName = "";
+    let authorizedCountriesName = distributor.authorized_country_name;
 
     if (
-      payload.authorized_country_ids.toString() !==
-      distributor.authorized_country_ids.toString()
+      isEqual(
+        payload.authorized_country_ids,
+        distributor.authorized_country_ids
+      ) === false
     ) {
       authorizedCountries = await countryStateCityService.getCountries(
         payload.authorized_country_ids
@@ -256,22 +298,18 @@ class DistributorService {
 
       authorizedCountriesName =
         mappingAuthorizedCountriesName(authorizedCountries);
-
-      newPayload = {
-        ...newPayload,
-        authorized_country_ids: payload.authorized_country_ids,
-        authorized_country_name: authorizedCountriesName,
-      };
     }
 
-    const updatedDistributor = await distributorRepository.update(
-      id,
-      newPayload
-    );
+    const updatedDistributor = await distributorRepository.update(id, {
+      authorized_country_name: authorizedCountriesName,
+      ...customPayload,
+      ...locationInfo, // Remove this when the location refactor official run
+    });
 
     if (!updatedDistributor) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
+
     if (
       payload.country_id !== distributor.country_id ||
       isEqual(
@@ -318,9 +356,10 @@ class DistributorService {
     limit: number,
     offset: number,
     _filter: any,
-    sort: string,
+    sort: GetListDistributorSort,
     order: SortOrder
   ) {
+    await distributorRepository.syncDistributorLocations();
     const distributors =
       await distributorRepository.getListDistributorWithPagination(
         limit,
@@ -329,13 +368,16 @@ class DistributorService {
         sort,
         order
       );
-
-    const mappingDistributors = mappingResultGetList(distributors.data);
+    const total = await distributorRepository
+      .getModel()
+      .where("brand_id", "==", brandId)
+      .count();
+    const mappingDistributors = mappingResultGetList(distributors);
 
     return successResponse({
       data: {
         distributors: mappingDistributors,
-        pagination: distributors.pagination,
+        pagination: pagination(limit, offset, total),
       },
     });
   }
@@ -347,7 +389,10 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
     }
 
-    const distributors = await distributorRepository.getAllBy({ brandId });
+    const distributors =
+      await locationRepository.getListWithLocation<IDistributorAttributes>(
+        "distributors"
+      );
 
     const countryIds = getDistinctArray(
       distributors.map((distributor) => distributor.country_id)

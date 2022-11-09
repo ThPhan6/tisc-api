@@ -96,7 +96,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         return length
       )
 
-      LET locations = (
+      LET brandLocations = (
         FOR loc IN locations
         FILTER loc.relation_id == brands.id
         FILTER loc.deleted_at == null
@@ -107,7 +107,9 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FOR d IN distributors
         FILTER d.brand_id == brands.id
         FILTER d.deleted_at == null
-        RETURN d
+        FOR loc IN locations
+        FILTER loc.id == d.location_id
+        RETURN MERGE(d, loc)
       )
 
       LET cards = (
@@ -127,7 +129,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
 
       ${
         sort === "origin"
-          ? `SORT locations[0].country_name ${order}`
+          ? `SORT brandLocations[0].country_name ${order}`
           : `SORT brands.${sort} ${order}`
       }
 
@@ -136,8 +138,8 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         brand: MERGE(
           KEEP(brands, 'id', 'name', 'logo', 'status', 'created_at'),
           {
-            origin: locations[0].country_name,
-            locations: LENGTH(locations),
+            origin: brandLocations[0].country_name,
+            locations: LENGTH(brandLocations),
             cards: LENGTH(cards),
             teams: totalUsers[0],
             collections: LENGTH(totalCollections),

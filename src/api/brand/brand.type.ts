@@ -1,8 +1,8 @@
 import {
-  IDistributorAttributes,
   IProductAttributes,
   Pagination,
   ActiveStatus,
+  DistributorWithLocation,
 } from "@/types";
 
 export interface IBrandsResponse {
@@ -131,7 +131,7 @@ export interface ListBrandCustom {
     }[];
   };
   cards: IProductAttributes[];
-  distributors: IDistributorAttributes[];
+  distributors: DistributorWithLocation[];
 }
 
 export interface BrandOfficialWebsite {

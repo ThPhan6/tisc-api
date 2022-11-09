@@ -9,9 +9,9 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { projectRepository } from "@/repositories/project.repository";
-import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import {
+  ICountryStateCity,
   ProjectStatus,
   SortOrder,
   SummaryInfo,
@@ -25,7 +25,7 @@ import { CreateProjectRequest } from "./project.type";
 
 class ProjectService {
   public async create(user: UserAttributes, payload: CreateProjectRequest) {
-    if (user.type !== SYSTEM_TYPE.DESIGN) {
+    if (user.type !== UserType.Designer) {
       return errorMessageResponse(MESSAGES.JUST_DESIGNER_CAN_CREATE);
     }
 
@@ -53,8 +53,8 @@ class ProjectService {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {
@@ -68,10 +68,12 @@ class ProjectService {
     );
 
     if (!countryStateCity) {
-      return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
+      return errorMessageResponse(
+        MESSAGES.COUNTRY_STATE_CITY.COUNTRY_STATE_CITY_NOT_FOUND
+      );
     }
 
-    const location = await locationRepository.create({
+    const locationInfo = {
       country_id: countryStateCity.country_id,
       state_id: countryStateCity.state_id,
       city_id: countryStateCity.city_id,
@@ -81,7 +83,8 @@ class ProjectService {
       phone_code: countryStateCity.phone_code,
       address: payload.address,
       postal_code: payload.postal_code,
-    });
+    };
+    const location = await locationRepository.create(locationInfo);
 
     if (!location) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -91,6 +94,7 @@ class ProjectService {
       code: payload.code,
       name: payload.name,
       location_id: location.id,
+      ...locationInfo, // Remove this when the location refactor official run
       project_type: projectType.name,
       project_type_id: projectType.id,
       building_type: buildingType.name,
@@ -231,12 +235,17 @@ class ProjectService {
         pick(project, ["country_id", "state_id", "city_id"])
       ) === false;
 
+    const { country_id, city_id, state_id, ...customPayload } = payload;
+    let locationInfo: Partial<
+      ICountryStateCity & { address: string; postal_code: string }
+    > = {};
+
     if (locationHaveUpdated) {
       const isValidGeoLocation =
         await countryStateCityService.validateLocationData(
-          payload.country_id,
-          payload.state_id,
-          payload.city_id
+          country_id,
+          city_id,
+          state_id
         );
 
       if (isValidGeoLocation !== true) {
@@ -244,24 +253,20 @@ class ProjectService {
       }
 
       const projectLocation = await countryStateCityService.getCountryStateCity(
-        payload.country_id,
-        payload.city_id,
-        payload.state_id
+        country_id,
+        city_id,
+        state_id
       );
+
+      locationInfo = {
+        ...projectLocation,
+        address: payload.address,
+        postal_code: payload.postal_code,
+      };
 
       const updatedLocation = await locationRepository.findAndUpdate(
         project.location_id,
-        {
-          country_id: projectLocation.country_id,
-          state_id: projectLocation.state_id,
-          city_id: projectLocation.city_id,
-          country_name: projectLocation.country_name,
-          state_name: projectLocation.state_name,
-          city_name: projectLocation.city_name,
-          phone_code: projectLocation.phone_code,
-          address: payload.address,
-          postal_code: payload.postal_code,
-        }
+        locationInfo
       );
 
       if (!updatedLocation) {
@@ -270,7 +275,8 @@ class ProjectService {
     }
 
     const updatedProject = await projectRepository.update(id, {
-      ...payload,
+      ...customPayload,
+      ...locationInfo, // Remove this when the location refactor official run
       project_type: projectType.name,
       project_type_id: projectType.id,
       building_type: buildingType.name,
