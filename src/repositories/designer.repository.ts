@@ -277,6 +277,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         onHoldStatus: ProjectStatus["On Hold"],
         archiveStatus: ProjectStatus.Archived,
         activeStatus: UserStatus.Active,
+        designLocation: LocationType.designer,
       }
     );
     return designFirm[0];
