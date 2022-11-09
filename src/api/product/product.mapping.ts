@@ -122,7 +122,7 @@ export const mappingAttribute = (
   attributeGroup: IAttributeGroupWithOptionalId,
   allBasisConversion: BasisConversion[]
 ) => {
-  const newAttributes = attributeGroup.attributes.reduce((final, attribute: any) => {
+  const newAttributes = attributeGroup.attributes?.reduce((final, attribute: any) => {
     if (attribute.type === "Conversions") {
       const conversion = allBasisConversion.find(
         (basisConversion: any) => basisConversion.id === attribute.basis_id
@@ -140,7 +140,7 @@ export const mappingAttribute = (
     }
     final.push(attribute);
     return final;
-  }, [] as any);
+  }, [] as any) || [];
   if (attributeGroup.id) {
     return {
       ...attributeGroup,
@@ -170,7 +170,7 @@ export const mappingAttributeGroups = (
   allBasisOptions?: IBasisAttributes[]
 ) => {
   return attribute_groups.map(async (group) => {
-    const newAttributes = group.attributes.reduce((data, attribute) => {
+    const newAttributes = group.attributes?.reduce((data, attribute) => {
       const foundAttribute = allAttributes.find(
         (item) => item.id === attribute.id
       );
@@ -186,7 +186,7 @@ export const mappingAttributeGroups = (
       let newBasisOptions: any = attribute.basis_options;
       if (allBasisOptions) {
         if (attribute.basis_options) {
-          newBasisOptions = attribute.basis_options.reduce((final, basisOption) => {
+          newBasisOptions = attribute.basis_options?.reduce((final, basisOption) => {
             let foundBasisOption: any = false;
             allBasisOptions?.forEach((item) => {
               const foundedOption = item.subs.find(
@@ -227,7 +227,7 @@ export const mappingAttributeGroups = (
       ///
       data.push(response);
       return data;
-    }, [] as any);
+    }, [] as any) || [];
     return { ...group, attributes: newAttributes };
   });
 };
