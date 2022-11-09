@@ -164,88 +164,86 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       projectId,
       specifiedStatus: ProjectProductStatus.specify,
     };
-    return this.model.rawQueryV2(
-      `
-      LET productsByBrand = (
-        FOR pp IN project_products
-        FILTER pp.project_id == @projectId
-        FILTER pp.status == @specifiedStatus
-        FILTER pp.deleted_at == null
+    const rawQuery = `
+    LET productsByBrand = (
+      FOR pp IN project_products
+      FILTER pp.project_id == @projectId
+      FILTER pp.status == @specifiedStatus
+      FILTER pp.deleted_at == null
 
-        FOR product IN products
-        FILTER product.id == pp.product_id
-        FILTER product.deleted_at == null
+      FOR product IN products
+      FILTER product.id == pp.product_id
+      FILTER product.deleted_at == null
 
-        FOR b IN brands
-        FILTER b.id == product.brand_id
-        FILTER b.deleted_at == null
+      FOR b IN brands
+      FILTER b.id == product.brand_id
+      FILTER b.deleted_at == null
 
-        FOR col IN collections
-        FILTER col.id == product.collection_id
-        FILTER col.deleted_at == null
+      FOR col IN collections
+      FILTER col.id == product.collection_id
+      FILTER col.deleted_at == null
 
-        LET basisOptions = (
-          LET basisIds = (
-            FOR specGroup IN pp.specification.attribute_groups
-            FOR basis IN specGroup.attributes
-            RETURN basis.basis_option_id
-          )
-          LET productCode = (
-            FOR specGroup IN product.specification_attribute_groups
-            FOR attribute IN specGroup.attributes
-            FILTER attribute.type == "Options"
-            FOR basisOption IN attribute.basis_options
-            FILTER basisOption.option_code NOT IN [null, '']
-            FILTER basisOption.id IN basisIds
-            RETURN DISTINCT basisOption.option_code
-          )
-          FOR basis in bases
-          FILTER basis.deleted_at == null
-          FOR subBasis in basis.subs
-          FILTER subBasis.subs != null
-          FOR option IN subBasis.subs
-          FILTER option.id IN basisIds
-          RETURN {
-            variant: CONCAT(subBasis.name, ': ', option.value_1, ' ', option.unit_1, ' ', option.value_2, ' ', option.unit_2),
-            productCode: CONCAT_SEPARATOR(', ', UNIQUE(productCode)),
-          }
+      LET basisOptions = (
+        LET basisIds = (
+          FOR specGroup IN pp.specification.attribute_groups
+          FOR basis IN specGroup.attributes
+          RETURN basis.basis_option_id
         )
-
-        COLLECT id = b.id, name = b.name INTO products
-        RETURN { id, name, products }
+        LET productCode = (
+          FOR specGroup IN product.specification_attribute_groups
+          FOR attribute IN specGroup.attributes
+          FILTER attribute.type == "Options" && LENGTH(attribute.basis_options) > 0
+          FOR basisOption IN attribute.basis_options
+          FILTER basisOption.option_code NOT IN [null, '']
+          FILTER basisOption.id IN basisIds
+          RETURN DISTINCT basisOption.option_code
+        )
+        FOR basis in bases
+        FILTER basis.deleted_at == null
+        FOR subBasis in basis.subs
+        FILTER subBasis.subs != null
+        FOR option IN subBasis.subs
+        FILTER option.id IN basisIds
+        RETURN {
+          variant: CONCAT(subBasis.name, ': ', option.value_1, ' ', option.unit_1, ' ', option.value_2, ' ', option.unit_2),
+          productCode: CONCAT_SEPARATOR(', ', UNIQUE(productCode)),
+        }
       )
 
-      FOR brand IN productsByBrand
-      ${brand_order ? `SORT brand.name ${brand_order}` : ""}
+      COLLECT id = b.id, name = b.name INTO products
+      RETURN { id, name, products }
+    )
 
-      LET products = (
-        FOR pro IN brand.products
+    FOR brand IN productsByBrand
+    ${brand_order ? `SORT brand.name ${brand_order}` : ""}
 
-        LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
-        LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode)
+    LET products = (
+      FOR pro IN brand.products
 
-        RETURN MERGE(
-          UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-          {
-            brand: UNSET(pro.b, ['_id', '_key', '_rev', 'deleted_at']),
-            collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
-            collection_name: pro.collection.name,
-            specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-            product_id: CONCAT_SEPARATOR(', ', productCode),
-            variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
-          }
-        )
+      LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
+      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode)
+
+      RETURN MERGE(
+        UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+        {
+          brand: UNSET(pro.b, ['_id', '_key', '_rev', 'deleted_at']),
+          collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
+          collection_name: pro.collection.name,
+          specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+          product_id: CONCAT_SEPARATOR(', ', productCode),
+          variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
+        }
       )
+    )
 
-      RETURN {
-        id: brand.id,
-        name: brand.name,
-        products,
-        count: LENGTH(brand.products),
-      }
-    `,
-      params
-    );
+    RETURN {
+      id: brand.id,
+      name: brand.name,
+      products,
+      count: LENGTH(brand.products),
+    }
+  `;
+    return this.model.rawQueryV2(rawQuery, params);
   };
 
   public getSpecifiedProductsForMaterial = async (
