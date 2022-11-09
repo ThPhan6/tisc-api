@@ -134,11 +134,12 @@ export const mappingAttribute = (
           ...attribute,
           conversion_value_1: value1.toFixed(2),
           conversion_value_2: value2.toFixed(2),
-        })
+        });
+        return final;
       }
-      return final;
     }
-    return attribute;
+    final.push(attribute);
+    return final;
   }, [] as any);
   if (attributeGroup.id) {
     return {
