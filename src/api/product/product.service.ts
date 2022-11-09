@@ -472,17 +472,20 @@ class ProductService {
     const optionValues = options.reduce((pre: any, cur: any) => {
       return pre.concat(cur.subs);
     }, []);
-    const result = attribute.basis_options?.map((item) => {
+    const result = attribute.basis_options?.reduce((final, item) => {
       const foundValue = optionValues.find((el: any) => el.id === item.id);
-      return {
-        id: item.id,
-        option_code: item.option_code,
-        name: foundValue.value_1 + " - " + foundValue.value_2,
-        value_1: foundValue.value_1,
-        value_2: foundValue.value_2,
-        image: foundValue.image,
-      };
-    });
+      if (foundValue) {
+        final.push({
+          id: item.id,
+          option_code: item.option_code,
+          name: foundValue.value_1 + " - " + foundValue.value_2,
+          value_1: foundValue.value_1,
+          value_2: foundValue.value_2,
+          image: foundValue.image,
+        })
+      }
+      return final;
+    }, [] as any);
     return successResponse({ data: result ?? [] });
   };
 

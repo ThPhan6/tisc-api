@@ -8,7 +8,12 @@ import {
 import CollectionRepository from "@/repositories/collection.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { IDistributorAttributes, IRegionCountry, SortOrder } from "@/types";
+import {
+  IRegionCountry,
+  SortOrder,
+  CollectionRelation,
+  IDistributorAttributes,
+} from "@/types";
 import {
   mappingGroupByCollection,
   mappingRegionCountries,
@@ -125,7 +130,7 @@ class MarketAvailabilityService {
     }
 
     const distributorCountries = await this.getBrandRegionCountries(
-      collection.brand_id
+      collection.relation_id
     );
     return successResponse({
       data: mappingResponseGetMarket(
@@ -157,7 +162,7 @@ class MarketAvailabilityService {
     }
 
     const distributorCountries = await this.getBrandRegionCountries(
-      collection.brand_id
+      collection.relation_id
     );
 
     return successResponse({
@@ -183,6 +188,7 @@ class MarketAvailabilityService {
         limit,
         offset,
         brandId,
+        CollectionRelation.Brand,
         sort,
         order
       );
@@ -207,8 +213,11 @@ class MarketAvailabilityService {
     });
   }
 
-  public async getMarketAvailabilityGroupByCollection(brandId: string) {
-    const collections = await CollectionRepository.getByBrand(brandId);
+  public async getMarketAvailabilityGroupByCollection(relationId: string) {
+    const collections = await CollectionRepository.getByRelation(
+      relationId,
+      CollectionRelation.Brand
+    );
 
     const marketAvailabilities = await Promise.all(
       collections.map(async (collection) => {
