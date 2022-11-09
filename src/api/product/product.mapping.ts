@@ -210,8 +210,8 @@ export const mappingAttributeGroups = (
         }
       }
       /// add basis option
-      if (allBasisOptions) {
-        response.text = `Selected ${newBasisOptions.length} item ${newBasisOptions.length !== 1 ? 's' : ''}`;
+      if (allBasisOptions && newBasisOptions) {
+        response.text = `Selected ${newBasisOptions?.length || 0} item ${newBasisOptions?.length !== 1 ? 's' : ''}`;
         response.basis_options = newBasisOptions;
       }
       /// add conversion attribute
