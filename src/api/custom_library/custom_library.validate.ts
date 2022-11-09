@@ -3,6 +3,7 @@ import {
   requireStringValidation,
   requireEmailValidation,
   getOneValidation,
+  getListValidation,
 } from "@/validate/common.validate";
 import {getEnumValues} from '@/helper/common.helper';
 import {CustomLibraryCompanyType} from '@/api/custom_library/custom_library.type';
@@ -73,4 +74,15 @@ export default {
     getOneValidation,
     payload: customLibraryCompanyValidate
   },
+  getListProduct: {
+    query: {
+      custom_library_company_id: Joi.string().trim().allow(''),
+      collection_id: Joi.string().trim().allow(''),
+    }
+  },
+  getListCompany: getListValidation({
+    query: {
+      type: Joi.number().valid(...getEnumValues(CustomLibraryCompanyType))
+    }
+  }),
 };

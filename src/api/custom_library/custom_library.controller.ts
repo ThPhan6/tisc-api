@@ -40,4 +40,16 @@ export default class CustomLibraryController {
     const response = await customLibraryService.deleteCompany(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
+  public async getListProduct(req: Request, toolkit: ResponseToolkit) {
+    const payload = req.payload;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await customLibraryService.getListProduct(user, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  }
+  public async getListCompany(req: Request, toolkit: ResponseToolkit) {
+    const payload = req.payload;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await customLibraryService.getListCompany(user, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  }
 }

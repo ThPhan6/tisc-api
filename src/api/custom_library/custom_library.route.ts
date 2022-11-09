@@ -14,6 +14,38 @@ export default class ActionTaskRoute implements IRoute {
 
       server.route([
         {
+          method: "GET",
+          path: ROUTES.CUSTOM_LIBRARY.GET_LIST,
+          options: {
+            handler: controller.getListProduct,
+            validate: validate.getListProduct,
+            description: "Method that get list Custom Library Product",
+            tags: ["api", "Custom Library"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.CUSTOM_LIBRARY_COMPANY.GET_LIST,
+          options: {
+            handler: controller.getListCompany,
+            validate: validate.getListCompany,
+            description: "Method that get list Custom Library Product",
+            tags: ["api", "Custom Library"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "POST",
           path: ROUTES.CUSTOM_LIBRARY.CREATE,
           options: {

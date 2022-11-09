@@ -9,6 +9,12 @@ import { UserAttributes } from "@/types";
 
 
 class CustomLibraryService {
+  public getListCompany = (_user: UserAttributes, _payload: any) => {
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+  public getListProduct = (_user: UserAttributes, _payload: any) => {
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
   public createProduct = (_user: UserAttributes, _payload: any) => {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
