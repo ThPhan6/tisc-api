@@ -210,7 +210,12 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         }
       )
     `,
-      { sort, order, activeStatus: UserStatus.Active }
+      {
+        sort,
+        order,
+        activeStatus: UserStatus.Active,
+        brandLocation: LocationType.brand,
+      }
     );
   }
 
@@ -348,7 +353,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         },
       }
     `,
-      { activeStatus: UserStatus.Active }
+      { activeStatus: UserStatus.Active, brandLocation: LocationType.brand }
     );
     return summary[0];
   }
