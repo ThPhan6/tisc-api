@@ -1,3 +1,5 @@
+import { LocationPayload } from "@/types";
+
 // Custom Product
 export interface CustomProductBasicAttribute {
   name: string;
@@ -46,10 +48,32 @@ export enum CustomResouceType {
 export interface CustomResouceAttribute {
   id: string;
   type: CustomResouceType;
+
   website_uri: string;
   location_id: string; // locations
   associate_resource_ids: string[]; // custom_resources
   contacts: CustomResouceContact[];
+  design_id: string; // design firm
+
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
+}
+
+export interface CustomResourcePayload
+  extends Omit<CustomResouceAttribute, "id" | "created_at" | "updated_at">,
+    Omit<LocationPayload, "type"> {}
+
+export type GetCustomResourceListSorting = "business_name" | "location";
+
+export interface CustomResourceListItem {
+  id: string;
+  business_name: string;
+  general_email: string;
+  general_phone: string;
+  phone_code: string;
+  location: string;
+  contacts: number;
+  distributors: number;
+  cards: number;
+  brands: number;
 }
