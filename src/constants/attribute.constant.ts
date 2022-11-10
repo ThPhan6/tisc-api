@@ -47,7 +47,7 @@ export const DimensionAndWeightAttribute = {
       basis_id: DimensionAndWeightConversionId.mmToInch
     },
     {
-      id: DimensionAndWeightAttributeId.overallDiameter,
+      id: DimensionAndWeightAttributeId.totalWeight,
       name: "Total Weight",
       basis_id: DimensionAndWeightConversionId.kgToLb
     },
