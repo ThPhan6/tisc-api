@@ -19,8 +19,8 @@
             "basis_value_id": "",
             "type": "Text",
             "text": "Luxury Ceramic",
-            "conversion_value_1": "",
-            "conversion_value_2": ""
+            "conversion_value_1": 0,
+            "conversion_value_2": 0
           },
         ],
         "id": "GENERAL-ATTRIBUTE-XXXX-XXXX"
@@ -36,8 +36,8 @@
             "basis_value_id": "",
             "type": "Conversions",
             "text": "",
-            "conversion_value_1": "10.00",
-            "conversion_value_2": "0.01"
+            "conversion_value_1": 10.00,
+            "conversion_value_2": 0.01
           },
         ],
         "id": "FEATURE-ATTRIBUTE-XXXX-XXXX"

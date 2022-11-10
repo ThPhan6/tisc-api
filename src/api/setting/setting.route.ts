@@ -178,6 +178,22 @@ export default class SettingRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.SETTING.GET_DEFAULT_DIMENSION_AND_WEIGHT,
+          options: {
+            handler: controller.getDimensionAndWeight,
+            description: "Method that get Dimension And Weight",
+            tags: ["api", "Setting"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.dimensionAndWeight,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
