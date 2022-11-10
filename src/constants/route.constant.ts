@@ -159,7 +159,6 @@ export const ROUTES = {
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
   GET_BRAND_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/brand/{brand_id}",
 
-
   GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "/api/location/design/{design_id}",
   GET_DESIGN_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/design/{design_id}",
   GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
@@ -222,6 +221,15 @@ export const ROUTES = {
     CREATE: "/api/action-task",
     GET_LIST: "/api/action-task",
     UPDATE: "/api/action-task/{id}",
+  },
+  INVOICE: {
+    CREATE: "/api/invoice",
+    GET_LIST: "/api/invoice",
+    UPDATE: "/api/invoice/{id}",
+    GET: "/api/invoice/{id}",
+  },
+  USER: {
+    GET_BY_TYPE_ROLE_AND_RELATION: '/api/team-profile/get-by-type-role-relation'
   },
   DESIGN_FIRM: {
     UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",

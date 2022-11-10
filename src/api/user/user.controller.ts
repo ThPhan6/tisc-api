@@ -134,4 +134,16 @@ export default class UserController {
     const response = await userService.getTiscTeamsProfile(brand_id);
     return toolkit.response(response).code(response.statusCode);
   };
+  public getListByTypeRoleAndRelation = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { type, role, relation_id } = req.query;
+    const response = await userService.getListByTypeRoleAndRelation(
+      type,
+      role,
+      relation_id
+    );
+    return toolkit.response(response).code(response.statusCode);
+  };
 }

@@ -2,6 +2,7 @@ import Joi from "joi";
 import {
   requireBooleanValidation,
   requireEmailValidation,
+  requireNumberValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
 
@@ -64,6 +65,13 @@ export default {
     },
     payload: {
       user_ids: Joi.array().items(Joi.string()),
+    },
+  },
+  getListByTypeRoleAndRelation: {
+    query: {
+      type: requireNumberValidation("Type"),
+      role: requireStringValidation("Role"),
+      relation_id: requireStringValidation("Relation"),
     },
   },
 };

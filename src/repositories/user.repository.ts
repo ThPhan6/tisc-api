@@ -64,6 +64,18 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
+  public async getListByTypeRoleAndRelation(
+    type: UserType,
+    role: string,
+    relation_id: string
+  ) {
+    return (await this.model
+      .where("type", "==", type)
+      .where("role_id", "==", role)
+      .where("relation_id", "==", relation_id)
+      .where("status", "==", UserStatus.Active)
+      .get()) as UserAttributes[];
+  }
   public async getInactiveDesignFirmByBackupData(
     backupEmail: string,
     personalMobile: string

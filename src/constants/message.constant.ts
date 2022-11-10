@@ -62,7 +62,7 @@ export const MESSAGES = {
   PRODUCT: {
     PRODUCT_EXISTED: "Product existed.",
     PRODUCT_NOT_FOUND: "Product not found",
-    WAS_USED_IN_PROJECT: "This product is using in some projects!"
+    WAS_USED_IN_PROJECT: "This product is using in some projects!",
   },
 
   MARKET_AVAILABILITY: {
@@ -112,6 +112,9 @@ export const MESSAGES = {
   },
   ACTION_TASK: {
     NOT_FOUND: "Action task not found",
+  },
+  INVOICE: {
+    NOT_FOUND: "Revenue service not found",
   },
 
   PROJECT_TRACKING: {
@@ -241,7 +244,8 @@ export const MESSAGES = {
   },
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
   PDF_SPECIFY: {
-    ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
-    NOT_FOUND: 'Please update Issuing information!'
+    ERROR_CREATE:
+      "Something went wrong when get PDF config. Please contact to the administrator",
+    NOT_FOUND: "Please update Issuing information!",
   },
 };

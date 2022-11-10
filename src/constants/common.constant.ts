@@ -27,6 +27,7 @@ export const COMMON_TYPES: CommonTypes = {
   ACTION_TASK: 12,
   ISSUE_FOR: 13,
   CAPABILITIES: 14,
+  INVOICE: 15,
 };
 
 export const FUNCTIONAL_TYPE: {

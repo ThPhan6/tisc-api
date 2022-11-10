@@ -97,6 +97,8 @@ export const requireStringValidation = (fieldName: string, full?: "full") =>
     .error(
       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
+export const stringValidation = () => Joi.string().trim();
+export const numberValidation = () => Joi.number();
 
 export const requireEmailValidation = (fieldName: string = "Email") =>
   Joi.string()

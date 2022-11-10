@@ -291,6 +291,22 @@ export default class UserService {
       },
     });
   };
+  public getListByTypeRoleAndRelation = async (
+    type: UserType,
+    role: string,
+    relation_id: string
+  ) => {
+    const result = await userRepository.getListByTypeRoleAndRelation(
+      type,
+      role,
+      relation_id
+    );
+    return successResponse({
+      data: {
+        users: result,
+      },
+    });
+  };
 
   public invite = async (
     userId: string,
