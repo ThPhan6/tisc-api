@@ -129,8 +129,10 @@ export const mappingAttribute = (
         (basisConversion: any) => basisConversion.id === attribute.basis_id
       );
       if (conversion) {
+
         const value1 = parseFloat(attribute.conversion_value_1 || "0");
         const value2 = value1 / conversion.formula_1;
+        console.log(conversion, value1, value2);
         final.push({
           ...attribute,
           conversion_value_1: value1.toFixed(2),
@@ -213,7 +215,7 @@ export const mappingAttributeGroups = (
       }
       /// add basis option
       if (allBasisOptions && newBasisOptions) {
-        response.text = `Selected ${newBasisOptions?.length || 0} item ${newBasisOptions?.length !== 1 ? 's' : ''}`;
+        response.text = `Selected ${newBasisOptions?.length || 0} item${newBasisOptions?.length !== 1 ? 's' : ''}`;
         response.basis_options = newBasisOptions;
       }
       /// add conversion attribute
