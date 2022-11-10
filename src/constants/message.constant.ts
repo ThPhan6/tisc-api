@@ -21,6 +21,10 @@ export const MESSAGES = {
     CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
   },
 
+  LOCATION: {
+    USER_USED: 'This location is using in Team Profile'
+  },
+
   FAVOURITE: {
     ALREADY_SKIPPED: "You skipped already",
     ALREADY_RETRIEVED: "You retrieved already",

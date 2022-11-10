@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface IAutoEmailAttributes {
   id: string;
@@ -11,6 +11,6 @@ export interface IAutoEmailAttributes {
 }
 
 export interface ListAutoEmailWithPaginate {
-  pagination: IPagination;
+  pagination: Pagination;
   data: IAutoEmailAttributes[];
 }

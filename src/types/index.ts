@@ -17,7 +17,6 @@ export * from "./quotation.type";
 export * from "./market_availability.type";
 export * from "./project_zone.type";
 export * from "./permission.type";
-export * from "./project.type";
 export * from "./documentation.type";
 export * from "./project_product_pdf_config.type";
 export * from "./template.type";
@@ -28,3 +27,4 @@ export * from "./invoice.type";
 
 export * from "@/api/brand/brand.type";
 export * from "@/api/action_task/action_task.type";
+export * from "@/api/project/project.type";

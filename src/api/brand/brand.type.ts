@@ -1,14 +1,14 @@
 import {
-  IDistributorAttributes,
   IProductAttributes,
-  IPagination,
+  Pagination,
   ActiveStatus,
+  DistributorWithLocation,
 } from "@/types";
 
 export interface IBrandsResponse {
   data: {
     brands: IBrand[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }
@@ -131,7 +131,7 @@ export interface ListBrandCustom {
     }[];
   };
   cards: IProductAttributes[];
-  distributors: IDistributorAttributes[];
+  distributors: DistributorWithLocation[];
 }
 
 export interface BrandOfficialWebsite {

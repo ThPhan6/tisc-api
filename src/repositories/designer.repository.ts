@@ -4,6 +4,7 @@ import {
   DesignerAttributes,
   DesignFirmFunctionalType,
   ListDesignerWithPaginate,
+  LocationType,
   ProjectStatus,
   SortOrder,
   UserStatus,
@@ -62,6 +63,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       onHold: ProjectStatus["On Hold"],
       archived: ProjectStatus.Archived,
       activeStatus: UserStatus.Active,
+      designLocation: LocationType.designer,
     };
     const rawQuery = `
 
@@ -77,6 +79,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FOR loc IN locations
         FILTER loc.deleted_at == null
         FILTER loc.relation_id == designers.id
+        FILTER loc.type == @designLocation
         RETURN loc
       )
       LET satellitesCount = (
@@ -174,6 +177,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         LET loc = (
           FOR loc IN locations
           FILTER loc.relation_id == d.id
+          FILTER loc.type == @designLocation
           FILTER loc.deleted_at == null
           LET country = (
             FOR c in countries
@@ -273,6 +277,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         onHoldStatus: ProjectStatus["On Hold"],
         archiveStatus: ProjectStatus.Archived,
         activeStatus: UserStatus.Active,
+        designLocation: LocationType.designer,
       }
     );
     return designFirm[0];

@@ -1,6 +1,6 @@
 import LocationModel from "@/model/location.model";
 import BaseRepository from "./base.repository";
-import { ILocationAttributes, SortOrder } from "@/types";
+import { ILocationAttributes, LocationType, SortOrder } from "@/types";
 import { isNumber } from "lodash";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
@@ -54,24 +54,26 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   };
 
   public async getLocationDesign() {
-    const params = {} as any;
+    const params = { designLocation: LocationType.designer };
     let rawQuery = `
       FILTER locations.deleted_at == null
       FOR designer in designers
       FILTER designer.deleted_at == null
       FILTER locations.relation_id == designer.id
+      FILTER locations.type == @designLocation
       RETURN locations
   `;
     return this.model.rawQuery(rawQuery, params);
   }
 
   public async getOriginCountry() {
-    const params = {} as any;
+    const params = { designLocation: LocationType.designer };
     let rawQuery = `
       FILTER locations.deleted_at == null
       FOR designer in designers
       FILTER designer.deleted_at == null
       FILTER locations.relation_id == designer.id
+      FILTER locations.type == @designLocation
       RETURN locations.country_id
     `;
     return this.model.rawQuery(rawQuery, params);
@@ -89,6 +91,54 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       .where("relation_id", "==", relationId)
       .where("functional_type_ids", "in", headquarterId, "inverse")
       .first();
+  }
+
+  public getShortLocationQuery = (key: string) =>
+    `${key}.city_name == '' ? ${key}.country_name : CONCAT(${key}.city_name, ', ', ${key}.country_name)`;
+
+  public getFullLocationQuery = (key: string) =>
+    `CONCAT(${key}.address, ', ', ${key}.city_name, ${key}.city_name == '' ? '' : ', ', ${key}.state_name, ${key}.state_name == '' ? '' : ', ', ${key}.country_name, ', ', ${key}.postal_code)`;
+
+  public async getOneWithLocation<Model>(
+    modelName: string,
+    modelId: string
+  ): Promise<Model & ILocationAttributes> {
+    const result = await this.model.rawQueryV2(
+      `
+          FOR ${modelName} IN ${modelName}
+          FILTER ${modelName}.deleted_at == null
+          FILTER ${modelName}.id == @modelId
+          FOR loc IN locations
+          FILTER loc.id == ${modelName}.location_id
+          RETURN MERGE(
+            UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']), 
+            KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
+              'city_name', 'phone_code', 'address', 'postal_code')
+          )
+        `,
+      { modelId }
+    );
+    return result[0];
+  }
+
+  public async getListWithLocation<Model>(
+    modelName: string,
+    raw: string = ""
+  ): Promise<Array<Model & ILocationAttributes>> {
+    const rawQuery = `
+      FOR ${modelName} IN ${modelName}
+      FILTER ${modelName}.deleted_at == null
+      FOR loc IN locations
+      FILTER loc.id == ${modelName}.location_id
+      ${raw}
+      RETURN MERGE(
+        UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']),
+        KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
+          'city_name', 'phone_code', 'address', 'postal_code')
+      )
+    `;
+    const result = await this.model.rawQueryV2(rawQuery, {});
+    return result;
   }
 }
 

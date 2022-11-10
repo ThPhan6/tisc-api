@@ -1,3 +1,5 @@
+import { DistributorWithLocation } from "@/types";
+
 export interface IDistributorAttributes {
   id: string;
   brand_id: string;
@@ -112,10 +114,12 @@ export interface IDistributorGroupByCountryResponse {
 export interface MarketDistributorGroupByCountry {
   country_name: string;
   count: number;
-  distributors: IDistributorAttributes[];
+  distributors: DistributorWithLocation[];
 }
 
 export interface MarketDistributorGroupByCountryResponse {
-  data: MarketDistributorGroupByCountry[],
+  data: MarketDistributorGroupByCountry[];
   statusCode: number;
 }
+
+export type GetListDistributorSort = "name" | "country_name" | "city_name";

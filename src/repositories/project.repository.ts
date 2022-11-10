@@ -1,4 +1,5 @@
 import {
+  ILocationAttributes,
   ProjectAttributes,
   ProjectStatus,
   SortOrder,
@@ -6,7 +7,7 @@ import {
 } from "@/types";
 import BaseRepository from "@/repositories/base.repository";
 import ProjectModel from "@/model/project.model";
-import { forEach, isNumber } from "lodash";
+import { forEach, isNumber, pick } from "lodash";
 import {
   ProductConsiderStatus,
   ProductSpecifyStatus,
@@ -14,6 +15,8 @@ import {
 } from "@/api/project_product/project_product.type";
 import { ProjectListingSort } from "@/api/project/project.type";
 import { MEASUREMENT_UNIT } from "@/constants";
+import { locationRepository } from "./location.repository";
+import { v4 } from "uuid";
 
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected model: ProjectModel;
@@ -21,16 +24,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected DEFAULT_ATTRIBUTE: Partial<ProjectAttributes> = {
     code: "",
     name: "",
-    location: "",
-    country_id: "",
-    state_id: "",
-    city_id: "",
-    country_name: "",
-    state_name: "",
-    city_name: "",
-    address: "",
-    phone_code: "",
-    postal_code: "",
+    location_id: "",
     project_type_id: "",
     project_type: "",
     building_type_id: "",
@@ -40,16 +34,47 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     construction_start: "",
     team_profile_ids: [],
 
-    product_ids: [],
-
     design_id: "",
     status: 0,
-    created_at: "",
   };
 
   constructor() {
     super();
     this.model = new ProjectModel();
+  }
+
+  public async syncProjectLocations() {
+    const projects = await this.model.where("location_id", "==", null).get();
+
+    if (projects.length === 0) {
+      return;
+    }
+
+    const createLocationPromises = projects.map(async (el: any) => {
+      const location = await locationRepository.create({
+        id: v4(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...pick(
+          el,
+          "country_id",
+          "state_id",
+          "city_id",
+          "country_name",
+          "state_name",
+          "city_name",
+          "phone_code",
+          "address",
+          "postal_code"
+        ),
+      });
+      if (location) {
+        await this.model.where("id", "==", el.id).update({
+          location_id: location.id,
+        });
+      }
+    });
+    await Promise.all(createLocationPromises);
   }
 
   public async getListProject(
@@ -65,6 +90,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       offset,
       limit,
     };
+    const sortColumn = sort == "location" ? sort : `projects.${sort}`;
+
     const rawQuery = `
     FILTER projects.deleted_at == null
     FILTER projects.design_id == @design_id
@@ -81,15 +108,21 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN KEEP(users, 'id', 'firstname', 'lastname', 'avatar')
     )
 
-    ${sort ? `SORT projects.${sort} ${order} ` : ``}
+    FOR loc IN locations
+    FILTER loc.deleted_at == null
+    FILTER loc.id == projects.location_id
+
+    LET location = ${locationRepository.getShortLocationQuery("loc")}
+      
+    ${sort ? `SORT ${sortColumn} ${order} ` : ``}
     LIMIT @offset, @limit
     RETURN MERGE(
       KEEP(
         projects,
-        'id','code','name','location','project_type',
+        'id','code','name','project_type',
         'building_type','design_due','design_id','status','created_at'
       ),
-      {assign_teams: users}
+      {assign_teams: users, location}
     )
     `;
     return this.model.rawQuery(rawQuery, params);
@@ -129,6 +162,26 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       .where("code", "==", code)
       .where("design_id", "==", designId)
       .first();
+  }
+
+  public async getProjectWithLocation(
+    id: string
+  ): Promise<ProjectAttributes & { location: ILocationAttributes }> {
+    const project = await this.model.rawQuery(
+      `
+        FILTER projects.deleted_at == null
+        FILTER projects.id == @id
+        FOR loc IN locations
+        FILTER loc.id == projects.location_id
+        RETURN MERGE(
+          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']), 
+          KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
+            'city_name', 'phone_code', 'address', 'postal_code')
+        )
+      `,
+      { id }
+    );
+    return project[0];
   }
 
   public async findProjectWithDesignData(id: string) {
@@ -178,14 +231,25 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       LET allProjects = (
         FOR prj IN projects
         FILTER prj.deleted_at == null
-        RETURN KEEP(prj, 'id', 'status', 'country_id', 'measurement_unit')
+        FOR loc IN locations
+        FILTER loc.id == prj.location_id
+        FILTER loc.deleted_at == null
+        RETURN MERGE(
+          KEEP(prj, 'id', 'status', 'measurement_unit'),
+          { country_id: loc.country_id }
+        )
       )
 
       LET countries = (
-        FOR c IN countries
-        FOR prj IN allProjects
-        FILTER c.deleted_at == null
-        FILTER c.id == prj.country_id
+        LET uniqueCountries = (
+          FOR prj IN allProjects
+          FOR c IN countries
+          FILTER c.deleted_at == null
+          FILTER c.id == prj.country_id
+          RETURN DISTINCT c
+        )
+
+        FOR c IN uniqueCountries
         COLLECT group = c.region INTO countryGroup
         RETURN {
           region: group,
@@ -333,8 +397,10 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     sort: ProjectListingSort,
     order: SortOrder
   ) {
-    console.log("offset", offset);
-    console.log("limit", limit);
+    const sortColumn = ["status", "country_name", "city_name"].includes(sort)
+      ? sort
+      : `prj.${sort}`;
+
     const rawQuery = `
       LET allProjects = (
         FOR prj IN projects
@@ -344,6 +410,9 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
 
       LET projects = (
         FOR prj IN allProjects
+        FOR loc IN locations
+        FILTER loc.deleted_at == null
+        FILTER loc.id == prj.location_id
 
         LET prjProducts = (
           FOR pp IN project_products
@@ -400,14 +469,17 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         )
 
         LET status = prj.status == @liveStatus ? 'Live' : prj.status == @onHoldStatus ? 'On Hold' : 'Archived'
+        LET city_name = loc.city_name == '' ? 'N/A' : loc.city_name
+        LET country_name = loc.country_name
 
-        SORT ${sort === "status" ? `${sort} @order` : "prj.@sort @order"}
+        SORT ${sortColumn} @order
         LIMIT @offset, @limit
         RETURN MERGE(
           KEEP(prj, 'id', 'created_at', 'name', 'project_type', 'building_type', 'country_name'),
           {
             status,
-            city_name: prj.city_name == '' ? 'N/A' : prj.city_name,
+            city_name,
+            country_name,
             metricArea: prj.measurement_unit == @metricUnit ? area : area * @feetToMeter,
             imperialArea: prj.measurement_unit == @metricUnit ? area * (1 / @feetToMeter) : area,
             productCount: LENGTH(products),
@@ -429,7 +501,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     return this.model.rawQueryV2(rawQuery, {
       offset,
       limit,
-      sort: sort === "status" ? undefined : sort,
       order,
       liveStatus: ProjectStatus.Live,
       onHoldStatus: ProjectStatus["On Hold"],
@@ -447,6 +518,9 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       FOR prj IN projects
       FILTER prj.id == @projectId
       FILTER prj.deleted_at == null
+      FOR l IN locations
+      FILTER l.deleted_at == null
+      FILTER l.id == prj.location_id
 
       FOR d IN designers
       FILTER d.id == prj.design_id
@@ -574,7 +648,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         basic: MERGE(
           KEEP(prj, 'code', 'status', 'name', 'project_type', 'building_type', 'measurement_unit', 'design_due', 'construction_start', 'updated_at'),
           {
-            address: CONCAT(prj.address, ', ', prj.city_name, prj.city_name == '' ? '' : ', ', prj.country_name, ', ', prj.postal_code),
+            address: ${locationRepository.getFullLocationQuery("l")},
             designFirm: KEEP(d, 'name', 'logo')
           }
         ),

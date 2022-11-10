@@ -34,6 +34,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
   public async getByType(type: AttributeType) {
     return (await this.model
       .where("type", "==", type)
+      .where("selectable", "!=", false)
       .get()) as AttributeProps[];
   }
 

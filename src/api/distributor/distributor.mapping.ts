@@ -1,4 +1,4 @@
-import { ICountryAttributes, IDistributorAttributes } from "@/types";
+import { ICountryAttributes, DistributorWithLocation } from "@/types";
 import { MarketDistributorGroupByCountry } from "./distributor.type";
 
 export const mappingAuthorizedCountriesName = (
@@ -24,9 +24,9 @@ export const mappingAuthorizedCountries = (
 };
 
 export const mappingResultGetList = (
-  distributors: IDistributorAttributes[]
+  distributors: DistributorWithLocation[]
 ) => {
-  return distributors.map((distributor: IDistributorAttributes) => {
+  return distributors.map((distributor: DistributorWithLocation) => {
     return {
       id: distributor.id,
       name: distributor.name,
@@ -44,7 +44,7 @@ export const mappingResultGetList = (
 
 export const mappingDistributorByCountry = (
   countries: ICountryAttributes[],
-  distributors: IDistributorAttributes[]
+  distributors: DistributorWithLocation[]
 ) => {
   return countries
     .map((country) => {
@@ -76,10 +76,10 @@ export const mappingDistributorByCountry = (
 };
 
 export const mappingMarketDistributorGroupByCountry = (
-  distributors: IDistributorAttributes[]
+  distributors: DistributorWithLocation[]
 ) => {
   const result: MarketDistributorGroupByCountry[] = [];
-  distributors.forEach((distributor) => {
+  distributors.forEach((distributor: any) => {
     const groupIndex = result.findIndex(
       (country) => country.country_name === distributor.country_name
     );
