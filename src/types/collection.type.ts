@@ -2,7 +2,7 @@ import { Pagination } from "@/types";
 
 export enum CollectionRelation {
   Brand,
-  CustomLibrary
+  CustomProduct,
 }
 export type CollectionRelationType = 0 | 1;
 
@@ -20,4 +20,5 @@ export interface ListCollectionPaginate {
   data: ICollectionAttributes[];
 }
 
-export interface ICollection extends Pick<ICollectionAttributes, 'id' | 'name' | 'created_at'> {}
+export interface ICollection
+  extends Pick<ICollectionAttributes, "id" | "name" | "created_at"> {}

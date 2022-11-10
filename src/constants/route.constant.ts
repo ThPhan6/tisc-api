@@ -156,7 +156,6 @@ export const ROUTES = {
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
   GET_BRAND_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/brand/{brand_id}",
 
-
   GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "/api/location/design/{design_id}",
   GET_DESIGN_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/design/{design_id}",
   GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
@@ -261,17 +260,17 @@ export const ROUTES = {
     GENERATE_PROJECT_PDF: "/api/pdf/project/{project_id}/generate",
     GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
   },
-  CUSTOM_LIBRARY: {
-    CREATE: "/api/custom-library/create",
-    UPDATE: "/api/custom-library/update/{id}",
-    GET_LIST: "/api/custom-library/list",
-    DELETE: "/api/custom-library/delete/{id}",
+  CUSTOM_PRODUCT: {
+    CREATE: "/api/custom-product/create",
+    UPDATE: "/api/custom-product/update/{id}",
+    GET_LIST: "/api/custom-product/list",
+    DELETE: "/api/custom-product/delete/{id}",
   },
-  CUSTOM_LIBRARY_COMPANY: {
-    CREATE: "/api/custom-library/company/create",
-    UPDATE: "/api/custom-library/company/update/{id}",
-    GET_LIST: "/api/custom-library/company/list",
-    DELETE: "/api/custom-library/company/delete/{id}",
+  CUSTOM_RESOURCE: {
+    CREATE: "/api/custom-resource/{type}/create",
+    UPDATE: "/api/custom-resource/{type}/update/{id}",
+    GET_LIST: "/api/custom-resource/{type}/list",
+    DELETE: "/api/custom-resource/{type}/delete/{id}",
   },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
@@ -282,5 +281,5 @@ export const ROUTES = {
     CREATE: "/api/collection/create",
     UPDATE: "/api/collection/update/{id}",
     DELETE: "/api/collection/delete/{id}",
-  }
+  },
 };
