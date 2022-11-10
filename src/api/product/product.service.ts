@@ -435,7 +435,7 @@ class ProductService {
   public likeOrUnlike = async (productId: string, user: UserAttributes) => {
     const favourite = await productFavouriteRepository.findBy({
       product_id: productId,
-      user_id: user.id,
+      created_by: user.id,
     });
     if (!favourite) {
       await productFavouriteRepository.like(productId, user.id);
