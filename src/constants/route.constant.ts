@@ -199,6 +199,7 @@ export const ROUTES = {
     FIND_CITY: "/api/setting/cities/{id}",
     GET_MEASUREMENT_UNIT: "/api/setting/measurement-units",
     GET_FUNCTIONAL_TYPE: "/api/setting/functional-type",
+    GET_DEFAULT_DIMENSION_AND_WEIGHT: "/api/setting/dimension-and-weight",
   },
   MATERIAL_CODE: {
     GET_MATERIAL_CODES: "/api/material-code/get-list",

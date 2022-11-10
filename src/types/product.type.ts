@@ -20,7 +20,18 @@ export interface IProductAttributes {
   tips: ProductTip[];
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
+  dimension_and_weight: DimensionAndWeight;
 }
+
+export interface DimensionAndWeight {
+  with_diameter: boolean;
+  attributes: {
+    id: string;
+    conversion_value_1: number | string;
+    conversion_value_2: number | string;
+  }[]
+}
+
 
 export interface ProductTip {
   title: string;

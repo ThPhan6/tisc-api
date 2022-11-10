@@ -45,6 +45,7 @@ import {
   UserAttributes,
   BasisConversion,
 } from "@/types";
+import {mappingDimensionAndWeight} from '@/api/attribute/attribute.mapping';
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -112,10 +113,10 @@ class ProductService {
       created_by: user.id,
       images: uploadedImages,
       keywords: payload.keywords,
-
       tips: payload.tips,
       downloads: payload.downloads,
       catelogue_downloads: payload.catelogue_downloads,
+      dimension_and_weight: payload.dimension_and_weight
     });
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -186,7 +187,6 @@ class ProductService {
           product.brand.name,
           product.brand_id
         );
-
     const updatedProduct = await productRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
@@ -286,6 +286,7 @@ class ProductService {
         general_attribute_groups: newGeneralGroups,
         feature_attribute_groups: newFeatureGroups,
         specification_attribute_groups: newSpecificationGroups,
+        dimension_and_weight: mappingDimensionAndWeight(product.dimension_and_weight)
       },
     });
   }

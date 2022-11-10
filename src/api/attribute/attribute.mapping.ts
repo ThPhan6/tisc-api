@@ -3,6 +3,9 @@ import {
   LONG_TEXT_ID,
   MESSAGES,
   SHORT_TEXT_ID,
+  DimensionAndWeightAttribute,
+  DimensionAndWeightConversion,
+  DimensionAndWeightCategory,
 } from "@/constants";
 import { isDuplicatedString } from "@/helper/common.helper";
 import {
@@ -12,9 +15,10 @@ import {
   SortOrder,
   SubAttribute,
 } from "@/types";
-import { orderBy } from "lodash";
+import { orderBy, isFinite, isString } from "lodash";
 import { v4 as uuid } from "uuid";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
+import {DimensionAndWeight, DimensionAndWeightInterface} from '@/types';
 
 export const getBasisType = (type: number) => {
   switch (type) {
@@ -308,3 +312,49 @@ export const getSubBasisAttribute = (basisGroups: IBasisAttributes[]) => {
     return pre.concat(temp);
   }, []);
 };
+
+export const getDefaultDimensionAndWeightAttribute = (): DimensionAndWeightInterface => {
+  return {
+    id: DimensionAndWeightAttribute.id,
+    name: DimensionAndWeightAttribute.name,
+    with_diameter: false,
+    attributes: DimensionAndWeightAttribute.subs.map((sub) => {
+      return {
+        ...sub,
+        type: "Conversions",
+        conversion_value_1: "",
+        conversion_value_2: "",
+        text: "",
+        basis_value_id: "",
+        conversion: DimensionAndWeightConversion.subs.find((conversion) => conversion.id === sub.basis_id),
+        with_diameter: DimensionAndWeightCategory[sub.id]
+      }
+    })
+  }
+}
+
+export const mappingDimensionAndWeight = (dimensionAndWeight?: DimensionAndWeight): DimensionAndWeightInterface => {
+  const defaultDimension = getDefaultDimensionAndWeightAttribute();
+  return {
+    ...defaultDimension,
+    with_diameter: dimensionAndWeight?.with_diameter || defaultDimension.with_diameter,
+    attributes: dimensionAndWeight?.attributes.reduce((item, attribute) => {
+      //
+      const foundedAttribute = defaultDimension.attributes.find((item) => item.id === attribute.id);
+      if (!foundedAttribute || isString(attribute.conversion_value_1)) {
+        return item;
+      }
+      //
+      const value1 = attribute.conversion_value_1 || 0;
+      const value2 = value1 / (foundedAttribute.conversion?.formula_1 || 0) || 0;
+      item.push({
+        ...foundedAttribute,
+        conversion_value_1: isFinite(value1) ? value1.toFixed(2) : '',
+        conversion_value_2: isFinite(value2) ? value2.toFixed(2) : '',
+      });
+      //
+      return item;
+      //
+    }, [] as DimensionAndWeightInterface['attributes']) || []
+  }
+}

@@ -130,7 +130,7 @@ export const mappingAttribute = (
       );
       if (conversion) {
         const value1 = parseFloat(attribute.conversion_value_1 || "0");
-        const value2 = value1 / parseFloat(conversion.formula_1 || "1");
+        const value2 = value1 / conversion.formula_1;
         final.push({
           ...attribute,
           conversion_value_1: value1.toFixed(2),
