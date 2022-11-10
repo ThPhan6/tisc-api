@@ -253,6 +253,7 @@ export default class LocationService {
       data: mappingByCountries(locationData, true),
     });
   };
+
   public delete = async (
     user: UserAttributes,
     id: string
@@ -265,7 +266,9 @@ export default class LocationService {
     if (user.relation_id !== location.relation_id) {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE);
     }
-    const totalUserInLocation = await userRepository.countUserInLocation(location.id);
+    const totalUserInLocation = await userRepository.countUserInLocation(
+      location.id
+    );
     if (totalUserInLocation > 0) {
       return errorMessageResponse(MESSAGES.LOCATION.USER_USED);
     }
@@ -298,6 +301,56 @@ export default class LocationService {
       type,
       relation_id: relationId,
     });
+  };
+
+  public upsertLocation = async (
+    payload: Partial<ILocationAttributes>,
+    locationId?: string
+  ) => {
+    const { city_id, country_id = "", state_id } = payload;
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        country_id,
+        city_id,
+        state_id
+      );
+
+    if (isValidGeoLocation !== true) {
+      return {
+        error: isValidGeoLocation,
+      };
+    }
+
+    const fullLocation = await countryStateCityService.getCountryStateCity(
+      country_id,
+      city_id,
+      state_id
+    );
+
+    if (!fullLocation) {
+      return {
+        error: errorMessageResponse(
+          MESSAGES.COUNTRY_STATE_CITY.COUNTRY_STATE_CITY_NOT_FOUND
+        ),
+      };
+    }
+
+    const locationInfo = {
+      ...fullLocation,
+      ...payload,
+    };
+
+    const upsertLocation: ILocationAttributes = await (locationId
+      ? locationRepository.findAndUpdate(locationId, locationInfo)
+      : locationRepository.create(locationInfo));
+
+    if (!upsertLocation) {
+      return {
+        error: errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE),
+      };
+    }
+
+    return { location: upsertLocation };
   };
 }
 export const locationService = new LocationService();

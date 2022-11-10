@@ -263,14 +263,16 @@ export const ROUTES = {
   CUSTOM_PRODUCT: {
     CREATE: "/api/custom-product/create",
     UPDATE: "/api/custom-product/update/{id}",
-    GET_LIST: "/api/custom-product/list",
+    GET_LIST: "/api/custom-product/get-list",
     DELETE: "/api/custom-product/delete/{id}",
   },
   CUSTOM_RESOURCE: {
-    CREATE: "/api/custom-resource/{type}/create",
-    UPDATE: "/api/custom-resource/{type}/update/{id}",
-    GET_LIST: "/api/custom-resource/{type}/list",
-    DELETE: "/api/custom-resource/{type}/delete/{id}",
+    CREATE: "/api/custom-resource/create",
+    UPDATE: "/api/custom-resource/update/{id}",
+    GET_LIST: "/api/custom-resource/get-list",
+    GET_ONE: "/api/custom-resource/get-one/{id}",
+    GET_SUMMARY: "/api/custom-resource/summary",
+    DELETE: "/api/custom-resource/delete/{id}",
   },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
