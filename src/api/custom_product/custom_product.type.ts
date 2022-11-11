@@ -1,23 +1,25 @@
 import { LocationPayload } from "@/types";
 
 // Custom Product
-export interface CustomProductBasicAttribute {
+export interface CustomProductBasicAttributes {
   name: string;
   content: string;
 }
 
-export interface CustomProductAttribute {
+export interface CustomProductAttributes {
   id: string;
   name: string;
   description: string;
   images: string[];
-  attributes: CustomProductBasicAttribute[];
-  specification: CustomProductBasicAttribute[];
+  attributes: CustomProductBasicAttributes[];
+  specification: CustomProductBasicAttributes[];
   options: {
+    id: string;
     title: string;
     use_image: boolean;
     tag: string;
     items: {
+      id: string;
       image?: string;
       description: string;
       product_id: string; // text input
@@ -25,10 +27,15 @@ export interface CustomProductAttribute {
   }[];
   collection_id: string;
   company_id: string; // custom_resources
-  relation_id: string;
+  design_id: string;
   created_at: string;
   updated_at: string;
 }
+
+export type CustomProductPayload = Omit<
+  CustomProductAttributes,
+  "id" | "created_at" | "updated_at" | "relation_id"
+>;
 
 // Custom Resource (Brand/Company & Distributor for Custom Product)
 export interface CustomResouceContact {
@@ -45,7 +52,7 @@ export enum CustomResouceType {
   Distributor,
 }
 
-export interface CustomResouceAttribute {
+export interface CustomResouceAttributes {
   id: string;
   type: CustomResouceType;
 
@@ -60,7 +67,7 @@ export interface CustomResouceAttribute {
 }
 
 export interface CustomResourcePayload
-  extends Omit<CustomResouceAttribute, "id" | "created_at" | "updated_at">,
+  extends Omit<CustomResouceAttributes, "id" | "created_at" | "updated_at">,
     Omit<LocationPayload, "type"> {}
 
 export type GetCustomResourceListSorting = "business_name" | "location";

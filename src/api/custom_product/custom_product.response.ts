@@ -1,49 +1,29 @@
-import { paginationResponse } from "@/helper/response.helper";
-import { getSummaryResponseValidate } from "@/validate/common.response";
 import Joi from "joi";
-import { locationBasicResponse } from "../location/location.response";
-import { customProductContactValidate } from "./custom_product.validate";
-
-export const customResourceResponse = Joi.object({
-  website_uri: Joi.string(),
-  design_id: Joi.string(),
-  associate_resource_ids: Joi.array().items(Joi.string()),
-  contacts: customProductContactValidate,
-  type: Joi.number(),
-  ...locationBasicResponse,
-});
+import { customProductValidate } from "./custom_product.validate";
 
 export default {
-  getList: Joi.object({
+  getProductList: Joi.object({
     statusCode: Joi.number(),
-    data: Joi.object({
-      pagination: paginationResponse,
-      resources: Joi.array().items({
-        id: Joi.string(),
-        business_name: Joi.string(),
-        general_email: Joi.string(),
-        general_phone: Joi.string(),
-        phone_code: Joi.string(),
-        location: Joi.string(),
-        contacts: Joi.number(),
-        distributors: Joi.number(),
-        cards: Joi.number(),
-        brands: Joi.number(),
-      }),
+    products: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+      description: Joi.string(),
+      company_id: Joi.string(),
+      collection_id: Joi.string(),
+      location: Joi.string(),
+      image: Joi.string(),
+      company_name: Joi.string(),
+      collection_name: Joi.string(),
     }),
   }),
-  getSummary: getSummaryResponseValidate(),
-  getOne: Joi.object({
-    data: customResourceResponse,
-    statusCode: Joi.number(),
-  }),
-  getAll: Joi.object({
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        name: Joi.string(),
-      })
-    ),
+  getOneProduct: Joi.object({
+    data: customProductValidate.keys({
+      id: Joi.string(),
+      collection_name: Joi.string(),
+      company_name: Joi.string(),
+      created_at: Joi.string(),
+      updated_at: Joi.string(),
+    }),
     statusCode: Joi.number(),
   }),
 };

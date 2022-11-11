@@ -1,14 +1,10 @@
 import Joi from "joi";
 import {
   requireStringValidation,
-  requireEmailValidation,
   getOneValidation,
-  getListValidation,
 } from "@/validate/common.validate";
-import { getEnumValues } from "@/helper/common.helper";
-import { CustomResouceType } from "@/api/custom_product/custom_product.type";
 
-export const customProductBasicAttributeValidate = Joi.object({
+export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
   content: Joi.string().trim(),
 });
@@ -25,12 +21,21 @@ export const customProductContactValidate = Joi.array().items(
 );
 
 export const customProductOptionValidate = Joi.object({
+  id: Joi.string().allow(null),
   title: Joi.string().trim(),
   use_image: Joi.boolean(),
   tag: Joi.string().trim(),
   items: Joi.array().items(
     Joi.object({
-      image: Joi.string().allow(null),
+      id: Joi.string().allow(null),
+      image: Joi.when("use_image", {
+        is: true,
+        then: requireStringValidation(
+          "Image is required in the Option with type image",
+          "full"
+        ),
+        otherwise: Joi.string().allow(null),
+      }),
       description: Joi.string().trim(),
       product_id: Joi.string().trim(),
     })
@@ -41,52 +46,14 @@ export const customProductValidate = Joi.object({
   name: requireStringValidation("Product name"),
   description: requireStringValidation("Product description"),
   images: Joi.array().items(Joi.string().trim()),
-  attribute: Joi.array().items(customProductBasicAttributeValidate),
-  specification: Joi.array().items(customProductBasicAttributeValidate),
+  attributes: Joi.array().items(basicAttributeValidate),
+  specification: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),
   collection_id: requireStringValidation("Collection"),
-  company_id: requireStringValidation("Brand Company"),
+  company_id: requireStringValidation("Brand company"),
 });
-
-export const customResourceValidate = Joi.object({
-  business_name: requireStringValidation("Resource name"),
-  website_uri: requireStringValidation("Website"),
-  associate_resource_ids: Joi.array().items(Joi.string().trim()).allow(null),
-  country_id: requireStringValidation("Country"),
-  state_id: Joi.string().trim().allow(""),
-  city_id: Joi.string().trim().allow(""),
-  address: requireStringValidation("Address"),
-  postal_code: requireStringValidation("Postal code"),
-  general_phone: requireStringValidation("General phone"),
-  general_email: requireEmailValidation("General email"),
-  contacts: customProductContactValidate,
-  type: Joi.number().valid(...getEnumValues(CustomResouceType)),
-});
-
-export const resourceTypevalidate = Joi.number()
-  .valid(...getEnumValues(CustomResouceType))
-  .required();
 
 export default {
-  createResource: {
-    payload: customResourceValidate,
-  },
-  getAllResource: {
-    query: {
-      type: resourceTypevalidate,
-    },
-  },
-  getListResource: getListValidation({
-    query: {
-      type: resourceTypevalidate,
-      sort: Joi.string().valid("business_name", "location"), // GetCustomResourceListSorting
-    },
-  }),
-  updateResource: {
-    ...getOneValidation,
-    payload: customResourceValidate,
-  },
-
   createProduct: {
     payload: customProductValidate,
   },

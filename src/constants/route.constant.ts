@@ -264,7 +264,9 @@ export const ROUTES = {
     CREATE: "/api/custom-product/create",
     UPDATE: "/api/custom-product/update/{id}",
     GET_LIST: "/api/custom-product/get-list",
+    GET_ONE: "/api/custom-product/get-one/{id}",
     DELETE: "/api/custom-product/delete/{id}",
+    DUPLICATE: "/api/custom-product/duplicate/{id}",
   },
   CUSTOM_RESOURCE: {
     CREATE: "/api/custom-resource/create",

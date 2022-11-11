@@ -5,14 +5,14 @@ import {
   ListCollectionPaginate,
 } from "@/types";
 import BaseRepository from "./base.repository";
-import {CollectionRelation, CollectionRelationType} from '@/types';
+import { CollectionRelationType } from "@/types";
 
 class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   protected model: CollectionModel;
   protected DEFAULT_ATTRIBUTE: Partial<ICollectionAttributes> = {
     name: "",
     relation_id: "",
-    relation_type: CollectionRelation.Brand,
+    relation_type: CollectionRelationType.Brand,
   };
   constructor() {
     super();
@@ -35,7 +35,10 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
       .paginate(limit, offset);
   }
 
-  public async getByRelation(relation_id: string, relation_type: CollectionRelationType) {
+  public async getByRelation(
+    relation_id: string,
+    relation_type: CollectionRelationType
+  ) {
     return (await this.model
       .select()
       .where("relation_id", "==", relation_id)
