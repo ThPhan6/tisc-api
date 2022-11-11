@@ -1,7 +1,7 @@
 import Model from "@/Database/Model";
-import { CustomResouceAttribute } from "./custom_product.type";
+import { CustomResouceAttributes } from "./custom_product.type";
 
-export default class CustomResourceModel extends Model<CustomResouceAttribute> {
+export default class CustomResourceModel extends Model<CustomResouceAttributes> {
   protected table = "custom_resources";
   protected softDelete = true;
 }

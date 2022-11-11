@@ -1,10 +1,10 @@
 import BaseRepository from "@/repositories/base.repository";
-import { CustomProductAttribute } from "./custom_product.type";
+import { CustomProductAttributes } from "./custom_product.type";
 import CustomProductModel from "./custom_products.model";
 
-export default class CustomProductRepository extends BaseRepository<CustomProductAttribute> {
+export default class CustomProductRepository extends BaseRepository<CustomProductAttributes> {
   protected model: CustomProductModel;
-  protected DEFAULT_ATTRIBUTE: Partial<CustomProductAttribute> = {
+  protected DEFAULT_ATTRIBUTE: Partial<CustomProductAttributes> = {
     name: "",
     description: "",
     images: [],
@@ -13,7 +13,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
     options: [],
     collection_id: "",
     company_id: "",
-    relation_id: "",
+    design_id: "",
   };
 
   constructor() {

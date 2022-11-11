@@ -1,11 +1,9 @@
 import { Pagination } from "@/types";
 
-export enum CollectionRelation {
+export enum CollectionRelationType {
   Brand,
   CustomProduct,
 }
-export type CollectionRelationType = 0 | 1;
-
 export interface ICollectionAttributes {
   id: string;
   name: string;

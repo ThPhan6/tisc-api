@@ -5,6 +5,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import {
+  CustomProductPayload,
   CustomResourcePayload,
   SummaryInfo,
   UserAttributes,
@@ -173,12 +174,18 @@ export default class CustomProductController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
 
-  public async createProduct(req: Request, toolkit: ResponseToolkit) {
-    const payload = req.payload;
+  public async createProduct(
+    req: Request & { payload: CustomProductPayload },
+    toolkit: ResponseToolkit
+  ) {
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await customProductService.createProduct(user, payload);
+    const response = await customProductService.createProduct(
+      user,
+      req.payload
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
+
   public async getListProduct(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 

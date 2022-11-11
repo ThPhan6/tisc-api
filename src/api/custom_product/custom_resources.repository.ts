@@ -1,7 +1,7 @@
 import BaseRepository from "@/repositories/base.repository";
 import CustomResouceModel from "@/api/custom_product/custom_resources.model";
 import {
-  CustomResouceAttribute,
+  CustomResouceAttributes,
   CustomResouceType,
   CustomResourceListItem,
   CustomResourcePayload,
@@ -10,9 +10,9 @@ import {
 import { SortOrder } from "@/types";
 import { locationRepository } from "@/repositories/location.repository";
 
-export default class CustomResouceRepository extends BaseRepository<CustomResouceAttribute> {
+export default class CustomResouceRepository extends BaseRepository<CustomResouceAttributes> {
   protected model: CustomResouceModel;
-  protected DEFAULT_ATTRIBUTE: Partial<CustomResouceAttribute> = {
+  protected DEFAULT_ATTRIBUTE: Partial<CustomResouceAttributes> = {
     website_uri: "",
     location_id: "",
     contacts: [],

@@ -38,12 +38,16 @@ export const uploadImagesProduct = (
   return Promise.all(
     images.map(async (image, index) => {
       const mediumBuffer = await toWebp(Buffer.from(image, "base64"), "medium");
-      const cleanKeywords = keywords.map((item) => {
-        return item.trim().replace(/ /g, "-");
-      });
-      let fileName = `${formatedBrandName}-${cleanKeywords.join(
-        "-"
-      )}-${timestamps.unix()}${index}`;
+      const cleanKeywords = keywords.length
+        ? "-" +
+          keywords
+            .map((item) => {
+              return item.trim().replace(/ /g, "-");
+            })
+            .join("-")
+        : "";
+      const fileName = `${formatedBrandName}${cleanKeywords}-${timestamps.unix()}${index}`;
+
       await upload(
         mediumBuffer,
         `product/${brandId}/${fileName}_medium.webp`,

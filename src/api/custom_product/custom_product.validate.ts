@@ -8,7 +8,7 @@ import {
 import { getEnumValues } from "@/helper/common.helper";
 import { CustomResouceType } from "@/api/custom_product/custom_product.type";
 
-export const customProductBasicAttributeValidate = Joi.object({
+export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
   content: Joi.string().trim(),
 });
@@ -30,7 +30,14 @@ export const customProductOptionValidate = Joi.object({
   tag: Joi.string().trim(),
   items: Joi.array().items(
     Joi.object({
-      image: Joi.string().allow(null),
+      image: Joi.when("use_image", {
+        is: true,
+        then: requireStringValidation(
+          "Image is required in the Option with type image",
+          "full"
+        ),
+        otherwise: Joi.string().allow(null),
+      }),
       description: Joi.string().trim(),
       product_id: Joi.string().trim(),
     })
@@ -41,11 +48,11 @@ export const customProductValidate = Joi.object({
   name: requireStringValidation("Product name"),
   description: requireStringValidation("Product description"),
   images: Joi.array().items(Joi.string().trim()),
-  attribute: Joi.array().items(customProductBasicAttributeValidate),
-  specification: Joi.array().items(customProductBasicAttributeValidate),
+  attributes: Joi.array().items(basicAttributeValidate),
+  specification: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),
   collection_id: requireStringValidation("Collection"),
-  company_id: requireStringValidation("Brand Company"),
+  company_id: requireStringValidation("Brand company"),
 });
 
 export const customResourceValidate = Joi.object({
