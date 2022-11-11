@@ -13,6 +13,7 @@ import {
   IAttributeGroupWithOptionId,
   IProductOption,
 } from "./product.type";
+import {isArray} from 'lodash';
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -122,14 +123,14 @@ export const mappingAttribute = (
   attributeGroup: IAttributeGroupWithOptionalId,
   allBasisConversion: BasisConversion[]
 ) => {
-  const newAttributes = attributeGroup.attributes?.reduce((final, attribute: any) => {
+  const newAttributes = isArray(attributeGroup.attributes) ? attributeGroup.attributes.reduce((final, attribute: any) => {
     if (attribute.type === "Conversions") {
       const conversion = allBasisConversion.find(
         (basisConversion: any) => basisConversion.id === attribute.basis_id
       );
       if (conversion) {
         const value1 = parseFloat(attribute.conversion_value_1 || "0");
-        const value2 = value1 / parseFloat(conversion.formula_1 || "1");
+        const value2 = value1 / conversion.formula_1;
         final.push({
           ...attribute,
           conversion_value_1: value1.toFixed(2),
@@ -140,7 +141,7 @@ export const mappingAttribute = (
     }
     final.push(attribute);
     return final;
-  }, [] as any) || [];
+  }, [] as any) : [];
   if (attributeGroup.id) {
     return {
       ...attributeGroup,
@@ -170,7 +171,7 @@ export const mappingAttributeGroups = (
   allBasisOptions?: IBasisAttributes[]
 ) => {
   return attribute_groups.map(async (group) => {
-    const newAttributes = group.attributes?.reduce((data, attribute) => {
+    const newAttributes = isArray(group.attributes) ? group.attributes.reduce((data, attribute) => {
       const foundAttribute = allAttributes.find(
         (item) => item.id === attribute.id
       );
@@ -212,7 +213,7 @@ export const mappingAttributeGroups = (
       }
       /// add basis option
       if (allBasisOptions && newBasisOptions) {
-        response.text = `Selected ${newBasisOptions?.length || 0} item ${newBasisOptions?.length !== 1 ? 's' : ''}`;
+        response.text = `Selected ${newBasisOptions?.length || 0} item${newBasisOptions?.length !== 1 ? 's' : ''}`;
         response.basis_options = newBasisOptions;
       }
       /// add conversion attribute
@@ -227,7 +228,7 @@ export const mappingAttributeGroups = (
       ///
       data.push(response);
       return data;
-    }, [] as any) || [];
+    }, [] as any) : [];
     return { ...group, attributes: newAttributes };
   });
 };

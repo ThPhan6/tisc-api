@@ -15,7 +15,7 @@
           <span class="primary-roboto-bold-8-18"><%= item.location.business_name %></span>
         </td>
         <td colspan="2">
-          <span class="primary-roboto-bold-8-18"><%= item.distributor.name %> </span>
+          <span class="primary-roboto-bold-8-18"><%= item.distributor.location.name %> </span>
         </td>
       </tr>
       <tr>
@@ -30,8 +30,8 @@
         </td>
         <td colspan="2">
           <span class="primary-roboto-light-8-18">
-            <% if (item.distributor.city_name) { %>
-              <%= item.distributor.address %>,
+            <% if (item.distributor.location.city_name) { %>
+              <%= item.distributor.location.address %>,
             <% } else { %>
               Empty Address
             <% } %>
@@ -52,13 +52,13 @@
         </td>
         <td colspan="2">
           <span class="primary-roboto-light-8-18">
-            <% if (item.distributor.city_name) { %>
-              <%= item.distributor.city_name %>,
+            <% if (item.distributor.location.city_name) { %>
+              <%= item.distributor.location.city_name %>,
             <% } %>
-            <% if (item.distributor.country_name) { %>
-              <%= item.distributor.country_name %>,
+            <% if (item.distributor.location.country_name) { %>
+              <%= item.distributor.location.country_name %>,
             <% } %>
-            <%= item.distributor.postal_code %>
+            <%= item.distributor.location.postal_code %>
           </span>
         </td>
       </tr>
@@ -73,7 +73,7 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.distributor.first_name %> <%= item.distributor.last_name %></span>
+          <span class="primary-roboto-light-8-18"><%= item.distributor.location.first_name %> <%= item.distributor.location.last_name %></span>
         </td>
       </tr>
       <tr>
@@ -88,7 +88,7 @@
             <span class="uppercase normal-garamond-light-8-12">work email</span>
           </div>
           <span class="primary-roboto-light-8-18"
-            ><%= item.distributor.email %></span
+            ><%= item.distributor.location.email %></span
           >
         </td>
       </tr>
@@ -103,7 +103,7 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work phone</span>
           </div>
-          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.phone %></span>
+          <span class="primary-roboto-light-8-18">+<%= item.distributor.location.phone_code %> <%= item.distributor.location.phone %></span>
         </td>
       </tr>
       <tr>
@@ -117,7 +117,7 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work mobile</span>
           </div>
-          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.mobile %></span>
+          <span class="primary-roboto-light-8-18">+<%= item.distributor.location.phone_code %> <%= item.distributor.location.mobile %></span>
         </td>
       </tr>
       <tr class=""><td colspan="4" class="border-bottom-box-shadow"></td></tr>

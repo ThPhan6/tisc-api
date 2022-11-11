@@ -1,8 +1,10 @@
-import * as Joi from "joi";
+import Joi from "joi";
 import {
   errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
+import {getEnumValues} from '@/helper/common.helper';
+import {DimensionAndWeightAttributeId} from '@/constants';
 
 const attributeGroupsValidate = (
   type: "General" | "Feature" | "Specification"
@@ -28,8 +30,8 @@ const attributeGroupsValidate = (
               .required()
               .error(errorMessage(`${type} attribute type is required`)),
             text: Joi.any(),
-            conversion_value_1: Joi.any(),
-            conversion_value_2: Joi.any(),
+            conversion_value_1: Joi.number().allow(""),
+            conversion_value_2: Joi.number().allow(""),
           })
           .required()
           .error(errorMessage(`${type} attributes is required`)),
@@ -46,6 +48,23 @@ const attributeGroupsValidate = (
     .required()
     .error(errorMessage(`${type} attribute groups is required`));
 };
+
+export const dimensionAndWeightValidate = Joi.object({
+  with_diameter: Joi.boolean(),
+  attributes: Joi.array().items(
+    Joi.object({
+      id: Joi.string()
+        .valid(...getEnumValues(DimensionAndWeightAttributeId))
+        .error(errorMessage('Incorrect Dimension & Weight Attribute')),
+      conversion_value_1: Joi.number()
+        .allow("")
+        .error(errorMessage('Conversation value must be a number')),
+      conversion_value_2: Joi.number()
+        .allow("")
+        .error(errorMessage('Conversation value must be a number')),
+    }),
+  ),
+});
 
 export const productPayloadValidate = {
   brand_id: requireStringValidation("Brand id"),
@@ -89,6 +108,7 @@ export const productPayloadValidate = {
       url: requireStringValidation("Product download url"),
     })
   ),
+  dimension_and_weight: dimensionAndWeightValidate,
 };
 
 export default {
