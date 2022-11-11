@@ -24,6 +24,7 @@ import {
   ProjectProductStatus,
   UpdateFinishChedulePayload,
 } from "./project_product.type";
+import { customProductRepository } from "../custom_product/custom_product.repository";
 
 class ProjectProductService {
   public assignProductToProduct = async (
@@ -33,20 +34,25 @@ class ProjectProductService {
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
     }
-    const product = await productRepository.find(payload.product_id);
+
+    const repo = payload.custom_product
+      ? customProductRepository
+      : productRepository;
+    const product = await repo.find(payload.product_id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 400);
     }
+
     const project = await projectRepository.find(payload.project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 400);
     }
+
     const projectProduct = await projectProductRepository.findBy({
       deleted_at: null,
       project_id: payload.project_id,
       product_id: payload.product_id,
     });
-
     if (projectProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_ALREADY_ASSIGNED, 400);
     }
@@ -60,11 +66,17 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 400);
     }
 
+    if (payload.custom_product) {
+      return successResponse({
+        data: newProjectProductRecord,
+      });
+    }
+
     // Create Tracking | Tracking Notification
     const projectTracking =
       await projectTrackingRepository.findOrCreateIfNotExists(
         payload.project_id,
-        product.brand_id
+        "brand_id" in product ? product.brand_id : ""
       );
 
     const notification = await projectTrackingNotificationRepository.create({
