@@ -4,16 +4,18 @@ import { customProductValidate } from "./custom_product.validate";
 export default {
   getProductList: Joi.object({
     statusCode: Joi.number(),
-    products: Joi.array().items({
-      id: Joi.string(),
-      name: Joi.string(),
-      description: Joi.string(),
-      company_id: Joi.string(),
-      collection_id: Joi.string(),
-      location: Joi.string(),
-      image: Joi.string(),
-      company_name: Joi.string(),
-      collection_name: Joi.string(),
+    data: Joi.object({
+      products: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string(),
+        description: Joi.string(),
+        company_id: Joi.string(),
+        collection_id: Joi.string(),
+        location: Joi.string(),
+        image: Joi.string(),
+        company_name: Joi.string(),
+        collection_name: Joi.string(),
+      }),
     }),
   }),
   getOneProduct: Joi.object({

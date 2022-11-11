@@ -2,7 +2,6 @@ import { MESSAGES, VALID_IMAGE_TYPES } from "@/constants";
 import { getFileTypeFromBase64, randomName } from "@/helper/common.helper";
 import {
   errorMessageResponse,
-  successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
 import collectionRepository from "@/repositories/collection.repository";
