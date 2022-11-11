@@ -211,7 +211,8 @@ export const MESSAGES = {
   PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
   PRODUCT_ALREADY_ASSIGNED: "Product already assigned to this project",
-  JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
+  JUST_DESIGNER_CAN_CREATE: "Just designer can create",
+  JUST_DESIGNER_CAN_UPDATE: "Just designer can update",
   JUST_OWNER_CAN_UPDATE:
     "You are not in this design firm. So you cannot update",
   JUST_OWNER_CAN_DELETE:

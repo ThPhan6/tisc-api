@@ -11,7 +11,7 @@ import { countryStateCityService } from "@/service/country_state_city.service";
 import {
   IRegionCountry,
   SortOrder,
-  CollectionRelation,
+  CollectionRelationType,
   IDistributorAttributes,
 } from "@/types";
 import {
@@ -188,7 +188,7 @@ class MarketAvailabilityService {
         limit,
         offset,
         brandId,
-        CollectionRelation.Brand,
+        CollectionRelationType.Brand,
         sort,
         order
       );
@@ -216,7 +216,7 @@ class MarketAvailabilityService {
   public async getMarketAvailabilityGroupByCollection(relationId: string) {
     const collections = await CollectionRepository.getByRelation(
       relationId,
-      CollectionRelation.Brand
+      CollectionRelationType.Brand
     );
 
     const marketAvailabilities = await Promise.all(
