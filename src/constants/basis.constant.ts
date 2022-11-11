@@ -26,8 +26,8 @@ export const DimensionAndWeightConversion = {
       id: DimensionAndWeightConversionId.mmToInch,
       name_1: "Millimeter",
       name_2: "Inch",
-      formula_1: 0.0393701,
-      formula_2: 1,
+      formula_1: 25.4,
+      formula_2: 0.0393701,
       unit_1: "mm",
       unit_2: "in"
     },
@@ -35,8 +35,8 @@ export const DimensionAndWeightConversion = {
       id: DimensionAndWeightConversionId.kgToLb,
       name_1: "Kilogram",
       name_2: "Pound",
-      formula_1: 2.20462,
-      formula_2: 1,
+      formula_1: 0.453592,
+      formula_2: 2.20462,
       unit_1: "kg",
       unit_2: "lb"
     },
