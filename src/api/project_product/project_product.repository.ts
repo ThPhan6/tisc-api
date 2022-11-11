@@ -406,9 +406,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FOR location IN locations
           FILTER location.id == project_products.brand_location_id
           FILTER location.deleted_at == null
-        FOR distributor IN distributors
-          FILTER distributor.id == project_products.distributor_location_id
-          FILTER distributor.deleted_at == null
         FOR products IN products FILTER products.id == project_products.product_id
           FILTER products.deleted_at == null
 
@@ -425,6 +422,16 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FOR sub IN material_code.subs
           FOR code IN sub.codes
             FILTER code.id == project_products.material_code_id
+
+        LET distributors = (
+            FOR distributor IN distributors
+                FILTER distributor.deleted_at == null
+                FILTER distributor.id == project_products.distributor_location_id
+                FOR distributorLocation IN locations
+                  FILTER distributorLocation.id == distributor.location_id
+                  FILTER distributorLocation.deleted_at == null
+            RETURN merge(distributor, {location: distributorLocation})
+        )
 
         LET categories = (
             FOR mainCategory IN categories
@@ -503,7 +510,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           {
             specified_date: DATE_FORMAT(project_products.updated_at, '%yyyy-%mm-%dd'),
             location: location,
-            distributor: distributor,
+            distributor: distributors[0],
             product: merge(
                 products,
                 {

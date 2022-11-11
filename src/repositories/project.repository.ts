@@ -113,7 +113,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     FILTER loc.id == projects.location_id
 
     LET location = ${locationRepository.getShortLocationQuery("loc")}
-      
+
     ${sort ? `SORT ${sortColumn} ${order} ` : ``}
     LIMIT @offset, @limit
     RETURN MERGE(
@@ -174,7 +174,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FOR loc IN locations
         FILTER loc.id == projects.location_id
         RETURN MERGE(
-          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']), 
+          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']),
           KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
             'city_name', 'phone_code', 'address', 'postal_code')
         )
@@ -189,9 +189,18 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       .select(
         "projects.*",
         "designers.name as design_firm_name",
-        "designers.official_website as design_firm_official_website"
+        "designers.official_website as design_firm_official_website",
+        "locations.country_name as country_name",
+        "locations.country_id as country_id",
+        "locations.state_name as state_name",
+        "locations.state_id as state_id",
+        "locations.city_name as city_name",
+        "locations.city_id as city_id",
+        "locations.address as address",
+        "locations.postal_code as postal_code",
       )
       .join("designers", "designers.id", "==", "projects.design_id")
+      .join("locations", "locations.id", "==", "projects.location_id")
       .where("projects.id", "==", id)
       .first()) as ProjectAttributes & {
       design_firm_name: string;
@@ -350,7 +359,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FOR room IN area.rooms
         RETURN room.sub_total
       )
-   
+
 
       RETURN {
         projects: {
@@ -491,7 +500,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           }
         )
       )
-      
+
       RETURN {
         projects,
         total: LENGTH(allProjects),
