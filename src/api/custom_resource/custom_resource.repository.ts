@@ -1,5 +1,4 @@
 import BaseRepository from "@/repositories/base.repository";
-import CustomResouceModel from "@/api/custom_product/custom_resources.model";
 import {
   CustomResouceAttributes,
   CustomResouceType,
@@ -9,9 +8,10 @@ import {
 } from "@/api/custom_product/custom_product.type";
 import { SortOrder } from "@/types";
 import { locationRepository } from "@/repositories/location.repository";
+import CustomResourceModel from "./custom_resource.model";
 
 export default class CustomResouceRepository extends BaseRepository<CustomResouceAttributes> {
-  protected model: CustomResouceModel;
+  protected model: CustomResourceModel;
   protected DEFAULT_ATTRIBUTE: Partial<CustomResouceAttributes> = {
     website_uri: "",
     location_id: "",
@@ -21,10 +21,11 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
   };
   constructor() {
     super();
-    this.model = new CustomResouceModel();
+    this.model = new CustomResourceModel();
   }
 
   public async checkResourceExisted(
+    designId: string,
     type: CustomResouceType,
     business_name: string,
     id?: string
@@ -32,6 +33,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
     const result = await this.model.rawQuery(
       `
       FILTER custom_resources.deleted_at == null
+      FILTER custom_resources.design_id == @designId
       ${id ? "FILTER custom_resources.id != " + id : ""}
       FILTER custom_resources.type == @type
       FOR loc IN locations
@@ -40,7 +42,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
       FILTER loc.deleted_at == null
       COLLECT WITH COUNT INTO length RETURN length
     `,
-      { type, business_name }
+      { type, business_name, designId }
     );
     return result[0] > 0;
   }
