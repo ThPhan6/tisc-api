@@ -90,6 +90,25 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
     return result[0];
   }
 
+  public async getAllByType(
+    type: CustomResouceType,
+    designFirmId: string
+  ): Promise<CustomResourceListItem[]> {
+    return this.model.rawQueryV2(
+      `
+        FOR cr IN custom_resources
+        FILTER cr.deleted_at == null
+        FILTER cr.type == @type
+        FILTER cr.design_id == @designFirmId
+        FOR loc IN locations
+        FILTER loc.id == cr.location_id
+        FILTER loc.deleted_at == null
+        RETURN {id: cr.id, name: loc.business_name}
+      `,
+      { type, designFirmId }
+    );
+  }
+
   public async getList(
     limit: number,
     offset: number,

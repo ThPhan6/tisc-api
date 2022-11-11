@@ -37,4 +37,13 @@ export default {
     data: customResourceResponse,
     statusCode: Joi.number(),
   }),
+  getAll: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        name: Joi.string(),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
 };

@@ -115,6 +115,23 @@ export default class CustomProductRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.CUSTOM_RESOURCE.GET_ALL,
+          options: {
+            handler: controller.getAllResource,
+            validate: validate.getAllResource,
+            description: "Method that get list Custom Product",
+            tags: ["api", "Custom Product"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getAll,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.CUSTOM_RESOURCE.GET_ONE,
           options: {
             handler: controller.getOneResource,

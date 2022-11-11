@@ -63,6 +63,31 @@ export default class CustomProductController {
       .code(200);
   }
 
+  public async getAllResource(req: Request, toolkit: ResponseToolkit) {
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const { type } = req.query;
+
+    const response = await customResourceRepository.getAllByType(
+      type,
+      user.relation_id
+    );
+
+    if (!response) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.SOMETHING_WRONG))
+        .code(404);
+    }
+
+    return toolkit
+      .response(
+        successResponse({
+          data: response,
+        })
+      )
+      .code(200);
+  }
+
   public getCustomResourceSummary = async (
     req: Request,
     toolkit: ResponseToolkit

@@ -270,6 +270,7 @@ export const ROUTES = {
     CREATE: "/api/custom-resource/create",
     UPDATE: "/api/custom-resource/update/{id}",
     GET_LIST: "/api/custom-resource/get-list",
+    GET_ALL: "/api/custom-resource/get-all",
     GET_ONE: "/api/custom-resource/get-one/{id}",
     GET_SUMMARY: "/api/custom-resource/summary",
     DELETE: "/api/custom-resource/delete/{id}",

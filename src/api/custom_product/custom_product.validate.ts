@@ -63,15 +63,22 @@ export const customResourceValidate = Joi.object({
   type: Joi.number().valid(...getEnumValues(CustomResouceType)),
 });
 
+export const resourceTypevalidate = Joi.number()
+  .valid(...getEnumValues(CustomResouceType))
+  .required();
+
 export default {
   createResource: {
     payload: customResourceValidate,
   },
+  getAllResource: {
+    query: {
+      type: resourceTypevalidate,
+    },
+  },
   getListResource: getListValidation({
     query: {
-      type: Joi.number()
-        .valid(...getEnumValues(CustomResouceType))
-        .required(),
+      type: resourceTypevalidate,
       sort: Joi.string().valid("business_name", "location"), // GetCustomResourceListSorting
     },
   }),
