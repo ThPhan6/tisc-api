@@ -1,0 +1,70 @@
+import Joi from "joi";
+import {
+  requireStringValidation,
+  getOneValidation,
+} from "@/validate/common.validate";
+
+export const basicAttributeValidate = Joi.object({
+  name: Joi.string().trim(),
+  content: Joi.string().trim(),
+});
+
+export const customProductContactValidate = Joi.array().items(
+  Joi.object({
+    first_name: Joi.string().trim(),
+    last_name: Joi.string().trim(),
+    position: Joi.string().trim(),
+    work_email: Joi.string().trim(),
+    work_phone: Joi.string().trim(),
+    work_mobile: Joi.string().trim(),
+  })
+);
+
+export const customProductOptionValidate = Joi.object({
+  id: Joi.string().allow(null),
+  title: Joi.string().trim(),
+  use_image: Joi.boolean(),
+  tag: Joi.string().trim(),
+  items: Joi.array().items(
+    Joi.object({
+      id: Joi.string().allow(null),
+      image: Joi.when("use_image", {
+        is: true,
+        then: requireStringValidation(
+          "Image is required in the Option with type image",
+          "full"
+        ),
+        otherwise: Joi.string().allow(null),
+      }),
+      description: Joi.string().trim(),
+      product_id: Joi.string().trim(),
+    })
+  ),
+});
+
+export const customProductValidate = Joi.object({
+  name: requireStringValidation("Product name"),
+  description: requireStringValidation("Product description"),
+  images: Joi.array().items(Joi.string().trim()),
+  attributes: Joi.array().items(basicAttributeValidate),
+  specification: Joi.array().items(basicAttributeValidate),
+  options: Joi.array().items(customProductOptionValidate),
+  collection_id: requireStringValidation("Collection"),
+  company_id: requireStringValidation("Brand company"),
+});
+
+export default {
+  createProduct: {
+    payload: customProductValidate,
+  },
+  updateProduct: {
+    ...getOneValidation,
+    payload: customProductValidate,
+  },
+  getListProduct: {
+    query: {
+      company_id: Joi.string().trim().allow(""),
+      collection_id: Joi.string().trim().allow(""),
+    },
+  },
+};

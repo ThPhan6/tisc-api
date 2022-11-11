@@ -174,9 +174,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FOR loc IN locations
         FILTER loc.id == projects.location_id
         RETURN MERGE(
-          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']),
-          KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
-            'city_name', 'phone_code', 'address', 'postal_code')
+          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']), 
+          KEEP(loc, ${locationRepository.basicAttributesQuery})
         )
       `,
       { id }
@@ -197,7 +196,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         "locations.city_name as city_name",
         "locations.city_id as city_id",
         "locations.address as address",
-        "locations.postal_code as postal_code",
+        "locations.postal_code as postal_code"
       )
       .join("designers", "designers.id", "==", "projects.design_id")
       .join("locations", "locations.id", "==", "projects.location_id")

@@ -55,10 +55,11 @@ class CountryStateCityService {
   public getCitiesByCountry = (country_id: string) => {
     return this.getCitiesByStateAndCountry(country_id);
   };
+
   public getCountryStateCity = async (
     countryId: string,
-    cityId?: string,
-    stateId?: string
+    cityId?: string | null,
+    stateId?: string | null
   ): Promise<ICountryStateCity> => {
     if (countryId === GLOBAL_COUNTRY_ID) {
       return GlobalCountry;
@@ -139,8 +140,8 @@ class CountryStateCityService {
 
   public validateLocationData = async (
     countryId: string,
-    cityId: string,
-    stateId: string
+    cityId?: string | null,
+    stateId?: string | null
   ) => {
     const country = await this.getCountryDetail(countryId);
     if (!country.id) {

@@ -21,6 +21,9 @@ export interface ILocationAttributes {
   relation_id: string | null;
 }
 
+export interface LocationPayload
+  extends Omit<ILocationAttributes, "id" | "created_at" | "updated_at"> {}
+
 export interface ICountryStateCity {
   country_id: string;
   state_id: any;
@@ -135,3 +138,7 @@ export enum LocationType {
   brand = 2,
   designer = 3,
 }
+
+export interface BasicLocationAttributes
+  extends ICountryStateCity,
+    Pick<ILocationAttributes, "address" | "postal_code"> {}

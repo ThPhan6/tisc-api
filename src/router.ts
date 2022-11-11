@@ -27,6 +27,8 @@ import PDFRoute from "./api/pdf/pdf.route";
 import GeneralInquiryRoute from "./api/general_inquiry/general_inquiry.route";
 import ProjectTrackingRoute from "./api/project_tracking/project_tracking.route";
 import ActionTaskRoute from "./api/action_task/action_task.route";
+import CustomProductRoute from "./api/custom_product/custom_product.route";
+import CustomResourceRoute from "./api/custom_resource/custom_resource.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -58,5 +60,7 @@ export default class Router {
     await new GeneralInquiryRoute().register(server);
     await new ProjectTrackingRoute().register(server);
     await new ActionTaskRoute().register(server);
+    await new CustomProductRoute().register(server);
+    await new CustomResourceRoute().register(server);
   }
 }

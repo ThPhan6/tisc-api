@@ -99,6 +99,9 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   public getFullLocationQuery = (key: string) =>
     `CONCAT(${key}.address, ', ', ${key}.city_name, ${key}.city_name == '' ? '' : ', ', ${key}.state_name, ${key}.state_name == '' ? '' : ', ', ${key}.country_name, ', ', ${key}.postal_code)`;
 
+  public basicAttributesQuery =
+    "'country_id', 'state_id', 'city_id', 'country_name', 'state_name', 'city_name', 'phone_code', 'address', 'postal_code', 'business_name'";
+
   public async getOneWithLocation<Model>(
     modelName: string,
     modelId: string
@@ -112,8 +115,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
           FILTER loc.id == ${modelName}.location_id
           RETURN MERGE(
             UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']), 
-            KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
-              'city_name', 'phone_code', 'address', 'postal_code')
+            KEEP(loc, ${this.basicAttributesQuery})
           )
         `,
       { modelId }
@@ -133,8 +135,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       ${raw}
       RETURN MERGE(
         UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']),
-        KEEP(loc, 'country_id', 'state_id', 'city_id', 'country_name', 'state_name',
-          'city_name', 'phone_code', 'address', 'postal_code')
+        KEEP(loc, ${this.basicAttributesQuery})
       )
     `;
     const result = await this.model.rawQueryV2(rawQuery, {});
