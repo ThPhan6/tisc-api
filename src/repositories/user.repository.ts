@@ -1,20 +1,22 @@
 import UserModel from "@/model/user.model";
 import BaseRepository from "./base.repository";
-import { SYSTEM_TYPE } from "@/constants";
 import {
   ActiveStatus,
   SortOrder,
   UserAttributes,
+  ILocationAttributes,
+  CommonTypeAttributes,
   UserStatus,
   UserType,
 } from "@/types";
+import {DesignFirmRoles} from '@/constants';
 import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
   protected DEFAULT_ATTRIBUTE: Partial<UserAttributes> = {
-    role_id: "",
+    role_id: DesignFirmRoles.Member,
     firstname: "",
     lastname: "",
     gender: true,
@@ -60,11 +62,11 @@ class UserRepository extends BaseRepository<UserAttributes> {
   }
   public async getTiscUsers() {
     return (await this.model
-      .where("type", "==", SYSTEM_TYPE.TISC)
+      .where("type", "==", UserType.TISC)
       .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
-  public async getListByTypeRoleAndRelation(
+  public async getByTypeRoleAndRelation(
     type: UserType,
     role: string,
     relation_id: string
@@ -83,7 +85,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return (await this.model
       .where("backup_email", "==", backupEmail)
       .where("personal_mobile", "==", personalMobile)
-      .where("type", "==", SYSTEM_TYPE.DESIGN)
+      .where("type", "==", UserType.Designer)
       .first()) as UserAttributes | undefined;
   }
 
@@ -218,7 +220,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     };
   };
 
-  public getWithLocationAndDeparmentData = (relationId: string) => {
+  public getWithLocationAndDeparmentData = async (relationId: string) => {
     const rawQuery = `
       FOR users IN users
         FILTER users.deleted_at == null
@@ -241,8 +243,14 @@ class UserRepository extends BaseRepository<UserAttributes> {
         }
     )`;
 
-    return this.model.rawQueryV2(rawQuery, { relationId });
+    return await (
+      this.model.rawQueryV2(rawQuery, { relationId })
+    ) as (UserAttributes & {
+      locations: ILocationAttributes;
+      common_types?: CommonTypeAttributes
+    })[];
   };
+
 
   public async getTeamProfile(ids: string[], keySelect: string[]) {
     return this.model

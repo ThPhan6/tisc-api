@@ -18,7 +18,7 @@ export default {
         name: Joi.string(),
         accessable: Joi.boolean().allow(null),
       }),
-      number: Joi.number(),
+      index: Joi.number(),
       parent_number: Joi.number().allow(null),
       subs: Joi.any(),
     }),

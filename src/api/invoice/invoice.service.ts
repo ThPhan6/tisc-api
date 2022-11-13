@@ -8,42 +8,59 @@ import {
   invoiceRepository,
   InvoiceWithUserAndServiceType,
 } from "@/repositories/invoice.repository";
-import { SortOrder, UserAttributes } from "@/types";
+import {
+  SortOrder,
+  UserAttributes,
+  UserType,
+  InvoiceCompanyType
+} from "@/types";
 
 import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { brandRepository } from "@/repositories/brand.repository";
 import { InvoiceRequestCreate, InvoiceRequestUpdate } from "./invoice.type";
-import { getDiff } from "@/Database/Utils/Time";
+import {
+  calculateInterestInvoice,
+  toNonAccentUnicode,
+} from '@/helper/common.helper';
 import moment from "moment";
 
 class InvoiceService {
   private calculatedInvoice = (invoice: InvoiceWithUserAndServiceType) => {
-    const overdueDays =
-      getDiff(moment(), moment(invoice.due_date), "days") || 0;
-    let overdueAmount = 0;
-    if (overdueDays > 0) {
-      overdueAmount = invoice.billing_amount * invoice.unit_rate * overdueDays;
-    }
+    const overdueDays = moment().diff(moment(invoice.due_date), 'days');
+    const totalGross = invoice.quantity * invoice.unit_rate;
+    const saleTaxAmount = (invoice.tax / 100) * totalGross;
+    let overdueAmount = calculateInterestInvoice(totalGross, overdueDays);
     return {
       ...invoice,
+      billing_amount: totalGross + saleTaxAmount,
       overdue_days: overdueDays,
       overdue_amount: overdueAmount,
     };
   };
   public async create(user: UserAttributes, payload: InvoiceRequestCreate) {
+
+    const brand = await brandRepository.find(payload.brand_id);
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+    //
     const serviceType = await commonTypeRepository.findOrCreate(
       payload.service_type_id,
       "TISC",
       COMMON_TYPES.INVOICE
     );
+    //
+    const now = moment();
     const createdInvoice = await invoiceRepository.create({
+      name: `${toNonAccentUnicode(brand.name)}-PC${now.format('YYYYMMDD')}`,
       service_type_id: serviceType.id,
-      brand_id: payload.brand_id,
+      relation_id: brand.id,
+      relation_type: InvoiceCompanyType.Brand,
       ordered_by: payload.ordered_by,
       unit_rate: payload.unit_rate,
       quantity: payload.quantity,
-      tax: payload.tax,
-      billing_amount: payload.billing_amount,
-      due_date: payload.due_date,
+      tax: 0, /// currently tax will alway 0%
+      due_date: now.add(7, 'days').format('YYYY-MM-DD'),
       remark: payload.remark,
       created_by: user.id,
     });
@@ -55,7 +72,13 @@ class InvoiceService {
     return successResponse({ data: createdInvoice });
   }
 
+  public async getInvoiceSummary() {
+    const summary = await invoiceRepository.summary();
+    return successResponse({ data: summary });
+  }
+
   public async getList(
+    user: UserAttributes,
     limit: number,
     offset: number,
     sort: string,
@@ -65,7 +88,8 @@ class InvoiceService {
       limit,
       offset,
       sort,
-      order
+      order,
+      user.type === UserType.TISC ? undefined : user.relation_id
     );
     return successResponse({
       data: {
@@ -74,8 +98,16 @@ class InvoiceService {
       },
     });
   }
-  public async get(id: string) {
+  public async get(user: UserAttributes, id: string) {
     const invoice = await invoiceRepository.findWithUserAndServiceType(id);
+    if (
+      !invoice ||
+      (user.type !== UserType.TISC &&
+        invoice.relation_id !== user.relation_id)
+    ) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND);
+    }
+
     return successResponse({
       data: this.calculatedInvoice(invoice),
     });

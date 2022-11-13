@@ -1,12 +1,13 @@
 import {ConnectionInterface} from '@/Database/Connections/ArangoConnection';
 import moment from 'moment';
-import {ROLES, USER_STATUSES, SYSTEM_TYPE} from '@/constants';
+import {TiscRoles} from '@/constants';
+import {UserType, UserStatus} from '@/types';
 
 export const up = (connection: ConnectionInterface) => {
   const now = moment().format('YYYY-MM-DD HH:mm:ss');
   return connection.insert('users', {
     id: "1110813b-8422-4e94-8d2a-8fdef644480e",
-    role_id: ROLES.TISC_ADMIN,
+    role_id: TiscRoles.Admin,
     firstname: "Liming",
     lastname: "Rao",
     gender: true,
@@ -24,8 +25,8 @@ export const up = (connection: ConnectionInterface) => {
     is_verified: true,
     verification_token: null,
     reset_password_token: null,
-    status: USER_STATUSES.ACTIVE,
-    type: SYSTEM_TYPE.TISC,
+    status: UserStatus.Active,
+    type: UserType.TISC,
     relation_id: "TISC",
     work_location: "",
     created_at: now,

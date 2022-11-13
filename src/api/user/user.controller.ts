@@ -139,7 +139,7 @@ export default class UserController {
     toolkit: ResponseToolkit
   ) => {
     const { type, role, relation_id } = req.query;
-    const response = await userService.getListByTypeRoleAndRelation(
+    const response = await userService.getByTypeRoleAndRelation(
       type,
       role,
       relation_id

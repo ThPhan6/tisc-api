@@ -11,7 +11,7 @@ export default class InvoiceController {
     const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await invoiceService.create(user, payload);
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    return toolkit.response(response).code(response.statusCode);
   }
 
   public async update(
@@ -21,18 +21,25 @@ export default class InvoiceController {
     const { id } = req.params;
     const payload = req.payload;
     const response = await invoiceService.update(id, payload);
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    return toolkit.response(response).code(response.statusCode);
   }
 
   public async getList(req: Request, toolkit: ResponseToolkit) {
     const { limit, offset, sort, order } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await invoiceService.getList(limit, offset, sort, order);
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    const response = await invoiceService.getList(user, limit, offset, sort, order);
+    return toolkit.response(response).code(response.statusCode);
   }
+
+  public async getInvoiceSummary(_req: Request, toolkit: ResponseToolkit) {
+    const response = await invoiceService.getInvoiceSummary();
+    return toolkit.response(response).code(response.statusCode);
+  }
+
   public async get(req: Request, toolkit: ResponseToolkit) {
     const { id } = req.params;
-    const response = await invoiceService.get(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.get(user, id);
+    return toolkit.response(response).code(response.statusCode);
   }
 }

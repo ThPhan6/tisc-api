@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -326,7 +326,7 @@ class ProjectService {
     }
 
     if (
-      user.type !== SYSTEM_TYPE.DESIGN ||
+      user.type !== UserType.Designer ||
       project.design_id !== user.relation_id
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
