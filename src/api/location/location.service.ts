@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -27,7 +27,7 @@ export default class LocationService {
     user: UserAttributes,
     functional_type_ids: string[]
   ) {
-    if (user.type !== SYSTEM_TYPE.DESIGN) {
+    if (user.type !== UserType.Designer) {
       return Promise.all(
         functional_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
@@ -100,7 +100,7 @@ export default class LocationService {
       business_name: payload.business_name,
       functional_type_ids: functionalTypes.map((item) => item.id),
       business_number:
-        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
+        user.type === UserType.Designer ? "" : payload.business_number,
       functional_type: functionalTypes.map((item) => item.name).join(", "),
       ...countryStateCity,
       address: payload.address,
@@ -162,7 +162,7 @@ export default class LocationService {
     const updatedLocation = await locationRepository.update(id, {
       business_name: payload.business_name,
       business_number:
-        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
+        user.type === UserType.Designer ? "" : payload.business_number,
       functional_type: functionalTypes.map((item) => item.name).join(", "),
       functional_type_ids: functionalTypes.map((item) => item.id),
       ...countryStateCity,

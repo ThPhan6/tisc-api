@@ -117,6 +117,9 @@ export const MESSAGES = {
   ACTION_TASK: {
     NOT_FOUND: "Action task not found",
   },
+  INVOICE: {
+    NOT_FOUND: "Revenue service not found",
+  },
 
   PROJECT_TRACKING: {
     PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",

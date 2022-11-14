@@ -247,6 +247,22 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.USER.GET_BY_TYPE_ROLE_AND_RELATION,
+          options: {
+            handler: controller.getListByTypeRoleAndRelation,
+            validate: validate.getListByTypeRoleAndRelation,
+            description: "Method that get list team profile by type, role and relation",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

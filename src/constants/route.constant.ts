@@ -220,6 +220,16 @@ export const ROUTES = {
     GET_LIST: "/api/action-task",
     UPDATE: "/api/action-task/{id}",
   },
+  INVOICE: {
+    CREATE: "/api/invoice",
+    GET_LIST: "/api/invoice",
+    GET_SUMMARY: "/api/invoice/summary",
+    UPDATE: "/api/invoice/{id}",
+    GET: "/api/invoice/{id}",
+  },
+  USER: {
+    GET_BY_TYPE_ROLE_AND_RELATION: '/api/team-profile/get-by-type-role-relation'
+  },
   DESIGN_FIRM: {
     UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",
     GET_LIST_DESIGN_FIRM: "/api/design/get-list",

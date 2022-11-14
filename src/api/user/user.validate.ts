@@ -2,8 +2,12 @@ import Joi from "joi";
 import {
   requireBooleanValidation,
   requireEmailValidation,
+  requireNumberValidation,
   requireStringValidation,
+  stringValidation,
 } from "@/validate/common.validate";
+import { BrandRoles, DesignFirmRoles, RoleIndex, TiscRoles } from "@/constants";
+import { UserType } from "@/types";
 
 const userPayload = {
   firstname: requireStringValidation("First name"),
@@ -64,6 +68,24 @@ export default {
     },
     payload: {
       user_ids: Joi.array().items(Joi.string()),
+    },
+  },
+  getListByTypeRoleAndRelation: {
+    query: {
+      type: Joi.number().valid(
+        UserType.TISC,
+        UserType.Brand,
+        UserType.Designer
+      ),
+      role: Joi.number().valid(
+        RoleIndex[TiscRoles.Admin],
+        RoleIndex[TiscRoles.Consultant],
+        RoleIndex[BrandRoles.Admin],
+        RoleIndex[BrandRoles.Member],
+        RoleIndex[DesignFirmRoles.Admin],
+        RoleIndex[DesignFirmRoles.Member]
+      ),
+      relation_id: stringValidation(),
     },
   },
 };
