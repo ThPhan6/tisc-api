@@ -41,14 +41,11 @@ export default {
       area_order: orderValidate,
       room_order: orderValidate,
       brand_order: orderValidate,
-    }).custom((value) => {
-      return {
-        zone_order: value.zone_order || "ASC",
-        area_order: value.area_order || "ASC",
-        room_order: value.room_order || "ASC",
-        brand_order: value.brand_order || "ASC",
-      };
-    }),
+    }).custom((value) => ({
+      ...value,
+      area_order: value.area_order || "ASC",
+      room_order: value.room_order || "ASC",
+    })),
   },
   updateConsiderProductStatus: {
     params: { id: requiredConsideredId },

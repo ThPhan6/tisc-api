@@ -98,34 +98,37 @@ class ProjectProductService {
     project_id: string,
     product_id: string
   ) => {
-    const product = await productRepository.find(product_id);
-    if (!product) {
-      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
-    }
     const project = await projectRepository.find(project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const assignItems = await projectProductRepository.findBy({
+    const assignItem = await projectProductRepository.findBy({
       project_id,
       product_id,
+      deleted_at: null,
     });
+
+    const repo = assignItem?.custom_product
+      ? customProductRepository
+      : productRepository;
+    const product = await repo.find(product_id);
+    if (!product) {
+      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+    }
 
     const zones = await projectZoneRepository.getAllBy({ project_id });
 
     const entireSection = {
       name: "ENTIRE PROJECT",
-      is_assigned: assignItems?.entire_allocation ? true : false,
+      is_assigned: assignItem?.entire_allocation ? true : false,
     };
 
     const returnZones = zones.map((zone) => {
       const areas = zone.areas.map((area) => {
         const rooms = area.rooms.map((room) => ({
           ...room,
-          is_assigned: assignItems?.allocation?.some(
-            (item) => item === room.id
-          ),
+          is_assigned: assignItem?.allocation?.some((item) => item === room.id),
         }));
         return {
           ...area,
@@ -202,87 +205,28 @@ class ProjectProductService {
   public getConsideredProducts = async (
     user: UserAttributes,
     project_id: string,
-    zone_order: SortOrder,
+    zone_order: SortOrder | undefined,
     area_order: SortOrder,
     room_order: SortOrder,
-    brand_order: SortOrder
+    brand_order: SortOrder | undefined
   ) => {
     const project = await projectRepository.find(project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const projectZones = await projectZoneRepository.getByProjectId(
-      project_id,
-      zone_order
-    );
-
     const consideredProducts =
       await projectProductRepository.getConsideredProductsByProject(
         project_id,
-        user.id
+        user.id,
+        zone_order,
+        area_order,
+        room_order,
+        brand_order
       );
 
-    const mappedConsideredProducts = consideredProducts.map((el: any) => ({
-      ...el.products,
-      brand: el.brands,
-      collection: el.collections,
-      specifiedDetail: {
-        ...el,
-        products: undefined,
-        brands: undefined,
-        users: undefined,
-        collections: undefined,
-        user_product_specifications: undefined,
-        specification: el.user_product_specifications?.specification,
-        brand_location_id: el.user_product_specifications?.brand_location_id,
-        distributor_location_id:
-          el.user_product_specifications?.distributor_location_id,
-      },
-      assigned_name: `${el.users?.firstname || ""}${
-        el.users?.lastname ? " " + el.users?.lastname : ""
-      }`,
-    }));
-
-    const [entireConsideredProducts, allocatedProducts] = partition(
-      mappedConsideredProducts,
-      "specifiedDetail.entire_allocation"
-    );
-
-    const mappedAllocatedProducts = this.groupProductsByRoom(
-      allocatedProducts,
-      projectZones,
-      area_order,
-      room_order,
-      brand_order
-    );
-
-    const results = [
-      {
-        id: "entire_project",
-        name: "ENTIRE PROJECT",
-        products: entireConsideredProducts,
-        count: entireConsideredProducts.length,
-      },
-    ].concat(mappedAllocatedProducts);
-
-    const unlistedCount = consideredProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.consider_status === ProductConsiderStatus.Unlisted ? 1 : 0),
-      0
-    );
     return successResponse({
-      data: {
-        considered_products: results,
-        summary: [
-          {
-            name: "Considered",
-            value: consideredProducts.length - unlistedCount,
-          },
-          { name: "Unlisted", value: unlistedCount },
-        ],
-      },
+      data: consideredProducts,
     });
   };
 
