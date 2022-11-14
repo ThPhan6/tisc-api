@@ -4,6 +4,7 @@ export interface InvoiceRequestCreate {
   ordered_by: string;
   unit_rate: number;
   quantity: number;
+  tax: number;
   remark: string;
 }
 
@@ -13,5 +14,6 @@ export interface InvoiceRequestUpdate {
   ordered_by?: string;
   unit_rate?: number;
   quantity?: number;
+  tax?: number;
   remark?: string;
 }

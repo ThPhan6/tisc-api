@@ -1,9 +1,11 @@
 import { permissionService } from "@/api/permission/permission.service";
 import {
-  COMMON_TYPES, MESSAGES,
+  COMMON_TYPES,
+  MESSAGES,
   VALID_IMAGE_TYPES,
   RoleNames,
   TiscRoles,
+  RoleIndex,
 } from "@/constants";
 
 import {
@@ -33,6 +35,7 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
+import { getKeyByValue } from "@/helper/common.helper";
 
 export default class UserService {
   private mailService: MailService;
@@ -298,9 +301,10 @@ export default class UserService {
   };
   public getByTypeRoleAndRelation = async (
     type: UserType,
-    role: string,
-    relation_id: string
+    role_index: number,
+    relation_id?: string
   ) => {
+    const role = getKeyByValue(RoleIndex, role_index);
     const result = await userRepository.getByTypeRoleAndRelation(
       type,
       role,

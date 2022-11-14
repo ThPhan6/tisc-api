@@ -12,7 +12,7 @@ import {
   SortOrder,
   UserAttributes,
   UserType,
-  InvoiceCompanyType
+  InvoiceCompanyType,
 } from "@/types";
 
 import { commonTypeRepository } from "@/repositories/common_type.repository";
@@ -21,24 +21,25 @@ import { InvoiceRequestCreate, InvoiceRequestUpdate } from "./invoice.type";
 import {
   calculateInterestInvoice,
   toNonAccentUnicode,
-} from '@/helper/common.helper';
+} from "@/helper/common.helper";
 import moment from "moment";
 
 class InvoiceService {
-  private calculatedInvoice = (invoice: InvoiceWithUserAndServiceType) => {
-    const overdueDays = moment().diff(moment(invoice.due_date), 'days');
+  private calculateInvoice = (invoice: InvoiceWithUserAndServiceType) => {
+    const diff = moment().diff(moment(invoice.due_date), "days");
+    const overdueDays = diff > 0 ? diff : 0;
     const totalGross = invoice.quantity * invoice.unit_rate;
     const saleTaxAmount = (invoice.tax / 100) * totalGross;
-    let overdueAmount = calculateInterestInvoice(totalGross, overdueDays);
+    const billingAmount = totalGross + saleTaxAmount;
+    let overdueAmount = calculateInterestInvoice(billingAmount, overdueDays);
     return {
       ...invoice,
-      billing_amount: totalGross + saleTaxAmount,
+      billing_amount: billingAmount,
       overdue_days: overdueDays,
       overdue_amount: overdueAmount,
     };
   };
   public async create(user: UserAttributes, payload: InvoiceRequestCreate) {
-
     const brand = await brandRepository.find(payload.brand_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
@@ -52,15 +53,15 @@ class InvoiceService {
     //
     const now = moment();
     const createdInvoice = await invoiceRepository.create({
-      name: `${toNonAccentUnicode(brand.name)}-PC${now.format('YYYYMMDD')}`,
+      name: `${toNonAccentUnicode(brand.name)}-PC${now.format("YYYYMMDD")}`,
       service_type_id: serviceType.id,
       relation_id: brand.id,
       relation_type: InvoiceCompanyType.Brand,
       ordered_by: payload.ordered_by,
       unit_rate: payload.unit_rate,
       quantity: payload.quantity,
-      tax: 0, /// currently tax will alway 0%
-      due_date: now.add(7, 'days').format('YYYY-MM-DD'),
+      tax: payload.tax,
+      due_date: now.add(7, "days").format("YYYY-MM-DD"),
       remark: payload.remark,
       created_by: user.id,
     });
@@ -69,7 +70,7 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
 
-    return successResponse({ data: createdInvoice });
+    return this.get(user, createdInvoice.id);
   }
 
   public async getInvoiceSummary() {
@@ -94,7 +95,7 @@ class InvoiceService {
     return successResponse({
       data: {
         ...invoices,
-        data: invoices.data.map((item) => this.calculatedInvoice(item)),
+        data: invoices.data.map((item) => this.calculateInvoice(item)),
       },
     });
   }
@@ -102,14 +103,13 @@ class InvoiceService {
     const invoice = await invoiceRepository.findWithUserAndServiceType(id);
     if (
       !invoice ||
-      (user.type !== UserType.TISC &&
-        invoice.relation_id !== user.relation_id)
+      (user.type !== UserType.TISC && invoice.relation_id !== user.relation_id)
     ) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND);
     }
 
     return successResponse({
-      data: this.calculatedInvoice(invoice),
+      data: this.calculateInvoice(invoice),
     });
   }
 

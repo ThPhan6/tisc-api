@@ -9,7 +9,7 @@ import {
   UserStatus,
   UserType,
 } from "@/types";
-import {DesignFirmRoles} from '@/constants';
+import { DesignFirmRoles } from "@/constants";
 import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
@@ -69,12 +69,12 @@ class UserRepository extends BaseRepository<UserAttributes> {
   public async getByTypeRoleAndRelation(
     type: UserType,
     role: string,
-    relation_id: string
+    relation_id?: string
   ) {
     return (await this.model
       .where("type", "==", type)
       .where("role_id", "==", role)
-      .where("relation_id", "==", relation_id)
+      .where("relation_id", "==", relation_id || 'TISC')
       .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
@@ -243,14 +243,13 @@ class UserRepository extends BaseRepository<UserAttributes> {
         }
     )`;
 
-    return await (
-      this.model.rawQueryV2(rawQuery, { relationId })
-    ) as (UserAttributes & {
+    return (await this.model.rawQueryV2(rawQuery, {
+      relationId,
+    })) as (UserAttributes & {
       locations: ILocationAttributes;
-      common_types?: CommonTypeAttributes
+      common_types?: CommonTypeAttributes;
     })[];
   };
-
 
   public async getTeamProfile(ids: string[], keySelect: string[]) {
     return this.model

@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
 import { template, floor } from "lodash";
-import {INTEREST_RATE} from '@/constants';
+import { INTEREST_RATE } from "@/constants";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -162,8 +162,15 @@ export function getEnumKeys(e: any): string[] {
 export const toNonAccentUnicode = (str: string) =>
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-export const calculateInterestInvoice = (amount: number, overDueDay: number) => {
+export const calculateInterestInvoice = (
+  amount: number,
+  overDueDay: number
+) => {
   const ratePerYear = INTEREST_RATE / 100; // Rate of Interest per year as a percent
   const overduePerYear = overDueDay / 365;
   return floor(amount * ratePerYear * overduePerYear, 2);
-}
+};
+
+export const getKeyByValue = (object: any, value: any) => {
+  return Object.keys(object).find((key: string) => object[key] === value) || "";
+};
