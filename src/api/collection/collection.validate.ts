@@ -6,15 +6,16 @@ import {
   getOneValidation,
 } from "@/validate/common.validate";
 import { getEnumValues } from "@/helper/common.helper";
-import {CollectionRelation} from '@/types';
+import { CollectionRelationType } from "@/types";
 
 export default {
   create: {
     payload: {
       name: requireStringValidation("Collection name"),
       relation_id: requireStringValidation("Relation"),
-      relation_type: Joi.number().required()
-        .valid(...getEnumValues(CollectionRelation))
+      relation_type: Joi.number()
+        .required()
+        .valid(...getEnumValues(CollectionRelationType))
         .error(errorMessage("Relation Type is required")),
     },
   },
@@ -27,8 +28,9 @@ export default {
   getList: getListValidation({
     query: {
       relation_id: requireStringValidation("Relation"),
-      relation_type: Joi.number().required()
-        .valid(...getEnumValues(CollectionRelation))
+      relation_type: Joi.number()
+        .required()
+        .valid(...getEnumValues(CollectionRelationType))
         .error(errorMessage("Relation Type is required")),
     },
   }),

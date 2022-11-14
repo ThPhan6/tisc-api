@@ -23,6 +23,7 @@ export default {
       product_id: requiredProductId,
       project_id: requiredProjectId,
       allocation: Joi.array().items(Joi.string()),
+      custom_product: Joi.boolean().allow(null),
     },
   },
   getProjectAssignZoneByProduct: {

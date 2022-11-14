@@ -1,10 +1,10 @@
+import Joi from "joi";
 import {
   errorMessage,
   getListValidation,
   requireEmailValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
-import Joi from "joi";
 
 const locationValidate = {
   business_name: requireStringValidation("Business name"),

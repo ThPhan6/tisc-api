@@ -270,6 +270,23 @@ export const ROUTES = {
     GENERATE_PROJECT_PDF: "/api/pdf/project/{project_id}/generate",
     GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
   },
+  CUSTOM_PRODUCT: {
+    CREATE: "/api/custom-product/create",
+    UPDATE: "/api/custom-product/update/{id}",
+    GET_LIST: "/api/custom-product/get-list",
+    GET_ONE: "/api/custom-product/get-one/{id}",
+    DELETE: "/api/custom-product/delete/{id}",
+    DUPLICATE: "/api/custom-product/duplicate/{id}",
+  },
+  CUSTOM_RESOURCE: {
+    CREATE: "/api/custom-resource/create",
+    UPDATE: "/api/custom-resource/update/{id}",
+    GET_LIST: "/api/custom-resource/get-list",
+    GET_ALL: "/api/custom-resource/get-all",
+    GET_ONE: "/api/custom-resource/get-one/{id}",
+    GET_SUMMARY: "/api/custom-resource/summary",
+    DELETE: "/api/custom-resource/delete/{id}",
+  },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
@@ -279,5 +296,5 @@ export const ROUTES = {
     CREATE: "/api/collection/create",
     UPDATE: "/api/collection/update/{id}",
     DELETE: "/api/collection/delete/{id}",
-  }
+  },
 };
