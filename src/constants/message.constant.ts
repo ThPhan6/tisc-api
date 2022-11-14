@@ -250,6 +250,9 @@ export const MESSAGES = {
       "Something went wrong when get PDF config. Please contact to the administrator",
     NOT_FOUND: "Please update Issuing information!",
   },
+  PROJECT_PRODUCT: {
+    INCORRECT_SPECIFICATION: "Please re-update specification of this product"
+  },
 
   customResource: {
     existed: "Resource existed",
