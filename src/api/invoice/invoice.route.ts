@@ -76,6 +76,22 @@ export default class InvoiceRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.INVOICE.GET_SUMMARY,
+          options: {
+            handler: controller.getInvoiceSummary,
+            description: "Method that get invoice summary",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSummary,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });

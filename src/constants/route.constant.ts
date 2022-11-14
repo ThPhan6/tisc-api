@@ -223,6 +223,7 @@ export const ROUTES = {
   INVOICE: {
     CREATE: "/api/invoice",
     GET_LIST: "/api/invoice",
+    GET_SUMMARY: "/api/invoice/summary",
     UPDATE: "/api/invoice/{id}",
     GET: "/api/invoice/{id}",
   },

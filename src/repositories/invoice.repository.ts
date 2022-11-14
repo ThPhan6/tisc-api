@@ -1,7 +1,7 @@
 import InvoiceModel from "@/model/invoice.model";
 import BaseRepository from "./base.repository";
 import { InvoiceAttributes, SortOrder, InvoiceCompanyType } from "@/types";
-import {head} from 'lodash';
+import { head } from "lodash";
 
 export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
   service_type_name: string;
@@ -61,7 +61,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
     offset: number,
     sort: string,
     order: SortOrder,
-    relationId?: string,
+    relationId?: string
   ): Promise<ListInvoicesWithPagination> {
     let query = this.model
       .getQuery()
@@ -75,10 +75,10 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       .join("users", "users.id", "==", "invoices.created_by")
       .order(sort ? sort : "created_at", order || "DESC");
 
-      if (relationId) {
-        query = query.where('invoices.relation_id', '==', relationId);
-      }
-      return query.paginate(limit, offset);
+    if (relationId) {
+      query = query.where("invoices.relation_id", "==", relationId);
+    }
+    return query.paginate(limit, offset);
   }
 
   public async summary(relationId?: string, relationType?: InvoiceCompanyType) {
@@ -86,15 +86,18 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
     if (relationId && relationType) {
       params = { relationId, relationType };
     }
-    const summary = await this.model.rawQuery(`
+    const summary = await this.model.rawQueryV2(
+      `
       LET summary = (
-          FOR invoices IN invoices
-            FILTER invoices.deleted_at == null
-            ${relationId && relationType ?
-              'FILTER invoices.relation_id == @relationId AND invoices.relation_type == @relationType'
-              : ''}
-            LET totalGross = invoices.quantity * invoices.unit_rate
-            LET saleTaxAmount = (invoices.tax / 100) * totalGross
+          FOR invoice IN invoices
+            FILTER invoice.deleted_at == null
+            ${
+              relationId && relationType
+                ? "FILTER invoice.relation_id == @relationId AND invoice.relation_type == @relationType"
+                : ""
+            }
+            LET totalGross = invoice.quantity * invoice.unit_rate
+            LET saleTaxAmount = (invoice.tax / 100) * totalGross
             LET grandTotal = totalGross + saleTaxAmount
           return {
               grandTotal: grandTotal
@@ -103,12 +106,13 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       RETURN {
           grandTotal: SUM(summary[*].grandTotal)
       }
-    `, params);
+    `,
+      params
+    );
     return head(summary) as {
       grandTotal: number;
-    }
+    };
   }
-
 }
 
 export const invoiceRepository = new InvoiceRepository();
