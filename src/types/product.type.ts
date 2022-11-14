@@ -1,4 +1,7 @@
-import { IAttributeGroupWithOptionalId } from "@/api/product/product.type";
+import {
+  IAttributeGroupWithOptionalId,
+  SelectionAttributeGroupWithOptionalId,
+} from "@/api/product/product.type";
 import { BrandOfficialWebsite } from ".";
 
 export interface IProductAttributes {
@@ -11,7 +14,7 @@ export interface IProductAttributes {
   description: string;
   general_attribute_groups: IAttributeGroupWithOptionalId[];
   feature_attribute_groups: IAttributeGroupWithOptionalId[];
-  specification_attribute_groups: IAttributeGroupWithOptionalId[];
+  specification_attribute_groups: SelectionAttributeGroupWithOptionalId[];
   images: string[];
   keywords: string[];
   created_at: string;
