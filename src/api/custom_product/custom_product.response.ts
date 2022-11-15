@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { locationBasicResponse } from "../location/location.response";
 import { customProductValidate } from "./custom_product.validate";
 
 export default {
@@ -25,6 +26,8 @@ export default {
       company_name: Joi.string(),
       created_at: Joi.string(),
       updated_at: Joi.string(),
+      design_id: Joi.string(),
+      location: locationBasicResponse,
     }),
     statusCode: Joi.number(),
   }),
