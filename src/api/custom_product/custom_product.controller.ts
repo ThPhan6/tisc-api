@@ -59,7 +59,7 @@ export default class CustomProductController {
       user.relation_id !== result.design_id
     ) {
       return toolkit
-        .response(errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET))
+        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS))
         .code(404);
     }
 

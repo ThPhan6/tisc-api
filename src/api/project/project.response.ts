@@ -14,13 +14,13 @@ const Joi = HapiJoi.defaults((schema) =>
 const brandResponse = Joi.array().items(
   Joi.object({
     name: Joi.string(),
-    logo: Joi.string(),
+    logo: Joi.string().allow(""),
     products: Joi.array().items(
       Joi.object({
         id: Joi.string(),
         brand_id: Joi.string(),
         name: Joi.string(),
-        image: Joi.string(),
+        image: Joi.string().allow(""),
         status: Joi.number(),
       })
     ),
@@ -137,12 +137,12 @@ export default {
       basic: Joi.object({
         designFirm: Joi.object({
           name: Joi.string(),
-          logo: Joi.string(),
+          logo: Joi.string().allow(""),
         }),
         code: Joi.string(),
         name: Joi.string(),
         status: Joi.number(),
-        address: Joi.string(),
+        address: Joi.string().allow(""),
         project_type: Joi.string(),
         building_type: Joi.string(),
         measurement_unit: Joi.number(),

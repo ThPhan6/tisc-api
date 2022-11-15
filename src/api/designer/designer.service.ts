@@ -120,8 +120,12 @@ class DesignerService {
     payload: Partial<DesignerAttributes>,
     user: UserAttributes
   ) {
-    if (designId !== user.relation_id && user.type !== UserType.Designer) {
-      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
+    if (
+      designId !== user.relation_id
+      && user.type !== UserType.Designer
+      && user.type !== UserType.TISC
+    ) {
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const designer = await designerRepository.find(designId);
