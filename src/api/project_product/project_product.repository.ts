@@ -342,13 +342,31 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER pp.status == @specifiedStatus
       FILTER pp.deleted_at == null
 
-      FOR product IN products
-      FILTER product.id == pp.product_id
-      FILTER product.deleted_at == null
+      LET product = pp.custom_product == true ? FIRST(
+        FOR product IN custom_products
+        FILTER product.id == pp.product_id
+        FILTER product.deleted_at == null
+        RETURN product
+      ): FIRST(
+        FOR product IN products
+        FILTER product.id == pp.product_id
+        FILTER product.deleted_at == null
+        RETURN product
+      )
 
-      FOR b IN brands
-      FILTER b.id == product.brand_id
-      FILTER b.deleted_at == null
+      LET b = pp.custom_product == true ? FIRST(
+        FOR cr IN custom_resources
+        FILTER cr.id == product.brand_id
+        FILTER cr.deleted_at == null
+        FOR loc IN locations
+        FILTER loc.id == cr.location_id
+        RETURN MERGE(cr, {name: loc.business_name})
+      ) :  FIRST(
+        FOR b IN brands
+        FILTER b.id == product.brand_id
+        FILTER b.deleted_at == null
+        RETURN b
+      )
 
       FOR col IN collections
       FILTER col.id == product.collection_id
