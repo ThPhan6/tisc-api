@@ -56,8 +56,8 @@ export default {
         status: Joi.number().valid(...getEnumValues(ProjectStatus)),
         assign_teams: Joi.array().items({
           id: Joi.string(),
-          firstname: Joi.string(),
-          lastname: Joi.string(),
+          firstname: Joi.string().allow(""),
+          lastname: Joi.string().allow(""),
           avatar: Joi.any(),
         }),
       }),
