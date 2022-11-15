@@ -10,10 +10,7 @@ import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
 import { IProjectZoneAttributes, UserAttributes, SortOrder } from "@/types";
-import {
-  orderBy, partition, uniqBy,
-  isEmpty, sumBy, countBy,
-} from "lodash";
+import { orderBy, uniqBy, isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -28,7 +25,7 @@ import {
   UpdateFinishChedulePayload,
 } from "./project_product.type";
 import { customProductRepository } from "../custom_product/custom_product.repository";
-import {validateBrandProductSpecification} from './project_product.mapping';
+import { validateBrandProductSpecification } from "./project_product.mapping";
 
 class ProjectProductService {
   public assignProductToProduct = async (
@@ -287,7 +284,9 @@ class ProjectProductService {
         product.specification_attribute_groups
       );
       if (!validateSpecification) {
-        return errorMessageResponse(MESSAGES.PROJECT_PRODUCT.INCORRECT_SPECIFICATION);
+        return errorMessageResponse(
+          MESSAGES.PROJECT_PRODUCT.INCORRECT_SPECIFICATION
+        );
       }
       payload.specification.attribute_groups = validateSpecification;
     }
@@ -546,55 +545,19 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const projectZones = await projectZoneRepository.getByProjectId(
-      project_id,
-      zone_order
-    );
-
-    const specifiedProducts =
-      await projectProductRepository.getSpecifiedProductsForZoneGroup(
+    const consideredProducts =
+      await projectProductRepository.getConsideredProductsByProject(
+        project_id,
         user.id,
-        project_id
+        zone_order,
+        area_order,
+        room_order,
+        brand_order,
+        true
       );
 
-    const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
-
-    const [entireConsideredProducts, allocatedProducts] = partition(
-      mappedProducts,
-      "specifiedDetail.entire_allocation"
-    );
-
-    const mappedAllocatedProducts = this.groupProductsByRoom(
-      allocatedProducts,
-      projectZones,
-      area_order,
-      room_order,
-      brand_order
-    );
-
-    const results = [
-      {
-        id: "entire_project",
-        name: "ENTIRE PROJECT",
-        products: entireConsideredProducts,
-        count: entireConsideredProducts.length,
-      },
-    ].concat(mappedAllocatedProducts);
-
-    const cancelledCount =
-      this.countCancelledSpecifiedProductTotal(specifiedProducts);
-
     return successResponse({
-      data: {
-        data: results,
-        summary: [
-          {
-            name: "Specified",
-            value: specifiedProducts.length - cancelledCount,
-          },
-          { name: "Cancelled", value: cancelledCount },
-        ],
-      },
+      data: consideredProducts,
     });
   };
 
