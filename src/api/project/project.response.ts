@@ -27,6 +27,16 @@ const brandResponse = Joi.array().items(
   })
 );
 
+const customProductsResponse = Joi.array().items(
+  Joi.object({
+    id: Joi.string(),
+    company_id: Joi.string(),
+    name: Joi.string(),
+    image: Joi.string().allow("", null),
+    status: Joi.number(),
+  })
+);
+
 export default {
   getOne: Joi.object({
     data: Joi.any(),
@@ -163,12 +173,14 @@ export default {
       }),
       considered: Joi.object({
         brands: brandResponse,
+        customProducts: customProductsResponse,
         deleted: Joi.number(),
         consider: Joi.number(),
         unlisted: Joi.number(),
       }),
       specified: Joi.object({
         brands: brandResponse,
+        customProducts: customProductsResponse,
         deleted: Joi.number(),
         specified: Joi.number(),
         cancelled: Joi.number(),
