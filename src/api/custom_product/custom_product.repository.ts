@@ -34,8 +34,9 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       `
       FILTER custom_products.deleted_at == null
       FILTER custom_products.design_id == @designId
+      ${companyId ? "FILTER custom_products.company_id == @companyId" : ""}
       FOR cr IN custom_resources
-      FILTER cr.id == ${companyId ? "@companyId" : "custom_products.company_id"}
+      FILTER cr.id == custom_products.company_id
       FILTER cr.deleted_at == null
       FOR loc IN locations
       FILTER loc.id == cr.location_id
