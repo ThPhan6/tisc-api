@@ -93,28 +93,13 @@ class CustomProductService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
 
-    const product = await customProductRepository.findBy({
-      name: payload.name,
-      company_id: payload.company_id,
-    });
-
-    if (!product) {
-      return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
-    }
-
-    if (user.relation_id !== product.design_id) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
-    }
-
     // Check product name exist
-    if (product.name.trim() !== payload.name.trim()) {
-      const existedResource = await customProductRepository.checkExisted(
-        user.relation_id,
-        payload.name.trim()
-      );
-      if (existedResource) {
-        return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_EXISTED);
-      }
+    const existedResource = await customProductRepository.checkExisted(
+      user.relation_id,
+      payload.name.trim()
+    );
+    if (existedResource) {
+      return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_EXISTED);
     }
 
     const collection = await collectionRepository.findBy({
