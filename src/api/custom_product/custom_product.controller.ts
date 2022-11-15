@@ -24,11 +24,11 @@ export default class CustomProductController {
   public async getListProduct(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const { category_id, collection_id } = req.query;
+    const { company_id, collection_id } = req.query;
 
     const results = await customProductRepository.getList(
       user.relation_id,
-      category_id,
+      company_id,
       collection_id
     );
 
@@ -46,7 +46,7 @@ export default class CustomProductController {
   public async getOneProduct(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const result = await customProductRepository.find(req.params.id);
+    const result = await customProductRepository.getOne(req.params.id);
 
     if (!result) {
       return toolkit
@@ -59,7 +59,7 @@ export default class CustomProductController {
       user.relation_id !== result.design_id
     ) {
       return toolkit
-        .response(errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET))
+        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS))
         .code(404);
     }
 

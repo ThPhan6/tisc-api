@@ -160,7 +160,7 @@ class CustomProductService {
     }
 
     if (user.relation_id !== product.design_id) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     // Check product name exist
@@ -196,7 +196,7 @@ class CustomProductService {
     }
 
     if (user.relation_id !== product.design_id) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     // Check projects have this product here

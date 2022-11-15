@@ -194,7 +194,7 @@ class ProjectService {
       user.type !== UserType.Designer ||
       project.design_id !== user.relation_id
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const projectExisted = await projectRepository.getProjectExist(
@@ -329,7 +329,7 @@ class ProjectService {
       user.type !== UserType.Designer ||
       project.design_id !== user.relation_id
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const deletedProject = await projectRepository.delete(id);

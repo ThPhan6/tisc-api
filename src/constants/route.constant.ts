@@ -287,6 +287,7 @@ export const ROUTES = {
     GET_ONE: "/api/custom-resource/get-one/{id}",
     GET_SUMMARY: "/api/custom-resource/summary",
     DELETE: "/api/custom-resource/delete/{id}",
+    GET_DISTRIBUTORS_BY_COMPANY: "/api/custom-resource/distributor/{brand_id}",
   },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",

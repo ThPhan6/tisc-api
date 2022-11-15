@@ -63,6 +63,34 @@ export default class CustomResourceController {
       .code(200);
   }
 
+  public async getListDistributorsByCompany(
+    req: Request,
+    toolkit: ResponseToolkit
+  ) {
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const { brand_id } = req.params;
+
+    const response = await customResourceRepository.getDistributorsByCompany(
+      brand_id,
+      user.relation_id
+    );
+
+    if (!response) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.SOMETHING_WRONG))
+        .code(404);
+    }
+
+    return toolkit
+      .response(
+        successResponse({
+          data: response,
+        })
+      )
+      .code(200);
+  }
+
   public async getAllResource(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
@@ -145,7 +173,7 @@ export default class CustomResourceController {
       user.relation_id !== result.design_id
     ) {
       return toolkit
-        .response(errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET))
+        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS))
         .code(404);
     }
 

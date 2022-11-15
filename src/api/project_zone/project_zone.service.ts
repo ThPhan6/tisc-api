@@ -42,7 +42,7 @@ class ProjectZoneService {
         project.design_id !== user.relation_id &&
         user.type !== UserType.Designer
       ) {
-        return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+        return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
       }
 
       const projectZoneExisted =
@@ -148,7 +148,7 @@ class ProjectZoneService {
       project.design_id !== user.relation_id &&
       user.type !== UserType.Designer
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
 
     const projectZones = await projectZoneRepository.getListProjectZone(
@@ -212,7 +212,7 @@ class ProjectZoneService {
       project.design_id !== user.relation_id &&
       user.type !== UserType.Designer
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
 
     const result = mappingResponseUnitRoomSize(project, projectZone);
@@ -238,7 +238,7 @@ class ProjectZoneService {
       project.design_id !== user.relation_id &&
       user.type !== UserType.Designer
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const deletedProjectZone = await projectZoneRepository.delete(
