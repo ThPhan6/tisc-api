@@ -111,6 +111,40 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
     );
   }
 
+  public async getDistributorsByCompany(
+    company_id: string,
+    designFirmId: string
+  ) {
+    return this.model.rawQueryV2(
+      `
+        FOR cr IN custom_resources
+        FILTER cr.deleted_at == null
+        FILTER cr.type == @distributorType
+        FILTER cr.design_id == @designFirmId
+        FILTER @company_id IN cr.associate_resource_ids
+        FOR loc IN locations
+        FILTER loc.id == cr.location_id
+        FILTER loc.deleted_at == null
+        COLLECT country = loc.country_name INTO distributorGroup
+        RETURN {
+          count: lENGTH(distributorGroup),
+          country_name: country,
+          distributors: (FOR d IN distributorGroup 
+            RETURN MERGE(
+              KEEP(d.cr, 'id', 'contacts', 'location_id'),
+              KEEP(d.loc, ${locationRepository.basicAttributesQuery})
+            )
+          ),
+        }
+      `,
+      {
+        company_id,
+        designFirmId,
+        distributorType: CustomResouceType.Distributor,
+      }
+    );
+  }
+
   public async getList(
     limit: number,
     offset: number,
