@@ -8,7 +8,7 @@ import {
 
 const locationValidate = {
   business_name: requireStringValidation("Business name"),
-  business_number: requireStringValidation("Business number"),
+  business_number: Joi.string().trim().allow(""),
   functional_type_ids: Joi.array()
     .items(requireStringValidation("Functional type"))
     .required()
