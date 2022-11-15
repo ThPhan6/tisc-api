@@ -25,6 +25,7 @@ export default {
       company_name: Joi.string(),
       created_at: Joi.string(),
       updated_at: Joi.string(),
+      design_id: Joi.string(),
     }),
     statusCode: Joi.number(),
   }),

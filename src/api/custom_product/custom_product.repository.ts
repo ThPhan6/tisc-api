@@ -74,7 +74,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
         FILTER col.id == custom_products.collection_id
         FILTER col.deleted_at == null
         RETURN MERGE(
-          UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at', 'design_id']),
+          UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at']),
           {
             company_name: loc.business_name,
             collection_name: col.name,
