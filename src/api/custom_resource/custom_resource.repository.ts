@@ -57,10 +57,13 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         FOR cr IN custom_resources
         FILTER cr.deleted_at == null
         FILTER cr.type == @updatingType
-        FILTER cr.id IN @associateIds OR @resourceId IN cr.associate_resource_ids
+        FILTER (cr.id IN @associateIds AND @resourceId NOT IN cr.associate_resource_ids)
+          OR (cr.id NOT IN @associateIds AND @resourceId IN cr.associate_resource_ids)
         UPDATE cr 
         WITH { 
-          associate_resource_ids: OUTERSECTION(cr.associate_resource_ids, [@resourceId]),
+          associate_resource_ids: cr.id IN @associateIds AND @resourceId NOT IN cr.associate_resource_ids ? 
+          UNION_DISTINCT(cr.associate_resource_ids, [@resourceId]) :
+            OUTERSECTION(cr.associate_resource_ids, [@resourceId]),
           updated_at: @now
         }
         IN custom_resources
