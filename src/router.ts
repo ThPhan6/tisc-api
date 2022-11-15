@@ -29,6 +29,7 @@ import ProjectTrackingRoute from "./api/project_tracking/project_tracking.route"
 import ActionTaskRoute from "./api/action_task/action_task.route";
 import CustomProductRoute from "./api/custom_product/custom_product.route";
 import CustomResourceRoute from "./api/custom_resource/custom_resource.route";
+import BookingRoute from "./api/booking/booking.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -62,5 +63,6 @@ export default class Router {
     await new ActionTaskRoute().register(server);
     await new CustomProductRoute().register(server);
     await new CustomResourceRoute().register(server);
+    await new BookingRoute().register(server);
   }
 }

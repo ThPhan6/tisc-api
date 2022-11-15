@@ -30,4 +30,8 @@ export const ENVIROMENT = {
   SLACK_INCOMING_WEBHOOK: process.env.SLACK_INCOMING_WEBHOOK ?? '',
   SHARE_HASH_SECRET_KEY: process.env.SHARE_HASH_SECRET_KEY || "Cu9Zj+zNEA!5X!7^$8eZZhrw",
   MODE: process.env.MODE || "",
+  LARK_OPEN_API_URL: process.env.LARK_OPEN_API_URL || "",
+  LARK_APP_ID: process.env.LARK_APP_ID || "",
+  LARK_APP_SECRET: process.env.LARK_APP_SECRET || "",
+  LARK_CALENDAR_ID: process.env.LARK_CALENDAR_ID || "",
 }

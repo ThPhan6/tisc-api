@@ -1,4 +1,5 @@
 import Joi from "joi";
+import moment from "moment";
 
 export const customFilter = (value: any, helpers: any) => {
   try {
@@ -125,3 +126,13 @@ export const requireBooleanValidation = (fieldName: string, full?: "full") =>
     .error(
       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
+
+export const requireBookingDateValidation = () =>
+  Joi.date()
+    .max(moment().add(90, "days").format('YYYY-MM-DD'))
+    .min(moment().format('YYYY-MM-DD'))
+    .required()
+    .error(
+      errorMessage("A date must be entered in the correct format YYYY-MM-DD and max 90 days from today")
+    );
+

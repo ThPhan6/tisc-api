@@ -256,4 +256,13 @@ export const MESSAGES = {
     notFound: "Resource not found",
     haveProduct: "Brand is have products, you can not delete it",
   },
+
+  BOOKING: {
+    TIMEZONE: {
+      NOT_VALID: "Timezone invalid data, ex: Asia/Singapore"
+    },
+    TIME_STAMP: {
+      NOT_VALID: "The start time or end time invalid timestamp data"
+    }
+  }
 };
