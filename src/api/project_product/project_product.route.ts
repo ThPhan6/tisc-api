@@ -139,7 +139,7 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getSpecifiedProductList,
+                200: response.getList,
               },
             },
           },
@@ -156,7 +156,7 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getSpecifiedProductList,
+                200: response.getList,
               },
             },
           },
@@ -173,7 +173,7 @@ export default class ProjectProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getSpecifiedProductList,
+                200: response.getList,
               },
             },
           },
