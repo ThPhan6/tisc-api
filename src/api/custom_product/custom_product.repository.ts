@@ -48,7 +48,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       RETURN MERGE(
         KEEP(custom_products, 'id', 'name', 'description', 'company_id', 'collection_id'),
         {
-          image: FIRST(cr.images),
+          image: FIRST(custom_products.images),
           company_name: loc.business_name,
           collection_name: col.name,
         }
