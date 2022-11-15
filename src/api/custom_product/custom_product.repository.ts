@@ -4,6 +4,7 @@ import {
   CustomProductPayload,
 } from "./custom_product.type";
 import CustomProductModel from "./custom_product.model";
+import { locationRepository } from "@/repositories/location.repository";
 
 export default class CustomProductRepository extends BaseRepository<CustomProductAttributes> {
   protected model: CustomProductModel;
@@ -77,6 +78,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
           {
             company_name: loc.business_name,
             collection_name: col.name,
+            location: KEEP(loc, ${locationRepository.basicAttributesQuery})
           }
         )
       `,
