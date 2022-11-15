@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { ROLES } from "@/constants";
-import { template } from "lodash";
+import { template, floor } from "lodash";
+import { INTEREST_RATE } from "@/constants";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -77,38 +77,6 @@ export const getDistinctArray = (arr: Array<string>) => {
 
 export const generateUniqueString = (length: number = 64) => {
   return randomBytes(length).toString("hex");
-};
-
-type AccessLevelType =
-  | "TISC Admin"
-  | "Consultant Team"
-  | "Brand Admin"
-  | "Brand Team"
-  | "Design Admin"
-  | "Design Team";
-export const getAccessLevel = (role_id: string) => {
-  let result: AccessLevelType;
-  switch (role_id) {
-    case ROLES.TISC_ADMIN:
-      result = "TISC Admin";
-      break;
-    case ROLES.TISC_CONSULTANT_TEAM:
-      result = "Consultant Team";
-      break;
-    case ROLES.BRAND_ADMIN:
-      result = "Brand Admin";
-      break;
-    case ROLES.BRAND_TEAM:
-      result = "Brand Team";
-      break;
-    case ROLES.DESIGN_ADMIN:
-      result = "Design Admin";
-      break;
-    default:
-      result = "Design Team";
-      break;
-  }
-  return result;
 };
 
 export const removeSpecialChars = (str: string, replaceStr: string = "") => {
@@ -193,3 +161,16 @@ export function getEnumKeys(e: any): string[] {
 
 export const toNonAccentUnicode = (str: string) =>
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+export const calculateInterestInvoice = (
+  amount: number,
+  overDueDay: number
+) => {
+  const ratePerYear = INTEREST_RATE / 100; // Rate of Interest per year as a percent
+  const overduePerYear = overDueDay / 365;
+  return floor(amount * ratePerYear * overduePerYear, 2);
+};
+
+export const getKeyByValue = (object: any, value: any) => {
+  return Object.keys(object).find((key: string) => object[key] === value) || "";
+};

@@ -19,6 +19,8 @@ export const MESSAGES = {
       "Something went wrong. Please contact to the administrator!",
     CAN_NOT_MODIFY_MASTER_DATA: "Can not modify master data",
     CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
+    NOT_AUTHORIZED: "You are not have permission to access this resource",
+    NOT_FOUND: "Not found!",
   },
 
   LOCATION: {
@@ -116,6 +118,9 @@ export const MESSAGES = {
   },
   ACTION_TASK: {
     NOT_FOUND: "Action task not found",
+  },
+  INVOICE: {
+    NOT_FOUND: "Revenue service not found",
   },
 
   PROJECT_TRACKING: {
@@ -249,6 +254,9 @@ export const MESSAGES = {
     ERROR_CREATE:
       "Something went wrong when get PDF config. Please contact to the administrator",
     NOT_FOUND: "Please update Issuing information!",
+  },
+  PROJECT_PRODUCT: {
+    INCORRECT_SPECIFICATION: "Please re-update specification of this product"
   },
 
   customResource: {

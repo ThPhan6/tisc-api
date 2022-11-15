@@ -1,5 +1,5 @@
 import { locationService } from "./../location/location.service";
-import { BRAND_STATUSES, MESSAGES, ROLES, SYSTEM_TYPE } from "@/constants";
+import { BRAND_STATUSES, MESSAGES, BrandRoles } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
@@ -20,6 +20,7 @@ import {
   UserStatus,
   UserAttributes,
   GetUserGroupBrandSort,
+  UserType,
 } from "@/types";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
@@ -127,7 +128,7 @@ class BrandService {
     user: UserAttributes,
     payload: IUpdateBrandProfileRequest
   ) {
-    if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
+    if (user.type !== UserType.Brand || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
     }
 
@@ -156,7 +157,7 @@ class BrandService {
   }
 
   public async updateLogo(user: UserAttributes, logo: any) {
-    if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
+    if (user.type !== UserType.Brand || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
     }
 
@@ -207,7 +208,7 @@ class BrandService {
 
     const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
-      SYSTEM_TYPE.BRAND,
+      UserType.Brand,
       payload.email
     );
 
@@ -227,11 +228,11 @@ class BrandService {
       lastname: payload.last_name,
       gender: true,
       email: payload.email,
-      role_id: ROLES.BRAND_ADMIN,
+      role_id: BrandRoles.Admin,
       verification_token: verificationToken,
       is_verified: false,
       status: UserStatus.Pending,
-      type: SYSTEM_TYPE.BRAND,
+      type: UserType.Brand,
       relation_id: createdBrand.id,
       location_id: defaultLocation?.id,
     });

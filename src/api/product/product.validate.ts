@@ -5,6 +5,7 @@ import {
 } from "@/validate/common.validate";
 import {getEnumValues} from '@/helper/common.helper';
 import {DimensionAndWeightAttributeId} from '@/constants';
+import {forEach} from 'lodash';
 
 const attributeGroupsValidate = (
   type: "General" | "Feature" | "Specification"
@@ -14,6 +15,7 @@ const attributeGroupsValidate = (
     .items(
       Joi.object({
         name: requireStringValidation(`${type} attribute title`),
+        selection: Joi.boolean().allow(null),
         attributes: Joi.array()
           .items({
             id: requireStringValidation("Attribute"),
@@ -32,21 +34,42 @@ const attributeGroupsValidate = (
             text: Joi.any(),
             conversion_value_1: Joi.number().allow(""),
             conversion_value_2: Joi.number().allow(""),
+            basis_options: isSpec
+              ? Joi.array().items(
+                  Joi.object({
+                    id: Joi.string(),
+                    option_code: Joi.string(),
+                  })
+                )
+              : Joi.any(),
           })
           .required()
           .error(errorMessage(`${type} attributes is required`)),
-        basis_options: isSpec
-          ? Joi.array().items(
-              Joi.object({
-                id: Joi.string(),
-                option_code: Joi.string(),
-              })
-            )
-          : Joi.any(),
       })
     )
+    .custom((value, helpers) => {
+      if (isSpec) {
+        let isValid = true;
+        forEach(value, (item) => {
+          if (item.selection) {
+            const options = item.attributes?.filter((attr: any) => {
+              return attr.type === 'Options';
+            });
+            if (options.length < 2) {
+              isValid = false;
+            }
+          }
+        });
+        ///
+        if (!isValid) {
+          return helpers.error("any.invalid");
+        }
+        return value;
+      }
+      return value;
+    })
     .required()
-    .error(errorMessage(`${type} attribute groups is required`));
+    .error(errorMessage(`${type} attribute groups is not valid`));
 };
 
 export const dimensionAndWeightValidate = Joi.object({

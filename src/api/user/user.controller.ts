@@ -1,11 +1,13 @@
 import { userService } from "./user.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { UserAttributes } from "@/types";
+import { UserAttributes, UserType } from "@/types";
 import {
   IAssignTeamRequest,
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
+import { MESSAGES } from '@/constants';
+import { errorMessageResponse } from '@/helper/response.helper';
 import { INTERESTED_IN_OPTIONS } from "@/constants";
 
 export default class UserController {
@@ -100,6 +102,15 @@ export default class UserController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    if (
+      user.type !== UserType.TISC
+      && user.relation_id !== brand_id
+    ) {
+      return toolkit.response(
+        errorMessageResponse(MESSAGES.GENERAL.NOT_FOUND)
+      ).code(404);
+    }
     const response = await userService.getBrandOrDesignTeamGroupByCountry(
       brand_id
     );
@@ -110,6 +121,15 @@ export default class UserController {
     toolkit: ResponseToolkit
   ) => {
     const { design_id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    if (
+      user.type !== UserType.TISC
+      && user.relation_id !== design_id
+    ) {
+      return toolkit.response(
+        errorMessageResponse(MESSAGES.GENERAL.NOT_FOUND)
+      ).code(404);
+    }
     const response = await userService.getBrandOrDesignTeamGroupByCountry(
       design_id
     );
@@ -132,6 +152,18 @@ export default class UserController {
   ) => {
     const { brand_id } = req.params;
     const response = await userService.getTiscTeamsProfile(brand_id);
+    return toolkit.response(response).code(response.statusCode);
+  };
+  public getListByTypeRoleAndRelation = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { type, role, relation_id } = req.query;
+    const response = await userService.getByTypeRoleAndRelation(
+      type,
+      role,
+      relation_id
+    );
     return toolkit.response(response).code(response.statusCode);
   };
 }

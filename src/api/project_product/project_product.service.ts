@@ -10,7 +10,10 @@ import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
 import { IProjectZoneAttributes, UserAttributes, SortOrder } from "@/types";
-import { orderBy, partition, uniqBy, isEmpty, sumBy, countBy } from "lodash";
+import {
+  orderBy, partition, uniqBy,
+  isEmpty, sumBy, countBy,
+} from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -25,6 +28,7 @@ import {
   UpdateFinishChedulePayload,
 } from "./project_product.type";
 import { customProductRepository } from "../custom_product/custom_product.repository";
+import {validateBrandProductSpecification} from './project_product.mapping';
 
 class ProjectProductService {
   public assignProductToProduct = async (
@@ -272,6 +276,22 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
+    // validate specify specification attribute
+    if (isSpecifying && payload.specification) {
+      const product = await productRepository.find(projectProduct.product_id);
+      if (!product) {
+        return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND);
+      }
+      const validateSpecification = validateBrandProductSpecification(
+        payload.specification.attribute_groups,
+        product.specification_attribute_groups
+      );
+      if (!validateSpecification) {
+        return errorMessageResponse(MESSAGES.PROJECT_PRODUCT.INCORRECT_SPECIFICATION);
+      }
+      payload.specification.attribute_groups = validateSpecification;
+    }
+    // validate specify specification attribute
     ///
     if (payload.unit_type_id) {
       const unitTypes = await commonTypeRepository.findOrCreate(

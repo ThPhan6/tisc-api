@@ -27,6 +27,7 @@ export const COMMON_TYPES: CommonTypes = {
   ACTION_TASK: 12,
   ISSUE_FOR: 13,
   CAPABILITIES: 14,
+  INVOICE: 15,
 };
 
 export const FUNCTIONAL_TYPE: {
@@ -162,34 +163,6 @@ export const TARGETED_FOR_OPTIONS: {
   },
 ];
 
-export const LOGO_PATH = {
-  MY_WORKSPACE: "/logo/my_workspace.svg",
-  USER_GROUP: "/logo/user_group.svg",
-  PROJECT: "/logo/project.svg",
-  LIST: "/logo/list.svg",
-  PRODUCT: "/logo/product.svg",
-  ADMINISTRATION: "/logo/administration.svg",
-  GENERAL_INQUIRY: "/logo/general_inquires.svg",
-  PROJECT_TRACKING: "/logo/project_tracking.svg",
-  FAVORITE: "/logo/favourite.svg",
-  SUBSCRIPTION: "/logo/subscription.svg",
-  MARKET: "/logo/market_availability.svg",
-  DISTRIBUTOR: "/logo/distributor.svg",
-  REVENUE: "/logo/revenue.svg",
-  MESSAGE: "/logo/message.svg",
-  TEAM_PROFILE: "/logo/team_profile.svg",
-  LOCATION: "/logo/location.svg",
-  DOCUMENTATION: "/logo/documentation.svg",
-  CONFIGURATION: "/logo/configuration.svg",
-  ATTRIBUTE: "/logo/attribute.svg",
-  BASIS: "/logo/basis.svg",
-  CATEGORY: "/logo/category.svg",
-  BRAND: "/logo/brand.svg",
-  DESIGN: "/logo/design.svg",
-  OFFICE: "/logo/office.svg",
-  MATERIAL: "/logo/material.svg",
-};
-
 export const INTERESTED_IN: {
   BRAND_FACTORY: InterestedInValue;
   DESIGN_CONFERENCE: InterestedInValue;
@@ -228,3 +201,6 @@ export const INTERESTED_IN_OPTIONS: {
     value: INTERESTED_IN.PRODUCT_RECOMMENDATION,
   },
 ];
+
+export const INTEREST_RATE = 36.5; // 36.5 %
+export const SQUARE_METER_TO_SQUARE_FOOT = 10.76391;

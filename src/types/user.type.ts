@@ -1,6 +1,14 @@
+import {
+  TiscRoles,
+  BrandRoles,
+  DesignFirmRoles
+} from '@/constants';
+
+export type UserRole = TiscRoles | BrandRoles | DesignFirmRoles;
+
 export interface UserAttributes {
   id: string;
-  role_id: string;
+  role_id: TiscRoles | BrandRoles | DesignFirmRoles;
   firstname: string;
   lastname: string;
   gender: boolean;

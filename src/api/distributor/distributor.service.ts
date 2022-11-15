@@ -391,7 +391,8 @@ class DistributorService {
 
     const distributors =
       await locationRepository.getListWithLocation<IDistributorAttributes>(
-        "distributors"
+        "distributors",
+        `FILTER distributors.brand_id == '${brand.id}'`
       );
 
     const countryIds = getDistinctArray(
