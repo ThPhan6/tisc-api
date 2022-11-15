@@ -24,11 +24,11 @@ export default class CustomProductController {
   public async getListProduct(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const { category_id, collection_id } = req.query;
+    const { company_id, collection_id } = req.query;
 
     const results = await customProductRepository.getList(
       user.relation_id,
-      category_id,
+      company_id,
       collection_id
     );
 
