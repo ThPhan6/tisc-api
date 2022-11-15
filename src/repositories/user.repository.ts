@@ -225,6 +225,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
       FOR users IN users
         FILTER users.deleted_at == null
         FILTER users.relation_id == @relationId
+        FILTER users.status == @userStatus
         FOR locations IN locations
           FILTER locations.id == users.location_id
           FILTER locations.deleted_at == null
@@ -245,6 +246,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
 
     return (await this.model.rawQueryV2(rawQuery, {
       relationId,
+      userStatus: UserStatus.Active
     })) as (UserAttributes & {
       locations: ILocationAttributes;
       common_types?: CommonTypeAttributes;

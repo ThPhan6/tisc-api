@@ -19,6 +19,8 @@ export const MESSAGES = {
       "Something went wrong. Please contact to the administrator!",
     CAN_NOT_MODIFY_MASTER_DATA: "Can not modify master data",
     CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
+    NOT_AUTHORIZED: "You are not have permission to access this resource",
+    NOT_FOUND: "Not found!",
   },
 
   LOCATION: {
