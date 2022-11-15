@@ -4,7 +4,6 @@ export * from "./brand.constant";
 export * from "./message.constant";
 export * from "./location.constant";
 export * from "./auth.constant";
-export * from "./user.constant";
 export * from "./basis.constant";
 export * from "./attribute.constant";
 export * from "./image.constant";

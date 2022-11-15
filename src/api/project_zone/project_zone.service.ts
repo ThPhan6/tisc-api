@@ -1,4 +1,4 @@
-import { MEASUREMENT_UNIT, MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { MEASUREMENT_UNIT, MESSAGES } from "@/constants";
 import {
   formatNumberDisplay,
   isDuplicatedString,
@@ -40,7 +40,7 @@ class ProjectZoneService {
 
       if (
         project.design_id !== user.relation_id &&
-        user.type !== SYSTEM_TYPE.DESIGN
+        user.type !== UserType.Designer
       ) {
         return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
       }
@@ -210,7 +210,7 @@ class ProjectZoneService {
 
     if (
       project.design_id !== user.relation_id &&
-      user.type !== SYSTEM_TYPE.DESIGN
+      user.type !== UserType.Designer
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
     }
@@ -236,7 +236,7 @@ class ProjectZoneService {
 
     if (
       project.design_id !== user.relation_id &&
-      user.type !== SYSTEM_TYPE.DESIGN
+      user.type !== UserType.Designer
     ) {
       return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
     }

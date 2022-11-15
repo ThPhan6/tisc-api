@@ -117,6 +117,9 @@ export const MESSAGES = {
   ACTION_TASK: {
     NOT_FOUND: "Action task not found",
   },
+  INVOICE: {
+    NOT_FOUND: "Revenue service not found",
+  },
 
   PROJECT_TRACKING: {
     PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
@@ -249,6 +252,9 @@ export const MESSAGES = {
     ERROR_CREATE:
       "Something went wrong when get PDF config. Please contact to the administrator",
     NOT_FOUND: "Please update Issuing information!",
+  },
+  PROJECT_PRODUCT: {
+    INCORRECT_SPECIFICATION: "Please re-update specification of this product"
   },
 
   customResource: {

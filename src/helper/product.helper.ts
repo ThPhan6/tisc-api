@@ -1,6 +1,6 @@
 import { encrypt, stringToBase64 } from './cryptojs.helper';
 import {UserAttributes, IProductAttributes, UserType} from '@/types';
-import {getRoleType} from '@/constants';
+import {RoleType} from '@/constants';
 import {ENVIROMENT} from '@/config';
 
 export const getProductSharedUrl = (
@@ -18,7 +18,7 @@ export const getProductSharedUrl = (
     return sharedUrl;
   }
   //
-  const roleType = getRoleType(receiver.role_id);
+  const roleType = RoleType[receiver.role_id];
   if (roleType === UserType.TISC) {
     return `${ENVIROMENT.FE_URL}/tisc/products/configuration/${product.id}`;
   }
