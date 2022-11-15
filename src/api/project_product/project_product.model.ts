@@ -12,6 +12,7 @@ export interface ProjectProductAttributes {
   id: string;
   project_id: string;
   product_id: string;
+  custom_product?: boolean;
 
   status: ProjectProductStatus; // consider || specified
   consider_status: ProductConsiderStatus; // considered - default || re-considered || unlist

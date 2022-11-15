@@ -46,7 +46,7 @@ export default class CustomProductController {
   public async getOneProduct(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const result = await customProductRepository.find(req.params.id);
+    const result = await customProductRepository.getOne(req.params.id);
 
     if (!result) {
       return toolkit

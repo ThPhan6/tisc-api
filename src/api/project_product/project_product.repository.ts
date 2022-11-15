@@ -11,7 +11,12 @@ import {
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
 import { ENVIROMENT } from "@/config";
-import { BrandAttributes, SortOrder, IProjectZoneAttributes } from "@/types";
+import {
+  BrandAttributes,
+  SortOrder,
+  IProjectZoneAttributes,
+  CustomResouceType,
+} from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -99,61 +104,227 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public getConsideredProductsByProject = async (
     projectId: string,
-    userId: string
+    userId: string,
+    zone_order: SortOrder | undefined,
+    area_order: SortOrder,
+    room_order: SortOrder,
+    brand_order: SortOrder | undefined,
+    specified: boolean = false
   ) => {
     const params = {
       projectId,
       userId,
-      considerStatus: ProjectProductStatus.consider,
+      considerStatus: specified
+        ? ProjectProductStatus.specify
+        : ProjectProductStatus.consider,
+      unlistedStatus: specified
+        ? ProductSpecifyStatus.Cancelled
+        : ProductConsiderStatus.Unlisted,
+      brandResource: CustomResouceType.Brand,
+      specified,
+      specifiedStatusKey: specified ? "specified_status" : "consider_status",
     };
     const rawQuery = `
-    FILTER project_products.project_id == @projectId
-    FILTER project_products.deleted_at == null
-    FILTER project_products.status == @considerStatus
+      LET consideredProducts = (
+        FOR pp IN project_products
+        FILTER pp.project_id == @projectId
+        FILTER pp.deleted_at == null
+        FILTER pp.status == @considerStatus
+        RETURN pp
+      )
 
-    FOR products IN products
-    FILTER products.id == project_products.product_id
-    FILTER products.deleted_at == null
+      LET projectProducts = (
+        FOR pp IN consideredProducts
+        FOR product IN products
+        FILTER product.id == pp.product_id
+        FILTER product.deleted_at == null
+    
+        LET brand = FIRST(
+          FOR brand IN brands
+          FILTER brand.id == product.brand_id
+          FILTER brand.deleted_at == null
+          RETURN KEEP(brand, 'id', 'name', 'logo')
+        )
+    
+        LET collection = FIRST(
+          FOR collection IN collections
+          FILTER collection.id == product.collection_id
+          FILTER collection.deleted_at == null
+          RETURN KEEP(collection, 'id', 'name')
+        )
+    
+        LET user = FIRST(
+          FOR user IN users
+          FILTER user.id == pp.created_by
+          FILTER user.deleted_at == null
+          RETURN user
+        )
+    
+        LET productSpecification = FIRST(
+          FOR spec IN user_product_specifications
+          FILTER spec.user_id == @userId
+          FILTER spec.product_id == pp.product_id
+          FILTER spec.deleted_at == null
+          RETURN KEEP(spec, 'specification', 'brand_location_id', 'distributor_location_id')
+        )
 
-    LET brands = (
-      FOR brands IN brands
-      FILTER brands.id == products.brand_id
-      FILTER brands.deleted_at == null
-      RETURN brands
-    )
+        LET materialCode = @specified == true ? FIRST(
+          FOR material_codes IN material_codes
+          FILTER material_codes.design_id == user.relation_id
+          FILTER material_codes.deleted_at == null
+          FOR sub IN material_codes.subs
+            FOR code IN sub.codes
+            FILTER code.id == pp.material_code_id
+            RETURN code
+        ) : ''
+      
+        RETURN MERGE(
+          KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups'),
+          {
+            brand,
+            collection,
+            specifiedDetail: MERGE(
+              UNSET(pp, ['_id', '_key', '_rev', 'deleted_at']),
+              productSpecification ? productSpecification : {},
+              materialCode
+            ),
+            assigned_name: user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname,
+          }
+        )
+      )
 
-    LET collections = (
-      FOR collections IN collections
-      FILTER collections.id == products.collection_id
-      FILTER collections.deleted_at == null
-      RETURN collections
-    )
+      LET projectCustomProducts = (
+        FOR pp IN consideredProducts
+        FOR product IN custom_products
+        FILTER product.id == pp.product_id
+        FILTER product.deleted_at == null
+    
+        LET brand = FIRST(
+          FOR r IN custom_resources
+          FILTER r.id == product.brand_id
+          FILTER r.type == @brandResource
+          FILTER r.deleted_at == null
+          RETURN KEEP(r, 'id', 'name', 'logo')
+        )
+    
+        LET collection = FIRST(
+          FOR collection IN collections
+          FILTER collection.id == product.collection_id
+          FILTER collection.deleted_at == null
+          RETURN KEEP(collection, 'id', 'name')
+        )
+    
+        LET assigned_name = FIRST(
+          FOR user IN users
+          FILTER user.id == pp.created_by
+          FILTER user.deleted_at == null
+          RETURN user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname
+        )
+    
+        LET productSpecification = FIRST(
+          FOR spec IN user_product_specifications
+          FILTER spec.user_id == @userId
+          FILTER spec.product_id == pp.product_id
+          FILTER spec.deleted_at == null
+          RETURN KEEP(spec, 'specification', 'brand_location_id', 'distributor_location_id')
+        )
+      
+        RETURN MERGE(
+          KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups'),
+          {
+            brand,
+            collection,
+            specifiedDetail: MERGE(
+              UNSET(pp, ['_id', '_key', '_rev', 'deleted_at']),
+              productSpecification ? productSpecification : {}
+            ),
+            assigned_name,
+          }
+        )
+      )
+    
+      LET entireProjectProducts = (
+          FOR pp IN projectProducts
+          FILTER pp.specifiedDetail.entire_allocation == true
+          RETURN pp
+      )
+      
+      LET zoneAssignedProducts = (
+        FOR zone IN project_zones
+        FILTER zone.project_id == @projectId
+        LET areas = (
+          FOR area IN zone.areas
+          LET rooms = (
+            FOR room IN area.rooms
+            LET products = (
+              FOR pp IN projectProducts
+              FILTER room.id IN pp.specifiedDetail.allocation
 
-    LET users = (
-      FOR users IN users
-      FILTER users.id == project_products.created_by
-      FILTER users.deleted_at == null
-      RETURN users
-    )
+              SORT ${
+                brand_order
+                  ? "pp.brand.name " + brand_order
+                  : "pp.specifiedDetail.updated_at DESC"
+              } 
+              RETURN pp
+            )
 
-    LET user_product_specifications = (
-      FOR user_product_specifications IN user_product_specifications
-      FILTER user_product_specifications.user_id == @userId
-      FILTER user_product_specifications.product_id == project_products.product_id
-      FILTER user_product_specifications.deleted_at == null
-      RETURN user_product_specifications
-    )
+            SORT room.room_name ${room_order}
+            RETURN MERGE(
+              room,
+              { products, count: LENGTH(products) }
+            )
+          )
 
-    RETURN MERGE(project_products, {
-      products,
-      brands: brands[0],
-      collections: collections[0],
-      user_product_specifications: user_product_specifications[0],
-      users: users[0],
-      user_product_specification: user_product_specifications
-    })
+          SORT area.name ${area_order}
+          RETURN MERGE(
+            KEEP(area, 'id', 'name'),
+            { rooms, count: COUNT(
+              FOR room IN rooms
+              FOR p IN room.products
+              RETURN DISTINCT p.id) }
+          )
+        )
+
+        SORT ${zone_order ? "zone.name " + zone_order : "zone.updated_at DESC"} 
+        RETURN MERGE(
+          KEEP(zone, 'id', 'name'),
+          { areas, count: COUNT(
+              FOR area IN areas
+              FOR room IN area.rooms
+              FOR p IN room.products
+              RETURN DISTINCT p.id) }
+        )
+      )
+
+      LET data = UNION([{
+        id: 'entire_project',
+        name: "ENTIRE PROJECT",
+        products: entireProjectProducts,
+        count: LENGTH(entireProjectProducts),
+      }], zoneAssignedProducts)
+
+      LET unlistedCount = FIRST(
+        FOR pp IN projectProducts
+        FILTER pp.specifiedDetail.@specifiedStatusKey == @unlistedStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      
+      RETURN {
+        data,
+        summary: [
+          {
+            name:  @specified == true ? "Specified" : "Considered",
+            value: LENGTH(consideredProducts) - unlistedCount
+          },
+          {
+            name:  @specified == true ? "Cancelled" : "Unlisted",
+            value: unlistedCount
+          },
+        ]
+      }
     `;
-    return this.model.rawQuery(rawQuery, params);
+    const results = await this.model.rawQueryV2(rawQuery, params);
+    return results[0];
   };
 
   public getSpecifiedProductsForBrandGroup = async (

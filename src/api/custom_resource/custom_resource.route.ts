@@ -65,6 +65,24 @@ export default class CustomResourceRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.CUSTOM_RESOURCE.GET_DISTRIBUTORS_BY_COMPANY,
+          options: {
+            handler: controller.getListDistributorsByCompany,
+            validate: validate.getDistributorsByCompany,
+            description:
+              "Method that get list distributors by company - group by country",
+            tags: ["api", "Custom Resource"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                // 200: response.getAllResource,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.CUSTOM_RESOURCE.GET_ONE,
           options: {
             handler: controller.getOneResource,
