@@ -25,6 +25,7 @@ export default class CustomProductRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                200: response.getOneProduct,
               },
             },
           },

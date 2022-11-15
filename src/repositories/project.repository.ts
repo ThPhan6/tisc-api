@@ -555,9 +555,16 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
       )
 
-      LET deleted = (
+      LET considerDeleted = (
         FOR pp IN prjProducts
         FILTER pp.deleted_at != null
+        FILTER pp.status == @considerStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET specifyDeleted = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        FILTER pp.status == @specifiedStatus
         COLLECT WITH COUNT INTO length RETURN length
       )
 
@@ -667,13 +674,13 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         },
         considered: {
           brands: considerProductBrands,
-          deleted: deleted[0],
+          deleted: considerDeleted[0],
           consider: LENGTH(considerPrjProducts) - unlisted[0],
           unlisted: unlisted[0],
         },
         specified: {
           brands: specifiedProductBrands,
-          deleted: deleted[0],
+          deleted: specifyDeleted[0],
           specified: LENGTH(specifiedPrjProducts) - cancelled[0],
           cancelled: cancelled[0],
         },

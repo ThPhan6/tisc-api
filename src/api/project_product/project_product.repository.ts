@@ -120,30 +120,40 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       unlistedStatus: specified
         ? ProductSpecifyStatus.Cancelled
         : ProductConsiderStatus.Unlisted,
-      brandResource: CustomResouceType.Brand,
       specified,
       specifiedStatusKey: specified ? "specified_status" : "consider_status",
     };
     const rawQuery = `
-      LET consideredProducts = (
-        FOR pp IN project_products
-        FILTER pp.project_id == @projectId
-        FILTER pp.deleted_at == null
-        FILTER pp.status == @considerStatus
-        RETURN pp
-      )
-
       LET projectProducts = (
-        FOR pp IN consideredProducts
-        FOR product IN products
-        FILTER product.id == pp.product_id
-        FILTER product.deleted_at == null
+        FOR project_products IN project_products
+        FILTER project_products.project_id == @projectId
+        FILTER project_products.deleted_at == null
+        FILTER project_products.status == @considerStatus
     
-        LET brand = FIRST(
-          FOR brand IN brands
-          FILTER brand.id == product.brand_id
-          FILTER brand.deleted_at == null
-          RETURN KEEP(brand, 'id', 'name', 'logo')
+        LET product = project_products.custom_product == true ? FIRST(
+          FOR product IN custom_products
+          FILTER product.id == project_products.product_id
+          FILTER product.deleted_at == null
+          RETURN product
+        ) : FIRST(
+          FOR product IN products
+          FILTER product.id == project_products.product_id
+          FILTER product.deleted_at == null
+          RETURN product
+        )
+    
+        LET brand = project_products.custom_product == true ? FIRST(
+          FOR cr IN custom_resources
+          FILTER cr.id == product.brand_id
+          FILTER cr.deleted_at == null
+          FOR loc IN locations
+          FILTER loc.id == cr.location_id
+          RETURN MERGE(cr, {name: loc.business_name})
+        ) : FIRST(
+          FOR b IN brands
+          FILTER b.id == product.brand_id
+          FILTER b.deleted_at == null
+          RETURN KEEP(b, 'id', 'name', 'logo')
         )
     
         LET collection = FIRST(
@@ -154,27 +164,27 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         )
     
         LET user = FIRST(
-          FOR user IN users
-          FILTER user.id == pp.created_by
-          FILTER user.deleted_at == null
-          RETURN user
+          FOR u IN users
+          FILTER u.id == project_products.created_by
+          FILTER u.deleted_at == null
+          RETURN u
         )
     
         LET productSpecification = FIRST(
           FOR spec IN user_product_specifications
           FILTER spec.user_id == @userId
-          FILTER spec.product_id == pp.product_id
+          FILTER spec.product_id == project_products.product_id
           FILTER spec.deleted_at == null
           RETURN KEEP(spec, 'specification', 'brand_location_id', 'distributor_location_id')
         )
-
+        
         LET material_code = @specified == true ? FIRST(
           FOR material_codes IN material_codes
           FILTER material_codes.design_id == user.relation_id
           FILTER material_codes.deleted_at == null
           FOR sub IN material_codes.subs
             FOR code IN sub.codes
-            FILTER code.id == pp.material_code_id
+            FILTER code.id == project_products.material_code_id
             RETURN code.code
         ) : ''
       
@@ -184,61 +194,11 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             brand,
             collection,
             specifiedDetail: MERGE(
-              UNSET(pp, ['_id', '_key', '_rev', 'deleted_at']),
+              UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at']),
               productSpecification ? productSpecification : {},
               {material_code}
             ),
             assigned_name: user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname,
-          }
-        )
-      )
-
-      LET projectCustomProducts = (
-        FOR pp IN consideredProducts
-        FOR product IN custom_products
-        FILTER product.id == pp.product_id
-        FILTER product.deleted_at == null
-    
-        LET brand = FIRST(
-          FOR r IN custom_resources
-          FILTER r.id == product.brand_id
-          FILTER r.type == @brandResource
-          FILTER r.deleted_at == null
-          RETURN KEEP(r, 'id', 'name', 'logo')
-        )
-    
-        LET collection = FIRST(
-          FOR collection IN collections
-          FILTER collection.id == product.collection_id
-          FILTER collection.deleted_at == null
-          RETURN KEEP(collection, 'id', 'name')
-        )
-    
-        LET assigned_name = FIRST(
-          FOR user IN users
-          FILTER user.id == pp.created_by
-          FILTER user.deleted_at == null
-          RETURN user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname
-        )
-    
-        LET productSpecification = FIRST(
-          FOR spec IN user_product_specifications
-          FILTER spec.user_id == @userId
-          FILTER spec.product_id == pp.product_id
-          FILTER spec.deleted_at == null
-          RETURN KEEP(spec, 'specification', 'brand_location_id', 'distributor_location_id')
-        )
-      
-        RETURN MERGE(
-          KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups'),
-          {
-            brand,
-            collection,
-            specifiedDetail: MERGE(
-              UNSET(pp, ['_id', '_key', '_rev', 'deleted_at']),
-              productSpecification ? productSpecification : {}
-            ),
-            assigned_name,
           }
         )
       )
@@ -295,7 +255,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               RETURN DISTINCT p.id) }
         )
       )
-
+      
       LET data = UNION([{
         id: 'entire_project',
         name: "ENTIRE PROJECT",
@@ -314,7 +274,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         summary: [
           {
             name:  @specified == true ? "Specified" : "Considered",
-            value: LENGTH(consideredProducts) - unlistedCount
+            value: LENGTH(projectProducts) - unlistedCount
           },
           {
             name:  @specified == true ? "Cancelled" : "Unlisted",
@@ -466,7 +426,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FOR loc IN locations
         FILTER loc.id == cr.location_id
         RETURN MERGE(cr, {name: loc.business_name})
-      ) :  FIRST(
+      ) : FIRST(
         FOR b IN brands
         FILTER b.id == product.brand_id
         FILTER b.deleted_at == null
