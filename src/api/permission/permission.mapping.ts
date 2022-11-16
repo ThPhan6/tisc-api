@@ -37,32 +37,23 @@ export const mappingPermission = (
       ]);
     }
   });
-
   /// mapping sub item
-  const response = permissions.reduce(
-    (res, pm) => {
-      pm.items = pm.items.map((item) => {
-        return {
-          accessable: item.accessable,
-          id: item.id,
-          name: item.name,
-        };
-      });
-
-      if (!pm.parent_id) {
-        res.push(pm);
-        return res;
-      }
-      /// get index of response
-      const index = res.findIndex((item) => item.id === pm.parent_id);
-      if (index > -1) {
-        // found
-        res[index].subs.push(pm);
-        res[index].subs = sortBy(res[index].subs, ["index"]);
-      }
-      return res;
-    },
-    [] as CompanyPermissionList[]
-  );
+  const removedItemIndex = permissions.map((permission) => {
+    return {
+      ...permission,
+      items: permission.items.map((item) => ({
+        accessable: item.accessable,
+        id: item.id,
+        name: item.name,
+      })),
+    };
+  });
+  const parents = removedItemIndex.filter((item) => !item.parent_id);
+  const response = parents.map((parent) => {
+    return {
+      ...parent,
+      subs: removedItemIndex.filter((item) => item.parent_id === parent.id),
+    };
+  });
   return sortBy(response, ["index"]);
 };
