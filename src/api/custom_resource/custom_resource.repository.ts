@@ -185,6 +185,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         
         LET location = ${locationRepository.getShortLocationQuery("loc")}
         LET business_name = loc.business_name
+        LET created_at = cr.created_at
 
         SORT ${sort} ${order}
         LIMIT @offset, @limit
