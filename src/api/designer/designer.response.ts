@@ -1,6 +1,8 @@
 import { paginationResponse } from "@/helper/response.helper";
 import { getSummaryResponseValidate } from "@/validate/common.response";
 import * as HapiJoi from "joi";
+import { customProductResponse } from "../custom_product/custom_product.response";
+import { customResourceResponse } from "../custom_resource/custom_resource.response";
 
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -52,4 +54,25 @@ export default {
     statusCode: Joi.number(),
   }),
   getAllDesignSummary: getSummaryResponseValidate(),
+  getLibrary: Joi.object({
+    data: Joi.object({
+      brands: Joi.array().items(customResourceResponse),
+      distributors: Joi.array().items(customResourceResponse),
+      collections: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          products: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              name: Joi.string(),
+              image: Joi.string().allow("", null),
+            })
+          ),
+        })
+      ),
+      products: Joi.array().items(Joi.object(customProductResponse)),
+    }),
+    statusCode: Joi.number(),
+  }),
 };

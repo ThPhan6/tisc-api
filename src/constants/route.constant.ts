@@ -228,12 +228,14 @@ export const ROUTES = {
     GET: "/api/invoice/{id}",
   },
   USER: {
-    GET_BY_TYPE_ROLE_AND_RELATION: '/api/team-profile/get-by-type-role-relation'
+    GET_BY_TYPE_ROLE_AND_RELATION:
+      "/api/team-profile/get-by-type-role-relation",
   },
   DESIGN_FIRM: {
     UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",
     GET_LIST_DESIGN_FIRM: "/api/design/get-list",
     GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
+    GET_DESIGN_FIRM_LIBRARY: "/api/design/{id}/library",
     GET_DESIGN_STATUSES: "/api/design/statuses",
     GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
     UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",

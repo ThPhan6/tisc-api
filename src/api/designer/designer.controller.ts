@@ -42,4 +42,10 @@ export default class DesignerController {
     const response = await designerService.updateDesign(id, payload, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getDesignLibrary = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await designerService.getDesignLibrary(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
