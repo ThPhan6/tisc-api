@@ -186,7 +186,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         LET location = ${locationRepository.getShortLocationQuery("loc")}
         LET business_name = loc.business_name
 
-        SORT @sort @order
+        SORT ${sort} ${order}
         LIMIT @offset, @limit
         RETURN MERGE(
           KEEP(loc, 'business_name', 'general_email', 'general_phone', 'phone_code'),
@@ -203,8 +203,6 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
       {
         limit,
         offset,
-        sort,
-        order,
         type,
         brandResource: CustomResouceType.Brand,
         distributorResource: CustomResouceType.Distributor,
