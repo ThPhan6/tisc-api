@@ -52,6 +52,23 @@ export default class DesignerRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.DESIGN_FIRM.GET_DESIGN_FIRM_LIBRARY,
+          options: {
+            handler: controller.getDesignLibrary,
+            validate: getOneValidation,
+            description: "Method that get design firm library info",
+            tags: ["api", "Designer"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getLibrary,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.DESIGN_FIRM.GET_DESIGN_STATUSES,
           options: {
             handler: controller.getStatuses,

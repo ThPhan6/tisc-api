@@ -11,6 +11,7 @@ import { locationRepository } from "@/repositories/location.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import {
+  ALL_REGIONS,
   ICountryStateCity,
   ProjectStatus,
   SortOrder,
@@ -194,7 +195,7 @@ class ProjectService {
       user.type !== UserType.Designer ||
       project.design_id !== user.relation_id
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const projectExisted = await projectRepository.getProjectExist(
@@ -329,7 +330,7 @@ class ProjectService {
       user.type !== UserType.Designer ||
       project.design_id !== user.relation_id
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const deletedProject = await projectRepository.delete(id);
@@ -388,7 +389,7 @@ class ProjectService {
         id: v4(),
         quantity: sumBy(summary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: summary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             summary.countries.summary.find((el) => el.region === region)

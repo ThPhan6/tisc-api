@@ -488,8 +488,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             status,
             city_name,
             country_name,
-            metricArea: ROUND(prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot)),
-            imperialArea: ROUND(prj.measurement_unit == @metricUnit ? area * @meterToFoot : area),
+            metricArea: prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot),
+            imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFoot : area,
             productCount: LENGTH(products),
             deleted: deleted[0],
             consider: LENGTH(considerPrjProducts) - unlisted[0],
@@ -555,9 +555,16 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
       )
 
-      LET deleted = (
+      LET considerDeleted = (
         FOR pp IN prjProducts
         FILTER pp.deleted_at != null
+        FILTER pp.status == @considerStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET specifyDeleted = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        FILTER pp.status == @specifiedStatus
         COLLECT WITH COUNT INTO length RETURN length
       )
 
@@ -591,6 +598,17 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           products: brandGroup[*].pp.product
         }
       )
+      LET customProducts = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at == null
+        FOR p IN custom_products
+        FILTER p.id == pp.product_id
+        FILTER p.deleted_at == null
+        RETURN MERGE(
+          KEEP(p, 'id', 'company_id', 'name'),
+          { image: FIRST(p.images), status: pp.consider_status, ppStatus: pp.status }
+        )
+      )
 
       LET specifiedPrjProducts = (
         FOR pp IN prjProducts
@@ -605,6 +623,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           }
         )
       )
+
       LET cancelled = (
         FOR pp IN specifiedPrjProducts
         FILTER pp.specified_status == @cancelledStatus
@@ -647,7 +666,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             department: common_types.name,
             phone_code: loc.phone_code,
             access_level: role.name,
-            work_location: CONCAT(loc.address, ', ', loc.city_name, loc.city_name == '' ? '' : ', ', loc.country_name, ', ', loc.postal_code),
+            work_location: ${locationRepository.getFullLocationQuery("loc")}
           }
         )
       )
@@ -662,18 +681,20 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         ),
         spacing: {
           zones: spacing,
-          metricArea: ROUND(prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot)),
-          imperialArea: ROUND(prj.measurement_unit == @metricUnit ? area * @meterToFoot : area),
+          metricArea: prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot),
+          imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFoot : area,
         },
         considered: {
           brands: considerProductBrands,
-          deleted: deleted[0],
+          customProducts: (FOR p IN customProducts FILTER p.ppStatus == @considerStatus RETURN UNSET(p, 'ppStatus')),
+          deleted: considerDeleted[0],
           consider: LENGTH(considerPrjProducts) - unlisted[0],
           unlisted: unlisted[0],
         },
         specified: {
           brands: specifiedProductBrands,
-          deleted: deleted[0],
+          customProducts: (FOR p IN customProducts FILTER p.ppStatus == @specifiedStatus RETURN UNSET(p, 'ppStatus')),
+          deleted: specifyDeleted[0],
           specified: LENGTH(specifiedPrjProducts) - cancelled[0],
           cancelled: cancelled[0],
         },

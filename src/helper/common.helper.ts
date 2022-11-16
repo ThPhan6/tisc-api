@@ -174,3 +174,6 @@ export const calculateInterestInvoice = (
 export const getKeyByValue = (object: any, value: any) => {
   return Object.keys(object).find((key: string) => object[key] === value) || "";
 };
+
+export const getUnsetAttributes = (model: string, addition: string = "") =>
+  `UNSET(${model}, ['_id', '_key', '_rev', 'deleted_at', ${addition}])`;
