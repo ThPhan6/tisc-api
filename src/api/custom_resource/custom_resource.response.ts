@@ -10,6 +10,9 @@ export const customResourceResponse = Joi.object({
   associate_resource_ids: Joi.array().items(Joi.string()),
   contacts: customProductContactValidate,
   type: Joi.number(),
+  created_at: Joi.string().allow("", null),
+  updated_at: Joi.string().allow("", null),
+  location_id: Joi.string().allow("", null),
   ...locationBasicResponse,
 });
 

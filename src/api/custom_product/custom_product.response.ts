@@ -1,6 +1,25 @@
 import Joi from "joi";
 import { locationBasicResponse } from "../location/location.response";
-import { customProductValidate } from "./custom_product.validate";
+import {
+  basicAttributeValidate,
+  customProductOptionValidate,
+  customProductValidate,
+} from "./custom_product.validate";
+
+export const customProductResponse = {
+  id: Joi.string(),
+  name: Joi.string(),
+  description: Joi.string(),
+  image: Joi.string(),
+  attributes: Joi.array().items(basicAttributeValidate),
+  specification: Joi.array().items(basicAttributeValidate),
+  options: Joi.array().items(customProductOptionValidate),
+  collection_id: Joi.string(),
+  company_id: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string(),
+  design_id: Joi.string(),
+};
 
 export default {
   getProductList: Joi.object({

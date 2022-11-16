@@ -121,9 +121,9 @@ class DesignerService {
     user: UserAttributes
   ) {
     if (
-      designId !== user.relation_id
-      && user.type !== UserType.Designer
-      && user.type !== UserType.TISC
+      designId !== user.relation_id &&
+      user.type !== UserType.Designer &&
+      user.type !== UserType.TISC
     ) {
       return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
@@ -163,6 +163,18 @@ class DesignerService {
         }),
       });
     }
+  }
+
+  public async getDesignLibrary(id: string) {
+    const library = await designerRepository.getLibrary(id);
+
+    if (!library) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
+    return successResponse({
+      data: library,
+    });
   }
 }
 

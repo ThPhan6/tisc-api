@@ -1,6 +1,7 @@
 import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
+  CustomResouceType,
   DesignerAttributes,
   DesignFirmFunctionalType,
   ListDesignerWithPaginate,
@@ -13,6 +14,8 @@ import {
   DesignerDataCustom,
   GetDesignFirmSort,
 } from "@/api/designer/designer.type";
+import { getUnsetAttributes } from "@/helper/common.helper";
+import { locationRepository } from "./location.repository";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
   protected model: DesignerModel;
@@ -281,6 +284,67 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       }
     );
     return designFirm[0];
+  }
+
+  public async getLibrary(designId: string) {
+    const result = await this.model.rawQueryV2(
+      `
+      LET brands = (
+        FOR b IN custom_resources
+        FILTER b.deleted_at == null
+        FILTER b.design_id == @designId
+        FILTER b.type == @brandType
+        FOR loc IN locations
+        FILTER loc.id == b.location_id
+        FILTER loc.deleted_at == null
+        RETURN MERGE(
+          ${getUnsetAttributes("b")},
+          KEEP(loc, ${locationRepository.basicAttributesQuery})
+        )
+      )
+
+      LET distributors = (
+        FOR b IN custom_resources
+        FILTER b.deleted_at == null
+        FILTER b.design_id == @designId
+        FILTER b.type == @distributorType
+        FOR loc IN locations
+        FILTER loc.id == b.location_id
+        FILTER loc.deleted_at == null
+        RETURN MERGE(
+          ${getUnsetAttributes("b")},
+          KEEP(loc, ${locationRepository.basicAttributesQuery})
+        )
+      )
+
+      LET products = (
+        FOR p IN custom_products
+        FILTER p.design_id == @designId
+        FILTER p.deleted_at == null
+        RETURN ${getUnsetAttributes("p", `'images'`)}
+      )
+
+      LET collections = (
+        FOR p IN products
+        FOR col IN collections
+        FILTER col.id == p.collection_id
+        COLLECT collection = col INTO group
+        RETURN {
+          id: collection.id,
+          name: collection.name,
+          products: (FOR g IN group RETURN MERGE(KEEP(g.p, 'id', 'name'), {image: FIRST(g.p.images)}))
+        }
+      )
+
+      RETURN { brands, distributors, collections, products }
+    `,
+      {
+        designId,
+        brandType: CustomResouceType.Brand,
+        distributorType: CustomResouceType.Distributor,
+      }
+    );
+    return result[0];
   }
 }
 export const designerRepository = new DesignerRepository();
