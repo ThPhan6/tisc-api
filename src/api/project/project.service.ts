@@ -11,6 +11,7 @@ import { locationRepository } from "@/repositories/location.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import {
+  ALL_REGIONS,
   ICountryStateCity,
   ProjectStatus,
   SortOrder,
@@ -388,7 +389,7 @@ class ProjectService {
         id: v4(),
         quantity: sumBy(summary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: summary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             summary.countries.summary.find((el) => el.region === region)

@@ -8,6 +8,7 @@ import {
 import { designerRepository } from "@/repositories/designer.repository";
 import { uploadLogoOfficeProfile } from "@/service/image.service";
 import {
+  ALL_REGIONS,
   DesignerAttributes,
   SummaryInfo,
   UserAttributes,
@@ -79,7 +80,7 @@ class DesignerService {
         id: v4(),
         quantity: sumBy(designFirmSummary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: designFirmSummary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             designFirmSummary.countries.summary.find(

@@ -488,8 +488,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             status,
             city_name,
             country_name,
-            metricArea: ROUND(prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot)),
-            imperialArea: ROUND(prj.measurement_unit == @metricUnit ? area * @meterToFoot : area),
+            metricArea: prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot),
+            imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFoot : area,
             productCount: LENGTH(products),
             deleted: deleted[0],
             consider: LENGTH(considerPrjProducts) - unlisted[0],
@@ -666,7 +666,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             department: common_types.name,
             phone_code: loc.phone_code,
             access_level: role.name,
-            work_location: CONCAT(loc.address, ', ', loc.city_name, loc.city_name == '' ? '' : ', ', loc.country_name, ', ', loc.postal_code),
+            work_location: ${locationRepository.getFullLocationQuery("loc")}
           }
         )
       )
@@ -681,8 +681,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         ),
         spacing: {
           zones: spacing,
-          metricArea: ROUND(prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot)),
-          imperialArea: ROUND(prj.measurement_unit == @metricUnit ? area * @meterToFoot : area),
+          metricArea: prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot),
+          imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFoot : area,
         },
         considered: {
           brands: considerProductBrands,

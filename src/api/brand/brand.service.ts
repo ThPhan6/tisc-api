@@ -21,6 +21,7 @@ import {
   UserAttributes,
   GetUserGroupBrandSort,
   UserType,
+  ALL_REGIONS,
 } from "@/types";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
@@ -274,7 +275,7 @@ class BrandService {
         id: v4(),
         quantity: sumBy(summary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: summary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             summary.countries.summary.find((el) => el.region === region)
