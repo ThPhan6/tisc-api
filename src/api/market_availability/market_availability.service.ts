@@ -3,9 +3,14 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import {getEnumValues} from '@/helper/common.helper';
+import {getEnumKeys} from '@/helper/common.helper';
 
-import { SortOrder, UserAttributes, UserType } from "@/types";
+import {
+  SortOrder,
+  UserAttributes,
+  UserType,
+  RegionKey
+} from "@/types";
 import {
   mappingGroupByCollection,
   mappingMarketAvailibility,
@@ -14,7 +19,6 @@ import {
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
-import {lowerCase} from 'lodash';
 
 class MarketAvailabilityService {
 
@@ -55,16 +59,15 @@ class MarketAvailabilityService {
     }
     //
     const result = mappingMarketAvailibility(market, false);
-
     return successResponse({
         data: {
           collection_id: result.collection_id,
           collection_name: result.name,
-          regions: getEnumValues(Region).map((region: any) => {
-            const regionName = lowerCase(region) as 'asia' | 'europe' | 'africa' | 'polar' | 'americas' | 'oceania';
+          regions: getEnumKeys(Region).map((region: any) => {
+            const regionName = region as RegionKey;
             return {
               count: result[regionName].length,
-              name: regionName,
+              name: Region[regionName],
               countries: result[regionName]
             }
           }),
