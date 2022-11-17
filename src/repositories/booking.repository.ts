@@ -9,6 +9,7 @@ class BookingRepository extends BaseRepository<IBookingAttributes> {
   protected DEFAULT_ATTRIBUTE: Partial<IBookingAttributes> = {
     brand_id: "",
     event_id: "",
+    meeting_url: "",
     email: "",
     full_name: "",
     date: "",
@@ -16,7 +17,7 @@ class BookingRepository extends BaseRepository<IBookingAttributes> {
     end_time: "",
     timezone: "",
     created_at: "",
-    updated_at: ""
+    updated_at: "",
   };
 
   constructor() {

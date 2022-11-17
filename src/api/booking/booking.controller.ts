@@ -23,13 +23,13 @@ export default class BookingController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const {id} = req.query;
+    const {id} = req.params;
     const response = await bookingService.reSchedule(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public cancel = async (req: Request, toolkit: ResponseToolkit) => {
-    const {id} = req.query
+    const {id} = req.params;
     const response = await bookingService.cancel(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

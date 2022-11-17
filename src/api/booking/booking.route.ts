@@ -44,12 +44,12 @@ export default class BookingRoute implements IRoute {
           },
         },
         {
-          method: "PUT",
+          method: "PATCH",
           path: ROUTES.BOOKING.RE_SCHEDULE,
           options: {
             handler: controller.reSchedule,
             validate: validate.reSchedule,
-            description: "Method that put reschedule booking",
+            description: "Method that patch reschedule booking",
             tags: ["api", "Booking"],
             response: {
               status: {
@@ -59,7 +59,7 @@ export default class BookingRoute implements IRoute {
           },
         },
         {
-          method: "PUT",
+          method: "DELETE",
           path: ROUTES.BOOKING.CANCEL,
           options: {
             handler: controller.cancel,

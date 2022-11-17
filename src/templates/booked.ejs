@@ -88,6 +88,11 @@
             padding-left: 10px;
         }
 
+        .list-session-include li:before {
+            content: "• ";
+            color: #4f84ff;
+        }
+
         .text-non-decoration {
             text-decoration: none;
         }
@@ -130,7 +135,7 @@
                 </p>
                 <div class="pb-30">
                     <p>To change event, click the below button:</p>
-                    <a class="text-blue-light text-non-decoration mr-2" href="<%= reschedule_url %>">Reschedule</a>
+                    <a class="text-blue-light text-non-decoration mr-3" href="<%= reschedule_url %>">Reschedule</a>
                     <a class="text-blue-light text-non-decoration" href="<% cancel_url %>">Cancel</a>
                 </div>
                 <p class="pb-30">Thank you and talk to you soon</p>

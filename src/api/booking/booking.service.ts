@@ -19,7 +19,7 @@ import { BrandAttributes, IBrandRequest } from "../brand/brand.type";
 import UserRepository from "@/repositories/user.repository";
 import { locationService } from "../location/location.service";
 import { createResetPasswordToken } from "@/helper/password.helper";
-import { UserAttributes, UserStatus } from "@/types";
+import { IBookingAttributes, UserAttributes, UserStatus } from "@/types";
 import { mailService } from "@/service/mail.service";
 
 export default class BookingService {
@@ -62,7 +62,6 @@ export default class BookingService {
           events.map((event: any) => {
             if (!event?.status || event?.status != 'cancelled') {
               const scheduleStartTs =  moment_tz(scheduleStart).tz(event.start_time.timezone).format('X');
-              console.log(event.start_time.timestamp)
               if (scheduleStartTs == event.start_time.timestamp) {
                 item.available = false;
               }
@@ -108,36 +107,20 @@ export default class BookingService {
       return errorMessageResponse(MESSAGES.BOOKING.TIME_STAMP.NOT_VALID);
     }
 
-    if (endTimestamp <= startTimestamp) {
+    const todayTimestamp = moment_tz().tz(payload.timezone).format("X");
+    if (parseInt(payload.start_time) >= parseInt(payload.end_time)
+      || parseInt(payload.start_time) <= parseInt(todayTimestamp)) {
       return errorMessageResponse(MESSAGES.BOOKING.TIME_STAMP.LARGE_THAN);
     }
 
     try {
-      const selectedDate = moment(payload.date).format('YYYY-MM-DD');
-      // get available schedule
-      let response: any = await this.availableSchedule(payload.timezone, selectedDate);
-      if (response?.data?.length == 0 || !response) {
-        return errorMessageResponse(MESSAGES.BOOKING.NOT_AVAILABLE);
-      }
-
-      let valid = false;
-      (response.data).map((item: any) => {
-        const scheduleStartTs = moment_tz(new Date(`${selectedDate} ${item.start} GMT+8`))
-          .tz(payload.timezone).format('X');
-        const scheduleEndTs = moment_tz(new Date(`${selectedDate} ${item.end} GMT+8`))
-          .tz(payload.timezone).format('X');
-        if ((payload.start_time == scheduleStartTs || payload.end_time == scheduleEndTs)
-          && item.available) {
-          valid = true
-        }
-      })
-
-      if (!valid) {
-        return errorMessageResponse(MESSAGES.BOOKING.NOT_AVAILABLE);
-      }
+      // const message = await this.validationSchedule(payload);
+      // if (!isEmpty(message)) {
+      //   return errorMessageResponse(message);
+      // }
 
       // create lark event
-      response = await larkOpenAPIService.createEvent({
+      const response = await larkOpenAPIService.createEvent({
         summary: `${payload.brand} book TISC live demo session`,
         description: "TISC live demo session is booked",
         start_time: {
@@ -147,6 +130,9 @@ export default class BookingService {
         end_time: {
           timestamp: payload.end_time,
           timezone: payload.timezone
+        },
+        vchat: {
+          vc_type: 'vc'
         }
       });
       if (response.data.code != 0) {
@@ -161,7 +147,6 @@ export default class BookingService {
       })
 
       if (isEmpty(brand)) {
-        // delete event
         await larkOpenAPIService.deleteEvent(response.data.data.event.event_id)
         return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
       }
@@ -170,37 +155,28 @@ export default class BookingService {
       const booking = await this.bookingRepository.create({
         brand_id: brand.id,
         event_id: response.data.data.event.event_id,
+        meeting_url: response.data.data.event.vchat.meeting_url,
         email: payload.email,
         full_name: payload.first_name,
         date: payload.date,
         start_time: payload.start_time,
         end_time: payload.end_time,
         timezone: payload.timezone,
+
       })
 
       if (!booking) {
         return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
       }
 
-      // send email
-      const sgStartTime = moment(moment(startTimestamp, 'X')
-        .tz(payload.timezone)).tz('Asia/Singapore')
-        .format('hh:mm on dddd, MMMM DD, YYYY')
-      const sent = await mailService.sendBookingScheduleEmail(
-        payload.email,
-        "TISC live demo session is booked!",
-        payload.first_name,
-        sgStartTime,
-        "#",
-        "#",
-        "#"
-      );
-
+      // sent email
+      const sent: boolean|any = await this.sendEmail(startTimestamp, booking, payload.timezone);
       if (!sent) {
         return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
       }
 
       return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+
     } catch (error: any) {
       console.log(error)
       return errorMessageResponse(error?.data?.msg ?? MESSAGES.GENERAL.SOMETHING_WRONG);
@@ -214,68 +190,70 @@ export default class BookingService {
 
     const startTimestamp = moment(payload.start_time, "X");
     const endTimestamp = moment(payload.end_time, "X");
+
     if (!startTimestamp.isValid() || !endTimestamp.isValid()) {
       return errorMessageResponse(MESSAGES.BOOKING.TIME_STAMP.NOT_VALID);
     }
 
-    if (endTimestamp <= startTimestamp) {
+    const todayTimestamp = moment_tz().tz(payload.timezone).format("X");
+    if (parseInt(payload.start_time) >= parseInt(payload.end_time)
+      || parseInt(payload.start_time) <= parseInt(todayTimestamp)) {
       return errorMessageResponse(MESSAGES.BOOKING.TIME_STAMP.LARGE_THAN);
     }
 
-    let booking:any = await this.bookingRepository.find(id);
-    if (!booking) {
-      return errorMessageResponse(MESSAGES.BOOKING.NOT_FOUND, 404);
-    }
-
-    // update to lark
-    const response = await larkOpenAPIService.updateEvent(
-      booking.event_id,
-      {
-        start_time: {
-        timestamp: payload.start_time,
-        timezone: payload.timezone,
-        },
-        end_time: {
-          timestamp: payload.end_time,
-          timezone: payload.timezone
-        }
+    try {
+      const message = await this.validationSchedule(payload);
+      if (!isEmpty(message)) {
+        return errorMessageResponse(message);
       }
-    )
-    if (response.data.code != 0) {
-      return errorMessageResponse(response.data.msg);
+
+      let booking:any = await this.bookingRepository.find(id);
+      if (!booking) {
+        return errorMessageResponse(MESSAGES.BOOKING.NOT_FOUND, 404);
+      }
+
+      const response = await larkOpenAPIService.updateEvent(
+        booking.event_id,
+        {
+          start_time: {
+          timestamp: payload.start_time,
+          timezone: payload.timezone,
+          },
+          end_time: {
+            timestamp: payload.end_time,
+            timezone: payload.timezone
+          }
+        }
+      )
+      if (response.data.code != 0) {
+        return errorMessageResponse(response.data.msg);
+      }
+
+      booking = await this.bookingRepository.update(id, {
+        event_id: response.data.data.event.event_id,
+        meeting_url: response.data.data.event.vchat.meeting_url,
+        date: payload.date,
+        start_time: payload.start_time,
+        end_time: payload.end_time,
+        timezone: payload.timezone,
+      })
+
+      if (!booking) {
+        return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
+      }
+
+      // sent email
+      const sent: boolean|any = await this.sendEmail(startTimestamp,  booking, payload.timezone);
+      if (!sent) {
+        return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
+      }
+
+      return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+
+    } catch (error: any) {
+      console.log(error)
+      return errorMessageResponse(error?.data?.msg ?? MESSAGES.GENERAL.SOMETHING_WRONG);
     }
-
-    booking = await this.bookingRepository.update(booking.id, {
-      event_id: response.data.data.event.event_id,
-      date: payload.date,
-      start_time: payload.start_time,
-      end_time: payload.end_time,
-      timezone: payload.timezone,
-    })
-
-    if (!booking) {
-      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
-    }
-
-     // send email
-     const sgStartTime = moment(moment(startTimestamp, 'X')
-     .tz(payload.timezone)).tz('Asia/Singapore')
-     .format('hh:mm on dddd, MMMM DD, YYYY')
-   const sent = await mailService.sendBookingScheduleEmail(
-     booking.email,
-     "TISC live demo session is booked!",
-     booking.first_name,
-     sgStartTime,
-     "#",
-     "#",
-     "#"
-   );
-
-   if (!sent) {
-     return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
-   }
-
-   return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
   public async cancel(id: string) {
@@ -294,6 +272,32 @@ export default class BookingService {
       console.log(error)
       return errorMessageResponse(error?.data?.msg ?? MESSAGES.GENERAL.SOMETHING_WRONG);
     }
+  }
+
+  private async validationSchedule(payload: any) {
+    const selectedDate = moment(payload.date).format('YYYY-MM-DD');
+      let response: any = await this.availableSchedule(payload.timezone, selectedDate);
+      if (response?.data?.length == 0 || !response) {
+        return MESSAGES.BOOKING.NOT_AVAILABLE;
+      }
+
+      let valid = false;
+      (response.data).map((item: any) => {
+        const scheduleStartTs = moment_tz(new Date(`${selectedDate} ${item.start} GMT+8`))
+          .tz(payload.timezone).format('X');
+        const scheduleEndTs = moment_tz(new Date(`${selectedDate} ${item.end} GMT+8`))
+          .tz(payload.timezone).format('X');
+        if ((payload.start_time == scheduleStartTs || payload.end_time == scheduleEndTs)
+          && item.available) {
+          valid = true
+        }
+      })
+
+      if (!valid) {
+        return MESSAGES.BOOKING.NOT_AVAILABLE;
+      }
+
+      return '';
   }
 
   private async createBrand(payload: IBrandRequest) {
@@ -355,6 +359,45 @@ export default class BookingService {
       return brand;
     } catch (error) {
       return null;
+    }
+  }
+
+  private async sendEmail(startTimestamp: any, booking: IBookingAttributes, timezone: string) {
+    try {
+      const sgStartTime = moment(moment(startTimestamp, "X")
+      .tz(timezone)).tz('Asia/Singapore')
+      .format('hh:mm on dddd, MMMM DD, YYYY')
+
+    const schedule_url = "http://localhost:3000";
+    const cancel_url = "http://localhost:3000";
+    const subject = "TISC live demo session is booked!";
+
+    const sentToBrand = mailService.sendBookingScheduleEmail(
+      booking.email,
+      subject,
+      booking.full_name,
+      sgStartTime,
+      booking.meeting_url,
+      schedule_url,
+      cancel_url
+    );
+
+    const sentToTISC = mailService.sendBookingScheduleEmail(
+      //"liming@tisc.global",
+      "trungkiendtu0112@gmail.com",
+      subject,
+      "Liming",
+      sgStartTime,
+      booking.meeting_url,
+      schedule_url,
+      cancel_url
+    );
+
+    const sent = Promise.all([sentToBrand, sentToTISC]);
+    return true;
+
+    } catch (error) {
+      false;
     }
   }
 

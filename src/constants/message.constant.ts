@@ -263,9 +263,9 @@ export const MESSAGES = {
     },
     TIME_STAMP: {
       NOT_VALID: "The start time or end time invalid timestamp data",
-      LARGE_THAN: "The end time must be large than start time",
+      LARGE_THAN: "The end time must be large than start time and large than today",
     },
-    NOT_AVAILABLE: "This booking is not available on the system",
+    NOT_AVAILABLE: "This booking is not available",
     NOT_FOUND: "Not found booking"
   }
 };

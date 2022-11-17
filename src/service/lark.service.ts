@@ -112,6 +112,9 @@ interface IEventRequest {
   end_time: {
     timestamp: string,
     timezone: string,
+  },
+  vchat: {
+    vc_type: string;
   }
 }
 
