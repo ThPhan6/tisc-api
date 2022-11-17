@@ -114,7 +114,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
           FOR loc IN locations
           FILTER loc.id == ${modelName}.location_id
           RETURN MERGE(
-            UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']), 
+            UNSET(${modelName}, ['_id', '_key', '_rev', 'deleted_at']),
             KEEP(loc, ${this.basicAttributesQuery})
           )
         `,

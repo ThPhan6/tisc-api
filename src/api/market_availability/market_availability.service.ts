@@ -9,7 +9,8 @@ import {
   SortOrder,
   UserAttributes,
   UserType,
-  RegionKey
+  RegionKey,
+  CollectionRelationType
 } from "@/types";
 import {
   mappingGroupByCollection,
@@ -19,6 +20,8 @@ import {
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
+import { collectionRepository } from "@/repositories/collection.repository";
+import { projectRepository } from '@/repositories/project.repository';
 
 class MarketAvailabilityService {
 
@@ -111,6 +114,38 @@ class MarketAvailabilityService {
     return successResponse({
       data: mappingGroupByCollection(collections),
     });
+  }
+
+  public async getAvailableCountryByCollection(collectionId: string, projectId?: string) {
+    const collection = await collectionRepository.find(collectionId);
+    if (!collection || collection.relation_type !== CollectionRelationType.Brand) {
+      return [];
+    }
+    const market = await marketAvailabilityRepository.findByCollection(
+      collection.relation_id,
+      collection.id
+    );
+    const result = mappingMarketAvailibility(market);
+
+    if (projectId) {
+      const project = await projectRepository.getProjectWithLocation(projectId);
+      if (!project) {
+        return [];
+      }
+      /// only for project location
+      if (result.countries.find((country) => {
+        return country.available && project.location.country_id === country.id
+      })) {
+        return [project.location.country_id];
+      }
+      return [];
+    }
+    return result.countries.reduce((countryIds, country) => {
+      if (country.available) {
+        countryIds.push(country.id);
+      }
+      return countryIds;
+    }, [] as string[]);
   }
 }
 

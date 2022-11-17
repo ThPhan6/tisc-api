@@ -48,3 +48,4 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
 }
 
 export default new CollectionRepository();
+export const collectionRepository = new CollectionRepository();

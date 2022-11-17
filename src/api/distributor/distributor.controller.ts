@@ -63,8 +63,9 @@ export default class DistributorController {
     toolkit: ResponseToolkit
   ) => {
     const { product_id } = req.params;
+    const {project_id} = req.query;
     const response =
-      await distributorService.getMarketDistributorGroupByCountry(product_id);
+      await distributorService.getMarketDistributorGroupByCountry(product_id, project_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
