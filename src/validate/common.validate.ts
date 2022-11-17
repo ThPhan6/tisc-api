@@ -133,6 +133,5 @@ export const requireBookingDateValidation = () =>
     .min(moment().format('YYYY-MM-DD'))
     .required()
     .error(
-      errorMessage("A date must be entered in the correct format YYYY-MM-DD and max 90 days from today")
+      errorMessage("A date must be entered in the correct format YYYY-MM-DD and between today with 90 next days")
     );
-

@@ -262,7 +262,10 @@ export const MESSAGES = {
       NOT_VALID: "Timezone invalid data, ex: Asia/Singapore"
     },
     TIME_STAMP: {
-      NOT_VALID: "The start time or end time invalid timestamp data"
-    }
+      NOT_VALID: "The start time or end time invalid timestamp data",
+      LARGE_THAN: "The end time must be large than start time",
+    },
+    NOT_AVAILABLE: "This booking is not available on the system",
+    NOT_FOUND: "Not found booking"
   }
 };

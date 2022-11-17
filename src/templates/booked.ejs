@@ -102,34 +102,36 @@
 <body>
     <div class="wrapper">
         <div class="content-email">
+            <h2 class="pb-30">TISC live demo session is booked!</h2>
             <div class="message-email">
-                <p>Hi <%= firstname %>,</p>
+                <p>Hi <span class="text-blue-light"><%= first_name %></span>,</p>
                 <p class="pb-30">Thanks for taking an interest in our service. We are excited to learn more about your
                     brand and
                     product line while introducing our platform.</p>
-                <p>This 60mins session includes:</p>
+                <p>This 60mins demo session includes:</p>
                 <ul class="non-bullet list-session-include pb-30">
                     <li class="dot-blue-light pb-10"><span class="pl-5"> Introduce the TISC platform and its features
                             (30
-                            mins) </span>s</li>
+                            mins)</span></li>
                     <li class="dot-blue-light pb-10"><span class="pl-5"> Question and Answers (15 mins) </span>s</li>
                     <li class="dot-blue-light pb-10"><span class="pl-5"> How can we assist your brand and the operation
                             team
-                            (15 mins) </span>s</li>
+                            (15 mins)</span></li>
                 </ul>
-                <p>The session is confirmed at:</p>
-                <p class="text-blue-light text-bold">{(11:00 on Tuesday, December 14, 2021)}</p>
-                <p class="pb-30">(Singapore Standard Time)</p>
+                <p>Your session is confirmed at:</p>
+                <p>GMT +08:00 Singapore Standard Time</p>
+                <p class="text-blue-light text-bold pb-30"><%= start_time %></p>
 
                 <p>Location:</p>
                 <p class="text-bold-black pb-30">Online Virtual Meeting</p>
                 <p>You can join in with</p>
                 <p class="text-bold-black pb-30">Lark Meeting web conference.
-                    <a class="text-blue-light text-non-decoration " href=" #">(Join now)</a>
+                    <a class="text-blue-light text-non-decoration" href="<%= conference_url %>">Join now</a>
                 </p>
                 <div class="pb-30">
-                    <p>Need to reschedule? You can do so at:</p>
-                    <a class="text-blue-light text-non-decoration " href="#"><%= url %></a>
+                    <p>To change event, click the below button:</p>
+                    <a class="text-blue-light text-non-decoration mr-2" href="<%= reschedule_url %>">Reschedule</a>
+                    <a class="text-blue-light text-non-decoration" href="<% cancel_url %>">Cancel</a>
                 </div>
                 <p class="pb-30">Thank you and talk to you soon</p>
 

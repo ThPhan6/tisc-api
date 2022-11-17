@@ -1,12 +1,12 @@
 export interface IBookingAttributes {
     id: string;
-    name: string;
+    brand_id: string;
+    event_id: string;
     email: string;
-    website: string;
     full_name: string;
     date: string;
-    start: string;
-    end: string;
+    start_time: string;
+    end_time: string;
     timezone: string;
     created_at: string;
     updated_at: string;

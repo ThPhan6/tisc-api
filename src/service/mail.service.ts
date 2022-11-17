@@ -256,5 +256,42 @@ export default class MailService {
         .then(() => this.exeAfterSend(resolve));
     });
   }
+
+  public async sendBookingScheduleEmail(
+    to: string,
+    subject: string,
+    first_name: string,
+    start_time: string,
+    conference_url: string,
+    reschedule_url: string,
+    cancel_url: string,
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const html = await ejs.renderFile(
+        `${process.cwd()}/src/templates/booked.ejs`,
+        {
+          first_name,
+          start_time,
+          conference_url,
+          reschedule_url,
+          cancel_url
+        }
+      );
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Global" },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: subject,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
 }
 export const mailService = new MailService();

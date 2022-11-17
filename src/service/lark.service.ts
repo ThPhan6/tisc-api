@@ -1,4 +1,4 @@
-import { IEventBodyParams } from '@/api/booking/booking.type';
+import { IReScheduleBookingRequest } from './../api/booking/booking.type';
 import {ENVIROMENT} from '@/config';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
@@ -41,8 +41,8 @@ class LarkOpenAPIService {
       return true;
     }
 
-    const dt = moment.tz();
-    const duration = dt.diff(moment(this.token_created_at, 'X'), 'minutes') ?? -1
+    const dt = moment();
+    const duration = dt.diff(moment(this.token_created_at, "X"), 'minutes') ?? -1
     return (duration >= 118 || duration <= 0);
   }
 
@@ -51,7 +51,6 @@ class LarkOpenAPIService {
     end_time: string
     ) => {
     if (this.isExpiredToken()) {
-      console.log(22222222222)
       await this.getAppAccessToken();
     }
 
@@ -64,7 +63,7 @@ class LarkOpenAPIService {
   }
 
   public createEvent = async (
-    data: IEventBodyParams
+    data: IEventRequest
     ) => {
     if (this.isExpiredToken()) {
       await this.getAppAccessToken();
@@ -74,6 +73,56 @@ class LarkOpenAPIService {
       data,
       { headers: { Authorization: `Bearer ${this.tenant_access_token}` }}
     )
+  }
+
+  public updateEvent = async (
+    event_id: string,
+    data: IEventRescheduleRequest
+    ) => {
+    if (this.isExpiredToken()) {
+      await this.getAppAccessToken();
+    }
+
+    return axios.patch(`${this.api_url}/open-apis/calendar/v4/calendars/${this.calendar_id}/events/${event_id}`,
+      data,
+      { headers: { Authorization: `Bearer ${this.tenant_access_token}` }}
+    )
+  }
+
+  public deleteEvent = async (
+    event_id: string
+    ) => {
+    if (this.isExpiredToken()) {
+      await this.getAppAccessToken();
+    }
+
+    return axios.delete(`${this.api_url}/open-apis/calendar/v4/calendars/${this.calendar_id}/events/${event_id}`,
+      { headers: { Authorization: `Bearer ${this.tenant_access_token}` }}
+    )
+  }
+}
+
+interface IEventRequest {
+  summary: string,
+  description: string,
+  start_time: {
+    timestamp: string,
+    timezone: string,
+  },
+  end_time: {
+    timestamp: string,
+    timezone: string,
+  }
+}
+
+interface IEventRescheduleRequest {
+  start_time: {
+    timestamp: string,
+    timezone: string,
+  },
+  end_time: {
+    timestamp: string,
+    timezone: string,
   }
 }
 

@@ -7,13 +7,13 @@ import {
 class BookingRepository extends BaseRepository<IBookingAttributes> {
   protected model: BookingModel;
   protected DEFAULT_ATTRIBUTE: Partial<IBookingAttributes> = {
-    name: "",
+    brand_id: "",
+    event_id: "",
     email: "",
-    website: "",
     full_name: "",
     date: "",
-    start: "",
-    end: "",
+    start_time: "",
+    end_time: "",
     timezone: "",
     created_at: "",
     updated_at: ""
