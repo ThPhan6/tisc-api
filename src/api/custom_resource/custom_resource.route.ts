@@ -76,7 +76,7 @@ export default class CustomResourceRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getAllResource,
+                200: response.getDistributorsByCompany,
               },
             },
           },

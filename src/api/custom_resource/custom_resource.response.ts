@@ -49,4 +49,21 @@ export default {
     ),
     statusCode: Joi.number(),
   }),
+  getDistributorsByCompany: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        count: Joi.number(),
+        country_name: Joi.string(),
+        distributors: Joi.array().items(
+          Joi.object({
+            ...locationBasicResponse,
+            id: Joi.string(),
+            location_id: Joi.string(),
+            contacts: customProductContactValidate,
+          })
+        ),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
 };
