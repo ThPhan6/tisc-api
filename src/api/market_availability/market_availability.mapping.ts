@@ -1,118 +1,82 @@
-import { REGION_KEY } from "@/constants";
+import { Region } from "@/constants";
 import {
-  ICollectionAttributes,
-  ICountryAttributes,
-  IRegionCountry,
-  IMarketAvailabilityAttributes,
+  ListMarketAvailability,
+  RegionMarket,
 } from "@/types";
-import { IMarketAvailabilityResponse } from "./market_availability.type";
+import {getEnumValues} from '@/helper/common.helper';
+import {lowerCase, startCase} from 'lodash';
 
-export const mappingRegionCountries = (countryDetail: ICountryAttributes) => {
-  let region = REGION_KEY.AFRICA;
-  if (countryDetail.region?.toLowerCase() === REGION_KEY.AMERICAS) {
-    if (countryDetail.subregion?.toLowerCase() === REGION_KEY.NORTHERN_AMERICA)
-      region = REGION_KEY.NORTH_AMERICA;
-    else region = REGION_KEY.SOUTH_AMERICA;
-  }
-  if (countryDetail.region?.toLowerCase() === REGION_KEY.ASIA)
-    region = REGION_KEY.ASIA;
-  if (countryDetail.region?.toLowerCase() === REGION_KEY.AFRICA)
-    region = REGION_KEY.AFRICA;
-  if (countryDetail.region?.toLowerCase() === REGION_KEY.OCEANIA)
-    region = REGION_KEY.OCEANIA;
-  if (countryDetail.region?.toLowerCase() === REGION_KEY.EUROPE)
-    region = REGION_KEY.EUROPE;
-  return {
-    id: countryDetail.id,
-    name: countryDetail.name,
-    phone_code: countryDetail.phone_code,
-    region,
-  };
-};
-
-export const mappingResponseGetMarket = (
-  collectionId: string,
-  collectionName: string,
-  distributorCountries: IRegionCountry[],
-  market: IMarketAvailabilityAttributes
+export const mappingRegion = (
+  countries: RegionMarket[],
+  availableOnly: boolean = true
 ) => {
-  const regionNames = Object.values(REGION_KEY);
-  const regions = regionNames.map((item) => {
-    const countries = distributorCountries
-      .filter((country) => country.region === item)
-      .map((country) => {
-        return {
-          ...country,
-          id: country.id,
-          available: market.country_ids.includes(country.id),
-        };
-      });
-    return {
-      name: item,
-      count: countries.length,
-      countries,
-    };
+  const countryData = countries.filter((country) => {
+    if (availableOnly) {
+      return country.available;
+    }
+    return true;
   });
   return {
-    collection_id: collectionId,
-    collection_name: collectionName,
-    total_available: market.country_ids.length,
-    total: distributorCountries.length,
-    regions,
-  };
-};
+    asia: countryData.filter((country) => country.region === Region.Asia),
+    europe: countryData.filter((country) => country.region === Region.Europe),
+    africa: countryData.filter((country) => country.region === Region.Africa),
+    polar: countryData.filter((country) => country.region === Region.Polar),
+    americas: countryData.filter((country) => country.region === Region.Americas),
+    oceania: countryData.filter((country) => country.region === Region.Oceania),
+  }
+}
 
-export const mappingResponseListMarket = (
-  collection: ICollectionAttributes,
-  countries: IRegionCountry[]
+export const mappingMarketAvailibility = (
+  marketAvailability: ListMarketAvailability,
+  availableOnly: boolean = true
 ) => {
+  const countries = marketAvailability.authorized_countries.map((authorized_country) => {
+    //
+    const country = marketAvailability.countries.find((country) => country.id === authorized_country.id);
+    //
+    const regionMarket = {
+      id: authorized_country.id,
+      name: authorized_country.name,
+      region: authorized_country.region,
+      phone_code: authorized_country.phone_code,
+      available: true,
+    }
+    //
+    if (country) {
+      regionMarket.available = country.available;
+      return regionMarket;
+    }
+    //
+    return regionMarket;
+  });
+  ///
   return {
-    collection_id: collection.id,
-    collection_name: collection.name,
-    available_countries: countries.length || 0,
-    africa: countries.filter((item) => item.region === REGION_KEY.AFRICA)
-      .length,
-    asia: countries.filter((item) => item.region === REGION_KEY.ASIA).length,
-    europe: countries.filter((item) => item.region === REGION_KEY.EUROPE)
-      .length,
-    north_america: countries.filter(
-      (item) => item.region === REGION_KEY.NORTH_AMERICA
-    ).length,
-    oceania: countries.filter((item) => item.region === REGION_KEY.OCEANIA)
-      .length,
-    south_america: countries.filter(
-      (item) => item.region === REGION_KEY.SOUTH_AMERICA
-    ).length,
-  };
+    id: marketAvailability.id,
+    name: marketAvailability.name,
+    collection_id: marketAvailability.collection_id,
+    countries,
+    available_countries: countries.filter((country) => country.available).length,
+    ...mappingRegion(countries, availableOnly)
+  }
 };
 
 export const mappingGroupByCollection = (
-  marketAvailabilities: IMarketAvailabilityResponse[]
+  marketAvailabilities: ListMarketAvailability[]
 ) => {
-  return marketAvailabilities.map(
-    (marketAvailability: IMarketAvailabilityResponse) => {
-      let countRegion = 0;
-      const regions = marketAvailability.data.regions.map((region) => {
-        const availableCountries = region.countries.filter(
-          (country) => country.available === true
-        );
-        countRegion += availableCountries.length;
-        const regionCountry = availableCountries
-          .map((country) => {
-            return country.name;
-          })
-          .join(", ");
+  return marketAvailabilities.map((marketAvailability) => {
+    const data = mappingMarketAvailibility(marketAvailability);
+    return {
+      collection_name: data.name,
+      count: data.available_countries,
+      regions: getEnumValues(Region).map((region: any) => {
+        const regionName = lowerCase(region) as 'asia' | 'europe' | 'africa' | 'polar' | 'americas' | 'oceania';
+
         return {
-          region_name: region.name,
-          count: availableCountries.length,
-          region_country: regionCountry,
-        };
-      });
-      return {
-        collection_name: marketAvailability.data.collection_name,
-        count: countRegion,
-        regions,
-      };
+          count: data[regionName].length,
+          region_name: startCase(regionName),
+          region_country: data[regionName].map((country) => startCase(country.name)).join(', ')
+        }
+      })
     }
-  );
+  })
 };

@@ -6,22 +6,16 @@ import {
 } from "@/validate/common.validate";
 
 export default {
-  create: {
-    payload: {
-      collection_id: requireStringValidation("Collection"),
-      country_ids: Joi.array()
-        .items(requireStringValidation("Country"))
-        .required()
-        .error(errorMessage("Country is required")),
-    },
-  },
   update: {
     params: {
       id: requireStringValidation("Collection"),
     },
     payload: {
-      country_ids: Joi.array()
-        .items(requireStringValidation("Country"))
+      countries: Joi.array()
+        .items(Joi.object({
+          id: requireStringValidation("Country"),
+          available: Joi.boolean(),
+        }))
         .required()
         .error(errorMessage("Country is required")),
     },
@@ -33,7 +27,7 @@ export default {
   }),
   getWithBrandId: {
     params: {
-      brand_id: requireStringValidation("Collection"),
+      brand_id: requireStringValidation("Brand id"),
     },
   },
 };
