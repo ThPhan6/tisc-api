@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -6,7 +6,6 @@ import {
 } from "@/helper/response.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
-import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import productRepository from "@/repositories/product.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
@@ -27,7 +26,7 @@ export default class LocationService {
     user: UserAttributes,
     functional_type_ids: string[]
   ) {
-    if (user.type !== SYSTEM_TYPE.DESIGN) {
+    if (user.type !== UserType.Designer) {
       return Promise.all(
         functional_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
@@ -100,7 +99,7 @@ export default class LocationService {
       business_name: payload.business_name,
       functional_type_ids: functionalTypes.map((item) => item.id),
       business_number:
-        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
+        user.type === UserType.Designer ? "" : payload.business_number,
       functional_type: functionalTypes.map((item) => item.name).join(", "),
       ...countryStateCity,
       address: payload.address,
@@ -162,7 +161,7 @@ export default class LocationService {
     const updatedLocation = await locationRepository.update(id, {
       business_name: payload.business_name,
       business_number:
-        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
+        user.type === UserType.Designer ? "" : payload.business_number,
       functional_type: functionalTypes.map((item) => item.name).join(", "),
       functional_type_ids: functionalTypes.map((item) => item.id),
       ...countryStateCity,
@@ -235,19 +234,11 @@ export default class LocationService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const market =
-      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
-        product.collection_id
-      );
-    if (!market) {
-      return successResponse({ data: [] });
-    }
 
-    const locations =
-      await locationRepository.getLocationByRelationAndCountryIds(
-        product.brand_id,
-        market.country_ids
-      );
+    const locations = await locationRepository.getAllBy({
+      relation_id: product.brand_id,
+      type: LocationType.brand
+    });
     const locationData = await this.mappingLocationData(locations);
     return successResponse({
       data: mappingByCountries(locationData, true),

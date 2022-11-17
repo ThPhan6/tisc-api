@@ -90,7 +90,7 @@ class CustomResourceService {
     }
 
     if (user.relation_id !== customResource.design_id) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     // Check bussiness name exist
@@ -194,7 +194,7 @@ class CustomResourceService {
       user.type !== UserType.Designer ||
       user.relation_id !== customResource.design_id
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     if (customResource.type === CustomResouceType.Brand) {
@@ -215,7 +215,7 @@ class CustomResourceService {
       await customResourceRepository.updateAssociateResources(
         id,
         customResource.type,
-        customResource.associate_resource_ids
+        []
       );
 
     if (!updateAssociateResult) {

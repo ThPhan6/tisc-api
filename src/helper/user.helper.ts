@@ -1,8 +1,8 @@
-import { UserType } from "@/types";
-import { getRoleType } from "@/constants";
+import { UserType, UserRole } from "@/types";
+import {RoleType} from '@/constants';
 
-export const validateRoleType = (role: UserType, roleId: string) => {
-  const roleType = getRoleType(roleId);
+export const validateRoleType = (role: UserType, roleId: UserRole) => {
+  const roleType = RoleType[roleId];
 
   /// TISC ROLE
   if (role === UserType.TISC && roleType === UserType.TISC) {

@@ -11,12 +11,14 @@ import {
   ICountryStateCity,
   IDistributorAttributes,
 } from "@/types";
-import CollectionRepository from "@/repositories/collection.repository";
 import { distributorRepository } from "@/repositories/distributor.repository";
-import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { productRepository } from "@/repositories/product.repository";
+import { locationRepository } from "@/repositories/location.repository";
+import {
+  marketAvailabilityService
+} from '@/api/market_availability/market_availability.service';
 import {
   mappingAuthorizedCountries,
   mappingAuthorizedCountriesName,
@@ -29,48 +31,9 @@ import {
   IDistributorRequest,
 } from "./distributor.type";
 import { isEqual, pick } from "lodash";
-import { locationRepository } from "@/repositories/location.repository";
+
 
 class DistributorService {
-  private async updateMarkets(
-    payload: IDistributorRequest,
-    removeCountryIds?: string[],
-    addCountryIds?: string[]
-  ) {
-    const authorizedCountryIds = getDistinctArray(
-      payload.authorized_country_ids.concat([payload.country_id])
-    );
-
-    const collections = await CollectionRepository.getAllBy({
-      brand_id: payload.brand_id,
-    });
-
-    const markets = await Promise.all(
-      collections.map(async (collection) =>
-        marketAvailabilityRepository.findBy({
-          collection_id: collection.id,
-        })
-      )
-    );
-
-    await Promise.all(
-      markets.map(async (market) => {
-        let newCountryIds: string[] = getDistinctArray(
-          market?.country_ids.concat(authorizedCountryIds) || []
-        );
-        if (removeCountryIds || addCountryIds) {
-          newCountryIds =
-            market?.country_ids
-              .filter((item) => !removeCountryIds?.includes(item))
-              .concat(addCountryIds || []) || [];
-        }
-        await marketAvailabilityRepository.update(market?.id || "", {
-          country_ids: getDistinctArray(newCountryIds),
-        });
-        return true;
-      })
-    );
-  }
 
   public async create(payload: IDistributorRequest) {
     const distributor = await distributorRepository.findBy({
@@ -161,8 +124,6 @@ class DistributorService {
     if (!createdDistributor) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
-
-    await this.updateMarkets(payload);
 
     return successResponse({
       data: {
@@ -310,28 +271,6 @@ class DistributorService {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
 
-    if (
-      payload.country_id !== distributor.country_id ||
-      isEqual(
-        payload.authorized_country_ids,
-        distributor.authorized_country_ids
-      ) === false
-    ) {
-      const oldCountryIds = getDistinctArray(
-        distributor.authorized_country_ids.concat([distributor.country_id])
-      );
-      const newCountryIds = getDistinctArray(
-        payload.authorized_country_ids.concat([payload.country_id])
-      );
-      const removeCountryIds = oldCountryIds.filter(
-        (item) => !newCountryIds.includes(item)
-      );
-      const addCountryIds = newCountryIds.filter(
-        (item) => !oldCountryIds.includes(item)
-      );
-      await this.updateMarkets(payload, removeCountryIds, addCountryIds);
-    }
-
     return successResponse({
       data: {
         ...updatedDistributor,
@@ -391,7 +330,8 @@ class DistributorService {
 
     const distributors =
       await locationRepository.getListWithLocation<IDistributorAttributes>(
-        "distributors"
+        "distributors",
+        `FILTER distributors.brand_id == '${brand.id}'`
       );
 
     const countryIds = getDistinctArray(
@@ -411,24 +351,18 @@ class DistributorService {
     });
   }
 
-  public async getMarketDistributorGroupByCountry(productId: string) {
+  public async getMarketDistributorGroupByCountry(productId: string, projectId?: string) {
     const product = await productRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
     }
-
-    const market = await marketAvailabilityRepository.findBy({
-      collection_id: product.collection_id,
-    });
-    if (!market) {
-      return successResponse({
-        data: [],
-      });
-    }
-
+    const availableCountries = await marketAvailabilityService.getAvailableCountryByCollection(
+      product.collection_id,
+      projectId
+    );
     const distributors = await distributorRepository.getMarketDistributor(
       product.brand_id,
-      market.country_ids
+      availableCountries,
     );
 
     const result = mappingMarketDistributorGroupByCountry(distributors);

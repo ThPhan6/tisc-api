@@ -1,4 +1,4 @@
-import { COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
+import { ALL_REGIONS, COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -79,7 +79,7 @@ class DesignerService {
         id: v4(),
         quantity: sumBy(designFirmSummary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: designFirmSummary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             designFirmSummary.countries.summary.find(
@@ -120,8 +120,12 @@ class DesignerService {
     payload: Partial<DesignerAttributes>,
     user: UserAttributes
   ) {
-    if (designId !== user.relation_id && user.type !== UserType.Designer) {
-      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
+    if (
+      designId !== user.relation_id &&
+      user.type !== UserType.Designer &&
+      user.type !== UserType.TISC
+    ) {
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const designer = await designerRepository.find(designId);
@@ -159,6 +163,18 @@ class DesignerService {
         }),
       });
     }
+  }
+
+  public async getDesignLibrary(id: string) {
+    const library = await designerRepository.getLibrary(id);
+
+    if (!library) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
+    return successResponse({
+      data: library,
+    });
   }
 }
 

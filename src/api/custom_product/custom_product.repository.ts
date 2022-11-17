@@ -4,6 +4,7 @@ import {
   CustomProductPayload,
 } from "./custom_product.type";
 import CustomProductModel from "./custom_product.model";
+import { locationRepository } from "@/repositories/location.repository";
 
 export default class CustomProductRepository extends BaseRepository<CustomProductAttributes> {
   protected model: CustomProductModel;
@@ -33,8 +34,9 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       `
       FILTER custom_products.deleted_at == null
       FILTER custom_products.design_id == @designId
+      ${companyId ? "FILTER custom_products.company_id == @companyId" : ""}
       FOR cr IN custom_resources
-      FILTER cr.id == ${companyId ? "@companyId" : "custom_products.company_id"}
+      FILTER cr.id == custom_products.company_id
       FILTER cr.deleted_at == null
       FOR loc IN locations
       FILTER loc.id == cr.location_id
@@ -48,7 +50,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       RETURN MERGE(
         KEEP(custom_products, 'id', 'name', 'description', 'company_id', 'collection_id'),
         {
-          image: FIRST(cr.images),
+          image: FIRST(custom_products.images),
           company_name: loc.business_name,
           collection_name: col.name,
         }
@@ -73,10 +75,11 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
         FILTER col.id == custom_products.collection_id
         FILTER col.deleted_at == null
         RETURN MERGE(
-          UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at', 'design_id']),
+          UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at']),
           {
             company_name: loc.business_name,
             collection_name: col.name,
+            location: KEEP(loc, ${locationRepository.basicAttributesQuery})
           }
         )
       `,

@@ -232,6 +232,9 @@ export interface IDesignerProductsResponse {
 export interface IAttributeGroupWithOptionalId extends IAttributeGroup {
   id?: string;
 }
+export interface SelectionAttributeGroupWithOptionalId extends IAttributeGroupWithOptionalId {
+  selection?: boolean;
+}
 
 export interface IAttributeGroupWithOptionId {
   id?: string;

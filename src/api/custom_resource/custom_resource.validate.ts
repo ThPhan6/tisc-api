@@ -37,6 +37,11 @@ export default {
       type: resourceTypevalidate,
     },
   },
+  getDistributorsByCompany: {
+    params: {
+      brand_id: requireStringValidation("Brand id"),
+    },
+  },
   getListResource: getListValidation({
     query: {
       type: resourceTypevalidate,

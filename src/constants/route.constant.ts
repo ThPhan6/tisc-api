@@ -220,10 +220,22 @@ export const ROUTES = {
     GET_LIST: "/api/action-task",
     UPDATE: "/api/action-task/{id}",
   },
+  INVOICE: {
+    CREATE: "/api/invoice",
+    GET_LIST: "/api/invoice",
+    GET_SUMMARY: "/api/invoice/summary",
+    UPDATE: "/api/invoice/{id}",
+    GET: "/api/invoice/{id}",
+  },
+  USER: {
+    GET_BY_TYPE_ROLE_AND_RELATION:
+      "/api/team-profile/get-by-type-role-relation",
+  },
   DESIGN_FIRM: {
     UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",
     GET_LIST_DESIGN_FIRM: "/api/design/get-list",
     GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
+    GET_DESIGN_FIRM_LIBRARY: "/api/design/{id}/library",
     GET_DESIGN_STATUSES: "/api/design/statuses",
     GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
     UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
@@ -277,6 +289,7 @@ export const ROUTES = {
     GET_ONE: "/api/custom-resource/get-one/{id}",
     GET_SUMMARY: "/api/custom-resource/summary",
     DELETE: "/api/custom-resource/delete/{id}",
+    GET_DISTRIBUTORS_BY_COMPANY: "/api/custom-resource/distributor/{brand_id}",
   },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",

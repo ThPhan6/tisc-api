@@ -3,12 +3,13 @@ import CompanyPermissionModel, {
   CompanyPermissionAttributes,
 } from "@/model/company_permission.model";
 import { CompanyPermissionWithInfo } from "@/types";
+import {DesignFirmRoles} from '@/constants';
 
 class CompanyPermissionRepository extends BaseRepository<CompanyPermissionAttributes> {
   protected model: CompanyPermissionModel;
   protected DEFAULT_ATTRIBUTE: Partial<CompanyPermissionAttributes> = {
     id: "",
-    role_id: "",
+    role_id: DesignFirmRoles.Member,
     relation_id: "",
     permission_id: "",
     accessable: true,
@@ -36,7 +37,8 @@ class CompanyPermissionRepository extends BaseRepository<CompanyPermissionAttrib
         "==",
         "company_permissions.permission_id"
       )
-      .where("company_permissions.relation_id", "==", relationId);
+      .where("company_permissions.relation_id", "==", relationId)
+      .order("permissions.index", "DESC");
 
     if (roleId) {
       query = query.where("company_permissions.role_id", "==", roleId);

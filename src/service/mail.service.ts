@@ -1,7 +1,7 @@
 import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { TARGETED_FOR_TYPES, SYSTEM_TYPE } from "@/constants";
+import { TARGETED_FOR_TYPES } from "@/constants";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
 import { unescape } from "lodash";
 import { UserAttributes, UserType } from "@/types";
@@ -33,11 +33,11 @@ export default class MailService {
   public getTargetedFor = (type: number) => {
     let result;
     switch (type) {
-      case SYSTEM_TYPE.TISC:
+      case UserType.TISC:
         result = TARGETED_FOR_TYPES.TISC_TEAM;
         break;
 
-      case SYSTEM_TYPE.BRAND:
+      case UserType.Brand:
         result = TARGETED_FOR_TYPES.BRAND;
         break;
 
@@ -120,7 +120,7 @@ export default class MailService {
           operating_system: os.type(),
           browser_name: browserName,
           fullname:
-            user.type === SYSTEM_TYPE.DESIGN
+            user.type === UserType.Designer
               ? user.firstname
               : user.firstname + " " + user.lastname,
           reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,

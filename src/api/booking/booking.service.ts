@@ -114,10 +114,10 @@ export default class BookingService {
     }
 
     try {
-      // const message = await this.validationSchedule(payload);
-      // if (!isEmpty(message)) {
-      //   return errorMessageResponse(message);
-      // }
+      const message = await this.validationSchedule(payload);
+      if (!isEmpty(message)) {
+        return errorMessageResponse(message);
+      }
 
       // create lark event
       const response = await larkOpenAPIService.createEvent({
@@ -383,8 +383,7 @@ export default class BookingService {
     );
 
     const sentToTISC = mailService.sendBookingScheduleEmail(
-      //"liming@tisc.global",
-      "trungkiendtu0112@gmail.com",
+      "liming@tisc.global",
       subject,
       "Liming",
       sgStartTime,

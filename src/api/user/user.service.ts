@@ -1,6 +1,13 @@
 import { permissionService } from "@/api/permission/permission.service";
-import { COMMON_TYPES, MESSAGES, ROLES, VALID_IMAGE_TYPES } from "@/constants";
-import { getAccessLevel } from "@/helper/common.helper";
+import {
+  COMMON_TYPES,
+  MESSAGES,
+  VALID_IMAGE_TYPES,
+  RoleNames,
+  TiscRoles,
+  RoleIndex,
+} from "@/constants";
+
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -28,6 +35,7 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
+import { getKeyByValue } from "@/helper/common.helper";
 
 export default class UserService {
   private mailService: MailService;
@@ -129,7 +137,7 @@ export default class UserService {
       personal_mobile: user.personal_mobile,
       linkedin: user.linkedin,
       created_at: user.created_at,
-      access_level: getAccessLevel(user.role_id),
+      access_level: RoleNames[user.role_id],
       status: user.status,
       type: user.type,
       relation_id: user.relation_id,
@@ -291,6 +299,23 @@ export default class UserService {
       },
     });
   };
+  public getByTypeRoleAndRelation = async (
+    type: UserType,
+    role_index: number,
+    relation_id?: string
+  ) => {
+    const role = getKeyByValue(RoleIndex, role_index);
+    const result = await userRepository.getByTypeRoleAndRelation(
+      type,
+      role,
+      relation_id
+    );
+    return successResponse({
+      data: {
+        users: result,
+      },
+    });
+  };
 
   public invite = async (
     userId: string,
@@ -314,7 +339,7 @@ export default class UserService {
     const results: {
       country_name: string;
       count: number;
-      users: any[];
+      users: Partial<UserAttributes>[];
     }[] = Object.entries(
       groupBy(userWithLocations, "locations.country_name")
     ).map(([country_name, users]) => ({
@@ -333,7 +358,7 @@ export default class UserService {
         email: user.email,
         phone: user.phone,
         mobile: user.mobile,
-        access_level: getAccessLevel(user.role_id),
+        access_level: RoleNames[user.role_id],
         status: user.status,
       })),
       count: (users as any[]).length,
@@ -380,11 +405,11 @@ export default class UserService {
     });
 
     const groupTiscTeams = response.filter(
-      (user) => user.role_id === ROLES.TISC_ADMIN
+      (user) => user.role_id === TiscRoles.Admin
     );
 
     const groupConsultantTeams = response.filter(
-      (user) => user.role_id === ROLES.TISC_CONSULTANT_TEAM
+      (user) => user.role_id === TiscRoles.Consultant
     );
 
     const result = [

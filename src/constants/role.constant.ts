@@ -1,70 +1,53 @@
-import { UserType } from "@/types";
-import { includes } from "lodash";
+import {UserType} from '@/types';
+import {getEnumValues} from '@/helper/common.helper';
 
-export const TISC_ROLES = {
-  TISC_ADMIN: "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
-  // TISC_TEAM: "tisc_team",
-  TISC_CONSULTANT_TEAM: "248a21fc-42e0-48c6-9bc2-b95e11a81fb7",
-};
+export enum TiscRoles {
+  Admin = "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
+  Consultant = "248a21fc-42e0-48c6-9bc2-b95e11a81fb7",
+}
 
-export const BRAND_ROLES = {
-  BRAND_ADMIN: "62ad5077-6183-435e-97f8-81c35065504e",
-  // BRAND_LEAD: "brand_lead",
-  BRAND_TEAM: "c93584c7-7987-4be0-aa7d-e48e20960630",
-};
+export enum BrandRoles {
+  Admin = "62ad5077-6183-435e-97f8-81c35065504e",
+  Member = "c93584c7-7987-4be0-aa7d-e48e20960630"
+}
 
-export const DESIGN_FIRM_ROLES = {
-  DESIGN_ADMIN: "68fdf6d0-464e-404b-90e8-5d02a48ac498",
-  // DESIGN_LEAD: "design_lead",
-  DESIGN_TEAM: "1493b47a-1118-43e2-9bd8-1a3c3adc3f13",
-};
+export enum DesignFirmRoles {
+  Admin = "68fdf6d0-464e-404b-90e8-5d02a48ac498",
+  Member = "1493b47a-1118-43e2-9bd8-1a3c3adc3f13"
+}
 
-export const ROLES = {
-  ...TISC_ROLES,
-  ...BRAND_ROLES,
-  ...DESIGN_FIRM_ROLES,
-};
+export const RoleType = {
+  [TiscRoles.Admin]: UserType.TISC,
+  [TiscRoles.Consultant]: UserType.TISC,
+  [BrandRoles.Admin]: UserType.Brand,
+  [BrandRoles.Member]: UserType.Brand,
+  [DesignFirmRoles.Admin]: UserType.Designer,
+  [DesignFirmRoles.Member]: UserType.Designer,
+}
+export const RoleData = {
+  [UserType.TISC]: getEnumValues(TiscRoles),
+  [UserType.Brand]: getEnumValues(BrandRoles),
+  [UserType.Designer]: getEnumValues(DesignFirmRoles),
+}
 
-export const ROLE_NAMES = {
-  [ROLES.TISC_ADMIN]: "TISC Admin",
-  // [ROLES.TISC_TEAM]: 'TISC Team',
-  [ROLES.TISC_CONSULTANT_TEAM]: "Consultant Team",
+export const RoleNames = {
+  [TiscRoles.Admin]: "TISC Admin",
+  [TiscRoles.Consultant]: "Consultant Team",
 
-  [ROLES.BRAND_ADMIN]: "Brand Admin",
-  // [ROLES.BRAND_LEAD]: 'Brand Admin',
-  [ROLES.BRAND_TEAM]: "Brand Team",
+  [BrandRoles.Admin]: "Brand Admin",
+  [BrandRoles.Member]: "Brand Team",
 
-  [ROLES.DESIGN_ADMIN]: "Design Admin",
-  // [ROLES.DESIGN_LEAD]: 'Design Admin',
-  [ROLES.DESIGN_TEAM]: "Design Team",
-};
+  [DesignFirmRoles.Admin]: "Design Admin",
+  [DesignFirmRoles.Member]: "Design Team",
+}
 
-export const ROLE_INDEX = {
-  [ROLES.TISC_ADMIN]: 1,
-  // [ROLES.TISC_TEAM]: 2,
-  [ROLES.TISC_CONSULTANT_TEAM]: 3,
+export const RoleIndex = {
+  [TiscRoles.Admin]: 1,
+  [TiscRoles.Consultant]: 2,
 
-  [ROLES.BRAND_ADMIN]: 4,
-  // [ROLES.BRAND_LEAD]: 5,
-  [ROLES.BRAND_TEAM]: 6,
+  [BrandRoles.Admin]: 3,
+  [BrandRoles.Member]: 4,
 
-  [ROLES.DESIGN_ADMIN]: 7,
-  // [ROLES.DESIGN_LEAD]: 8,
-  [ROLES.DESIGN_TEAM]: 9,
-};
-
-export const getRoleType = (role: string): UserType | undefined => {
-  if (includes(TISC_ROLES, role)) {
-    return UserType.TISC;
-  }
-
-  if (includes(BRAND_ROLES, role)) {
-    return UserType.Brand;
-  }
-
-  if (includes(DESIGN_FIRM_ROLES, role)) {
-    return UserType.Designer;
-  }
-
-  return undefined;
+  [DesignFirmRoles.Admin]: 5,
+  [DesignFirmRoles.Member]: 6,
 };

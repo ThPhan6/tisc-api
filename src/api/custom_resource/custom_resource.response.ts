@@ -10,6 +10,9 @@ export const customResourceResponse = Joi.object({
   associate_resource_ids: Joi.array().items(Joi.string()),
   contacts: customProductContactValidate,
   type: Joi.number(),
+  created_at: Joi.string().allow("", null),
+  updated_at: Joi.string().allow("", null),
+  location_id: Joi.string().allow("", null),
   ...locationBasicResponse,
 });
 
@@ -42,6 +45,23 @@ export default {
       Joi.object({
         id: Joi.string(),
         name: Joi.string(),
+      })
+    ),
+    statusCode: Joi.number(),
+  }),
+  getDistributorsByCompany: Joi.object({
+    data: Joi.array().items(
+      Joi.object({
+        count: Joi.number(),
+        country_name: Joi.string(),
+        distributors: Joi.array().items(
+          Joi.object({
+            ...locationBasicResponse,
+            id: Joi.string(),
+            location_id: Joi.string(),
+            contacts: customProductContactValidate,
+          })
+        ),
       })
     ),
     statusCode: Joi.number(),

@@ -1,8 +1,8 @@
 import { CommonTypeValue, SortOrder } from "@/types";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
+import { countryRepository } from "@/repositories/country.repository";
 import { successResponse } from "@/helper/response.helper";
-import { mappingCountryByRegion } from "./setting.mapping";
 
 export default class SettingService {
   public getCommonTypes = async (
@@ -51,10 +51,8 @@ export default class SettingService {
   };
 
   public getListCountryWithRegionGroup = async () => {
-    const countries = await countryStateCityService.getAllCountry();
-    return successResponse({
-      data: mappingCountryByRegion(countries),
-    });
+    const countries = await countryRepository.groupByRegion();
+    return successResponse({ data: countries });
   };
 
   public findOrCreateList = async (

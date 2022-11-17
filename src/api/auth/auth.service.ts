@@ -3,9 +3,8 @@ import {
   BRAND_STATUSES,
   MESSAGES,
   AUTH_EMAIL_TYPE,
-  ROLES,
-  SYSTEM_TYPE,
-  getRoleType,
+  DesignFirmRoles,
+  RoleType,
 } from "@/constants";
 import {
   IMessageResponse,
@@ -153,7 +152,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
     }
     ///
-    return this.responseWithToken(user.id, getRoleType(user.role_id));
+    return this.responseWithToken(user.id, RoleType[user.role_id]);
   };
 
   public forgotPassword = async (
@@ -268,7 +267,7 @@ class AuthService {
 
     const defaultLocation = await locationService.createDefaultLocation(
       createdDesign.id,
-      SYSTEM_TYPE.DESIGN,
+      UserType.Designer,
       payload.email
     );
 
@@ -281,7 +280,7 @@ class AuthService {
       lastname: payload.lastname ?? "",
       password,
       email: payload.email,
-      role_id: ROLES.DESIGN_ADMIN,
+      role_id: DesignFirmRoles.Admin,
       verification_token: token,
       type: UserType.Designer,
       relation_id: createdDesign.id ?? null,

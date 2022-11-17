@@ -1,4 +1,4 @@
-import { LocationPayload } from "@/types";
+import { DimensionAndWeight, LocationPayload } from "@/types";
 
 // Custom Product
 export interface CustomProductBasicAttributes {
@@ -13,6 +13,7 @@ export interface CustomProductAttributes {
   images: string[];
   attributes: CustomProductBasicAttributes[];
   specification: CustomProductBasicAttributes[];
+  dimension_and_weight: DimensionAndWeight;
   options: {
     id: string;
     title: string;
