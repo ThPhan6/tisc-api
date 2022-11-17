@@ -72,12 +72,3 @@ export enum MeasurementUnit {
   Imperial = 1,
   Metric = 2,
 }
-
-export const ALL_REGIONS = [
-  "Africa",
-  "Americas",
-  "Asia",
-  "Europe",
-  "Oceania",
-  "Polar",
-];

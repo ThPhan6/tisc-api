@@ -1,5 +1,5 @@
 import { locationService } from "./../location/location.service";
-import { BRAND_STATUSES, MESSAGES, BrandRoles } from "@/constants";
+import { BRAND_STATUSES, MESSAGES, BrandRoles, ALL_REGIONS } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
@@ -21,7 +21,6 @@ import {
   UserAttributes,
   GetUserGroupBrandSort,
   UserType,
-  ALL_REGIONS,
 } from "@/types";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
