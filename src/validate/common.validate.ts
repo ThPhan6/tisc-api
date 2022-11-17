@@ -102,9 +102,10 @@ export const numberValidation = () => Joi.number();
 
 export const requireEmailValidation = (fieldName: string = "Email") =>
   Joi.string()
-    .email()
     .required()
-    .error(errorMessage(`${fieldName} is required`));
+    .error(errorMessage(`${fieldName} is required`))
+    .email()
+    .error(errorMessage(`${fieldName} is invalid`));
 
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;

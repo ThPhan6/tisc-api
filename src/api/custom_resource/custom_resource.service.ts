@@ -215,7 +215,7 @@ class CustomResourceService {
       await customResourceRepository.updateAssociateResources(
         id,
         customResource.type,
-        customResource.associate_resource_ids
+        []
       );
 
     if (!updateAssociateResult) {
