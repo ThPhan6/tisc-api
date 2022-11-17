@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import { ALL_REGIONS, COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -11,7 +11,6 @@ import { locationRepository } from "@/repositories/location.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import {
-  ALL_REGIONS,
   ICountryStateCity,
   ProjectStatus,
   SortOrder,
