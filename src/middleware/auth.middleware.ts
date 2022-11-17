@@ -10,10 +10,10 @@ import { UserAttributes } from "@/types";
 import { base64ToString, decrypt } from "@/helper/cryptojs.helper";
 
 export const throwError = async (message?: string) => {
-  throw Boom.unauthorized(message||"Invalid token signature");
+  throw Boom.unauthorized(message || "Invalid token signature");
 };
 export const throwForbidden = async () => {
-  throw Boom.forbidden()
+  throw Boom.forbidden();
 };
 
 const customScheme = (_server: Server) => {
@@ -28,14 +28,22 @@ const customPermissionScheme = (_server: Server) => {
   return {
     authenticate: async (request: Request, h: ResponseToolkit) => {
       const credential = await AuthMiddleware.authenticate(request);
+      if (
+        AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(
+          request.route.path
+        ) &&
+        credential
+      ) {
+        return h.authenticated(credential);
+      }
       const companyPermission =
         await companyPermissionRepository.findByRouteRoleIdAndRelationId(
           request.route.path,
           credential.credentials.user.role_id,
           credential.credentials.user.relation_id
         );
-      if(!companyPermission) {
-        return throwForbidden()
+      if (!companyPermission) {
+        return throwForbidden();
       }
       return h.authenticated(credential);
     },
