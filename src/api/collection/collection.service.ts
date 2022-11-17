@@ -6,7 +6,6 @@ import {
 } from "@/helper/response.helper";
 import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
-import { marketAvailabilityService } from "../market_availability/market_availability.service";
 import { ICollectionRequest } from "./collection.type";
 import {CollectionRelationType} from '@/types';
 
@@ -29,14 +28,6 @@ class CollectionService {
     if (!createdCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-    const authorizedBrandCountries =
-      await marketAvailabilityService.getBrandRegionCountries(payload.relation_id);
-    await marketAvailabilityService.create({
-      collection_id: createdCollection.id,
-      country_ids: authorizedBrandCountries.map((item) =>
-        item.id.toLowerCase()
-      ),
-    });
     return successResponse({ data: createdCollection });
   }
 

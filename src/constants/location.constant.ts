@@ -41,3 +41,12 @@ export const REGION_KEY: {
   AMERICAS: "americas",
   NORTHERN_AMERICA: "northern_america",
 };
+
+export enum Region {
+  Asia = "Asia",
+  Europe = "Europe",
+  Africa = "Africa",
+  Polar = "Polar",
+  Americas = "Americas",
+  Oceania = "Oceania",
+}

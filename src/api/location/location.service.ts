@@ -6,7 +6,6 @@ import {
 } from "@/helper/response.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
-import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import productRepository from "@/repositories/product.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
@@ -235,19 +234,11 @@ export default class LocationService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const market =
-      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
-        product.collection_id
-      );
-    if (!market) {
-      return successResponse({ data: [] });
-    }
 
-    const locations =
-      await locationRepository.getLocationByRelationAndCountryIds(
-        product.brand_id,
-        market.country_ids
-      );
+    const locations = await locationRepository.getAllBy({
+      relation_id: product.brand_id,
+      type: LocationType.brand
+    });
     const locationData = await this.mappingLocationData(locations);
     return successResponse({
       data: mappingByCountries(locationData, true),

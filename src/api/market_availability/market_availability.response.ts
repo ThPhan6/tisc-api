@@ -1,5 +1,5 @@
 import { paginationResponse } from "@/helper/response.helper";
-import * as HapiJoi from "joi";
+import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
