@@ -3,6 +3,7 @@ import {
   requireStringValidation,
   getOneValidation,
   errorMessage,
+  requireEmailValidation,
 } from "@/validate/common.validate";
 
 export const basicAttributeValidate = Joi.object({
@@ -15,7 +16,7 @@ export const customProductContactValidate = Joi.array().items(
     first_name: Joi.string().trim(),
     last_name: Joi.string().trim(),
     position: Joi.string().trim(),
-    work_email: Joi.string().trim(),
+    work_email: requireEmailValidation("Work email"),
     work_phone: Joi.string().trim(),
     work_mobile: Joi.string().trim(),
   })
