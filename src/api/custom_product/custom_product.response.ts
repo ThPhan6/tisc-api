@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { locationBasicResponse } from "../location/location.response";
+import { dimensionAndWeightValidate } from "../product/product.validate";
 import {
   basicAttributeValidate,
   customProductOptionValidate,
@@ -14,6 +15,7 @@ export const customProductResponse = {
   attributes: Joi.array().items(basicAttributeValidate),
   specification: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),
+  dimension_and_weight: dimensionAndWeightValidate,
   collection_id: Joi.string(),
   company_id: Joi.string(),
   created_at: Joi.string(),
@@ -47,7 +49,7 @@ export default {
       updated_at: Joi.string(),
       design_id: Joi.string(),
       location: locationBasicResponse,
-      dimension_and_weight: Joi.any(),
+      dimension_and_weight: dimensionAndWeightValidate,
     }),
     statusCode: Joi.number(),
   }),
