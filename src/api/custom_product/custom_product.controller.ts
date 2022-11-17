@@ -7,6 +7,7 @@ import { CustomProductPayload, UserAttributes, UserType } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductService } from "./custom_product.service";
 import { customProductRepository } from "./custom_product.repository";
+import {mappingDimensionAndWeight} from '@/api/attribute/attribute.mapping';
 
 export default class CustomProductController {
   public async createProduct(
@@ -62,6 +63,8 @@ export default class CustomProductController {
         .response(errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS))
         .code(404);
     }
+
+    result.dimension_and_weight = mappingDimensionAndWeight(result.dimension_and_weight);
 
     return toolkit.response(successResponse({ data: result })).code(200);
   }

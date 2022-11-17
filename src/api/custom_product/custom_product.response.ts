@@ -47,6 +47,7 @@ export default {
       updated_at: Joi.string(),
       design_id: Joi.string(),
       location: locationBasicResponse,
+      dimension_and_weight: Joi.any(),
     }),
     statusCode: Joi.number(),
   }),

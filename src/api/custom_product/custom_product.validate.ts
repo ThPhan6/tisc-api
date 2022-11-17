@@ -5,6 +5,7 @@ import {
   errorMessage,
   requireEmailValidation,
 } from "@/validate/common.validate";
+import {dimensionAndWeightValidate} from '@/api/product/product.validate';
 
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
@@ -60,6 +61,7 @@ export const customProductValidate = Joi.object({
   options: Joi.array().items(customProductOptionValidate),
   collection_id: requireStringValidation("Collection"),
   company_id: requireStringValidation("Brand company"),
+  dimension_and_weight: dimensionAndWeightValidate,
 });
 
 export default {
