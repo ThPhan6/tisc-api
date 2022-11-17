@@ -12,14 +12,13 @@ import {
   IDistributorAttributes,
 } from "@/types";
 import { distributorRepository } from "@/repositories/distributor.repository";
-import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { productRepository } from "@/repositories/product.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import {
-  mappingMarketAvailibility
-} from '@/api/market_availability/market_availability.mapping';
+  marketAvailabilityService
+} from '@/api/market_availability/market_availability.service';
 import {
   mappingAuthorizedCountries,
   mappingAuthorizedCountriesName,
@@ -352,31 +351,19 @@ class DistributorService {
     });
   }
 
-  public async getMarketDistributorGroupByCountry(productId: string) {
+  public async getMarketDistributorGroupByCountry(productId: string, projectId?: string) {
     const product = await productRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
     }
-    const brand = await brandRepository.find(product.brand_id);
-    if (!brand) {
-      return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
-    }
-
-    const market = await marketAvailabilityRepository.findByCollection(
-      brand.id,
-      product.collection_id
+    const availableCountries = await marketAvailabilityService.getAvailableCountryByCollection(
+      product.collection_id,
+      projectId
     );
-
     const distributors = await distributorRepository.getMarketDistributor(
       product.brand_id,
-      mappingMarketAvailibility(market).countries.reduce((countryIds, country) => {
-        if (country.available) {
-          countryIds.push(country.id);
-        }
-        return countryIds;
-      }, [] as string[]),
+      availableCountries,
     );
-
 
     const result = mappingMarketDistributorGroupByCountry(distributors);
 
