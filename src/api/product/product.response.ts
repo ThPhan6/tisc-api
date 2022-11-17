@@ -1,4 +1,6 @@
 import * as HapiJoi from "joi";
+import { dimensionAndWeightValidate } from "./product.validate";
+
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -39,7 +41,7 @@ export const productResponse = {
   tips: Joi.any(),
   downloads: Joi.any(),
   catelogue_downloads: Joi.any(),
-  dimension_and_weight: Joi.any(),
+  dimension_and_weight: dimensionAndWeightValidate,
 };
 
 export default {
