@@ -9,6 +9,35 @@ class CountryRepository extends BaseRepository<ICountryAttributes> {
     super();
     this.model = new CountryModel();
   }
+
+  public groupByRegion() {
+    return this.model.rawQueryV2(`LET regions = (
+        FOR c IN countries
+        FILTER c.region != ""
+        FILTER c.deleted_at == null
+        SORT c.region ASC
+        RETURN DISTINCT c.region
+    )
+    FOR region in regions
+        let countries = (
+            FOR country in countries
+            FILTER country.region == region
+            FILTER country.deleted_at == null
+            SORT country.name ASC
+            RETURN {
+                id: country.id,
+                name: country.name,
+                phone_code: country.phone_code
+            }
+        )
+
+    return {
+        name: UPPER(region),
+        count: COUNT(countries),
+        countries: countries
+    }`, {});
+  }
 }
 
 export default new CountryRepository();
+export const countryRepository = new CountryRepository();

@@ -2,9 +2,10 @@ import { Region } from "@/constants";
 import {
   ListMarketAvailability,
   RegionMarket,
+  RegionKey,
 } from "@/types";
-import {getEnumValues} from '@/helper/common.helper';
-import {lowerCase, startCase} from 'lodash';
+import {getEnumKeys} from '@/helper/common.helper';
+import {startCase} from 'lodash';
 
 export const mappingRegion = (
   countries: RegionMarket[],
@@ -17,15 +18,14 @@ export const mappingRegion = (
     return true;
   });
   return {
-    asia: countryData.filter((country) => country.region === Region.Asia),
-    europe: countryData.filter((country) => country.region === Region.Europe),
-    africa: countryData.filter((country) => country.region === Region.Africa),
-    polar: countryData.filter((country) => country.region === Region.Polar),
-    americas: countryData.filter((country) => country.region === Region.Americas),
-    oceania: countryData.filter((country) => country.region === Region.Oceania),
+    africa: countryData.filter((country) => country.region === Region.africa),
+    asia: countryData.filter((country) => country.region === Region.asia),
+    europe: countryData.filter((country) => country.region === Region.europe),
+    n_americas: countryData.filter((country) => country.region === Region.n_americas),
+    oceania: countryData.filter((country) => country.region === Region.oceania),
+    s_americas: countryData.filter((country) => country.region === Region.s_americas),
   }
 }
-
 export const mappingMarketAvailibility = (
   marketAvailability: ListMarketAvailability,
   availableOnly: boolean = true
@@ -68,12 +68,11 @@ export const mappingGroupByCollection = (
     return {
       collection_name: data.name,
       count: data.available_countries,
-      regions: getEnumValues(Region).map((region: any) => {
-        const regionName = lowerCase(region) as 'asia' | 'europe' | 'africa' | 'polar' | 'americas' | 'oceania';
-
+      regions: getEnumKeys(Region).map((region: any) => {
+        const regionName = region as RegionKey;
         return {
           count: data[regionName].length,
-          region_name: startCase(regionName),
+          region_name: Region[regionName],
           region_country: data[regionName].map((country) => startCase(country.name)).join(', ')
         }
       })
