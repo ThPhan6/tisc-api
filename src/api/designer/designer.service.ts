@@ -15,6 +15,7 @@ import {
 } from "@/types";
 import { sumBy } from "lodash";
 import { v4 } from "uuid";
+import { mappingDimensionAndWeight } from "../attribute/attribute.mapping";
 import { settingService } from "../setting/setting.service";
 import { GetDesignFirmSort } from "./designer.type";
 
@@ -173,7 +174,15 @@ class DesignerService {
     }
 
     return successResponse({
-      data: library,
+      data: {
+        ...library,
+        products: library.products.map((p) => ({
+          ...p,
+          dimension_and_weight: mappingDimensionAndWeight(
+            p.dimension_and_weight
+          ),
+        })),
+      },
     });
   }
 }
