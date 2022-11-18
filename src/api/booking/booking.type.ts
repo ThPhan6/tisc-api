@@ -88,3 +88,22 @@ export interface IScheduleValidation {
   start_time: string,
   end_time: string,
 }
+
+export interface IBookingEvent {
+  attendee_ability: string,
+  create_time: string,
+  description: string,
+  end_time: {
+    date: string,
+    timezone: string,
+  },
+  event_id: string,
+  organizer_calendar_id: string,
+  start_time: {
+    date: string,
+    timezone: string
+  },
+  status: string,
+  summary: string,
+  visibility: string
+}

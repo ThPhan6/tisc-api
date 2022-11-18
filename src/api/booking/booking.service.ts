@@ -11,6 +11,7 @@ import moment from 'moment';
 import {
   BOOKING_DT_FORMAT,
   BOOKING_SCHEDULE,
+  IBookingEvent,
   IBookingRequest,
   IReScheduleBookingRequest,
   IResponseBrandInBooking,
@@ -18,7 +19,6 @@ import {
   IScheduleSlot,
   IScheduleValidation,
 } from "./booking.type";
-import { isEmpty } from "lodash";
 import { IBookingAttributes } from "@/types";
 import { mailService } from "@/service/mail.service";
 import { brandService } from "../brand/brand.service";
@@ -43,7 +43,7 @@ export default class BookingService {
       }
 
       let schedule: IScheduleSlot[] = BOOKING_SCHEDULE;
-      const events = response.data.data.items;
+      const events: IBookingEvent[] = response.data.data.items;
       if (events?.length > 0) {
         let newSchedule: any = [];
         schedule.map((item: any) => {
