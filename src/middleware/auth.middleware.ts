@@ -4,18 +4,47 @@ import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
 import { userRepository } from "@/repositories/user.repository";
 import { productRepository } from "@/repositories/product.repository";
+import { companyPermissionRepository } from "@/repositories/company_permission.repository";
 import { verifyJwtToken } from "@/helper/jwt.helper";
 import { UserAttributes } from "@/types";
 import { base64ToString, decrypt } from "@/helper/cryptojs.helper";
 
-export const throwError = async () => {
-  throw Boom.unauthorized("Invalid token signature");
+export const throwError = async (message?: string) => {
+  throw Boom.unauthorized(message || "Invalid token signature");
+};
+export const throwForbidden = async () => {
+  throw Boom.forbidden();
 };
 
 const customScheme = (_server: Server) => {
   return {
     authenticate: async (request: Request, h: ResponseToolkit) => {
       const credential = await AuthMiddleware.authenticate(request);
+      return h.authenticated(credential);
+    },
+  };
+};
+const customPermissionScheme = (_server: Server) => {
+  return {
+    authenticate: async (request: Request, h: ResponseToolkit) => {
+      const credential = await AuthMiddleware.authenticate(request);
+      if (
+        AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(
+          request.route.path
+        ) &&
+        credential
+      ) {
+        return h.authenticated(credential);
+      }
+      const companyPermission =
+        await companyPermissionRepository.findByRouteRoleIdAndRelationId(
+          request.route.path,
+          credential.credentials.user.role_id,
+          credential.credentials.user.relation_id
+        );
+      if (!companyPermission) {
+        return throwForbidden();
+      }
       return h.authenticated(credential);
     },
   };
@@ -36,7 +65,7 @@ export default class AuthMiddleware {
   public static registration = (server: Server) => {
     server.auth.scheme(AUTH_NAMES.GENERAL, customScheme);
 
-    server.auth.scheme(AUTH_NAMES.PERMISSION, customScheme);
+    server.auth.scheme(AUTH_NAMES.PERMISSION, customPermissionScheme);
 
     ///
     server.auth.strategy(AUTH_NAMES.PERMISSION, AUTH_NAMES.PERMISSION);
