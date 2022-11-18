@@ -1,4 +1,4 @@
-import { BRAND_STATUSES, MESSAGES, ROLES, SYSTEM_TYPE } from "@/constants";
+import { BrandRoles, BRAND_STATUSES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
@@ -19,7 +19,7 @@ import { BrandAttributes, IBrandRequest } from "../brand/brand.type";
 import UserRepository from "@/repositories/user.repository";
 import { locationService } from "../location/location.service";
 import { createResetPasswordToken } from "@/helper/password.helper";
-import { IBookingAttributes, UserAttributes, UserStatus } from "@/types";
+import { IBookingAttributes, UserAttributes, UserStatus, UserType } from "@/types";
 import { mailService } from "@/service/mail.service";
 
 export default class BookingService {
@@ -324,7 +324,7 @@ export default class BookingService {
       if (!user) {
         const defaultLocation = await locationService.createDefaultLocation(
           brand.id,
-          SYSTEM_TYPE.BRAND,
+          UserType.Brand,
           payload.email
         );
 
@@ -343,11 +343,11 @@ export default class BookingService {
           lastname: payload.last_name,
           gender: true,
           email: payload.email,
-          role_id: ROLES.BRAND_ADMIN,
+          role_id: BrandRoles.Admin,
           verification_token: verificationToken,
           is_verified: false,
           status: UserStatus.Pending,
-          type: SYSTEM_TYPE.BRAND,
+          type: UserType.Brand,
           relation_id: brand.id,
           location_id: defaultLocation?.id,
         });
@@ -392,11 +392,10 @@ export default class BookingService {
       cancel_url
     );
 
-    const sent = Promise.all([sentToBrand, sentToTISC]);
+    await Promise.all([sentToBrand, sentToTISC]);
     return true;
-
     } catch (error) {
-      false;
+      return false;
     }
   }
 
