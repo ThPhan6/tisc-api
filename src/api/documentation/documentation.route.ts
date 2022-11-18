@@ -56,7 +56,7 @@ export default class DocumentationRoute implements IRoute {
             handler: controller.getAllHowto,
             description: "Method that get all how to documentation",
             tags: ["api", "Documentation"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

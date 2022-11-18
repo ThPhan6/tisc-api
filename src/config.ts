@@ -30,4 +30,5 @@ export const ENVIROMENT = {
   SLACK_INCOMING_WEBHOOK: process.env.SLACK_INCOMING_WEBHOOK ?? '',
   SHARE_HASH_SECRET_KEY: process.env.SHARE_HASH_SECRET_KEY || "Cu9Zj+zNEA!5X!7^$8eZZhrw",
   MODE: process.env.MODE || "",
+  CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
 }
