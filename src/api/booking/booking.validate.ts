@@ -1,12 +1,22 @@
-import { requireBookingDateValidation, requireEmailValidation, requireStringValidation } from "@/validate/common.validate";
-import * as Joi from "joi";
-import moment from "moment";
+import { Timezones } from "@/constants";
+import { getEnumValues } from "@/helper/common.helper";
+import {
+  errorMessage,
+  requireBookingDateValidation,
+  requireEmailValidation,
+  requireStringValidation
+} from "@/validate/common.validate";
+import Joi from "joi";
+
+const timezoneValidation = Joi
+  .valid(...getEnumValues(Timezones))
+  .required()
+  .error(errorMessage("Time zone is not valid"));
 
 export default {
   availableSchedule: {
     query: {
-      timezone: requireStringValidation('Time zone'),
-      date: requireBookingDateValidation(),
+      date: requireBookingDateValidation(0, 90),
     }
   },
   create: {
@@ -14,16 +24,22 @@ export default {
       brand: requireStringValidation('brand'),
       website: requireStringValidation('website'),
       first_name: requireStringValidation('first_name'),
-      date: requireBookingDateValidation(),
+      date: requireBookingDateValidation(0, 90),
       email: requireEmailValidation(),
       start_time: requireStringValidation('Start time'),
       end_time: requireStringValidation('End time'),
-      timezone: requireStringValidation('Time zone'),
+      timezone: timezoneValidation
     },
   },
   reSchedule: {
     params: {
       id: requireStringValidation("Booking"),
+    },
+    payload: {
+      date: requireBookingDateValidation(0, 90),
+      start_time: requireStringValidation('Start time'),
+      end_time: requireStringValidation('End time'),
+      timezone: timezoneValidation
     }
   },
   cancel: {

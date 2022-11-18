@@ -4,8 +4,8 @@ import { IBookingRequest, IReScheduleBookingRequest } from "./booking.type";
 
 export default class BookingController {
   public availableSchedule = async (req: Request, toolkit: ResponseToolkit) => {
-    const {timezone, date} = req.query;
-    const response = await bookingService.availableSchedule(timezone, date);
+    const {date} = req.query;
+    const response = await bookingService.availableSchedule(date);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

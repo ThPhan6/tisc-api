@@ -1,11 +1,12 @@
 import {
-  defaultRouteOptionResponseStatus,
-} from "../../helper/response.helper";
+  defaultRouteOptionResponseStatus, generalMessageResponse,
+} from "@/helper/response.helper";
 import { ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
-import IRoute from "../../helper/route.helper";
+import IRoute from "@/helper/route.helper";
 import validate from "./booking.validate";
 import BookingController from "./booking.controller";
+import response from "./booking.response";
 
 export default class BookingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -23,7 +24,8 @@ export default class BookingRoute implements IRoute {
             tags: ["api", "Booking"],
             response: {
               status: {
-                ...defaultRouteOptionResponseStatus
+                ...defaultRouteOptionResponseStatus,
+                200: response.availableSchedule
               },
             },
           },
@@ -38,7 +40,8 @@ export default class BookingRoute implements IRoute {
             tags: ["api", "Booking"],
             response: {
               status: {
-                ...defaultRouteOptionResponseStatus
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse
               },
             },
           },
@@ -53,7 +56,8 @@ export default class BookingRoute implements IRoute {
             tags: ["api", "Booking"],
             response: {
               status: {
-                ...defaultRouteOptionResponseStatus
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse
               },
             },
           },
@@ -64,11 +68,12 @@ export default class BookingRoute implements IRoute {
           options: {
             handler: controller.cancel,
             validate: validate.cancel,
-            description: "Method that put cancel booking",
+            description: "Method that delete booking",
             tags: ["api", "Booking"],
             response: {
               status: {
-                ...defaultRouteOptionResponseStatus
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse
               },
             },
           },
