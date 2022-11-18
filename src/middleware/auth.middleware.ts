@@ -36,15 +36,19 @@ const customPermissionScheme = (_server: Server) => {
       ) {
         return h.authenticated(credential);
       }
-      const companyPermission =
-        await companyPermissionRepository.findByRouteRoleIdAndRelationId(
-          request.route.path,
-          credential.credentials.user.role_id,
-          credential.credentials.user.relation_id
-        );
-      if (!companyPermission) {
-        return throwForbidden();
+      const check = process.env.CHECK_PERMISSION;
+      if (check === "true") {
+        const companyPermission =
+          await companyPermissionRepository.findByRouteRoleIdAndRelationId(
+            request.route.path,
+            credential.credentials.user.role_id,
+            credential.credentials.user.relation_id
+          );
+        if (!companyPermission) {
+          return throwForbidden();
+        }
       }
+
       return h.authenticated(credential);
     },
   };
