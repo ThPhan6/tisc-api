@@ -1,5 +1,5 @@
 import { locationService } from "./../location/location.service";
-import { BRAND_STATUSES, MESSAGES, BrandRoles } from "@/constants";
+import { BRAND_STATUSES, MESSAGES, BrandRoles, ALL_REGIONS } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
@@ -12,6 +12,7 @@ import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
+import { permissionService } from "@/api/permission/permission.service";
 import {
   ActiveStatus,
   BrandAttributes,
@@ -21,7 +22,6 @@ import {
   UserAttributes,
   GetUserGroupBrandSort,
   UserType,
-  ALL_REGIONS,
 } from "@/types";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
@@ -242,7 +242,7 @@ class BrandService {
     }
 
     //create brand permissions
-    // await permissionService.initPermission(createdUser);
+    await permissionService.initPermission(createdUser);
 
     const officialWebsites = this.getOfficialWebsites(createdBrand);
 

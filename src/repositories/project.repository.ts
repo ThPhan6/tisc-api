@@ -174,8 +174,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FOR loc IN locations
         FILTER loc.id == projects.location_id
         RETURN MERGE(
-          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']), 
-          KEEP(loc, ${locationRepository.basicAttributesQuery})
+          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']),
+          {location: KEEP(loc, ${locationRepository.basicAttributesQuery})}
         )
       `,
       { id }

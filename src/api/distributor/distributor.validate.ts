@@ -57,5 +57,8 @@ export default {
   },
   getMarketDistributorGroupByCountry: {
     params: { product_id: requireStringValidation("Product id") },
+    query: {
+      project_id: Joi.string(),
+    }
   },
 };

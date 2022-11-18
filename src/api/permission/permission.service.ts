@@ -1,8 +1,11 @@
 import { permissionRepository } from "@/repositories/permission.repository";
 import { companyPermissionRepository } from "@/repositories/company_permission.repository";
 import {
-  TiscRoles, BrandRoles, DesignFirmRoles,
-  RoleData, MESSAGES
+  TiscRoles,
+  BrandRoles,
+  DesignFirmRoles,
+  RoleData,
+  MESSAGES,
 } from "@/constants";
 import {
   errorMessageResponse,
@@ -21,7 +24,6 @@ export default class PermissionService {
         user.relation_id,
         withRole ? user.role_id : undefined
       );
-
     if (isEmpty(companyPermissions)) {
       await this.initPermission(user);
       companyPermissions =
@@ -30,7 +32,6 @@ export default class PermissionService {
           withRole ? user.role_id : undefined
         );
     }
-
     return successResponse({
       data: mappingPermission(companyPermissions),
     });
@@ -132,6 +133,7 @@ export default class PermissionService {
         "Distributors",
         "Market Availability",
         "Subscription",
+        "Billed Services",
       ];
       if (!noBrandAccessable.includes(permissionName)) {
         return true;

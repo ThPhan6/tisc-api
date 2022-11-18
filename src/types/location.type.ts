@@ -93,27 +93,7 @@ export interface IRegionCountry {
   region: string;
 }
 
-export type RegionGroupValue = Omit<IRegionCountry, "region">;
-
-export interface RegionGroup {
-  africa: RegionGroupValue[];
-  asia: RegionGroupValue[];
-  europe: RegionGroupValue[];
-  n_america: RegionGroupValue[];
-  oceania: RegionGroupValue[];
-  s_america: RegionGroupValue[];
-}
-export type RegionGroupKey = keyof RegionGroup;
-
-export type RegionKey =
-  | "africa"
-  | "asia"
-  | "europe"
-  | "north america"
-  | "oceania"
-  | "south america"
-  | "americas"
-  | "northern_america";
+export type RegionKey = 'asia' | 'europe' | 'africa' | 'n_americas' | 's_americas' | 'oceania';
 
 export enum DesignFirmFunctionalType {
   "Main office" = "1",
@@ -135,6 +115,7 @@ export interface LocationRequest {
 }
 
 export enum LocationType {
+  tisc = 1,
   brand = 2,
   designer = 3,
 }

@@ -1,7 +1,7 @@
 import { GetListDistributorSort } from "@/api/distributor/distributor.type";
 import DistributorModel from "@/model/distributor.model";
 import { IDistributorAttributes, SortOrder } from "@/types";
-import { pick } from "lodash";
+import { pick, isEmpty } from "lodash";
 import { v4 } from "uuid";
 import BaseRepository from "./base.repository";
 import { locationRepository } from "./location.repository";
@@ -40,13 +40,26 @@ class DistributorRepository extends BaseRepository<IDistributorAttributes> {
   }
 
   public async getMarketDistributor(brandId: string, countries: string[]) {
-    return locationRepository.getListWithLocation<IDistributorAttributes>(
+    const activeDistributor = await locationRepository.getListWithLocation<IDistributorAttributes>(
       "distributors",
       `
         FILTER distributors.brand_id == '${brandId}'
-        FILTER loc.country_id IN [${countries.map((c) => `'${c}'`)}]
+        LET authorized = distributors.authorized_country_ids[* FILTER CURRENT IN [${countries.map((c) => `'${c}'`)}] RETURN CURRENT]
+        FILTER count(authorized) > 0
         `
     );
+    if (!isEmpty(activeDistributor)) {
+      const beyondDistributor = await locationRepository.getListWithLocation<IDistributorAttributes>(
+        "distributors",
+        `
+          FILTER distributors.brand_id == '${brandId}'
+          FILTER distributors.coverage_beyond == true
+          FILTER distributors.id NOT IN [${activeDistributor.map((d) => `'${d.id}'`)}]
+          `
+      );
+      return activeDistributor.concat(beyondDistributor);
+    }
+    return activeDistributor;
   }
 
   public async getListDistributorWithPagination(
@@ -60,8 +73,8 @@ class DistributorRepository extends BaseRepository<IDistributorAttributes> {
       "distributors",
       `
         FILTER distributors.brand_id == '${brandId}'
-        LET country_name = loc.country_name 
-        LET city_name = loc.city_name 
+        LET country_name = loc.country_name
+        LET city_name = loc.city_name
         SORT ${
           sort === "city_name" || sort === "country_name"
             ? sort

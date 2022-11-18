@@ -3,7 +3,10 @@ export interface IMarketAvailabilityRequest {
   country_ids: string[];
 }
 export interface IUpdateMarketAvailabilityRequest {
-  country_ids: string[];
+  countries: {
+    id: string;
+    available: boolean;
+  }[];
 }
 export interface IMarketAvailabilityResponse {
   data: {

@@ -1,4 +1,4 @@
-import { COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
+import { ALL_REGIONS, COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -8,7 +8,6 @@ import {
 import { designerRepository } from "@/repositories/designer.repository";
 import { uploadLogoOfficeProfile } from "@/service/image.service";
 import {
-  ALL_REGIONS,
   DesignerAttributes,
   SummaryInfo,
   UserAttributes,

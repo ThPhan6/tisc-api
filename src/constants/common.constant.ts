@@ -204,3 +204,12 @@ export const INTERESTED_IN_OPTIONS: {
 
 export const INTEREST_RATE = 36.5; // 36.5 %
 export const SQUARE_METER_TO_SQUARE_FOOT = 10.76391;
+
+export const ALL_REGIONS = [
+  "Africa",
+  "Asia",
+  "Europe",
+  "N. America",
+  "Oceania",
+  "S. America",
+];
