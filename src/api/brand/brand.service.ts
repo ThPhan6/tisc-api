@@ -12,6 +12,7 @@ import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
+import { permissionService } from "@/api/permission/permission.service";
 import {
   ActiveStatus,
   BrandAttributes,
@@ -247,7 +248,7 @@ class BrandService {
     }
 
     //create brand permissions
-    // await permissionService.initPermission(createdUser);
+    await permissionService.initPermission(createdUser);
 
     const officialWebsites = this.getOfficialWebsites(createdBrand);
 

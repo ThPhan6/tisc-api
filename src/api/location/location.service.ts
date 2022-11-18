@@ -111,7 +111,7 @@ export default class LocationService {
           ? LocationType.brand
           : user.type === UserType.Designer
           ? LocationType.designer
-          : undefined,
+          : LocationType.tisc,
       relation_id: user.relation_id,
     });
     if (!createdLocation) {

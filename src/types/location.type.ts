@@ -115,6 +115,7 @@ export interface LocationRequest {
 }
 
 export enum LocationType {
+  tisc = 1,
   brand = 2,
   designer = 3,
 }

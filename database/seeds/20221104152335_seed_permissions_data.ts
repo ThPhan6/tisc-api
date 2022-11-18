@@ -78,9 +78,9 @@ const permissionData = [
         logo: "/logo/list.svg",
     		name: "Listing",
     		type: 1,
-    		routes: [],
-				index: 5,
-				id: "permission_2_0",
+    		routes: [ROUTES.GET_PROJECT_LISTING, ROUTES.GET_PROJECT_SUMMARY_OVERALL],
+			index: 5,
+			id: "permission_2_0",
       }
     ]
 	},
@@ -194,7 +194,7 @@ const permissionData = [
 				routes: [
 					ROUTES.GET_LIST_DOCUMENTATION,
 					ROUTES.GET_ONE_DOCUMENTATION,
-					ROUTES.EDIT_DOCUMENTATION
+					ROUTES.EDIT_DOCUMENTATION,
 				],
 				index: 12,
 				id: "permission_4_0",
@@ -239,7 +239,12 @@ const permissionData = [
 					ROUTES.GET_LIST_AUTO_EMAIL_TOPIC,
 					ROUTES.GET_LIST_AUTO_EMAIL_TARGETED_FOR,
 					ROUTES.GET_ONE_EMAIL_AUTO,
-					ROUTES.EDIT_EMAIL_AUTO
+					ROUTES.EDIT_EMAIL_AUTO,
+					ROUTES.CREATE_QUOTATION,
+					ROUTES.GET_LIST_QUOTATION,
+					ROUTES.GET_ONE_QUOTATION,
+					ROUTES.EDIT_QUOTATION,
+					ROUTES.DELETE_QUOTATION,
 				],
 				index: 15,
 				id: "permission_4_3",
@@ -250,7 +255,7 @@ const permissionData = [
 				type: 1,
 				index: 16,
 				id: "permission_4_4",
-				routes: [],
+				routes: [ROUTES.INVOICE.CREATE, ROUTES.INVOICE.GET_LIST, ROUTES.INVOICE.GET, ROUTES.INVOICE.GET_SUMMARY, ROUTES.USER.GET_BY_TYPE_ROLE_AND_RELATION],
 			}
 		]
 	},
@@ -402,11 +407,19 @@ const permissionData = [
 				]
 			},
 			{
-				logo: "/logo/subscription.svg",
-				name: "Subscription",
+				logo: "/logo/invoice.svg",
+				name: "Billed Services",
 				type: 2,
 				index: 27,
 				id: "permission_9_5",
+				routes: [ ROUTES.INVOICE.GET_LIST, ROUTES.INVOICE.GET]
+			},
+			{
+				logo: "/logo/subscription.svg",
+				name: "Subscription",
+				type: 2,
+				index: 28,
+				id: "permission_9_6",
 				routes: []
 			}
 		]
@@ -653,7 +666,7 @@ export const up = (connection: ConnectionInterface) => {
 			deleted_at: null
 		})
 		if (subs) {
-			res = res.concat(subs.map((sub) => {
+			res = res.concat(subs.map((sub: any) => {
 				return {
 					...sub,
 					parent_id: permission.id,

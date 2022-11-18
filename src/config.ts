@@ -34,4 +34,5 @@ export const ENVIROMENT = {
   LARK_APP_ID: process.env.LARK_APP_ID || "",
   LARK_APP_SECRET: process.env.LARK_APP_SECRET || "",
   LARK_CALENDAR_ID: process.env.LARK_CALENDAR_ID || "",
+  CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
 }
