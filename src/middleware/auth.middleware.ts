@@ -8,6 +8,7 @@ import { companyPermissionRepository } from "@/repositories/company_permission.r
 import { verifyJwtToken } from "@/helper/jwt.helper";
 import { UserAttributes } from "@/types";
 import { base64ToString, decrypt } from "@/helper/cryptojs.helper";
+import { ENVIROMENT } from "@/config";
 
 export const throwError = async (message?: string) => {
   throw Boom.unauthorized(message || "Invalid token signature");
@@ -36,7 +37,7 @@ const customPermissionScheme = (_server: Server) => {
       ) {
         return h.authenticated(credential);
       }
-      const check = process.env.CHECK_PERMISSION;
+      const check = ENVIROMENT.CHECK_PERMISSION;
       if (check === "true") {
         const companyPermission =
           await companyPermissionRepository.findByRouteRoleIdAndRelationId(
