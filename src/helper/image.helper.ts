@@ -29,7 +29,7 @@ export const toWebp = async (
   return sharp(image).resize(width, height).toBuffer();
 };
 
-export const getFileURI = (filename?: string | null) => {
+export const getFileURI = (filename: string) => {
   if (!filename) {
     return filename;
   }
