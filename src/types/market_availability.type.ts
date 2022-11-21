@@ -19,11 +19,16 @@ export interface RegionMarket {
 
 export interface ListMarketAvailability extends Pick<
   IMarketAvailabilityAttributes,
-  'id' | 'countries' | 'collection_id'
+  'id' | 'collection_id'
 > {
   name: string;
   relation_id: string;
-  authorized_countries: (RegionMarket & {
-    name: string;
-  })[];
+  countries: RegionMarket[];
+}
+
+export enum Availability {
+  Available,
+  Discontinued,
+  Discrepancy,
+  OutOfStock
 }
