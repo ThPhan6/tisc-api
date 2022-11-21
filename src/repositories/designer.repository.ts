@@ -1,6 +1,7 @@
 import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
+  CustomProductAttributes,
   CustomResouceType,
   DesignerAttributes,
   DesignFirmFunctionalType,
@@ -286,7 +287,9 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     return designFirm[0];
   }
 
-  public async getLibrary(designId: string) {
+  public async getLibrary(
+    designId: string
+  ): Promise<{ products: CustomProductAttributes[] }> {
     const result = await this.model.rawQueryV2(
       `
       LET brands = (
@@ -321,17 +324,22 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FOR p IN custom_products
         FILTER p.design_id == @designId
         FILTER p.deleted_at == null
-        RETURN ${getUnsetAttributes("p", `'images'`)}
+        FOR b IN brands
+        FILTER b.id == p.company_id
+        FOR col IN collections
+        FILTER col.id == p.collection_id
+        RETURN MERGE(${getUnsetAttributes(
+          "p",
+          `'images'`
+        )}, {company_name: b.business_name, collection_name: col.name })
       )
 
       LET collections = (
         FOR p IN products
-        FOR col IN collections
-        FILTER col.id == p.collection_id
-        COLLECT collection = col INTO group
+        COLLECT collection_id = p.collection_id, collection_name = p.collection_name  INTO group
         RETURN {
-          id: collection.id,
-          name: collection.name,
+          id: collection_id,
+          name: collection_name,
           products: (FOR g IN group RETURN MERGE(KEEP(g.p, 'id', 'name'), {image: FIRST(g.p.images)}))
         }
       )

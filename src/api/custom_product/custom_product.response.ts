@@ -5,7 +5,7 @@ import {
   customProductOptionValidate,
   customProductValidate,
 } from "./custom_product.validate";
-import {dimensionWeightResponse} from '@/api/product/product.response';
+import { dimensionWeightResponse } from "@/api/product/product.response";
 
 export const customProductResponse = {
   id: Joi.string(),
@@ -21,6 +21,8 @@ export const customProductResponse = {
   created_at: Joi.string(),
   updated_at: Joi.string(),
   design_id: Joi.string(),
+  company_name: Joi.string().allow(null, ""),
+  collection_name: Joi.string().allow(null, ""),
 };
 
 export default {

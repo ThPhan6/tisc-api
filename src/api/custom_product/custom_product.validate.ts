@@ -5,7 +5,7 @@ import {
   errorMessage,
   requireEmailValidation,
 } from "@/validate/common.validate";
-import {dimensionAndWeightValidate} from '@/api/product/product.validate';
+import { dimensionAndWeightValidate } from "@/api/product/product.validate";
 
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
@@ -25,24 +25,27 @@ export const customProductContactValidate = Joi.array().items(
 
 export const customProductOptionValidate = Joi.object({
   id: Joi.string().allow(null),
-  title: Joi.string().trim(),
+  title: requireStringValidation("Option title"),
   use_image: Joi.boolean(),
-  tag: Joi.string().trim(),
-  items: Joi.array().items(
-    Joi.object({
-      id: Joi.string().allow(null),
-      image: Joi.when("use_image", {
-        is: true,
-        then: requireStringValidation(
-          "Image is required in the Option with type image",
-          "full"
-        ),
-        otherwise: Joi.string().allow(null),
-      }),
-      description: Joi.string().trim(),
-      product_id: Joi.string().trim(),
-    })
-  ),
+  tag: requireStringValidation("Option tag"),
+  items: Joi.array()
+    .min(1)
+    .error(errorMessage("Require at least 1 option choice"))
+    .items(
+      Joi.object({
+        id: Joi.string().allow(null),
+        image: Joi.when("use_image", {
+          is: true,
+          then: requireStringValidation(
+            "Image is required in the Option with type image",
+            "full"
+          ),
+          otherwise: Joi.string().allow(null),
+        }),
+        description: requireStringValidation("Option description"),
+        product_id: requireStringValidation("Option product ID"),
+      })
+    ),
 });
 
 export const customProductValidate = Joi.object({
