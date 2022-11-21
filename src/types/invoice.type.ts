@@ -3,6 +3,12 @@ export enum InvoiceCompanyType {
   DesignFirm
 }
 
+export enum InvoiceStatus {
+  Outstanding,
+  Overdue,
+  Paid
+}
+
 export interface InvoiceAttributes {
   id: string;
   name: string;
@@ -18,4 +24,5 @@ export interface InvoiceAttributes {
   created_by: string;
   created_at: string;
   updated_at: string;
+  status: InvoiceStatus
 }
