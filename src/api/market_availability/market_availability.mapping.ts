@@ -30,33 +30,14 @@ export const mappingMarketAvailibility = (
   marketAvailability: ListMarketAvailability,
   availableOnly: boolean = true
 ) => {
-  const countries = marketAvailability.authorized_countries.map((authorized_country) => {
-    //
-    const country = marketAvailability.countries.find((country) => country.id === authorized_country.id);
-    //
-    const regionMarket = {
-      id: authorized_country.id,
-      name: authorized_country.name,
-      region: authorized_country.region,
-      phone_code: authorized_country.phone_code,
-      available: true,
-    }
-    //
-    if (country) {
-      regionMarket.available = country.available;
-      return regionMarket;
-    }
-    //
-    return regionMarket;
-  });
   ///
   return {
     id: marketAvailability.id,
     name: marketAvailability.name,
     collection_id: marketAvailability.collection_id,
-    countries,
-    available_countries: countries.filter((country) => country.available).length,
-    ...mappingRegion(countries, availableOnly)
+    countries: marketAvailability.countries,
+    available_countries: marketAvailability.countries.filter((country) => country.available).length,
+    ...mappingRegion(marketAvailability.countries, availableOnly)
   }
 };
 
