@@ -13,6 +13,7 @@ import {
   UserAttributes,
   UserType,
   InvoiceCompanyType,
+  InvoiceStatus,
 } from "@/types";
 
 import { commonTypeRepository } from "@/repositories/common_type.repository";
@@ -64,6 +65,7 @@ class InvoiceService {
       due_date: now.add(7, "days").format("YYYY-MM-DD"),
       remark: payload.remark,
       created_by: user.id,
+      status: InvoiceStatus.Outstanding
     });
 
     if (!createdInvoice) {
