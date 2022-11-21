@@ -30,9 +30,12 @@ const customPermissionScheme = (_server: Server) => {
     authenticate: async (request: Request, h: ResponseToolkit) => {
       const credential = await AuthMiddleware.authenticate(request);
       if (
-        AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(
+        (AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(
           request.route.path
-        ) &&
+        ) ||
+          AuthMiddleware.WHITE_LIST_CUSTOM_PRODUCT_SIGNATURE_ROUTES.includes(
+            request.route.path
+          )) &&
         credential
       ) {
         return h.authenticated(credential);
@@ -66,6 +69,15 @@ export default class AuthMiddleware {
     ROUTES.GET_MARKET_DISTRIBUTOR_COUNTRY_GROUP,
     ROUTES.PRE_SPECFICATION.GET_USER_SPEC_SELECTION,
   ];
+  public static WHITE_LIST_CUSTOM_PRODUCT_SIGNATURE_ROUTES = [
+    ROUTES.CUSTOM_PRODUCT.GET_LIST,
+    ROUTES.CUSTOM_PRODUCT.GET_ONE,
+    ROUTES.CUSTOM_RESOURCE.GET_ALL,
+    ROUTES.CUSTOM_RESOURCE.GET_DISTRIBUTORS_BY_COMPANY,
+    ROUTES.CUSTOM_RESOURCE.GET_LIST,
+    ROUTES.CUSTOM_RESOURCE.GET_ONE,
+    ROUTES.CUSTOM_RESOURCE.GET_SUMMARY,
+  ];
 
   public static registration = (server: Server) => {
     server.auth.scheme(AUTH_NAMES.GENERAL, customScheme);
@@ -95,7 +107,7 @@ export default class AuthMiddleware {
   };
 
   public static parseSignature = async (
-    request: Request,
+    _request: Request,
     signature?: string
   ) => {
     if (!signature) {
@@ -104,7 +116,7 @@ export default class AuthMiddleware {
     ///
     const realSignature = base64ToString(signature);
     let signatureData: {
-      collection_id: string;
+      // collection_id: string;
       user_id: string;
     };
     try {
@@ -113,16 +125,16 @@ export default class AuthMiddleware {
       return throwError();
     }
     ///
-    if (!signatureData.collection_id || !signatureData.user_id) {
+    if (!signatureData.user_id) {
       return throwError();
     }
     /// validate signature for collection
-    if (request.route.path === ROUTES.GET_ONE_PRODUCT) {
-      const product = await productRepository.find(request.params.id);
-      if (!product || product.collection_id !== signatureData.collection_id) {
-        return throwError();
-      }
-    }
+    // if (request.route.path === ROUTES.GET_ONE_PRODUCT) {
+    //   const product = await productRepository.find(request.params.id);
+    //   if (!product || product.collection_id !== signatureData.collection_id) {
+    //     return throwError();
+    //   }
+    // }
     //
     const user = await userRepository.find(signatureData.user_id);
     if (!user) {
@@ -134,7 +146,12 @@ export default class AuthMiddleware {
   public static authenticate = async (request: Request) => {
     let user: UserAttributes;
     if (
-      AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(request.route.path) &&
+      (AuthMiddleware.WHITE_LIST_SIGNATURE_ROUTES.includes(
+        request.route.path
+      ) ||
+        AuthMiddleware.WHITE_LIST_CUSTOM_PRODUCT_SIGNATURE_ROUTES.includes(
+          request.route.path
+        )) &&
       request.headers.signature
     ) {
       user = await AuthMiddleware.parseSignature(

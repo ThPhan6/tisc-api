@@ -2,6 +2,7 @@ import BaseRepository from "@/repositories/base.repository";
 import {
   CustomProductAttributes,
   CustomProductPayload,
+  CustomProductWithRelation,
 } from "./custom_product.type";
 import CustomProductModel from "./custom_product.model";
 import { locationRepository } from "@/repositories/location.repository";
@@ -104,6 +105,33 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       { designId, name }
     );
     return result[0] > 0;
+  }
+  public async findWithRelationData(productId: string) {
+    let params = {} as any;
+    if (productId) {
+      params = { productId };
+    }
+    const result = await this.model.rawQueryV2(
+      `
+      for cp in custom_products 
+      filter cp.id == @productId 
+          for d in designers
+          filter d.id == cp.design_id
+          for c in collections
+          filter c.id == cp.collection_id
+      return merge(UNSET(cp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+          design: {
+              name: d.name,
+              logo: d.logo
+          }, 
+          collection: {
+              name: c.name
+          }
+      })
+    `,
+      params
+    );
+    return result[0] as CustomProductWithRelation;
   }
 }
 export const customProductRepository = new CustomProductRepository();

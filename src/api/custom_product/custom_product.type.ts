@@ -85,3 +85,7 @@ export interface CustomResourceListItem {
   cards: number;
   brands: number;
 }
+export interface CustomProductWithRelation extends CustomProductAttributes {
+  design: { name: string; logo: string };
+  collection: { name: string };
+}

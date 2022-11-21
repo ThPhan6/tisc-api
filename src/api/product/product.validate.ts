@@ -3,10 +3,20 @@ import {
   errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
-import {getEnumValues} from '@/helper/common.helper';
-import {DimensionAndWeightAttributeId} from '@/constants';
-import {forEach} from 'lodash';
+import { getEnumValues } from "@/helper/common.helper";
+import { DimensionAndWeightAttributeId } from "@/constants";
+import { forEach } from "lodash";
 
+export const validateShareProduct = {
+  payload: {
+    product_id: requireStringValidation("Product id"),
+    sharing_group: requireStringValidation("Sharing Group"),
+    sharing_purpose: requireStringValidation("Sharing Purpose"),
+    to_email: requireStringValidation("Email"),
+    title: requireStringValidation("Title"),
+    message: requireStringValidation("Message"),
+  },
+};
 const attributeGroupsValidate = (
   type: "General" | "Feature" | "Specification"
 ) => {
@@ -53,7 +63,7 @@ const attributeGroupsValidate = (
         forEach(value, (item) => {
           if (item.selection) {
             const options = item.attributes?.filter((attr: any) => {
-              return attr.type === 'Options';
+              return attr.type === "Options";
             });
             if (options.length < 2) {
               isValid = false;
@@ -78,14 +88,14 @@ export const dimensionAndWeightValidate = Joi.object({
     Joi.object({
       id: Joi.string()
         .valid(...getEnumValues(DimensionAndWeightAttributeId))
-        .error(errorMessage('Incorrect Dimension & Weight Attribute')),
+        .error(errorMessage("Incorrect Dimension & Weight Attribute")),
       conversion_value_1: Joi.number()
         .allow("")
-        .error(errorMessage('Conversation value must be a number')),
+        .error(errorMessage("Conversation value must be a number")),
       conversion_value_2: Joi.number()
         .allow("")
-        .error(errorMessage('Conversation value must be a number')),
-    }),
+        .error(errorMessage("Conversation value must be a number")),
+    })
   ),
 });
 
@@ -180,16 +190,7 @@ export default {
       project_zone_ids: Joi.array().items(Joi.string()),
     },
   },
-  shareByEmail: {
-    payload: {
-      product_id: requireStringValidation("Product id"),
-      sharing_group: requireStringValidation("Sharing Group"),
-      sharing_purpose: requireStringValidation("Sharing Purpose"),
-      to_email: requireStringValidation("Email"),
-      title: requireStringValidation("Title"),
-      message: requireStringValidation("Message"),
-    },
-  },
+  shareByEmail: validateShareProduct,
   publicSharingProduct: {
     query: {
       hash: requireStringValidation("Hash"),

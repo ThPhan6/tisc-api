@@ -31,3 +31,27 @@ export const getProductSharedUrl = (
   //
   return sharedUrl;
 }
+export const getCustomProductSharedUrl = (
+  user: UserAttributes,
+  receiver: UserAttributes | undefined,
+  product: {
+    id: string,
+  }
+) => {
+  const signature = stringToBase64(encrypt({
+    custom_product_id: product.id,
+    user_id: user.id,
+  }));
+  let sharedUrl = `${ENVIROMENT.FE_URL}/shared-custom-product/${product.id}?signature=${signature}`;
+
+  if (!receiver) {
+    return sharedUrl;
+  }
+  //
+  const roleType = RoleType[receiver.role_id];
+  if (roleType === UserType.Designer) {
+    return `${ENVIROMENT.FE_URL}/design-firms/custom-products/${product.id}`;
+  }
+  //
+  return sharedUrl;
+}

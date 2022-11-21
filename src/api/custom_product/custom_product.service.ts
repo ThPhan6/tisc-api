@@ -1,7 +1,8 @@
-import { MESSAGES, VALID_IMAGE_TYPES } from "@/constants";
+import { COMMON_TYPES, MESSAGES, VALID_IMAGE_TYPES } from "@/constants";
 import { getFileTypeFromBase64, randomName } from "@/helper/common.helper";
 import {
   errorMessageResponse,
+  successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
 import collectionRepository from "@/repositories/collection.repository";
@@ -19,7 +20,15 @@ import {
   CollectionRelationType,
 } from "@/types";
 import { v4 } from "uuid";
+import { ShareProductBodyRequest } from "../product/product.type";
 import { customProductRepository } from "./custom_product.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { userRepository } from "@/repositories/user.repository";
+import { mailService } from "@/service/mail.service";
+import {
+  getCustomProductSharedUrl,
+} from "@/helper/product.helper";
+import { getFileURI } from "@/helper/image.helper";
 
 class CustomProductService {
   private mappingCreatingOptions = async (
@@ -230,6 +239,49 @@ class CustomProductService {
     return successResponse({
       data: result,
     });
+  };
+  public shareByEmail = async (
+    payload: ShareProductBodyRequest,
+    user: UserAttributes
+  ) => {
+    const product = await customProductRepository.findWithRelationData(
+      payload.product_id
+    );
+    if (!product) {
+      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND);
+    }
+    await commonTypeRepository.findOrCreate(
+      payload.sharing_group,
+      user.relation_id,
+      COMMON_TYPES.SHARING_GROUP
+    );
+
+    await commonTypeRepository.findOrCreate(
+      payload.sharing_purpose,
+      user.relation_id,
+      COMMON_TYPES.SHARING_PURPOSE
+    );
+    const receiver = await userRepository.findBy({ email: payload.to_email });
+    const sharedUrl = getCustomProductSharedUrl(user, receiver, {
+      id: product.id,
+    });
+    const sent = await mailService.sendShareProductViaEmail(
+      payload.to_email,
+      user.email,
+      payload.title,
+      payload.message,
+      getFileURI(product.images[0]) ?? "",
+      product.design.name,
+      getFileURI(product.design.logo) ?? "",
+      product.collection.name ?? "N/A",
+      product.name ?? "N/A",
+      `${user.firstname ?? ""} ${user.lastname ?? ""}`,
+      sharedUrl
+    );
+    if (!sent) {
+      return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
+    }
+    return successMessageResponse(MESSAGES.EMAIL_SENT);
   };
 }
 

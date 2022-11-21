@@ -7,7 +7,8 @@ import { CustomProductPayload, UserAttributes, UserType } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductService } from "./custom_product.service";
 import { customProductRepository } from "./custom_product.repository";
-import {mappingDimensionAndWeight} from '@/api/attribute/attribute.mapping';
+import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
+import { ShareProductBodyRequest } from "../product/product.type";
 
 export default class CustomProductController {
   public async createProduct(
@@ -60,11 +61,15 @@ export default class CustomProductController {
       user.relation_id !== result.design_id
     ) {
       return toolkit
-        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS))
+        .response(
+          errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS)
+        )
         .code(404);
     }
 
-    result.dimension_and_weight = mappingDimensionAndWeight(result.dimension_and_weight);
+    result.dimension_and_weight = mappingDimensionAndWeight(
+      result.dimension_and_weight
+    );
 
     return toolkit.response(successResponse({ data: result })).code(200);
   }
@@ -98,4 +103,13 @@ export default class CustomProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
+  public shareByEmail = async (
+    req: Request & { payload: ShareProductBodyRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await customProductService.shareByEmail(payload, user);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }
