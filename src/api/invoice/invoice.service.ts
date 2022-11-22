@@ -16,6 +16,7 @@ import {
 } from "@/types";
 
 import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { userRepository } from "@/repositories/user.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { InvoiceRequestCreate, InvoiceRequestUpdate } from "./invoice.type";
 import {
@@ -23,14 +24,26 @@ import {
   toNonAccentUnicode,
 } from "@/helper/common.helper";
 import moment from "moment";
+import { mailService } from "@/service/mail.service";
 
 class InvoiceService {
+  private calculateBillingAmount = (
+    quantity: number,
+    unit_rate: number,
+    tax: number
+  ) => {
+    const totalGross = quantity * unit_rate;
+    const saleTaxAmount = (tax / 100) * totalGross;
+    return totalGross + saleTaxAmount;
+  };
   private calculateInvoice = (invoice: InvoiceWithUserAndServiceType) => {
     const diff = moment().diff(moment(invoice.due_date), "days");
     const overdueDays = diff > 0 ? diff : 0;
-    const totalGross = invoice.quantity * invoice.unit_rate;
-    const saleTaxAmount = (invoice.tax / 100) * totalGross;
-    const billingAmount = totalGross + saleTaxAmount;
+    const billingAmount = this.calculateBillingAmount(
+      invoice.quantity,
+      invoice.unit_rate,
+      invoice.tax
+    );
     let overdueAmount = calculateInterestInvoice(billingAmount, overdueDays);
     return {
       ...invoice,
@@ -69,7 +82,18 @@ class InvoiceService {
     if (!createdInvoice) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
+    const receiver = await userRepository.find(payload.ordered_by);
 
+    const billingAmount = this.calculateBillingAmount(
+      payload.quantity,
+      payload.unit_rate,
+      payload.tax
+    );
+    await mailService.sendInvoiceCreated(
+      receiver?.email || "",
+      receiver?.firstname || "",
+      billingAmount
+    );
     return this.get(user, createdInvoice.id);
   }
 
@@ -99,8 +123,10 @@ class InvoiceService {
       },
     });
   }
-  public async get(user: UserAttributes, id: string) {
-    const invoice = await invoiceRepository.findWithUserAndServiceType(id);
+  public async get(user: UserAttributes, invoiceId: string) {
+    const invoice = await invoiceRepository.findWithUserAndServiceType(
+      invoiceId
+    );
     if (
       !invoice ||
       (user.type !== UserType.TISC && invoice.relation_id !== user.relation_id)
@@ -113,13 +139,28 @@ class InvoiceService {
     });
   }
 
-  public async update(id: string, payload: InvoiceRequestUpdate) {
-    const updated = await invoiceRepository.findAndUpdate(id, payload);
+  public async update(invoiceId: string, payload: InvoiceRequestUpdate) {
+    const updated = await invoiceRepository.findAndUpdate(invoiceId, payload);
 
     if (!updated) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
     }
 
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+  public async sendReminder(invoiceId: string) {
+    const invoice = await invoiceRepository.find(invoiceId);
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    const user = await userRepository.find(invoice.ordered_by);
+    const sent = await mailService.sendInvoiceReminder(
+      user?.email || "",
+      user?.firstname || ""
+    );
+    if (!sent) {
+      return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
+    }
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 }

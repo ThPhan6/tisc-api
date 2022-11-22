@@ -226,6 +226,7 @@ export const ROUTES = {
     GET_SUMMARY: "/api/invoice/summary",
     UPDATE: "/api/invoice/{id}",
     GET: "/api/invoice/{id}",
+    SEND_REMINDER: "/api/invoice/{id}/send-reminder",
   },
   USER: {
     GET_BY_TYPE_ROLE_AND_RELATION:

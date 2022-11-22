@@ -753,6 +753,124 @@ const maintenanceMessage = `
 
 </html>
 `;
+const invoiceSupportMessage = `
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tisc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style media="screen"></style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+    ${style}
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content-email">
+            <div class="message-email">
+                <p>Hi <%= receiver_first_name %>,</p>
+                <p>An invoice has been prepared for the recent service for a total amount of <%= billing_amount %>.</p>
+                <p class="pb-20">Please beware of the payment due date since there will be fines for overdue payments.</p>
+                
+                <p class="pb-10">Log into your account for payment details.</p>
+                <div class="button pb-10">
+                    <a href="<%= url %>" class="button-account-password">Log in</a>
+                </div>
+                <p class="pb-20">Have a pleasant day!</p>
+                <p>TISC Team</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
+                <div class="pb-15">
+                    <div class="hr">
+                    </div>
+                </div>
+                <p>This is an auto-generated message.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+`;
+const invoiceReminderMessage = `
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tisc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style media="screen"></style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+    ${style}
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content-email">
+            <div class="message-email">
+                <p>Hi <%= receiver_first_name %>,</p>
+                <p class="pb-20">We noticed you have not made the payment for the service. This is a friendly reminder of the last day of the payment without any overdue penalty.</p>
+                
+                <p class="pb-10">Log into your account for payment details.</p>
+                <div class="button pb-10">
+                    <a href="<%= url %>" class="button-account-password">Log in</a>
+                </div>
+                <p class="pb-20">Have a pleasant day!</p>
+                <p>TISC Team</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
+                <div class="pb-15">
+                    <div class="hr">
+                    </div>
+                </div>
+                <p>This is an auto-generated message.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+`;
+const invoiceOverdueMessage = `
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tisc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style media="screen"></style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+    ${style}
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content-email">
+            <div class="message-email">
+                <p>Hi <%= receiver_first_name %>,</p>
+                <p class="pb-20">Unfortunately, we have started to charge fines for your overdue payment. Please make payment now without any further penalty.</p>
+                
+                <p class="pb-10">Log into your account for payment details.</p>
+                <div class="button pb-10">
+                    <a href="<%= url %>" class="button-account-password">Log in</a>
+                </div>
+                <p class="pb-20">Have a pleasant day!</p>
+                <p>TISC Team</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
+                <div class="pb-15">
+                    <div class="hr">
+                    </div>
+                </div>
+                <p>This is an auto-generated message.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+`;
 export const up = (connection: ConnectionInterface) => {
   const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
   return connection.insert("email_autoresponders", [
@@ -1062,6 +1180,36 @@ export const up = (connection: ConnectionInterface) => {
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Scheduled maintenance notice.",
       message: maintenanceMessage,
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      title: "Invoice - Thank you for your support.",
+      message: invoiceSupportMessage,
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      title: "Invoice - Reminder.",
+      message: invoiceReminderMessage,
+      deleted_at: null,
+      updated_at: null,
+      created_at: currentTime,
+    },
+    {
+      id: uuid(),
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      title: "Invoice - Overdue Payment Notice.",
+      message: invoiceOverdueMessage,
       deleted_at: null,
       updated_at: null,
       created_at: currentTime,

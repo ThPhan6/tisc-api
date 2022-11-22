@@ -52,7 +52,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       ])
       .where("invoices.id", "==", id)
       .join("common_types", "common_types.id", "==", "invoices.service_type_id")
-      .join("users", "users.id", "==", "invoices.created_by")
+      .join("users", "users.id", "==", "invoices.ordered_by")
       .first() as any;
   }
 
@@ -72,7 +72,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
         "users.lastname as lastname",
       ])
       .join("common_types", "common_types.id", "==", "invoices.service_type_id")
-      .join("users", "users.id", "==", "invoices.created_by")
+      .join("users", "users.id", "==", "invoices.ordered_by")
       .order(sort ? sort : "created_at", order || "DESC");
 
     if (relationId) {
