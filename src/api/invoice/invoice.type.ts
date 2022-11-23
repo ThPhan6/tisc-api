@@ -5,7 +5,7 @@ export interface InvoiceRequestCreate {
   unit_rate: number;
   quantity: number;
   tax: number;
-  remark: string;
+  remark?: string;
 }
 
 export interface InvoiceRequestUpdate {

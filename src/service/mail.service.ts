@@ -184,6 +184,74 @@ export default class MailService {
         .then(() => this.exeAfterSend(resolve));
     });
   }
+  public async sendInvoiceCreated(
+    receiver_email: string,
+    receiver_first_name: string,
+    billing_amount: number
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await autoEmailRepository.findBy({
+        title: "Invoice - Thank you for your support.",
+        targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      });
+      const html = await ejs.render(
+        unescape(emailAutoResponder?.message || ""),
+        {
+          receiver_first_name,
+          billing_amount,
+          url: `${this.frontpageURL}`,
+        },
+        { async: true }
+      );
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: receiver_email,
+          },
+        ],
+        subject: emailAutoResponder?.title,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
+  public async sendInvoiceReminder(
+    receiver_email: string,
+    receiver_first_name: string
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const emailAutoResponder = await autoEmailRepository.findBy({
+        title: "Invoice - Reminder.",
+        targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      });
+      const html = await ejs.render(
+        unescape(emailAutoResponder?.message || ""),
+        {
+          receiver_first_name,
+          url: `${this.frontpageURL}`,
+        },
+        { async: true }
+      );
+      this.sendSmtpEmail = {
+        sender: { email: this.fromAddress, name: "TISC Team" },
+        to: [
+          {
+            email: receiver_email,
+          },
+        ],
+        subject: emailAutoResponder?.title,
+        textContent: "and easy to do anywhere, even with Node.js",
+        htmlContent: html,
+      };
+      this.apiInstance
+        .sendTransacEmail(this.sendSmtpEmail)
+        .then(() => this.exeAfterSend(resolve));
+    });
+  }
   public async sendDesignRegisterEmail(user: any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await autoEmailRepository.findBy({

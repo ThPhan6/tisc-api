@@ -15,7 +15,7 @@ export default {
       unit_rate: requireNumberValidation("Unit rate"),
       quantity: requireNumberValidation("Quantity"),
       tax: requireNumberValidation("Tax"),
-      remark: requireStringValidation("Remark"),
+      remark: stringValidation(),
     },
   },
   update: {

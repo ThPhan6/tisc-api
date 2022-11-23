@@ -20,7 +20,7 @@ export interface InvoiceAttributes {
   quantity: number;
   tax: number;
   due_date: string;
-  remark: string;
+  remark?: string;
   created_by: string;
   created_at: string;
   updated_at: string;
