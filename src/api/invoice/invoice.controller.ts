@@ -27,7 +27,13 @@ export default class InvoiceController {
   public async getList(req: Request, toolkit: ResponseToolkit) {
     const { limit, offset, sort, order } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await invoiceService.getList(user, limit, offset, sort, order);
+    const response = await invoiceService.getList(
+      user,
+      limit,
+      offset,
+      sort,
+      order
+    );
     return toolkit.response(response).code(response.statusCode);
   }
 
@@ -40,6 +46,23 @@ export default class InvoiceController {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await invoiceService.get(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async bill(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.bill(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async paid(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.paid(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async sendReminder(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const response = await invoiceService.sendReminder(id);
     return toolkit.response(response).code(response.statusCode);
   }
 }

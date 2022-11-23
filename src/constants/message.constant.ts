@@ -116,6 +116,9 @@ export const MESSAGES = {
   },
   INVOICE: {
     NOT_FOUND: "Revenue service not found",
+    ONLY_UPDATE_PENDING_INVOICE: "Only pending invoice is valid to update.",
+    ONLY_BILL_PENDING_INVOICE: "Only pending invoice is valid to bill.",
+    ONLY_PAID_OUTSTANDING_OR_OVERDUE: "Only outstanding or overdue invoice is valid to paid.",
   },
 
   PROJECT_TRACKING: {
