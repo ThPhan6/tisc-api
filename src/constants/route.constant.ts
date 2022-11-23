@@ -304,4 +304,11 @@ export const ROUTES = {
     UPDATE: "/api/collection/update/{id}",
     DELETE: "/api/collection/delete/{id}",
   },
+  BOOKING: {
+    AVAILABLE_SCHEDULE: "/api/booking/available-schedule",
+    CREATE: "/api/booking/create",
+    GET_ONE: "/api/booking/{id}",
+    RE_SCHEDULE: "/api/booking/{id}/re-schedule",
+    CANCEL: "/api/booking/{id}/cancel",
+  }
 };
