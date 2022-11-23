@@ -48,6 +48,18 @@ export default class InvoiceController {
     const response = await invoiceService.get(user, id);
     return toolkit.response(response).code(response.statusCode);
   }
+  public async bill(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.bill(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async paid(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.paid(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
   public async sendReminder(req: Request, toolkit: ResponseToolkit) {
     const { id } = req.params;
     const response = await invoiceService.sendReminder(id);
