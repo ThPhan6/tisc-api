@@ -92,6 +92,21 @@ export default class InvoiceRoute implements IRoute {
             },
           },
         },
+        {
+          method: "POST",
+          path: ROUTES.INVOICE.SEND_REMINDER,
+          options: {
+            handler: controller.sendReminder,
+            description: "Method that send reminder email",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });

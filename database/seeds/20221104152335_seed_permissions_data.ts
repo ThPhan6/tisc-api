@@ -264,6 +264,7 @@ const permissionData = [
           ROUTES.INVOICE.GET_LIST,
           ROUTES.INVOICE.GET,
           ROUTES.INVOICE.GET_SUMMARY,
+          ROUTES.INVOICE.SEND_REMINDER,
           ROUTES.USER.GET_BY_TYPE_ROLE_AND_RELATION,
         ],
       },
