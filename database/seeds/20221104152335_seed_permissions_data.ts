@@ -353,7 +353,7 @@ const permissionData = [
         type: 2,
         index: 22,
         id: "permission_9_0",
-        routes: [ROUTES.UPDATE_BRAND_PROFILE],
+        routes: [ROUTES.UPDATE_BRAND_PROFILE, ROUTES.UPDATE_BRAND_LOGO],
       },
       {
         logo: "/logo/location.svg",
