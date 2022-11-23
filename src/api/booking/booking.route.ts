@@ -5,6 +5,7 @@ import { ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import validate from "./booking.validate";
+import {getOneValidation} from '@/validate/common.validate';
 import BookingController from "./booking.controller";
 import response from "./booking.response";
 
@@ -47,6 +48,22 @@ export default class BookingRoute implements IRoute {
           },
         },
         {
+          method: "GET",
+          path: ROUTES.BOOKING.GET_ONE,
+          options: {
+            handler: controller.getOne,
+            validate: getOneValidation,
+            description: "Method that post booking",
+            tags: ["api", "Booking"],
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne
+              },
+            },
+          },
+        },
+        {
           method: "PATCH",
           path: ROUTES.BOOKING.RE_SCHEDULE,
           options: {
@@ -67,7 +84,7 @@ export default class BookingRoute implements IRoute {
           path: ROUTES.BOOKING.CANCEL,
           options: {
             handler: controller.cancel,
-            validate: validate.cancel,
+            validate: getOneValidation,
             description: "Method that delete booking",
             tags: ["api", "Booking"],
             response: {

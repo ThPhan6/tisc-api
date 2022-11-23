@@ -4,7 +4,7 @@ import os from "os";
 import { TARGETED_FOR_TYPES } from "@/constants";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
 import { unescape } from "lodash";
-import { UserAttributes, UserType } from "@/types";
+import { UserAttributes, UserType, BookingEmailPayload } from "@/types";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 export default class MailService {
@@ -257,37 +257,18 @@ export default class MailService {
     });
   }
 
-  public async sendBookingScheduleEmail(
-    to: string,
-    subject: string,
-    first_name: string,
-    start_time: string,
-    conference_url: string,
-    reschedule_url: string,
-    cancel_url: string,
-  ): Promise<boolean> {
-    return new Promise(async (resolve) => {
-      const html = await ejs.renderFile(
-        `${process.cwd()}/src/templates/booked.ejs`,
-        {
-          first_name,
-          start_time,
-          conference_url,
-          reschedule_url,
-          cancel_url
-        }
-      );
-      this.sendSmtpEmail = {
-        sender: { email: this.fromAddress, name: "TISC Global" },
-        to: [
-          {
-            email: to,
-          },
-        ],
-        subject: subject,
-        textContent: "and easy to do anywhere, even with Node.js",
-        htmlContent: html,
-      };
+  public async sendBookingScheduleEmail(data: BookingEmailPayload) {
+    const html = await ejs.renderFile(`${process.cwd()}/src/templates/booked.ejs`, data);
+    this.sendSmtpEmail = {
+      sender: { email: this.fromAddress, name: "TISC Global" },
+      to: [{ email: data.to }],
+      subject: data.subject,
+      htmlContent: html,
+    }
+    return this.send();
+  }
+  private send = (): Promise<boolean> => {
+    return new Promise((resolve) => {
       this.apiInstance
         .sendTransacEmail(this.sendSmtpEmail)
         .then(() => this.exeAfterSend(resolve));

@@ -130,13 +130,13 @@ export const requireBooleanValidation = (fieldName: string, full?: "full") =>
       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
 
-export const requireBookingDateValidation = (minDate: number, maxDate: number) =>
+export const requireDateValidation = (minDate: number, maxDate: number) =>
   Joi.date()
     .max(moment().add(maxDate, "days").format('YYYY-MM-DD'))
     .min(moment().add(minDate, "days").format('YYYY-MM-DD'))
     .required()
     .error(
       errorMessage(`A date must be have format YYYY-MM-DD and between ${minDate == 0 ? 'today' : minDate} with ${maxDate} next days`)
-    );
-
-
+    ).custom((value) => {
+      return moment(value).format('YYYY-MM-DD')
+    });

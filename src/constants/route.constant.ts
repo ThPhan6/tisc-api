@@ -304,6 +304,7 @@ export const ROUTES = {
   BOOKING: {
     AVAILABLE_SCHEDULE: "/api/booking/available-schedule",
     CREATE: "/api/booking/create",
+    GET_ONE: "/api/booking/{id}",
     RE_SCHEDULE: "/api/booking/{id}/re-schedule",
     CANCEL: "/api/booking/{id}/cancel",
   }

@@ -26,7 +26,7 @@ import {
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
 import { v4 } from "uuid";
-import { isEmpty, sumBy } from "lodash";
+import { sumBy } from "lodash";
 
 class BrandService {
   private async getOfficialWebsites(brand: BrandAttributes) {
@@ -181,24 +181,19 @@ class BrandService {
     });
   }
 
-  public async create(payload: IBrandRequest, showError:boolean = true) {
+  public async create(payload: IBrandRequest) {
     const brand = await brandRepository.findBy({
       name: payload.name,
     });
 
-    if (brand && showError) {
+    if (brand) {
       return errorMessageResponse(MESSAGES.BRAND_EXISTED);
     }
-
-    if (brand && !showError) {
-      return successResponse({...brand});
-    }
-
     const user = await userRepository.findBy({
       email: payload.email,
     });
 
-    if (user && showError) {
+    if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_ALREADY_USED);
     }
 
@@ -228,23 +223,21 @@ class BrandService {
       if (!duplicateVerificationTokenFromDb) isDuplicated = false;
     } while (isDuplicated);
 
-    if (isEmpty(user)) {
-      const createdUser = await userRepository.create({
-        firstname: payload.first_name,
-        lastname: payload.last_name,
-        gender: true,
-        email: payload.email,
-        role_id: BrandRoles.Admin,
-        verification_token: verificationToken,
-        is_verified: false,
-        status: UserStatus.Pending,
-        type: UserType.Brand,
-        relation_id: createdBrand.id,
-        location_id: defaultLocation?.id,
-      });
-      if (!createdUser) {
-        return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
-      }
+    const createdUser = await userRepository.create({
+      firstname: payload.first_name,
+      lastname: payload.last_name,
+      gender: true,
+      email: payload.email,
+      role_id: BrandRoles.Admin,
+      verification_token: verificationToken,
+      is_verified: false,
+      status: UserStatus.Pending,
+      type: UserType.Brand,
+      relation_id: createdBrand.id,
+      location_id: defaultLocation?.id,
+    });
+    if (!createdUser) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
 
     //create brand permissions

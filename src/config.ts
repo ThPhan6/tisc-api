@@ -1,10 +1,15 @@
+import * as hapi from "@hapi/hapi";
 import dotenv from "dotenv";
 dotenv.config();
-
-export const jwtConfig = {
-  jwtSecret: "aU7h3GiHb2o8H!q!ndwSqYqh&K$LCeyI",
-  ttlSec: 2592000, // 1 month
-};
+//
+import * as Inert from "@hapi/inert";
+import * as Vision from "@hapi/vision";
+import * as HapiSwagger from "hapi-swagger";
+//
+import "moment-timezone";
+import moment from 'moment';
+export const DefaultTimezone = "Asia/Singapore";
+moment.tz.setDefault(DefaultTimezone);
 
 export const ENVIROMENT = {
   NODE_ENV: process.env.NODE_ENV ?? 'dev',
@@ -35,4 +40,41 @@ export const ENVIROMENT = {
   LARK_APP_SECRET: process.env.LARK_APP_SECRET || "",
   LARK_CALENDAR_ID: process.env.LARK_CALENDAR_ID || "",
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "",
 }
+
+export const jwtConfig = {
+  jwtSecret: "aU7h3GiHb2o8H!q!ndwSqYqh&K$LCeyI",
+  ttlSec: 2592000, // 1 month
+};
+
+const swaggerOptions = {
+  info: {
+    title: "API Documentation",
+    version: ENVIROMENT.API_VERSION,
+  },
+  grouping: "tags",
+  sortEndpoints: "ordered",
+  security: [{ API_KEY: [] }],
+  securityDefinitions: {
+    API_KEY: {
+      type: "apiKey",
+      name: "Authorization",
+      in: "header",
+      "x-keyPrefix": "Bearer",
+    },
+  },
+};
+
+export const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
+  {
+    plugin: Inert,
+  },
+  {
+    plugin: Vision,
+  },
+  {
+    plugin: HapiSwagger,
+    options: swaggerOptions,
+  },
+];

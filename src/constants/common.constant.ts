@@ -213,28 +213,3 @@ export const ALL_REGIONS = [
   "Oceania",
   "S. America",
 ];
-
-export enum Timezones {
-  Central_Europe_Standard_Time = 'Europe/Paris',
-  East_Europe_Standard_Time = 'Europe/Athens',
-  Arabian_Standard_Time = 'Asia/Qatar',
-  West_Asia_Standard_Time = 'Asia/Tashkent',
-  South_East_Asia_Standard_Time = 'Asia/Bangkok',
-  Singapore_Standard_Time = 'Asia/Singapore',
-  Tokyo_Standard_Time = 'Asia/Tokyo',
-  West_Pacific_Standard_Time = 'Australia/Hobart',
-  Central_Pacific_Standard_Time = 'Australia/Sydney',
-  New_Zealand_Standard_Time = 'Pacific/Fiji',
-  Midway_Islands_Standard_Time = 'Pacific/Midway',
-  Hawaii_Standard_Time = 'US/Hawaii',
-  Alaska_Standard_Time = 'US/Alaska',
-  Pacific_Standard_Time = 'America/Vancouver',
-  Mountain_Standard_Time = 'US/Mountain',
-  Central_America_Standard_Time = 'US/Central',
-  Eastern_Standard_Time = 'US/Eastern',
-  Atlantic_Standard_Time = 'America/Dominica',
-  East_South_America_Standard_Time = 'America/Araguaina',
-  Mid_Atlantic_Standard_Time = 'Atlantic/South_Georgia',
-  Central_African_Standard_Time = 'Atlantic/Cape_Verde'
-}
-

@@ -1,50 +1,51 @@
-import { Timezones } from "@/constants";
+import Joi from "joi";
 import { getEnumValues } from "@/helper/common.helper";
 import {
   errorMessage,
-  requireBookingDateValidation,
+  requireDateValidation,
   requireEmailValidation,
   requireStringValidation
 } from "@/validate/common.validate";
-import Joi from "joi";
+import {SlotTime, Timezones} from './booking.type';
 
 const timezoneValidation = Joi
   .valid(...getEnumValues(Timezones))
-  .required()
   .error(errorMessage("Time zone is not valid"));
+
+const slotTimeValidation = Joi
+  .valid(...getEnumValues(SlotTime))
+  .error(errorMessage("Slot time is not valid"));
 
 export default {
   availableSchedule: {
     query: {
-      date: requireBookingDateValidation(0, 90),
+      date: requireDateValidation(0, 90),
     }
   },
   create: {
     payload: {
-      brand: requireStringValidation('brand'),
+      brand_name: requireStringValidation('Brand Name'),
       website: requireStringValidation('website'),
-      first_name: requireStringValidation('first_name'),
-      date: requireBookingDateValidation(0, 90),
+      name: requireStringValidation('Name'),
+      date: requireDateValidation(0, 90),
       email: requireEmailValidation(),
-      start_time: requireStringValidation('Start time'),
-      end_time: requireStringValidation('End time'),
+      slot: slotTimeValidation,
       timezone: timezoneValidation
     },
   },
   reSchedule: {
     params: {
-      id: requireStringValidation("Booking"),
+      id: requireStringValidation("Booking ID"),
     },
     payload: {
-      date: requireBookingDateValidation(0, 90),
-      start_time: requireStringValidation('Start time'),
-      end_time: requireStringValidation('End time'),
+      date: requireDateValidation(0, 90),
+      slot: slotTimeValidation,
       timezone: timezoneValidation
     }
   },
-  cancel: {
+  Id: {
     params: {
-      id: requireStringValidation("Booking"),
+      id: requireStringValidation("Booking ID"),
     }
   },
 };
