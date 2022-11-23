@@ -1,7 +1,7 @@
 import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { TARGETED_FOR_TYPES } from "@/constants";
+import { TARGETED_FOR_OPTIONS, TARGETED_FOR_TYPES } from "@/constants";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
 import { unescape } from "lodash";
 import { UserAttributes, UserType } from "@/types";
@@ -47,6 +47,10 @@ export default class MailService {
     }
     return result;
   };
+  public getTargetedForName = (type: number) => {
+    const found = TARGETED_FOR_OPTIONS.find((item) => item.value === type);
+    return found?.key || "General";
+  };
   public async sendRegisterEmail(user: any): Promise<boolean> {
     return new Promise(async (resolve) => {
       const html = await ejs.renderFile(
@@ -54,7 +58,7 @@ export default class MailService {
         {
           email: user.email,
           firstname: user.firstname,
-          verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}`,
+          url: `${this.frontpageURL}/verify?verification_token=${user.verification_token}`,
         }
       );
       this.sendSmtpEmail = {
@@ -80,7 +84,7 @@ export default class MailService {
         `${process.cwd()}/src/templates/invite.ejs`,
         {
           fullname: user.fullname,
-          verify_link: `${this.frontpageURL}/create-password?verification_token=${user.verification_token}`,
+          url: `${this.frontpageURL}/create-password?verification_token=${user.verification_token}`,
         }
       );
       this.sendSmtpEmail = {
@@ -107,7 +111,7 @@ export default class MailService {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await autoEmailRepository.findBy({
         title: "User password reset request.",
-        targeted_for: this.getTargetedFor(user.type),
+        targeted_for: TARGETED_FOR_TYPES.GENERAL,
       });
 
       const userType =
@@ -123,7 +127,8 @@ export default class MailService {
             user.type === UserType.Designer
               ? user.firstname
               : user.firstname + " " + user.lastname,
-          reset_link: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
+          url: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
+          user_type: this.getTargetedForName(user.type),
         },
         { async: true }
       );
@@ -189,7 +194,7 @@ export default class MailService {
         {
           firstname: user.firstname,
           email: user.email,
-          verify_link: `${this.frontpageURL}/verify?verification_token=${user.verification_token}&email=${user.email}`,
+          url: `${this.frontpageURL}/verify?verification_token=${user.verification_token}&email=${user.email}`,
         },
         { async: true }
       );
