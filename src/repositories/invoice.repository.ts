@@ -75,6 +75,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       ])
       .join("common_types", "common_types.id", "==", "invoices.service_type_id")
       .join("users", "users.id", "==", "invoices.ordered_by")
+      .join("brands", "brands.id", "==", "invoices.relation_id")
       .order(sort ? sort : "created_at", order || "DESC");
 
     if (relationId) {

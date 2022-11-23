@@ -75,10 +75,9 @@ class InvoiceService {
       unit_rate: payload.unit_rate,
       quantity: payload.quantity,
       tax: payload.tax,
-      due_date: now.add(7, "days").format("YYYY-MM-DD"),
       remark: payload.remark,
       created_by: user.id,
-      status: InvoiceStatus.Outstanding
+      status: InvoiceStatus.Pending,
     });
 
     if (!createdInvoice) {
@@ -97,6 +96,40 @@ class InvoiceService {
       billingAmount
     );
     return this.get(user, createdInvoice.id);
+  }
+  public async bill(user: UserAttributes, invoiceId: string) {
+    const invoice = await invoiceRepository.find(invoiceId);
+
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    if (invoice.status !== InvoiceStatus.Pending) {
+      return errorMessageResponse(MESSAGES.INVOICE.ONLY_BILL_PENDING_INVOICE);
+    }
+    await invoiceRepository.update(invoiceId, {
+      due_date: moment().add(7, "days").format("YYYY-MM-DD"),
+      status: InvoiceStatus.Outstanding,
+    });
+    return this.get(user, invoiceId);
+  }
+  public async paid(user: UserAttributes, invoiceId: string) {
+    const invoice = await invoiceRepository.find(invoiceId);
+
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    if (
+      invoice.status !== InvoiceStatus.Outstanding &&
+      invoice.status !== InvoiceStatus.Overdue
+    ) {
+      return errorMessageResponse(
+        MESSAGES.INVOICE.ONLY_PAID_OUTSTANDING_OR_OVERDUE
+      );
+    }
+    await invoiceRepository.update(invoiceId, {
+      status: InvoiceStatus.Paid,
+    });
+    return this.get(user, invoiceId);
   }
 
   public async getInvoiceSummary() {
@@ -141,15 +174,19 @@ class InvoiceService {
     });
   }
 
-  public async update(invoiceId: string, payload: InvoiceRequestUpdate) {
-    const updated = await invoiceRepository.findAndUpdate(invoiceId, payload);
+  public async update(id: string, payload: InvoiceRequestUpdate) {
+    const invoice = await invoiceRepository.find(id);
 
-    if (!updated) {
+    if (!invoice) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
     }
-
+    if (invoice.status !== InvoiceStatus.Pending) {
+      return errorMessageResponse(MESSAGES.INVOICE.ONLY_UPDATE_PENDING_INVOICE);
+    }
+    await invoiceRepository.update(id, payload);
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
+
   public async sendReminder(invoiceId: string) {
     const invoice = await invoiceRepository.find(invoiceId);
     if (!invoice) {
