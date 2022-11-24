@@ -1,0 +1,318 @@
+<img src="<%=logo%>" alt="" style="display: none" />
+<div class="general-specification-content">
+  <table width="100%">
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="
+          primary-roboto-light-8-18
+          width-30-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-8-12">Billed Date</span><br />
+        <span class="normal-roboto-light-12"><%=billed_date%></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-70-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-8-12">Client Name</span><br />
+        <span class="normal-roboto-bold-12"><%=brand_name%></span><br />
+        <span class="normal-roboto-light-8-12">Ordered By</span><br />
+        <span class="normal-roboto-light-12"><%=firstname%> <%=lastname%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="
+          primary-roboto-light-8-18
+          width-30-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-8-12">Billing Number</span><br />
+        <span class="normal-roboto-light-12"><%=brand_name%></span><br />
+        <span class="normal-roboto-light-12"><%=bill_number%></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-70-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-8-12">Office Address</span><br />
+        <span class="normal-roboto-light-12"><%=brand_location_part_1%></span
+        ><br />
+        <span class="normal-roboto-light-12"><%=brand_location_part_2%></span
+        ><br />
+        <span class="normal-roboto-light-12"><%=brand_location_part_3%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-8-12">Service Type</span>
+      </td>
+      <td class="primary-roboto-light-8-18 width-70-percent">
+        <span class="normal-roboto-light-12"><%=service_type_name%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-8-12">Billed Amount</span><br />
+        <span class="normal-roboto-light-12">Unit rate</span><br />
+        <span class="normal-roboto-light-12">Quantity</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12" style="color: #bfbfbf">x</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-15-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"><%=unit_rate%></span><br />
+        <span class="normal-roboto-light-12"><%=quantity%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12">Gross Total</span><br />
+        <span class="normal-roboto-light-12">Sales Tax(GST)</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"><%=tax%>%</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12" style="color: #bfbfbf">=</span
+        ><br />
+        <span class="normal-roboto-light-12" style="color: #bfbfbf">+</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-15-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"><%=total_gross%></span><br />
+        <span class="normal-roboto-light-12"><%=sale_tax_amount%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12 uppercase">TOTAL AMOUNT</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-15-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"><%=total_amount%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12">Due Date:</span><br />
+        <span class="normal-roboto-light-12">Payment Date:</span><br />
+        <span class="normal-roboto-light-12">Overdue Fines</span>
+      </td>
+      <td
+        style="vertical-align: top"
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"><%=due_date%></span><br />
+        <span class="normal-roboto-light-12"><%=payment_date%></span><br />
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        style="vertical-align: top"
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12" style="color: #bfbfbf">+</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-15-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"></span><br />
+        <span class="normal-roboto-light-12"><%=overdue_amount%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-bold-12 uppercase">BILLING AMOUNT</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-25-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-12"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-15-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-bold-12 uppercase"
+          ><%=billing_amount%></span
+        >
+      </td>
+    </tr>
+  </table>
+</div>

@@ -142,6 +142,38 @@ export default class InvoiceRoute implements IRoute {
             },
           },
         },
+        {
+          method: "DELETE",
+          path: ROUTES.INVOICE.DELETE,
+          options: {
+            handler: controller.delete,
+            validate: validate.get,
+            description: "Method that delete invoice",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.INVOICE.GET_INVOICE_PDF,
+          options: {
+            handler: controller.getInvoicePdf,
+            validate: validate.get,
+            description: "Method that get invoice pdf",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
       resolve(true);
     });

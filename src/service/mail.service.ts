@@ -187,7 +187,9 @@ export default class MailService {
   public async sendInvoiceCreated(
     receiver_email: string,
     receiver_first_name: string,
-    billing_amount: number
+    billing_amount: number,
+    attachment_content: string,
+    attachment_name: string
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await autoEmailRepository.findBy({
@@ -213,6 +215,12 @@ export default class MailService {
         subject: emailAutoResponder?.title,
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
+        attachment: [
+          {
+            content: attachment_content,
+            name: attachment_name,
+          },
+        ],
       };
       this.apiInstance
         .sendTransacEmail(this.sendSmtpEmail)
@@ -221,7 +229,9 @@ export default class MailService {
   }
   public async sendInvoiceReminder(
     receiver_email: string,
-    receiver_first_name: string
+    receiver_first_name: string,
+    attachment_content: string,
+    attachment_name: string
   ): Promise<boolean> {
     return new Promise(async (resolve) => {
       const emailAutoResponder = await autoEmailRepository.findBy({
@@ -246,6 +256,12 @@ export default class MailService {
         subject: emailAutoResponder?.title,
         textContent: "and easy to do anywhere, even with Node.js",
         htmlContent: html,
+        attachment: [
+          {
+            content: attachment_content,
+            name: attachment_name,
+          },
+        ],
       };
       this.apiInstance
         .sendTransacEmail(this.sendSmtpEmail)

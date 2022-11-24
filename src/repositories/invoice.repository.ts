@@ -8,6 +8,7 @@ export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
   firstname: string;
   lastname: string;
   brand_name: string;
+  ordered_by_location_id: string;
 }
 export interface ListInvoicesWithPagination {
   pagination: {
@@ -30,6 +31,8 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
     quantity: 0,
     tax: 0,
     due_date: "",
+    billed_date: "",
+    payment_date: "",
     remark: "",
     created_by: "",
     created_at: "",
@@ -50,10 +53,14 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
         "common_types.name as service_type_name",
         "users.firstname as firstname",
         "users.lastname as lastname",
+        "brands.name as brand_name",
+        "users.location_id as ordered_by_location_id",
       ])
       .where("invoices.id", "==", id)
       .join("common_types", "common_types.id", "==", "invoices.service_type_id")
       .join("users", "users.id", "==", "invoices.ordered_by")
+
+      .join("brands", "brands.id", "==", "invoices.relation_id")
       .first() as any;
   }
 
