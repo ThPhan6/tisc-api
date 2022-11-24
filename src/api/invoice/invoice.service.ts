@@ -4,7 +4,11 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { invoiceRepository } from "@/repositories/invoice.repository";
+import {
+  invoiceRepository,
+  InvoiceWithRelations,
+  InvoiceWithUserAndServiceType,
+} from "@/repositories/invoice.repository";
 import {
   SortOrder,
   UserAttributes,
@@ -36,7 +40,9 @@ class InvoiceService {
     const saleTaxAmount = (tax / 100) * totalGross;
     return totalGross + saleTaxAmount;
   };
-  private calculateInvoice = (invoice: any) => {
+  private calculateInvoice = (
+    invoice: InvoiceWithRelations | InvoiceWithUserAndServiceType
+  ) => {
     const diff = moment().diff(moment(invoice.due_date), "days");
     const overdueDays = diff > 0 ? diff : 0;
     const totalGross = invoice.quantity * invoice.unit_rate;
@@ -162,9 +168,7 @@ class InvoiceService {
     });
   }
   public async get(user: UserAttributes, invoiceId: string) {
-    const invoice = await invoiceRepository.findWithUserAndServiceType(
-      invoiceId
-    );
+    const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
     if (
       !invoice ||
       (user.type !== UserType.TISC && invoice.relation_id !== user.relation_id)
