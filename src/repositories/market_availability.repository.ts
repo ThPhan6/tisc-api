@@ -86,8 +86,8 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
             id: UUID(),
             collection_id: collection.id,
             countries: [],
-            created_at: DATE_FORMAT(DATE_NOW(), "%%yyyy-%mm-%dd %hh:%ii:%ss"),
-            updated_at: DATE_FORMAT(DATE_NOW(), "%%yyyy-%mm-%dd %hh:%ii:%ss"),
+            created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+            updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
             deleted_at: null
         }
         UPDATE {
