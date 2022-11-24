@@ -267,7 +267,9 @@ const permissionData = [
           ROUTES.INVOICE.SEND_REMINDER,
           ROUTES.INVOICE.BILL,
           ROUTES.INVOICE.PAID,
+          ROUTES.INVOICE.DELETE,
           ROUTES.USER.GET_BY_TYPE_ROLE_AND_RELATION,
+          ROUTES.INVOICE.GET_INVOICE_PDF,
         ],
       },
     ],
@@ -420,7 +422,11 @@ const permissionData = [
         type: 2,
         index: 27,
         id: "permission_9_5",
-        routes: [ROUTES.INVOICE.GET_LIST, ROUTES.INVOICE.GET],
+        routes: [
+          ROUTES.INVOICE.GET_LIST,
+          ROUTES.INVOICE.GET,
+          ROUTES.INVOICE.GET_INVOICE_PDF,
+        ],
       },
       {
         logo: "/logo/subscription.svg",

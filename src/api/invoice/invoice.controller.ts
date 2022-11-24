@@ -65,4 +65,19 @@ export default class InvoiceController {
     const response = await invoiceService.sendReminder(id);
     return toolkit.response(response).code(response.statusCode);
   }
+  public async delete(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const response = await invoiceService.delete(id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async getInvoicePdf(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const response: any = await invoiceService.getInvoicePdf(id);
+    const filename = `${response.fileName}.pdf`;
+
+    return toolkit
+      .response(response.data)
+      .header("Content-Disposition", `attachment; filename=${filename}`)
+      .header("Content-Type", "application/pdf");
+  }
 }

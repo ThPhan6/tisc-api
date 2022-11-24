@@ -222,6 +222,7 @@ export const ROUTES = {
   },
   INVOICE: {
     CREATE: "/api/invoice",
+    DELETE: "/api/invoice/{id}/delete",
     GET_LIST: "/api/invoice",
     GET_SUMMARY: "/api/invoice/summary",
     UPDATE: "/api/invoice/{id}",
@@ -229,6 +230,7 @@ export const ROUTES = {
     SEND_REMINDER: "/api/invoice/{id}/send-reminder",
     BILL: "/api/invoice/{id}/bill",
     PAID: "/api/invoice/{id}/paid",
+    GET_INVOICE_PDF: "/api/invoice/{id}/invoice-pdf",
   },
   USER: {
     GET_BY_TYPE_ROLE_AND_RELATION:

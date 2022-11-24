@@ -32,6 +32,7 @@ import {
 } from "@/helper/response.helper";
 import { pdfNode } from "@/service/pdf/pdf.service";
 import * as ejs from "ejs";
+import { ENVIROMENT } from "@/config";
 
 export default class PDFService {
   private baseTemplate = `${process.cwd()}/src/api/pdf/templates`;
@@ -86,7 +87,33 @@ export default class PDFService {
       },
     };
   };
+  private getInvoiceHeader = async (data: any) => {
+    const headerHtml = (await ejs.renderFile(
+      `${this.baseTemplate}/invoice/header.ejs`,
+      data
+    )) as string;
+    return {
+      header: {
+        height: "4.6cm",
+        contents: headerHtml,
+      },
+    };
+  };
 
+  private getInvoiceFooter = async (data: any) => {
+    const footerHtml = (await ejs.renderFile(
+      `${this.baseTemplate}/invoice/footer.ejs`,
+      data
+    )) as string;
+    return {
+      footer: {
+        height: "1.7cm",
+        contents: {
+          default: footerHtml,
+        },
+      },
+    };
+  };
   private getSpecifyFooter = async (templateData: any) => {
     const footerHtml = (await ejs.renderFile(
       `${this.baseTemplate}/layouts/footer.layout.ejs`,
@@ -271,6 +298,25 @@ export default class PDFService {
         templates: templatesResponse,
       },
     });
+  };
+  public generateInvoicePdf = async (
+    title: "Invoice" | "Receipt",
+    data: any,
+    tisc_data: any
+  ) => {
+    const params = {
+      logo: `${ENVIROMENT.SPACES_ENDPOINT}/files-tisc/logo/black-logo.svg`,
+      title,
+    };
+    const headerOption = await this.getInvoiceHeader(params);
+    const footerOption = await this.getInvoiceFooter(tisc_data);
+    const templateHtml = (await ejs.renderFile(
+      `${this.baseTemplate}/invoice/invoice.ejs`,
+      { ...params, ...data }
+    )) as string;
+
+    const html = await this.injectBasePdfTemplate(templateHtml);
+    return pdfNode.create(html, merge(headerOption, footerOption)).toBuffer();
   };
 }
 

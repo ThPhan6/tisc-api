@@ -4,10 +4,7 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import {
-  invoiceRepository,
-  InvoiceWithUserAndServiceType,
-} from "@/repositories/invoice.repository";
+import { invoiceRepository } from "@/repositories/invoice.repository";
 import {
   SortOrder,
   UserAttributes,
@@ -17,15 +14,17 @@ import {
 } from "@/types";
 
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { userRepository } from "@/repositories/user.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { InvoiceRequestCreate, InvoiceRequestUpdate } from "./invoice.type";
 import {
   calculateInterestInvoice,
   toNonAccentUnicode,
+  toUSMoney,
 } from "@/helper/common.helper";
 import moment from "moment";
 import { mailService } from "@/service/mail.service";
+import { pdfService } from "@/api/pdf/pdf.service";
+import { ENVIROMENT } from "@/config";
 
 class InvoiceService {
   private calculateBillingAmount = (
@@ -37,20 +36,20 @@ class InvoiceService {
     const saleTaxAmount = (tax / 100) * totalGross;
     return totalGross + saleTaxAmount;
   };
-  private calculateInvoice = (invoice: InvoiceWithUserAndServiceType) => {
+  private calculateInvoice = (invoice: any) => {
     const diff = moment().diff(moment(invoice.due_date), "days");
     const overdueDays = diff > 0 ? diff : 0;
-    const billingAmount = this.calculateBillingAmount(
-      invoice.quantity,
-      invoice.unit_rate,
-      invoice.tax
-    );
+    const totalGross = invoice.quantity * invoice.unit_rate;
+    const saleTaxAmount = (invoice.tax / 100) * totalGross;
+    const billingAmount = totalGross + saleTaxAmount;
     let overdueAmount = calculateInterestInvoice(billingAmount, overdueDays);
     return {
       ...invoice,
       billing_amount: billingAmount,
       overdue_days: overdueDays,
       overdue_amount: overdueAmount,
+      total_gross: totalGross,
+      sale_tax_amount: saleTaxAmount,
     };
   };
   public async create(user: UserAttributes, payload: InvoiceRequestCreate) {
@@ -83,22 +82,10 @@ class InvoiceService {
     if (!createdInvoice) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
-    const receiver = await userRepository.find(payload.ordered_by);
-
-    const billingAmount = this.calculateBillingAmount(
-      payload.quantity,
-      payload.unit_rate,
-      payload.tax
-    );
-    await mailService.sendInvoiceCreated(
-      receiver?.email || "",
-      receiver?.firstname || "",
-      billingAmount
-    );
     return this.get(user, createdInvoice.id);
   }
   public async bill(user: UserAttributes, invoiceId: string) {
-    const invoice = await invoiceRepository.find(invoiceId);
+    const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
 
     if (!invoice) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
@@ -108,8 +95,23 @@ class InvoiceService {
     }
     await invoiceRepository.update(invoiceId, {
       due_date: moment().add(7, "days").format("YYYY-MM-DD"),
+      billed_date: moment().format("YYYY-MM-DD"),
       status: InvoiceStatus.Outstanding,
     });
+
+    const billingAmount = this.calculateBillingAmount(
+      invoice.quantity,
+      invoice.unit_rate,
+      invoice.tax
+    );
+    const pdfBuffer: any = await this.getInvoicePdf(invoiceId);
+    await mailService.sendInvoiceCreated(
+      invoice.ordered_user.email,
+      invoice.ordered_user.firstname,
+      billingAmount,
+      pdfBuffer.data.toString("base64"),
+      `${invoice.name}.pdf`
+    );
     return this.get(user, invoiceId);
   }
   public async paid(user: UserAttributes, invoiceId: string) {
@@ -128,6 +130,7 @@ class InvoiceService {
     }
     await invoiceRepository.update(invoiceId, {
       status: InvoiceStatus.Paid,
+      payment_date: moment().format("YYYY-MM-DD"),
     });
     return this.get(user, invoiceId);
   }
@@ -186,21 +189,63 @@ class InvoiceService {
     await invoiceRepository.update(id, payload);
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
+  public async delete(invoiceId: string) {
+    await invoiceRepository.findAndDelete(invoiceId);
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
 
   public async sendReminder(invoiceId: string) {
-    const invoice = await invoiceRepository.find(invoiceId);
+    const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
     if (!invoice) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
     }
-    const user = await userRepository.find(invoice.ordered_by);
+    const pdfBuffer: any = await this.getInvoicePdf(invoiceId);
     const sent = await mailService.sendInvoiceReminder(
-      user?.email || "",
-      user?.firstname || ""
+      invoice.ordered_user.email,
+      invoice.ordered_user.firstname,
+      pdfBuffer.data.toString("base64"),
+      `${invoice.name}.pdf`
     );
     if (!sent) {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
     }
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+  public async getInvoicePdf(invoiceId: string) {
+    const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    const calculatedInvoice = this.calculateInvoice(invoice);
+    const result = await pdfService.generateInvoicePdf(
+      invoice.payment_date === "" ? "Invoice" : "Receipt",
+      {
+        ...calculatedInvoice,
+        bill_number: invoice.name.slice(-10),
+        billed_date: invoice.billed_date || "",
+        payment_date:
+          !invoice.payment_date || invoice.payment_date === ""
+            ? "pending"
+            : invoice.payment_date,
+        ...invoice.ordered_user.location,
+        unit_rate: toUSMoney(calculatedInvoice.unit_rate),
+        overdue_amount: toUSMoney(calculatedInvoice.overdue_amount),
+        total_gross: toUSMoney(calculatedInvoice.total_gross),
+        sale_tax_amount: toUSMoney(calculatedInvoice.sale_tax_amount),
+        total_amount: toUSMoney(
+          calculatedInvoice.total_gross + calculatedInvoice.sale_tax_amount
+        ),
+        billing_amount: toUSMoney(
+          calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount
+        ),
+      },
+      {
+        address: `${invoice.created_user.location.address} ${invoice.created_user.location.city_name}, ${invoice.created_user.location.state_name}, ${invoice.created_user.location.city_name} ${invoice.created_user.location.postal_code}`,
+        email: invoice.created_user.email,
+        website: ENVIROMENT.TISC_WEBSITE,
+      }
+    );
+    return successResponse({ data: result, fileName: invoice.name });
   }
 }
 export const invoiceService = new InvoiceService();
