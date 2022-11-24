@@ -23,7 +23,9 @@
         <span class="normal-roboto-light-8-12">Client Name</span><br />
         <span class="normal-roboto-bold-12"><%=brand_name%></span><br />
         <span class="normal-roboto-light-8-12">Ordered By</span><br />
-        <span class="normal-roboto-light-12"><%=firstname%> <%=lastname%></span>
+        <span class="normal-roboto-light-12"
+          ><%=ordered_user.firstname%> <%=ordered_user.lastname%></span
+        >
       </td>
     </tr>
     <tr>
@@ -309,9 +311,7 @@
           border-bottom-box-shadow-bold
         "
       >
-        <span class="normal-roboto-bold-12 uppercase"
-          ><%=billing_amount%></span
-        >
+        <span class="normal-roboto-bold-12 uppercase"><%=billing_amount%></span>
       </td>
     </tr>
   </table>
