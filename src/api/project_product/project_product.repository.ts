@@ -95,8 +95,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 id: UUID(),
                 collection_id: product.collection_id,
                 countries: [],
-                created_at: DATE_FORMAT(DATE_NOW(), "%%yyyy-%mm-%dd %hh:%ii:%ss"),
-                updated_at: DATE_FORMAT(DATE_NOW(), "%%yyyy-%mm-%dd %hh:%ii:%ss"),
+                created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+                updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
                 deleted_at: null
             }
             UPDATE {
@@ -343,6 +343,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         ]
       }
     `;
+    // console.log(rawQuery);
+    // console.log('params', params);
     const results = await this.model.rawQueryV2(rawQuery, params);
     return results[0];
   };

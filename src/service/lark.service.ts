@@ -10,13 +10,14 @@ import {
   AppAcessTokenResponse,
   UserRefreshAccessTokenResponse,
 } from '@/types/lark.type';
+import {isEmpty} from 'lodash';
 import fs from 'fs';
 
 class LarkOpenAPIService {
   //
   private baseUrl: string;
   private appAccessTokenPayload: AppAcessTokenPayload;
-  private lark_token: LarkToken;
+  private lark_token = {} as LarkToken;
   private dataPath = `${process.cwd()}/data/lark.json`;
   private intervalRefreshToken: any;
   //
@@ -26,8 +27,10 @@ class LarkOpenAPIService {
       app_id: ENVIROMENT.LARK_APP_ID,
       app_secret: ENVIROMENT.LARK_APP_SECRET
     };
-    this.lark_token = JSON.parse(fs.readFileSync(this.dataPath, 'utf8'));
-    this.updateRefreshToken();
+    if (fs.existsSync(this.dataPath)) {
+      this.lark_token = JSON.parse(fs.readFileSync(this.dataPath, 'utf8'));
+      this.updateRefreshToken();
+    }
   }
 
   private getAppAccessToken = async () => {
@@ -125,6 +128,9 @@ class LarkOpenAPIService {
   }
 
   private updateRefreshToken = async () => {
+    if (isEmpty(this.lark_token)) {
+      return;
+    }
     if (this.intervalRefreshToken) {
       clearInterval(this.intervalRefreshToken);
     }
