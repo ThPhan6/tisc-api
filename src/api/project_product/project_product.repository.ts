@@ -102,7 +102,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             UPDATE {
                 collection_id: product.collection_id,
             }
-            IN market_availabilities OPTIONS { waitForSync: true }
+            IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
 
             LET country = FIRST(
                 FOR authorized_country IN authorized_countries

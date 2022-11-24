@@ -93,7 +93,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
         UPDATE {
             collection_id: collection.id,
         }
-        IN market_availabilities OPTIONS { waitForSync: true }
+        IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
 
         LET countries = (
             FOR authorized_country IN authorized_countries
