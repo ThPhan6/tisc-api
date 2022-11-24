@@ -62,7 +62,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FOR product IN custom_products
       FILTER product.id == project_products.product_id
       FILTER product.deleted_at == null
-      RETURN MERGE(product, {availability: true})
+      RETURN MERGE(product, {availability: ${Availability.Available}})
     ) : FIRST(
       FOR product IN products
             FILTER product.id == project_products.product_id
