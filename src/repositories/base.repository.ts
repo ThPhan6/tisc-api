@@ -127,5 +127,19 @@ class BaseRepository<DataType> {
     });
     return (await query.get()) as DataType[];
   }
+  /**
+   * delete by object params
+   * @param params Partial<DataType>
+   * @return DataType | undefined
+   */
+  public async deleteBy(params: {
+    [key: string]: string | number | null | boolean;
+  }) {
+    let query = this.model.getQuery();
+    forEach(params, (value, column) => {
+      query = query.where(column, "==", value);
+    });
+    return await query.delete();
+  }
 }
 export default BaseRepository;

@@ -1,6 +1,11 @@
 import InvoiceModel from "@/model/invoice.model";
 import BaseRepository from "./base.repository";
-import { InvoiceAttributes, SortOrder, InvoiceCompanyType } from "@/types";
+import {
+  InvoiceAttributes,
+  SortOrder,
+  InvoiceCompanyType,
+  InvoiceStatus,
+} from "@/types";
 import { head } from "lodash";
 
 export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
@@ -87,6 +92,9 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
 
     if (relationId) {
       query = query.where("invoices.relation_id", "==", relationId);
+    }
+    if (!relationId) {
+      query = query.where("invoices.status", "!=", InvoiceStatus.Pending);
     }
     return query.paginate(limit, offset);
   }
