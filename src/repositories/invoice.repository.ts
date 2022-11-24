@@ -99,11 +99,8 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
   public findInvoiceWithRelations = async (id: string) => {
     const result = await this.model.rawQueryV2(
       `
-      
-      
-
       for invoice in invoices 
-      filter invoice.id == @id 
+      filter invoice.id == @id && invoice.deleted_at == null
           for brand in brands
           filter brand.id == invoice.relation_id
           for commonType in common_types
@@ -131,9 +128,9 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
               }
           ) : FIRST(
               return {
-                  brand_location_part_1: orderedLocation.address+', '+ orderedLocation.city_name,
+                  brand_location_part_1: concat(orderedLocation.address,', ', orderedLocation.city_name),
                   brand_location_part_2: orderedLocation.state_name,
-                  brand_location_part_3: orderedLocation.country_name + ', '+ orderedLocation.postal_code,
+                  brand_location_part_3: concat(orderedLocation.country_name,', ', orderedLocation.postal_code),
               }
           )
       
@@ -183,10 +180,9 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       .order(sort ? sort : "created_at", order || "DESC");
 
     if (relationId) {
-      query = query.where("invoices.relation_id", "==", relationId);
-    }
-    if (!relationId) {
-      query = query.where("invoices.status", "!=", InvoiceStatus.Pending);
+      query = query
+        .where("invoices.relation_id", "==", relationId)
+        .where("invoices.status", "!=", InvoiceStatus.Pending);
     }
     return query.paginate(limit, offset);
   }
