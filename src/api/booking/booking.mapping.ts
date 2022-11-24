@@ -1,4 +1,4 @@
-import { CalendarEventResponse } from "@/service/lark.service";
+import { CalendarEventResponse } from "@/types/lark.type";
 import {DefaultTimezone} from '@/config';
 import "moment-timezone";
 import moment from 'moment';

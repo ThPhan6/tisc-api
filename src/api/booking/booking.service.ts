@@ -62,33 +62,34 @@ export default class BookingService {
     if (brand.statusCode !== 200) {
       return errorMessageResponse(brand.message ?? MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
-
     // create lark event
-    const response = await larkOpenAPIService.createEvent({
-      summary: `${payload.brand_name} book TISC live demo session`,
-      description: "TISC live demo session is booked",
-      start_time: {
-        timestamp: schedule.unixStartTime,
-        timezone: DefaultTimezone,
-      },
-      end_time: {
-        timestamp: schedule.unixEndTime,
-        timezone: DefaultTimezone
-      },
-      vchat: {
-        vc_type: 'vc'
+    let larkEvent: any;
+    try {
+      larkEvent = await larkOpenAPIService.createEvent({
+        summary: `${payload.brand_name} book TISC live demo session`,
+        description: "TISC live demo session is booked",
+        start_time: {
+          timestamp: schedule.unixStartTime,
+          timezone: DefaultTimezone,
+        },
+        end_time: {
+          timestamp: schedule.unixEndTime,
+          timezone: DefaultTimezone
+        }
+      });
+      if (larkEvent.data.code != 0) {
+        await this.removeBrandData(brand.data.id);
+        return errorMessageResponse(larkEvent.data.msg);
       }
-    });
-    if (response.data.code != 0) {
+    } catch {
       await this.removeBrandData(brand.data.id);
-      return errorMessageResponse(response.data.msg);
     }
-
+    //
     const booking = await bookingRepository.create({
       brand_id: brand.data.id,
-      event_id: response.data.data.event.event_id,
+      event_id: larkEvent.data.data.event.event_id,
       website: payload.website,
-      meeting_url: response.data.data.event.vchat.meeting_url,
+      meeting_url: larkEvent.data.data.event.vchat.meeting_url,
       email: payload.email,
       name: payload.name,
       date: payload.date,
@@ -98,14 +99,14 @@ export default class BookingService {
 
     if (!booking) {
       await this.removeBrandData(brand.data.id);
-      await larkOpenAPIService.deleteEvent(response.data.data.event.event_id);
+      await larkOpenAPIService.deleteEvent(larkEvent.data.data.event.event_id);
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
     // sent email
     const sent = await this.sendEmail(schedule.startTime, booking);
     if (!sent) {
       await this.removeBrandData(brand.data.id);
-      await larkOpenAPIService.deleteEvent(response.data.data.event.event_id);
+      await larkOpenAPIService.deleteEvent(larkEvent.data.data.event.event_id);
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
     }
 
