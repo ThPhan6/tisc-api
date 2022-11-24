@@ -100,7 +100,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
     const result = await this.model.rawQueryV2(
       `
       for invoice in invoices 
-      filter invoice.id == @id 
+      filter invoice.id == @id && invoice.deleted_at == null
           for brand in brands
           filter brand.id == invoice.relation_id
           for commonType in common_types
@@ -177,7 +177,6 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       .join("common_types", "common_types.id", "==", "invoices.service_type_id")
       .join("users", "users.id", "==", "invoices.ordered_by")
       .join("brands", "brands.id", "==", "invoices.relation_id")
-      .where("invoices.deleted_at", "==", null)
       .order(sort ? sort : "created_at", order || "DESC");
 
     if (relationId) {
