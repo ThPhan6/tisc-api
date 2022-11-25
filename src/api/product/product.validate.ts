@@ -5,7 +5,6 @@ import {
 } from "@/validate/common.validate";
 import {getEnumValues} from '@/helper/common.helper';
 import {DimensionAndWeightAttributeId} from '@/constants';
-import {forEach} from 'lodash';
 
 const attributeGroupsValidate = (
   type: "General" | "Feature" | "Specification"
@@ -36,40 +35,19 @@ const attributeGroupsValidate = (
             conversion_value_2: Joi.number().allow(""),
             basis_options: isSpec
               ? Joi.array().items(
-                  Joi.object({
-                    id: Joi.string(),
-                    option_code: Joi.string(),
+                  Joi.object().keys({
+                    id: Joi.string()
+                      .error(errorMessage(`${type} Option Product is required`)),
+                    option_code: Joi.string()
+                      .error(errorMessage(`${type} Option Product ID is required`)),
                   })
                 )
               : Joi.any(),
           })
           .required()
-          .error(errorMessage(`${type} attributes is required`)),
       })
     )
-    .custom((value, helpers) => {
-      if (isSpec) {
-        let isValid = true;
-        forEach(value, (item) => {
-          if (item.selection) {
-            const options = item.attributes?.filter((attr: any) => {
-              return attr.type === 'Options';
-            });
-            if (options.length < 2) {
-              isValid = false;
-            }
-          }
-        });
-        ///
-        if (!isValid) {
-          return helpers.error("any.invalid");
-        }
-        return value;
-      }
-      return value;
-    })
     .required()
-    .error(errorMessage(`${type} attribute groups is not valid`));
 };
 
 export const dimensionAndWeightValidate = Joi.object({
