@@ -6,9 +6,14 @@ import {
 import { getEnumValues } from "@/helper/common.helper";
 import { DimensionAndWeightAttributeId } from "@/constants";
 import { forEach } from "lodash";
+import { ProductType } from "./product.type";
 
 export const validateShareProduct = {
   payload: {
+    type: Joi.number()
+      .required()
+      .valid(ProductType.Product, ProductType.CustomProduct)
+      .error(errorMessage("Product type is required")),
     product_id: requireStringValidation("Product id"),
     sharing_group: requireStringValidation("Sharing Group"),
     sharing_purpose: requireStringValidation("Sharing Purpose"),

@@ -103,13 +103,4 @@ export default class CustomProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
-  public shareByEmail = async (
-    req: Request & { payload: ShareProductBodyRequest },
-    toolkit: ResponseToolkit
-  ) => {
-    const payload = req.payload;
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await customProductService.shareByEmail(payload, user);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
 }

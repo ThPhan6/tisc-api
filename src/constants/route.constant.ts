@@ -280,7 +280,6 @@ export const ROUTES = {
     GET_ONE: "/api/custom-product/get-one/{id}",
     DELETE: "/api/custom-product/delete/{id}",
     DUPLICATE: "/api/custom-product/duplicate/{id}",
-    SHARE_CUSTOM_PRODUCT_BY_EMAIL: "/api/custom-product/share-via-email",
   },
   CUSTOM_RESOURCE: {
     CREATE: "/api/custom-resource/create",

@@ -189,6 +189,7 @@ export interface IProductAssignToProject {
 }
 
 export interface ShareProductBodyRequest {
+  type: ProductType
   product_id: string;
   sharing_group: string;
   sharing_purpose: string;
@@ -240,4 +241,9 @@ export interface IAttributeGroupWithOptionId {
   id?: string;
   name: string;
   attributes: IProductOptionAttribute[];
+}
+
+export enum ProductType {
+  Product,
+  CustomProduct
 }

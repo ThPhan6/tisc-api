@@ -3,9 +3,11 @@ import { productService } from "./product.service";
 import {
   IProductRequest,
   IUpdateProductRequest,
+  ProductType,
   ShareProductBodyRequest,
 } from "./product.type";
 import { UserAttributes } from "@/types";
+import { customProductService } from "../custom_product/custom_product.service";
 
 export default class ProductController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -106,7 +108,10 @@ export default class ProductController {
   ) => {
     const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await productService.shareByEmail(payload, user);
+    const response =
+      payload.type === ProductType.Product
+        ? await productService.shareByEmail(payload, user)
+        : await customProductService.shareByEmail(payload, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

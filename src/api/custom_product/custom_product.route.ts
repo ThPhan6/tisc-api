@@ -113,22 +113,6 @@ export default class CustomProductRoute implements IRoute {
             },
           },
         },
-        {
-          method: "POST",
-          path: ROUTES.CUSTOM_PRODUCT.SHARE_CUSTOM_PRODUCT_BY_EMAIL,
-          options: {
-            handler: controller.shareByEmail,
-            validate: validate.shareByEmail,
-            description: "Method that share custom product via email",
-            tags: ["api", "Custom Product"],
-            auth: AUTH_NAMES.PERMISSION,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-              },
-            },
-          },
-        },
       ]);
       resolve(true);
     });
