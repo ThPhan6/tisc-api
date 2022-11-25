@@ -1,44 +1,9 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIROMENT, plugins } from "@/config";
 import * as hapi from "@hapi/hapi";
 import Router from "./router";
-
-import * as Inert from "@hapi/inert";
-import * as Vision from "@hapi/vision";
-import * as HapiSwagger from "hapi-swagger";
 import AuthMiddleware from "./middleware/auth.middleware";
 import { slackService } from "./service/slack.service";
 import path from "path";
-
-const swaggerOptions = {
-  info: {
-    title: "API Documentation",
-    version: ENVIROMENT.API_VERSION,
-  },
-  grouping: "tags",
-  sortEndpoints: "ordered",
-  security: [{ API_KEY: [] }],
-  securityDefinitions: {
-    API_KEY: {
-      type: "apiKey",
-      name: "Authorization",
-      in: "header",
-      "x-keyPrefix": "Bearer",
-    },
-  },
-};
-
-const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
-  {
-    plugin: Inert,
-  },
-  {
-    plugin: Vision,
-  },
-  {
-    plugin: HapiSwagger,
-    options: swaggerOptions,
-  },
-];
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIROMENT.HOST,

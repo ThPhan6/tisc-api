@@ -5,7 +5,10 @@ import {
   customProductOptionValidate,
   customProductValidate,
 } from "./custom_product.validate";
-import { dimensionWeightResponse } from "@/api/product/product.response";
+import {
+  dimensionWeightResponse,
+  userProductSpecificationResponse,
+} from "@/api/product/product.response";
 
 export const customProductResponse = {
   id: Joi.string(),
@@ -23,6 +26,7 @@ export const customProductResponse = {
   design_id: Joi.string(),
   company_name: Joi.string().allow(null, ""),
   collection_name: Joi.string().allow(null, ""),
+  optionSpecification: Joi.object(userProductSpecificationResponse).allow(null),
 };
 
 export default {
@@ -52,6 +56,9 @@ export default {
       design_id: Joi.string(),
       location: locationBasicResponse,
       dimension_and_weight: dimensionWeightResponse,
+      optionSpecification: Joi.object(userProductSpecificationResponse).allow(
+        null
+      ),
     }),
     statusCode: Joi.number(),
   }),

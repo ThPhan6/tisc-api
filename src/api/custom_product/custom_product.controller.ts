@@ -8,7 +8,6 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductService } from "./custom_product.service";
 import { customProductRepository } from "./custom_product.repository";
 import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
-import { ShareProductBodyRequest } from "../product/product.type";
 
 export default class CustomProductController {
   public async createProduct(
@@ -48,7 +47,7 @@ export default class CustomProductController {
   public async getOneProduct(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const result = await customProductRepository.getOne(req.params.id);
+    const result = await customProductRepository.getOne(req.params.id, user.id);
 
     if (!result) {
       return toolkit

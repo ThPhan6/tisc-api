@@ -26,29 +26,35 @@ export const customProductContactValidate = Joi.array().items(
   })
 );
 
+const optionItemValidate = {
+  id: Joi.string().allow(null, ""),
+  description: requireStringValidation("Option description"),
+  product_id: requireStringValidation("Option product ID"),
+};
+
 export const customProductOptionValidate = Joi.object({
-  id: Joi.string().allow(null),
+  id: Joi.string().allow(null, ""),
   title: requireStringValidation("Option title"),
   use_image: Joi.boolean(),
   tag: requireStringValidation("Option tag"),
-  items: Joi.array()
-    .min(1)
-    .error(errorMessage("Require at least 1 option choice"))
-    .items(
+  items: Joi.when("use_image", {
+    is: true,
+    then: Joi.array().items(
       Joi.object({
-        id: Joi.string().allow(null),
-        image: Joi.when("use_image", {
-          is: true,
-          then: requireStringValidation(
-            "Image is required in the Option with type image",
-            "full"
-          ),
-          otherwise: Joi.string().allow(null),
-        }),
-        description: requireStringValidation("Option description"),
-        product_id: requireStringValidation("Option product ID"),
+        ...optionItemValidate,
+        image: requireStringValidation(
+          "Image is required in the Option with type image",
+          "full"
+        ),
       })
     ),
+    otherwise: Joi.array().items(
+      Joi.object({
+        ...optionItemValidate,
+        image: Joi.string().allow(null, ""),
+      })
+    ),
+  }),
 });
 
 export const customProductValidate = Joi.object({

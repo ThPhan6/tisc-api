@@ -189,7 +189,6 @@ class BrandService {
     if (brand) {
       return errorMessageResponse(MESSAGES.BRAND_EXISTED);
     }
-
     const user = await userRepository.findBy({
       email: payload.email,
     });

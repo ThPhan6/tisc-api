@@ -44,8 +44,6 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
       query += `COLLECT WITH COUNT INTO length RETURN length`;
       return { query, params };
     }
-    ////
-    params.now = moment().format('YYYY-MM-DD HH:mm:ss');
 
     if (collectionId) {
       params.collectionId = collectionId;
@@ -63,7 +61,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
 
     query += `${collectionId ? 'FILTER collection.id == @collectionId' : ''}
         ${isFinite(limit) && isFinite(offset) ? 'LIMIT @offset, @limit' : ''}
-        ${sort && order ? 'SORT collection.@sort, @order' : ''}
+        ${sort && order ? 'SORT collection.@sort @order' : ''}
     LET authorized_countries = (
         FOR distributor IN distributors
             FILTER distributor.deleted_at == null
@@ -79,7 +77,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
         }
     )
 
-    LET market_availabilities = (
+    LET market_availability = FIRST(
         UPSERT {
             collection_id: collection.id,
             deleted_at: null
@@ -88,24 +86,37 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
             id: UUID(),
             collection_id: collection.id,
             countries: [],
-            created_at: @now,
-            updated_at: @now,
+            created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+            updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
             deleted_at: null
         }
         UPDATE {
             collection_id: collection.id,
         }
-        IN market_availabilities
-        RETURN NEW
+        IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
+
+        LET countries = (
+            FOR authorized_country IN authorized_countries
+            LET c = FIRST(NEW.countries[* FILTER CURRENT.id == authorized_country.id])
+            RETURN {
+                id: authorized_country.id,
+                name: authorized_country.name,
+                region: authorized_country.region,
+                phone_code: authorized_country.phone_code,
+                available: c ? c.available : true
+            }
+        )
+        RETURN MERGE(NEW, {
+            countries: countries
+        })
     )
 
     RETURN MERGE({
-        id: market_availabilities[0].id,
+        id: market_availability.id,
         name: collection.name,
         collection_id: collection.id,
         relation_id: collection.relation_id,
-        authorized_countries: authorized_countries,
-        countries: market_availabilities[0].countries,
+        countries: market_availability.countries,
     })`;
     return { query, params };
   }

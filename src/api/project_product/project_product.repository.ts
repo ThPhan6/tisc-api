@@ -15,7 +15,7 @@ import {
   BrandAttributes,
   SortOrder,
   IProjectZoneAttributes,
-  CustomResouceType,
+  Availability,
 } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
@@ -55,6 +55,76 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
   constructor() {
     super();
     this.model = new ProjectProductModel();
+  }
+
+  private concatProductQuery = (distributorSpecified: boolean = false) => {
+    return `LET product = project_products.custom_product == true ? FIRST(
+      FOR product IN custom_products
+      FILTER product.id == project_products.product_id
+      FILTER product.deleted_at == null
+      RETURN MERGE(product, {availability: ${Availability.Available}})
+    ) : FIRST(
+      FOR product IN products
+            FILTER product.id == project_products.product_id
+            FILTER product.deleted_at == null
+
+        FOR project IN projects
+            FILTER project.deleted_at == null
+            FILTER project.id == project_products.project_id
+        FOR project_location in locations
+            FILTER project_location.deleted_at == null
+            FILTER project_location.id == project.location_id
+        ///
+        LET authorized_countries = (
+            FOR distributor IN distributors
+                FILTER distributor.deleted_at == null
+                FILTER distributor.brand_id == product.brand_id
+                FOR country IN countries
+                    FILTER country.deleted_at == null
+                    FILTER country.id in distributor.authorized_country_ids
+            RETURN DISTINCT {
+                id: country.id
+            }
+        )
+        LET market_availability = FIRST(
+            UPSERT {
+                collection_id: product.collection_id,
+                deleted_at: null
+            }
+            INSERT {
+                id: UUID(),
+                collection_id: product.collection_id,
+                countries: [],
+                created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+                updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+                deleted_at: null
+            }
+            UPDATE {
+                collection_id: product.collection_id,
+            }
+            IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
+
+            LET country = FIRST(
+                FOR authorized_country IN authorized_countries
+                FILTER authorized_country.id == project_location.country_id
+                ${distributorSpecified ? 'FILTER authorized_country.id == project_products.distributor_location_id' : ''}
+                LET c = FIRST(NEW.countries[* FILTER CURRENT.id == authorized_country.id])
+                RETURN {
+                    id: authorized_country.id,
+                    available: c ? c.available : true
+                }
+            )
+            RETURN country
+        )
+
+      LET availability = market_availability ? (
+        market_availability.available ? ${Availability.Available} : ${Availability.Discrepancy}
+      ) : ${Availability.Discrepancy}
+
+      RETURN MERGE(product, {
+        availability: availability
+      })
+    )`;
   }
 
   public findWithRelation = async (
@@ -129,19 +199,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FILTER project_products.project_id == @projectId
         FILTER project_products.deleted_at == null
         FILTER project_products.status == @considerStatus
-    
-        LET product = project_products.custom_product == true ? FIRST(
-          FOR product IN custom_products
-          FILTER product.id == project_products.product_id
-          FILTER product.deleted_at == null
-          RETURN product
-        ) : FIRST(
-          FOR product IN products
-          FILTER product.id == project_products.product_id
-          FILTER product.deleted_at == null
-          RETURN product
-        )
-    
+
+        ${this.concatProductQuery()}
+
         LET brand = project_products.custom_product == true ? FIRST(
           FOR cr IN custom_resources
           FILTER cr.id == product.brand_id
@@ -155,21 +215,21 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FILTER b.deleted_at == null
           RETURN KEEP(b, 'id', 'name', 'logo')
         )
-    
+
         LET collection = FIRST(
           FOR collection IN collections
           FILTER collection.id == product.collection_id
           FILTER collection.deleted_at == null
           RETURN KEEP(collection, 'id', 'name')
         )
-    
+
         LET user = FIRST(
           FOR u IN users
           FILTER u.id == project_products.created_by
           FILTER u.deleted_at == null
           RETURN u
         )
-    
+
         LET productSpecification = FIRST(
           FOR spec IN user_product_specifications
           FILTER spec.user_id == @userId
@@ -177,7 +237,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FILTER spec.deleted_at == null
           RETURN KEEP(spec, 'specification', 'brand_location_id', 'distributor_location_id')
         )
-        
+
         LET material_code = @specified == true ? FIRST(
           FOR material_codes IN material_codes
           FILTER material_codes.design_id == user.relation_id
@@ -187,9 +247,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER code.id == project_products.material_code_id
             RETURN code.code
         ) : ''
-      
+
         RETURN MERGE(
-          KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups'),
+          KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups', 'availability'),
           {
             brand,
             collection,
@@ -202,13 +262,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           }
         )
       )
-    
+
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
           RETURN pp
       )
-      
+
       LET zoneAssignedProducts = (
         FOR zone IN project_zones
         FILTER zone.project_id == @projectId
@@ -224,7 +284,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 brand_order
                   ? "pp.brand.name " + brand_order
                   : "pp.specifiedDetail.updated_at DESC"
-              } 
+              }
               RETURN pp
             )
 
@@ -245,7 +305,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           )
         )
 
-        SORT ${zone_order ? "zone.name " + zone_order : "zone.updated_at DESC"} 
+        SORT ${zone_order ? "zone.name " + zone_order : "zone.updated_at DESC"}
         RETURN MERGE(
           KEEP(zone, 'id', 'name'),
           { areas, count: COUNT(
@@ -255,7 +315,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               RETURN DISTINCT p.id) }
         )
       )
-      
+
       LET data = UNION([{
         id: 'entire_project',
         name: "ENTIRE PROJECT",
@@ -268,7 +328,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FILTER pp.specifiedDetail.@specifiedStatusKey == @unlistedStatus
         COLLECT WITH COUNT INTO length RETURN length
       )
-      
+
       RETURN {
         data,
         summary: [
@@ -283,6 +343,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         ]
       }
     `;
+    // console.log(rawQuery);
+    // console.log('params', params);
     const results = await this.model.rawQueryV2(rawQuery, params);
     return results[0];
   };
@@ -297,24 +359,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     };
     const rawQuery = `
     LET productsByBrand = (
-      FOR pp IN project_products
-      FILTER pp.project_id == @projectId
-      FILTER pp.status == @specifiedStatus
-      FILTER pp.deleted_at == null
+      FOR project_products IN project_products
+      FILTER project_products.project_id == @projectId
+      FILTER project_products.status == @specifiedStatus
+      FILTER project_products.deleted_at == null
 
-      LET product = pp.custom_product == true ? FIRST(
-        FOR product IN custom_products
-        FILTER product.id == pp.product_id
-        FILTER product.deleted_at == null
-        RETURN product
-      ): FIRST(
-        FOR product IN products
-        FILTER product.id == pp.product_id
-        FILTER product.deleted_at == null
-        RETURN product
-      )
+      ${this.concatProductQuery()}
 
-      LET b = pp.custom_product == true ? FIRST(
+      LET b = project_products.custom_product == true ? FIRST(
         FOR cr IN custom_resources
         FILTER cr.id == product.brand_id
         FILTER cr.deleted_at == null
@@ -334,7 +386,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
       LET basisOptions = (
         LET basisIds = (
-          FOR specGroup IN pp.specification.attribute_groups
+          FOR specGroup IN project_products.specification.attribute_groups
           FOR basis IN specGroup.attributes
           RETURN basis.basis_option_id
         )
@@ -378,7 +430,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           brand: UNSET(pro.b, ['_id', '_key', '_rev', 'deleted_at']),
           collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
           collection_name: pro.collection.name,
-          specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+          specifiedDetail: UNSET(pro.project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
           product_id: CONCAT_SEPARATOR(', ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
@@ -406,18 +458,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER project_products.status == @status
       FILTER project_products.project_id == @projectId
       FILTER project_products.deleted_at == null
-      
-      LET product = project_products.custom_product == true ? FIRST(
-        FOR product IN custom_products
-        FILTER product.id == project_products.product_id
-        FILTER product.deleted_at == null
-        RETURN product
-      ) : FIRST(
-        FOR product IN products
-        FILTER product.id == project_products.product_id
-        FILTER product.deleted_at == null
-        RETURN product
-      )
+
+      ${this.concatProductQuery()}
 
       LET brand = project_products.custom_product == true ? FIRST(
         FOR cr IN custom_resources
@@ -465,7 +507,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       }
       RETURN {
         project_products: UNSET(project_products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-        product: KEEP(product, 'id', 'name', 'images', 'description'),
+        product: KEEP(product, 'id', 'name', 'images', 'description', 'availability'),
         brand: KEEP(brand, 'id', 'name', 'logo'),
         collection: KEEP(collections, 'id', 'name'),
         material_code: code,
