@@ -1,4 +1,5 @@
 import { DimensionAndWeight, LocationPayload } from "@/types";
+import { ProductSpecificationSelection } from "../user_product_specification/user_product_specification.model";
 
 // Custom Product
 export interface CustomProductBasicAttributes {
@@ -36,7 +37,7 @@ export interface CustomProductAttributes {
 export type CustomProductPayload = Omit<
   CustomProductAttributes,
   "id" | "created_at" | "updated_at" | "relation_id"
->;
+> & { optionSpecification?: ProductSpecificationSelection };
 
 // Custom Resource (Brand/Company & Distributor for Custom Product)
 export interface CustomResouceContact {

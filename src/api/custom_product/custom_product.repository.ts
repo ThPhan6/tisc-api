@@ -60,10 +60,13 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
     );
   }
 
-  public async getOne(id: string): Promise<CustomProductPayload> {
+  public async getOne(
+    productId: string,
+    userId: string
+  ): Promise<CustomProductPayload> {
     const result = await this.model.rawQuery(
       `
-        FILTER custom_products.id == @id
+        FILTER custom_products.id == @productId
         FILTER custom_products.deleted_at == null
         FOR cr IN custom_resources
         FILTER cr.deleted_at == null
@@ -74,16 +77,21 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
         FOR col IN collections
         FILTER col.id == custom_products.collection_id
         FILTER col.deleted_at == null
+        FOR selection IN user_product_specifications
+        FILTER selection.custom_product == true
+        FILTER selection.product_id == @productId
+        FILTER selection.user_id == @userId
         RETURN MERGE(
           UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at']),
           {
             company_name: loc.business_name,
             collection_name: col.name,
-            location: KEEP(loc, ${locationRepository.basicAttributesQuery})
+            location: KEEP(loc, ${locationRepository.basicAttributesQuery}),
+            optionSpecification: selection.specification
           }
         )
       `,
-      { id }
+      { productId, userId }
     );
     return result[0];
   }
