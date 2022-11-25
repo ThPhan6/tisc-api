@@ -72,3 +72,8 @@ export enum MeasurementUnit {
   Imperial = 1,
   Metric = 2,
 }
+
+export enum SummaryItemPosition {
+  Left,
+  Right
+}
