@@ -16,6 +16,7 @@ import {
   SortOrder,
   IProjectZoneAttributes,
   Availability,
+  SummaryItemPosition,
 } from "@/types";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
@@ -329,6 +330,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         COLLECT WITH COUNT INTO length RETURN length
       )
 
+      LET availabilityRemarkCount = FIRST(
+        FOR projectProduct in projectProducts
+        FILTER projectProduct.availability != ${Availability.Available}
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+
       RETURN {
         data,
         summary: [
@@ -340,11 +347,14 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             name:  @specified == true ? "Cancelled" : "Unlisted",
             value: unlistedCount
           },
+          {
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: ${SummaryItemPosition.Left}
+          }
         ]
       }
     `;
-    // console.log(rawQuery);
-    // console.log('params', params);
     const results = await this.model.rawQueryV2(rawQuery, params);
     return results[0];
   };
