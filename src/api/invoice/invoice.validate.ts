@@ -9,8 +9,8 @@ import {
 export default {
   create: {
     payload: {
-      service_type_id: requireStringValidation("Service type id"),
-      brand_id: requireStringValidation("Brand id"),
+      service_type_id: requireStringValidation("Service type"),
+      brand_id: requireStringValidation("Brand"),
       ordered_by: requireStringValidation("Ordered by"),
       unit_rate: requireNumberValidation("Unit rate"),
       quantity: requireNumberValidation("Quantity"),

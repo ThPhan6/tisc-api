@@ -51,15 +51,18 @@ const attributeGroupsValidate = (
             conversion_value_2: Joi.number().allow(""),
             basis_options: isSpec
               ? Joi.array().items(
-                  Joi.object({
-                    id: Joi.string(),
-                    option_code: Joi.string(),
+                  Joi.object().keys({
+                    id: Joi.string().error(
+                      errorMessage(`${type} Option Product is required`)
+                    ),
+                    option_code: Joi.string().error(
+                      errorMessage(`${type} Option Product ID is required`)
+                    ),
                   })
                 )
               : Joi.any(),
           })
-          .required()
-          .error(errorMessage(`${type} attributes is required`)),
+          .required(),
       })
     )
     .custom((value, helpers) => {
@@ -83,8 +86,7 @@ const attributeGroupsValidate = (
       }
       return value;
     })
-    .required()
-    .error(errorMessage(`${type} attribute groups is not valid`));
+    .required();
 };
 
 export const dimensionAndWeightValidate = Joi.object({

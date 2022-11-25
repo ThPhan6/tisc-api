@@ -222,7 +222,9 @@ class InvoiceService {
     }
     const calculatedInvoice = this.calculateInvoice(invoice);
     const result = await pdfService.generateInvoicePdf(
-      invoice.payment_date === "" ? "Invoice" : "Receipt",
+      !invoice.payment_date || invoice.payment_date === ""
+        ? "Invoice"
+        : "Receipt",
       {
         ...calculatedInvoice,
         bill_number: invoice.name.slice(-10),
