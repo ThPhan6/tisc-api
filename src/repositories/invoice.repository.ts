@@ -194,29 +194,44 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
     }
     const summary = await this.model.rawQueryV2(
       `
+      
       LET summary = (
-          FOR invoice IN invoices
-            FILTER invoice.deleted_at == null
-            ${
-              relationId && relationType
-                ? "FILTER invoice.relation_id == @relationId AND invoice.relation_type == @relationType"
-                : ""
-            }
-            LET totalGross = invoice.quantity * invoice.unit_rate
-            LET saleTaxAmount = (invoice.tax / 100) * totalGross
-            LET grandTotal = totalGross + saleTaxAmount
-          return {
-              grandTotal: grandTotal
+        FOR invoice IN invoices
+          FILTER invoice.deleted_at == null
+          ${
+            relationId && relationType
+              ? "FILTER invoice.relation_id == @relationId AND invoice.relation_type == @relationType"
+              : ""
           }
-      )
-      RETURN {
-          grandTotal: SUM(summary[*].grandTotal)
-      }
+          for serviceType in common_types filter serviceType.id == invoice.service_type_id
+         
+          LET totalGross = invoice.quantity * invoice.unit_rate
+          LET saleTaxAmount = (invoice.tax / 100) * totalGross
+          LET grandTotal = totalGross + saleTaxAmount
+        return {
+            grandTotal: grandTotal,
+            part_1: serviceType.name == 'Offline Marketing & Sales'? grandTotal :  0,
+            part_2: serviceType.name == 'Online Marketing & Sales'? grandTotal :  0,
+            part_3: serviceType.name == 'Product Card Conversion'? grandTotal :  0,
+            part_4: serviceType.name != 'Offline Marketing & Sales' && serviceType.name != 'Online Marketing & Sales' && serviceType.name != 'Product Card Conversion' ? grandTotal :  0
+        }
+    )
+    RETURN {
+        grandTotal: SUM(summary[*].grandTotal),
+        offline_marketing_sale: SUM(summary[*].part_1),
+        online_marketing_sale: SUM(summary[*].part_2),
+        product_card_conversion: SUM(summary[*].part_3),
+        others: SUM(summary[*].part_4),
+    }
     `,
       params
     );
     return head(summary) as {
       grandTotal: number;
+      offline_marketing_sale: number;
+      online_marketing_sale: number;
+      product_card_conversion: number;
+      others: number;
     };
   }
 }
