@@ -1,4 +1,10 @@
-import { COMMON_TYPES, MESSAGES, VALID_IMAGE_TYPES } from "@/constants";
+import {
+  COMMON_TYPES,
+  DefaultLogo,
+  DefaultProductImage,
+  MESSAGES,
+  VALID_IMAGE_TYPES,
+} from "@/constants";
 import { getFileTypeFromBase64, randomName } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -26,9 +32,7 @@ import { customProductRepository } from "./custom_product.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { mailService } from "@/service/mail.service";
-import {
-  getCustomProductSharedUrl,
-} from "@/helper/product.helper";
+import { getCustomProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
 
 class CustomProductService {
@@ -327,9 +331,9 @@ class CustomProductService {
       user.email,
       payload.title,
       payload.message,
-      getFileURI(product.images[0]) ?? "",
+      getFileURI(product.images[0]) ?? DefaultProductImage,
       product.design.name,
-      getFileURI(product.design.logo) ?? "",
+      getFileURI(product.design.logo) ?? DefaultLogo,
       product.collection.name ?? "N/A",
       product.name ?? "N/A",
       `${user.firstname ?? ""} ${user.lastname ?? ""}`,
