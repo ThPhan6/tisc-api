@@ -16,6 +16,8 @@ export interface UserProductSpecificationAttributes {
   product_id: string;
   user_id: string;
 
+  custom_product?: boolean;
+
   specification: ProductSpecificationSelection;
 
   // vendor
@@ -28,6 +30,7 @@ export interface UserProductSpecificationAttributes {
 
 export interface UserProductSpecificationRequest {
   specification: ProductSpecificationSelection;
+  custom_product?: boolean;
 
   // vendor
   brand_location_id: string;

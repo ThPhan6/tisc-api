@@ -26,6 +26,7 @@ export default {
           })
         ),
       }),
+      custom_product: Joi.boolean().allow(null),
       brand_location_id: Joi.string().allow(""),
       distributor_location_id: Joi.string().allow(""),
     },

@@ -61,8 +61,11 @@ export const uploadImagesProduct = (
 export const uploadImage = async (validImages: ValidImage[]) => {
   return Promise.all(
     validImages.map(async (item) => {
-      await upload(item.buffer, item.path, item.mime_type);
-      return true;
+      return upload(
+        item.buffer,
+        item.path[0] === "/" ? item.path.slice(1) : item.path,
+        item.mime_type
+      );
     })
   );
 };
