@@ -323,9 +323,17 @@ class CustomProductService {
       COMMON_TYPES.SHARING_PURPOSE
     );
     const receiver = await userRepository.findBy({ email: payload.to_email });
-    const sharedUrl = getCustomProductSharedUrl(user, receiver, {
+
+    if (
+      user.type !== UserType.Designer ||
+      user.relation_id !== receiver?.relation_id
+    ) {
+      return errorMessageResponse(MESSAGES.JUST_SHARE_IN_DESIGN_FIRM);
+    }
+    const sharedUrl = getCustomProductSharedUrl(user, {
       id: product.id,
     });
+
     const sent = await mailService.sendShareProductViaEmail(
       payload.to_email,
       user.email,

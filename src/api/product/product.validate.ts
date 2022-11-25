@@ -65,27 +65,6 @@ const attributeGroupsValidate = (
           .required(),
       })
     )
-    .custom((value, helpers) => {
-      if (isSpec) {
-        let isValid = true;
-        forEach(value, (item) => {
-          if (item.selection) {
-            const options = item.attributes?.filter((attr: any) => {
-              return attr.type === "Options";
-            });
-            if (options.length < 2) {
-              isValid = false;
-            }
-          }
-        });
-        ///
-        if (!isValid) {
-          return helpers.error("any.invalid");
-        }
-        return value;
-      }
-      return value;
-    })
     .required();
 };
 
