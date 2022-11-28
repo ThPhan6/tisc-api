@@ -83,6 +83,7 @@ export default class BookingService {
       }
     } catch {
       await this.removeBrandData(brand.data.id);
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
     //
     const booking = await bookingRepository.create({
@@ -225,13 +226,11 @@ export default class BookingService {
     const bookingTime = startTime.tz(booking.timezone);
     const bookingFulltime = bookingTime.format('HH:mm on dddd, MMMM DD, YYYY');
 
-    const schedule_url = "http://localhost:3000";
-    const cancel_url = "http://localhost:3000";
-    const subject = "TISC live demo session is booked!";
+    const schedule_url = `${ENVIROMENT.FE_URL}/booking/${booking.id}/re-schedule`;
+    const cancel_url = `${ENVIROMENT.FE_URL}/booking/${booking.id}/cancel`;
     ///
     await mailService.sendBookingScheduleEmail({
       to: booking.email,
-      subject,
       first_name: booking.name,
       start_time: bookingFulltime,
       conference_url: booking.meeting_url,
@@ -242,7 +241,6 @@ export default class BookingService {
     ///
     await mailService.sendBookingScheduleEmail({
       to: ENVIROMENT.ADMIN_EMAIL_ADDRESS,
-      subject,
       first_name: "Liming Rao",
       start_time: sgFulltime,
       conference_url: booking.meeting_url,

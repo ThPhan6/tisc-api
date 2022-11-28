@@ -291,7 +291,7 @@ class AuthService {
     }
 
     await permissionService.initPermission(createdUser);
-    await mailService.sendDesignRegisterEmail(createdUser);
+    await mailService.sendRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
@@ -336,7 +336,7 @@ class AuthService {
         status: BRAND_STATUSES.ACTIVE,
       });
     }
-    return successMessageResponse(MESSAGES.SUCCESS);
+    return this.responseWithToken(user.id, user.type);
   };
 
   public checkEmail = async (email: string) => {

@@ -96,7 +96,7 @@ class BrandService {
     });
   }
 
-  public async invite(currentUser: UserAttributes, id: string) {
+  public async invite(id: string) {
     const brand = await brandRepository.find(id);
 
     if (!brand) {
@@ -113,7 +113,7 @@ class BrandService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
     }
 
-    await mailService.sendInviteEmailTeamProfile(inviteUser, currentUser);
+    await mailService.sendBrandInviteEmail(inviteUser);
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }

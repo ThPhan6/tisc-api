@@ -123,19 +123,13 @@ export const TOPIC_OPTIONS: {
   },
 ];
 
-export const TARGETED_FOR_TYPES: {
-  BRAND: TargetedForValue;
-  DESIGN_FIRM: TargetedForValue;
-  DISTRIBUTOR: TargetedForValue;
-  GENERAL: TargetedForValue;
-  TISC_TEAM: TargetedForValue;
-} = {
-  BRAND: 1,
-  DESIGN_FIRM: 2,
-  DISTRIBUTOR: 3,
-  GENERAL: 4,
-  TISC_TEAM: 5,
-};
+export enum TARGETED_FOR_TYPES {
+  BRAND = 1,
+  DESIGN_FIRM = 2,
+  DISTRIBUTOR = 3,
+  GENERAL = 4,
+  TISC_TEAM = 5
+}
 
 export const TARGETED_FOR_OPTIONS: {
   key: TargetedForKey;
