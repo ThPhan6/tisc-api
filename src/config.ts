@@ -21,7 +21,7 @@ export const ENVIROMENT = {
   DATABASE_USERNAME: process.env.DATABASE_USERNAME ?? "",
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD ?? "",
   API_URL: process.env.API_URL ?? "",
-  SENDINBLUE_FROM: process.env.SENDINBLUE_FROM ?? "",
+  SENDINBLUE_FROM: process.env.SENDINBLUE_FROM ?? "no-reply@tisc.global",
   FE_URL: process.env.FE_URL ?? "",
   SENDINBLUE_API_KEY: process.env.SENDINBLUE_API_KEY ?? "",
   SPACES_KEY: process.env.SPACES_KEY ?? "",
@@ -44,6 +44,7 @@ export const ENVIROMENT = {
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
   TISC_WEBSITE: process.env.TISC_WEBSITE || "www.tisc.global",
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "",
+  ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || '1',
 };
 
 export const jwtConfig = {

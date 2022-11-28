@@ -162,7 +162,7 @@ export default class AuthRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse,
+                200: authResponse.login,
               },
             },
           },
