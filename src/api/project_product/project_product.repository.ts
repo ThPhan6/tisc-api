@@ -144,7 +144,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     
         LET brand = project_products.custom_product == true ? FIRST(
           FOR cr IN custom_resources
-          FILTER cr.id == product.brand_id
+          FILTER cr.id == product.company_id
           FILTER cr.deleted_at == null
           FOR loc IN locations
           FILTER loc.id == cr.location_id
