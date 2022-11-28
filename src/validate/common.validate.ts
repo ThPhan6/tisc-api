@@ -50,6 +50,7 @@ export const getAllValidation = (
 
 export const getListValidation = (options?: {
   query?: Joi.PartialSchemaMap<any>;
+  params?: Joi.PartialSchemaMap<any>;
   custom?: Joi.CustomValidator<any>;
   noSorting?: boolean;
 }) => ({
@@ -82,6 +83,7 @@ export const getListValidation = (options?: {
     ...getDefaultGetListQueryCustom(value),
     ...options?.custom?.(value, helpers),
   })),
+  params: options?.params,
 });
 
 export const getOneValidation = {

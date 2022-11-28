@@ -109,13 +109,14 @@ class ProjectProductService {
       product_id,
       deleted_at: null,
     });
-
-    const repo = assignItem?.custom_product
-      ? customProductRepository
-      : productRepository;
-    const product = await repo.find(product_id);
-    if (!product) {
-      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+    if (assignItem) {
+      const repo = assignItem?.custom_product
+        ? customProductRepository
+        : productRepository;
+      const product = await repo.find(product_id);
+      if (!product) {
+        return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+      }
     }
 
     const zones = await projectZoneRepository.getAllBy({ project_id });
@@ -275,14 +276,20 @@ class ProjectProductService {
 
     // validate specify specification attribute
     if (isSpecifying && payload.specification) {
-      const product = await productRepository.find(projectProduct.product_id);
+      const repo = projectProduct.custom_product
+        ? customProductRepository
+        : productRepository;
+      const product = await repo.find(projectProduct.product_id);
       if (!product) {
         return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND);
       }
-      const validateSpecification = validateBrandProductSpecification(
-        payload.specification.attribute_groups,
-        product.specification_attribute_groups
-      );
+      const validateSpecification =
+        "specification_attribute_groups" in product
+          ? validateBrandProductSpecification(
+              payload.specification.attribute_groups,
+              product.specification_attribute_groups
+            )
+          : payload.specification.attribute_groups;
       if (!validateSpecification) {
         return errorMessageResponse(
           MESSAGES.PROJECT_PRODUCT.INCORRECT_SPECIFICATION
@@ -342,6 +349,10 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
+    if (projectProduct.custom_product) {
+      return successResponse({ data: considerProduct[0] });
+    }
+
     const notiType: ProjectTrackingNotificationType = isSpecifying
       ? ProjectTrackingNotificationType.Specified
       : this.getTrackingNotificationTypeByStatus({
@@ -395,6 +406,16 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
 
+    if (projectProduct.custom_product) {
+      const result = await projectProductRepository.delete(projectProduct.id);
+      if (!result) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+      }
+      return successResponse({
+        data: projectProduct,
+      });
+    }
+
     const brand = await projectProductRepository.getProductBrandById(
       projectProductId
     );
@@ -416,7 +437,10 @@ class ProjectProductService {
       created_by: user.id,
     });
 
-    await projectProductRepository.delete(projectProduct.id);
+    const result = await projectProductRepository.delete(projectProduct.id);
+    if (!result) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
 
     return successResponse({
       data: {
