@@ -2,8 +2,8 @@ import Joi from "joi";
 import {
   requireStringValidation,
   getOneValidation,
-  errorMessage,
   requireEmailValidation,
+  stringValidation,
 } from "@/validate/common.validate";
 import { dimensionAndWeightValidate } from "@/api/product/product.validate";
 
@@ -30,7 +30,7 @@ const optionItemValidate = {
 };
 
 export const customProductOptionValidate = Joi.object({
-  id: Joi.string().allow(null, ""),
+  id: stringValidation(),
   title: requireStringValidation("Option title"),
   use_image: Joi.boolean(),
   tag: requireStringValidation("Option tag"),
@@ -40,15 +40,15 @@ export const customProductOptionValidate = Joi.object({
       Joi.object({
         ...optionItemValidate,
         image: requireStringValidation(
-          "Image is required in the Option with type image",
-          "full"
+          "Image",
+          "Image is required in the Option with type image"
         ),
       })
     ),
     otherwise: Joi.array().items(
       Joi.object({
         ...optionItemValidate,
-        image: Joi.string().allow(null, ""),
+        image: stringValidation(),
       })
     ),
   }),
@@ -59,12 +59,15 @@ export const customProductValidate = Joi.object({
   description: requireStringValidation("Product description"),
   images: Joi.array()
     .min(1)
-    .error(errorMessage("Require at least 1 image"))
     .max(4)
-    .error(errorMessage("Require at maximum 4 images"))
     .items(Joi.string().trim())
     .required()
-    .error(errorMessage("Require at least 1 image")),
+    .label("Image")
+    .messages({
+      "any.required": "Required at least one image",
+      "array.min": "Required at least one image",
+      "array.max": "Maximum 4 images are allowed",
+    }),
   attributes: Joi.array().items(basicAttributeValidate),
   specifications: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),

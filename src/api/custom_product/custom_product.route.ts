@@ -1,4 +1,4 @@
-import { AUTH_NAMES, ROUTES } from "@/constants";
+import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
 import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
 import IRoute from "@/helper/route.helper";
 import { Server } from "@hapi/hapi";
@@ -19,6 +19,7 @@ export default class CustomProductRoute implements IRoute {
           options: {
             handler: controller.createProduct,
             validate: validate.createProduct,
+            payload: imageOptionPayload,
             description: "Method that create Custom Product",
             tags: ["api", "Custom Product"],
             auth: AUTH_NAMES.PERMISSION,
@@ -87,6 +88,7 @@ export default class CustomProductRoute implements IRoute {
           options: {
             handler: controller.updateProduct,
             validate: validate.updateProduct,
+            payload: imageOptionPayload,
             description: "Method that update Custom Product",
             tags: ["api", "Custom Product"],
             auth: AUTH_NAMES.PERMISSION,

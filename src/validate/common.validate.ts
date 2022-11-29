@@ -93,22 +93,18 @@ export const getOneValidation = {
   },
 };
 
-export const requireStringValidation = (fieldName: string, full?: "full") =>
-  Joi.string()
-    .trim()
-    .required()
-    .error(
-      errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
-    );
 export const stringValidation = () => Joi.string().trim().allow("", null);
 export const numberValidation = () => Joi.number();
 
-export const requireEmailValidation = (fieldName: string = "Email") =>
-  Joi.string()
-    .required()
-    .error(errorMessage(`${fieldName} is required`))
-    .email()
-    .error(errorMessage(`${fieldName} is invalid`));
+export const requireStringValidation = (
+  fieldName: string,
+  customMessage?: string
+) => {
+  const validation = Joi.string().trim().required();
+  return customMessage
+    ? validation.error(errorMessage(customMessage))
+    : validation.messages(customErrorMessages(fieldName));
+};
 
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
@@ -147,3 +143,21 @@ export const requireDateValidation = (minDate: number, maxDate: number) =>
     .custom((value) => {
       return moment(value).format("YYYY-MM-DD");
     });
+
+export const requireEmailValidation = (
+  fieldName: string = "Email",
+  customMessage?: string
+) => {
+  const validation = Joi.string().trim().required().email();
+  return customMessage
+    ? validation.error(errorMessage(customMessage))
+    : validation.messages(customErrorMessages(fieldName));
+};
+
+export const customErrorMessages = (label: string) => ({
+  "any.required": `${label} is required`,
+  "string.empty": `${label} is required`,
+  "string.email": `${label} is invalid`,
+  "string.domain": `${label} is invalid`,
+  "string.uri": `${label} is invalid`,
+});

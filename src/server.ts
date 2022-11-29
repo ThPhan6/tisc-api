@@ -19,7 +19,7 @@ const server: hapi.Server = new hapi.Server({
     validate: {
       options: {
         modify: false,
-        abortEarly: false,
+        abortEarly: true,
         stripUnknown: true,
       },
       failAction: (_request, _h, err) => {

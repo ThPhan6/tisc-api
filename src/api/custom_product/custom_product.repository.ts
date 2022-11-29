@@ -42,9 +42,8 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       FILTER loc.id == cr.location_id
       FILTER loc.deleted_at == null
       FOR col IN collections
-      FILTER col.id == ${
-        collectionId ? "@collectionId" : "custom_products.collection_id"
-      }
+      FILTER col.id == custom_products.collection_id
+      ${collectionId ? "FILTER col.id == @collectionId" : ""}
       FILTER col.deleted_at == null
       SORT custom_products.updated_at DESC
       RETURN MERGE(
