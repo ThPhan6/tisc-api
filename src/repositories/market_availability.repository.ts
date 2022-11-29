@@ -21,6 +21,32 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     this.model = new MarketAvailabilityModel();
   }
 
+  private upsertMarketAvailabilityQuery = (collectionId: string) => {
+    return `
+      UPSERT {
+          collection_id: ${collectionId},
+          deleted_at: null
+      }
+      INSERT {
+          id: UUID(),
+          collection_id: ${collectionId},
+          countries: [],
+          created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+          updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+          deleted_at: null
+      }
+      UPDATE {
+          collection_id: ${collectionId},
+      }
+      IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
+    `
+  }
+  public upsertMarketAvailability = async (collectionId: string) => {
+    const params = { collectionId };
+    const query = this.upsertMarketAvailabilityQuery('@collectionId');
+    return this.model.rawQueryV2(query, params);
+  }
+
   private getBuilderQuery = (
     relationId: string,
     collectionId?: string,
@@ -78,26 +104,12 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     )
 
     LET market_availability = FIRST(
-        UPSERT {
-            collection_id: collection.id,
-            deleted_at: null
-        }
-        INSERT {
-            id: UUID(),
-            collection_id: collection.id,
-            countries: [],
-            created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
-            updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
-            deleted_at: null
-        }
-        UPDATE {
-            collection_id: collection.id,
-        }
-        IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
-
+      FOR availability IN market_availabilities
+        FILTER availability.collection_id == collection.id
+        FILTER availability.deleted_at == null
         LET countries = (
             FOR authorized_country IN authorized_countries
-            LET c = FIRST(NEW.countries[* FILTER CURRENT.id == authorized_country.id])
+            LET c = FIRST(availability.countries[* FILTER CURRENT.id == authorized_country.id])
             RETURN {
                 id: authorized_country.id,
                 name: authorized_country.name,
@@ -106,7 +118,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
                 available: c ? c.available : true
             }
         )
-        RETURN MERGE(NEW, {
+        RETURN MERGE(availability, {
             countries: countries
         })
     )

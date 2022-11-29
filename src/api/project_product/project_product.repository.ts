@@ -104,7 +104,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     FILTER cr.deleted_at == null
     FOR loc IN locations
     FILTER loc.id == cr.location_id
-    RETURN { 
+    RETURN {
       id: cr.id,
       name: loc.business_name,
       contacts: cr.contacts,
@@ -145,40 +145,25 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             }
         )
         LET market_availability = FIRST(
-            UPSERT {
-                collection_id: product.collection_id,
-                deleted_at: null
-            }
-            INSERT {
-                id: UUID(),
-                collection_id: product.collection_id,
-                countries: [],
-                created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
-                updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
-                deleted_at: null
-            }
-            UPDATE {
-                collection_id: product.collection_id,
-            }
-            IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
-
-            LET country = FIRST(
-                FOR authorized_country IN authorized_countries
-                FILTER authorized_country.id == project_location.country_id
-                ${
-                  distributorSpecified
-                    ? "FILTER authorized_country.id == project_products.distributor_location_id"
-                    : ""
-                }
-                LET c = FIRST(NEW.countries[* FILTER CURRENT.id == authorized_country.id])
-                RETURN {
-                    id: authorized_country.id,
-                    available: c ? c.available : true
-                }
-            )
+            FOR availability IN market_availabilities
+              FILTER availability.collection_id == product.collection_id
+              FILTER availability.deleted_at == null
+              LET country = FIRST(
+                  FOR authorized_country IN authorized_countries
+                  FILTER authorized_country.id == project_location.country_id
+                  ${
+                    distributorSpecified
+                      ? "FILTER authorized_country.id == project_products.distributor_location_id"
+                      : ""
+                  }
+                  LET c = FIRST(availability.countries[* FILTER CURRENT.id == authorized_country.id])
+                  RETURN {
+                      id: authorized_country.id,
+                      available: c ? c.available : true
+                  }
+              )
             RETURN country
         )
-
       LET availability = market_availability ? (
         market_availability.available ? ${Availability.Available} : ${
       Availability.Discrepancy
@@ -263,9 +248,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FILTER pp.status == @considerStatus
 
         ${this.concatProductQuery()}
-        
+
         LET brand = ${this.brandQuery}
-        
+
         LET collection = FIRST(
           FOR collection IN collections
           FILTER collection.id == product.collection_id
