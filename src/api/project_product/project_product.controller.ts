@@ -95,7 +95,7 @@ export default class ProjectProductController {
     );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
-  }
+  };
 
   public updateSpecifyProductStatus = async (
     req: Request & {
@@ -109,7 +109,7 @@ export default class ProjectProductController {
     const response = await projectProductService.updateConsiderProduct(
       id,
       req.payload,
-      user,
+      user
     );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -134,6 +134,7 @@ export default class ProjectProductController {
   ) => {
     const { project_id } = req.params;
     const { brand_order } = req.query;
+
     const response = await projectProductService.getSpecifiedProductsByBrand(
       project_id,
       brand_order

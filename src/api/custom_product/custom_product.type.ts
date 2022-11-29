@@ -13,7 +13,7 @@ export interface CustomProductAttributes {
   description: string;
   images: string[];
   attributes: CustomProductBasicAttributes[];
-  specification: CustomProductBasicAttributes[];
+  specifications: CustomProductBasicAttributes[];
   dimension_and_weight: DimensionAndWeight;
   options: {
     id: string;
@@ -37,7 +37,7 @@ export interface CustomProductAttributes {
 export type CustomProductPayload = Omit<
   CustomProductAttributes,
   "id" | "created_at" | "updated_at" | "relation_id"
-> & { optionSpecification?: ProductSpecificationSelection };
+> & { specification?: ProductSpecificationSelection };
 
 // Custom Resource (Brand/Company & Distributor for Custom Product)
 export interface CustomResouceContact {

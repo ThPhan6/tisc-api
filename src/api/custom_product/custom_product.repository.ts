@@ -13,7 +13,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
     description: "",
     images: [],
     attributes: [],
-    specification: [],
+    specifications: [],
     options: [],
     collection_id: "",
     company_id: "",
@@ -87,7 +87,8 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
             company_name: loc.business_name,
             collection_name: col.name,
             location: KEEP(loc, ${locationRepository.basicAttributesQuery}),
-            optionSpecification: selection.specification
+            specification: selection.specification,
+            specifications: custom_products.specifications ? custom_products.specifications : []
           }
         )
       `,
