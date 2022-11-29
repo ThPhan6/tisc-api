@@ -51,7 +51,7 @@ export default class CustomProductController {
 
     if (!result) {
       return toolkit
-        .response(errorMessageResponse(MESSAGES.customResource.notFound))
+        .response(errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND))
         .code(404);
     }
 

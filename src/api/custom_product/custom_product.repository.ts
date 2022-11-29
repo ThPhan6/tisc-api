@@ -77,17 +77,22 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
         FOR col IN collections
         FILTER col.id == custom_products.collection_id
         FILTER col.deleted_at == null
-        FOR selection IN user_product_specifications
-        FILTER selection.custom_product == true
-        FILTER selection.product_id == @productId
-        FILTER selection.user_id == @userId
+        
+        LET specification = FIRST(
+          FOR selection IN user_product_specifications
+          FILTER selection.custom_product == true
+          FILTER selection.product_id == @productId
+          FILTER selection.user_id == @userId
+          RETURN selection.specification
+        ) || {}
+        
         RETURN MERGE(
           UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at']),
           {
             company_name: loc.business_name,
             collection_name: col.name,
             location: KEEP(loc, ${locationRepository.basicAttributesQuery}),
-            specification: selection.specification,
+            specification,
             specifications: custom_products.specifications ? custom_products.specifications : []
           }
         )
