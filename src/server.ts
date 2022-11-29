@@ -21,6 +21,11 @@ const server: hapi.Server = new hapi.Server({
         modify: false,
         abortEarly: true,
         stripUnknown: true,
+        errors: {
+          wrap: {
+            label: "",
+          },
+        },
       },
       failAction: (_request, _h, err) => {
         throw err;
