@@ -62,7 +62,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     order: SortOrder = "ASC"
   ) {
     const params = {
-      satelliteType: DesignFirmFunctionalType.Satellite,
+      satelliteType: DesignFirmFunctionalType.SatelliteOffice,
       live: ProjectStatus.Live,
       onHold: ProjectStatus["On Hold"],
       archived: ProjectStatus.Archived,
