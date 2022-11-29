@@ -1,7 +1,13 @@
 import LocationModel from "@/model/location.model";
 import BaseRepository from "./base.repository";
-import { ILocationAttributes, LocationType, SortOrder } from "@/types";
-import { isNumber } from "lodash";
+import {
+  ILocationAttributes,
+  LocationType,
+  SortOrder,
+  LocationWithTeamCountAndFunctionType,
+  DesignLocationFunctionTypeOption,
+} from "@/types";
+import { isFinite, head } from "lodash";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -11,34 +17,127 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     this.model = new LocationModel();
   }
 
-  public getLocationPagination = async (
+  private getQueryWithMemberAndFunctionType = (
+    relationId?: string,
     limit?: number,
     offset?: number,
-    relationId?: string | null,
+    sort: string = "created_at",
+    order: SortOrder = "DESC",
+    isCount: boolean = false,
+    id?: string,
+  ) => {
+    const params = {
+      relationId: relationId,
+      sort,
+      order,
+    } as any;
+    if (isFinite(limit) && isFinite(offset)) {
+      params.offset = offset;
+      params.limit = limit;
+    }
+    if (id) {
+      params.id = id;
+    }
+
+    //
+    let rawQuery = `
+      FOR location in locations
+        FILTER location.deleted_at == null
+        ${relationId ? 'FILTER location.relation_id == @relationId' : ''}
+        ${id ? 'FILTER location.id == @id' : ''}
+
+        ${isFinite(limit) && isFinite(offset) ? 'LIMIT @offset, @limit' : ''}
+        LET userInLocationCount = FIRST(
+          FOR user in users
+            FILTER user.deleted_at == null
+            FILTER user.location_id == location.id
+          COLLECT WITH COUNT INTO length RETURN length
+        )
+        LET commonTypes = (
+          FOR common_type in common_types
+            FILTER common_type.deleted_at == null
+            FILTER common_type.id in location.functional_type_ids
+          RETURN {id: common_type.id, name: common_type.name}
+        )
+        LET designFunctionTypes = (
+          FOR designFunctionType IN ${JSON.stringify(DesignLocationFunctionTypeOption)}
+            FILTER designFunctionType.id in location.functional_type_ids
+          RETURN designFunctionType
+        )
+        LET function_types = (
+          FOR type in UNION(commonTypes, designFunctionTypes)
+            ${sort === 'functional_type' ? 'SORT type.name @order' : 'SORT type.name ASC'}
+          RETURN type
+        )
+        LET functional_type = CONCAT_SEPARATOR(', ', function_types[*].name)
+        ${sort === 'functional_type' ? 'SORT @sort @order' : 'SORT location.@sort @order'}
+    `;
+
+    if (!isCount) {
+      rawQuery += `
+      RETURN MERGE(
+        UNSET(location, ['_id', '_key', '_rev', 'deleted_at']),
+        {
+          functional_types: function_types,
+          teams: userInLocationCount,
+          functional_type: functional_type
+        })
+      `
+    } else {
+      rawQuery += `COLLECT WITH COUNT INTO length RETURN length`;
+    }
+
+    return {
+      query: rawQuery,
+      params
+    }
+  }
+
+  public findWithCountMemberAndFunctionType = async (id: string) => {
+    const query = this.getQueryWithMemberAndFunctionType(
+      undefined, undefined, undefined, undefined, undefined, false, id
+    );
+    return head(await this.model.rawQueryV2(query.query, query.params)) as LocationWithTeamCountAndFunctionType;
+  }
+
+  public getLocationPagination = async (
+    relationId: string,
+    limit?: number,
+    offset?: number,
     sort: string = "created_at",
     order: SortOrder = "DESC"
   ) => {
-    let query = this.getModel().getQuery();
-    if (relationId) {
-      query = query.where("relation_id", "==", relationId);
-    }
 
-    query = query.order(sort, order);
-
-    if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit, offset);
-      return query.paginate();
+    const query = this.getQueryWithMemberAndFunctionType(
+      relationId, limit, offset, sort, order
+    );
+    //
+    const dataResponse = await this.model.rawQueryV2(query.query, query.params) as LocationWithTeamCountAndFunctionType[];
+    let totalSize = dataResponse.length;
+    if (limit && offset) {
+      const totalQuery = this.getQueryWithMemberAndFunctionType(
+        relationId, undefined, undefined, sort, order, true
+      );
+      //
+      totalSize = (head(await this.model.rawQueryV2(totalQuery.query, totalQuery.params)) || 0) as number;
+      return {
+        pagination: {
+          page: offset / limit + 1,
+          page_size: limit,
+          total: totalSize,
+          page_count: Math.ceil(totalSize / limit),
+        },
+        data: dataResponse,
+      };
     }
-    const response = await query.get();
-    const totalSize = (response.length ?? 0) as number;
     return {
       pagination: {
-        total: totalSize,
-        page: 1,
+        page: totalSize,
         page_size: totalSize,
+        total: totalSize,
         page_count: totalSize,
       },
-      data: response,
+      data: dataResponse,
     };
   };
 

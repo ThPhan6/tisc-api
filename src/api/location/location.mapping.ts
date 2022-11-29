@@ -1,5 +1,9 @@
-import { FUNCTIONAL_TYPE_OPTIONS } from "@/constants";
-import { ILocationAttributes, CountryGroupCount } from "@/types";
+import {
+  ILocationAttributes,
+  CountryGroupCount,
+  DesignLocationFunctionTypeOption
+} from "@/types";
+import {head} from 'lodash';
 
 export const getUniqueCountries = (locations: ILocationAttributes[]) => {
   return locations.reduce((res: CountryGroupCount[], location) => {
@@ -40,13 +44,18 @@ export const mappingByCountries = (
 };
 
 export const getDesignFunctionType = (functional_type_ids: string[]) => {
-  const functionalTypeOption = FUNCTIONAL_TYPE_OPTIONS.find(
-    (option) => option.id === Number(functional_type_ids[0])
+  const firstFunctionType = head(functional_type_ids);
+  if (!firstFunctionType) {
+    return undefined;
+  }
+  const functionalTypeOption = DesignLocationFunctionTypeOption.find(
+    (option) => option.id === firstFunctionType
   );
-  return [
-    {
-      id: String(functionalTypeOption?.id),
-      name: functionalTypeOption?.name,
-    },
-  ];
+  if (functionalTypeOption) {
+    return [{
+      id: String(functionalTypeOption.id),
+      name: String(functionalTypeOption.name),
+    }]
+  }
+  return undefined;
 };
