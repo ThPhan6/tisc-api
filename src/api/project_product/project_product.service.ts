@@ -9,7 +9,10 @@ import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
-import { IProjectZoneAttributes, UserAttributes, SortOrder } from "@/types";
+import {
+  IProjectZoneAttributes, UserAttributes,
+  SortOrder, Availability, SummaryItemPosition
+} from "@/types";
 import { orderBy, uniqBy, isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
@@ -479,6 +482,16 @@ class ProjectProductService {
           ).true || 0,
       0
     );
+    const availabilityRemarkCount = specifiedProducts.reduce(
+      (total: number, brand: any) =>
+        total +
+          countBy(
+            brand.products,
+            (p) =>
+              p.availability !== Availability.Available
+          ).true || 0,
+      0
+    );
 
     return successResponse({
       data: {
@@ -489,6 +502,11 @@ class ProjectProductService {
             value: total - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
+          {
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: SummaryItemPosition.Left
+          }
         ],
       },
     });
@@ -541,6 +559,15 @@ class ProjectProductService {
 
     const cancelledCount =
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
+    const availabilityRemarkCount = specifiedProducts.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.project_products?.availability !==
+        Availability.Available
+          ? 1
+          : 0),
+      0
+    );
 
     return successResponse({
       data: {
@@ -551,6 +578,11 @@ class ProjectProductService {
             value: specifiedProducts.length - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
+          {
+              name: "Availability Remark",
+              value: availabilityRemarkCount,
+              position: SummaryItemPosition.Left
+            }
         ],
       },
     });

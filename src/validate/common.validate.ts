@@ -1,4 +1,5 @@
 import Joi from "joi";
+import moment from "moment";
 
 export const customFilter = (value: any, helpers: any) => {
   try {
@@ -99,7 +100,7 @@ export const requireStringValidation = (fieldName: string, full?: "full") =>
     .error(
       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
-export const stringValidation = () => Joi.string().trim();
+export const stringValidation = () => Joi.string().trim().allow("", null);
 export const numberValidation = () => Joi.number();
 
 export const requireEmailValidation = (fieldName: string = "Email") =>
@@ -130,3 +131,19 @@ export const requireBooleanValidation = (fieldName: string, full?: "full") =>
     .error(
       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
     );
+
+export const requireDateValidation = (minDate: number, maxDate: number) =>
+  Joi.date()
+    .max(moment().add(maxDate, "days").format("YYYY-MM-DD"))
+    .min(moment().add(minDate, "days").format("YYYY-MM-DD"))
+    .required()
+    .error(
+      errorMessage(
+        `A date must be have format YYYY-MM-DD and between ${
+          minDate == 0 ? "today" : minDate
+        } with ${maxDate} next days`
+      )
+    )
+    .custom((value) => {
+      return moment(value).format("YYYY-MM-DD");
+    });

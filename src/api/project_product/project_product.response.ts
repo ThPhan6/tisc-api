@@ -8,6 +8,7 @@ export default {
       summary: Joi.array().items({
         name: Joi.string(),
         value: Joi.number(),
+        position: Joi.number().allow("", null)
       }),
       data: Joi.array().items(Joi.any()),
     }),

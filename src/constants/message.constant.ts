@@ -116,6 +116,9 @@ export const MESSAGES = {
   },
   INVOICE: {
     NOT_FOUND: "Revenue service not found",
+    ONLY_UPDATE_PENDING_INVOICE: "Only pending invoice is valid to update.",
+    ONLY_BILL_PENDING_INVOICE: "Only pending invoice is valid to bill.",
+    ONLY_PAID_OUTSTANDING_OR_OVERDUE: "Only outstanding or overdue invoice is valid to paid.",
   },
 
   PROJECT_TRACKING: {
@@ -253,4 +256,17 @@ export const MESSAGES = {
     notFound: "Resource not found",
     haveProduct: "Brand is have products, you can not delete it",
   },
+
+  BOOKING: {
+    TIMEZONE: {
+      NOT_VALID: "Timezone invalid data, ex: Asia/Singapore"
+    },
+    TIME_STAMP: {
+      NOT_VALID: "The start time or end time invalid timestamp data",
+      LARGE_THAN: "The end time must be large than start time and large than today",
+    },
+    NOT_AVAILABLE: "This booking is not available",
+    NOT_FOUND: "Not found booking",
+    SCHEDULE_NOT_AVAILABLE: 'Can\'t get on Saturday or Sunday'
+  }
 };
