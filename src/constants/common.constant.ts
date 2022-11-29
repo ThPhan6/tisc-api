@@ -1,7 +1,5 @@
 import {
   CommonTypes,
-  FunctionalTypeKey,
-  FunctionalTypeValue,
   InterestedInKey,
   InterestedInValue,
   MeasurementUnitKey,
@@ -29,33 +27,6 @@ export const COMMON_TYPES: CommonTypes = {
   CAPABILITIES: 14,
   INVOICE: 15,
 };
-
-export const FUNCTIONAL_TYPE: {
-  MAIN_OFFICE: FunctionalTypeValue;
-  SATELLITE_OFFICE: FunctionalTypeValue;
-  OTHER: FunctionalTypeValue;
-} = {
-  MAIN_OFFICE: 1,
-  SATELLITE_OFFICE: 2,
-  OTHER: 3,
-};
-export const FUNCTIONAL_TYPE_OPTIONS: {
-  name: FunctionalTypeKey;
-  id: FunctionalTypeValue;
-}[] = [
-  {
-    name: "Main office",
-    id: FUNCTIONAL_TYPE.MAIN_OFFICE,
-  },
-  {
-    name: "Satellite office",
-    id: FUNCTIONAL_TYPE.SATELLITE_OFFICE,
-  },
-  {
-    name: "Other",
-    id: FUNCTIONAL_TYPE.OTHER,
-  },
-];
 
 export const MEASUREMENT_UNIT: {
   IMPERIAL: MeasurementUnitValue;

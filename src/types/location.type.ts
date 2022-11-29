@@ -21,6 +21,14 @@ export interface ILocationAttributes {
   relation_id: string | null;
 }
 
+export interface LocationWithTeamCountAndFunctionType extends ILocationAttributes {
+  functional_types: {
+    id: string;
+    name: string;
+  }[];
+  teams: number;
+}
+
 export interface LocationPayload
   extends Omit<ILocationAttributes, "id" | "created_at" | "updated_at"> {}
 
@@ -96,10 +104,26 @@ export interface IRegionCountry {
 export type RegionKey = 'asia' | 'europe' | 'africa' | 'n_americas' | 's_americas' | 'oceania';
 
 export enum DesignFirmFunctionalType {
-  "Main office" = "1",
-  "Satellite" = "2",
-  "Other" = "3",
+  MainOffice = '1',
+  SatelliteOffice = '2',
+  Other = '3'
 }
+
+export const DesignLocationFunctionTypeOption = [
+  {
+    name: "Main office",
+    id: DesignFirmFunctionalType.MainOffice,
+  },
+  {
+    name: "Satellite office",
+    id: DesignFirmFunctionalType.SatelliteOffice,
+  },
+  {
+    name: "Other",
+    id: DesignFirmFunctionalType.Other,
+  },
+];
+
 
 export interface LocationRequest {
   business_name: string;
