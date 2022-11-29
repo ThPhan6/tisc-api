@@ -66,7 +66,7 @@ export const customProductValidate = Joi.object({
     .required()
     .error(errorMessage("Require at least 1 image")),
   attributes: Joi.array().items(basicAttributeValidate),
-  specification: Joi.array().items(basicAttributeValidate),
+  specifications: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),
   collection_id: requireStringValidation("Collection"),
   company_id: requireStringValidation("Brand company"),

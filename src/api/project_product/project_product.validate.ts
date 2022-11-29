@@ -123,6 +123,7 @@ export default {
           })
         )
         .error(errorMessage("Please update Finish Schedule!")),
+      custom_product: Joi.boolean().allow(null),
     },
   },
   getListByBrand: {
@@ -131,7 +132,7 @@ export default {
       brand_order: Joi.string().valid("ASC", "DESC"),
     }).custom((value) => {
       return {
-        brand_order: value.brand_order ? value.brand_order : "ASC",
+        brand_order: value.brand_order || "ASC",
       };
     }),
   },
