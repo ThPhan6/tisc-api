@@ -10,10 +10,13 @@ import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
 import {
-  IProjectZoneAttributes, UserAttributes,
-  SortOrder, Availability, SummaryItemPosition
+  IProjectZoneAttributes,
+  UserAttributes,
+  SortOrder,
+  Availability,
+  SummaryItemPosition,
 } from "@/types";
-import { orderBy, uniqBy, isEmpty, sumBy, countBy } from "lodash";
+import { isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -150,60 +153,6 @@ class ProjectProductService {
 
     return successResponse({
       data: returnZones,
-    });
-  };
-
-  private groupProductsByRoom = (
-    allocatedProducts: any[],
-    projectZones: IProjectZoneAttributes[],
-    area_order: SortOrder,
-    room_order: SortOrder,
-    brand_order: SortOrder
-  ): any[] => {
-    return projectZones.map((zone) => {
-      const areas = zone.areas.map((area) => {
-        const rooms = area.rooms.map((room) => {
-          const products = allocatedProducts.filter((prod: any) =>
-            prod.specifiedDetail.allocation.includes(room.id)
-          );
-          return {
-            ...room,
-            products: brand_order
-              ? orderBy(
-                  products,
-                  "brand_name",
-                  brand_order.toLocaleLowerCase() as any
-                )
-              : products,
-            count: products.length,
-          };
-        });
-
-        const allProductsInRooms = uniqBy(
-          rooms.flatMap((room) => room.products),
-          "id"
-        );
-        return {
-          ...area,
-          rooms: room_order
-            ? orderBy(rooms, "room_name", room_order.toLocaleLowerCase() as any)
-            : rooms,
-          count: allProductsInRooms.length,
-        };
-      });
-
-      const allProductsInAreas = uniqBy(
-        areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
-        "id"
-      );
-
-      return {
-        ...zone,
-        areas: area_order
-          ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
-          : areas,
-        count: allProductsInAreas.length,
-      };
     });
   };
 
@@ -487,8 +436,7 @@ class ProjectProductService {
         total +
           countBy(
             brand.products,
-            (p) =>
-              p.availability !== Availability.Available
+            (p) => p.availability !== Availability.Available
           ).true || 0,
       0
     );
@@ -505,8 +453,8 @@ class ProjectProductService {
           {
             name: "Availability Remark",
             value: availabilityRemarkCount,
-            position: SummaryItemPosition.Left
-          }
+            position: SummaryItemPosition.Left,
+          },
         ],
       },
     });
@@ -562,8 +510,7 @@ class ProjectProductService {
     const availabilityRemarkCount = specifiedProducts.reduce(
       (total: number, prod: any) =>
         total +
-        (prod.project_products?.availability !==
-        Availability.Available
+        (prod.project_products?.availability !== Availability.Available
           ? 1
           : 0),
       0
@@ -579,10 +526,10 @@ class ProjectProductService {
           },
           { name: "Cancelled", value: cancelledCount },
           {
-              name: "Availability Remark",
-              value: availabilityRemarkCount,
-              position: SummaryItemPosition.Left
-            }
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: SummaryItemPosition.Left,
+          },
         ],
       },
     });

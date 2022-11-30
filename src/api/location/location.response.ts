@@ -32,6 +32,7 @@ const locationData = Joi.object({
   type: Joi.number().allow(null),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  contacts: Joi.any(),
   ...locationBasicResponse,
 });
 
