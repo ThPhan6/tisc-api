@@ -69,7 +69,8 @@ export default class LocationService {
       functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       business_number:
         user.type === UserType.Designer ? "" : payload.business_number,
-      functional_type: functionalTypes?.map((item) => item.name).join(", ") || "",
+      functional_type:
+        functionalTypes?.map((item) => item.name).join(", ") || "",
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -131,7 +132,8 @@ export default class LocationService {
       business_name: payload.business_name,
       business_number:
         user.type === UserType.Designer ? "" : payload.business_number,
-      functional_type: functionalTypes?.map((item) => item.name).join(", ") || '',
+      functional_type:
+        functionalTypes?.map((item) => item.name).join(", ") || "",
       functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       ...countryStateCity,
       address: payload.address,
@@ -146,7 +148,8 @@ export default class LocationService {
   };
 
   public get = async (id: string) => {
-    const location = await locationRepository.findWithCountMemberAndFunctionType(id);
+    const location =
+      await locationRepository.findWithCountMemberAndFunctionType(id);
     if (!location) {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
     }
@@ -180,9 +183,7 @@ export default class LocationService {
     return this.getCompanyLocationGroupByCountry(user.relation_id);
   };
 
-  public getCompanyLocationGroupByCountry = async (
-    relationId: string
-  ) => {
+  public getCompanyLocationGroupByCountry = async (relationId: string) => {
     const response = await locationRepository.getLocationPagination(
       relationId,
       undefined,
@@ -201,7 +202,9 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
     //
-    const response = await locationRepository.getLocationPagination(product.brand_id);
+    const response = await locationRepository.getLocationPagination(
+      product.brand_id
+    );
     return successResponse({
       data: mappingByCountries(response.data, true),
     });

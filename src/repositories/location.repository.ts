@@ -6,8 +6,10 @@ import {
   SortOrder,
   LocationWithTeamCountAndFunctionType,
   DesignLocationFunctionTypeOption,
+  UserStatus,
 } from "@/types";
 import { isFinite, head } from "lodash";
+import { COMMON_TYPES } from "@/constants";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -17,42 +19,75 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     this.model = new LocationModel();
   }
 
-  private getQueryWithMemberAndFunctionType = (
-    relationId?: string,
-    limit?: number,
-    offset?: number,
-    sort: string = "created_at",
-    order: SortOrder = "DESC",
-    isCount: boolean = false,
-    id?: string,
-  ) => {
+  private getQueryWithMemberAndFunctionType = (options: {
+    relationId?: string;
+    limit?: number;
+    offset?: number;
+    sort?: string;
+    order?: SortOrder;
+    isCount?: boolean;
+    id?: string;
+  }) => {
+    const {
+      relationId,
+      isCount = false,
+      order = "DESC",
+      sort = "created_at",
+      id,
+      limit,
+      offset,
+    } = options;
+
     const params = {
       relationId: relationId,
       sort,
       order,
+      activeStatus: UserStatus.Active,
+      id,
     } as any;
     if (isFinite(limit) && isFinite(offset)) {
       params.offset = offset;
       params.limit = limit;
-    }
-    if (id) {
-      params.id = id;
     }
 
     //
     let rawQuery = `
       FOR location in locations
         FILTER location.deleted_at == null
-        ${relationId ? 'FILTER location.relation_id == @relationId' : ''}
-        ${id ? 'FILTER location.id == @id' : ''}
+        ${relationId ? "FILTER location.relation_id == @relationId" : ""}
+        ${id ? "FILTER location.id == @id" : ""}
 
-        ${isFinite(limit) && isFinite(offset) ? 'LIMIT @offset, @limit' : ''}
+        ${isFinite(limit) && isFinite(offset) ? "LIMIT @offset, @limit" : ""}
         LET userInLocationCount = FIRST(
           FOR user in users
             FILTER user.deleted_at == null
             FILTER user.location_id == location.id
+            FILTER user.status == @activeStatus
           COLLECT WITH COUNT INTO length RETURN length
         )
+        LET contacts = @relationId ? (
+          FOR user in users
+            FILTER user.deleted_at == null
+            FILTER user.relation_id == @relationId
+            FILTER user.location_id == location.id
+            FILTER user.status == @activeStatus
+          FOR common_type in common_types
+            FILTER common_type.deleted_at == null
+            FILTER common_type.id == user.department_id
+            FILTER common_type.type == ${COMMON_TYPES.DEPARTMENT}
+            FILTER TRIM(common_type.name) IN 
+              ['Client/Customer Service', 'Marketing & Sales', 'Operation & Project Management']
+          RETURN { 
+            department: common_type.name,
+            first_name: user.firstname,
+            last_name: user.lastname,
+            position: user.position,
+            work_email: user.email,
+            work_phone: user.phone,
+            work_mobile: user.mobile,
+            phone_code: user.phone_code,
+          }
+        ) : []
         LET commonTypes = (
           FOR common_type in common_types
             FILTER common_type.deleted_at == null
@@ -60,17 +95,27 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
           RETURN {id: common_type.id, name: common_type.name}
         )
         LET designFunctionTypes = (
-          FOR designFunctionType IN ${JSON.stringify(DesignLocationFunctionTypeOption)}
+          FOR designFunctionType IN ${JSON.stringify(
+            DesignLocationFunctionTypeOption
+          )}
             FILTER designFunctionType.id in location.functional_type_ids
           RETURN designFunctionType
         )
         LET function_types = (
           FOR type in UNION(commonTypes, designFunctionTypes)
-            ${sort === 'functional_type' ? 'SORT type.name @order' : 'SORT type.name ASC'}
+            ${
+              sort === "functional_type"
+                ? "SORT type.name @order"
+                : "SORT type.name ASC"
+            }
           RETURN type
         )
         LET functional_type = CONCAT_SEPARATOR(', ', function_types[*].name)
-        ${sort === 'functional_type' ? 'SORT @sort @order' : 'SORT location.@sort @order'}
+        ${
+          sort === "functional_type"
+            ? "SORT @sort @order"
+            : "SORT location.@sort @order"
+        }
     `;
 
     if (!isCount) {
@@ -80,25 +125,26 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
         {
           functional_types: function_types,
           teams: userInLocationCount,
-          functional_type: functional_type
+          functional_type: functional_type,
+          contacts
         })
-      `
+      `;
     } else {
       rawQuery += `COLLECT WITH COUNT INTO length RETURN length`;
     }
 
     return {
       query: rawQuery,
-      params
-    }
-  }
+      params,
+    };
+  };
 
   public findWithCountMemberAndFunctionType = async (id: string) => {
-    const query = this.getQueryWithMemberAndFunctionType(
-      undefined, undefined, undefined, undefined, undefined, false, id
-    );
-    return head(await this.model.rawQueryV2(query.query, query.params)) as LocationWithTeamCountAndFunctionType;
-  }
+    const query = this.getQueryWithMemberAndFunctionType({ id });
+    return head(
+      await this.model.rawQueryV2(query.query, query.params)
+    ) as LocationWithTeamCountAndFunctionType;
+  };
 
   public getLocationPagination = async (
     relationId: string,
@@ -107,19 +153,31 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     sort: string = "created_at",
     order: SortOrder = "DESC"
   ) => {
-
-    const query = this.getQueryWithMemberAndFunctionType(
-      relationId, limit, offset, sort, order
-    );
+    const query = this.getQueryWithMemberAndFunctionType({
+      relationId,
+      limit,
+      offset,
+      sort,
+      order,
+    });
     //
-    const dataResponse = await this.model.rawQueryV2(query.query, query.params) as LocationWithTeamCountAndFunctionType[];
+    const dataResponse = (await this.model.rawQueryV2(
+      query.query,
+      query.params
+    )) as LocationWithTeamCountAndFunctionType[];
     let totalSize = dataResponse.length;
     if (limit && offset) {
-      const totalQuery = this.getQueryWithMemberAndFunctionType(
-        relationId, undefined, undefined, sort, order, true
-      );
+      const totalQuery = this.getQueryWithMemberAndFunctionType({
+        relationId,
+        sort,
+        order,
+        isCount: true,
+      });
       //
-      totalSize = (head(await this.model.rawQueryV2(totalQuery.query, totalQuery.params)) || 0) as number;
+      totalSize =
+        head(
+          await this.model.rawQueryV2(totalQuery.query, totalQuery.params)
+        ) || 0;
       return {
         pagination: {
           page: offset / limit + 1,

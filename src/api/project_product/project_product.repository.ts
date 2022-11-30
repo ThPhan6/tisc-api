@@ -21,6 +21,7 @@ import {
 } from "@/types";
 import {COMMON_TYPES} from '@/constants';
 import { locationRepository } from "@/repositories/location.repository";
+import { DEFAULT_USER_SPEC_SELECTION } from "../user_product_specification/user_product_specification.model";
 
 class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> {
   protected model: ProjectProductModel;
@@ -241,6 +242,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         : ProductConsiderStatus.Unlisted,
       specified,
       specifiedStatusKey: specified ? "specified_status" : "consider_status",
+      defaultSpec: DEFAULT_USER_SPEC_SELECTION,
     };
     const rawQuery = `
       LET projectProducts = (
@@ -292,7 +294,11 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             collection,
             specifiedDetail: MERGE(
               UNSET(pp, ['_id', '_key', '_rev', 'deleted_at']),
-              productSpecification ? productSpecification : {},
+              productSpecification ? productSpecification : {
+                specification: @defaultSpec,
+                brand_location_id: '',
+                distributor_location_id: '',
+              },
               {material_code}
             ),
             assigned_name: user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname,
