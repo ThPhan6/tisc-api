@@ -17,22 +17,4 @@ export default {
       ),
     statusCode: Joi.number(),
   }) as any,
-  getOne: Joi.object({
-    data: Joi.object({
-      id: Joi.string(),
-      event_id: Joi.string(),
-      brand_id: Joi.string(),
-      website: Joi.string().allow(null, ''),
-      name: Joi.string().allow(null, ''),
-      brand_name: Joi.string().allow(null, ''),
-      meeting_url: Joi.string(),
-      email: Joi.string(),
-      date: Joi.string(),
-      slot: Joi.number(),
-      timezone: Joi.string(),
-      created_at: Joi.string(),
-      updated_at: Joi.string(),
-    }),
-    statusCode: Joi.number(),
-  })
 };

@@ -4,11 +4,12 @@ import axios from 'axios';
 import moment from 'moment';
 import {
   EventPayloadRequest,
-  EventReschedulePayloadRequest,
+  CreateEventResponse,
   LarkToken,
   AppAcessTokenPayload,
   AppAcessTokenResponse,
   UserRefreshAccessTokenResponse,
+  ParticipantPayload
 } from '@/types/lark.type';
 import {isEmpty} from 'lodash';
 import fs from 'fs';
@@ -91,10 +92,14 @@ class LarkOpenAPIService {
     )
   }
 
-  public createEvent = async (data: Partial<EventPayloadRequest>) => {
+  public createEvent = async (
+    data: Partial<EventPayloadRequest>,
+    participants: ParticipantPayload[] /// emails notification
+  ) => {
     await this.getAppAccessToken();
     //
-    return axios.post(`${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events`,
+    const response = await axios.post<CreateEventResponse>(
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events`,
       {
         ...data,
         visibility: 'public',
@@ -106,17 +111,19 @@ class LarkOpenAPIService {
         }
       },
       { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
-    )
-  }
-
-  public updateEvent = async (event_id: string, data: EventReschedulePayloadRequest) => {
-    await this.getAppAccessToken();
-    //
-    return axios.patch(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${event_id}`,
-      data,
-      { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
-    )
+    ).then((res) => {
+      if (res.data.code != 0) {
+        throw Error(res.data.msg);
+      }
+      return res.data.data.event;
+    })
+    .catch((error) => {
+      throw Error(error);
+    });
+    ///
+    await this.createScheduleParticipant(response.event_id, participants);
+    ///
+    return response;
   }
 
   public deleteEvent = async (event_id: string) => {
@@ -125,6 +132,22 @@ class LarkOpenAPIService {
     return axios.delete(`${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${event_id}`,
       { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
     )
+  }
+
+  private createScheduleParticipant = async (eventId: string, participants: ParticipantPayload[]) => {
+    return await axios.post<CreateEventResponse>(
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${eventId}/attendees`,
+      {
+        attendees: participants,
+        need_notification: true,
+      },
+      { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
+    ).then((res) => res.data)
+    .catch(async (error) => {
+      await this.deleteEvent(eventId);
+      throw Error(error);
+    });
+
   }
 
   private updateRefreshToken = async () => {

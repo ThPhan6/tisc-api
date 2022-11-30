@@ -33,19 +33,4 @@ export default {
       timezone: timezoneValidation
     },
   },
-  reSchedule: {
-    params: {
-      id: requireStringValidation("Booking ID"),
-    },
-    payload: {
-      date: requireDateValidation(0, 90),
-      slot: slotTimeValidation,
-      timezone: timezoneValidation
-    }
-  },
-  Id: {
-    params: {
-      id: requireStringValidation("Booking ID"),
-    }
-  },
 };

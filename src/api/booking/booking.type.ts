@@ -128,7 +128,3 @@ export interface BookingPayloadRequest {
   slot: SlotTime,
   timezone: Timezones,
 }
-
-export interface ReScheduleBookingPayloadRequest extends Pick<
-  BookingPayloadRequest, 'date' | 'slot' | 'timezone'
-> {}
