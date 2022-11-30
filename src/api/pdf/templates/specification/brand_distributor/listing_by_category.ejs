@@ -34,19 +34,19 @@
               <% } %>
             </td>
             <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
-              <span class="primary-roboto-bold-8-18"><%= groupData.distributor.location.name %></span><br/>
-              <span><%= groupData.distributor.location.address %></span><br/>
-              <% if (groupData.distributor.location.country_id == '-1') { %>
+              <span class="primary-roboto-bold-8-18"><%= groupData.distributor.name %></span><br/>
+              <span><%= groupData.distributor.address %></span><br/>
+              <% if (groupData.distributor.country_id == '-1') { %>
                 <span>GLOBAL</span>
               <% } else { %>
                 <span>
-                  <% if (groupData.distributor.location.city_name) { %>
-                    <%= groupData.distributor.location.city_name %>,
+                  <% if (groupData.distributor.city_name) { %>
+                    <%= groupData.distributor.city_name %>,
                   <% } %>
-                  <% if (groupData.distributor.location.country_name) { %>
-                    <%= groupData.distributor.location.country_name %>,
+                  <% if (groupData.distributor.country_name) { %>
+                    <%= groupData.distributor.country_name %>,
                   <% } %>
-                  <%= groupData.distributor.location.postal_code %>
+                  <%= groupData.distributor.postal_code %>
                 </span>
               <% } %>
             </td>

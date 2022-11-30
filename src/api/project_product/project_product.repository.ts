@@ -17,7 +17,9 @@ import {
   IProjectZoneAttributes,
   Availability,
   SummaryItemPosition,
+  UserStatus,
 } from "@/types";
+import {COMMON_TYPES} from '@/constants';
 import { locationRepository } from "@/repositories/location.repository";
 import { DEFAULT_USER_SPEC_SELECTION } from "../user_product_specification/user_product_specification.model";
 
@@ -566,24 +568,238 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
     return this.model.rawQueryV2(
       `
-        FOR project_products IN project_products
+      FOR project_products IN project_products
           FILTER project_products.deleted_at == null
           FILTER project_products.project_id == @projectId
           FILTER project_products.specified_status IN @specifyStatuses
           SORT project_products._key DESC
-          FOR location IN locations
-          FILTER location.id == project_products.brand_location_id
-          FILTER location.deleted_at == null
-        FOR products IN products FILTER products.id == project_products.product_id
-          FILTER products.deleted_at == null
 
-        FOR collection IN collections
-            FILTER collection.id == products.collection_id
-            FILTER collection.deleted_at == null
 
-        FOR brand IN brands
-            FILTER brand.id == products.brand_id
-            FILTER brand.deleted_at == null
+        LET inventory = project_products.custom_product ? FIRST(
+            FOR product IN custom_products
+                FILTER product.id == project_products.product_id
+                FILTER product.deleted_at == null
+
+            LET selectedOptions = (
+                FILTER project_products.specification != null
+                FILTER project_products.specification.attribute_groups != null
+                FOR specification IN project_products.specification.attribute_groups
+                    FOR attribute IN specification.attributes
+                        FOR option in product.options
+                            FILTER option.id == specification.id
+                            FOR item IN option.items
+                                FILTER item.id == attribute.basis_option_id
+                                    RETURN item
+            )
+
+            LET options = (
+                FOR option IN selectedOptions
+                RETURN option.description
+            )
+
+            LET skus = (
+                FOR option IN selectedOptions
+                RETURN option.product_id
+            )
+
+            LET location = FIRST(
+                FOR location IN locations
+                    FILTER location.id == project_products.brand_location_id
+                    FILTER location.deleted_at == null
+                    FOR custom_resource IN custom_resources
+                        FILTER custom_resource.location_id == location.id
+                        FILTER custom_resource.deleted_at == null
+                    RETURN MERGE(
+                    custom_resource,
+                    UNSET(location, 'id'),
+                    {
+                        contact: LENGTH(custom_resource.contacts) > 0 ? FIRST(custom_resource.contacts) : {
+                            first_name: 'N/A',
+                            last_name: 'N/A',
+                            position: 'N/A',
+                            work_email: 'N/A',
+                            work_phone: 'N/A',
+                            work_mobile: 'N/A',
+                        }
+                    }
+                )
+            )
+
+            LET distributor = FIRST(
+                FOR custom_resource IN custom_resources
+                    FILTER custom_resource.id == project_products.distributor_location_id
+                    FILTER custom_resource.deleted_at == null
+                    FOR locationAddress IN locations
+                        FILTER locationAddress.id == custom_resource.location_id
+                        FILTER locationAddress.deleted_at == null
+                    RETURN MERGE(
+                        custom_resource,
+                        UNSET(locationAddress, 'id'),
+                        {
+                            name: locationAddress.business_name,
+                            contact: LENGTH(custom_resource.contacts) > 0 ? FIRST(custom_resource.contacts) : {
+                                first_name: 'N/A',
+                                last_name: 'N/A',
+                                position: 'N/A',
+                                work_email: 'N/A',
+                                work_phone: 'N/A',
+                                work_mobile: 'N/A',
+                            }
+                        }
+                    )
+            )
+
+
+            FOR collection IN collections
+                FILTER collection.id == product.collection_id
+                FILTER collection.deleted_at == null
+
+            RETURN {
+                product: MERGE(product, {
+                    category_ids: ['CP'],
+                    categories: [{id:'CP', name: 'Custom Library & Resource'}],
+                    brand: {
+                        id: location.id,
+                        name: location.business_name
+                    },
+                    collection: collection,
+                    skus: skus,
+                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                }),
+                distributor: distributor,
+                location: location,
+                options: options,
+            }
+
+        ) : FIRST(
+            FOR product IN products
+                FILTER product.id == project_products.product_id
+                FILTER product.deleted_at == null
+
+            LET options = (
+                FILTER project_products.specification != null
+                FILTER project_products.specification.attribute_groups != null
+                FOR specification IN project_products.specification.attribute_groups
+                    FOR attribute IN specification.attributes
+                        FOR basis IN bases
+                            FOR subBasis IN basis.subs
+                              FILTER subBasis.subs != null
+                              FOR option IN subBasis.subs
+                                FILTER option.id == attribute.basis_option_id
+                                RETURN CONCAT(subBasis.name, ': ', option.value_1, ' ', option.unit_1, ' ', option.value_2, ' ', option.unit_2)
+            )
+
+            LET skus = (
+                FILTER project_products.specification != null
+                FILTER project_products.specification.attribute_groups != null
+                FOR specification IN project_products.specification.attribute_groups
+                    FOR productSpecification IN product.specification_attribute_groups
+                        FILTER specification.id == productSpecification.id
+                        FOR attribute IN specification.attributes
+                            FOR productSpecificationAttribute IN productSpecification.attributes
+                                FILTER productSpecificationAttribute.type == 'Options'
+                                FILTER attribute.id == productSpecificationAttribute.id
+                                    FOR optionCode IN productSpecificationAttribute.basis_options
+                                        FILTER optionCode.id == attribute.basis_option_id
+                                        RETURN optionCode.option_code
+            )
+
+            FOR brand IN brands
+                FILTER brand.id == product.brand_id
+                FILTER brand.deleted_at == null
+
+            LET location = FIRST(
+                FOR location IN locations
+                    FILTER location.id == project_products.brand_location_id
+                    FILTER location.deleted_at == null
+                LET contacts = (
+                    FOR user IN users
+                        FILTER location.id == user.location_id
+                        FILTER location.deleted_at == null
+                        FILTER user.status == @userActiveStatus
+                        FILTER user.department_id IN (
+                            FOR common_type IN common_types
+                                FILTER common_type.type == @departmentType
+                                FILTER common_type.name IN ['Client/Customer Service', 'Marketing & Sales', 'Operation & Project Management']
+                            RETURN common_type
+                        )
+                        RETURN {
+                            first_name: user.firstname,
+                            last_name: user.lastname,
+                            position: user.position,
+                            work_email: user.email,
+                            work_phone: user.phone,
+                            work_mobile: user.mobile,
+                        }
+                )
+                RETURN MERGE(
+                    location,
+                    {
+                        contact: LENGTH(contacts) > 0 ? FIRST(contacts) : {
+                            first_name: 'N/A',
+                            last_name: 'N/A',
+                            position: 'N/A',
+                            work_email: 'N/A',
+                            work_phone: 'N/A',
+                            work_mobile: 'N/A',
+                        }
+                    }
+                )
+            )
+
+            LET distributor = FIRST(
+                FOR distributor IN distributors
+                    FILTER distributor.deleted_at == null
+                    FILTER distributor.id == project_products.distributor_location_id
+                    FOR distributorLocation IN locations
+                      FILTER distributorLocation.id == distributor.location_id
+                      FILTER distributorLocation.deleted_at == null
+                RETURN MERGE(
+                    distributor,
+                    UNSET(distributorLocation, 'id'),
+                    {
+                        contact: {
+                            first_name: distributor.first_name,
+                            last_name: distributor.last_name,
+                            position: 'Contact',
+                            work_email: distributor.email,
+                            work_phone: distributor.phone,
+                            work_mobile: distributor.mobile,
+                        }
+                    }
+                )
+            )
+
+            LET categories = (
+                FOR mainCategory IN categories
+                FILTER mainCategory.deleted_at == null
+                    FOR subCategory IN mainCategory.subs
+                        FOR category IN subCategory.subs
+                            FOR categoryId IN product.category_ids
+                            FILTER categoryId == category.id
+                RETURN category
+            )
+
+            FOR collection IN collections
+                FILTER collection.id == product.collection_id
+                FILTER collection.deleted_at == null
+
+            RETURN {
+                product: MERGE(product, {
+                    categories: categories,
+                    brand: brand,
+                    collection: collection,
+                    skus: skus,
+                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                }),
+                distributor: distributor,
+                location: location,
+                options: options,
+            }
+        )
+        FILTER inventory != null
+
+
 
         FOR material_code IN material_codes
         FILTER material_code.deleted_at == null
@@ -591,40 +807,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FOR code IN sub.codes
             FILTER code.id == project_products.material_code_id
 
-        LET distributors = (
-            FOR distributor IN distributors
-                FILTER distributor.deleted_at == null
-                FILTER distributor.id == project_products.distributor_location_id
-                FOR distributorLocation IN locations
-                  FILTER distributorLocation.id == distributor.location_id
-                  FILTER distributorLocation.deleted_at == null
-            RETURN merge(distributor, {location: distributorLocation})
-        )
-
-        LET categories = (
-            FOR mainCategory IN categories
-            FILTER mainCategory.deleted_at == null
-                FOR subCategory IN mainCategory.subs
-                    FOR category IN subCategory.subs
-                        FOR categoryId IN products.category_ids
-                        FILTER categoryId == category.id
-            RETURN category
-        )
-
-        LET options = (
-          FILTER project_products.specification != null
-          FILTER project_products.specification.attribute_groups != null
-          FOR specification IN project_products.specification.attribute_groups
-            FOR attribute IN specification.attributes
-            FOR basis IN bases
-              FOR subBasis IN basis.subs
-              FILTER subBasis.subs != null
-              FOR option IN subBasis.subs
-                FILTER option.id == attribute.basis_option_id
-                  RETURN CONCAT(subBasis.name, ': ', option.value_1, ' ', option.unit_1, ' ', option.value_2, ' ', option.unit_2)
-        )
-
-        LET unitTypes = (
+        LET unitType = FIRST(
           FOR common_type IN common_types
             FILTER common_type.deleted_at == null
             FILTER common_type.id == project_products.unit_type_id
@@ -677,28 +860,27 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           project_products,
           {
             specified_date: DATE_FORMAT(project_products.updated_at, '%yyyy-%mm-%dd'),
-            location: location,
-            distributor: distributors[0],
-            product: merge(
-                products,
-                {
-                  brand: brand,
-                  collection: collection,
-                  categories: categories,
-                }
-            ),
-            options: options,
-            productImage: CONCAT('${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}', products.images[0]),
+            location: inventory.location,
+            distributor: inventory.distributor,
+            product: inventory.product,
+            options: inventory.options,
+            productImage: CONCAT('${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
             material_code: code,
             master_material_code_name: CONCAT(material_code.name, '/', sub.name),
-            unitType: unitTypes[0],
+            unitType: unitType,
             requirementTypes: requirementTypes,
             instructionTypes: instructionTypes,
             finish_schedules: finish_schedules,
           }
         )`,
 
-      { projectId, specifyStatuses }
+
+      {
+        projectId,
+        specifyStatuses,
+        userActiveStatus: UserStatus.Active,
+        departmentType: COMMON_TYPES.DEPARTMENT
+      }
     );
   };
 }
