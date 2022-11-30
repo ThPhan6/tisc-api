@@ -5,6 +5,7 @@ import {
 } from "./custom_product.type";
 import CustomProductModel from "./custom_product.model";
 import { locationRepository } from "@/repositories/location.repository";
+import { DEFAULT_USER_SPEC_SELECTION } from "../user_product_specification/user_product_specification.model";
 
 export default class CustomProductRepository extends BaseRepository<CustomProductAttributes> {
   protected model: CustomProductModel;
@@ -83,7 +84,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
           FILTER selection.product_id == @productId
           FILTER selection.user_id == @userId
           RETURN selection.specification
-        ) || {}
+        ) || @defaultSpec
         
         RETURN MERGE(
           UNSET(custom_products, ['_id', '_key', '_rev', 'deleted_at']),
@@ -96,7 +97,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
           }
         )
       `,
-      { productId, userId }
+      { productId, userId, defaultSpec: DEFAULT_USER_SPEC_SELECTION }
     );
     return result[0];
   }
@@ -111,10 +112,10 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       FILTER custom_products.deleted_at == null
       FILTER custom_products.design_id == @designId
       FILTER custom_products.name == @name
-      ${id ? "FILTER custom_products.id != " + id : ""}
+      ${id ? "FILTER custom_products.id != @id" : ""}
       COLLECT WITH COUNT INTO length RETURN length
     `,
-      { designId, name }
+      { designId, name, id }
     );
     return result[0] > 0;
   }

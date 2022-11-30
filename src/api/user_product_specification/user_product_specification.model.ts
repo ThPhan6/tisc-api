@@ -11,6 +11,11 @@ export interface ProductSpecificationSelection {
   }[];
 }
 
+export const DEFAULT_USER_SPEC_SELECTION = {
+  is_refer_document: true,
+  attribute_groups: [],
+};
+
 export interface UserProductSpecificationAttributes {
   id: string;
   product_id: string;
