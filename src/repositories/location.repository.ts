@@ -20,7 +20,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   }
 
   private getQueryWithMemberAndFunctionType = (options: {
-    relationId?: string;
+    relationId?: string | null;
     limit?: number;
     offset?: number;
     sort?: string;
@@ -75,9 +75,9 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
             FILTER common_type.deleted_at == null
             FILTER common_type.id == user.department_id
             FILTER common_type.type == ${COMMON_TYPES.DEPARTMENT}
-            FILTER TRIM(common_type.name) IN 
+            FILTER TRIM(common_type.name) IN
               ['Client/Customer Service', 'Marketing & Sales', 'Operation & Project Management']
-          RETURN { 
+          RETURN {
             department: common_type.name,
             first_name: user.firstname,
             last_name: user.lastname,
@@ -140,7 +140,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   };
 
   public findWithCountMemberAndFunctionType = async (id: string) => {
-    const query = this.getQueryWithMemberAndFunctionType({ id });
+    const query = this.getQueryWithMemberAndFunctionType({ id, relationId: null });
     return head(
       await this.model.rawQueryV2(query.query, query.params)
     ) as LocationWithTeamCountAndFunctionType;
