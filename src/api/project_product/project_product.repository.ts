@@ -20,6 +20,7 @@ import {
   UserStatus,
 } from "@/types";
 import {COMMON_TYPES} from '@/constants';
+import {getDefaultDimensionAndWeightAttribute} from '@/api/attribute/attribute.mapping';
 import { locationRepository } from "@/repositories/location.repository";
 import { DEFAULT_USER_SPEC_SELECTION } from "../user_product_specification/user_product_specification.model";
 
@@ -797,7 +798,66 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 options: options,
             }
         )
-        FILTER inventory != null
+        FILTER inventory.product != null
+        FILTER inventory.distributor != null
+        FILTER inventory.location != null
+
+        LET productDimensionWeight = FIRST(
+            LET dimensionWeights = (
+                FILTER inventory.product.dimension_and_weight != null
+                FILTER inventory.product.dimension_and_weight.attributes != null
+                LET attributeDimensionWeights = inventory.product.dimension_and_weight.with_diameter ? (
+                    FOR defaultAttribute IN @defaultDimensionWeight
+                        FILTER defaultAttribute.with_diameter == true OR defaultAttribute.with_diameter == null
+                    RETURN defaultAttribute
+                ) : (
+                    FOR defaultAttribute IN @defaultDimensionWeight
+                        FILTER defaultAttribute.with_diameter == false OR defaultAttribute.with_diameter == null
+                    RETURN defaultAttribute
+                )
+                FOR attribute IN inventory.product.dimension_and_weight.attributes
+                    FOR attributeDimensionWeight IN attributeDimensionWeights
+                        FILTER attribute.id == attributeDimensionWeight.id
+                        FILTER attribute.conversion_value_1 != ""
+                        LET value_1 = REGEX_MATCHES(TO_STRING(attribute.conversion_value_1), "([0-9]+.?([0-9]{2})?)")
+                        LET value_2 = REGEX_MATCHES(TO_STRING(attribute.conversion_value_1 / attributeDimensionWeight.conversion.formula_1), "([0-9]+.?([0-9]{2})?)")
+                        RETURN {
+                            unit_1: attributeDimensionWeight.conversion.unit_1,
+                            value_1: COUNT(value_1) > 0 ? FIRST(value_1) : "",
+                            unit_2: attributeDimensionWeight.conversion.unit_2,
+                            value_2: COUNT(value_2) > 0 ? FIRST(value_2) : "",
+                            prefix: UPPER(LEFT(LAST(SPLIT(attributeDimensionWeight.name, " ")), 1))
+
+                        }
+
+            )
+            LET productDimension = (
+                FOR productDimensionWeight IN dimensionWeights
+                    FILTER productDimensionWeight.unit_1 != 'kg'
+                RETURN {
+                    mm: CONCAT(productDimensionWeight.prefix, ' ', productDimensionWeight.value_1, ' ', productDimensionWeight.unit_1),
+                    inch: CONCAT(productDimensionWeight.prefix, ' ', productDimensionWeight.value_2, ' ', productDimensionWeight.unit_2)
+                }
+            )
+            LET productWeight = FIRST(
+                FOR productDimensionWeight IN dimensionWeights
+                    FILTER productDimensionWeight.unit_1 == 'kg'
+                RETURN CONCAT_SEPARATOR(
+                    ' - ',
+                    CONCAT(productDimensionWeight.value_1, ' ', productDimensionWeight.unit_1, ' (', productDimensionWeight.value_2, ' ', productDimensionWeight.unit_2 ,')')
+                )
+            )
+
+            RETURN {
+                dimension: {
+                    mm: CONCAT_SEPARATOR(' x ', productDimension[*].mm),
+                    inch: CONCAT_SEPARATOR(' x ', productDimension[*].inch),
+                },
+                weight: productWeight
+            }
+        )
+
+
 
 
 
@@ -862,7 +922,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             specified_date: DATE_FORMAT(project_products.updated_at, '%yyyy-%mm-%dd'),
             location: inventory.location,
             distributor: inventory.distributor,
-            product: inventory.product,
+            product: MERGE(inventory.product, {
+                dimension_and_weight: productDimensionWeight
+            }),
             options: inventory.options,
             productImage: CONCAT('${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
             material_code: code,
@@ -879,7 +941,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         projectId,
         specifyStatuses,
         userActiveStatus: UserStatus.Active,
-        departmentType: COMMON_TYPES.DEPARTMENT
+        departmentType: COMMON_TYPES.DEPARTMENT,
+        defaultDimensionWeight: getDefaultDimensionAndWeightAttribute().attributes
       }
     );
   };
