@@ -187,7 +187,7 @@ export default class PDFService {
     const templates = await templateRepository
       .getModel()
       .whereIn("id", pdfConfig.template_ids)
-      .order("sequence")
+      .order("sequence", 'ASC')
       .get();
     const groupTemplate = groupSpecifyTemplates(templates);
 

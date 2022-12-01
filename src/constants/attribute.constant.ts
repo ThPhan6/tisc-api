@@ -37,13 +37,13 @@ export const DimensionAndWeightAttribute = {
       basis_id: DimensionAndWeightConversionId.mmToInch
     },
     {
-      id: DimensionAndWeightAttributeId.overallHeight,
-      name: "Overall Height",
+      id: DimensionAndWeightAttributeId.overallDiameter,
+      name: "Overall Diameter",
       basis_id: DimensionAndWeightConversionId.mmToInch
     },
     {
-      id: DimensionAndWeightAttributeId.overallDiameter,
-      name: "Overall Diameter",
+      id: DimensionAndWeightAttributeId.overallHeight,
+      name: "Overall Height",
       basis_id: DimensionAndWeightConversionId.mmToInch
     },
     {

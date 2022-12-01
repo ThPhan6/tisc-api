@@ -216,7 +216,7 @@ const templateData = [
 	{
     "id": "b5b6d876-d0ec-4c22-85d1-a95213a35ef0",
     "name": "Finished, Materials & Products Reference by Code",
-    "preview_url": "/templates/specification/finish-material-product/Listing-By-Code.jpg",
+    "preview_url": "/templates/specification/finish-material-product/Reference-By-Code.jpg",
     "pdf_url": "",
     "group": TemplateGroup.FinishesMaterialAndProducts
 	},

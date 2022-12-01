@@ -19,18 +19,31 @@
         padding: 0;
         border: 0;
         border-spacing: 0 !important;
+        page-break-inside: avoid !important;
+        border-collapse:collapse;
       }
       tr {
         display: table;
         width: 100%;
+        margin: 4px 0 4px 0;
       }
       td,
       th {
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
       }
       .dynamic-table tr {
         display: table-row;
         width: 100%;
+        margin: 4px 0 4px 0;
+      }
+      .dynamic-table td {
+        page-break-inside: avoid !important;
+        margin: 4px 0 4px 0;
+      }
+
+      .avoid {
+        page-break-inside: avoid !important;
+        margin: 4px 0 4px 0;  /* to keep the page break from cutting too close to the text in the div */
       }
 
       .primary-roboto-light-14 {

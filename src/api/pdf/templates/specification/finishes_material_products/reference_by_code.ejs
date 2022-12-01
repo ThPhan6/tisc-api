@@ -42,7 +42,14 @@
         <span class="normal-garamond-light-8-12 uppercase">dimension</span>
       </td>
       <td colspan="3" class="primary-roboto-light-8-18">
-        <span>L 0000 mm x W 0000 mm x H 0000 mm  (L 000 in x W 000 in x H 000 in)</span>
+        <span>
+          <% if (groupData.product.dimension_and_weight.dimension.mm == "") { %>
+            Not Specify
+          <% } else { %>
+            <%= groupData.product.dimension_and_weight.dimension.mm %>
+            (<%= groupData.product.dimension_and_weight.dimension.inch %>)
+          <% } %>
+        </span>
       </td>
     </tr>
 
@@ -52,7 +59,13 @@
         <span class="normal-garamond-light-8-12 uppercase">weight</span>
       </td>
       <td class="primary-roboto-light-8-18">
-        <span>00 kg (00 lb)</span>
+        <span>
+          <% if (groupData.product.dimension_and_weight.weight) { %>
+            <%= groupData.product.dimension_and_weight.weight %>
+          <% } else { %>
+            Not Specify
+          <% } %>
+        </span>
       </td>
       <td class="primary-roboto-light-8-18" colspan="2">
         <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">lead time</span>
