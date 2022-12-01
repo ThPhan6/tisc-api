@@ -18,7 +18,7 @@ import {
   CustomProductPayload,
   CollectionRelationType,
 } from "@/types";
-import { isEqual } from "lodash";
+import { difference, isEqual } from "lodash";
 import { v4 } from "uuid";
 import { customProductRepository } from "./custom_product.repository";
 
@@ -204,16 +204,19 @@ class CustomProductService {
     let images = product.images;
     // Upload images if have changes
     if (isEqual(product.images, payload.images) === false) {
-      if (!(await validateImageType(payload.images))) {
+      const newPaths = difference(payload.images, product.images);
+      if (!(await validateImageType(newPaths))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-      images = await uploadImagesProduct(
-        payload.images,
-        [],
-        brand.business_name,
-        brand.id
-      );
-      console.log("uploadedImages", images);
+      const newImages = !newPaths[0]
+        ? []
+        : await uploadImagesProduct(
+            newPaths,
+            [],
+            brand.business_name,
+            brand.id
+          );
+      images = images.concat(newImages);
     }
 
     let options = product.options;
@@ -226,7 +229,7 @@ class CustomProductService {
         return errorMessageResponse("An option image is invalid");
       }
       const uploadOptionImages = await uploadImage(validUploadImages);
-      console.log("mappingOptions", mappingOptions);
+      console.log("uploadOptionImages", uploadOptionImages);
     }
 
     const result = await customProductRepository.update(id, {

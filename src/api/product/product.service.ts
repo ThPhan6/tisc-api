@@ -45,7 +45,7 @@ import {
   UserAttributes,
   BasisConversion,
 } from "@/types";
-import {mappingDimensionAndWeight} from '@/api/attribute/attribute.mapping';
+import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -116,7 +116,7 @@ class ProductService {
       tips: payload.tips,
       downloads: payload.downloads,
       catelogue_downloads: payload.catelogue_downloads,
-      dimension_and_weight: payload.dimension_and_weight
+      dimension_and_weight: payload.dimension_and_weight,
     });
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -180,7 +180,7 @@ class ProductService {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     const imagePaths = !newPaths[0]
-      ? product.images
+      ? []
       : await uploadImagesProduct(
           newPaths,
           payload.keywords,
@@ -192,7 +192,7 @@ class ProductService {
       general_attribute_groups: saveGeneralAttributeGroups,
       feature_attribute_groups: saveFeatureAttributeGroups,
       specification_attribute_groups: saveSpecificationAttributeGroups,
-      images: imagePaths,
+      images: payload.images.concat(imagePaths),
     });
     if (!updatedProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -286,7 +286,9 @@ class ProductService {
         general_attribute_groups: newGeneralGroups,
         feature_attribute_groups: newFeatureGroups,
         specification_attribute_groups: newSpecificationGroups,
-        dimension_and_weight: mappingDimensionAndWeight(product.dimension_and_weight)
+        dimension_and_weight: mappingDimensionAndWeight(
+          product.dimension_and_weight
+        ),
       },
     });
   }
@@ -483,7 +485,7 @@ class ProductService {
           value_1: foundValue.value_1,
           value_2: foundValue.value_2,
           image: foundValue.image,
-        })
+        });
       }
       return final;
     }, [] as any);
