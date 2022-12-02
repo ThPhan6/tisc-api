@@ -60,6 +60,8 @@ export default {
             id: Joi.string(),
             location_id: Joi.string(),
             contacts: customProductContactValidate,
+            phone: Joi.string(),
+            email: Joi.string(),
           })
         ),
       })
