@@ -4,7 +4,8 @@ import {
   errorMessage,
   requireDateValidation,
   requireEmailValidation,
-  requireStringValidation
+  requireStringValidation,
+  customErrorMessages,
 } from "@/validate/common.validate";
 import {SlotTime, Timezones} from './booking.type';
 
@@ -25,12 +26,28 @@ export default {
   create: {
     payload: {
       brand_name: requireStringValidation('Brand Name'),
-      website: requireStringValidation('website'),
+      website: Joi.string().uri().trim().required()
+        .messages(customErrorMessages('Website')),
       name: requireStringValidation('Name'),
       date: requireDateValidation(0, 90),
       email: requireEmailValidation(),
       slot: slotTimeValidation,
       timezone: timezoneValidation
     },
+  },
+  reSchedule: {
+    params: {
+      id: requireStringValidation("Booking ID"),
+    },
+    payload: {
+      date: requireDateValidation(0, 90),
+      slot: slotTimeValidation,
+      timezone: timezoneValidation
+    }
+  },
+  Id: {
+    params: {
+      id: requireStringValidation("Booking ID"),
+    }
   },
 };

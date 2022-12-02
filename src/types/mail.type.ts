@@ -6,6 +6,7 @@ export interface BookingEmailPayload {
   conference_url: string;
   reschedule_url: string;
   cancel_url: string;
+  subject: string;
 }
 export interface TransactionEmailPayload {
   sender: {

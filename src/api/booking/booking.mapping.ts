@@ -20,7 +20,7 @@ export const mappingSlotAvailable = (
       if (!event.status || event?.status != 'cancelled') {
         if (
             startTime == event.start_time.timestamp ||
-            (endTime >= event.start_time.timestamp && endTime <= event.end_time.timestamp) ||
+            (endTime > event.start_time.timestamp && endTime <= event.end_time.timestamp) ||
             (startTime >= event.start_time.timestamp && startTime < event.end_time.timestamp)
         ) {
           item.available = false;

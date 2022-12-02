@@ -93,3 +93,7 @@ export interface ParticipantPayload {
   user_id?: string;
   third_party_email?: string;
 }
+
+export interface EventReschedulePayloadRequest extends Pick<
+  EventPayloadRequest, 'start_time' | 'end_time'
+> {}

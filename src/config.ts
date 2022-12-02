@@ -41,10 +41,12 @@ export const ENVIROMENT = {
   LARK_APP_ID: process.env.LARK_APP_ID || "",
   LARK_APP_SECRET: process.env.LARK_APP_SECRET || "",
   LARK_CALENDAR_ID: process.env.LARK_CALENDAR_ID || "",
+  LARK_LIMING_CALENDAR_ID: process.env.LARK_LIMING_CALENDAR_ID || "",
   LARK_USER_ID: process.env.LARK_USER_ID || "ou_2def8f86ea5122661c8d1e97a5c7eb54",
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
   TISC_WEBSITE: process.env.TISC_WEBSITE || "www.tisc.global",
   ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || '1',
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || 'vuongd36@gmail.com',
 };
 
 export const jwtConfig = {

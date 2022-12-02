@@ -3,6 +3,7 @@ import {MESSAGES} from '@/constants';
 import axios from 'axios';
 import moment from 'moment';
 import {
+  EventReschedulePayloadRequest,
   EventPayloadRequest,
   CreateEventResponse,
   LarkToken,
@@ -84,7 +85,7 @@ class LarkOpenAPIService {
     await this.getAppAccessToken();
     //
     return axios.get(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events`,
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_LIMING_CALENDAR_ID}/events`,
       {
         params: {start_time, end_time},
         headers: { Authorization: `Bearer ${this.lark_token.access_token}` }
@@ -126,6 +127,17 @@ class LarkOpenAPIService {
     return response;
   }
 
+  public updateEvent = async (event_id: string, data: EventReschedulePayloadRequest) => {
+    await this.getAppAccessToken();
+    //
+    return axios.patch(
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${event_id}`,
+      data,
+      { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
+    )
+  }
+
+
   public deleteEvent = async (event_id: string) => {
     await this.getAppAccessToken();
     //
@@ -139,7 +151,7 @@ class LarkOpenAPIService {
       `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${eventId}/attendees`,
       {
         attendees: participants,
-        need_notification: true,
+        need_notification: false,
       },
       { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
     ).then((res) => res.data)
@@ -147,7 +159,6 @@ class LarkOpenAPIService {
       await this.deleteEvent(eventId);
       throw Error(error);
     });
-
   }
 
   private updateRefreshToken = async () => {
