@@ -32,6 +32,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     avatar: null,
     backup_email: "",
     personal_mobile: "",
+    personal_phone_code: "",
     linkedin: "",
     is_verified: false,
     verification_token: null,
