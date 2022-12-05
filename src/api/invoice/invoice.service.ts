@@ -56,7 +56,7 @@ class InvoiceService {
     let overdueAmount = calculateInterestInvoice(billingAmount, overdueDays);
     return {
       ...invoice,
-      billing_amount: billingAmount + overdueAmount,
+      billing_amount: billingAmount,
       overdue_days: overdueDays,
       overdue_amount: overdueAmount,
       total_gross: totalGross,
