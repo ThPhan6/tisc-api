@@ -21,4 +21,5 @@ export interface InvoiceRequestUpdate {
 export type GetListInvoiceSorting =
   | "created_at"
   | "service_type_name"
+  | "ordered_by"
   | "brand_name";

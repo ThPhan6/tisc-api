@@ -201,11 +201,12 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       LET created_at = invoice.created_at
       LET service_type_name = c.name
       LET brand_name = b.name
+      LET ordered_by = u.firstname + " " + u.lastname
 
       SORT ${sort} @order
       LIMIT @offset, @limit
       RETURN MERGE(
-        invoice,
+        UNSET(invoice, ['_key','_id','_rev']),
         {
           service_type_name,
           firstname: u.firstname,

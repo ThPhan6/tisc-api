@@ -38,7 +38,8 @@ export default {
         // GetListInvoiceSorting
         "created_at",
         "service_type_name",
-        "brand_name"
+        "brand_name",
+        "ordered_by"
       ),
     },
   }),
