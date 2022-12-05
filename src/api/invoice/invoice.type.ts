@@ -17,3 +17,8 @@ export interface InvoiceRequestUpdate {
   tax?: number;
   remark?: string;
 }
+
+export type GetListInvoiceSorting =
+  | "created_at"
+  | "service_type_name"
+  | "brand_name";

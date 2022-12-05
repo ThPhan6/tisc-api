@@ -1,7 +1,7 @@
 import { ConnectionInterface } from "@/Database/Connections/ArangoConnection";
 import moment from "moment";
 import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constants";
-import {EmailTemplateID} from '@/types';
+import { EmailTemplateID } from "@/types";
 
 const style = `
 <style>
@@ -881,7 +881,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.brand.booking_demo,
       topic: TOPIC_TYPES.MARKETING,
       targeted_for: TARGETED_FOR_TYPES.BRAND,
-      title: "TISC live demo session is booked.",
+      title: "TISC live demo session is booked",
       message: liveDemoMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -901,7 +901,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.forgot_password,
       topic: TOPIC_TYPES.OPERATION,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "User password reset request.",
+      title: "User password reset request",
       message: resetPasswordMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -951,7 +951,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.project_added,
       topic: TOPIC_TYPES.ONBOARD,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "My Workspace Notice: New project added.",
+      title: "My Workspace Notice: New project added",
       message: newProjectAddedMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -961,7 +961,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.project_removed,
       topic: TOPIC_TYPES.ONBOARD,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "My Workspace Notice: Project removed.",
+      title: "My Workspace Notice: Project removed",
       message: projectRemovedMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -981,7 +981,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.feedback,
       topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Thank you for your feedback.",
+      title: "Thank you for your feedback",
       message: feedbackMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -991,7 +991,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.recommendation,
       topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Thank you for your recommendation.",
+      title: "Thank you for your recommendation",
       message: recommendationMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -1041,7 +1041,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.maintenance,
       topic: TOPIC_TYPES.OPERATION,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Scheduled maintenance notice.",
+      title: "Scheduled maintenance notice",
       message: maintenanceMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -1051,7 +1051,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.invoice_receipt,
       topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Invoice - Thank you for your support.",
+      title: "Invoice - Thank you for your support",
       message: invoiceSupportMessage,
       deleted_at: null,
       updated_at: null,
@@ -1061,7 +1061,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.invoice_reminder,
       topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Invoice - Reminder.",
+      title: "Invoice - Reminder",
       message: invoiceReminderMessage,
       deleted_at: null,
       updated_at: currentTime,
@@ -1071,7 +1071,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.general.invoice_overdue,
       topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Invoice - Overdue Payment Notice.",
+      title: "Invoice - Overdue Payment Notice",
       message: invoiceOverdueMessage,
       deleted_at: null,
       updated_at: currentTime,

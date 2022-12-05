@@ -96,16 +96,6 @@ export const getOneValidation = {
 export const stringValidation = () => Joi.string().trim().allow("", null);
 export const numberValidation = () => Joi.number();
 
-export const requireStringValidation = (
-  fieldName: string,
-  customMessage?: string
-) => {
-  const validation = Joi.string().trim().required();
-  return customMessage
-    ? validation.error(errorMessage(customMessage))
-    : validation.messages(customErrorMessages(fieldName));
-};
-
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
 
@@ -114,12 +104,12 @@ export const requirePasswordValidation = Joi.string()
   .regex(regexPassword)
   .error(errorMessage("Password is required and valid"));
 
-export const requireNumberValidation = (fieldName: string, full?: "full") =>
-  Joi.number()
-    .required()
-    .error(
-      errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
-    );
+// export const requireNumberValidation = (fieldName: string, full?: "full") =>
+//   Joi.number()
+//     .required()
+//     .error(
+//       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
+//     );
 
 export const requireBooleanValidation = (fieldName: string, full?: "full") =>
   Joi.boolean()
@@ -144,20 +134,63 @@ export const requireDateValidation = (minDate: number, maxDate: number) =>
       return moment(value).format("YYYY-MM-DD");
     });
 
+type ErrorLocalState = {
+  label: string;
+  limit?: number;
+  value?: number;
+};
+export const customErrorMessages = (local: ErrorLocalState) => {
+  const { label } = local;
+  return {
+    "any.required": `${label} is required`,
+    "string.empty": `${label} is required`,
+    "string.email": `${label} is invalid`,
+    "string.domain": `${label} is invalid`,
+    "string.uri": `${label} is invalid`,
+    "string.guid": `${label} is invalid`,
+    "number.positive": `${label} must be greater than or equal to zero`,
+  } as Record<string, string>;
+};
+export const getCustomErrorMessage = (code: string, local: ErrorLocalState) =>
+  customErrorMessages(local)?.[code];
+
+export const requireStringValidation = (
+  fieldName: string,
+  customMessage?: string
+) =>
+  Joi.string()
+    .trim()
+    .required()
+    .error((errors) => {
+      errors[0].local.label = fieldName;
+      const message =
+        customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
+      return message ? Error(message) : errors[0];
+    });
+
 export const requireEmailValidation = (
   fieldName: string = "Email",
   customMessage?: string
-) => {
-  const validation = Joi.string().trim().required().email();
-  return customMessage
-    ? validation.error(errorMessage(customMessage))
-    : validation.messages(customErrorMessages(fieldName));
-};
+) =>
+  Joi.string()
+    .trim()
+    .required()
+    .email()
+    .error((errors) => {
+      errors[0].local.label = fieldName;
+      const message =
+        customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
+      return message ? Error(message) : errors[0];
+    });
 
-export const customErrorMessages = (label: string) => ({
-  "any.required": `${label} is required`,
-  "string.empty": `${label} is required`,
-  "string.email": `${label} is invalid`,
-  "string.domain": `${label} is invalid`,
-  "string.uri": `${label} is invalid`,
-});
+export const requireNumberValidation = (fieldName: string) =>
+  Joi.number()
+    .required()
+    .error((errors) => {
+      errors[0].local.label = fieldName;
+      const customMessage = getCustomErrorMessage(
+        errors[0].code,
+        errors[0].local
+      );
+      return customMessage ? Error(customMessage) : errors[0];
+    });

@@ -87,24 +87,23 @@ export default class PDFService {
       },
     };
   };
-  private getInvoiceHeader = async (data: any) => {
+  private getInvoiceHeader = async (data: any, height?: string) => {
     const headerHtml = (await ejs.renderFile(
       `${this.baseTemplate}/invoice/header.ejs`,
       data
     )) as string;
     return {
       header: {
-        height: "4.6cm",
+        height: height || "4.6cm",
         contents: headerHtml,
       },
     };
   };
 
-  private getInvoiceFooter = async (data: any) => {
-    const footerHtml = (await ejs.renderFile(
-      `${this.baseTemplate}/invoice/footer.ejs`,
-      data
-    )) as string;
+  private getInvoiceFooter = async () => {
+    const footerHtml: string = await ejs.renderFile(
+      `${this.baseTemplate}/invoice/footer.ejs`
+    );
     return {
       footer: {
         height: "1.7cm",
@@ -187,7 +186,7 @@ export default class PDFService {
     const templates = await templateRepository
       .getModel()
       .whereIn("id", pdfConfig.template_ids)
-      .order("sequence", 'ASC')
+      .order("sequence", "ASC")
       .get();
     const groupTemplate = groupSpecifyTemplates(templates);
 
@@ -301,20 +300,24 @@ export default class PDFService {
   };
   public generateInvoicePdf = async (
     title: "Invoice" | "Receipt",
-    data: any,
-    tisc_data: any
+    data: any
   ) => {
     const params = {
       logo: `${ENVIROMENT.SPACES_ENDPOINT}/files-tisc/logo/black-logo.svg`,
       title,
     };
-    const headerOption = await this.getInvoiceHeader(params);
-    const footerOption = await this.getInvoiceFooter(tisc_data);
+    const colWidth =
+      data.billing_amount?.length > 10 ? data.billing_amount.length * 1.5 : 15;
+    const headerOption = await this.getInvoiceHeader(params, "2.5cm");
+    const footerOption = await this.getInvoiceFooter();
     const templateHtml = (await ejs.renderFile(
       `${this.baseTemplate}/invoice/invoice.ejs`,
-      { ...params, ...data }
+      {
+        ...params,
+        ...data,
+        colWidth,
+      }
     )) as string;
-
     const html = await this.injectBasePdfTemplate(templateHtml);
     return pdfNode.create(html, merge(headerOption, footerOption)).toBuffer();
   };

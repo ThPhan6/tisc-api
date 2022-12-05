@@ -5,37 +5,41 @@ import {
   numberValidation,
   getListValidation,
 } from "@/validate/common.validate";
+import Joi from "joi";
+
+const invoiceValidate = {
+  service_type_id: requireStringValidation("Service type"),
+  brand_id: requireStringValidation("Brand"),
+  ordered_by: requireStringValidation("Ordered by"),
+  unit_rate: requireNumberValidation("Unit rate").greater(0).precision(2),
+  quantity: requireNumberValidation("Quantity").greater(0),
+  tax: numberValidation(),
+  remark: stringValidation(),
+};
 
 export default {
   create: {
-    payload: {
-      service_type_id: requireStringValidation("Service type"),
-      brand_id: requireStringValidation("Brand"),
-      ordered_by: requireStringValidation("Ordered by"),
-      unit_rate: requireNumberValidation("Unit rate"),
-      quantity: requireNumberValidation("Quantity"),
-      tax: requireNumberValidation("Tax"),
-      remark: stringValidation(),
-    },
+    payload: invoiceValidate,
   },
   update: {
     params: {
       id: requireStringValidation("Id"),
     },
-    payload: {
-      service_type_id: stringValidation(),
-      brand_id: stringValidation(),
-      ordered_by: stringValidation(),
-      unit_rate: numberValidation(),
-      quantity: numberValidation(),
-      tax: numberValidation(),
-      remark: stringValidation(),
-    },
+    payload: invoiceValidate,
   },
   get: {
     params: {
       id: requireStringValidation("Id"),
     },
   },
-  getList: getListValidation(),
+  getList: getListValidation({
+    query: {
+      sort: Joi.string().valid(
+        // GetListInvoiceSorting
+        "created_at",
+        "service_type_name",
+        "brand_name"
+      ),
+    },
+  }),
 };
