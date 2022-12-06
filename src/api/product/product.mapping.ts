@@ -13,7 +13,7 @@ import {
   IAttributeGroupWithOptionId,
   IProductOption,
 } from "./product.type";
-import {isArray} from 'lodash';
+import { isArray } from "lodash";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -123,25 +123,27 @@ export const mappingAttribute = (
   attributeGroup: IAttributeGroupWithOptionalId,
   allBasisConversion: BasisConversion[]
 ) => {
-  const newAttributes = isArray(attributeGroup.attributes) ? attributeGroup.attributes.reduce((final, attribute: any) => {
-    if (attribute.type === "Conversions") {
-      const conversion = allBasisConversion.find(
-        (basisConversion: any) => basisConversion.id === attribute.basis_id
-      );
-      if (conversion) {
-        const value1 = parseFloat(attribute.conversion_value_1 || "0");
-        const value2 = value1 / conversion.formula_1;
-        final.push({
-          ...attribute,
-          conversion_value_1: value1.toFixed(2),
-          conversion_value_2: value2.toFixed(2),
-        });
+  const newAttributes = isArray(attributeGroup.attributes)
+    ? attributeGroup.attributes.reduce((final, attribute: any) => {
+        if (attribute.type === "Conversions") {
+          const conversion = allBasisConversion.find(
+            (basisConversion: any) => basisConversion.id === attribute.basis_id
+          );
+          if (conversion) {
+            const value1 = parseFloat(attribute.conversion_value_1 || "0");
+            const value2 = value1 / conversion.formula_1;
+            final.push({
+              ...attribute,
+              conversion_value_1: value1.toFixed(2),
+              conversion_value_2: value2.toFixed(2),
+            });
+            return final;
+          }
+        }
+        final.push(attribute);
         return final;
-      }
-    }
-    final.push(attribute);
-    return final;
-  }, [] as any) : [];
+      }, [] as any)
+    : [];
   if (attributeGroup.id) {
     return {
       ...attributeGroup,
@@ -171,64 +173,75 @@ export const mappingAttributeGroups = (
   allBasisOptions?: IBasisAttributes[]
 ) => {
   return attribute_groups.map(async (group) => {
-    const newAttributes = isArray(group.attributes) ? group.attributes.reduce((data, attribute) => {
-      const foundAttribute = allAttributes.find(
-        (item) => item.id === attribute.id
-      );
-      if (!foundAttribute) {
-        return data;
-      }
-      ///
-      const response: any = {
-        ...attribute,
-        name: foundAttribute.name,
-      }
+    const newAttributes = isArray(group.attributes)
+      ? group.attributes.reduce((data, attribute) => {
+          const foundAttribute = allAttributes.find(
+            (item) => item.id === attribute.id
+          );
+          if (!foundAttribute) {
+            return data;
+          }
+          ///
+          const response: any = {
+            ...attribute,
+            name: foundAttribute.name,
+          };
 
-      let newBasisOptions: any = attribute.basis_options;
-      if (allBasisOptions) {
-        if (attribute.basis_options) {
-          newBasisOptions = attribute.basis_options?.reduce((final, basisOption) => {
-            let foundBasisOption: any = false;
-            allBasisOptions?.forEach((item) => {
-              const foundedOption = item.subs.find(
-                (sub: any) => sub.id === basisOption.id
+          let newBasisOptions: any = attribute.basis_options;
+          if (allBasisOptions) {
+            if (attribute.basis_options) {
+              newBasisOptions = attribute.basis_options?.reduce(
+                (final, basisOption) => {
+                  let foundBasisOption: any = false;
+                  allBasisOptions?.forEach((item) => {
+                    const foundedOption = item.subs.find(
+                      (sub: any) => sub.id === basisOption.id
+                    );
+                    if (foundedOption) {
+                      foundBasisOption = foundedOption;
+                    }
+                  });
+                  if (foundBasisOption) {
+                    final.push({
+                      ...basisOption,
+                      value_1: foundBasisOption.value_1,
+                      value_2: foundBasisOption.value_2,
+                      unit_1: foundBasisOption.unit_1,
+                      unit_2: foundBasisOption.unit_2,
+                      image: foundBasisOption.image,
+                    });
+                  }
+                  return final;
+                },
+                [] as any
               );
-              if (foundedOption) {
-                foundBasisOption = foundedOption;
-              }
-            });
-            if (foundBasisOption) {
-              final.push({
-                ...basisOption,
-                value_1: foundBasisOption.value_1,
-                value_2: foundBasisOption.value_2,
-                unit_1: foundBasisOption.unit_1,
-                unit_2: foundBasisOption.unit_2,
-                image: foundBasisOption.image,
-              })
             }
-            return final;
-          }, [] as any);
-        }
-      }
-      /// add basis option
-      if (allBasisOptions && newBasisOptions) {
-        response.text = `Selected ${newBasisOptions?.length || 0} item${newBasisOptions?.length !== 1 ? 's' : ''}`;
-        response.basis_options = newBasisOptions;
-      }
-      /// add conversion attribute
-      if (attribute.type === "Conversions") {
-        const conversion = allConversions.find(
-          (item: IBasisAttributes) => item.id === attribute.basis_id
-        );
-        if (conversion) {
-          response.conversion = conversion;
-        }
-      }
-      ///
-      data.push(response);
-      return data;
-    }, [] as any) : [];
+          }
+          /// add basis option
+          if (
+            attribute.type === "Options" &&
+            allBasisOptions &&
+            newBasisOptions
+          ) {
+            response.text = `Selected ${newBasisOptions?.length || 0} item${
+              newBasisOptions?.length !== 1 ? "s" : ""
+            }`;
+            response.basis_options = newBasisOptions;
+          }
+          /// add conversion attribute
+          if (attribute.type === "Conversions") {
+            const conversion = allConversions.find(
+              (item: IBasisAttributes) => item.id === attribute.basis_id
+            );
+            if (conversion) {
+              response.conversion = conversion;
+            }
+          }
+          ///
+          data.push(response);
+          return data;
+        }, [] as any)
+      : [];
     return { ...group, attributes: newAttributes };
   });
 };
