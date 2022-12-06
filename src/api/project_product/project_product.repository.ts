@@ -19,8 +19,8 @@ import {
   SummaryItemPosition,
   UserStatus,
 } from "@/types";
-import {COMMON_TYPES} from '@/constants';
-import {getDefaultDimensionAndWeightAttribute} from '@/api/attribute/attribute.mapping';
+import { COMMON_TYPES } from "@/constants";
+import { getDefaultDimensionAndWeightAttribute } from "@/api/attribute/attribute.mapping";
 import { locationRepository } from "@/repositories/location.repository";
 import { DEFAULT_USER_SPEC_SELECTION } from "../user_product_specification/user_product_specification.model";
 
@@ -175,7 +175,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       ) : ${Availability.Discrepancy}
 
       RETURN MERGE(product, { availability })
-    )`;
+    )
+    FILTER product != null
+    `;
   };
 
   public findWithRelation = async (
@@ -249,8 +251,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET projectProducts = (
         FOR pp IN project_products
         FILTER pp.project_id == @projectId
-        FILTER pp.deleted_at == null
-        FILTER pp.status == @considerStatus
+        && pp.deleted_at == null
+        && pp.status == @considerStatus
 
         ${this.concatProductQuery()}
 
@@ -936,13 +938,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           }
         )`,
 
-
       {
         projectId,
         specifyStatuses,
         userActiveStatus: UserStatus.Active,
         departmentType: COMMON_TYPES.DEPARTMENT,
-        defaultDimensionWeight: getDefaultDimensionAndWeightAttribute().attributes
+        defaultDimensionWeight:
+          getDefaultDimensionAndWeightAttribute().attributes,
       }
     );
   };
