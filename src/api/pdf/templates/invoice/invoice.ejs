@@ -8,6 +8,7 @@
           primary-roboto-light-8-18
           width-30-percent
           border-bottom-box-shadow
+          pt-4 pb-4
         "
       >
         <span class="normal-roboto-light-8-12">Billed Date</span><br />
@@ -18,6 +19,7 @@
           primary-roboto-light-8-18
           width-70-percent
           border-bottom-box-shadow
+          pt-4 pb-4
         "
       >
         <span class="normal-roboto-light-8-12">Client Name</span><br />
@@ -35,6 +37,7 @@
           primary-roboto-light-8-18
           width-30-percent
           border-bottom-box-shadow
+          pt-4 pb-4
         "
       >
         <span class="normal-roboto-light-8-12">Billing Number</span><br />
@@ -46,6 +49,7 @@
           primary-roboto-light-8-18
           width-70-percent
           border-bottom-box-shadow
+          pt-4 pb-4
         "
       >
         <span class="normal-roboto-light-8-12">Office Address</span><br />
@@ -59,11 +63,11 @@
     <tr>
       <td
         style="vertical-align: top"
-        class="primary-roboto-light-8-18 width-30-percent"
+        class="primary-roboto-light-8-18 width-30-percent pt-4 pb-4"
       >
         <span class="normal-roboto-light-8-12">Service Type</span>
       </td>
-      <td class="primary-roboto-light-8-18 width-70-percent">
+      <td class="primary-roboto-light-8-18 width-70-percent pt-4 pb-4">
         <span class="normal-roboto-light-12"><%=service_type_name%></span>
       </td>
     </tr>
@@ -88,7 +92,6 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-25-percent
           border-bottom-box-shadow
         "
       >
@@ -110,9 +113,9 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-15-percent
           border-bottom-box-shadow
         "
+        style="width:<%= colWidth %>%;"
       >
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"><%=unit_rate%></span><br />
@@ -134,12 +137,11 @@
         "
       >
         <span class="normal-roboto-light-12">Gross Total</span><br />
-        <span class="normal-roboto-light-12">Sales Tax(GST)</span>
+        <span class="normal-roboto-light-12">Sales Tax (GST)</span>
       </td>
       <td
         class="
           primary-roboto-light-8-18
-          width-25-percent
           border-bottom-box-shadow-bold
         "
       >
@@ -160,9 +162,9 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-15-percent
           border-bottom-box-shadow-bold
-        "
+          "
+          style="width:<%= colWidth %>%;"
       >
         <span class="normal-roboto-light-12"><%=total_gross%></span><br />
         <span class="normal-roboto-light-12"><%=sale_tax_amount%></span>
@@ -187,7 +189,6 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-25-percent
           border-bottom-box-shadow-bold
         "
       >
@@ -205,9 +206,9 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-15-percent
           border-bottom-box-shadow-bold
-        "
+          "
+          style="width:<%= colWidth %>%;"
       >
         <span class="normal-roboto-light-12"><%=total_amount%></span>
       </td>
@@ -235,7 +236,6 @@
         style="vertical-align: top"
         class="
           primary-roboto-light-8-18
-          width-25-percent
           border-bottom-box-shadow-bold
         "
       >
@@ -260,9 +260,9 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-15-percent
           border-bottom-box-shadow-bold
         "
+        style="width:<%= colWidth %>%;"
       >
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"></span><br />
@@ -289,7 +289,6 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-25-percent
           border-bottom-box-shadow-bold
         "
       >
@@ -307,9 +306,9 @@
       <td
         class="
           primary-roboto-light-8-18
-          width-15-percent
           border-bottom-box-shadow-bold
         "
+        style="width:<%= colWidth %>%;"
       >
         <span class="normal-roboto-bold-12 uppercase"><%=billing_amount%></span>
       </td>

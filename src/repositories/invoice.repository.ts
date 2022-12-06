@@ -7,6 +7,7 @@ import {
   InvoiceStatus,
 } from "@/types";
 import { head } from "lodash";
+import { GetListInvoiceSorting } from "@/api/invoice/invoice.type";
 
 export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
   service_type_name: string;
@@ -161,30 +162,66 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
   public async getWithUserAndServiceType(
     limit: number,
     offset: number,
-    sort: string,
-    order: SortOrder,
+    sort: GetListInvoiceSorting = "created_at",
+    order: SortOrder = "DESC",
     relationId?: string
-  ): Promise<ListInvoicesWithPagination> {
-    let query = this.model
-      .getQuery()
-      .select([
-        "invoices.*",
-        "common_types.name as service_type_name",
-        "users.firstname as firstname",
-        "users.lastname as lastname",
-        "brands.name as brand_name",
-      ])
-      .join("common_types", "common_types.id", "==", "invoices.service_type_id")
-      .join("users", "users.id", "==", "invoices.ordered_by")
-      .join("brands", "brands.id", "==", "invoices.relation_id")
-      .order(sort ? sort : "created_at", order || "DESC");
+  ): Promise<{ invoices: InvoiceWithUserAndServiceType[]; total: number }> {
+    const params = {
+      limit,
+      offset,
+      order,
+      relationId,
+    };
+    const query = `
+    LET total = FIRST(
+      FOR invoice IN invoices
+      FILTER invoice.deleted_at == null
+      ${
+        relationId
+          ? `&& invoice.relation_id == @relationId && invoice.status != ${InvoiceStatus.Pending}`
+          : ""
+      }
+      COLLECT WITH COUNT INTO length RETURN length
+    )
+    LET invoices = (
+      FOR invoice IN invoices
+      FILTER invoice.deleted_at == null
+      ${
+        relationId
+          ? `&& invoice.relation_id == @relationId && invoice.status != ${InvoiceStatus.Pending}`
+          : ""
+      }
+        FOR c IN common_types
+        FILTER c.id == invoice.service_type_id
+        FOR u IN users
+        FILTER u.id == invoice.ordered_by
+        FOR b IN brands
+        FILTER b.id == invoice.relation_id
 
-    if (relationId) {
-      query = query
-        .where("invoices.relation_id", "==", relationId)
-        .where("invoices.status", "!=", InvoiceStatus.Pending);
+      LET created_at = invoice.created_at
+      LET service_type_name = c.name
+      LET brand_name = b.name
+      LET ordered_by = u.firstname + " " + u.lastname
+
+      SORT ${sort} @order
+      LIMIT @offset, @limit
+      RETURN MERGE(
+        UNSET(invoice, ['_key','_id','_rev']),
+        {
+          service_type_name,
+          firstname: u.firstname,
+          lastname: u.lastname,
+          brand_name,
+        }
+      )
+    )
+    RETURN {
+      invoices,
+      total
     }
-    return query.paginate(limit, offset);
+  `;
+    const result = await this.model.rawQueryV2(query, params);
+    return result[0];
   }
 
   public async summary(relationId?: string, relationType?: InvoiceCompanyType) {

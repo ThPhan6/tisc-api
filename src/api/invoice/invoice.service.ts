@@ -19,9 +19,14 @@ import {
 
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { brandRepository } from "@/repositories/brand.repository";
-import { InvoiceRequestCreate, InvoiceRequestUpdate } from "./invoice.type";
+import {
+  GetListInvoiceSorting,
+  InvoiceRequestCreate,
+  InvoiceRequestUpdate,
+} from "./invoice.type";
 import {
   calculateInterestInvoice,
+  pagination,
   toNonAccentUnicode,
   toUSMoney,
 } from "@/helper/common.helper";
@@ -56,8 +61,37 @@ class InvoiceService {
       overdue_amount: overdueAmount,
       total_gross: totalGross,
       sale_tax_amount: saleTaxAmount,
+      status:
+        overdueDays && invoice.status === InvoiceStatus.Outstanding
+          ? InvoiceStatus.Overdue
+          : invoice.status,
     };
   };
+  private getBillingNumber = (
+    brandName: string,
+    serviceType: string,
+    created_at: string
+  ) =>
+    `${toNonAccentUnicode(brandName).replace(
+      /\s/g,
+      ""
+    )}-${this.getServiceTypeCode(serviceType)}${moment(created_at).format(
+      "YYYYMMDD"
+    )}`;
+
+  private getServiceTypeCode = (serviceType: string) => {
+    switch (true) {
+      case serviceType == "Offline Marketing & Sales":
+        return "OF";
+      case serviceType == "Online Marketing & Sales":
+        return "ON";
+      case serviceType == "Product Card Conversion":
+        return "PC";
+      default:
+        return "OT";
+    }
+  };
+
   public async create(user: UserAttributes, payload: InvoiceRequestCreate) {
     const brand = await brandRepository.find(payload.brand_id);
     if (!brand) {
@@ -70,9 +104,12 @@ class InvoiceService {
       COMMON_TYPES.INVOICE
     );
     //
-    const now = moment();
     const createdInvoice = await invoiceRepository.create({
-      name: `${toNonAccentUnicode(brand.name)}-PC${now.format("YYYYMMDD")}`,
+      name: this.getBillingNumber(
+        brand.name,
+        serviceType.name,
+        new Date().toString()
+      ),
       service_type_id: serviceType.id,
       relation_id: brand.id,
       relation_type: InvoiceCompanyType.Brand,
@@ -150,20 +187,21 @@ class InvoiceService {
     user: UserAttributes,
     limit: number,
     offset: number,
-    sort: string,
+    sort: GetListInvoiceSorting,
     order: SortOrder
   ) {
-    const invoices = await invoiceRepository.getWithUserAndServiceType(
-      limit,
-      offset,
-      sort,
-      order,
-      user.type === UserType.TISC ? undefined : user.relation_id
-    );
+    const { invoices, total } =
+      await invoiceRepository.getWithUserAndServiceType(
+        limit,
+        offset,
+        sort,
+        order,
+        user.type === UserType.TISC ? undefined : user.relation_id
+      );
     return successResponse({
       data: {
-        ...invoices,
-        data: invoices.data.map((item) => this.calculateInvoice(item)),
+        data: invoices.map((item) => this.calculateInvoice(item)),
+        pagination: pagination(limit, offset, total),
       },
     });
   }
@@ -190,7 +228,40 @@ class InvoiceService {
     if (invoice.status !== InvoiceStatus.Pending) {
       return errorMessageResponse(MESSAGES.INVOICE.ONLY_UPDATE_PENDING_INVOICE);
     }
-    await invoiceRepository.update(id, payload);
+
+    let relation_id = payload.brand_id || invoice.relation_id;
+    const brand = await brandRepository.find(relation_id);
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+
+    let service_type_id = payload.service_type_id || invoice.service_type_id;
+    const serviceType = await commonTypeRepository.findOrCreate(
+      service_type_id,
+      "TISC",
+      COMMON_TYPES.INVOICE
+    );
+    if (!serviceType) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+    service_type_id = serviceType.id;
+
+    const billingNumberChange =
+      (payload.brand_id && payload.brand_id !== invoice.relation_id) ||
+      (payload.service_type_id &&
+        payload.service_type_id !== invoice.service_type_id);
+    await invoiceRepository.update(id, {
+      ...payload,
+      relation_id,
+      service_type_id,
+      name: billingNumberChange
+        ? this.getBillingNumber(
+            brand.name,
+            serviceType.name,
+            invoice.created_at
+          )
+        : invoice.name,
+    });
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
   public async delete(invoiceId: string) {
@@ -204,11 +275,15 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
     }
     const pdfBuffer: any = await this.getInvoicePdf(invoiceId);
+
+    const diff = moment().diff(moment(invoice.due_date), "days");
+    const isOverdue = invoice.status === InvoiceStatus.Outstanding && diff > 0;
     const sent = await mailService.sendInvoiceReminder(
       invoice.ordered_user.email,
       invoice.ordered_user.firstname,
       pdfBuffer.data.toString("base64"),
-      `${invoice.name}.pdf`
+      `${invoice.name}.pdf`,
+      isOverdue
     );
     if (!sent) {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
@@ -244,11 +319,7 @@ class InvoiceService {
         billing_amount: toUSMoney(
           calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount
         ),
-      },
-      {
-        address: `${invoice.created_user.location.address} ${invoice.created_user.location.city_name}, ${invoice.created_user.location.state_name}, ${invoice.created_user.location.city_name} ${invoice.created_user.location.postal_code}`,
-        email: invoice.created_user.email,
-        website: ENVIROMENT.TISC_WEBSITE,
+        quantity: toUSMoney(calculatedInvoice.quantity).slice(1, -3),
       }
     );
     return successResponse({ data: result, fileName: invoice.name });
