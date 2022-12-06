@@ -32,6 +32,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     avatar: null,
     backup_email: "",
     personal_mobile: "",
+    personal_phone_code: "",
     linkedin: "",
     is_verified: false,
     verification_token: null,
@@ -74,8 +75,9 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return (await this.model
       .where("type", "==", type)
       .where("role_id", "==", role)
-      .where("relation_id", "==", relation_id || 'TISC')
+      .where("relation_id", "==", relation_id || "TISC")
       .where("status", "==", UserStatus.Active)
+      .join("locations", "locations.id", "==", "users.location_id")
       .get()) as UserAttributes[];
   }
   public async getInactiveDesignFirmByBackupData(
@@ -246,7 +248,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
 
     return (await this.model.rawQueryV2(rawQuery, {
       relationId,
-      userStatus: UserStatus.Active
+      userStatus: UserStatus.Active,
     })) as (UserAttributes & {
       locations: ILocationAttributes;
       common_types?: CommonTypeAttributes;

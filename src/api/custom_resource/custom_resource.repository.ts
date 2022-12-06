@@ -135,7 +135,8 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
           distributors: (FOR d IN distributorGroup 
             RETURN MERGE(
               KEEP(d.cr, 'id', 'contacts', 'location_id'),
-              KEEP(d.loc, ${locationRepository.basicAttributesQuery})
+              KEEP(d.loc, ${locationRepository.basicAttributesQuery}),
+              { phone: d.loc.general_phone, email: d.loc.general_email }
             )
           ),
         }

@@ -44,7 +44,7 @@
       <td colspan="3" class="primary-roboto-light-8-18">
         <span>
           <% if (groupData.product.dimension_and_weight.dimension.mm == "") { %>
-            Not Specify
+            No Specify
           <% } else { %>
             <%= groupData.product.dimension_and_weight.dimension.mm %>
             (<%= groupData.product.dimension_and_weight.dimension.inch %>)
@@ -63,7 +63,7 @@
           <% if (groupData.product.dimension_and_weight.weight) { %>
             <%= groupData.product.dimension_and_weight.weight %>
           <% } else { %>
-            Not Specify
+            No Specify
           <% } %>
         </span>
       </td>

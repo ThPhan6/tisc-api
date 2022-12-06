@@ -85,7 +85,7 @@ class LarkOpenAPIService {
     await this.getAppAccessToken();
     //
     return axios.get(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_LIMING_CALENDAR_ID}/events`,
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events`,
       {
         params: {start_time, end_time},
         headers: { Authorization: `Bearer ${this.lark_token.access_token}` }

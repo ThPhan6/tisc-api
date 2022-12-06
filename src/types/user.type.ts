@@ -24,6 +24,7 @@ export interface UserAttributes {
   avatar: string | null;
   backup_email: string;
   personal_mobile: string;
+  personal_phone_code?: string;
   linkedin: string;
   is_verified: boolean;
   verification_token: string | null;

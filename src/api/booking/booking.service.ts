@@ -233,7 +233,7 @@ export default class BookingService {
 
   private async sendEmail(startTime: moment.Moment, booking: BookingAttributes) {
     ///
-    const sgFulltime = startTime.format('HH:mm on dddd, MMMM DD, YYYY');
+    // const sgFulltime = startTime.format('HH:mm on dddd, MMMM DD, YYYY');
     //
     const bookingTime = startTime.tz(booking.timezone);
     const bookingFulltime = bookingTime.format('HH:mm on dddd, MMMM DD, YYYY');

@@ -12,11 +12,11 @@ export enum DimensionAndWeightAttributeId {
 }
 
 export const DimensionAndWeightCategory: {[key: string]: boolean | null} = {
-  [DimensionAndWeightAttributeId.overallLength]: null,
-  [DimensionAndWeightAttributeId.totalWeight]: null,
-
-  [DimensionAndWeightAttributeId.overallHeight]: false,
+  [DimensionAndWeightAttributeId.overallLength]: false,
   [DimensionAndWeightAttributeId.overallWidth]: false,
+
+  [DimensionAndWeightAttributeId.totalWeight]: null,
+  [DimensionAndWeightAttributeId.overallHeight]: null,
 
   [DimensionAndWeightAttributeId.overallDiameter]: true,
 }
