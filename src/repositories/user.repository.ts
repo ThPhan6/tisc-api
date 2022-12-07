@@ -136,6 +136,14 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return token;
   };
 
+  public checkTokenExisted = async (token: string) => {
+    const user = await this.model
+      .where("reset_password_token", "==", token)
+      .orWhere("verification_token", "==", token)
+      .first() as UserAttributes | undefined;
+    return user ? true : false;
+  }
+
   public getPagination = async (
     limit?: number,
     offset?: number,

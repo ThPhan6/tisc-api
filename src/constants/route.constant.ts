@@ -1,4 +1,17 @@
 export const ROUTES = {
+  AUTH: {
+    TISC_LOGIN: "/api/auth/login",
+    OTHER_ACCOUNT_LOGIN: "/api/auth/brand-design/login",
+    CHECK_TOKEN_EXPIRED: "/api/auth/token/{token}/validate",
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    RESET_PASSWORD: "/api/auth/reset-password",
+    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
+    DESIGN_REGISTER: "/api/auth/register",
+    VERIFY_TOKEN: "/api/auth/verify/{verification_token}",
+    CREATE_PASSWORD_AND_VERIFY: "/api/auth/create-password-verify/{verification_token}",
+    RESEND_EMAIL_CONFIRMATION: "/api/auth/resend-email/{type}/{email}",
+    CHECK_EMAIL_EXISTED: "/api/auth/check-email/{email}"
+  },
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_CARD: "/api/brand/get-list-card",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
