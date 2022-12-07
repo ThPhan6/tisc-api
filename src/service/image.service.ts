@@ -25,6 +25,23 @@ export const validateImageType = async (images: string[]) => {
   return isValidImage;
 };
 
+export const splitImageByType = async (images: string[]) => {
+  const imagePath: string[] = [];
+  const imageBase64: string[] = [];
+  for (const image of images) {
+    const fileType = await getFileTypeFromBase64(image);
+    if (
+      !fileType ||
+      !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+    ) {
+      imagePath.push(image);
+    } else {
+      imageBase64.push(image);
+    }
+  }
+  return { imagePath, imageBase64 };
+};
+
 export const uploadImagesProduct = (
   images: string[],
   keywords: string[],
