@@ -90,8 +90,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FILTER basicAttr.id == attr.basis_id
             FOR option IN basicAttr.subs
             FILTER option.id == specAttribute.basis_option_id
-      RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1, 
-        ' ', option.value_2, ' ', option.unit_2)
+      RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
+        ' - ', option.value_2, ' ', option.unit_2)
     )
     LET productCode = (
       FILTER pp.specification != null
@@ -134,7 +134,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FOR product IN custom_products
       FILTER product.id == pp.product_id
       FILTER product.deleted_at == null
-      RETURN MERGE(product, {availability: ${Availability.Available}})
+
+      LET availability = FIRST(
+        FOR custom_product IN custom_products
+          FILTER custom_product.id == pp.product_id
+          FOR custom_resource IN custom_resources
+            FILTER custom_resource.deleted_at == null
+            FILTER custom_resource.id == custom_product.company_id
+
+        LET availability = pp.distributor_location_id ? FIRST(
+          RETURN pp.distributor_location_id IN custom_resource.associate_resource_ids ? ${Availability.Available} : ${Availability.Discrepancy}
+        ) : FIRST(
+          RETURN COUNT(custom_resource.associate_resource_ids) > 0 ? ${Availability.Available} : ${Availability.Discrepancy}
+        )
+        RETURN availability
+      )
+
+      RETURN MERGE(product, {availability: availability})
     ) : FIRST(
       FOR product IN products
             FILTER product.id == pp.product_id
@@ -167,7 +183,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   FILTER authorized_country.id == project_location.country_id
                   ${
                     distributorSpecified
-                      ? "FILTER authorized_country.id == project_products.distributor_location_id"
+                      ? "FILTER authorized_country.id == pp.distributor_location_id"
                       : ""
                   }
                   LET c = FIRST(availability.countries[* FILTER CURRENT.id == authorized_country.id])
@@ -702,8 +718,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   FILTER basicAttr.id == attr.basis_id
                     FOR option IN basicAttr.subs
                     FILTER option.id == specAttribute.basis_option_id
-              RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1, 
-                ' ', option.value_2, ' ', option.unit_2)
+              RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
+                ' - ', option.value_2, ' ', option.unit_2)
             )
 
             LET skus = (
