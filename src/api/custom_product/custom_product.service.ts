@@ -14,6 +14,7 @@ import {
 import collectionRepository from "@/repositories/collection.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import {
+  splitImageByType,
   uploadImage,
   uploadImagesProduct,
   validateImageType,
@@ -217,19 +218,19 @@ class CustomProductService {
     let images = product.images;
     // Upload images if have changes
     if (isEqual(product.images, payload.images) === false) {
-      const newPaths = difference(payload.images, product.images);
-      if (!(await validateImageType(newPaths))) {
+      const { imageBase64, imagePath } = await splitImageByType(payload.images);
+      if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-      const newImages = !newPaths[0]
-        ? []
-        : await uploadImagesProduct(
-            newPaths,
+      const newImages = imageBase64.length
+        ? await uploadImagesProduct(
+            imageBase64,
             [],
             brand.business_name,
             brand.id
-          );
-      images = images.concat(newImages);
+          )
+        : [];
+      images = imagePath.concat(newImages);
     }
 
     let options = product.options;

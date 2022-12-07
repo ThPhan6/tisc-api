@@ -22,11 +22,12 @@ import { projectProductRepository } from "@/api/project_product/project_product.
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { userRepository } from "@/repositories/user.repository";
 import {
+  splitImageByType,
   uploadImagesProduct,
   validateImageType,
 } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
-import { difference, sortBy } from "lodash";
+import { isEqual, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -162,6 +163,12 @@ class ProductService {
     if (duplicatedProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
+
+    const brand = await brandRepository.find(payload.brand_id);
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+
     const allConversion: BasisConversion[] = await this.getAllBasisConversion();
 
     const saveGeneralAttributeGroups = await Promise.all(
@@ -181,24 +188,29 @@ class ProductService {
       )
     );
 
-    const newPaths = difference(payload.images, product.images);
-    if (!(await validateImageType(newPaths))) {
-      return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+    let images = product.images;
+    // Upload images if have changes
+    if (isEqual(product.images, payload.images) === false) {
+      const { imageBase64, imagePath } = await splitImageByType(payload.images);
+      if (imageBase64.length && !(await validateImageType(imageBase64))) {
+        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+      }
+      const newImages = imageBase64.length
+        ? await uploadImagesProduct(
+            payload.images,
+            payload.keywords,
+            brand.name,
+            brand.id
+          )
+        : [];
+      images = imagePath.concat(newImages);
     }
-    const imagePaths = !newPaths[0]
-      ? []
-      : await uploadImagesProduct(
-          newPaths,
-          payload.keywords,
-          product.brand.name,
-          product.brand_id
-        );
     const updatedProduct = await productRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
       feature_attribute_groups: saveFeatureAttributeGroups,
       specification_attribute_groups: saveSpecificationAttributeGroups,
-      images: payload.images.concat(imagePaths),
+      images,
     });
     if (!updatedProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);

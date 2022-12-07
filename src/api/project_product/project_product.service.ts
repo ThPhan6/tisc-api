@@ -431,15 +431,15 @@ class ProjectProductService {
           ).true || 0,
       0
     );
+
     const availabilityRemarkCount = specifiedProducts.reduce(
-      (total: number, brand: any) =>
-        total +
-          countBy(
-            brand.products,
-            (p) => p.availability !== Availability.Available
-          ).true || 0,
-      0
-    );
+      (total: number, brand: any) => {
+        const notAvailableCount = countBy(
+          brand.products,
+          (p) => p.availability !== Availability.Available
+        ).true || 0;
+        return total + notAvailableCount;
+      }, 0);
 
     return successResponse({
       data: {
@@ -508,13 +508,10 @@ class ProjectProductService {
     const cancelledCount =
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
     const availabilityRemarkCount = specifiedProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.project_products?.availability !== Availability.Available
-          ? 1
-          : 0),
-      0
-    );
+      (total: number, prod: any) => {
+        const markedAvailabilityCount = prod.product?.availability !== Availability.Available ? 1 : 0;
+        return total + markedAvailabilityCount;
+      }, 0 );
 
     return successResponse({
       data: {
