@@ -5,7 +5,10 @@ import {
   requireEmailValidation,
   stringValidation,
 } from "@/validate/common.validate";
-import { dimensionAndWeightValidate } from "@/api/product/product.validate";
+import {
+  dimensionAndWeightValidate,
+  validateShareProduct,
+} from "@/api/product/product.validate";
 
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
@@ -90,4 +93,5 @@ export default {
       collection_id: Joi.string().trim().allow(""),
     },
   },
+  shareByEmail: validateShareProduct,
 };

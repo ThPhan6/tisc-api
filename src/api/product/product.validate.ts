@@ -3,9 +3,25 @@ import {
   errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
-import {getEnumValues} from '@/helper/common.helper';
-import {DimensionAndWeightAttributeId} from '@/constants';
+import { getEnumValues } from "@/helper/common.helper";
+import { DimensionAndWeightAttributeId } from "@/constants";
+import { forEach } from "lodash";
+import { ProductType } from "./product.type";
 
+export const validateShareProduct = {
+  payload: {
+    type: Joi.number()
+      .required()
+      .valid(ProductType.Product, ProductType.CustomProduct)
+      .error(errorMessage("Product type is required")),
+    product_id: requireStringValidation("Product id"),
+    sharing_group: requireStringValidation("Sharing Group"),
+    sharing_purpose: requireStringValidation("Sharing Purpose"),
+    to_email: requireStringValidation("Email"),
+    title: requireStringValidation("Title"),
+    message: requireStringValidation("Message"),
+  },
+};
 const attributeGroupsValidate = (
   type: "General" | "Feature" | "Specification"
 ) => {
@@ -36,18 +52,20 @@ const attributeGroupsValidate = (
             basis_options: isSpec
               ? Joi.array().items(
                   Joi.object().keys({
-                    id: Joi.string()
-                      .error(errorMessage(`${type} Option Product is required`)),
-                    option_code: Joi.string()
-                      .error(errorMessage(`${type} Option Product ID is required`)),
+                    id: Joi.string().error(
+                      errorMessage(`${type} Option Product is required`)
+                    ),
+                    option_code: Joi.string().error(
+                      errorMessage(`${type} Option Product ID is required`)
+                    ),
                   })
                 )
               : Joi.any(),
           })
-          .required()
+          .required(),
       })
     )
-    .required()
+    .required();
 };
 
 export const dimensionAndWeightValidate = Joi.object({
@@ -56,14 +74,14 @@ export const dimensionAndWeightValidate = Joi.object({
     Joi.object({
       id: Joi.string()
         .valid(...getEnumValues(DimensionAndWeightAttributeId))
-        .error(errorMessage('Incorrect Dimension & Weight Attribute')),
+        .error(errorMessage("Incorrect Dimension & Weight Attribute")),
       conversion_value_1: Joi.number()
         .allow("")
-        .error(errorMessage('Conversation value must be a number')),
+        .error(errorMessage("Conversation value must be a number")),
       conversion_value_2: Joi.number()
         .allow("")
-        .error(errorMessage('Conversation value must be a number')),
-    }),
+        .error(errorMessage("Conversation value must be a number")),
+    })
   ),
 });
 
@@ -158,16 +176,7 @@ export default {
       project_zone_ids: Joi.array().items(Joi.string()),
     },
   },
-  shareByEmail: {
-    payload: {
-      product_id: requireStringValidation("Product id"),
-      sharing_group: requireStringValidation("Sharing Group"),
-      sharing_purpose: requireStringValidation("Sharing Purpose"),
-      to_email: requireStringValidation("Email"),
-      title: requireStringValidation("Title"),
-      message: requireStringValidation("Message"),
-    },
-  },
+  shareByEmail: validateShareProduct,
   publicSharingProduct: {
     query: {
       hash: requireStringValidation("Hash"),

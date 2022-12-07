@@ -1,4 +1,10 @@
-import { BASIS_TYPES, COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  BASIS_TYPES,
+  COMMON_TYPES,
+  MESSAGES,
+  DefaultLogo,
+  DefaultProductImage,
+} from "@/constants";
 import { getProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
 import {
@@ -553,12 +559,12 @@ class ProductService {
       user.email,
       payload.title,
       payload.message,
-      getFileURI(product.images[0]) ?? "",
+      getFileURI(product.images[0] || DefaultProductImage),
       product.brand.name,
-      getFileURI(product.brand.logo) ?? "",
-      product.collection.name ?? "N/A",
-      product.name ?? "N/A",
-      `${user.firstname ?? ""} ${user.lastname ?? ""}`,
+      getFileURI(product.brand.logo || DefaultLogo),
+      product.collection.name || "N/A",
+      product.name || "N/A",
+      `${user.firstname || ""} ${user.lastname || ""}`,
       sharedUrl
     );
     if (!sent) {

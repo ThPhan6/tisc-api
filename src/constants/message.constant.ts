@@ -268,5 +268,6 @@ export const MESSAGES = {
     NOT_AVAILABLE: "This booking is not available",
     NOT_FOUND: "Not found booking",
     SCHEDULE_NOT_AVAILABLE: 'Can\'t get on Saturday or Sunday'
-  }
+  },
+  JUST_SHARE_IN_DESIGN_FIRM: "Just share to user in the same design firm."
 };
