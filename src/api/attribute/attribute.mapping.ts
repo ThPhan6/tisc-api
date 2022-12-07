@@ -7,7 +7,7 @@ import {
   DimensionAndWeightConversion,
   DimensionAndWeightCategory,
 } from "@/constants";
-import { isDuplicatedString } from "@/helper/common.helper";
+import { isDuplicatedString, numberToFixed } from "@/helper/common.helper";
 import {
   AttributeProps,
   IBasisAttributes,
@@ -357,8 +357,8 @@ export const mappingDimensionAndWeight = (
       const value2 = value1 / (defaultAttr.conversion?.formula_1 || 0) || 0;
       return {
         ...defaultAttr,
-        conversion_value_1: isFinite(value1) ? value1.toFixed(2) : "",
-        conversion_value_2: isFinite(value2) ? value2.toFixed(2) : "",
+        conversion_value_1: isFinite(value1) ? numberToFixed(value1) : "",
+        conversion_value_2: isFinite(value2) ? numberToFixed(value2) : "",
       };
     }),
   };

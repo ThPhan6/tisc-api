@@ -25,7 +25,7 @@ import {
   ProjectProductPDFConfigWithLocationAndType,
   ProjectAttributes,
 } from "@/types";
-import { isEmpty, map, merge, isUndefined } from "lodash";
+import { isEmpty, map, merge, isUndefined, partition, clone } from "lodash";
 import {
   errorMessageResponse,
   successResponse,
@@ -33,6 +33,7 @@ import {
 import { pdfNode } from "@/service/pdf/pdf.service";
 import * as ejs from "ejs";
 import { ENVIROMENT } from "@/config";
+import { numberToFixed } from "@/helper/common.helper";
 
 export default class PDFService {
   private baseTemplate = `${process.cwd()}/src/api/pdf/templates`;
@@ -205,9 +206,40 @@ export default class PDFService {
       }
     }
     // GET PDF DATA
-    const response =
+    let response =
       await projectProductRepository.getWithBrandAndDistributorInfo(projectId);
     //
+    response = response.map((el: any) => {
+      const newEl = clone(el);
+      const [weights, dimensions] = partition(
+        newEl.product.dimension_and_weight,
+        (newEl) => newEl.unit_1 === "kg"
+      );
+
+      const value1 = dimensions
+        .map(
+          (newEl: any) =>
+            `${newEl.prefix} ${numberToFixed(newEl.value_1)} ${newEl.unit_1}`
+        )
+        .join(" x ");
+      const value2 = dimensions
+        .map(
+          (newEl: any) =>
+            `${newEl.prefix} ${numberToFixed(newEl.value_2)} ${newEl.unit_2}`
+        )
+        .join(" x ");
+      newEl.product.dimension = value1 ? `${value1} (${value2})` : "No Specify";
+      const weightValue1 = weights[0]
+        ? `${numberToFixed(weights[0].value_1)} ${weights[0].unit_1}`
+        : "";
+      const weightValue2 = weights[0]
+        ? `${numberToFixed(weights[0].value_2)} ${weights[0].unit_2}`
+        : "";
+      newEl.product.weight = weights[0]
+        ? `${weightValue1} (${weightValue2})`
+        : "No Specify";
+      return newEl;
+    });
 
     await Promise.all(
       map(
@@ -241,6 +273,7 @@ export default class PDFService {
                   data = mappingMaterialCode(response);
                 }
                 ////
+                console.log("data", data);
                 return this.dynamicRenderEjs(template.name, templatePath.path, {
                   data,
                   project: projectData.project,

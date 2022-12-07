@@ -170,12 +170,7 @@
         </td>
         <td colspan="3" class="border-bottom-box-shadow primary-roboto-light-8-18">
           <span>
-            <% if (item.product.dimension_and_weight.dimension.mm == "") { %>
-              No Specify
-            <% } else { %>
-              <%= item.product.dimension_and_weight.dimension.mm %>
-              (<%= item.product.dimension_and_weight.dimension.inch %>)
-            <% } %>
+            <%= item.product.dimension %>
           </span>
         </td>
       </tr>
@@ -185,11 +180,7 @@
         </td>
         <td class="border-bottom-box-shadow primary-roboto-light-8-18">
           <span>
-            <% if (item.product.dimension_and_weight.weight) { %>
-              <%= item.product.dimension_and_weight.weight %>
-            <% } else { %>
-              No Specify
-            <% } %>
+            <%= item.product.weight %>
           </span>
         </td>
         <td class="border-bottom-box-shadow primary-roboto-light-8-18" colspan="2">

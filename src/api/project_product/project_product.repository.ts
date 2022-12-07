@@ -835,47 +835,18 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     FOR attributeDimensionWeight IN attributeDimensionWeights
                         FILTER attribute.id == attributeDimensionWeight.id
                         FILTER attribute.conversion_value_1 != ""
-                        LET value_1 = REGEX_MATCHES(TO_STRING(attribute.conversion_value_1), "([0-9]+.?([0-9]{2})?)")
-                        LET value_2 = REGEX_MATCHES(TO_STRING(attribute.conversion_value_1 / attributeDimensionWeight.conversion.formula_1), "([0-9]+.?([0-9]{2})?)")
                         RETURN {
                             unit_1: attributeDimensionWeight.conversion.unit_1,
-                            value_1: COUNT(value_1) > 0 ? FIRST(value_1) : "",
+                            value_1: attribute.conversion_value_1,
                             unit_2: attributeDimensionWeight.conversion.unit_2,
-                            value_2: COUNT(value_2) > 0 ? FIRST(value_2) : "",
-                            prefix: UPPER(LEFT(LAST(SPLIT(attributeDimensionWeight.name, " ")), 1))
-
+                            value_2: attribute.conversion_value_1 / attributeDimensionWeight.conversion.formula_1,
+                            prefix: UPPER(LEFT(LAST(SPLIT(attributeDimensionWeight.name, " ")), 1)),
+                            attributeDimensionWeight,
+                            conversion: attributeDimensionWeight.conversion
                         }
-
             )
-            LET productDimension = (
-                FOR productDimensionWeight IN dimensionWeights
-                    FILTER productDimensionWeight.unit_1 != 'kg'
-                RETURN {
-                    mm: CONCAT(productDimensionWeight.prefix, ' ', productDimensionWeight.value_1, ' ', productDimensionWeight.unit_1),
-                    inch: CONCAT(productDimensionWeight.prefix, ' ', productDimensionWeight.value_2, ' ', productDimensionWeight.unit_2)
-                }
-            )
-            LET productWeight = FIRST(
-                FOR productDimensionWeight IN dimensionWeights
-                    FILTER productDimensionWeight.unit_1 == 'kg'
-                RETURN CONCAT_SEPARATOR(
-                    ' - ',
-                    CONCAT(productDimensionWeight.value_1, ' ', productDimensionWeight.unit_1, ' (', productDimensionWeight.value_2, ' ', productDimensionWeight.unit_2 ,')')
-                )
-            )
-
-            RETURN {
-                dimension: {
-                    mm: CONCAT_SEPARATOR(' x ', productDimension[*].mm),
-                    inch: CONCAT_SEPARATOR(' x ', productDimension[*].inch),
-                },
-                weight: productWeight
-            }
+            RETURN dimensionWeights
         )
-
-
-
-
 
         FOR material_code IN material_codes
         FILTER material_code.deleted_at == null
