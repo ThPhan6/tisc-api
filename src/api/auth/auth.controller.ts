@@ -99,12 +99,12 @@ export default class AuthController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public isValidResetPasswordToken = async (
+  public checkTokenExisted = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { token } = req.params;
-    const response = await this.authService.isValidResetPasswordToken(token);
+    const response = await this.authService.checkTokenExisted(token);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public checkEmail = async (req: Request, toolkit: ResponseToolkit) => {
