@@ -273,7 +273,6 @@ export default class PDFService {
                   data = mappingMaterialCode(response);
                 }
                 ////
-                console.log("data", data);
                 return this.dynamicRenderEjs(template.name, templatePath.path, {
                   data,
                   project: projectData.project,
