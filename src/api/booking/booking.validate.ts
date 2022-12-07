@@ -5,7 +5,6 @@ import {
   requireDateValidation,
   requireEmailValidation,
   requireStringValidation,
-  customErrorMessages,
 } from "@/validate/common.validate";
 import {SlotTime, Timezones} from './booking.type';
 
@@ -26,8 +25,7 @@ export default {
   create: {
     payload: {
       brand_name: requireStringValidation('Brand Name'),
-      website: Joi.string().uri().trim().required()
-        .messages(customErrorMessages('Website')),
+      website: requireStringValidation('Website').uri(),
       name: requireStringValidation('Name'),
       date: requireDateValidation(0, 90),
       email: requireEmailValidation(),
