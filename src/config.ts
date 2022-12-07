@@ -45,6 +45,7 @@ export const ENVIROMENT = {
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
   TISC_WEBSITE: process.env.TISC_WEBSITE || "www.tisc.global",
   ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || '1',
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || 'vuongd36@gmail.com',
 };
 
 export const jwtConfig = {

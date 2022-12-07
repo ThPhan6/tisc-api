@@ -282,7 +282,7 @@ export default class MailService {
     //
     return this.sendTransactionEmail({
       to: [{ email: data.to }],
-      subject: template.subject,
+      subject: data.subject,
       htmlContent: template.html,
     });
   }

@@ -120,8 +120,8 @@ export const requireBooleanValidation = (fieldName: string, full?: "full") =>
 
 export const requireDateValidation = (minDate: number, maxDate: number) =>
   Joi.date()
-    .max(moment().add(maxDate, "days").format("YYYY-MM-DD"))
-    .min(moment().add(minDate, "days").format("YYYY-MM-DD"))
+    .max(moment().startOf('day').add(maxDate, "days").format("YYYY-MM-DD"))
+    .min(moment().startOf('day').add(minDate, "days").format("YYYY-MM-DD"))
     .required()
     .error(
       errorMessage(
