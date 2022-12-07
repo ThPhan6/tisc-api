@@ -30,6 +30,8 @@ export default {
       date: Joi.string(),
       slot: Joi.number(),
       timezone: Joi.string(),
+      timezone_text: Joi.string(),
+      time_text: Joi.string(),
       created_at: Joi.string(),
       updated_at: Joi.string(),
     }),

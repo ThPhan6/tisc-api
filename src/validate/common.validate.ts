@@ -120,8 +120,8 @@ export const requireBooleanValidation = (fieldName: string, full?: "full") =>
 
 export const requireDateValidation = (minDate: number, maxDate: number) =>
   Joi.date()
-    .max(moment().startOf('day').add(maxDate, "days").format("YYYY-MM-DD"))
-    .min(moment().startOf('day').add(minDate, "days").format("YYYY-MM-DD"))
+    .max(moment().startOf("day").add(maxDate, "days").format("YYYY-MM-DD"))
+    .min(moment().startOf("day").add(minDate, "days").format("YYYY-MM-DD"))
     .required()
     .error(
       errorMessage(
@@ -161,7 +161,7 @@ export const requireStringValidation = (
   Joi.string()
     .trim()
     .required()
-    .error((errors) => {
+    .error((errors: any) => {
       errors[0].local.label = fieldName;
       const message =
         customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
@@ -176,7 +176,7 @@ export const requireEmailValidation = (
     .trim()
     .required()
     .email()
-    .error((errors) => {
+    .error((errors: any) => {
       errors[0].local.label = fieldName;
       const message =
         customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
@@ -186,7 +186,7 @@ export const requireEmailValidation = (
 export const requireNumberValidation = (fieldName: string) =>
   Joi.number()
     .required()
-    .error((errors) => {
+    .error((errors: any) => {
       errors[0].local.label = fieldName;
       const customMessage = getCustomErrorMessage(
         errors[0].code,
