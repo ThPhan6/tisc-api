@@ -4,8 +4,8 @@ import { BookingPayloadRequest, ReScheduleBookingPayloadRequest } from "./bookin
 
 export default class BookingController {
   public availableSchedule = async (req: Request, toolkit: ResponseToolkit) => {
-    const {date} = req.query;
-    const response = await bookingService.availableSchedule(date);
+    const {date, timezone} = req.query;
+    const response = await bookingService.availableSchedule(date, timezone);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
