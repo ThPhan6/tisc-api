@@ -202,20 +202,20 @@ export default class BookingService {
     if (!booking) {
       return errorMessageResponse(MESSAGES.BOOKING.NOT_FOUND, 404);
     }
-    const dateText = moment(booking.date).format("ddd, MMM DD YYYY");
     const sche = BookingSchedule.find((item) => item.slot === booking.slot);
-    const startTimeText = moment(
-      `${booking.date} ${sche?.start || "00:00:00"}`
-    ).format("hh:mma");
-    const endTimeText = moment(
-      `${booking.date} ${sche?.end || "00:00:00"}`
-    ).format("hh:mma");
+    const startTimeText = moment(`${booking.date} ${sche?.start || "00:00:00"}`)
+      .tz(booking.timezone)
+      .format("hh:mma");
+    const endTimeText = moment(`${booking.date} ${sche?.end || "00:00:00"}`)
+      .tz(booking.timezone)
+      .format("hh:mma");
 
     return successResponse({
       data: {
         ...booking,
         timezone_text: TimeZoneText[booking.timezone],
-        time_text: `${dateText} ${startTimeText}-${endTimeText}`,
+        start_time_text: startTimeText,
+        end_time_text: endTimeText,
       },
     });
   }
