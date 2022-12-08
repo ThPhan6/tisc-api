@@ -186,4 +186,4 @@ export const toUSMoney = (amount: number) => {
 };
 
 export const numberToFixed = (n: number, fixed: number = 2) =>
-  n.toFixed(fixed).replace(/.00|[.*0]$/, "");
+  n.toFixed(fixed).replace(/.00$|[.*0]$/, "");
