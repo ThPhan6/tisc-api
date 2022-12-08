@@ -1,4 +1,4 @@
-import { getDistinctArray } from "@/helper/common.helper";
+import { getDistinctArray, numberToFixed } from "@/helper/common.helper";
 import {
   IBasisAttributes,
   AttributeProps,
@@ -134,8 +134,8 @@ export const mappingAttribute = (
             const value2 = value1 / conversion.formula_1;
             final.push({
               ...attribute,
-              conversion_value_1: value1.toFixed(2),
-              conversion_value_2: value2.toFixed(2),
+              conversion_value_1: numberToFixed(value1),
+              conversion_value_2: numberToFixed(value2),
             });
             return final;
           }

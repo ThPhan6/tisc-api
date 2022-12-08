@@ -184,3 +184,6 @@ export const toUSMoney = (amount: number) => {
     currency: "USD",
   });
 };
+
+export const numberToFixed = (n: number, fixed: number = 2) =>
+  n.toFixed(fixed).replace(/.00|[.*0]$/, "");
