@@ -78,16 +78,18 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     }
   ) : (
     LET options = (
-      FILTER pp.specification != null
-      FILTER pp.specification.attribute_groups != null
+      FILTER pp.specification != null && pp.specification.attribute_groups != null
       FOR specification IN pp.specification.attribute_groups
       FOR specAttribute IN specification.attributes
         FOR attributes IN attributes
+        FILTER attributes.subs != null
         FOR attr IN attributes.subs
         FILTER attr.id == specAttribute.id
           FOR basis IN bases
+          FILTER basis.subs != null
           FOR basicAttr IN basis.subs
           FILTER basicAttr.id == attr.basis_id
+          FILTER basicAttr.subs != null
             FOR option IN basicAttr.subs
             FILTER option.id == specAttribute.basis_option_id
       RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
@@ -97,12 +99,16 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FILTER pp.specification != null
       FILTER pp.specification.attribute_groups != null
       FOR specification IN pp.specification.attribute_groups
+      FILTER product.specification_attribute_groups != null
           FOR productSpecification IN product.specification_attribute_groups
               FILTER specification.id == productSpecification.id
+              FILTER specification.attributes != null
               FOR attribute IN specification.attributes
+              FILTER productSpecification.attributes != null
                   FOR productSpecificationAttribute IN productSpecification.attributes
                       FILTER productSpecificationAttribute.type == 'Options'
                       FILTER attribute.id == productSpecificationAttribute.id
+                      FILTER productSpecificationAttribute.basis_options != null
                           FOR optionCode IN productSpecificationAttribute.basis_options
                               FILTER optionCode.id == attribute.basis_option_id
                               RETURN optionCode.option_code
@@ -143,9 +149,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER custom_resource.id == custom_product.company_id
 
         LET availability = pp.distributor_location_id ? FIRST(
-          RETURN pp.distributor_location_id IN custom_resource.associate_resource_ids ? ${Availability.Available} : ${Availability.Discrepancy}
+          RETURN pp.distributor_location_id IN custom_resource.associate_resource_ids ? ${
+            Availability.Available
+          } : ${Availability.Discrepancy}
         ) : FIRST(
-          RETURN COUNT(custom_resource.associate_resource_ids) > 0 ? ${Availability.Available} : ${Availability.Discrepancy}
+          RETURN COUNT(custom_resource.associate_resource_ids) > 0 ? ${
+            Availability.Available
+          } : ${Availability.Discrepancy}
         )
         RETURN availability
       )
@@ -706,16 +716,18 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 FILTER product.deleted_at == null
 
             LET options = (
-              FILTER project_products.specification != null
-              FILTER project_products.specification.attribute_groups != null
+              FILTER project_products.specification != null && project_products.specification.attribute_groups != null
               FOR specification IN project_products.specification.attribute_groups
+              FILTER specification.attributes != null
               FOR specAttribute IN specification.attributes
                 FOR attributes IN attributes
+                FILTER attributes.subs != null
                 FOR attr IN attributes.subs
                 FILTER attr.id == specAttribute.id
                   FOR basis IN bases
+                  FILTER basis.subs != null
                   FOR basicAttr IN basis.subs
-                  FILTER basicAttr.id == attr.basis_id
+                  FILTER basicAttr.id == attr.basis_id && basicAttr.subs != null
                     FOR option IN basicAttr.subs
                     FILTER option.id == specAttribute.basis_option_id
               RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
@@ -723,18 +735,20 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             )
 
             LET skus = (
-                FILTER project_products.specification != null
-                FILTER project_products.specification.attribute_groups != null
-                FOR specification IN project_products.specification.attribute_groups
-                    FOR productSpecification IN product.specification_attribute_groups
-                        FILTER specification.id == productSpecification.id
-                        FOR attribute IN specification.attributes
-                            FOR productSpecificationAttribute IN productSpecification.attributes
-                                FILTER productSpecificationAttribute.type == 'Options'
-                                FILTER attribute.id == productSpecificationAttribute.id
-                                    FOR optionCode IN productSpecificationAttribute.basis_options
-                                        FILTER optionCode.id == attribute.basis_option_id
-                                        RETURN optionCode.option_code
+              FILTER project_products.specification != null && project_products.specification.attribute_groups != null
+              FOR specification IN project_products.specification.attribute_groups
+                  FOR productSpecification IN product.specification_attribute_groups
+                      FILTER specification.id == productSpecification.id
+                      FILTER specification.attributes != null
+                      FOR attribute IN specification.attributes
+                      FILTER productSpecification.attributes != null
+                          FOR productSpecificationAttribute IN productSpecification.attributes
+                              FILTER productSpecificationAttribute.type == 'Options'
+                              FILTER attribute.id == productSpecificationAttribute.id
+                              FILTER productSpecificationAttribute.basis_options != null
+                                  FOR optionCode IN productSpecificationAttribute.basis_options
+                                      FILTER optionCode.id == attribute.basis_option_id
+                                      RETURN optionCode.option_code
             )
 
             FOR brand IN brands
