@@ -182,7 +182,7 @@ export default class MailService {
       EmailTemplateID.general.invoice_receipt,
       {
         receiver_first_name,
-        billing_amount: `$${toUSMoney(billing_amount)}`,
+        billing_amount: toUSMoney(billing_amount),
         url: `${this.frontpageURL}`,
       }
     );

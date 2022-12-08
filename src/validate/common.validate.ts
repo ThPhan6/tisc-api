@@ -94,7 +94,7 @@ export const getOneValidation = {
 };
 
 export const stringValidation = () => Joi.string().trim().allow("", null);
-export const numberValidation = () => Joi.number();
+export const numberValidation = () => Joi.number().allow(null);
 
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
@@ -143,11 +143,13 @@ export const customErrorMessages = (local: ErrorLocalState) => {
   const { label } = local;
   return {
     "any.required": `${label} is required`,
+    "string.base": `${label} is required`,
     "string.empty": `${label} is required`,
     "string.email": `${label} is invalid`,
     "string.domain": `${label} is invalid`,
     "string.uri": `${label} is invalid`,
     "string.guid": `${label} is invalid`,
+    "number.base": `${label} is required`,
     "number.positive": `${label} must be greater than or equal to zero`,
   } as Record<string, string>;
 };

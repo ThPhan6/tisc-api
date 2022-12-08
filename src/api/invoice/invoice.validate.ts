@@ -13,7 +13,7 @@ const invoiceValidate = {
   ordered_by: requireStringValidation("Ordered by"),
   unit_rate: requireNumberValidation("Unit rate").greater(0).precision(2),
   quantity: requireNumberValidation("Quantity").greater(0),
-  tax: numberValidation(),
+  tax: numberValidation().label("Tax"),
   remark: stringValidation(),
 };
 
