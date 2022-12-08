@@ -30,8 +30,16 @@ const customBookingDateValidation = (
   const min = moment().add(1, "days").format("YYYY-MM-DD HH:mm:ss");
   const max = moment().add(90, "days").format("YYYY-MM-DD HH:mm:ss");
   const sche = BookingSchedule.find((item) => item.slot === value.slot);
-  const temp = moment(value.date).format("YYYY-MM-DD");
-  const bookingDate = moment(`${temp} ${sche?.start || "00:00:00"}`);
+  if (!sche) {
+    return helpers.message({
+      custom: "Invalid slot",
+    });
+  }
+  const temp = moment
+    .tz(`${value.date} ${sche.start}`, value.timezone)
+    .tz("Asia/Singapore")
+    .format("YYYY-MM-DD");
+  const bookingDate = moment(`${temp} ${sche.start}`);
   if (!bookingDate.isBetween(min, max))
     return helpers.message({
       custom: `A valid date and slot must be between ${min} and ${max}`,
