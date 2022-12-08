@@ -113,7 +113,6 @@ class HttpRequest {
           resolve(response);
         });
     })) as ChaiHttp.Response;
-    console.log(response);
     return new HttpResponse(response);
   }
 

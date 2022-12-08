@@ -3,7 +3,7 @@ export const tiscAdminData = {
   firstname: "Tisc",
   lastname: "Admin",
   gender: true,
-  location_id: "LOCATION-TISC-TESTING-XXXX-XXXX",
+  location_id: "LOCATION-BRAND-TESTING-XXXX-XXXX",
   work_location: null,
   department_id: null,
   position: "",
