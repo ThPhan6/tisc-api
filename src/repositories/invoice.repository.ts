@@ -259,7 +259,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
             part_1: serviceType.name == 'Offline Marketing & Sales'? total :  0,
             part_2: serviceType.name == 'Online Marketing & Sales'? total :  0,
             part_3: serviceType.name == 'Product Card Conversion'? total :  0,
-            part_4: serviceType.name != 'Offline Marketing & Sales' && serviceType.name != 'Online Marketing & Sales' && serviceType.name != 'Product Card Conversion' ? total :  0
+            part_4: serviceType.name NOT IN ['Offline Marketing & Sales', 'Online Marketing & Sales', 'Product Card Conversion'] ? total :  0
         }
     )
     RETURN {
