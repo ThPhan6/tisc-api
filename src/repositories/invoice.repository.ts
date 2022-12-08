@@ -8,6 +8,7 @@ import {
 } from "@/types";
 import { head } from "lodash";
 import { GetListInvoiceSorting } from "@/api/invoice/invoice.type";
+import { INTEREST_RATE } from "@/constants";
 
 export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
   service_type_name: string;
@@ -245,12 +246,20 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
           LET totalGross = invoice.quantity * invoice.unit_rate
           LET saleTaxAmount = (invoice.tax / 100) * totalGross
           LET grandTotal = totalGross + saleTaxAmount
+          
+          LET dueDayDiff = DATE_DIFF(invoice.due_date, DATE_NOW(), 'd')
+          LET overdueDays = dueDayDiff > 0 ? dueDayDiff : 0
+          LET ratePerYear = ${INTEREST_RATE / 100}
+          LET overduePerYear = overdueDays / 365
+          LET overdueAmount = grandTotal * ratePerYear * overduePerYear
+          LET total = grandTotal + overdueAmount
+
         return {
-            grandTotal: grandTotal,
-            part_1: serviceType.name == 'Offline Marketing & Sales'? grandTotal :  0,
-            part_2: serviceType.name == 'Online Marketing & Sales'? grandTotal :  0,
-            part_3: serviceType.name == 'Product Card Conversion'? grandTotal :  0,
-            part_4: serviceType.name != 'Offline Marketing & Sales' && serviceType.name != 'Online Marketing & Sales' && serviceType.name != 'Product Card Conversion' ? grandTotal :  0
+            grandTotal: total,
+            part_1: serviceType.name == 'Offline Marketing & Sales'? total :  0,
+            part_2: serviceType.name == 'Online Marketing & Sales'? total :  0,
+            part_3: serviceType.name == 'Product Card Conversion'? total :  0,
+            part_4: serviceType.name != 'Offline Marketing & Sales' && serviceType.name != 'Online Marketing & Sales' && serviceType.name != 'Product Card Conversion' ? total :  0
         }
     )
     RETURN {
