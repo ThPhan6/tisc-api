@@ -1,9 +1,8 @@
-import * as chai from 'chai';
+import * as chai from "chai";
 
-import chaiHttp = require('chai-http');
+import chaiHttp = require("chai-http");
 
-
-import {ENVIROMENT} from '../../src/config';
+import { ENVIROMENT } from "../../src/config";
 
 interface HttpRequestHeader {
   Authorization?: string;
@@ -16,13 +15,16 @@ class HttpResponse {
     this.response = response;
   }
 
-  public shouldError = (httpStatusCode: number = 400, showJsonBody: boolean = false) => {
+  public shouldError = (
+    httpStatusCode: number = 400,
+    showJsonBody: boolean = false
+  ) => {
     if (showJsonBody) {
       this.displayJsonBody();
     }
     this.response.should.have.status(httpStatusCode);
     return this;
-  }
+  };
 
   public shouldSuccess = (showJsonBody: boolean = false) => {
     if (showJsonBody) {
@@ -31,7 +33,7 @@ class HttpResponse {
     this.response.should.have.status(200);
 
     return this;
-  }
+  };
   public get(key?: string) {
     if (key) {
       return this.response.body.data[key];
@@ -41,7 +43,7 @@ class HttpResponse {
 
   private displayJsonBody = () => {
     console.log(this.response.body);
-  }
+  };
 }
 
 class HttpRequest {
@@ -55,29 +57,29 @@ class HttpRequest {
   public setToken = (token: string) => {
     this.headers = {
       ...this.headers,
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    };
     return this;
-  }
+  };
   public setSignature = (signature: string) => {
     this.headers = {
       ...this.headers,
-      Signature: signature
-    }
+      Signature: signature,
+    };
     return this;
-  }
+  };
 
   public setHeader = (header: HttpRequestHeader) => {
     this.headers = header;
     return this;
-  }
+  };
 
   public send = (payload: object = {}) => {
     this.payload = payload;
-  }
+  };
 
   public async patch(url: string, data?: object) {
-    const response = await (new Promise((resolve) => {
+    const response = (await new Promise((resolve) => {
       this.apiInstance
         .patch(url)
         .set(this.headers)
@@ -90,8 +92,9 @@ class HttpRequest {
   }
 
   public async get(url: string) {
-    const response = await (new Promise((resolve) => {
-      this.apiInstance.get(url)
+    const response = (await new Promise((resolve) => {
+      this.apiInstance
+        .get(url)
         .set(this.headers)
         .end((_err, response) => {
           resolve(response);
@@ -101,20 +104,23 @@ class HttpRequest {
   }
 
   public async post(url: string, data?: object) {
-    const response = await (new Promise((resolve) => {
-      this.apiInstance.post(url)
+    const response = (await new Promise((resolve) => {
+      this.apiInstance
+        .post(url)
         .set(this.headers)
         .send(data ?? this.payload)
         .end((_err, response) => {
           resolve(response);
         });
     })) as ChaiHttp.Response;
+    console.log(response);
     return new HttpResponse(response);
   }
 
   public async put(url: string, data?: object) {
-    const response = await (new Promise((resolve) => {
-      this.apiInstance.put(url)
+    const response = (await new Promise((resolve) => {
+      this.apiInstance
+        .put(url)
         .set(this.headers)
         .send(data ?? this.payload)
         .end((_err, response) => {
@@ -125,8 +131,9 @@ class HttpRequest {
   }
 
   public async delete(url: string) {
-    const response = await (new Promise((resolve) => {
-      this.apiInstance.delete(url)
+    const response = (await new Promise((resolve) => {
+      this.apiInstance
+        .delete(url)
         .set(this.headers)
         .end((_err, response) => {
           resolve(response);
@@ -144,6 +151,6 @@ export default class ApiService {
   }
   public getInstance = () => {
     return new HttpRequest(this.chai.request(ENVIROMENT.API_URL));
-  }
+  };
 }
 export const apiService = new ApiService();

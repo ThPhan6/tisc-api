@@ -207,6 +207,13 @@ class InvoiceService {
   }
   public async get(user: UserAttributes, invoiceId: string) {
     const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
+    console.log(
+      invoice,
+      user.type,
+      UserType.TISC,
+      invoice.relation_id,
+      user.relation_id
+    );
     if (
       !invoice ||
       (user.type !== UserType.TISC && invoice.relation_id !== user.relation_id)
