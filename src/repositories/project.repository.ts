@@ -554,50 +554,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted == null
         RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
       )
-
-      LET considerDeleted = (
-        FOR pp IN prjProducts
-        FILTER pp.deleted_at != null
-        FILTER pp.status == @considerStatus
-        COLLECT WITH COUNT INTO length RETURN length
-      )
-      LET specifyDeleted = (
-        FOR pp IN prjProducts
-        FILTER pp.deleted_at != null
-        FILTER pp.status == @specifiedStatus
-        COLLECT WITH COUNT INTO length RETURN length
-      )
-
-      LET considerPrjProducts = (
-        FOR pp IN prjProducts
-        FILTER pp.status == @considerStatus
-        FILTER pp.deleted_at == null
-        FOR p IN products
-        FILTER p.id == pp.product_id
-        RETURN MERGE(pp, {
-          product: MERGE(
-            KEEP(p, 'id', 'brand_id', 'name'),
-            { image: FIRST(p.images), status: pp.consider_status } )
-          }
-        )
-      )
-      LET unlisted = (
-        FOR pp IN considerPrjProducts
-        FILTER pp.consider_status == @unlistedStatus
-        COLLECT WITH COUNT INTO length RETURN length
-      )
-      LET considerProductBrands = (
-        FOR pp IN considerPrjProducts
-        FOR b IN brands
-        FILTER b.id == pp.product.brand_id
-        FILTER b.deleted_at == null
-        COLLECT brand = pp.product.brand_id INTO brandGroup
-        RETURN {
-          name: FIRST(brandGroup[*].b.name),
-          logo: FIRST(brandGroup[*].b.logo),
-          products: brandGroup[*].pp.product
-        }
-      )
       LET customProducts = (
         FOR pp IN prjProducts
         FILTER pp.deleted_at == null
@@ -606,22 +562,59 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted_at == null
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
-          { image: FIRST(p.images), status: pp.consider_status, ppStatus: pp.status }
+          { image: FIRST(p.images), 
+            status: pp.status == @considerStatus ? pp.consider_status : pp.specified_status,
+            ppStatus: pp.status }
         )
+      )
+
+      LET considerDeleted = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        FILTER pp.status == @considerStatus
+        RETURN DISTINCT pp.product_id
+      )
+      LET specifyDeleted = (
+        FOR pp IN prjProducts
+        FILTER pp.deleted_at != null
+        FILTER pp.status == @specifiedStatus
+        RETURN DISTINCT pp.product_id
+      )
+
+      LET considerPrjProducts = (
+        FOR pp IN prjProducts
+        FILTER pp.status == @considerStatus
+        FILTER pp.deleted_at == null
+        RETURN pp
+      )
+      LET unlisted = (
+        FOR pp IN considerPrjProducts
+        FILTER pp.consider_status == @unlistedStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET considerProductBrands = (
+        FOR pp IN considerPrjProducts
+        FOR product IN products
+        FILTER product.id == pp.product_id
+        FOR b IN brands
+        FILTER b.id == product.brand_id
+        FILTER b.deleted_at == null
+        COLLECT brand = product.brand_id INTO brandGroup
+        RETURN {
+          name: FIRST(brandGroup[*].b.name),
+          logo: FIRST(brandGroup[*].b.logo),
+          products: (FOR group IN brandGroup RETURN MERGE(
+            KEEP(group.product, 'id', 'brand_id', 'name'),
+            { image: FIRST(group.product.images), status: group.pp.consider_status } )
+          )
+        }
       )
 
       LET specifiedPrjProducts = (
         FOR pp IN prjProducts
         FILTER pp.status == @specifiedStatus
         FILTER pp.deleted_at == null
-        FOR p IN products
-        FILTER p.id == pp.product_id
-        RETURN MERGE(pp, {
-          product: MERGE(
-            KEEP(p, 'id', 'brand_id', 'name'),
-            { image: FIRST(p.images), status: pp.specified_status } )
-          }
-        )
+        RETURN pp
       )
 
       LET cancelled = (
@@ -629,21 +622,21 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER pp.specified_status == @cancelledStatus
         COLLECT WITH COUNT INTO length RETURN length
       )
-      LET products = (
-        FOR pp IN prjProducts
-        FILTER pp.deleted_at != null
-        RETURN DISTINCT pp.product_id
-      )
       LET specifiedProductBrands = (
         FOR pp IN specifiedPrjProducts
+        FOR product IN products
+        FILTER product.id == pp.product_id
         FOR b IN brands
-        FILTER b.id == pp.product.brand_id
+        FILTER b.id == product.brand_id
         FILTER b.deleted_at == null
-        COLLECT brand = pp.product.brand_id INTO brandGroup
+        COLLECT brand = product.brand_id INTO brandGroup
         RETURN {
           name: FIRST(brandGroup[*].b.name),
           logo: FIRST(brandGroup[*].b.logo),
-          products: brandGroup[*].pp.product
+          products: (FOR group IN brandGroup RETURN MERGE(
+            KEEP(group.product, 'id', 'brand_id', 'name'),
+            { image: FIRST(group.product.images), status: group.pp.specified_status } )
+          )
         }
       )
 
@@ -687,14 +680,14 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         considered: {
           brands: considerProductBrands,
           customProducts: (FOR p IN customProducts FILTER p.ppStatus == @considerStatus RETURN UNSET(p, 'ppStatus')),
-          deleted: considerDeleted[0],
+          deleted: LENGTH(considerDeleted),
           consider: LENGTH(considerPrjProducts) - unlisted[0],
           unlisted: unlisted[0],
         },
         specified: {
           brands: specifiedProductBrands,
           customProducts: (FOR p IN customProducts FILTER p.ppStatus == @specifiedStatus RETURN UNSET(p, 'ppStatus')),
-          deleted: specifyDeleted[0],
+          deleted: LENGTH(specifyDeleted),
           specified: LENGTH(specifiedPrjProducts) - cancelled[0],
           cancelled: cancelled[0],
         },
