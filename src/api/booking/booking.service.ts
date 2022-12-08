@@ -28,26 +28,29 @@ import { BookingAttributes } from "@/model/booking.model";
 import { mailService } from "@/service/mail.service";
 
 export default class BookingService {
-  public async availableSchedule(date: string) {
-    const numberOfWeek = moment(date).isoWeekday();
-    if (numberOfWeek == 6 || numberOfWeek == 7) {
-      return errorMessageResponse(MESSAGES.BOOKING.SCHEDULE_NOT_AVAILABLE);
-    }
-    // start -> 08:00:00 AM
-    const unixStartTime = moment(`${date} 08:00:00+08:00`).format("X");
-    // end -> 06:00:00 PM
-    const unixEndTime = moment(`${date} 18:00:00+08:00`).format("X");
+  public async availableSchedule(clientDate: string, clientTimezone: Timezones) {
+    ///
+    const clientStartTime = moment.tz(clientDate, clientTimezone);
+    const clientEndTime = clientStartTime.clone().endOf('days');
+    /// parse to singapore time
+    const serverStartTime = clientStartTime.clone().tz(Timezones.Singapore_Standard_Time);
+    const serverEndTime = clientEndTime.clone().tz(Timezones.Singapore_Standard_Time);
 
     /// get events from Lark API
     const response = await larkOpenAPIService.getEventList(
-      unixStartTime,
-      unixEndTime
+      serverStartTime.format("X"),
+      serverEndTime.format("X")
     );
+    //
     if (response.data.code != 0) {
       return errorMessageResponse(response.data.msg);
     }
     ///
-    const schedule = mappingSlotAvailable(date, response.data.data.items ?? []);
+    const schedule = mappingSlotAvailable(
+      clientDate,
+      clientTimezone,
+      response.data?.data?.items ?? []
+    );
     return successResponse({ data: schedule });
   }
 
@@ -156,11 +159,11 @@ export default class BookingService {
     //
     const response = await larkOpenAPIService.updateEvent(booking.event_id, {
       start_time: {
-        timestamp: schedule.unixStartTime,
+        timestamp: schedule.bookedStartTime,
         timezone: payload.timezone,
       },
       end_time: {
-        timestamp: schedule.unixEndTime,
+        timestamp: schedule.bookedStartTime,
         timezone: payload.timezone,
       },
     });
@@ -238,7 +241,7 @@ export default class BookingService {
     slotTime: SlotTime,
     timezone: Timezones
   ) {
-    let response = (await this.availableSchedule(date)) as any;
+    let response = (await this.availableSchedule(date, timezone)) as any;
     if (response.statusCode === 400) {
       return false;
     }
@@ -248,10 +251,10 @@ export default class BookingService {
     );
     if (schedule) {
       //
-      const startTime = moment(`${date} ${schedule.start}+08:00`);
-      const endTime = moment(`${date} ${schedule.end}+08:00`);
-      const bookedStartTime = startTime.tz(timezone);
-      const bookedEndTime = endTime.tz(timezone);
+      const startTime = moment.tz(`${date} ${schedule.start}`, Timezones.Singapore_Standard_Time);
+      const endTime = moment.tz(`${date} ${schedule.end}`, Timezones.Singapore_Standard_Time);
+      const bookedStartTime = startTime.clone().tz(timezone);
+      const bookedEndTime = endTime.clone().tz(timezone);
       ///
       return {
         ...schedule,

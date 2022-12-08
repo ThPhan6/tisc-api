@@ -31,9 +31,7 @@ const customBookingDateValidation = (
   const max = moment().add(90, "days").format("YYYY-MM-DD HH:mm:ss");
   const sche = BookingSchedule.find((item) => item.slot === value.slot);
   if (!sche) {
-    return helpers.message({
-      custom: "Invalid slot",
-    });
+    return helpers.message({ custom: "The slot time are not available" });
   }
   const temp = moment
     .tz(`${value.date} ${sche.start}`, value.timezone)
@@ -44,13 +42,14 @@ const customBookingDateValidation = (
     return helpers.message({
       custom: `A valid date and slot must be between ${min} and ${max}`,
     });
-  return { ...value, date: temp };
+  return { ...value };
 };
 export default {
   availableSchedule: {
-    query: {
+    query: Joi.object({
       date: requireDateValidation(1, 90),
-    },
+      timezone: timezoneValidation,
+    })
   },
   create: {
     payload: Joi.object({
