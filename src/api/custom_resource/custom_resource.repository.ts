@@ -78,7 +78,6 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         now: new Date(),
       }
     );
-    console.log("updateAssociateResources", result);
     return result;
   }
 

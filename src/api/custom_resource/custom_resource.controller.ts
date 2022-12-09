@@ -71,6 +71,14 @@ export default class CustomResourceController {
 
     const { brand_id } = req.params;
 
+    const brand = await customResourceRepository.getOne(brand_id);
+
+    if (!brand) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404))
+        .code(404);
+    }
+
     const response = await customResourceRepository.getDistributorsByCompany(
       brand_id,
       user.relation_id
@@ -173,7 +181,9 @@ export default class CustomResourceController {
       user.relation_id !== result.design_id
     ) {
       return toolkit
-        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS))
+        .response(
+          errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS)
+        )
         .code(404);
     }
 
