@@ -14,7 +14,7 @@ import {
   Timezones,
 } from "./booking.type";
 import moment from "moment";
-
+import { bookingService } from "./booking.service";
 const timezoneValidation = Joi.valid(...getEnumValues(Timezones)).error(
   errorMessage("Time zone is not valid")
 );
@@ -27,29 +27,64 @@ const customBookingDateValidation = (
   value: BookingPayloadRequest,
   helpers: Joi.CustomHelpers
 ) => {
-  const min = moment().add(1, "days").format("YYYY-MM-DD HH:mm:ss");
-  const max = moment().add(90, "days").format("YYYY-MM-DD HH:mm:ss");
-  const sche = BookingSchedule.find((item) => item.slot === value.slot);
-  if (!sche) {
+  let clientDate = moment(value.date).format("YYYY-MM-DD");
+  const min = moment.tz(value.timezone).add(1, "days");
+
+  const max = moment.tz(value.timezone).add(90, "days");
+
+  const serverSche = BookingSchedule.find(
+    (item: any) => item.slot === value.slot
+  );
+  if (!serverSche) {
     return helpers.message({ custom: "The slot time are not available" });
   }
-  const temp = moment
-    .tz(`${value.date} ${sche.start}`, value.timezone)
-    .tz("Asia/Singapore")
-    .format("YYYY-MM-DD");
-  const bookingDate = moment(`${temp} ${sche.start}`);
+  const sche = {
+    ...serverSche,
+    start: moment
+      .tz(
+        `${clientDate} ${serverSche.start}`,
+        Timezones.Singapore_Standard_Time
+      )
+      .tz(value.timezone)
+      .format("HH:mm:ss"),
+    end: moment
+      .tz(`${clientDate} ${serverSche.end}`, Timezones.Singapore_Standard_Time)
+      .tz(value.timezone)
+      .format("HH:mm:ss"),
+  };
+
+  const bookingDate = moment
+    .tz(`${clientDate} ${sche.start}`, value.timezone)
+    .clone();
+  const bookingDateOfWeekOnServer = bookingDate
+    .clone()
+    .tz(Timezones.Singapore_Standard_Time)
+    .format("ddd");
+  if (
+    bookingDateOfWeekOnServer === "Sat" ||
+    bookingDateOfWeekOnServer === "Sun"
+  ) {
+    return helpers.message({
+      custom: "The slot time are not available",
+    });
+  }
   if (!bookingDate.isBetween(min, max))
     return helpers.message({
-      custom: `A valid date and slot must be between ${min} and ${max}`,
+      custom: `A valid date and slot must be between ${min.format(
+        "YYYY-MM-DD HH:mm:ss"
+      )} and ${max.format("YYYY-MM-DD HH:mm:ss")}`,
     });
-  return { ...value };
+  return {
+    ...value,
+    date: moment.tz(clientDate, value.timezone).format("YYYY-MM-DD"),
+  };
 };
 export default {
   availableSchedule: {
     query: Joi.object({
       date: requireDateValidation(1, 90),
       timezone: timezoneValidation,
-    })
+    }),
   },
   create: {
     payload: Joi.object({

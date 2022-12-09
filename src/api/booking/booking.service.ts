@@ -28,18 +28,72 @@ import { BookingAttributes } from "@/model/booking.model";
 import { mailService } from "@/service/mail.service";
 
 export default class BookingService {
-  public async availableSchedule(clientDate: string, clientTimezone: Timezones) {
+  public async availableSchedule(
+    clientDate: string,
+    clientTimezone: Timezones
+  ) {
     ///
     const clientStartTime = moment.tz(clientDate, clientTimezone);
-    const clientEndTime = clientStartTime.clone().endOf('days');
-    /// parse to singapore time
-    const serverStartTime = clientStartTime.clone().tz(Timezones.Singapore_Standard_Time);
-    const serverEndTime = clientEndTime.clone().tz(Timezones.Singapore_Standard_Time);
+    const clientStartTimeOnServer = clientStartTime
+      .clone()
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("HH:mm:ss");
 
-    /// get events from Lark API
+    const clientStartTimeUnix = clientStartTime
+      .clone()
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("X");
+    const clientEndTimeUnix = clientStartTime
+      .clone()
+      .add(24, "hours")
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("X");
+    const clientStartDateOnServer = clientStartTime
+      .clone()
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("YYYY-MM-DD");
+    const clientNextStartDateOnServer = clientStartTime
+      .clone()
+      .add(1, "days")
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("YYYY-MM-DD");
+    const startAvailableTimeIndex = BookingSchedule.findIndex(
+      (item) => item.start === clientStartTimeOnServer
+    );
+    let result = BookingSchedule.slice(
+      startAvailableTimeIndex,
+      BookingSchedule.length
+    )
+      .map((item) => ({
+        ...item,
+        start: `${clientStartDateOnServer} ${item.start}`,
+      }))
+      .concat(
+        BookingSchedule.slice(0, startAvailableTimeIndex).map((item) => {
+          return {
+            ...item,
+            start: `${clientNextStartDateOnServer} ${item.start}`,
+          };
+        })
+      )
+      .filter((item) => item.available)
+      .map((item) => {
+        return {
+          ...item,
+          start: moment
+            .tz(item.start, Timezones.Singapore_Standard_Time)
+            .tz(clientTimezone)
+            .format("HH:mm:ss"),
+          end: moment
+            .tz(item.start, Timezones.Singapore_Standard_Time)
+            .tz(clientTimezone)
+            .add(1, "hour")
+            .format("HH:mm:ss"),
+        };
+      });
     const response = await larkOpenAPIService.getEventList(
-      serverStartTime.format("X"),
-      serverEndTime.format("X")
+      clientStartTimeUnix,
+      clientEndTimeUnix
     );
     //
     if (response.data.code != 0) {
@@ -49,7 +103,8 @@ export default class BookingService {
     const schedule = mappingSlotAvailable(
       clientDate,
       clientTimezone,
-      response.data?.data?.items ?? []
+      response.data?.data?.items ?? [],
+      result
     );
     return successResponse({ data: schedule });
   }
@@ -205,7 +260,13 @@ export default class BookingService {
     if (!booking) {
       return errorMessageResponse(MESSAGES.BOOKING.NOT_FOUND, 404);
     }
-    const sche = BookingSchedule.find((item) => item.slot === booking.slot);
+    const availableSchedule: any = await this.availableSchedule(
+      booking.date,
+      booking.timezone
+    );
+    const sche = availableSchedule.data.find(
+      (item: ScheduleTime) => item.slot === booking.slot
+    );
     const startTimeText = moment(`${booking.date} ${sche?.start || "00:00:00"}`)
       .tz(booking.timezone)
       .format("hh:mma");
@@ -250,20 +311,16 @@ export default class BookingService {
       (sche) => sche.slot === slotTime && sche.available
     );
     if (schedule) {
-      //
-      const startTime = moment.tz(`${date} ${schedule.start}`, Timezones.Singapore_Standard_Time);
-      const endTime = moment.tz(`${date} ${schedule.end}`, Timezones.Singapore_Standard_Time);
-      const bookedStartTime = startTime.clone().tz(timezone);
-      const bookedEndTime = endTime.clone().tz(timezone);
-      ///
+      const startTime = moment.tz(`${date} ${schedule.start}`, timezone);
+      const endTime = moment.tz(`${date} ${schedule.end}`, timezone);
       return {
         ...schedule,
         startTime,
         endTime,
         unixStartTime: startTime.format("X"),
         unixEndTime: endTime.format("X"),
-        bookedStartTime: bookedStartTime.format("X"),
-        bookedEndTime: bookedEndTime.format("X"),
+        bookedStartTime: startTime.format("X"),
+        bookedEndTime: endTime.format("X"),
       };
     }
     return false;
