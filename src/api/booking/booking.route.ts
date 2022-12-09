@@ -1,5 +1,6 @@
 import {
-  defaultRouteOptionResponseStatus, generalMessageResponse,
+  defaultRouteOptionResponseStatus,
+  generalMessageResponse,
 } from "@/helper/response.helper";
 import { ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
@@ -7,7 +8,7 @@ import IRoute from "@/helper/route.helper";
 import validate from "./booking.validate";
 import BookingController from "./booking.controller";
 import response from "./booking.response";
-import {getOneValidation} from '@/validate/common.validate';
+import { getOneValidation } from "@/validate/common.validate";
 
 export default class BookingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -26,7 +27,7 @@ export default class BookingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.availableSchedule
+                200: response.availableSchedule,
               },
             },
           },
@@ -42,7 +43,7 @@ export default class BookingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse
+                200: response.create,
               },
             },
           },
@@ -58,7 +59,7 @@ export default class BookingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getOne
+                200: response.getOne,
               },
             },
           },
@@ -74,7 +75,7 @@ export default class BookingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse
+                200: generalMessageResponse,
               },
             },
           },
@@ -90,11 +91,11 @@ export default class BookingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse
+                200: generalMessageResponse,
               },
             },
           },
-        }
+        },
       ]);
       resolve(true);
     });

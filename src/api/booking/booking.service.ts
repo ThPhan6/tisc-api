@@ -183,7 +183,10 @@ export default class BookingService {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
     }
 
-    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+    return successResponse({
+      data: { id: booking.id },
+      message: MESSAGES.SUCCESS,
+    });
   }
 
   public async reSchedule(
