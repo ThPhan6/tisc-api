@@ -6,15 +6,15 @@ const Joi = HapiJoi.defaults((schema) =>
 );
 
 export default {
-    availableSchedule: Joi.object({
+  availableSchedule: Joi.object({
     data: Joi.array().items(
-        Joi.object({
-          start: Joi.string(),
-          end: Joi.string(),
-          available: Joi.boolean(),
-          slot: Joi.number(),
-        })
-      ),
+      Joi.object({
+        start: Joi.string(),
+        end: Joi.string(),
+        available: Joi.boolean(),
+        slot: Joi.number(),
+      })
+    ),
     statusCode: Joi.number(),
   }) as any,
   getOne: Joi.object({
@@ -22,9 +22,9 @@ export default {
       id: Joi.string(),
       event_id: Joi.string(),
       brand_id: Joi.string(),
-      website: Joi.string().allow(null, ''),
-      name: Joi.string().allow(null, ''),
-      brand_name: Joi.string().allow(null, ''),
+      website: Joi.string().allow(null, ""),
+      name: Joi.string().allow(null, ""),
+      brand_name: Joi.string().allow(null, ""),
       meeting_url: Joi.string(),
       email: Joi.string(),
       date: Joi.string(),
@@ -37,5 +37,12 @@ export default {
       updated_at: Joi.string(),
     }),
     statusCode: Joi.number(),
-  })
+  }),
+  create: Joi.object({
+    data: {
+      id: Joi.string(),
+    },
+    message: Joi.string(),
+    statusCode: Joi.number(),
+  }),
 };
