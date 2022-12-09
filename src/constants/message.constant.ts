@@ -13,8 +13,10 @@ export const MESSAGES = {
       "Something went wrong. Please contact to the administrator!",
     CAN_NOT_MODIFY_MASTER_DATA: "Can not modify master data",
     CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
-    NOT_AUTHORIZED_TO_ACCESS: "You are not have permission to access this resource",
-    NOT_AUTHORIZED_TO_PERFORM: "You are not have permission to perform this action",
+    NOT_AUTHORIZED_TO_ACCESS:
+      "You are not have permission to access this resource",
+    NOT_AUTHORIZED_TO_PERFORM:
+      "You are not have permission to perform this action",
     NOT_FOUND: "Not found!",
   },
 
@@ -118,7 +120,8 @@ export const MESSAGES = {
     NOT_FOUND: "Revenue service not found",
     ONLY_UPDATE_PENDING_INVOICE: "Only pending invoice is valid to update.",
     ONLY_BILL_PENDING_INVOICE: "Only pending invoice is valid to bill.",
-    ONLY_PAID_OUTSTANDING_OR_OVERDUE: "Only outstanding or overdue invoice is valid to paid.",
+    ONLY_PAID_OUTSTANDING_OR_OVERDUE:
+      "Only outstanding or overdue invoice is valid to paid.",
   },
 
   PROJECT_TRACKING: {
@@ -248,26 +251,27 @@ export const MESSAGES = {
     NOT_FOUND: "Please update Issuing information!",
   },
   PROJECT_PRODUCT: {
-    INCORRECT_SPECIFICATION: "Please re-update specification of this product"
+    INCORRECT_SPECIFICATION: "Please re-update specification of this product",
   },
 
   customResource: {
     existed: "Resource existed",
     notFound: "Resource not found",
-    haveProduct: "Brand is have products, you can not delete it",
+    haveProduct: "A brand associated with products cannot be deleted.",
   },
 
   BOOKING: {
     TIMEZONE: {
-      NOT_VALID: "Timezone invalid data, ex: Asia/Singapore"
+      NOT_VALID: "Timezone invalid data, ex: Asia/Singapore",
     },
     TIME_STAMP: {
       NOT_VALID: "The start time or end time invalid timestamp data",
-      LARGE_THAN: "The end time must be large than start time and large than today",
+      LARGE_THAN:
+        "The end time must be large than start time and large than today",
     },
     NOT_AVAILABLE: "This booking is not available",
     NOT_FOUND: "Not found booking",
-    SCHEDULE_NOT_AVAILABLE: 'Can\'t get on Saturday or Sunday'
+    SCHEDULE_NOT_AVAILABLE: "Can't get on Saturday or Sunday",
   },
-  JUST_SHARE_IN_DESIGN_FIRM: "Just share to user in the same design firm."
+  JUST_SHARE_IN_DESIGN_FIRM: "Just share to user in the same design firm.",
 };
