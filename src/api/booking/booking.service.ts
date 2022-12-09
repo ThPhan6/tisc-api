@@ -28,26 +28,84 @@ import { BookingAttributes } from "@/model/booking.model";
 import { mailService } from "@/service/mail.service";
 
 export default class BookingService {
-  public async availableSchedule(date: string) {
-    const numberOfWeek = moment(date).isoWeekday();
-    if (numberOfWeek == 6 || numberOfWeek == 7) {
-      return errorMessageResponse(MESSAGES.BOOKING.SCHEDULE_NOT_AVAILABLE);
-    }
-    // start -> 08:00:00 AM
-    const unixStartTime = moment(`${date} 08:00:00+08:00`).format("X");
-    // end -> 06:00:00 PM
-    const unixEndTime = moment(`${date} 18:00:00+08:00`).format("X");
+  public async availableSchedule(
+    clientDate: string,
+    clientTimezone: Timezones
+  ) {
+    ///
+    const clientStartTime = moment.tz(clientDate, clientTimezone);
+    const clientStartTimeOnServer = clientStartTime
+      .clone()
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("HH:mm:ss");
 
-    /// get events from Lark API
-    const response = await larkOpenAPIService.getEventList(
-      unixStartTime,
-      unixEndTime
+    const clientStartTimeUnix = clientStartTime
+      .clone()
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("X");
+    const clientEndTimeUnix = clientStartTime
+      .clone()
+      .add(24, "hours")
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("X");
+    const clientStartDateOnServer = clientStartTime
+      .clone()
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("YYYY-MM-DD");
+    const clientNextStartDateOnServer = clientStartTime
+      .clone()
+      .add(1, "days")
+      .tz(Timezones.Singapore_Standard_Time)
+      .format("YYYY-MM-DD");
+    const startAvailableTimeIndex = BookingSchedule.findIndex(
+      (item) => item.start === clientStartTimeOnServer
     );
+    let result = BookingSchedule.slice(
+      startAvailableTimeIndex,
+      BookingSchedule.length
+    )
+      .map((item) => ({
+        ...item,
+        start: `${clientStartDateOnServer} ${item.start}`,
+      }))
+      .concat(
+        BookingSchedule.slice(0, startAvailableTimeIndex).map((item) => {
+          return {
+            ...item,
+            start: `${clientNextStartDateOnServer} ${item.start}`,
+          };
+        })
+      )
+      .filter((item) => item.available)
+      .map((item) => {
+        return {
+          ...item,
+          start: moment
+            .tz(item.start, Timezones.Singapore_Standard_Time)
+            .tz(clientTimezone)
+            .format("HH:mm:ss"),
+          end: moment
+            .tz(item.start, Timezones.Singapore_Standard_Time)
+            .tz(clientTimezone)
+            .add(1, "hour")
+            .format("HH:mm:ss"),
+        };
+      });
+    const response = await larkOpenAPIService.getEventList(
+      clientStartTimeUnix,
+      clientEndTimeUnix
+    );
+    //
     if (response.data.code != 0) {
       return errorMessageResponse(response.data.msg);
     }
     ///
-    const schedule = mappingSlotAvailable(date, response.data.data.items ?? []);
+    const schedule = mappingSlotAvailable(
+      clientDate,
+      clientTimezone,
+      response.data?.data?.items ?? [],
+      result
+    );
     return successResponse({ data: schedule });
   }
 
@@ -156,11 +214,11 @@ export default class BookingService {
     //
     const response = await larkOpenAPIService.updateEvent(booking.event_id, {
       start_time: {
-        timestamp: schedule.unixStartTime,
+        timestamp: schedule.bookedStartTime,
         timezone: payload.timezone,
       },
       end_time: {
-        timestamp: schedule.unixEndTime,
+        timestamp: schedule.bookedStartTime,
         timezone: payload.timezone,
       },
     });
@@ -202,20 +260,26 @@ export default class BookingService {
     if (!booking) {
       return errorMessageResponse(MESSAGES.BOOKING.NOT_FOUND, 404);
     }
-    const dateText = moment(booking.date).format("ddd, MMM DD YYYY");
-    const sche = BookingSchedule.find((item) => item.slot === booking.slot);
-    const startTimeText = moment(
-      `${booking.date} ${sche?.start || "00:00:00"}`
-    ).format("hh:mma");
-    const endTimeText = moment(
-      `${booking.date} ${sche?.end || "00:00:00"}`
-    ).format("hh:mma");
+    const availableSchedule: any = await this.availableSchedule(
+      booking.date,
+      booking.timezone
+    );
+    const sche = availableSchedule.data.find(
+      (item: ScheduleTime) => item.slot === booking.slot
+    );
+    const startTimeText = moment(`${booking.date} ${sche?.start || "00:00:00"}`)
+      .tz(booking.timezone)
+      .format("hh:mma");
+    const endTimeText = moment(`${booking.date} ${sche?.end || "00:00:00"}`)
+      .tz(booking.timezone)
+      .format("hh:mma");
 
     return successResponse({
       data: {
         ...booking,
         timezone_text: TimeZoneText[booking.timezone],
-        time_text: `${dateText} ${startTimeText}-${endTimeText}`,
+        start_time_text: startTimeText,
+        end_time_text: endTimeText,
       },
     });
   }
@@ -238,7 +302,7 @@ export default class BookingService {
     slotTime: SlotTime,
     timezone: Timezones
   ) {
-    let response = (await this.availableSchedule(date)) as any;
+    let response = (await this.availableSchedule(date, timezone)) as any;
     if (response.statusCode === 400) {
       return false;
     }
@@ -247,20 +311,16 @@ export default class BookingService {
       (sche) => sche.slot === slotTime && sche.available
     );
     if (schedule) {
-      //
-      const startTime = moment(`${date} ${schedule.start}+08:00`);
-      const endTime = moment(`${date} ${schedule.end}+08:00`);
-      const bookedStartTime = startTime.tz(timezone);
-      const bookedEndTime = endTime.tz(timezone);
-      ///
+      const startTime = moment.tz(`${date} ${schedule.start}`, timezone);
+      const endTime = moment.tz(`${date} ${schedule.end}`, timezone);
       return {
         ...schedule,
         startTime,
         endTime,
         unixStartTime: startTime.format("X"),
         unixEndTime: endTime.format("X"),
-        bookedStartTime: bookedStartTime.format("X"),
-        bookedEndTime: bookedEndTime.format("X"),
+        bookedStartTime: startTime.format("X"),
+        bookedEndTime: endTime.format("X"),
       };
     }
     return false;
