@@ -267,13 +267,12 @@ export default class BookingService {
     const sche = availableSchedule.data.find(
       (item: ScheduleTime) => item.slot === booking.slot
     );
-    const startTimeText = moment(`${booking.date} ${sche?.start || "00:00:00"}`)
-      .tz(booking.timezone)
+    const startTimeText = moment
+      .tz(`${booking.date} ${sche?.start || "00:00:00"}`, booking.timezone)
       .format("hh:mma");
-    const endTimeText = moment(`${booking.date} ${sche?.end || "00:00:00"}`)
-      .tz(booking.timezone)
+    const endTimeText = moment
+      .tz(`${booking.date} ${sche?.end || "00:00:00"}`, booking.timezone)
       .format("hh:mma");
-
     return successResponse({
       data: {
         ...booking,
