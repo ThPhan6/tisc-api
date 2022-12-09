@@ -554,19 +554,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted == null
         RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
       )
-      LET customProducts = (
-        FOR pp IN prjProducts
-        FILTER pp.deleted_at == null
-        FOR p IN custom_products
-        FILTER p.id == pp.product_id
-        FILTER p.deleted_at == null
-        RETURN MERGE(
-          KEEP(p, 'id', 'company_id', 'name'),
-          { image: FIRST(p.images), 
-            status: pp.status == @considerStatus ? pp.consider_status : pp.specified_status,
-            ppStatus: pp.status }
-        )
-      )
 
       LET considerDeleted = (
         FOR pp IN prjProducts
@@ -587,11 +574,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER pp.deleted_at == null
         RETURN pp
       )
-      LET unlisted = (
-        FOR pp IN considerPrjProducts
-        FILTER pp.consider_status == @unlistedStatus
-        COLLECT WITH COUNT INTO length RETURN length
-      )
       LET considerProductBrands = (
         FOR pp IN considerPrjProducts
         FOR product IN products
@@ -609,6 +591,18 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           )
         }
       )
+      LET considerCustomProducts = (
+        FOR pp IN considerPrjProducts
+        FOR p IN custom_products
+        FILTER p.id == pp.product_id
+        FILTER p.deleted_at == null
+        RETURN MERGE(
+          KEEP(p, 'id', 'company_id', 'name'),
+          { image: FIRST(p.images), 
+            status: pp.consider_status
+          }
+        )
+      )
 
       LET specifiedPrjProducts = (
         FOR pp IN prjProducts
@@ -617,11 +611,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN pp
       )
 
-      LET cancelled = (
-        FOR pp IN specifiedPrjProducts
-        FILTER pp.specified_status == @cancelledStatus
-        COLLECT WITH COUNT INTO length RETURN length
-      )
       LET specifiedProductBrands = (
         FOR pp IN specifiedPrjProducts
         FOR product IN products
@@ -638,6 +627,32 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             { image: FIRST(group.product.images), status: group.pp.specified_status } )
           )
         }
+      )
+      LET specifiedCustomProducts = (
+        FOR pp IN specifiedPrjProducts
+        FOR p IN custom_products
+        FILTER p.id == pp.product_id
+        FILTER p.deleted_at == null
+        RETURN MERGE(
+          KEEP(p, 'id', 'company_id', 'name'),
+          { image: FIRST(p.images), 
+            status: pp.specified_status
+          }
+        )
+      )
+
+      LET specifiedBrandProducts = FLATTEN(specifiedProductBrands[*].products)
+      LET considerBrandProducts = FLATTEN(considerProductBrands[*].products)
+
+      LET unlisted = (
+        FOR p IN UNION(considerBrandProducts, considerCustomProducts)
+        FILTER p.status == @unlistedStatus
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET cancelled = (
+        FOR p IN UNION(specifiedBrandProducts, specifiedCustomProducts)
+        FILTER p.status == @cancelledStatus
+        COLLECT WITH COUNT INTO length RETURN length
       )
 
       LET members = (
@@ -679,16 +694,16 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         },
         considered: {
           brands: considerProductBrands,
-          customProducts: (FOR p IN customProducts FILTER p.ppStatus == @considerStatus RETURN UNSET(p, 'ppStatus')),
+          customProducts: considerCustomProducts,
           deleted: LENGTH(considerDeleted),
-          consider: LENGTH(considerPrjProducts) - unlisted[0],
+          consider: LENGTH(considerProductBrands) + LENGTH(considerCustomProducts) - unlisted[0],
           unlisted: unlisted[0],
         },
         specified: {
           brands: specifiedProductBrands,
-          customProducts: (FOR p IN customProducts FILTER p.ppStatus == @specifiedStatus RETURN UNSET(p, 'ppStatus')),
+          customProducts: specifiedCustomProducts,
           deleted: LENGTH(specifyDeleted),
-          specified: LENGTH(specifiedPrjProducts) - cancelled[0],
+          specified: LENGTH(specifiedBrandProducts) + LENGTH(specifiedCustomProducts) - cancelled[0],
           cancelled: cancelled[0],
         },
         members
