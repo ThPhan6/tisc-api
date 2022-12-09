@@ -218,7 +218,7 @@ export default class BookingService {
         timezone: payload.timezone,
       },
       end_time: {
-        timestamp: schedule.bookedStartTime,
+        timestamp: schedule.bookedEndTime,
         timezone: payload.timezone,
       },
     });
