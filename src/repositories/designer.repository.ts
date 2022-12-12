@@ -330,8 +330,8 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FILTER col.id == p.collection_id
         RETURN MERGE(${getUnsetAttributes(
           "p",
-          `'images'`
-        )}, {company_name: b.business_name, collection_name: col.name })
+          "'images'"
+        )}, {company_name: b.business_name, collection_name: col.name, image: FIRST(p.images) })
       )
 
       LET collections = (
@@ -340,7 +340,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         RETURN {
           id: collection_id,
           name: collection_name,
-          products: (FOR g IN group RETURN MERGE(KEEP(g.p, 'id', 'name'), {image: FIRST(g.p.images)}))
+          products: (FOR g IN group RETURN KEEP(g.p, 'id', 'name', 'image') )
         }
       )
 
