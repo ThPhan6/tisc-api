@@ -70,7 +70,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       designLocation: LocationType.designer,
     };
     const rawQuery = `
-
+     FILTER designers.deleted_at == null
       LET userCount = (
         FOR users IN users
         FILTER users.deleted_at == null
