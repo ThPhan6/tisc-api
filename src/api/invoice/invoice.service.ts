@@ -265,7 +265,13 @@ class InvoiceService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
   public async delete(invoiceId: string) {
-    await invoiceRepository.findAndDelete(invoiceId);
+    const invoice = await invoiceRepository.find(invoiceId);
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    if (invoice.status !== InvoiceStatus.Pending) {
+      return errorMessageResponse(MESSAGES.INVOICE.ONLY_UPDATE_PENDING_INVOICE);
+    }
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
