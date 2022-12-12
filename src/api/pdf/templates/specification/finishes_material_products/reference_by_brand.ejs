@@ -67,7 +67,7 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.location.contact.first_name %> <%= item.location.contact.last_name %></span>
+          <span class="primary-roboto-light-8-18"><%= item.location.contact.first_name === "N/A" &&  item.location.contact.last_name === "N/A" ? "N/A":item.location.contact.first_name + " "+item.location.contact.last_name  %></span>
         </td>
         <td colspan="2">
           <div style="width: 64px; display: inline-block; ">
