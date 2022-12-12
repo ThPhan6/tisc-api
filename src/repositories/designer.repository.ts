@@ -143,7 +143,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         RETURN common_types.name
       )
       RETURN MERGE(
-        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status'),
+        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status', 'official_website'),
         {design_capabilities: CONCAT_SEPARATOR(', ', capabilities)}
       )
     `,
