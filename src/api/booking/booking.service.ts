@@ -91,6 +91,20 @@ export default class BookingService {
             .format("HH:mm:ss"),
         };
       });
+    const currentIndex = result.findIndex(
+      (item) => item.start > moment().tz(clientTimezone).format("HH:mm:ss")
+    );
+    if (clientDate === moment().add(1, "day").format("YYYY-MM-DD")) {
+      result = result.map((item, index) => {
+        return {
+          ...item,
+          available:
+            currentIndex === -1 || index < currentIndex
+              ? false
+              : item.available,
+        };
+      });
+    }
     const response = await larkOpenAPIService.getEventList(
       clientStartTimeUnix,
       clientEndTimeUnix
