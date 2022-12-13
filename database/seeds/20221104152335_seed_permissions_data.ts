@@ -79,6 +79,7 @@ const permissionData = [
         type: 1,
         routes: [
           ROUTES.GET_PROJECT_LISTING,
+          ROUTES.GET_ONE_PROJECT_LISTING,
           ROUTES.GET_PROJECT_SUMMARY_OVERALL,
         ],
         index: 5,

@@ -3,7 +3,6 @@ import { Server, Request, ResponseToolkit } from "@hapi/hapi";
 import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
 import { userRepository } from "@/repositories/user.repository";
-import { productRepository } from "@/repositories/product.repository";
 import { companyPermissionRepository } from "@/repositories/company_permission.repository";
 import { verifyJwtToken } from "@/helper/jwt.helper";
 import { UserAttributes } from "@/types";
