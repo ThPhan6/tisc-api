@@ -10,6 +10,7 @@ import {
 } from "@/types";
 import { isFinite, head } from "lodash";
 import { COMMON_TYPES } from "@/constants";
+import { pagination } from "@/helper/common.helper";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -57,7 +58,6 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
         ${relationId ? "FILTER location.relation_id == @relationId" : ""}
         ${id ? "FILTER location.id == @id" : ""}
 
-        ${isFinite(limit) && isFinite(offset) ? "LIMIT @offset, @limit" : ""}
         LET userInLocationCount = FIRST(
           FOR user in users
             FILTER user.deleted_at == null
@@ -116,6 +116,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
             ? "SORT @sort @order"
             : "SORT location.@sort @order"
         }
+        ${isFinite(limit) && isFinite(offset) ? "LIMIT @offset, @limit" : ""}
     `;
 
     if (!isCount) {
@@ -140,7 +141,10 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   };
 
   public findWithCountMemberAndFunctionType = async (id: string) => {
-    const query = this.getQueryWithMemberAndFunctionType({ id, relationId: null });
+    const query = this.getQueryWithMemberAndFunctionType({
+      id,
+      relationId: null,
+    });
     return head(
       await this.model.rawQueryV2(query.query, query.params)
     ) as LocationWithTeamCountAndFunctionType;
@@ -179,21 +183,16 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
           await this.model.rawQueryV2(totalQuery.query, totalQuery.params)
         ) || 0;
       return {
-        pagination: {
-          page: offset / limit + 1,
-          page_size: limit,
-          total: totalSize,
-          page_count: Math.ceil(totalSize / limit),
-        },
+        pagination: pagination(limit, offset, totalSize),
         data: dataResponse,
       };
     }
     return {
       pagination: {
-        page: totalSize,
+        page: 1,
         page_size: totalSize,
         total: totalSize,
-        page_count: totalSize,
+        page_count: 1,
       },
       data: dataResponse,
     };

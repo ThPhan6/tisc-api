@@ -272,7 +272,11 @@ class InvoiceService {
     if (invoice.status !== InvoiceStatus.Pending) {
       return errorMessageResponse(MESSAGES.INVOICE.ONLY_UPDATE_PENDING_INVOICE);
     }
-    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+    const response = await invoiceRepository.delete(invoiceId);
+    if (!response) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
+    }
+    return successResponse({ data: response });
   }
 
   public async sendReminder(invoiceId: string) {
