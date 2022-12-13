@@ -202,7 +202,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       LET created_at = invoice.created_at
       LET service_type_name = c.name
       LET brand_name = b.name
-      LET ordered_by = u.firstname + " " + u.lastname
+      LET ordered_by = CONCAT(u.firstname, " ", u.lastname)
 
       SORT ${sort} @order
       LIMIT @offset, @limit
