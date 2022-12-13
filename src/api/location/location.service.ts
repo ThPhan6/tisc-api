@@ -158,8 +158,8 @@ export default class LocationService {
 
   public getList = async (
     user: UserAttributes,
-    limit?: number,
-    offset?: number,
+    limit: number,
+    offset: number,
     sort?: string,
     order?: SortOrder,
     _filter?: any
