@@ -248,7 +248,7 @@ const liveDemoMessage = `
                 <p class="pb-30">Thanks for taking an interest in our service. We are excited to learn more about your
                     brand and
                     product line while introducing our platform.</p>
-                <p>This 60mins session includes:</p>
+                <p>This 60mins demo session includes:</p>
                 <ul class="non-bullet list-session-include pb-30">
                     <li class="dot-blue-light pb-10"><span class="pl-5"> Introduce the TISC platform and its features
                             (30 mins)</span></li>
@@ -262,8 +262,6 @@ const liveDemoMessage = `
                 <p class="text-blue-light text-bold pb-30"><%= start_time %></p>
 
                 <p>Location:</p>
-                <p class="text-bold-black pb-30">Online Virtual Meeting</p>
-                <p>You can join in with</p>
                 <p class="text-bold-black pb-30">Lark Meeting web conference.
                     <a class="text-blue-light text-non-decoration" href="<%= conference_url %>">Join now</a>
                 </p>
