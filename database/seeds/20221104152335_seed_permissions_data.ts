@@ -51,6 +51,7 @@ const permissionData = [
         routes: [
           ROUTES.GET_ALL_DESIGN_FIRM_SUMMARY,
           ROUTES.GET_LIST_DESIGN_FIRM,
+          ROUTES.DESIGN_FIRM.GET_DESIGN_FIRM_LIBRARY,
           ROUTES.GET_DESIGN_LOCATIONS_COUNTRY_GROUP,
           ROUTES.GET_DESIGN_TEAM_GROUP_BY_COUNTRY,
           ROUTES.GET_MATERIAL_CODE_GROUP,
@@ -58,6 +59,7 @@ const permissionData = [
           ROUTES.GET_DESIGN_STATUSES,
           ROUTES.GET_ONE_DESIGN_FIRM,
           ROUTES.UPDATE_DESIGN_STATUS,
+          ROUTES.GET_LIST_MATERIAL_CODE
         ],
         index: 3,
         id: "permission_1_1",
