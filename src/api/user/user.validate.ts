@@ -2,7 +2,6 @@ import Joi from "joi";
 import {
   requireBooleanValidation,
   requireEmailValidation,
-  requireNumberValidation,
   requireStringValidation,
   stringValidation,
 } from "@/validate/common.validate";
