@@ -59,6 +59,7 @@ const permissionData = [
           ROUTES.GET_DESIGN_STATUSES,
           ROUTES.GET_ONE_DESIGN_FIRM,
           ROUTES.UPDATE_DESIGN_STATUS,
+          ROUTES.GET_LIST_MATERIAL_CODE
         ],
         index: 3,
         id: "permission_1_1",
