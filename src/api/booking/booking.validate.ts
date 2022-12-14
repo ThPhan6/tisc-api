@@ -14,7 +14,6 @@ import {
   Timezones,
 } from "./booking.type";
 import moment from "moment";
-import { bookingService } from "./booking.service";
 const timezoneValidation = Joi.valid(...getEnumValues(Timezones)).error(
   errorMessage("Time zone is not valid")
 );
@@ -82,7 +81,9 @@ const customBookingDateValidation = (
 export default {
   availableSchedule: {
     query: Joi.object({
-      date: requireDateValidation(1, 90),
+      date: Joi.date().required().custom((value) => {
+        return moment(value).format("YYYY-MM-DD")
+      }),
       timezone: timezoneValidation,
     }),
   },
