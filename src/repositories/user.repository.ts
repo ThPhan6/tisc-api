@@ -102,7 +102,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
   public async findByCompanyIdWithCompanyStatus(email: string) {
     const result = (await this.model.rawQuery(
       `
-        FILTER users.email == @email
+        FILTER LOWER(users.email) == @email
         FILTER users.deleted_at == null
         LET brands = (
           FOR brand IN brands

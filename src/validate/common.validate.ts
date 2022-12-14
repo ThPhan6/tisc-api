@@ -178,6 +178,7 @@ export const requireEmailValidation = (
     .trim()
     .required()
     .email()
+    .lowercase()
     .error((errors: any) => {
       errors[0].local.label = fieldName;
       const message =
