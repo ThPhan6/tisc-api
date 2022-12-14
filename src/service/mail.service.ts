@@ -1,7 +1,7 @@
 import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { TARGETED_FOR_OPTIONS } from "@/constants";
+import { TARGETED_FOR_OPTIONS, TARGETED_FOR_TYPES } from "@/constants";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
 import { unescape } from "lodash";
 import {
@@ -105,7 +105,29 @@ export default class MailService {
       htmlContent: template.html,
     });
   }
+  private getTargetedForFromUserType = (userType: number) => {
+    let value = 0;
+    switch (userType) {
+      case UserType.TISC:
+        value = TARGETED_FOR_TYPES.TISC_TEAM;
+        break;
+      case UserType.Brand:
+        value = TARGETED_FOR_TYPES.BRAND;
+        break;
 
+      case UserType.Designer:
+        value = TARGETED_FOR_TYPES.DESIGN_FIRM;
+        break;
+
+      default:
+        value = userType;
+        break;
+    }
+    return (
+      TARGETED_FOR_OPTIONS.find((item) => item.value === value)?.key ||
+      "General"
+    );
+  };
   public async sendResetPasswordEmail(
     user: UserAttributes,
     browserName: string
@@ -126,9 +148,7 @@ export default class MailService {
             ? user.firstname
             : user.firstname + " " + user.lastname,
         url: `${this.frontpageURL}/reset-password?token=${user.reset_password_token}&email=${user.email}&redirect=/${userType}/dashboard`,
-        user_type:
-          TARGETED_FOR_OPTIONS.find((item) => item.value === user.type)?.key ||
-          "General",
+        user_type: this.getTargetedForFromUserType(user.type),
       }
     );
 
