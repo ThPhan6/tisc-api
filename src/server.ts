@@ -62,7 +62,10 @@ async function start() {
     await Router.loadRoute(server);
     await server.start();
     server.events.on("log", (event, tags) => {
-      if (tags.error) {
+      if (
+        tags.error &&
+        ["staging", "production"].includes(ENVIROMENT.NODE_ENV)
+      ) {
         const plugins: any = server.plugins;
         const sentry = plugins["hapi-sentry"];
         if (sentry) {
