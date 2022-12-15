@@ -3,10 +3,10 @@ export const MESSAGES = {
     AVAILABLE: "Available.",
     INVITED_ALREADY: "Invited.",
     SUCCESS: "Success.",
-    SOMETHING_WRONG: "Something wrong !",
-    SOMETHING_WRONG_CREATE: "Something wrong when create !",
-    SOMETHING_WRONG_UPDATE: "Something wrong when update !",
-    SOMETHING_WRONG_DELETE: "Something wrong delete !",
+    SOMETHING_WRONG: "Something wrong!",
+    SOMETHING_WRONG_CREATE: "Something went wrong creating!",
+    SOMETHING_WRONG_UPDATE: "Something went wrong updating!",
+    SOMETHING_WRONG_DELETE: "Something went wrong deleting!",
     BLOCKED: "Blocked!",
     INVITED: "Invited",
     SOMETHING_WRONG_CONTACT_SYSADMIN:
@@ -18,6 +18,7 @@ export const MESSAGES = {
     NOT_AUTHORIZED_TO_PERFORM:
       "You are not have permission to perform this action",
     NOT_FOUND: "Not found!",
+    SERVER_BUSY: "The system is busy. Please try again later!"
   },
 
   LOCATION: {

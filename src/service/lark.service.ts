@@ -48,7 +48,7 @@ class LarkOpenAPIService {
     ///
     if (appAccessToken.data.code !== 0) {
       console.info(appAccessToken.data);
-      throw Error(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+      throw Error(MESSAGES.GENERAL.SERVER_BUSY);
     }
     //
     this.lark_token = {
@@ -68,7 +68,7 @@ class LarkOpenAPIService {
     //
     if (refreshAccessToken.data.code !== 0) {
       console.info(refreshAccessToken.data);
-      throw Error(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+      throw Error(MESSAGES.GENERAL.SERVER_BUSY);
     }
     const { data } = refreshAccessToken.data;
     this.lark_token = {
