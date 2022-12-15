@@ -69,7 +69,7 @@ const customBookingDateValidation = (
   }
   if (!bookingDate.isBetween(min, max))
     return helpers.message({
-      custom: `A valid date and slot must be between ${min.format(
+      custom: `Valid date and time must be between ${min.format(
         "YYYY-MM-DD HH:mm:ss"
       )} and ${max.format("YYYY-MM-DD HH:mm:ss")}`,
     });
