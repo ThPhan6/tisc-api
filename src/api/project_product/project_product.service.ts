@@ -9,9 +9,14 @@ import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
-import { SortOrder } from "@/type/common.type";
-import { IProjectZoneAttributes, UserAttributes } from "@/types";
-import { orderBy, partition, uniqBy, isEmpty, sumBy, countBy } from "lodash";
+import {
+  IProjectZoneAttributes,
+  UserAttributes,
+  SortOrder,
+  Availability,
+  SummaryItemPosition,
+} from "@/types";
+import { isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -25,6 +30,8 @@ import {
   ProjectProductStatus,
   UpdateFinishChedulePayload,
 } from "./project_product.type";
+import { customProductRepository } from "../custom_product/custom_product.repository";
+import { validateBrandProductSpecification } from "./project_product.mapping";
 
 class ProjectProductService {
   public assignProductToProduct = async (
@@ -34,20 +41,25 @@ class ProjectProductService {
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
     }
-    const product = await productRepository.find(payload.product_id);
+
+    const repo = payload.custom_product
+      ? customProductRepository
+      : productRepository;
+    const product = await repo.find(payload.product_id);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 400);
     }
+
     const project = await projectRepository.find(payload.project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 400);
     }
+
     const projectProduct = await projectProductRepository.findBy({
       deleted_at: null,
       project_id: payload.project_id,
       product_id: payload.product_id,
     });
-
     if (projectProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_ALREADY_ASSIGNED, 400);
     }
@@ -61,11 +73,17 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 400);
     }
 
+    if (payload.custom_product) {
+      return successResponse({
+        data: newProjectProductRecord,
+      });
+    }
+
     // Create Tracking | Tracking Notification
     const projectTracking =
       await projectTrackingRepository.findOrCreateIfNotExists(
         payload.project_id,
-        product.brand_id
+        "brand_id" in product ? product.brand_id : ""
       );
 
     const notification = await projectTrackingNotificationRepository.create({
@@ -87,34 +105,38 @@ class ProjectProductService {
     project_id: string,
     product_id: string
   ) => {
-    const product = await productRepository.find(product_id);
-    if (!product) {
-      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
-    }
     const project = await projectRepository.find(project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const assignItems = await projectProductRepository.findBy({
+    const assignItem = await projectProductRepository.findBy({
       project_id,
       product_id,
+      deleted_at: null,
     });
+    if (assignItem) {
+      const repo = assignItem?.custom_product
+        ? customProductRepository
+        : productRepository;
+      const product = await repo.find(product_id);
+      if (!product) {
+        return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+      }
+    }
 
     const zones = await projectZoneRepository.getAllBy({ project_id });
 
     const entireSection = {
       name: "ENTIRE PROJECT",
-      is_assigned: assignItems?.entire_allocation ? true : false,
+      is_assigned: assignItem?.entire_allocation ? true : false,
     };
 
     const returnZones = zones.map((zone) => {
       const areas = zone.areas.map((area) => {
         const rooms = area.rooms.map((room) => ({
           ...room,
-          is_assigned: assignItems?.allocation?.some(
-            (item) => item === room.id
-          ),
+          is_assigned: assignItem?.allocation?.some((item) => item === room.id),
         }));
         return {
           ...area,
@@ -134,144 +156,31 @@ class ProjectProductService {
     });
   };
 
-  private groupProductsByRoom = (
-    allocatedProducts: any[],
-    projectZones: IProjectZoneAttributes[],
-    area_order: SortOrder,
-    room_order: SortOrder,
-    brand_order: SortOrder
-  ): any[] => {
-    return projectZones.map((zone) => {
-      const areas = zone.areas.map((area) => {
-        const rooms = area.rooms.map((room) => {
-          const products = allocatedProducts.filter((prod: any) =>
-            prod.specifiedDetail.allocation.includes(room.id)
-          );
-          return {
-            ...room,
-            products: brand_order
-              ? orderBy(
-                  products,
-                  "brand_name",
-                  brand_order.toLocaleLowerCase() as any
-                )
-              : products,
-            count: products.length,
-          };
-        });
-
-        const allProductsInRooms = uniqBy(
-          rooms.flatMap((room) => room.products),
-          "id"
-        );
-        return {
-          ...area,
-          rooms: room_order
-            ? orderBy(rooms, "room_name", room_order.toLocaleLowerCase() as any)
-            : rooms,
-          count: allProductsInRooms.length,
-        };
-      });
-
-      const allProductsInAreas = uniqBy(
-        areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
-        "id"
-      );
-
-      return {
-        ...zone,
-        areas: area_order
-          ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
-          : areas,
-        count: allProductsInAreas.length,
-      };
-    });
-  };
-
   public getConsideredProducts = async (
     user: UserAttributes,
     project_id: string,
-    zone_order: SortOrder,
+    zone_order: SortOrder | undefined,
     area_order: SortOrder,
     room_order: SortOrder,
-    brand_order: SortOrder
+    brand_order: SortOrder | undefined
   ) => {
     const project = await projectRepository.find(project_id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const projectZones = await projectZoneRepository.getByProjectId(
-      project_id,
-      zone_order
-    );
-
     const consideredProducts =
       await projectProductRepository.getConsideredProductsByProject(
         project_id,
-        user.id
+        user.id,
+        zone_order,
+        area_order,
+        room_order,
+        brand_order
       );
 
-    const mappedConsideredProducts = consideredProducts.map((el: any) => ({
-      ...el.products,
-      brand: el.brands,
-      collection: el.collections,
-      specifiedDetail: {
-        ...el,
-        products: undefined,
-        brands: undefined,
-        users: undefined,
-        collections: undefined,
-        user_product_specifications: undefined,
-        specification: el.user_product_specifications?.specification,
-        brand_location_id: el.user_product_specifications?.brand_location_id,
-        distributor_location_id:
-          el.user_product_specifications?.distributor_location_id,
-      },
-      assigned_name: `${el.users?.firstname || ""}${
-        el.users?.lastname ? " " + el.users?.lastname : ""
-      }`,
-    }));
-
-    const [entireConsideredProducts, allocatedProducts] = partition(
-      mappedConsideredProducts,
-      "specifiedDetail.entire_allocation"
-    );
-
-    const mappedAllocatedProducts = this.groupProductsByRoom(
-      allocatedProducts,
-      projectZones,
-      area_order,
-      room_order,
-      brand_order
-    );
-
-    const results = [
-      {
-        id: "entire_project",
-        name: "ENTIRE PROJECT",
-        products: entireConsideredProducts,
-        count: entireConsideredProducts.length,
-      },
-    ].concat(mappedAllocatedProducts);
-
-    const unlistedCount = consideredProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.consider_status === ProductConsiderStatus.Unlisted ? 1 : 0),
-      0
-    );
     return successResponse({
-      data: {
-        considered_products: results,
-        summary: [
-          {
-            name: "Considered",
-            value: consideredProducts.length - unlistedCount,
-          },
-          { name: "Unlisted", value: unlistedCount },
-        ],
-      },
+      data: consideredProducts,
     });
   };
 
@@ -317,6 +226,30 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
+    // validate specify specification attribute
+    if (isSpecifying && payload.specification) {
+      const repo = projectProduct.custom_product
+        ? customProductRepository
+        : productRepository;
+      const product = await repo.find(projectProduct.product_id);
+      if (!product) {
+        return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND);
+      }
+      const validateSpecification =
+        "specification_attribute_groups" in product
+          ? validateBrandProductSpecification(
+              payload.specification.attribute_groups,
+              product.specification_attribute_groups
+            )
+          : payload.specification.attribute_groups;
+      if (!validateSpecification) {
+        return errorMessageResponse(
+          MESSAGES.PROJECT_PRODUCT.INCORRECT_SPECIFICATION
+        );
+      }
+      payload.specification.attribute_groups = validateSpecification;
+    }
+    // validate specify specification attribute
     ///
     if (payload.unit_type_id) {
       const unitTypes = await commonTypeRepository.findOrCreate(
@@ -366,6 +299,10 @@ class ProjectProductService {
     );
     if (!considerProduct[0]) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+
+    if (projectProduct.custom_product) {
+      return successResponse({ data: considerProduct[0] });
     }
 
     const notiType: ProjectTrackingNotificationType = isSpecifying
@@ -421,6 +358,16 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
 
+    if (projectProduct.custom_product) {
+      const result = await projectProductRepository.delete(projectProduct.id);
+      if (!result) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+      }
+      return successResponse({
+        data: projectProduct,
+      });
+    }
+
     const brand = await projectProductRepository.getProductBrandById(
       projectProductId
     );
@@ -442,7 +389,10 @@ class ProjectProductService {
       created_by: user.id,
     });
 
-    await projectProductRepository.delete(projectProduct.id);
+    const result = await projectProductRepository.delete(projectProduct.id);
+    if (!result) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
 
     return successResponse({
       data: {
@@ -482,6 +432,15 @@ class ProjectProductService {
       0
     );
 
+    const availabilityRemarkCount = specifiedProducts.reduce(
+      (total: number, brand: any) => {
+        const notAvailableCount = countBy(
+          brand.products,
+          (p) => p.availability !== Availability.Available
+        ).true || 0;
+        return total + notAvailableCount;
+      }, 0);
+
     return successResponse({
       data: {
         data: specifiedProducts,
@@ -491,10 +450,39 @@ class ProjectProductService {
             value: total - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
+          {
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: SummaryItemPosition.Left,
+          },
         ],
       },
     });
   };
+
+  private mappingSpecifiedData = (products: any[]) =>
+    products.map((el: any) => ({
+      ...el.product,
+      brand: el.brand,
+      collection: el.collection,
+      specifiedDetail: {
+        ...el.project_products,
+        unit_type: el.unit_type?.name,
+        material_code: el.material_code?.code,
+        order_method_name: OrderMethod[el.project_products.order_method],
+      },
+    }));
+
+  private countCancelledSpecifiedProductTotal = (products: any[]) =>
+    products.reduce(
+      (total: number, prod: any) =>
+        total +
+        (prod.project_products?.specified_status ===
+        ProductSpecifyStatus.Cancelled
+          ? 1
+          : 0),
+      0
+    );
 
   public getSpecifiedProductsByMaterial = async (
     user: UserAttributes,
@@ -515,36 +503,30 @@ class ProjectProductService {
         material_order
       );
 
-    const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.product,
-      brand: el.brand,
-      collection: el.collection,
-      specifiedDetail: {
-        ...el.project_products,
-        unit_type: el.unit_type?.name,
-        material_code: el.material_code?.code,
-        order_method_name: OrderMethod[el.project_products.order_method],
-      },
-    }));
+    const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
 
-    const unlistedCount = specifiedProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.project_products.specified_status ===
-        ProductSpecifyStatus.Cancelled
-          ? 1
-          : 0),
-      0
-    );
+    const cancelledCount =
+      this.countCancelledSpecifiedProductTotal(specifiedProducts);
+    const availabilityRemarkCount = specifiedProducts.reduce(
+      (total: number, prod: any) => {
+        const markedAvailabilityCount = prod.product?.availability !== Availability.Available ? 1 : 0;
+        return total + markedAvailabilityCount;
+      }, 0 );
+
     return successResponse({
       data: {
         data: mappedProducts,
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - unlistedCount,
+            value: specifiedProducts.length - cancelledCount,
           },
-          { name: "Cancelled", value: unlistedCount },
+          { name: "Cancelled", value: cancelledCount },
+          {
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: SummaryItemPosition.Left,
+          },
         ],
       },
     });
@@ -563,70 +545,19 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const projectZones = await projectZoneRepository.getByProjectId(
-      project_id,
-      zone_order
-    );
-
-    const specifiedProducts =
-      await projectProductRepository.getSpecifiedProductsForZoneGroup(
+    const consideredProducts =
+      await projectProductRepository.getConsideredProductsByProject(
+        project_id,
         user.id,
-        project_id
+        zone_order,
+        area_order,
+        room_order,
+        brand_order,
+        true
       );
-    const mappedProducts = specifiedProducts.map((el: any) => ({
-      ...el.product,
-      brand: el.brand,
-      collection: el.collection,
-      specifiedDetail: {
-        ...el.project_products,
-        unit_type: el.unit_type?.name,
-        material_code: el.material_code?.code,
-        order_method_name: OrderMethod[el.project_products.order_method],
-      },
-    }));
 
-    const [entireConsideredProducts, allocatedProducts] = partition(
-      mappedProducts,
-      "specifiedDetail.entire_allocation"
-    );
-
-    const mappedAllocatedProducts = this.groupProductsByRoom(
-      allocatedProducts,
-      projectZones,
-      area_order,
-      room_order,
-      brand_order
-    );
-
-    const results = [
-      {
-        id: "entire_project",
-        name: "ENTIRE PROJECT",
-        products: entireConsideredProducts,
-        count: entireConsideredProducts.length,
-      },
-    ].concat(mappedAllocatedProducts);
-
-    const unlistedCount = specifiedProducts.reduce(
-      (total: number, prod: any) =>
-        total +
-        (prod.project_products.specified_status ===
-        ProductSpecifyStatus.Cancelled
-          ? 1
-          : 0),
-      0
-    );
     return successResponse({
-      data: {
-        data: results,
-        summary: [
-          {
-            name: "Specified",
-            value: specifiedProducts.length - unlistedCount,
-          },
-          { name: "Cancelled", value: unlistedCount },
-        ],
-      },
+      data: consideredProducts,
     });
   };
 
@@ -724,7 +655,7 @@ class ProjectProductService {
             room_id: entireAllocation ? "" : assignRooms[index],
           }
         );
-        return await projectProductFinishScheduleRepository.upsert(
+        return projectProductFinishScheduleRepository.upsert(
           upsertData,
           user.id
         );

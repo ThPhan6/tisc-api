@@ -1,9 +1,25 @@
 import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 
-const locationData = Joi.object({
+export const locationBasicResponse = {
   id: Joi.string(),
-  business_name: Joi.string(),
+  country_id: Joi.string(),
+  country_name: Joi.string(),
+  city_id: Joi.string().allow(null, ""),
+  city_name: Joi.string().allow(null, ""),
+  state_id: Joi.string().allow(null, ""),
+  state_name: Joi.string().allow(null, ""),
+  phone_code: Joi.string().allow(null, ""),
+  address: Joi.string().allow(null, ""),
+  business_name: Joi.string().allow(null, ""),
+  business_number: Joi.string().allow(null, ""),
+  postal_code: Joi.string().allow(null, ""),
+  general_phone: Joi.string().allow(null, ""),
+  general_email: Joi.string().allow(null, ""),
+};
+
+const locationData = Joi.object({
+  functional_type_ids: Joi.array().items(Joi.string().allow(null, "")),
   functional_types: Joi.array()
     .items({
       id: Joi.string(),
@@ -11,24 +27,13 @@ const locationData = Joi.object({
     })
     .allow(null, ""),
   functional_type: Joi.any(),
-  country_name: Joi.string().allow(""),
-  state_name: Joi.any(),
-  city_name: Joi.any(),
-  general_phone: Joi.string().allow(""),
-  general_email: Joi.string().allow(""),
-  created_at: Joi.string(),
-  phone_code: Joi.string().allow(""),
   teams: Joi.number(),
-  address: Joi.string().allow(""),
-  business_number: Joi.string().allow(""),
-  city_id: Joi.string().allow(""),
-  country_id: Joi.string().allow(""),
-  functional_type_ids: Joi.array().items(Joi.string().allow(null, "")),
-  postal_code: Joi.string().allow(""),
   relation_id: Joi.string().allow(null),
-  state_id: Joi.string().allow(""),
   type: Joi.number().allow(null),
+  created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  contacts: Joi.any(),
+  ...locationBasicResponse,
 });
 
 export default {

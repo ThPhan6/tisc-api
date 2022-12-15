@@ -1,10 +1,10 @@
 import * as Hapi from "@hapi/hapi";
-import { ROUTES } from "../../constant/api.constant";
 import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
 import IRoute from "../../helper/route.helper";
 import ContactController from "./contact.controller";
 import validate from "./contact.validate";
 import contactResponse from "./contact.response";
+import { ROUTES } from "@/constants";
 
 export default class ContactRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

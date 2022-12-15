@@ -1,5 +1,5 @@
-import { insertTempData, removeByKeys } from "./helpers/database.helper";
-import { signJwtToken } from "../src/helper/jwt.helper";
+import { connection } from "@/Database/Connections/ArangoConnection";
+import { signJwtToken } from "@/helper/jwt.helper";
 import {
   brandData,
   brandLocationData,
@@ -22,8 +22,8 @@ import {
   userDesignFirmData,
 } from "./temp-data/design-firm";
 import { apiService } from "./helpers/api.helper";
-import { ROUTES } from "../src/constants/route.constant";
-import { ActionTaskStatus } from "../src/types/action_task.type";
+import { ROUTES } from "@/constants/route.constant";
+import { ActionTaskStatus } from "@/types";
 
 describe("General Inquiry", () => {
   let inquiry: any;
@@ -62,63 +62,72 @@ describe("General Inquiry", () => {
 
   before(async () => {
     /// = BRAND
-    brand.company = await insertTempData("brands", brandData);
-    brand.location = await insertTempData("locations", brandLocationData);
-    brand.distributor = await insertTempData(
+    brand.company = await connection.insert("brands", brandData);
+    brand.location = await connection.insert("locations", brandLocationData);
+    brand.distributor = await connection.insert(
       "distributors",
       brandDistributorData
     );
-    brand.user = await insertTempData("users", userBrandData);
+    brand.user = await connection.insert("users", userBrandData);
     brand.token = signJwtToken(brand.user.id);
     /// DESIGN FIRM
-    design.company = await insertTempData("designers", designFirmData);
-    design.location = await insertTempData("locations", designFirmLocationData);
-    design.user = await insertTempData("users", userDesignFirmData);
+    design.company = await connection.insert("designers", designFirmData);
+    design.location = await connection.insert(
+      "locations",
+      designFirmLocationData
+    );
+    design.user = await connection.insert("users", userDesignFirmData);
     design.token = signJwtToken(design.user.id);
     /// PRODUCT
-    product.data = await insertTempData("products", productData);
-    product.category = await insertTempData("categories", categoryData);
-    product.collection = await insertTempData("collections", collectionData);
-    product.attribute.general = await insertTempData("attributes", generalData);
-    product.attribute.feature = await insertTempData("attributes", featureData);
-    product.attribute.specification = await insertTempData(
+    product.data = await connection.insert("products", productData);
+    product.category = await connection.insert("categories", categoryData);
+    product.collection = await connection.insert("collections", collectionData);
+    product.attribute.general = await connection.insert(
+      "attributes",
+      generalData
+    );
+    product.attribute.feature = await connection.insert(
+      "attributes",
+      featureData
+    );
+    product.attribute.specification = await connection.insert(
       "attributes",
       specificationData
     );
-    product.basis.option = await insertTempData("bases", optionData);
-    product.basis.conversion = await insertTempData("bases", conversionData);
+    product.basis.option = await connection.insert("bases", optionData);
+    product.basis.conversion = await connection.insert("bases", conversionData);
     // PROJECT
-    project.data = await insertTempData("projects", projectData);
-    project.zones = await insertTempData("project_zones", zonesData);
+    project.data = await connection.insert("projects", projectData);
+    project.zones = await connection.insert("project_zones", zonesData);
     //
   });
 
   after(async () => {
     ///
-    await removeByKeys("brands", [brand.company._key]);
-    await removeByKeys("designers", [design.company._key]);
-    await removeByKeys("distributors", [brand.distributor._key]);
+    await connection.removeByKeys("brands", [brand.company._key]);
+    await connection.removeByKeys("designers", [design.company._key]);
+    await connection.removeByKeys("distributors", [brand.distributor._key]);
     ///
-    await removeByKeys("locations", [
+    await connection.removeByKeys("locations", [
       brand.location._key,
       design.location._key,
     ]);
-    await removeByKeys("users", [brand.user._key, design.user._key]);
+    await connection.removeByKeys("users", [brand.user._key, design.user._key]);
 
-    await removeByKeys("products", [product.data._key]);
-    await removeByKeys("categories", [product.category._key]);
-    await removeByKeys("collections", [product.collection._key]);
-    await removeByKeys("attributes", [
+    await connection.removeByKeys("products", [product.data._key]);
+    await connection.removeByKeys("categories", [product.category._key]);
+    await connection.removeByKeys("collections", [product.collection._key]);
+    await connection.removeByKeys("attributes", [
       product.attribute.general._key,
       product.attribute.feature._key,
       product.attribute.specification._key,
     ]);
-    await removeByKeys("bases", [
+    await connection.removeByKeys("bases", [
       product.basis.option._key,
       product.basis.conversion._key,
     ]);
-    await removeByKeys("projects", [project.data._key]);
-    await removeByKeys("project_zones", [project.zones._key]);
+    await connection.removeByKeys("projects", [project.data._key]);
+    await connection.removeByKeys("project_zones", [project.zones._key]);
   });
 
   describe("Create Inquiry request", () => {
@@ -128,10 +137,10 @@ describe("General Inquiry", () => {
           .getInstance()
           .setToken(design.token)
           .post(ROUTES.GENERAL_INQUIRY.CREATE, {
-            "product_id": "ABC",
-            "title":"What is this product for ?",
-            "message":"Hello Enable",
-            "inquiry_for_ids":["ABC"]
+            product_id: "ABC",
+            title: "What is this product for ?",
+            message: "Hello Enable",
+            inquiry_for_ids: ["ABC"],
           })
       ).shouldError(404);
     });
@@ -140,10 +149,10 @@ describe("General Inquiry", () => {
         .getInstance()
         .setToken(design.token)
         .post(ROUTES.GENERAL_INQUIRY.CREATE, {
-          "product_id": product.data.id,
-          "title":"What is this product for ?",
-          "message":"Hello Enable",
-          "inquiry_for_ids":["ABC"]
+          product_id: product.data.id,
+          title: "What is this product for ?",
+          message: "Hello Enable",
+          inquiry_for_ids: ["ABC"],
         });
       inquiry = response.get();
       response.shouldSuccess();
@@ -189,14 +198,12 @@ describe("General Inquiry", () => {
 
   describe("Get Inquiry request detail", () => {
     it("Incorrect ID", async () => {
-      (await apiService
+      (
+        await apiService
           .getInstance()
           .setToken(brand.token)
           .get(
-            ROUTES.GENERAL_INQUIRY.GET_ONE.replace(
-              "{id}",
-              inquiry.id + "_123"
-            )
+            ROUTES.GENERAL_INQUIRY.GET_ONE.replace("{id}", inquiry.id + "_123")
           )
       ).shouldError(404);
     });
@@ -205,12 +212,7 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .get(
-            ROUTES.GENERAL_INQUIRY.GET_ONE.replace(
-              "{id}",
-              inquiry.id
-            )
-          )
+          .get(ROUTES.GENERAL_INQUIRY.GET_ONE.replace("{id}", inquiry.id))
       ).shouldSuccess();
     });
   });
@@ -247,10 +249,7 @@ describe("General Inquiry", () => {
           .getInstance()
           .setToken(brand.token)
           .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace(
-              "{id}",
-              inquiryTask.id + "_123"
-            ),
+            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id + "_123"),
             { status: ActionTaskStatus["In Progress"] }
           )
       ).shouldError(404);
@@ -260,10 +259,9 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
-            { status: ActionTaskStatus["In Progress"] }
-          )
+          .patch(ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id), {
+            status: ActionTaskStatus["In Progress"],
+          })
       ).shouldSuccess();
     });
     it("Incorrect payload inputs", async () => {
@@ -271,10 +269,9 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
-            { status: 99 }
-          )
+          .patch(ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id), {
+            status: 99,
+          })
       ).shouldError();
     });
     it("Correct payload inputs", async () => {
@@ -282,10 +279,9 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .patch(
-            ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id),
-            { status: ActionTaskStatus["In Progress"] }
-          )
+          .patch(ROUTES.ACTION_TASK.UPDATE.replace("{id}", inquiryTask.id), {
+            status: ActionTaskStatus["In Progress"],
+          })
       ).shouldSuccess();
     });
   });
@@ -296,9 +292,10 @@ describe("General Inquiry", () => {
         await apiService
           .getInstance()
           .setToken(brand.token)
-          .get(`${ROUTES.ACTION_TASK.GET_LIST}?model_id=${inquiryTask.id}&model_name=inquiry`)
+          .get(
+            `${ROUTES.ACTION_TASK.GET_LIST}?model_id=${inquiryTask.id}&model_name=inquiry`
+          )
       ).shouldSuccess();
     });
   });
-
 });

@@ -1,15 +1,14 @@
 import * as Hapi from "@hapi/hapi";
 import DesignerController from "./designer.controller";
-import commonValidate from "@/validate/common.validate";
+import { getOneValidation } from "@/validate/common.validate";
 import IRoute from "@/helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./designer.response";
 import validate from "./designer.validate";
-import { ROUTES } from "@/constants";
 
 export default class DesignerRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -39,7 +38,7 @@ export default class DesignerRoute implements IRoute {
           path: ROUTES.DESIGN_FIRM.GET_ONE_DESIGN_FIRM,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one design firm",
             tags: ["api", "Designer"],
             auth: AUTH_NAMES.PERMISSION,
@@ -47,6 +46,23 @@ export default class DesignerRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.DESIGN_FIRM.GET_DESIGN_FIRM_LIBRARY,
+          options: {
+            handler: controller.getDesignLibrary,
+            validate: getOneValidation,
+            description: "Method that get design firm library info",
+            tags: ["api", "Designer"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getLibrary,
               },
             },
           },

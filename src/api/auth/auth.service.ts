@@ -3,8 +3,8 @@ import {
   BRAND_STATUSES,
   MESSAGES,
   AUTH_EMAIL_TYPE,
-  ROLES,
-  SYSTEM_TYPE,
+  DesignFirmRoles,
+  RoleType,
 } from "@/constants";
 import {
   IMessageResponse,
@@ -14,7 +14,6 @@ import {
   UserTypeValue,
   UserStatus,
 } from "@/types";
-import { isEmpty } from "lodash";
 import {
   IAdminLoginRequest,
   IResetPasswordRequest,
@@ -37,10 +36,15 @@ import {
 import { mailService } from "@/service/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
 
-import { getRoleType } from "@/constants/role.constant";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
+
+const errorMessage = {
+  [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
+  [UserType.Designer]: MESSAGES.DESIGN_INACTIVE_LOGIN,
+  [UserType.TISC]: MESSAGES.ACCOUNT_INACTIVE_LOGIN,
+};
 
 class AuthService {
   private responseWithToken = (userId: string, type?: UserType) => {
@@ -141,20 +145,13 @@ class AuthService {
 
     //// company status validation
     if (user.company_status === ActiveStatus.Inactive) {
-      return errorMessageResponse(
-        user.type === UserType.Brand
-          ? MESSAGES.BRAND_INACTIVE_LOGIN
-          : user.type === UserType.Designer
-          ? MESSAGES.DESIGN_INACTIVE_LOGIN
-          : MESSAGES.ACCOUNT_INACTIVE_LOGIN,
-        401
-      );
+      return errorMessageResponse(errorMessage[user.type], 401);
     }
     if (user.company_status === ActiveStatus.Pending) {
       return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
     }
     ///
-    return this.responseWithToken(user.id, getRoleType(user.role_id));
+    return this.responseWithToken(user.id, RoleType[user.role_id]);
   };
 
   public forgotPassword = async (
@@ -186,12 +183,11 @@ class AuthService {
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public isValidResetPasswordToken = async (token: string) => {
-    const user = await userRepository.findBy({
-      reset_password_token: token,
-      is_verified: true,
-    });
-    return successResponse({ data: !isEmpty(user) });
+  public checkTokenExisted = async (token: string) => {
+    if (token == '') {
+      return successResponse({ data: false });
+    }
+    return successResponse({ data: await userRepository.checkTokenExisted(token) });
   };
 
   public resendEmail = async (
@@ -269,7 +265,7 @@ class AuthService {
 
     const defaultLocation = await locationService.createDefaultLocation(
       createdDesign.id,
-      SYSTEM_TYPE.DESIGN,
+      UserType.Designer,
       payload.email
     );
 
@@ -282,7 +278,7 @@ class AuthService {
       lastname: payload.lastname ?? "",
       password,
       email: payload.email,
-      role_id: ROLES.DESIGN_ADMIN,
+      role_id: DesignFirmRoles.Admin,
       verification_token: token,
       type: UserType.Designer,
       relation_id: createdDesign.id ?? null,
@@ -293,7 +289,7 @@ class AuthService {
     }
 
     await permissionService.initPermission(createdUser);
-    await mailService.sendDesignRegisterEmail(createdUser);
+    await mailService.sendRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
@@ -338,7 +334,7 @@ class AuthService {
         status: BRAND_STATUSES.ACTIVE,
       });
     }
-    return successMessageResponse(MESSAGES.SUCCESS);
+    return this.responseWithToken(user.id, user.type);
   };
 
   public checkEmail = async (email: string) => {

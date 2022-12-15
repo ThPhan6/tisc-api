@@ -3,24 +3,26 @@ export const MESSAGES = {
     AVAILABLE: "Available.",
     INVITED_ALREADY: "Invited.",
     SUCCESS: "Success.",
-    SOMETHING_WRONG: "Something wrong !",
-    SOMETHING_WRONG_CREATE: "Something wrong when create !",
-    SOMETHING_WRONG_UPDATE: "Something wrong when update !",
-    SOMETHING_WRONG_DELETE: "Something wrong delete !",
+    SOMETHING_WRONG: "Something wrong!",
+    SOMETHING_WRONG_CREATE: "Something went wrong creating!",
+    SOMETHING_WRONG_UPDATE: "Something went wrong updating!",
+    SOMETHING_WRONG_DELETE: "Something went wrong deleting!",
     BLOCKED: "Blocked!",
     INVITED: "Invited",
-    JUST_OWNER_CAN_UPDATE:
-      "You are not in this design firm. So you cannot update",
-    JUST_OWNER_CAN_DELETE:
-      "You are not in this design firm. So you cannot delete",
-    JUST_OWNER_CAN_CREATE:
-      "You are not in this design firm. So you cannot create",
     SOMETHING_WRONG_CONTACT_SYSADMIN:
       "Something went wrong. Please contact to the administrator!",
+    CAN_NOT_MODIFY_MASTER_DATA: "Can not modify master data",
+    CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
+    NOT_AUTHORIZED_TO_ACCESS:
+      "You are not have permission to access this resource",
+    NOT_AUTHORIZED_TO_PERFORM:
+      "You are not have permission to perform this action",
+    NOT_FOUND: "Not found!",
+    SERVER_BUSY: "The system is busy. Please try again later!"
   },
 
   LOCATION: {
-    USER_USED: 'This location is using in Team Profile'
+    USER_USED: "This location is using in Team Profile",
   },
 
   FAVOURITE: {
@@ -64,7 +66,7 @@ export const MESSAGES = {
   PRODUCT: {
     PRODUCT_EXISTED: "Product existed.",
     PRODUCT_NOT_FOUND: "Product not found",
-    WAS_USED_IN_PROJECT: "This product is using in some projects!"
+    WAS_USED_IN_PROJECT: "This product is using in some projects!",
   },
 
   MARKET_AVAILABILITY: {
@@ -114,6 +116,13 @@ export const MESSAGES = {
   },
   ACTION_TASK: {
     NOT_FOUND: "Action task not found",
+  },
+  INVOICE: {
+    NOT_FOUND: "Revenue service not found",
+    ONLY_UPDATE_PENDING_INVOICE: "Only pending invoice is valid to update.",
+    ONLY_BILL_PENDING_INVOICE: "Only pending invoice is valid to bill.",
+    ONLY_PAID_OUTSTANDING_OR_OVERDUE:
+      "Only outstanding or overdue invoice is valid to paid.",
   },
 
   PROJECT_TRACKING: {
@@ -209,17 +218,12 @@ export const MESSAGES = {
   PROJECT_EXISTED: "Project Code existed",
   PROJECT_NOT_FOUND: "Project not found",
   PRODUCT_ALREADY_ASSIGNED: "Product already assigned to this project",
-  JUST_DESIGNER_CAN_CREATE: "Just designer can create project",
-  JUST_OWNER_CAN_UPDATE:
-    "You are not in this design firm. So you cannot update",
-  JUST_OWNER_CAN_DELETE:
-    "You are not in this design firm. So you cannot delete",
-  JUST_OWNER_CAN_CREATE:
-    "You are not in this design firm. So you cannot create",
+  JUST_DESIGNER_CAN_CREATE: "Just designer can create",
+  JUST_DESIGNER_CAN_UPDATE: "Just designer can update",
+
   PROJECT_ZONE_EXISTED: "Project zone existed",
   PROJECT_ZONE_AREA_DUPLICATED: "Project zone area duplicated.",
   PROJECT_ZONE_ROOM_DUPLICATED: "Project zone room duplicated.",
-  JUST_OWNER_CAN_GET: "You are not in this design firm. So you cannot get",
   PROJECT_ZONE_NOT_FOUND: "Project zone not found",
   MATERIAL_CODE_NOT_FOUND: "Material code not found",
   CONSIDERED_PRODUCT_NOT_FOUND: "Considered product not found",
@@ -243,7 +247,32 @@ export const MESSAGES = {
   },
   PROJECT_TRACKING_NOT_FOUND: "Project tracking not found.",
   PDF_SPECIFY: {
-    ERROR_CREATE: "Something went wrong when get PDF config. Please contact to the administrator",
-    NOT_FOUND: 'Please update Issuing information!'
+    ERROR_CREATE:
+      "Something went wrong when get PDF config. Please contact to the administrator",
+    NOT_FOUND: "Please update Issuing information!",
   },
+  PROJECT_PRODUCT: {
+    INCORRECT_SPECIFICATION: "Please re-update specification of this product",
+  },
+
+  customResource: {
+    existed: "Resource existed",
+    notFound: "Resource not found",
+    haveProduct: "A brand associated with products cannot be deleted.",
+  },
+
+  BOOKING: {
+    TIMEZONE: {
+      NOT_VALID: "Timezone invalid data, ex: Asia/Singapore",
+    },
+    TIME_STAMP: {
+      NOT_VALID: "The start time or end time invalid timestamp data",
+      LARGE_THAN:
+        "The end time must be large than start time and large than today",
+    },
+    NOT_AVAILABLE: "This booking is not available",
+    NOT_FOUND: "Not found booking",
+    SCHEDULE_NOT_AVAILABLE: "Can't get on Saturday or Sunday",
+  },
+  JUST_SHARE_IN_DESIGN_FIRM: "Just share to user in the same design firm.",
 };

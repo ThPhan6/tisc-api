@@ -1,3 +1,9 @@
+import {
+  TiscRoles,
+  BrandRoles,
+  DesignFirmRoles
+} from '@/constants';
+
 export interface IUserRequest {
   firstname: string;
   lastname: string;
@@ -8,7 +14,7 @@ export interface IUserRequest {
   email: string;
   phone: string;
   mobile: string;
-  role_id: string;
+  role_id: TiscRoles | BrandRoles | DesignFirmRoles;
   backup_email?: string;
   personal_mobile?: string;
   linkedin?: string;
@@ -19,6 +25,7 @@ export interface IUpdateMeRequest {
   zone_code?: string;
   linkedin?: string;
   interested?: number[];
+  personal_phone_code?: string;
 }
 
 export interface IUser {

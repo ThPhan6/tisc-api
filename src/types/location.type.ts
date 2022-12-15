@@ -1,3 +1,37 @@
+export interface ILocationAttributes {
+  id: string;
+  business_name: string;
+  business_number?: string;
+  functional_type_ids: string[];
+  functional_type: string;
+  country_id: string;
+  country_name: string;
+  state_id: string | null;
+  state_name: string | null;
+  city_id: string;
+  city_name: string;
+  phone_code: string;
+  address: string;
+  postal_code: string;
+  general_phone: string;
+  general_email: string;
+  created_at: string;
+  updated_at: string | null;
+  type: LocationType;
+  relation_id: string | null;
+}
+
+export interface LocationWithTeamCountAndFunctionType extends ILocationAttributes {
+  functional_types: {
+    id: string;
+    name: string;
+  }[];
+  teams: number;
+}
+
+export interface LocationPayload
+  extends Omit<ILocationAttributes, "id" | "created_at" | "updated_at"> {}
+
 export interface ICountryStateCity {
   country_id: string;
   state_id: any;
@@ -55,29 +89,6 @@ export interface ICityAttributes {
   wikiDataId: string;
 }
 
-export interface ILocationAttributes {
-  id: string;
-  business_name: string;
-  business_number?: string;
-  functional_type_ids: string[];
-  functional_type: string;
-  country_id: string;
-  country_name: string;
-  state_id: string | null;
-  state_name: string | null;
-  city_id: string;
-  city_name: string;
-  phone_code: string;
-  address: string;
-  postal_code: string;
-  general_phone: string;
-  general_email: string;
-  created_at: string;
-  updated_at: string | null;
-  type: number;
-  relation_id: string | null;
-}
-
 export interface CountryGroupCount {
   country_name: string;
   count: number;
@@ -90,24 +101,49 @@ export interface IRegionCountry {
   region: string;
 }
 
-export type RegionGroupValue = Omit<IRegionCountry, "region">;
+export type RegionKey = 'asia' | 'europe' | 'africa' | 'n_americas' | 's_americas' | 'oceania';
 
-export interface RegionGroup {
-  africa: RegionGroupValue[];
-  asia: RegionGroupValue[];
-  europe: RegionGroupValue[];
-  n_america: RegionGroupValue[];
-  oceania: RegionGroupValue[];
-  s_america: RegionGroupValue[];
+export enum DesignFirmFunctionalType {
+  MainOffice = '1',
+  SatelliteOffice = '2',
+  Other = '3'
 }
-export type RegionGroupKey = keyof RegionGroup;
 
-export type RegionKey =
-  | "africa"
-  | "asia"
-  | "europe"
-  | "north america"
-  | "oceania"
-  | "south america"
-  | "americas"
-  | "northern_america";
+export const DesignLocationFunctionTypeOption = [
+  {
+    name: "Main office",
+    id: DesignFirmFunctionalType.MainOffice,
+  },
+  {
+    name: "Satellite office",
+    id: DesignFirmFunctionalType.SatelliteOffice,
+  },
+  {
+    name: "Other",
+    id: DesignFirmFunctionalType.Other,
+  },
+];
+
+
+export interface LocationRequest {
+  business_name: string;
+  business_number?: string;
+  functional_type_ids: string[];
+  country_id: string;
+  state_id: string;
+  city_id: string;
+  address: string;
+  postal_code: string;
+  general_phone: string;
+  general_email: string;
+}
+
+export enum LocationType {
+  tisc = 1,
+  brand = 2,
+  designer = 3,
+}
+
+export interface BasicLocationAttributes
+  extends ICountryStateCity,
+    Pick<ILocationAttributes, "address" | "postal_code"> {}

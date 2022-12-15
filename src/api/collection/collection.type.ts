@@ -1,8 +1,9 @@
-import { IPagination, ICollection } from "@/types";
+import { Pagination, ICollection, CollectionRelationType } from "@/types";
 
 export interface ICollectionRequest {
   name: string;
-  brand_id: string;
+  relation_id: string;
+  relation_type: CollectionRelationType;
 }
 export interface ICollectionResponse {
   data: ICollection;
@@ -11,7 +12,7 @@ export interface ICollectionResponse {
 export interface ICollectionsResponse {
   data: {
     collections: ICollection[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

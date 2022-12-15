@@ -1,4 +1,4 @@
-import {ENVIROMENT} from '@/config';
+import { ENVIROMENT } from "@/config";
 import {
   S3,
   ListBucketsCommand,
@@ -33,7 +33,7 @@ export const upload = async (
   file_type: string
 ) => {
   try {
-    return await s3Client.send(
+    return s3Client.send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: file_name,
@@ -49,7 +49,7 @@ export const upload = async (
 
 export const listFile = async () => {
   try {
-    return await s3Client.send(new ListObjectsCommand({ Bucket: bucket }));
+    return s3Client.send(new ListObjectsCommand({ Bucket: bucket }));
   } catch (err) {
     console.log("Error", err);
   }
@@ -57,7 +57,7 @@ export const listFile = async () => {
 
 export const listFilePrefix = async (prefix: string) => {
   try {
-    return await s3Client.send(
+    return s3Client.send(
       new ListObjectsCommand({ Bucket: bucket, Prefix: prefix })
     );
   } catch (err) {
@@ -81,7 +81,7 @@ export const isExists = async (prefix: string) => {
 
 export const deleteFile = async (file_name: string) => {
   try {
-    return await s3Client.send(
+    return s3Client.send(
       new DeleteObjectCommand({
         Bucket: bucket,
         Key: file_name,

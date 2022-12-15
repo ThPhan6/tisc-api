@@ -1,7 +1,7 @@
 import countryRepository from "@/repositories/country.repository";
 import stateRepository from "@/repositories/state.repository";
 import cityRepository from "@/repositories/city.repository";
-import { GLOBAL_COUNTRY_ID, GlobalCountry } from "@/constants";
+import { GLOBAL_COUNTRY_ID, GlobalCountry, MESSAGES } from "@/constants";
 import {
   ICountryAttributes,
   IStateAttributes,
@@ -9,7 +9,6 @@ import {
   ICountryStateCity,
 } from "@/types";
 import { errorMessageResponse } from "@/helper/response.helper";
-import { MESSAGES } from "@/constants";
 import { isEmpty } from "lodash";
 
 class CountryStateCityService {
@@ -56,10 +55,11 @@ class CountryStateCityService {
   public getCitiesByCountry = (country_id: string) => {
     return this.getCitiesByStateAndCountry(country_id);
   };
+
   public getCountryStateCity = async (
     countryId: string,
-    cityId?: string,
-    stateId?: string
+    cityId?: string | null,
+    stateId?: string | null
   ): Promise<ICountryStateCity> => {
     if (countryId === GLOBAL_COUNTRY_ID) {
       return GlobalCountry;
@@ -140,8 +140,8 @@ class CountryStateCityService {
 
   public validateLocationData = async (
     countryId: string,
-    stateId: string,
-    cityId: string
+    cityId?: string | null,
+    stateId?: string | null
   ) => {
     const country = await this.getCountryDetail(countryId);
     if (!country.id) {
@@ -149,6 +149,7 @@ class CountryStateCityService {
     }
     ////////////////////////
     const states = await this.getStatesByCountry(countryId);
+
     if (!isEmpty(states)) {
       if (!stateId || stateId === "") {
         return errorMessageResponse(MESSAGES.STATE_REQUIRED, 400);

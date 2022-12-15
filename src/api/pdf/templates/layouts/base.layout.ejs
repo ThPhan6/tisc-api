@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&lang=en" />
     <style>
       html,
       body {
@@ -19,18 +20,31 @@
         padding: 0;
         border: 0;
         border-spacing: 0 !important;
+        page-break-inside: avoid !important;
+        border-collapse:collapse;
       }
       tr {
         display: table;
         width: 100%;
+        margin: 4px 0 4px 0;
       }
       td,
       th {
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
       }
       .dynamic-table tr {
         display: table-row;
         width: 100%;
+        margin: 4px 0 4px 0;
+      }
+      .dynamic-table td {
+        page-break-inside: avoid !important;
+        margin: 4px 0 4px 0;
+      }
+
+      .avoid {
+        page-break-inside: avoid !important;
+        margin: 4px 0 4px 0;  /* to keep the page break from cutting too close to the text in the div */
       }
 
       .primary-roboto-light-14 {
@@ -121,7 +135,7 @@
         font-style: normal;
         font-weight: 300;
         font-size: 12px;
-        line-height: 20px;
+        /* line-height: 20px; */
         color: #2b39d4;
         letter-spacing: 0.32px;
       }
@@ -216,6 +230,15 @@
         color: #000000;
         letter-spacing: 0.32px;
       }
+      .normal-roboto-light-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 12px;
+        line-height: 20px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
       .normal-roboto-bold-14 {
         font-family: "Roboto";
         font-style: normal;
@@ -270,6 +293,15 @@
       }
       .border-top-box-shadow-bold {
         border-top: 1px solid #040404;
+      }
+      .pt-4 {
+        padding-top: 4px;
+      }
+      .pb-4 {
+        padding-bottom: 4px;
+      }
+      .pb-2 {
+        padding-bottom: 2px;
       }
       .mb-5 {
         margin-bottom: 5px;
@@ -357,8 +389,29 @@
       .width-50-percent {
         width: 50%;
       }
+      .width-40-percent {
+        width: 40%;
+      }
+      .width-30-percent {
+        width: 30%;
+      }
+      .width-70-percent {
+        width: 70%;
+      }
       .width-20-percent {
         width: 20%;
+      }
+      .width-25-percent {
+        width: 25%;
+      }
+      .width-10-percent {
+        width: 10%;
+      }
+      .width-15-percent {
+        width: 15%;
+      }
+      .width-5-percent {
+        width: 5%;
       }
     </style>
   </head>

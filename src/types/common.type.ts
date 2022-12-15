@@ -1,40 +1,8 @@
-export interface CommonTypes {
-  SHARING_GROUP: 1;
-  SHARING_PURPOSE: 2;
-  PROJECT_BUILDING: 3;
-  FINISH_SCHEDULES: 4;
-  COMPANY_FUNCTIONAL: 5;
-  PROJECT_INSTRUCTION: 6;
-  PROJECT_TYPE: 7;
-  PROJECT_REQUIREMENT: 8;
-  PROJECT_UNIT: 9;
-  DEPARTMENT: 10;
-  REQUEST_FOR: 11;
-  ACTION_TASK: 12;
-  ISSUE_FOR: 13;
-  CAPABILITIES: 14;
-}
-export type CommonTypeValue = CommonTypes[keyof CommonTypes];
-
-export interface CommonTypeAttributes {
-  id: string;
-  name: string;
-  type: CommonTypeValue;
-  relation_id: string | null;
-  created_at: string;
-  updated_at: string | null;
-}
-
-export interface IPagination {
+export interface Pagination {
   page: number;
   page_size: number;
   total: number;
   page_count: number;
-}
-
-export interface ISummaryTale {
-  name: string;
-  value: number;
 }
 
 export interface ValidImage {
@@ -47,9 +15,6 @@ export type SortOrder = "ASC" | "DESC";
 
 export type MeasurementUnitValue = 1 | 2;
 export type MeasurementUnitKey = "Metric" | "Imperial";
-
-export type FunctionalTypeValue = 1 | 2 | 3;
-export type FunctionalTypeKey = "Main office" | "Satellite office" | "Other";
 
 export type SummaryInfo = {
   id: string;
@@ -75,3 +40,37 @@ export type ActiveStatusValue = `${Extract<
 >}` extends `${infer N extends number}`
   ? N
   : never;
+
+export type InterestedInValue = 1 | 2 | 3 | 4 | 5;
+export type InterestedInKey =
+  | "Brand Factory/Showroom Visits"
+  | "Design Conferences/Events/Seminars"
+  | "Industry Exhibitions/Trade Shows"
+  | "Product Launches/Promotions/Workshops"
+  | "Product Recommendations/Updates";
+
+export type TargetedForValue = 1 | 2 | 3 | 4 | 5;
+export type TargetedForKey =
+  | "TISC Team"
+  | "Brand"
+  | "Design Firm"
+  | "Distributor"
+  | "General";
+
+export type TopicTypeValue = 1 | 2 | 3 | 4 | 5;
+export type TopicTypeKey =
+  | "Marketing"
+  | "Messages"
+  | "Onboard"
+  | "Operation"
+  | "Other";
+
+export enum MeasurementUnit {
+  Imperial = 1,
+  Metric = 2,
+}
+
+export enum SummaryItemPosition {
+  Left,
+  Right
+}

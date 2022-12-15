@@ -2,7 +2,7 @@ import {
   paginationResponse,
   summaryTableResponse,
 } from "@/helper/response.helper";
-import * as HapiJoi from "joi";
+import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -13,8 +13,8 @@ export const basisConversionResponse = {
   id: Joi.string(),
   name_1: Joi.string(),
   name_2: Joi.string(),
-  formula_1: Joi.string(),
-  formula_2: Joi.string(),
+  formula_1: Joi.any(),
+  formula_2: Joi.any(),
   unit_1: Joi.string(),
   unit_2: Joi.string(),
   conversion_between: Joi.string(),
@@ -26,6 +26,7 @@ export const basisConversionGroupResponse = {
   id: Joi.string(),
   name: Joi.string(),
   count: Joi.number().allow(null),
+  master: Joi.boolean().allow(null),
   subs: Joi.array().items(Joi.object(basisConversionResponse)),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
@@ -34,6 +35,7 @@ export const basisConversionGroupResponse = {
 export const subsBasisOptionOrPresetResponse = {
   id: Joi.string(),
   name: Joi.string(),
+  master: Joi.boolean().allow(null),
   count: Joi.number(),
   subs: Joi.array().items(
     Joi.object({
@@ -50,6 +52,7 @@ export const subsBasisOptionOrPresetResponse = {
 export const basisOptionGroupResponse = {
   id: Joi.string(),
   name: Joi.string(),
+  master: Joi.boolean().allow(null),
   count: Joi.number(),
   subs: Joi.array().items(subsBasisOptionOrPresetResponse),
   created_at: Joi.string(),
@@ -60,6 +63,7 @@ export const basisPresetGroupResponse = {
   id: Joi.string(),
   name: Joi.string(),
   count: Joi.number(),
+  master: Joi.boolean().allow(null),
   subs: Joi.array().items(subsBasisOptionOrPresetResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),

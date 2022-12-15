@@ -1,9 +1,9 @@
 import AutoEmailModel from "@/model/auto_email.model";
-import { SortOrder } from "@/types";
 import {
+  SortOrder,
   IAutoEmailAttributes,
   ListAutoEmailWithPaginate,
-} from "@/types/auto_email.type";
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class AutoEmailRepository extends BaseRepository<IAutoEmailAttributes> {

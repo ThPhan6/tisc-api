@@ -2,7 +2,7 @@ import {
   paginationResponse,
   summaryTableResponse,
 } from "@/helper/response.helper";
-import * as HapiJoi from "joi";
+import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -25,6 +25,8 @@ export const AttributeGroupResponse = {
   name: Joi.string(),
   count: Joi.number().allow(null),
   type: Joi.number().allow(null),
+  master: Joi.boolean().allow(null),
+  selectable: Joi.boolean().allow(null),
   subs: Joi.array().items(Joi.object(subsAttribute)),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),

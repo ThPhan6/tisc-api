@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface SubAttribute {
   id: string;
@@ -12,6 +12,8 @@ export interface AttributeProps {
   type: AttributeType;
   name: string;
   subs: SubAttribute[];
+  master?: boolean,
+  selectable?: boolean,
   created_at: string;
   updated_at: string | null;
 }
@@ -46,6 +48,32 @@ export enum AttributeType {
 }
 
 export interface ListAttributeWithPagination {
-  pagination: IPagination;
+  pagination: Pagination;
   data: AttributeProps[];
+}
+
+export interface DimensionAndWeightInterface {
+  id: string;
+  name: string;
+  with_diameter: boolean;
+  attributes: {
+    id: string;
+    name: string;
+    basis_id: string;
+    type: string;
+    conversion_value_1: number | string;
+    conversion_value_2: number | string;
+    text: string;
+    basis_value_id: string;
+    with_diameter: boolean | null;
+    conversion?: {
+      id: string;
+      name_1: string;
+      name_2: string;
+      formula_1: number;
+      formula_2: number;
+      unit_1: string;
+      unit_2: string;
+    }
+  }[];
 }

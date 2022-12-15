@@ -1,5 +1,4 @@
-import { VALID_IMAGE_TYPES } from "@/constant/common.constant";
-import { DESIGN_STORE, MESSAGES } from "@/constants";
+import { VALID_IMAGE_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
 import {
   getFileTypeFromBase64,
   randomName,
@@ -9,8 +8,7 @@ import { toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { deleteFile, isExists, upload } from "@/service/aws.service";
-import { ValidImage } from "@/type/common.type";
-import { BrandAttributes } from "@/types";
+import { BrandAttributes, ValidImage } from "@/types";
 import moment from "moment";
 
 export const validateImageType = async (images: string[]) => {
@@ -27,6 +25,23 @@ export const validateImageType = async (images: string[]) => {
   return isValidImage;
 };
 
+export const splitImageByType = async (images: string[]) => {
+  const imagePath: string[] = [];
+  const imageBase64: string[] = [];
+  for (const image of images) {
+    const fileType = await getFileTypeFromBase64(image);
+    if (
+      !fileType ||
+      !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+    ) {
+      imagePath.push(image);
+    } else {
+      imageBase64.push(image);
+    }
+  }
+  return { imagePath, imageBase64 };
+};
+
 export const uploadImagesProduct = (
   images: string[],
   keywords: string[],
@@ -40,12 +55,16 @@ export const uploadImagesProduct = (
   return Promise.all(
     images.map(async (image, index) => {
       const mediumBuffer = await toWebp(Buffer.from(image, "base64"), "medium");
-      const cleanKeywords = keywords.map((item) => {
-        return item.trim().replace(/ /g, "-");
-      });
-      let fileName = `${formatedBrandName}-${cleanKeywords.join(
-        "-"
-      )}-${timestamps.unix()}${index}`;
+      const cleanKeywords = keywords.length
+        ? "-" +
+          keywords
+            .map((item) => {
+              return item.trim().replace(/ /g, "-");
+            })
+            .join("-")
+        : "";
+      const fileName = `${formatedBrandName}${cleanKeywords}-${timestamps.unix()}${index}`;
+
       await upload(
         mediumBuffer,
         `product/${brandId}/${fileName}_medium.webp`,
@@ -59,8 +78,11 @@ export const uploadImagesProduct = (
 export const uploadImage = async (validImages: ValidImage[]) => {
   return Promise.all(
     validImages.map(async (item) => {
-      await upload(item.buffer, item.path, item.mime_type);
-      return true;
+      return upload(
+        item.buffer,
+        item.path[0] === "/" ? item.path.slice(1) : item.path,
+        item.mime_type
+      );
     })
   );
 };

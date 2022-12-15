@@ -1,5 +1,5 @@
 import { locationService } from "./../location/location.service";
-import { BRAND_STATUSES, MESSAGES, ROLES, SYSTEM_TYPE } from "@/constants";
+import { BRAND_STATUSES, MESSAGES, BrandRoles, ALL_REGIONS } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
@@ -12,6 +12,7 @@ import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { uploadLogoBrand } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
+import { permissionService } from "@/api/permission/permission.service";
 import {
   ActiveStatus,
   BrandAttributes,
@@ -20,6 +21,7 @@ import {
   UserStatus,
   UserAttributes,
   GetUserGroupBrandSort,
+  UserType,
 } from "@/types";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
@@ -45,7 +47,7 @@ class BrandService {
   public async getList(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: GetUserGroupBrandSort,
     order: SortOrder,
     haveProduct?: boolean
@@ -94,7 +96,7 @@ class BrandService {
     });
   }
 
-  public async invite(currentUser: UserAttributes, id: string) {
+  public async invite(id: string) {
     const brand = await brandRepository.find(id);
 
     if (!brand) {
@@ -111,7 +113,7 @@ class BrandService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
     }
 
-    await mailService.sendInviteEmailTeamProfile(inviteUser, currentUser);
+    await mailService.sendBrandInviteEmail(inviteUser);
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
@@ -127,7 +129,7 @@ class BrandService {
     user: UserAttributes,
     payload: IUpdateBrandProfileRequest
   ) {
-    if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
+    if (user.type !== UserType.Brand || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
     }
 
@@ -156,7 +158,7 @@ class BrandService {
   }
 
   public async updateLogo(user: UserAttributes, logo: any) {
-    if (user.type !== SYSTEM_TYPE.BRAND || !user.relation_id) {
+    if (user.type !== UserType.Brand || !user.relation_id) {
       return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
     }
 
@@ -187,7 +189,6 @@ class BrandService {
     if (brand) {
       return errorMessageResponse(MESSAGES.BRAND_EXISTED);
     }
-
     const user = await userRepository.findBy({
       email: payload.email,
     });
@@ -207,7 +208,7 @@ class BrandService {
 
     const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
-      SYSTEM_TYPE.BRAND,
+      UserType.Brand,
       payload.email
     );
 
@@ -227,11 +228,11 @@ class BrandService {
       lastname: payload.last_name,
       gender: true,
       email: payload.email,
-      role_id: ROLES.BRAND_ADMIN,
+      role_id: BrandRoles.Admin,
       verification_token: verificationToken,
       is_verified: false,
       status: UserStatus.Pending,
-      type: SYSTEM_TYPE.BRAND,
+      type: UserType.Brand,
       relation_id: createdBrand.id,
       location_id: defaultLocation?.id,
     });
@@ -240,7 +241,7 @@ class BrandService {
     }
 
     //create brand permissions
-    // await permissionService.initPermission(createdUser);
+    await permissionService.initPermission(createdUser);
 
     const officialWebsites = this.getOfficialWebsites(createdBrand);
 
@@ -273,7 +274,7 @@ class BrandService {
         id: v4(),
         quantity: sumBy(summary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: summary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             summary.countries.summary.find((el) => el.region === region)

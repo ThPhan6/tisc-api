@@ -14,5 +14,6 @@ export const categoryData =  {
     },
   ],
   "created_at": "2022-08-29T06:59:28.854Z",
-  "is_deleted": false
+  "updated_at": "2022-08-29T06:59:28.854Z",
+  "deleted_at": null
 }

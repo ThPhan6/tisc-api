@@ -67,13 +67,13 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.location.general_email %></span>
+          <span class="primary-roboto-light-8-18"><%= item.location.contact.first_name === "N/A" &&  item.location.contact.last_name === "N/A" ? "N/A":item.location.contact.first_name + " "+item.location.contact.last_name  %></span>
         </td>
         <td colspan="2">
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.distributor.first_name %> <%= item.distributor.last_name %></span>
+          <span class="primary-roboto-light-8-18"><%= item.distributor.contact.first_name %> <%= item.distributor.contact.last_name %></span>
         </td>
       </tr>
       <tr>
@@ -81,15 +81,15 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work email</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.location.general_email %></span>
+          <span class="primary-roboto-light-8-18"><%= item.location.contact.work_email %></span>
         </td>
         <td colspan="2">
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work email</span>
           </div>
-          <span class="primary-roboto-light-8-18"
-            ><%= item.distributor.email %></span
-          >
+          <span class="primary-roboto-light-8-18">
+            <%= item.distributor.contact.email %>
+          </span>
         </td>
       </tr>
       <tr>
@@ -97,13 +97,23 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work phone</span>
           </div>
-          <span class="primary-roboto-light-8-18">+<%= item.location.phone_code %> <%= item.location.general_phone %></span>
+          <span class="primary-roboto-light-8-18">
+            <% if (item.location.contact.work_phone !== 'N/A') { %>
+              +<%= item.location.phone_code %>
+            <% } %>
+            <%= item.location.contact.work_phone %>
+          </span>
         </td>
         <td colspan="2">
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work phone</span>
           </div>
-          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.phone %></span>
+          <span class="primary-roboto-light-8-18">
+            <% if (item.distributor.contact.work_phone !== 'N/A') { %>
+              +<%= item.distributor.phone_code %>
+            <% } %>
+            <%= item.distributor.contact.work_phone %>
+          </span>
         </td>
       </tr>
       <tr>
@@ -111,13 +121,23 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work mobile</span>
           </div>
-          <span class="primary-roboto-light-8-18">+<%= item.location.phone_code %> <%= item.location.general_phone %></span>
+          <span class="primary-roboto-light-8-18">
+            <% if (item.location.contact.work_mobile !== 'N/A') { %>
+              +<%= item.location.phone_code %>
+            <% } %>
+            <%= item.location.contact.work_mobile %>
+          </span>
         </td>
         <td colspan="2">
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">work mobile</span>
           </div>
-          <span class="primary-roboto-light-8-18">+<%= item.distributor.phone_code %> <%= item.distributor.mobile %></span>
+          <span class="primary-roboto-light-8-18">
+            <% if (item.distributor.contact.work_mobile !== 'N/A') { %>
+              +<%= item.distributor.phone_code %>
+            <% } %>
+            <%= item.distributor.contact.work_mobile %>
+          </span>
         </td>
       </tr>
       <tr class=""><td colspan="4" class="border-bottom-box-shadow"></td></tr>
@@ -152,7 +172,7 @@
           </td>
           <td style="vertical-align:top" class="primary-roboto-light-8-18">
             <span class="normal-garamond-light-8-12 uppercase">id</span>
-            <span style="margin-left: 8px">Product SKU #</span>
+            <span style="margin-left: 8px"><%= groupData.product.sku_text %></span>
           </td>
           <td style="width: 108px;">
             <img style="width: 108px;height:108px" src="<%= groupData.productImage %>"></img>

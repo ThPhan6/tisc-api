@@ -1,7 +1,6 @@
 import * as pdf from "html-pdf";
 
 export default class HtmlPdfService {
-  constructor() {}
   public createHtmlString = () => {
     return `<!DOCTYPE html>
       <html>
@@ -22,7 +21,7 @@ export default class HtmlPdfService {
         .create(html, {
           format: "Letter",
         })
-        .toBuffer((err, buffer) => {
+        .toBuffer((_err, buffer) => {
           resolve(Buffer.isBuffer(buffer));
         });
     });

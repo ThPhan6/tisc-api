@@ -12,3 +12,4 @@ coverage
 .nyc_output
 mochawesome-report
 .DS_Store
+data/lark.json

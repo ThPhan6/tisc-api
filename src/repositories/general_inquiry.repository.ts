@@ -66,9 +66,9 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
     relationId: string,
     limit: number,
     offset: number,
+    filter: any,
     sort: SortValidGeneralInquiry,
-    order: SortOrder = "DESC",
-    filter: any
+    order: SortOrder = "DESC"
   ) {
     const params = {
       userId,

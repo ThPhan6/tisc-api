@@ -1,7 +1,4 @@
-import {
-  TARGETED_FOR_OPTIONS,
-  TOPIC_OPTIONS,
-} from "@/constant/common.constant";
+import { TARGETED_FOR_OPTIONS, TOPIC_OPTIONS } from "@/constants";
 import { IAutoEmailAttributes } from "@/types/auto_email.type";
 
 export const mappingAutoEmails = (autoEmails: IAutoEmailAttributes[]) => {
