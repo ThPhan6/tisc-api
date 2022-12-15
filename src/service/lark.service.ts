@@ -14,6 +14,7 @@ import {
 } from '@/types/lark.type';
 import {isEmpty} from 'lodash';
 import fs from 'fs';
+import * as Boom from "@hapi/boom";
 
 class LarkOpenAPIService {
   //
@@ -36,6 +37,7 @@ class LarkOpenAPIService {
   }
 
   private getAppAccessToken = async () => {
+
     const timestamp = moment().unix();
     const next20Mins = timestamp + 1200;
     if (this.lark_token.app_access_token_expires_in >= next20Mins) {
@@ -47,8 +49,8 @@ class LarkOpenAPIService {
     );
     ///
     if (appAccessToken.data.code !== 0) {
-      console.info(appAccessToken.data);
-      throw Error(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+      console.error(appAccessToken.data);
+      throw Boom.badRequest(MESSAGES.GENERAL.SERVER_BUSY);
     }
     //
     this.lark_token = {
@@ -67,8 +69,8 @@ class LarkOpenAPIService {
     );
     //
     if (refreshAccessToken.data.code !== 0) {
-      console.info(refreshAccessToken.data);
-      throw Error(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+      console.error(refreshAccessToken.data);
+      throw Boom.badRequest(MESSAGES.GENERAL.SERVER_BUSY);
     }
     const { data } = refreshAccessToken.data;
     this.lark_token = {
