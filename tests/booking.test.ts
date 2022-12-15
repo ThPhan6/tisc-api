@@ -1,10 +1,10 @@
 import { apiService } from "./helpers/api.helper";
 
-import { expect } from "chai";
+import moment from "moment";
 
 describe("Booking", () => {
   let bookingId = "";
-
+  const bookingDate = moment().add(37, 'days').startOf('week').add(1, 'days').format('YYYY-MM-DD');
   describe("Get available schedule", () => {
     it("Date is weekend", async () => {
       (
@@ -47,7 +47,7 @@ describe("Booking", () => {
           brand_name: "brand testing 1",
           website: "https://abc11.com",
           name: "brand testing 1",
-          date: "2022-12-13",
+          date: bookingDate,
           email: "string11@yopmail.com",
           slot: 5,
           timezone: "America/Chicago",
@@ -91,7 +91,7 @@ describe("Booking", () => {
           brand_name: "brand testing 1",
           website: "https://abc11.com",
           name: "brand testing 1",
-          date: "2022-12-13",
+          date: bookingDate,
           email: "string11@yopmail.com",
           slot: 5,
           timezone: "America/Chicago",
