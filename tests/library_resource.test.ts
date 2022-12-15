@@ -17,12 +17,17 @@ import {
   ProductConsiderStatus,
   ProductSpecifyStatus,
 } from "@/api/project_product/project_product.type";
+import { tiscAdminData } from "./temp-data/user";
 
 describe("Library and Resource", () => {
   let projectProductId = "";
   let design = {
     company: {},
     location: {},
+    user: {},
+    token: "",
+  } as any;
+  let tiscAdmin = {
     user: {},
     token: "",
   } as any;
@@ -45,6 +50,9 @@ describe("Library and Resource", () => {
     ]);
     design.user = await connection.insert("users", userDesignFirmData);
     design.token = signJwtToken(design.user.id);
+
+    tiscAdmin.user = await connection.insert("users", tiscAdminData);
+    tiscAdmin.token = signJwtToken(tiscAdminData.id);
 
     // PROJECT
     project.data = await connection.insert("projects", projectData);
@@ -1128,6 +1136,7 @@ describe("Library and Resource", () => {
         ).shouldSuccess();
       });
     });
+
     describe("Generate PDF", () => {
       it("Correct project id", async () => {
         const pdfTemplate = await apiService
@@ -1152,62 +1161,118 @@ describe("Library and Resource", () => {
         ).shouldSuccess();
       });
     });
+  });
 
-    describe("Delete records", () => {
-      describe("Delete product specify", () => {
-        it("Incorrect ID", async () => {
-          (
-            await apiService
-              .getInstance()
-              .setToken(design.token)
-              .delete(`/api/project-product/${projectProductId}-123/delete`)
-          ).shouldError(404);
-        });
-        it("Correct ID", async () => {
-          (
-            await apiService
-              .getInstance()
-              .setToken(design.token)
-              .delete(`/api/project-product/${projectProductId}/delete`)
-          ).shouldSuccess();
-        });
+  describe("TISC - Project Listing", () => {
+    describe("Get list", () => {
+      it("With pagination", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/listing?page=1&pageSize=10`);
+        response.shouldSuccess();
       });
+    });
+    describe("Get summary", () => {
+      it("Correct parameters", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/get-summary-overall`);
+        response.shouldSuccess();
+      });
+    });
+    describe("Get one", () => {
+      it("Incorrect ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/listing/${project.data.id}-123`);
+        response.shouldError(404);
+      });
+      it("Correct ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/listing/${project.data.id}`);
+        response.shouldSuccess();
+      });
+    });
+  });
 
-      describe("Delete custom product", () => {
-        it("Incorrect ID", async () => {
-          (
-            await apiService
-              .getInstance()
-              .setToken(design.token)
-              .delete(`/api/custom-product/delete/${product.id}-123`)
-          ).shouldError(404);
-        });
-        it("Correct ID", async () => {
-          (
-            await apiService
-              .getInstance()
-              .setToken(design.token)
-              .delete(`/api/custom-product/delete/${product.id}`)
-          ).shouldSuccess();
-        });
+  describe("TISC User group - Design Firm - Library Tab", () => {
+    describe("Get by design firm", () => {
+      it("Incorrect ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/design/${design.company.id}-123/library`);
+        response.shouldError(404);
       });
-      describe("Delete custom resource", () => {
-        it("Incorrect ID", async () => {
-          (
-            await apiService
-              .getInstance()
-              .setToken(design.token)
-              .delete(`/api/custom-resource/delete/${company.id}-123`)
-          ).shouldError(404);
-        });
-        it("Correct ID", async () => {
-          (
-            await apiService
-              .getInstance()
-              .setToken(design.token)
-              .delete(`/api/custom-resource/delete/${company.id}`)
-          ).shouldSuccess();
-        });
+      it("Correct ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/design/${design.company.id}/library`);
+        response.shouldSuccess();
+      });
+    });
+  });
+
+  describe("Delete records", () => {
+    describe("Delete product specify", () => {
+      it("Incorrect ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/project-product/${projectProductId}-123/delete`)
+        ).shouldError(404);
+      });
+      it("Correct ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/project-product/${projectProductId}/delete`)
+        ).shouldSuccess();
+      });
+    });
+
+    describe("Delete custom product", () => {
+      it("Incorrect ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/custom-product/delete/${product.id}-123`)
+        ).shouldError(404);
+      });
+      it("Correct ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/custom-product/delete/${product.id}`)
+        ).shouldSuccess();
+      });
+    });
+    describe("Delete custom resource", () => {
+      it("Incorrect ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/custom-resource/delete/${company.id}-123`)
+        ).shouldError(404);
+      });
+      it("Correct ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/custom-resource/delete/${company.id}`)
+        ).shouldSuccess();
       });
     });
   });

@@ -1,11 +1,15 @@
 export const projectLocationData = {
   id: "PROJECT-LOCATION-XXXX-XXXX",
   country_id: "3",
+  country_name: "Albania",
+  state_name: "Devoll District",
+  city_name: "",
+  address: "900 Le Trong Tan",
   state_id: "608",
   city_id: "",
-  city_name: "",
   phone_code: "355",
-  updated_at: null,
+  created_at: "2022-10-25 07:34:42",
+  updated_at: "2022-10-25 07:34:42",
   deleted_at: null,
 };
 
@@ -34,9 +38,9 @@ export const projectData = {
   product_ids: [],
   design_id: "DESIGN-FIRM-XXXX-XXXX",
   status: 0,
-  created_at: "2022-10-25 07:34:42",
   location_id: "PROJECT-LOCATION-XXXX-XXXX",
-  updated_at: null,
+  created_at: "2022-10-25 07:34:42",
+  updated_at: "2022-10-25 07:34:42",
   deleted_at: null,
 };
 export const zonesData = {
@@ -66,8 +70,8 @@ export const zonesData = {
       ],
     },
   ],
-  created_at: "2022-10-25 08:18:25",
   id: "07e4f856-2076-4938-8794-0d647f4a7d7e",
-  updated_at: null,
+  created_at: "2022-10-25 08:18:25",
+  updated_at: "2022-10-25 08:18:25",
   deleted_at: null,
 };
