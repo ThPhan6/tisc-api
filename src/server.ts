@@ -61,6 +61,15 @@ async function start() {
     AuthMiddleware.registerAll(server);
     await Router.loadRoute(server);
     await server.start();
+    server.events.on("log", (event, tags) => {
+      if (tags.error) {
+        const plugins: any = server.plugins;
+        const sentry = plugins["hapi-sentry"];
+        if (sentry) {
+          sentry.client.captureException(event);
+        }
+      }
+    });
   } catch (err) {
     console.log(err);
     process.exit(1);
