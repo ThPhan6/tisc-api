@@ -14,9 +14,9 @@ export const MESSAGES = {
     CAN_NOT_MODIFY_MASTER_DATA: "Can not modify master data",
     CAN_NOT_DELETE_MASTER_DATA: "Can not delete master data",
     NOT_AUTHORIZED_TO_ACCESS:
-      "You are not have permission to access this resource",
+      "You do not have permission to access this resource",
     NOT_AUTHORIZED_TO_PERFORM:
-      "You are not have permission to perform this action",
+      "You do not have permission to perform this action",
     NOT_FOUND: "Not found!",
     SERVER_BUSY: "The system is busy. Please try again later!",
     INVALID_TOKEN_SIGNATURE: "Invalid token signature",
