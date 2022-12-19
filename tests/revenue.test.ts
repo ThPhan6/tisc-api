@@ -9,8 +9,6 @@ import {
 } from "./temp-data/invoice";
 import { apiService } from "./helpers/api.helper";
 
-import { expect } from "chai";
-
 describe("Revenue", () => {
   let tiscAdmin = {
     user: {},
@@ -135,42 +133,6 @@ describe("Revenue", () => {
       ).shouldSuccess();
     });
   });
-  describe("Send bill to brand", () => {
-    it("Incorrect id", async () => {
-      (
-        await apiService
-          .getInstance()
-          .setToken(tiscAdmin.token)
-          .post(`/api/invoice/${invoiceId}-123/bill`)
-      ).shouldError(404);
-    });
-    it("Correct id", async () => {
-      (
-        await apiService
-          .getInstance()
-          .setToken(tiscAdmin.token)
-          .post(`/api/invoice/${pendingInvoice.id}/bill`)
-      ).shouldSuccess();
-    });
-  });
-  describe("Mark as paid", () => {
-    it("Incorrect id", async () => {
-      (
-        await apiService
-          .getInstance()
-          .setToken(tiscAdmin.token)
-          .post(`/api/invoice/${invoiceId}-123/paid`)
-      ).shouldError(404);
-    });
-    it("Correct id", async () => {
-      (
-        await apiService
-          .getInstance()
-          .setToken(tiscAdmin.token)
-          .post(`/api/invoice/${notPendingInvoice.id}/paid`)
-      ).shouldSuccess();
-    });
-  });
   describe("Update revenue", () => {
     it("Incorrect payload", async () => {
       (
@@ -220,6 +182,44 @@ describe("Revenue", () => {
       ).shouldError();
     });
   });
+
+  describe("Send bill to brand", () => {
+    it("Incorrect id", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .post(`/api/invoice/${invoiceId}-123/bill`)
+      ).shouldError(404);
+    });
+    it("Correct id", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .post(`/api/invoice/${invoiceId}/bill`)
+      ).shouldSuccess();
+    });
+  });
+  describe("Mark as paid", () => {
+    it("Incorrect id", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .post(`/api/invoice/${invoiceId}-123/paid`)
+      ).shouldError(404);
+    });
+    it("Correct id", async () => {
+      (
+        await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .post(`/api/invoice/${invoiceId}/paid`)
+      ).shouldSuccess();
+    });
+  });
+
   describe("Delete revenue", () => {
     it("Incorrect id", async () => {
       (
@@ -234,7 +234,7 @@ describe("Revenue", () => {
         await apiService
           .getInstance()
           .setToken(tiscAdmin.token)
-          .delete(`/api/invoice/${invoiceId}/delete`)
+          .delete(`/api/invoice/${pendingInvoice.id}/delete`)
       ).shouldSuccess();
     });
     it("Correct id with not pending status", async () => {

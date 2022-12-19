@@ -74,6 +74,6 @@
     "db:migrate": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/migrate",
     "db:rollback": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/rollback",
     "db:reset": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/reset",
-    "test": "nyc env TS_NODE_PROJECT=\"tests/tsconfig.json\" mocha --reporter mochawesome --timeout 10000 -r ts-node/register \"**/tests/*.test.ts\""
+    "test": "nyc env TS_NODE_PROJECT=\"tests/tsconfig.json\" mocha --reporter mochawesome --timeout 30000 -r ts-node/register \"**/tests/*.test.ts\""
   }
 }

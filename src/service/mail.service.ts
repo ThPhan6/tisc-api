@@ -1,7 +1,6 @@
 import { ENVIROMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
-import { TARGETED_FOR_OPTIONS, TARGETED_FOR_TYPES } from "@/constants";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
 import { unescape } from "lodash";
 import {
@@ -22,7 +21,17 @@ export default class MailService {
   private defaultSender: TransactionEmailPayload["sender"] = {
     email: ENVIROMENT.SENDINBLUE_FROM,
     name: "TISC Team",
-  };
+  }
+
+  private getTargetedForFromUserType = (userType: UserType) => {
+    if (UserType.TISC === userType) {
+      return "TISC";
+    }
+    if (UserType.Brand === userType) {
+      return "Brand";
+    }
+    return "Design Firm";
+  }
 
   public constructor() {
     this.frontpageURL = ENVIROMENT.FE_URL || "";
@@ -105,29 +114,7 @@ export default class MailService {
       htmlContent: template.html,
     });
   }
-  private getTargetedForFromUserType = (userType: number) => {
-    let value = 0;
-    switch (userType) {
-      case UserType.TISC:
-        value = TARGETED_FOR_TYPES.TISC_TEAM;
-        break;
-      case UserType.Brand:
-        value = TARGETED_FOR_TYPES.BRAND;
-        break;
 
-      case UserType.Designer:
-        value = TARGETED_FOR_TYPES.DESIGN_FIRM;
-        break;
-
-      default:
-        value = userType;
-        break;
-    }
-    return (
-      TARGETED_FOR_OPTIONS.find((item) => item.value === value)?.key ||
-      "General"
-    );
-  };
   public async sendResetPasswordEmail(
     user: UserAttributes,
     browserName: string
@@ -302,7 +289,7 @@ export default class MailService {
     //
     return this.sendTransactionEmail({
       to: [{ email: data.to }],
-      subject: data.subject,
+      subject: template.subject,
       htmlContent: template.html,
     });
   }

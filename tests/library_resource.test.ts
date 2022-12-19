@@ -1,6 +1,11 @@
 import { connection } from "@/Database/Connections/ArangoConnection";
 import { signJwtToken } from "@/helper/jwt.helper";
-import { projectData, zonesData } from "./temp-data/project";
+import {
+  projectData,
+  projectLocationData,
+  zonesData,
+} from "./temp-data/project";
+import { materialCodeData } from "./temp-data/product";
 import {
   designFirmData,
   designFirmLocationData,
@@ -8,11 +13,21 @@ import {
 } from "./temp-data/design-firm";
 import { apiService } from "./helpers/api.helper";
 import { CollectionRelationType, CustomResouceType } from "@/types";
+import {
+  ProductConsiderStatus,
+  ProductSpecifyStatus,
+} from "@/api/project_product/project_product.type";
+import { tiscAdminData } from "./temp-data/user";
 
 describe("Library and Resource", () => {
+  let projectProductId = "";
   let design = {
     company: {},
     location: {},
+    user: {},
+    token: "",
+  } as any;
+  let tiscAdmin = {
     user: {},
     token: "",
   } as any;
@@ -24,20 +39,26 @@ describe("Library and Resource", () => {
   let distributor: any;
   let product: any;
   let collection: any;
+  let materialCode: any;
 
   before(async () => {
     /// DESIGN FIRM
     design.company = await connection.insert("designers", designFirmData);
-    design.location = await connection.insert(
-      "locations",
-      designFirmLocationData
-    );
+    design.location = await connection.insert("locations", [
+      designFirmLocationData,
+      projectLocationData,
+    ]);
     design.user = await connection.insert("users", userDesignFirmData);
     design.token = signJwtToken(design.user.id);
+
+    tiscAdmin.user = await connection.insert("users", tiscAdminData);
+    tiscAdmin.token = signJwtToken(tiscAdminData.id);
 
     // PROJECT
     project.data = await connection.insert("projects", projectData);
     project.zones = await connection.insert("project_zones", zonesData);
+
+    materialCode = await connection.insert("material_codes", materialCodeData);
     //
   });
 
@@ -831,8 +852,394 @@ describe("Library and Resource", () => {
         ).shouldSuccess();
       });
     });
+  });
 
-    describe("Delete", () => {
+  describe("Prodject with Custom Product", () => {
+    describe("Assign custom product to project", () => {
+      it("Incorrect payload", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .post(`/api/project/assign-product`, {
+              product_id: product.id,
+              project_id: "string",
+              allocation: ["string"],
+              custom_product: true,
+            })
+        ).shouldError();
+      });
+      it("Correct payload", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(design.token)
+          .post(`/api/project/assign-product`, {
+            entire_allocation: true,
+            product_id: product.id,
+            project_id: project.data.id,
+            allocation: [],
+            custom_product: true,
+          });
+        response.shouldSuccess();
+        projectProductId = response.get("id");
+      });
+    });
+    describe("Get list project considered", () => {
+      it("Get list with parameter ", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project/${project.data.id}/considered-product/get-list?page=1&pageSize=999999999999`
+            )
+        ).shouldSuccess();
+      });
+    });
+    describe("Update consider status", () => {
+      it("Incorrect payload", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(design.token)
+          .patch(
+            `/api/project-product/${projectProductId}/update-consider-status`,
+            {
+              consider_status: 9,
+            }
+          );
+        response.shouldError();
+      });
+      it("Correct payload", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .patch(
+              `/api/project-product/${projectProductId}/update-consider-status`,
+              {
+                consider_status: ProductConsiderStatus.Unlisted, /// unlisted
+              }
+            )
+        ).shouldSuccess();
+      });
+    });
+    describe("Specify custom product", () => {
+      it("Incorrect payload", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(design.token)
+          .patch(`/api/project-product/${projectProductId}/update-specify`, {
+            specification: {
+              is_refer_document: false,
+              attribute_groups: [
+                {
+                  id: "SPECIFICATION-XXXX-XXXX",
+                  attributes: [
+                    {
+                      id: "OPTION-ATTRIBUTE-XXXX-XXXX",
+                      basis_option_id: "OPTION-CODE-1-XXXX-XXXX",
+                    },
+                  ],
+                },
+              ],
+            },
+            brand_location_id: company.location_id,
+            distributor_location_id: distributor.location_id,
+            entire_allocation: false,
+            allocation: [],
+            material_code_id: materialCode.id,
+            suffix_code: "SC",
+            description: "Test Specify",
+            quantity: 1,
+            unit_type_id: "Unit Type",
+            order_method: 0,
+            requirement_type_ids: ["requirement_type_ids"],
+            instruction_type_ids: ["instruction_type_ids"],
+            special_instructions: "string",
+            finish_schedules: [
+              {
+                floor: true,
+                base: {
+                  ceiling: false,
+                  floor: false,
+                },
+                front_wall: true,
+                left_wall: true,
+                back_wall: false,
+                right_wall: false,
+                ceiling: true,
+                door: {
+                  frame: true,
+                  panel: true,
+                },
+                cabinet: {
+                  carcass: true,
+                  door: true,
+                },
+              },
+            ],
+          });
+        response.shouldError();
+      });
+      it("correct payload", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(design.token)
+          .patch(`/api/project-product/${projectProductId}/update-specify`, {
+            specification: {
+              is_refer_document: false,
+              attribute_groups: [
+                {
+                  id: "SPECIFICATION-XXXX-XXXX",
+                  attributes: [
+                    {
+                      id: "OPTION-ATTRIBUTE-XXXX-XXXX",
+                      basis_option_id: "OPTION-CODE-1-XXXX-XXXX",
+                    },
+                  ],
+                },
+              ],
+            },
+            brand_location_id: company.location_id,
+            distributor_location_id: distributor.location_id,
+            entire_allocation: true,
+            allocation: [],
+            material_code_id: materialCode.id,
+            suffix_code: "SC",
+            description: "Test Specify",
+            quantity: 1,
+            unit_type_id: "Unit Type",
+            order_method: 0,
+            requirement_type_ids: ["requirement_type_ids"],
+            instruction_type_ids: ["instruction_type_ids"],
+            special_instructions: "string",
+            finish_schedules: [
+              {
+                floor: true,
+                base: {
+                  ceiling: false,
+                  floor: false,
+                },
+                front_wall: true,
+                left_wall: true,
+                back_wall: false,
+                right_wall: false,
+                ceiling: true,
+                door: {
+                  frame: true,
+                  panel: true,
+                },
+                cabinet: {
+                  carcass: true,
+                  door: true,
+                },
+              },
+            ],
+          });
+        response.shouldSuccess();
+      });
+    });
+
+    describe("Get list product specify by brand", () => {
+      it("Incorrect project id", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project-product/get-list-by-brand/${project.data.id}-123?page=1&pageSize=999999999999`
+            )
+        ).shouldError(404);
+      });
+      it("Correct project id", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project-product/get-list-by-brand/${project.data.id}?page=1&pageSize=999999999999`
+            )
+        ).shouldSuccess();
+      });
+    });
+
+    describe("Get list product specify by material code", () => {
+      it("Incorrect project id", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project-product/get-list-by-material/${project.data.id}-123?page=1&pageSize=999999999999`
+            )
+        ).shouldError(404);
+      });
+      it("Correct project id", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project-product/get-list-by-material/${project.data.id}?page=1&pageSize=999999999999`
+            )
+        ).shouldSuccess();
+      });
+    });
+    describe("Get list product specify by space", () => {
+      it("Incorrect project id", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project-product/get-list-by-zone/${project.data.id}-123?page=1&pageSize=999999999999`
+            )
+        ).shouldError(404);
+      });
+      it("Correct project id", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .get(
+              `/api/project-product/get-list-by-zone/${project.data.id}?page=1&pageSize=999999999999`
+            )
+        ).shouldSuccess();
+      });
+    });
+
+    describe("Update product specify status", () => {
+      it("Incorrect payload", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .patch(
+              `/api/project-product/${projectProductId}/update-specified-status`,
+              {
+                specified_status: 9,
+              }
+            )
+        ).shouldError();
+      });
+      it("Correct payload", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .patch(
+              `/api/project-product/${projectProductId}/update-specified-status`,
+              {
+                specified_status: ProductSpecifyStatus.Cancelled,
+              }
+            )
+        ).shouldSuccess();
+      });
+    });
+
+    describe("Generate PDF", () => {
+      it("Correct project id", async () => {
+        const pdfTemplate = await apiService
+          .getInstance()
+          .setToken(design.token)
+          .get(`/api/pdf/project/config/${project.data.id}`);
+        const template_id =
+          pdfTemplate.get("templates").specification[0].items[0].id;
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .post(`/api/pdf/project/${project.data.id}/generate`, {
+              location_id: "LOCATION-DESIGN-FIRM-XXXX-XXXX",
+              issuing_for_id: "Testing",
+              issuing_date: "2022-10-10",
+              revision: "string",
+              has_cover: true,
+              document_title: "string",
+              template_ids: [template_id],
+            })
+        ).shouldSuccess();
+      });
+    });
+  });
+
+  describe("TISC - Project Listing", () => {
+    describe("Get list", () => {
+      it("With pagination", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/listing?page=1&pageSize=10`);
+        response.shouldSuccess();
+      });
+    });
+    describe("Get summary", () => {
+      it("Correct parameters", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/get-summary-overall`);
+        response.shouldSuccess();
+      });
+    });
+    describe("Get one", () => {
+      it("Incorrect ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/listing/${project.data.id}-123`);
+        response.shouldError(404);
+      });
+      it("Correct ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/project/listing/${project.data.id}`);
+        response.shouldSuccess();
+      });
+    });
+  });
+
+  describe("TISC User group - Design Firm - Library Tab", () => {
+    describe("Get by design firm", () => {
+      it("Incorrect ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/design/${design.company.id}-123/library`);
+        response.shouldError(404);
+      });
+      it("Correct ID", async () => {
+        const response = await apiService
+          .getInstance()
+          .setToken(tiscAdmin.token)
+          .get(`/api/design/${design.company.id}/library`);
+        response.shouldSuccess();
+      });
+    });
+  });
+
+  describe("Delete records", () => {
+    describe("Delete product specify", () => {
+      it("Incorrect ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/project-product/${projectProductId}-123/delete`)
+        ).shouldError(404);
+      });
+      it("Correct ID", async () => {
+        (
+          await apiService
+            .getInstance()
+            .setToken(design.token)
+            .delete(`/api/project-product/${projectProductId}/delete`)
+        ).shouldSuccess();
+      });
+    });
+
+    describe("Delete custom product", () => {
       it("Incorrect ID", async () => {
         (
           await apiService

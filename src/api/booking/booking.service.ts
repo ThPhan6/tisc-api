@@ -94,12 +94,17 @@ export default class BookingService {
     const currentIndex = result.findIndex(
       (item) => item.start > moment().tz(clientTimezone).format("HH:mm:ss")
     );
-    if (clientDate === moment().add(1, "day").format("YYYY-MM-DD")) {
+    const clientNextDate = moment().add(1, "day").format("YYYY-MM-DD");
+    const clientDateUnix = moment(clientDate).unix();
+    const clientNextDateUnix = moment(clientNextDate).unix();
+    if (clientDateUnix <= clientNextDateUnix) {
       result = result.map((item, index) => {
         return {
           ...item,
           available:
-            currentIndex === -1 || index < currentIndex
+            clientDateUnix < clientNextDateUnix
+              ? false
+              : currentIndex === -1 || index < currentIndex
               ? false
               : item.available,
         };
@@ -355,7 +360,6 @@ export default class BookingService {
     const schedule_url = `${ENVIROMENT.FE_URL}/booking/${booking.id}/re-schedule`;
     const cancel_url = `${ENVIROMENT.FE_URL}/booking/${booking.id}/cancel`;
     //
-    const subject = `TISC product demo with ${booking.name}`;
     ///
     await mailService.sendBookingScheduleEmail({
       to: booking.email,
@@ -364,7 +368,6 @@ export default class BookingService {
       conference_url: booking.meeting_url,
       reschedule_url: schedule_url,
       cancel_url: cancel_url,
-      subject,
       timezone: TimeZoneText[booking.timezone],
     });
     ///

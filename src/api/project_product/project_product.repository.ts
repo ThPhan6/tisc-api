@@ -128,7 +128,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       id: cr.id,
       name: loc.business_name,
       contacts: cr.contacts,
-      location: KEEP(loc, 'id', ${locationRepository.basicAttributesQuery}) }
+      location: KEEP(loc, 'id', ${locationRepository.basicAttributesQuery}, 'general_phone', 'general_email') }
   ) : FIRST(
     FOR b IN brands
     FILTER b.id == product.brand_id

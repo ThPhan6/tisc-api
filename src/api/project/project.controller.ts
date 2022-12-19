@@ -1,10 +1,13 @@
 import { projectService } from "./project.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { CreateProjectRequest } from "./project.type";
-import { PROJECT_STATUS_OPTIONS } from "@/constants";
+import { MESSAGES, PROJECT_STATUS_OPTIONS } from "@/constants";
 import { UserAttributes } from "@/types";
 import { projectRepository } from "@/repositories/project.repository";
-import { successResponse } from "@/helper/response.helper";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
 import { pagination } from "@/helper/common.helper";
 
 export default class ProjectController {
@@ -121,10 +124,14 @@ export default class ProjectController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { id } = req.params;
-
-    const result = await projectRepository.getProjectListingDetail(id);
-
+    const result = await projectRepository.getProjectListingDetail(
+      req.params.id
+    );
+    if (!result[0]) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND))
+        .code(404);
+    }
     return toolkit
       .response(
         successResponse({
