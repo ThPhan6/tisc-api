@@ -39,6 +39,7 @@ const permissionData = [
           ROUTES.GET_DISTRIBUTOR_GROUP_BY_COUNTRY,
           ROUTES.GET_MARKET_AVAILABILITY_GROUP_BY_COLLECTION,
           ROUTES.UPDATE_BRAND_STATUS,
+          ROUTES.SEND_EMAIL_INVITE_BRAND,
         ],
         index: 2,
         id: "permission_1_0",
@@ -233,6 +234,7 @@ const permissionData = [
           ROUTES.GET_ONE_TEAM_PROFILE,
           ROUTES.EDIT_TEAM_PROFILE,
           ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.OPEN_CLOSE_PERMISSION,
         ],
         index: 14,
         id: "permission_4_2",
@@ -343,6 +345,7 @@ const permissionData = [
       ROUTES.ACTION_TASK.CREATE,
       ROUTES.ACTION_TASK.GET_LIST,
       ROUTES.ACTION_TASK.UPDATE,
+      ROUTES.GET_BRAND_TEAM_GROUP_BY_COUNTRY,
     ],
   },
   {
@@ -391,6 +394,7 @@ const permissionData = [
           ROUTES.GET_ONE_TEAM_PROFILE,
           ROUTES.EDIT_TEAM_PROFILE,
           ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.OPEN_CLOSE_PERMISSION,
         ],
       },
       {
@@ -501,7 +505,6 @@ const permissionData = [
       ROUTES.CUSTOM_RESOURCE.CREATE,
       ROUTES.CUSTOM_RESOURCE.UPDATE,
       ROUTES.CUSTOM_RESOURCE.DELETE,
-      
       ROUTES.CUSTOM_RESOURCE.GET_LIST,
       ROUTES.CUSTOM_RESOURCE.GET_ALL,
       ROUTES.CUSTOM_RESOURCE.GET_ONE,
@@ -655,6 +658,7 @@ const permissionData = [
           ROUTES.GET_ONE_TEAM_PROFILE,
           ROUTES.EDIT_TEAM_PROFILE,
           ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.OPEN_CLOSE_PERMISSION,
         ],
       },
       {
