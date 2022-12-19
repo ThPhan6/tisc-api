@@ -234,6 +234,7 @@ const permissionData = [
           ROUTES.GET_ONE_TEAM_PROFILE,
           ROUTES.EDIT_TEAM_PROFILE,
           ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.OPEN_CLOSE_PERMISSION,
         ],
         index: 14,
         id: "permission_4_2",
@@ -393,6 +394,7 @@ const permissionData = [
           ROUTES.GET_ONE_TEAM_PROFILE,
           ROUTES.EDIT_TEAM_PROFILE,
           ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.OPEN_CLOSE_PERMISSION,
         ],
       },
       {
@@ -656,6 +658,7 @@ const permissionData = [
           ROUTES.GET_ONE_TEAM_PROFILE,
           ROUTES.EDIT_TEAM_PROFILE,
           ROUTES.DELETE_TEAM_PROFILE,
+          ROUTES.OPEN_CLOSE_PERMISSION,
         ],
       },
       {

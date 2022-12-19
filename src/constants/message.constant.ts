@@ -18,7 +18,8 @@ export const MESSAGES = {
     NOT_AUTHORIZED_TO_PERFORM:
       "You are not have permission to perform this action",
     NOT_FOUND: "Not found!",
-    SERVER_BUSY: "The system is busy. Please try again later!"
+    SERVER_BUSY: "The system is busy. Please try again later!",
+    INVALID_TOKEN_SIGNATURE: "Invalid token signature",
   },
 
   LOCATION: {
