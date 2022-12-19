@@ -245,8 +245,8 @@ const liveDemoMessage = `
                 <p class="pb-30">Thanks for taking an interest in our service. We are excited to learn more about your
                     brand and
                     product line while introducing our platform.</p>
-                <p>This 60mins session includes:</p>
-                <ul class="non-bullet list-session-include pb-30">
+                <p>This 60mins demo session includes:</p>
+                <ul class="list-session-include pb-30">
                     <li class="dot-blue-light pb-10"><span class="pl-5"> Introduce the TISC platform and its features
                             (30
                             mins) </span>s</li>
@@ -269,7 +269,7 @@ const liveDemoMessage = `
                     <p>Need to reschedule? You can do so at:</p>
                     <a class="text-blue-light text-non-decoration " href="#"><%= {(url)} %></a>
                 </div>
-                <p class="pb-30">Thank you and talk to you soon</p>
+                <p class="pb-30">Thank you and talk to you soon.</p>
 
                 <p>TISC Team</p>
                 <p class="text-blue-light pb-15">tisc.global</p>
@@ -878,7 +878,11 @@ export const up = (connection: ConnectionInterface) => {
       id: uuid(),
       topic: TOPIC_TYPES.MARKETING,
       targeted_for: TARGETED_FOR_TYPES.BRAND,
+<<<<<<< Updated upstream
       title: "TISC live demo session is booked.",
+=======
+      title: "TISC live demo session is booked!",
+>>>>>>> Stashed changes
       message: liveDemoMessage,
       deleted_at: null,
       updated_at: currentTime,
