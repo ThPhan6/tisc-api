@@ -420,17 +420,13 @@ class ProjectProductService {
 
     const total = sumBy(specifiedProducts, "count");
 
-    const cancelledCount = specifiedProducts.reduce(
-      (total: number, brand: any) =>
-        total +
-          countBy(
-            brand.products,
-            (p) =>
-              p.specifiedDetail.specified_status ===
-              ProductSpecifyStatus.Cancelled
-          ).true || 0,
-      0
-    );
+    const cancelledCount = specifiedProducts.reduce((total: number, brand: any) => {
+        const cancelled = countBy(
+          brand.products,
+          (p) => p.specifiedDetail.specified_status === ProductSpecifyStatus.Cancelled
+        ).true || 0;
+        return total + cancelled;
+    }, 0);
 
     const availabilityRemarkCount = specifiedProducts.reduce(
       (total: number, brand: any) => {
