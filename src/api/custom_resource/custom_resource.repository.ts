@@ -78,7 +78,6 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         now: new Date(),
       }
     );
-    console.log("updateAssociateResources", result);
     return result;
   }
 
@@ -135,7 +134,8 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
           distributors: (FOR d IN distributorGroup 
             RETURN MERGE(
               KEEP(d.cr, 'id', 'contacts', 'location_id'),
-              KEEP(d.loc, ${locationRepository.basicAttributesQuery})
+              KEEP(d.loc, ${locationRepository.basicAttributesQuery}),
+              { phone: d.loc.general_phone, email: d.loc.general_email }
             )
           ),
         }
@@ -266,15 +266,15 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
     return result[0];
   }
 
-  public async checkBrandHaveProduct(brandId: string): Promise<boolean> {
+  public async checkBrandHaveProduct(companyId: string): Promise<boolean> {
     const result = await this.model.rawQueryV2(
       `
         FOR p IN custom_products
-        FILTER p.design_id == @brandId
+        FILTER p.company_id == @companyId
         FILTER p.deleted_at == null
         COLLECT WITH COUNT INTO length RETURN length
       `,
-      { brandId }
+      { companyId }
     );
     return result[0] > 0;
   }

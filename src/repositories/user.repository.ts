@@ -32,6 +32,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     avatar: null,
     backup_email: "",
     personal_mobile: "",
+    personal_phone_code: "",
     linkedin: "",
     is_verified: false,
     verification_token: null,
@@ -74,8 +75,9 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return (await this.model
       .where("type", "==", type)
       .where("role_id", "==", role)
-      .where("relation_id", "==", relation_id || 'TISC')
+      .where("relation_id", "==", relation_id || "TISC")
       .where("status", "==", UserStatus.Active)
+      .join("locations", "locations.id", "==", "users.location_id")
       .get()) as UserAttributes[];
   }
   public async getInactiveDesignFirmByBackupData(
@@ -100,7 +102,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
   public async findByCompanyIdWithCompanyStatus(email: string) {
     const result = (await this.model.rawQuery(
       `
-        FILTER users.email == @email
+        FILTER LOWER(users.email) == @email
         FILTER users.deleted_at == null
         LET brands = (
           FOR brand IN brands
@@ -133,6 +135,14 @@ class UserRepository extends BaseRepository<UserAttributes> {
     } while (isDuplicated);
     return token;
   };
+
+  public checkTokenExisted = async (token: string) => {
+    const user = await this.model
+      .where("reset_password_token", "==", token)
+      .orWhere("verification_token", "==", token)
+      .first() as UserAttributes | undefined;
+    return user ? true : false;
+  }
 
   public getPagination = async (
     limit?: number,
@@ -246,7 +256,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
 
     return (await this.model.rawQueryV2(rawQuery, {
       relationId,
-      userStatus: UserStatus.Active
+      userStatus: UserStatus.Active,
     })) as (UserAttributes & {
       locations: ILocationAttributes;
       common_types?: CommonTypeAttributes;

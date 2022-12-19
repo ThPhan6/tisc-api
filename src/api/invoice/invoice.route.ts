@@ -55,6 +55,7 @@ export default class InvoiceRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
               },
             },
           },
@@ -98,6 +99,72 @@ export default class InvoiceRoute implements IRoute {
           options: {
             handler: controller.sendReminder,
             description: "Method that send reminder email",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.INVOICE.BILL,
+          options: {
+            handler: controller.bill,
+            validate: validate.get,
+            description: "Method that bill invoice",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.INVOICE.PAID,
+          options: {
+            handler: controller.paid,
+            validate: validate.get,
+            description: "Method that mark invoice as paid",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.INVOICE.DELETE,
+          options: {
+            handler: controller.delete,
+            validate: validate.get,
+            description: "Method that delete invoice",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.INVOICE.GET_INVOICE_PDF,
+          options: {
+            handler: controller.getInvoicePdf,
+            validate: validate.get,
+            description: "Method that get invoice pdf",
             tags: ["api", "Invoice"],
             auth: AUTH_NAMES.PERMISSION,
             response: {

@@ -9,8 +9,14 @@ import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectProductFinishScheduleRepository } from "@/repositories/project_product_finish_schedule.repository";
-import { IProjectZoneAttributes, UserAttributes, SortOrder } from "@/types";
-import { orderBy, uniqBy, isEmpty, sumBy, countBy } from "lodash";
+import {
+  IProjectZoneAttributes,
+  UserAttributes,
+  SortOrder,
+  Availability,
+  SummaryItemPosition,
+} from "@/types";
+import { isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -109,13 +115,14 @@ class ProjectProductService {
       product_id,
       deleted_at: null,
     });
-
-    const repo = assignItem?.custom_product
-      ? customProductRepository
-      : productRepository;
-    const product = await repo.find(product_id);
-    if (!product) {
-      return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+    if (assignItem) {
+      const repo = assignItem?.custom_product
+        ? customProductRepository
+        : productRepository;
+      const product = await repo.find(product_id);
+      if (!product) {
+        return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
+      }
     }
 
     const zones = await projectZoneRepository.getAllBy({ project_id });
@@ -146,60 +153,6 @@ class ProjectProductService {
 
     return successResponse({
       data: returnZones,
-    });
-  };
-
-  private groupProductsByRoom = (
-    allocatedProducts: any[],
-    projectZones: IProjectZoneAttributes[],
-    area_order: SortOrder,
-    room_order: SortOrder,
-    brand_order: SortOrder
-  ): any[] => {
-    return projectZones.map((zone) => {
-      const areas = zone.areas.map((area) => {
-        const rooms = area.rooms.map((room) => {
-          const products = allocatedProducts.filter((prod: any) =>
-            prod.specifiedDetail.allocation.includes(room.id)
-          );
-          return {
-            ...room,
-            products: brand_order
-              ? orderBy(
-                  products,
-                  "brand_name",
-                  brand_order.toLocaleLowerCase() as any
-                )
-              : products,
-            count: products.length,
-          };
-        });
-
-        const allProductsInRooms = uniqBy(
-          rooms.flatMap((room) => room.products),
-          "id"
-        );
-        return {
-          ...area,
-          rooms: room_order
-            ? orderBy(rooms, "room_name", room_order.toLocaleLowerCase() as any)
-            : rooms,
-          count: allProductsInRooms.length,
-        };
-      });
-
-      const allProductsInAreas = uniqBy(
-        areas.flatMap((area) => area.rooms.flatMap((room) => room.products)),
-        "id"
-      );
-
-      return {
-        ...zone,
-        areas: area_order
-          ? orderBy(areas, "name", area_order.toLocaleLowerCase() as any)
-          : areas,
-        count: allProductsInAreas.length,
-      };
     });
   };
 
@@ -275,14 +228,20 @@ class ProjectProductService {
 
     // validate specify specification attribute
     if (isSpecifying && payload.specification) {
-      const product = await productRepository.find(projectProduct.product_id);
+      const repo = projectProduct.custom_product
+        ? customProductRepository
+        : productRepository;
+      const product = await repo.find(projectProduct.product_id);
       if (!product) {
         return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND);
       }
-      const validateSpecification = validateBrandProductSpecification(
-        payload.specification.attribute_groups,
-        product.specification_attribute_groups
-      );
+      const validateSpecification =
+        "specification_attribute_groups" in product
+          ? validateBrandProductSpecification(
+              payload.specification.attribute_groups,
+              product.specification_attribute_groups
+            )
+          : payload.specification.attribute_groups;
       if (!validateSpecification) {
         return errorMessageResponse(
           MESSAGES.PROJECT_PRODUCT.INCORRECT_SPECIFICATION
@@ -342,6 +301,10 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
     }
 
+    if (projectProduct.custom_product) {
+      return successResponse({ data: considerProduct[0] });
+    }
+
     const notiType: ProjectTrackingNotificationType = isSpecifying
       ? ProjectTrackingNotificationType.Specified
       : this.getTrackingNotificationTypeByStatus({
@@ -395,6 +358,16 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND, 404);
     }
 
+    if (projectProduct.custom_product) {
+      const result = await projectProductRepository.delete(projectProduct.id);
+      if (!result) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+      }
+      return successResponse({
+        data: projectProduct,
+      });
+    }
+
     const brand = await projectProductRepository.getProductBrandById(
       projectProductId
     );
@@ -416,7 +389,10 @@ class ProjectProductService {
       created_by: user.id,
     });
 
-    await projectProductRepository.delete(projectProduct.id);
+    const result = await projectProductRepository.delete(projectProduct.id);
+    if (!result) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
 
     return successResponse({
       data: {
@@ -456,6 +432,15 @@ class ProjectProductService {
       0
     );
 
+    const availabilityRemarkCount = specifiedProducts.reduce(
+      (total: number, brand: any) => {
+        const notAvailableCount = countBy(
+          brand.products,
+          (p) => p.availability !== Availability.Available
+        ).true || 0;
+        return total + notAvailableCount;
+      }, 0);
+
     return successResponse({
       data: {
         data: specifiedProducts,
@@ -465,6 +450,11 @@ class ProjectProductService {
             value: total - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
+          {
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: SummaryItemPosition.Left,
+          },
         ],
       },
     });
@@ -517,6 +507,11 @@ class ProjectProductService {
 
     const cancelledCount =
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
+    const availabilityRemarkCount = specifiedProducts.reduce(
+      (total: number, prod: any) => {
+        const markedAvailabilityCount = prod.product?.availability !== Availability.Available ? 1 : 0;
+        return total + markedAvailabilityCount;
+      }, 0 );
 
     return successResponse({
       data: {
@@ -527,6 +522,11 @@ class ProjectProductService {
             value: specifiedProducts.length - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
+          {
+            name: "Availability Remark",
+            value: availabilityRemarkCount,
+            position: SummaryItemPosition.Left,
+          },
         ],
       },
     });

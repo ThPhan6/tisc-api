@@ -5,10 +5,10 @@ import {
   requirePasswordValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
-import * as Joi from "joi";
+import Joi from "joi";
 
 export default {
-  isValidResetPasswordToken: {
+  checkTokenExisted: {
     params: {
       token: requireStringValidation("Token"),
     },

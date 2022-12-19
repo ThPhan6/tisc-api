@@ -2,7 +2,7 @@ import PdfGenerator from "html-pdf";
 import PdfConfig from './pdf.config';
 import * as memoryStreams from "memory-streams";
 import {head, takeRight} from 'lodash';
-const hummus = require('hummus');
+import hummus from 'muhammara';
 
 class PDFResult {
   private result: PdfGenerator.CreateResult;
@@ -40,7 +40,7 @@ class PDFService {
   }
 
   public merge(...pdfs: Buffer[]) {
-    const firstBuffer = head(pdfs);
+    const firstBuffer = head(pdfs) as Buffer;
     const otherBuffers = takeRight(pdfs, pdfs.length - 1);
     const outStream = new memoryStreams.WritableStream();
 

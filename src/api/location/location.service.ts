@@ -17,6 +17,7 @@ import {
   SortOrder,
   UserAttributes,
   UserType,
+  LocationWithTeamCountAndFunctionType,
 } from "@/types";
 import { head, isEqual } from "lodash";
 import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
@@ -39,38 +40,6 @@ export default class LocationService {
     }
     return getDesignFunctionType(functional_type_ids);
   }
-
-  private mappingLocationData = async (locations: ILocationAttributes[]) => {
-    return Promise.all(
-      locations.map(async (location) => {
-        const totalUser = await userRepository.countUserInLocation(location.id);
-        const functionalTypeOption = getDesignFunctionType(
-          location.functional_type_ids
-        );
-        let functionalTypes;
-        if (functionalTypeOption) {
-          functionalTypes = functionalTypeOption;
-        } else {
-          functionalTypes = await commonTypeRepository.getByListIds(
-            location.functional_type_ids
-          );
-        }
-        return {
-          ...location,
-          functional_types: functionalTypes,
-          teams: totalUser,
-        };
-      })
-    );
-  };
-
-  public getFunctionalTypes = async (user: UserAttributes) => {
-    const functionTypes = await commonTypeRepository.getAllByRelationAndType(
-      user.relation_id,
-      COMMON_TYPES.COMPANY_FUNCTIONAL
-    );
-    return successResponse({ data: functionTypes });
-  };
 
   public create = async (user: UserAttributes, payload: LocationRequest) => {
     const isValidGeoLocation =
@@ -97,10 +66,11 @@ export default class LocationService {
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
-      functional_type_ids: functionalTypes.map((item) => item.id),
+      functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       business_number:
         user.type === UserType.Designer ? "" : payload.business_number,
-      functional_type: functionalTypes.map((item) => item.name).join(", "),
+      functional_type:
+        functionalTypes?.map((item) => item.name).join(", ") || "",
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -162,8 +132,9 @@ export default class LocationService {
       business_name: payload.business_name,
       business_number:
         user.type === UserType.Designer ? "" : payload.business_number,
-      functional_type: functionalTypes.map((item) => item.name).join(", "),
-      functional_type_ids: functionalTypes.map((item) => item.id),
+      functional_type:
+        functionalTypes?.map((item) => item.name).join(", ") || "",
+      functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -177,30 +148,29 @@ export default class LocationService {
   };
 
   public get = async (id: string) => {
-    const location = await locationRepository.find(id);
+    const location =
+      await locationRepository.findWithCountMemberAndFunctionType(id);
     if (!location) {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
     }
-    const locationData = await this.mappingLocationData([location]);
-    return successResponse({ data: head(locationData) });
+    return successResponse({ data: location });
   };
 
   public getList = async (
     user: UserAttributes,
-    limit?: number,
-    offset?: number,
+    limit: number,
+    offset: number,
     sort?: string,
     order?: SortOrder,
     _filter?: any
   ) => {
     const response = await locationRepository.getLocationPagination(
+      user.relation_id,
       limit,
       offset,
-      user.relation_id,
       sort,
       order
     );
-    response.data = await this.mappingLocationData(response.data);
     return successResponse({
       data: {
         locations: response.data,
@@ -213,19 +183,16 @@ export default class LocationService {
     return this.getCompanyLocationGroupByCountry(user.relation_id);
   };
 
-  public getCompanyLocationGroupByCountry = async (
-    relationId: string | null
-  ) => {
+  public getCompanyLocationGroupByCountry = async (relationId: string) => {
     const response = await locationRepository.getLocationPagination(
-      undefined,
-      undefined,
       relationId,
+      undefined,
+      undefined,
       "country_name"
     );
     /// format data
-    const locations = await this.mappingLocationData(response.data);
     return successResponse({
-      data: mappingByCountries(locations),
+      data: mappingByCountries(response.data),
     });
   };
 
@@ -234,14 +201,12 @@ export default class LocationService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-
-    const locations = await locationRepository.getAllBy({
-      relation_id: product.brand_id,
-      type: LocationType.brand
-    });
-    const locationData = await this.mappingLocationData(locations);
+    //
+    const response = await locationRepository.getLocationPagination(
+      product.brand_id
+    );
     return successResponse({
-      data: mappingByCountries(locationData, true),
+      data: mappingByCountries(response.data, true),
     });
   };
 

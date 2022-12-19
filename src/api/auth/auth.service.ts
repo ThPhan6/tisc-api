@@ -14,7 +14,6 @@ import {
   UserTypeValue,
   UserStatus,
 } from "@/types";
-import { isEmpty } from "lodash";
 import {
   IAdminLoginRequest,
   IResetPasswordRequest,
@@ -184,12 +183,11 @@ class AuthService {
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public isValidResetPasswordToken = async (token: string) => {
-    const user = await userRepository.findBy({
-      reset_password_token: token,
-      is_verified: true,
-    });
-    return successResponse({ data: !isEmpty(user) });
+  public checkTokenExisted = async (token: string) => {
+    if (token == '') {
+      return successResponse({ data: false });
+    }
+    return successResponse({ data: await userRepository.checkTokenExisted(token) });
   };
 
   public resendEmail = async (
@@ -291,7 +289,7 @@ class AuthService {
     }
 
     await permissionService.initPermission(createdUser);
-    await mailService.sendDesignRegisterEmail(createdUser);
+    await mailService.sendRegisterEmail(createdUser);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
@@ -336,7 +334,7 @@ class AuthService {
         status: BRAND_STATUSES.ACTIVE,
       });
     }
-    return successMessageResponse(MESSAGES.SUCCESS);
+    return this.responseWithToken(user.id, user.type);
   };
 
   public checkEmail = async (email: string) => {

@@ -33,23 +33,33 @@
               <span class="primary-roboto-bold-8-18"></span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-25">contact</span>
-                <span class="primary-roboto-light-8-18"><%= groupData.location.general_email %></span>
+                <span class="primary-roboto-light-8-18"><%= groupData.location.contact.first_name === "N/A" &&  groupData.location.contact.last_name === "N/A" ? "N/A":groupData.location.contact.first_name + " "+groupData.location.contact.last_name  %></span>
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-13">work email</span>
-                <span class="primary-roboto-light-8-18"><%= groupData.location.general_email %></span>
+                <span class="primary-roboto-light-8-18"><%= groupData.location.contact.work_email %></span>
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-10">work phone</span>
-                <span class="primary-roboto-light-8-18">+<%= groupData.location.phone_code %> <%= groupData.location.general_phone %></span>
+                <span class="primary-roboto-light-8-18">
+                  <% if (groupData.location.contact.work_phone !== 'N/A') { %>
+                    +<%= groupData.location.phone_code %>
+                  <% } %>
+                  <%= groupData.location.contact.work_phone %>
+                </span>
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-8">work mobile</span>
-                <span class="primary-roboto-light-8-18">+<%= groupData.location.phone_code %> <%= groupData.location.general_phone %></span>
+                <span class="primary-roboto-light-8-18">
+                  <% if (groupData.location.contact.work_mobile !== 'N/A') { %>
+                    +<%= groupData.location.phone_code %>
+                  <% } %>
+                  <%= groupData.location.contact.work_mobile %>
+                </span>
               </span><br/>
             </td>
           </tr>
-        <% }); %>
-      <% }); %>
+        <% }) %>
+      <% }) %>
     </table>
 </div>

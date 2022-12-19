@@ -167,11 +167,12 @@ class DesignerService {
   }
 
   public async getDesignLibrary(id: string) {
-    const library = await designerRepository.getLibrary(id);
-
-    if (!library) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    const designFirm = await designerRepository.find(id);
+    if (!designFirm) {
+      return errorMessageResponse(MESSAGES.DESIGN_NOT_FOUND, 404);
     }
+
+    const library = await designerRepository.getLibrary(id);
 
     return successResponse({
       data: {

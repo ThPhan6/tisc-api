@@ -1,4 +1,17 @@
 export const ROUTES = {
+  AUTH: {
+    TISC_LOGIN: "/api/auth/login",
+    OTHER_ACCOUNT_LOGIN: "/api/auth/brand-design/login",
+    CHECK_TOKEN_EXPIRED: "/api/auth/token/{token}/validate",
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    RESET_PASSWORD: "/api/auth/reset-password",
+    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
+    DESIGN_REGISTER: "/api/auth/register",
+    VERIFY_TOKEN: "/api/auth/verify/{verification_token}",
+    CREATE_PASSWORD_AND_VERIFY: "/api/auth/create-password-verify/{verification_token}",
+    RESEND_EMAIL_CONFIRMATION: "/api/auth/resend-email/{type}/{email}",
+    CHECK_EMAIL_EXISTED: "/api/auth/check-email/{email}"
+  },
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_CARD: "/api/brand/get-list-card",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
@@ -222,11 +235,15 @@ export const ROUTES = {
   },
   INVOICE: {
     CREATE: "/api/invoice",
+    DELETE: "/api/invoice/{id}/delete",
     GET_LIST: "/api/invoice",
     GET_SUMMARY: "/api/invoice/summary",
     UPDATE: "/api/invoice/{id}",
     GET: "/api/invoice/{id}",
     SEND_REMINDER: "/api/invoice/{id}/send-reminder",
+    BILL: "/api/invoice/{id}/bill",
+    PAID: "/api/invoice/{id}/paid",
+    GET_INVOICE_PDF: "/api/invoice/{id}/invoice-pdf",
   },
   USER: {
     GET_BY_TYPE_ROLE_AND_RELATION:
@@ -302,4 +319,11 @@ export const ROUTES = {
     UPDATE: "/api/collection/update/{id}",
     DELETE: "/api/collection/delete/{id}",
   },
+  BOOKING: {
+    AVAILABLE_SCHEDULE: "/api/booking/available-schedule",
+    CREATE: "/api/booking/create",
+    GET_ONE: "/api/booking/{id}",
+    RE_SCHEDULE: "/api/booking/{id}/re-schedule",
+    CANCEL: "/api/booking/{id}/cancel",
+  }
 };

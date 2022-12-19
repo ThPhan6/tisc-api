@@ -2,6 +2,7 @@ import Joi from "joi";
 import {
   errorMessage,
   getListValidation,
+  requireEmailValidation,
   requireStringValidation,
 } from "@/validate/common.validate";
 
@@ -19,10 +20,7 @@ const distributorValidate = {
     .required()
     .valid(true, false)
     .error(errorMessage("Gender is required")),
-  email: Joi.string()
-    .email()
-    .required()
-    .error(errorMessage("Work email is required")),
+  email: requireEmailValidation("Work email"),
   phone: requireStringValidation("Work phone"),
   mobile: requireStringValidation("Work mobile"),
   authorized_country_ids: Joi.array()
@@ -59,6 +57,6 @@ export default {
     params: { product_id: requireStringValidation("Product id") },
     query: {
       project_id: Joi.string(),
-    }
+    },
   },
 };

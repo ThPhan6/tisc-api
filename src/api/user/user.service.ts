@@ -145,6 +145,7 @@ export default class UserService {
       permissions,
       retrieve_favourite: user.retrieve_favourite,
       interested: user.interested,
+      personal_phone_code: user.personal_phone_code || "",
     };
 
     if (user.type === UserType.Brand) {
@@ -210,6 +211,7 @@ export default class UserService {
     const updatedUser = await userRepository.update(user.id, {
       backup_email: payload.backup_email || "",
       personal_mobile: payload.personal_mobile || "",
+      personal_phone_code: payload.personal_phone_code || "",
       linkedin: payload.linkedin || "",
       interested: payload.interested || [],
     });

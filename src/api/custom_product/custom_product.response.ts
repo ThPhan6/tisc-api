@@ -5,7 +5,10 @@ import {
   customProductOptionValidate,
   customProductValidate,
 } from "./custom_product.validate";
-import { dimensionWeightResponse } from "@/api/product/product.response";
+import {
+  dimensionWeightResponse,
+  userProductSpecificationResponse,
+} from "@/api/product/product.response";
 
 export const customProductResponse = {
   id: Joi.string(),
@@ -13,7 +16,7 @@ export const customProductResponse = {
   description: Joi.string(),
   image: Joi.string(),
   attributes: Joi.array().items(basicAttributeValidate),
-  specification: Joi.array().items(basicAttributeValidate),
+  specifications: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),
   dimension_and_weight: dimensionWeightResponse,
   collection_id: Joi.string(),
@@ -23,6 +26,7 @@ export const customProductResponse = {
   design_id: Joi.string(),
   company_name: Joi.string().allow(null, ""),
   collection_name: Joi.string().allow(null, ""),
+  specification: Joi.object(userProductSpecificationResponse).allow(null),
 };
 
 export default {
@@ -52,6 +56,8 @@ export default {
       design_id: Joi.string(),
       location: locationBasicResponse,
       dimension_and_weight: dimensionWeightResponse,
+      specifications: Joi.array().items(basicAttributeValidate),
+      specification: Joi.object(userProductSpecificationResponse).allow(null),
     }),
     statusCode: Joi.number(),
   }),

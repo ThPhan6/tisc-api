@@ -51,6 +51,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     haveProduct?: boolean
   ) {
     const rawQuery = `
+      FILTER brands.deleted_at == null
       ${
         haveProduct
           ? `

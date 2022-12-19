@@ -6,6 +6,7 @@ import {
 } from "@/helper/response.helper";
 import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
+import {marketAvailabilityRepository} from "@/repositories/market_availability.repository";
 import { ICollectionRequest } from "./collection.type";
 import {CollectionRelationType} from '@/types';
 
@@ -28,6 +29,12 @@ class CollectionService {
     if (!createdCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+    //
+    if (createdCollection.relation_type === CollectionRelationType.Brand) {
+      /// create market availability
+      await marketAvailabilityRepository.upsertMarketAvailability(createdCollection.id);
+    }
+    //
     return successResponse({ data: createdCollection });
   }
 
@@ -77,6 +84,11 @@ class CollectionService {
     if (!deletedCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
     }
+    if (collection.relation_type === CollectionRelationType.Brand) {
+      /// delete market availability
+      await marketAvailabilityRepository.deleteBy({collection_id: collection.id});
+    }
+
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }

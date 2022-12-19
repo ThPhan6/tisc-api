@@ -1,4 +1,5 @@
 import { DimensionAndWeight, LocationPayload } from "@/types";
+import { ProductSpecificationSelection } from "../user_product_specification/user_product_specification.model";
 
 // Custom Product
 export interface CustomProductBasicAttributes {
@@ -12,7 +13,7 @@ export interface CustomProductAttributes {
   description: string;
   images: string[];
   attributes: CustomProductBasicAttributes[];
-  specification: CustomProductBasicAttributes[];
+  specifications: CustomProductBasicAttributes[];
   dimension_and_weight: DimensionAndWeight;
   options: {
     id: string;
@@ -36,7 +37,7 @@ export interface CustomProductAttributes {
 export type CustomProductPayload = Omit<
   CustomProductAttributes,
   "id" | "created_at" | "updated_at" | "relation_id"
->;
+> & { specification?: ProductSpecificationSelection };
 
 // Custom Resource (Brand/Company & Distributor for Custom Product)
 export interface CustomResouceContact {
@@ -84,4 +85,8 @@ export interface CustomResourceListItem {
   distributors: number;
   cards: number;
   brands: number;
+}
+export interface CustomProductWithRelation extends CustomProductAttributes {
+  design: { name: string; logo: string };
+  collection: { name: string };
 }

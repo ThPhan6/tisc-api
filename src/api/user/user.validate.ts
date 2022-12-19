@@ -2,7 +2,6 @@ import Joi from "joi";
 import {
   requireBooleanValidation,
   requireEmailValidation,
-  requireNumberValidation,
   requireStringValidation,
   stringValidation,
 } from "@/validate/common.validate";
@@ -33,6 +32,7 @@ export default {
       zone_code: Joi.string().allow(""),
       linkedin: Joi.string().allow(""),
       interested: Joi.array().items(Joi.number()),
+      personal_phone_code: Joi.string().allow("")
     },
   },
   updateAvatar: {

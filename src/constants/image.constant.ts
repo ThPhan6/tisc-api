@@ -1,5 +1,6 @@
 import { RouteOptionsPayload } from "@hapi/hapi";
 
+
 export const VALID_IMAGE_TYPES = [
   "image/png",
   "image/jpg",
@@ -7,6 +8,9 @@ export const VALID_IMAGE_TYPES = [
   "image/webp",
   "image/svg+xml",
 ];
+
+export const DefaultLogo = "/logo/default-logo.png";
+export const DefaultProductImage = "/product/default-product-image.png";
 
 export const imageOptionPayload: RouteOptionsPayload = {
   maxBytes: 1024 * 1024 * 5,

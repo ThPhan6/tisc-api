@@ -1,4 +1,10 @@
-import { BASIS_TYPES, COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  BASIS_TYPES,
+  COMMON_TYPES,
+  MESSAGES,
+  DefaultLogo,
+  DefaultProductImage,
+} from "@/constants";
 import { getProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
 import {
@@ -16,11 +22,12 @@ import { projectProductRepository } from "@/api/project_product/project_product.
 import { countryStateCityService } from "@/service/country_state_city.service";
 import { userRepository } from "@/repositories/user.repository";
 import {
+  splitImageByType,
   uploadImagesProduct,
   validateImageType,
 } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
-import { difference, sortBy } from "lodash";
+import { isEqual, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -45,7 +52,7 @@ import {
   UserAttributes,
   BasisConversion,
 } from "@/types";
-import {mappingDimensionAndWeight} from '@/api/attribute/attribute.mapping';
+import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -116,7 +123,7 @@ class ProductService {
       tips: payload.tips,
       downloads: payload.downloads,
       catelogue_downloads: payload.catelogue_downloads,
-      dimension_and_weight: payload.dimension_and_weight
+      dimension_and_weight: payload.dimension_and_weight,
     });
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -156,6 +163,12 @@ class ProductService {
     if (duplicatedProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
+
+    const brand = await brandRepository.find(payload.brand_id);
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+
     const allConversion: BasisConversion[] = await this.getAllBasisConversion();
 
     const saveGeneralAttributeGroups = await Promise.all(
@@ -175,24 +188,29 @@ class ProductService {
       )
     );
 
-    const newPaths = difference(payload.images, product.images);
-    if (!(await validateImageType(newPaths))) {
-      return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+    let images = product.images;
+    // Upload images if have changes
+    if (isEqual(product.images, payload.images) === false) {
+      const { imageBase64, imagePath } = await splitImageByType(payload.images);
+      if (imageBase64.length && !(await validateImageType(imageBase64))) {
+        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+      }
+      const newImages = imageBase64.length
+        ? await uploadImagesProduct(
+            payload.images,
+            payload.keywords,
+            brand.name,
+            brand.id
+          )
+        : [];
+      images = imagePath.concat(newImages);
     }
-    const imagePaths = !newPaths[0]
-      ? product.images
-      : await uploadImagesProduct(
-          newPaths,
-          payload.keywords,
-          product.brand.name,
-          product.brand_id
-        );
     const updatedProduct = await productRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
       feature_attribute_groups: saveFeatureAttributeGroups,
       specification_attribute_groups: saveSpecificationAttributeGroups,
-      images: imagePaths,
+      images,
     });
     if (!updatedProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -286,7 +304,9 @@ class ProductService {
         general_attribute_groups: newGeneralGroups,
         feature_attribute_groups: newFeatureGroups,
         specification_attribute_groups: newSpecificationGroups,
-        dimension_and_weight: mappingDimensionAndWeight(product.dimension_and_weight)
+        dimension_and_weight: mappingDimensionAndWeight(
+          product.dimension_and_weight
+        ),
       },
     });
   }
@@ -483,7 +503,7 @@ class ProductService {
           value_1: foundValue.value_1,
           value_2: foundValue.value_2,
           image: foundValue.image,
-        })
+        });
       }
       return final;
     }, [] as any);
@@ -551,12 +571,12 @@ class ProductService {
       user.email,
       payload.title,
       payload.message,
-      getFileURI(product.images[0]) ?? "",
+      getFileURI(product.images[0] || DefaultProductImage),
       product.brand.name,
-      getFileURI(product.brand.logo) ?? "",
-      product.collection.name ?? "N/A",
-      product.name ?? "N/A",
-      `${user.firstname ?? ""} ${user.lastname ?? ""}`,
+      getFileURI(product.brand.logo || DefaultLogo),
+      product.collection.name || "N/A",
+      product.name || "N/A",
+      `${user.firstname || ""} ${user.lastname || ""}`,
       sharedUrl
     );
     if (!sent) {

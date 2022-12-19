@@ -1,13 +1,14 @@
 import * as Hapi from "@hapi/hapi";
 import AuthController from "./auth.controller";
 import validate from "./auth.validate";
-import IRoute from "../../helper/route.helper";
-const PREFIX = "/api/auth";
+import IRoute from "@/helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
-} from "../../helper/response.helper";
+} from "@/helper/response.helper";
 import authResponse from "./auth.response";
+import {ROUTES} from '@/constants/route.constant';
+
 
 export default class AuthRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -17,7 +18,7 @@ export default class AuthRoute implements IRoute {
       server.route([
         {
           method: "POST",
-          path: `${PREFIX}/login`,
+          path: ROUTES.AUTH.TISC_LOGIN,
           options: {
             handler: controller.login,
             validate: validate.login,
@@ -34,7 +35,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/brand-design/login`,
+          path: ROUTES.AUTH.OTHER_ACCOUNT_LOGIN,
           options: {
             handler: controller.brandLogin,
             validate: validate.login,
@@ -51,10 +52,10 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "GET",
-          path: `/api/auth/is-valid-reset-password-token/{token}`,
+          path: ROUTES.AUTH.CHECK_TOKEN_EXPIRED,
           options: {
-            handler: controller.isValidResetPasswordToken,
-            validate: validate.isValidResetPasswordToken,
+            handler: controller.checkTokenExisted,
+            validate: validate.checkTokenExisted,
             description: "Method that check valid reset password token",
             tags: ["api", "Authentication"],
             auth: false,
@@ -67,7 +68,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/forgot-password`,
+          path: ROUTES.AUTH.FORGOT_PASSWORD,
           options: {
             handler: controller.forgotPassword,
             validate: validate.forgotPassword,
@@ -84,7 +85,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/reset-password`,
+          path: ROUTES.AUTH.RESET_PASSWORD,
           options: {
             handler: controller.resetPassword,
             validate: validate.resetPassword,
@@ -101,7 +102,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/reset-password-and-login`,
+          path: ROUTES.AUTH.RESET_PASSWORD_AND_LOGIN,
           options: {
             handler: controller.resetPasswordAndLogin,
             validate: validate.resetPassword,
@@ -118,7 +119,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/register`,
+          path: ROUTES.AUTH.DESIGN_REGISTER,
           options: {
             handler: controller.register,
             validate: validate.register,
@@ -135,7 +136,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/verify/{verification_token}`,
+          path: ROUTES.AUTH.VERIFY_TOKEN,
           options: {
             handler: controller.verify,
             validate: validate.verify,
@@ -152,7 +153,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: `${PREFIX}/create-password-verify/{verification_token}`,
+          path: ROUTES.AUTH.CREATE_PASSWORD_AND_VERIFY,
           options: {
             handler: controller.createPasswordAndVerify,
             validate: validate.createPasswordAndVerify,
@@ -162,14 +163,14 @@ export default class AuthRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse,
+                200: authResponse.login,
               },
             },
           },
         },
         {
           method: "POST",
-          path: `${PREFIX}/resend-email/{type}/{email}`,
+          path: ROUTES.AUTH.RESEND_EMAIL_CONFIRMATION,
           options: {
             handler: controller.resendEmail,
             validate: validate.resendEmail,
@@ -186,7 +187,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "GET",
-          path: `${PREFIX}/check-email/{email}`,
+          path: ROUTES.AUTH.CHECK_EMAIL_EXISTED,
           options: {
             handler: controller.checkEmail,
             validate: validate.checkEmail,

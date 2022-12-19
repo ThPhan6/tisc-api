@@ -62,7 +62,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     order: SortOrder = "ASC"
   ) {
     const params = {
-      satelliteType: DesignFirmFunctionalType.Satellite,
+      satelliteType: DesignFirmFunctionalType.SatelliteOffice,
       live: ProjectStatus.Live,
       onHold: ProjectStatus["On Hold"],
       archived: ProjectStatus.Archived,
@@ -70,7 +70,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       designLocation: LocationType.designer,
     };
     const rawQuery = `
-
+     FILTER designers.deleted_at == null
       LET userCount = (
         FOR users IN users
         FILTER users.deleted_at == null
@@ -143,7 +143,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         RETURN common_types.name
       )
       RETURN MERGE(
-        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status'),
+        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status', 'official_website'),
         {design_capabilities: CONCAT_SEPARATOR(', ', capabilities)}
       )
     `,
@@ -330,8 +330,8 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FILTER col.id == p.collection_id
         RETURN MERGE(${getUnsetAttributes(
           "p",
-          `'images'`
-        )}, {company_name: b.business_name, collection_name: col.name })
+          "'images'"
+        )}, {company_name: b.business_name, collection_name: col.name, image: FIRST(p.images) })
       )
 
       LET collections = (
@@ -340,7 +340,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         RETURN {
           id: collection_id,
           name: collection_name,
-          products: (FOR g IN group RETURN MERGE(KEEP(g.p, 'id', 'name'), {image: FIRST(g.p.images)}))
+          products: (FOR g IN group RETURN KEEP(g.p, 'id', 'name', 'image') )
         }
       )
 

@@ -1,7 +1,5 @@
 import {
   CommonTypes,
-  FunctionalTypeKey,
-  FunctionalTypeValue,
   InterestedInKey,
   InterestedInValue,
   MeasurementUnitKey,
@@ -29,33 +27,6 @@ export const COMMON_TYPES: CommonTypes = {
   CAPABILITIES: 14,
   INVOICE: 15,
 };
-
-export const FUNCTIONAL_TYPE: {
-  MAIN_OFFICE: FunctionalTypeValue;
-  SATELLITE_OFFICE: FunctionalTypeValue;
-  OTHER: FunctionalTypeValue;
-} = {
-  MAIN_OFFICE: 1,
-  SATELLITE_OFFICE: 2,
-  OTHER: 3,
-};
-export const FUNCTIONAL_TYPE_OPTIONS: {
-  name: FunctionalTypeKey;
-  id: FunctionalTypeValue;
-}[] = [
-  {
-    name: "Main office",
-    id: FUNCTIONAL_TYPE.MAIN_OFFICE,
-  },
-  {
-    name: "Satellite office",
-    id: FUNCTIONAL_TYPE.SATELLITE_OFFICE,
-  },
-  {
-    name: "Other",
-    id: FUNCTIONAL_TYPE.OTHER,
-  },
-];
 
 export const MEASUREMENT_UNIT: {
   IMPERIAL: MeasurementUnitValue;
@@ -123,19 +94,13 @@ export const TOPIC_OPTIONS: {
   },
 ];
 
-export const TARGETED_FOR_TYPES: {
-  BRAND: TargetedForValue;
-  DESIGN_FIRM: TargetedForValue;
-  DISTRIBUTOR: TargetedForValue;
-  GENERAL: TargetedForValue;
-  TISC_TEAM: TargetedForValue;
-} = {
-  BRAND: 1,
-  DESIGN_FIRM: 2,
-  DISTRIBUTOR: 3,
-  GENERAL: 4,
-  TISC_TEAM: 5,
-};
+export enum TARGETED_FOR_TYPES {
+  BRAND = 1,
+  DESIGN_FIRM = 2,
+  DISTRIBUTOR = 3,
+  GENERAL = 4,
+  TISC_TEAM = 5
+}
 
 export const TARGETED_FOR_OPTIONS: {
   key: TargetedForKey;

@@ -138,6 +138,7 @@ export default class ProductRoute implements IRoute {
           options: {
             handler: controller.update,
             validate: validate.update,
+            payload: imageOptionPayload,
             description: "Method that update product",
             tags: ["api", "Product"],
             auth: AUTH_NAMES.PERMISSION,

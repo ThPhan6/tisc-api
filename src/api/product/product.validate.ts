@@ -3,10 +3,20 @@ import {
   errorMessage,
   requireStringValidation,
 } from "@/validate/common.validate";
-import {getEnumValues} from '@/helper/common.helper';
-import {DimensionAndWeightAttributeId} from '@/constants';
-import {forEach} from 'lodash';
+import { getEnumValues } from "@/helper/common.helper";
+import { DimensionAndWeightAttributeId } from "@/constants";
 
+export const validateShareProduct = {
+  payload: {
+    product_id: requireStringValidation("Product id"),
+    sharing_group: requireStringValidation("Sharing Group"),
+    sharing_purpose: requireStringValidation("Sharing Purpose"),
+    to_email: requireStringValidation("Email"),
+    title: requireStringValidation("Title"),
+    message: requireStringValidation("Message"),
+    custom_product: Joi.boolean().allow(null),
+  },
+};
 const attributeGroupsValidate = (
   type: "General" | "Feature" | "Specification"
 ) => {
@@ -36,40 +46,21 @@ const attributeGroupsValidate = (
             conversion_value_2: Joi.number().allow(""),
             basis_options: isSpec
               ? Joi.array().items(
-                  Joi.object({
-                    id: Joi.string(),
-                    option_code: Joi.string(),
+                  Joi.object().keys({
+                    id: Joi.string().error(
+                      errorMessage(`${type} Option Product is required`)
+                    ),
+                    option_code: Joi.string().error(
+                      errorMessage(`${type} Option Product ID is required`)
+                    ),
                   })
                 )
               : Joi.any(),
           })
-          .required()
-          .error(errorMessage(`${type} attributes is required`)),
+          .required(),
       })
     )
-    .custom((value, helpers) => {
-      if (isSpec) {
-        let isValid = true;
-        forEach(value, (item) => {
-          if (item.selection) {
-            const options = item.attributes?.filter((attr: any) => {
-              return attr.type === 'Options';
-            });
-            if (options.length < 2) {
-              isValid = false;
-            }
-          }
-        });
-        ///
-        if (!isValid) {
-          return helpers.error("any.invalid");
-        }
-        return value;
-      }
-      return value;
-    })
-    .required()
-    .error(errorMessage(`${type} attribute groups is not valid`));
+    .required();
 };
 
 export const dimensionAndWeightValidate = Joi.object({
@@ -78,14 +69,14 @@ export const dimensionAndWeightValidate = Joi.object({
     Joi.object({
       id: Joi.string()
         .valid(...getEnumValues(DimensionAndWeightAttributeId))
-        .error(errorMessage('Incorrect Dimension & Weight Attribute')),
+        .error(errorMessage("Incorrect Dimension & Weight Attribute")),
       conversion_value_1: Joi.number()
         .allow("")
-        .error(errorMessage('Conversation value must be a number')),
+        .error(errorMessage("Conversation value must be a number")),
       conversion_value_2: Joi.number()
         .allow("")
-        .error(errorMessage('Conversation value must be a number')),
-    }),
+        .error(errorMessage("Conversation value must be a number")),
+    })
   ),
 });
 
@@ -180,16 +171,7 @@ export default {
       project_zone_ids: Joi.array().items(Joi.string()),
     },
   },
-  shareByEmail: {
-    payload: {
-      product_id: requireStringValidation("Product id"),
-      sharing_group: requireStringValidation("Sharing Group"),
-      sharing_purpose: requireStringValidation("Sharing Purpose"),
-      to_email: requireStringValidation("Email"),
-      title: requireStringValidation("Title"),
-      message: requireStringValidation("Message"),
-    },
-  },
+  shareByEmail: validateShareProduct,
   publicSharingProduct: {
     query: {
       hash: requireStringValidation("Hash"),

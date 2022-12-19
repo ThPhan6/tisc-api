@@ -25,6 +25,23 @@ export const validateImageType = async (images: string[]) => {
   return isValidImage;
 };
 
+export const splitImageByType = async (images: string[]) => {
+  const imagePath: string[] = [];
+  const imageBase64: string[] = [];
+  for (const image of images) {
+    const fileType = await getFileTypeFromBase64(image);
+    if (
+      !fileType ||
+      !VALID_IMAGE_TYPES.find((validType) => validType === fileType.mime)
+    ) {
+      imagePath.push(image);
+    } else {
+      imageBase64.push(image);
+    }
+  }
+  return { imagePath, imageBase64 };
+};
+
 export const uploadImagesProduct = (
   images: string[],
   keywords: string[],
@@ -61,8 +78,11 @@ export const uploadImagesProduct = (
 export const uploadImage = async (validImages: ValidImage[]) => {
   return Promise.all(
     validImages.map(async (item) => {
-      await upload(item.buffer, item.path, item.mime_type);
-      return true;
+      return upload(
+        item.buffer,
+        item.path[0] === "/" ? item.path.slice(1) : item.path,
+        item.mime_type
+      );
     })
   );
 };

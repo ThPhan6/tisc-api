@@ -48,9 +48,36 @@ export default class InvoiceController {
     const response = await invoiceService.get(user, id);
     return toolkit.response(response).code(response.statusCode);
   }
+  public async bill(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.bill(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async paid(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.paid(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
   public async sendReminder(req: Request, toolkit: ResponseToolkit) {
     const { id } = req.params;
     const response = await invoiceService.sendReminder(id);
     return toolkit.response(response).code(response.statusCode);
+  }
+  public async delete(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const response = await invoiceService.delete(id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async getInvoicePdf(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const response: any = await invoiceService.getInvoicePdf(id);
+    const filename = `${response.fileName}.pdf`;
+
+    return toolkit
+      .response(response.data)
+      .header("Content-Disposition", `attachment; filename=${filename}`)
+      .header("Content-Type", "application/pdf");
   }
 }

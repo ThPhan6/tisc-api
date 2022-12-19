@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { template, floor } from "lodash";
+import { template, round } from "lodash";
 import { INTEREST_RATE } from "@/constants";
 
 export const isDuplicatedString = (values: string[]) => {
@@ -168,7 +168,7 @@ export const calculateInterestInvoice = (
 ) => {
   const ratePerYear = INTEREST_RATE / 100; // Rate of Interest per year as a percent
   const overduePerYear = overDueDay / 365;
-  return floor(amount * ratePerYear * overduePerYear, 2);
+  return round(amount * ratePerYear * overduePerYear, 2);
 };
 
 export const getKeyByValue = (object: any, value: any) => {
@@ -177,3 +177,13 @@ export const getKeyByValue = (object: any, value: any) => {
 
 export const getUnsetAttributes = (model: string, addition: string = "") =>
   `UNSET(${model}, ['_id', '_key', '_rev', 'deleted_at', ${addition}])`;
+
+export const toUSMoney = (amount: number) => {
+  return amount.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+};
+
+export const numberToFixed = (n: number, fixed: number = 2) =>
+  n.toFixed(fixed).replace(/.00$|[.*0]$/, "");

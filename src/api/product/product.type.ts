@@ -195,6 +195,7 @@ export interface ShareProductBodyRequest {
   to_email: string;
   title: string;
   message: string;
+  custom_product?: boolean;
 }
 
 export interface CommonTypeResponse {
@@ -232,7 +233,8 @@ export interface IDesignerProductsResponse {
 export interface IAttributeGroupWithOptionalId extends IAttributeGroup {
   id?: string;
 }
-export interface SelectionAttributeGroupWithOptionalId extends IAttributeGroupWithOptionalId {
+export interface SelectionAttributeGroupWithOptionalId
+  extends IAttributeGroupWithOptionalId {
   selection?: boolean;
 }
 

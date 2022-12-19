@@ -2,10 +2,13 @@ import Joi from "joi";
 import {
   requireStringValidation,
   getOneValidation,
-  errorMessage,
   requireEmailValidation,
+  stringValidation,
 } from "@/validate/common.validate";
-import { dimensionAndWeightValidate } from "@/api/product/product.validate";
+import {
+  dimensionAndWeightValidate,
+  validateShareProduct,
+} from "@/api/product/product.validate";
 
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
@@ -23,29 +26,35 @@ export const customProductContactValidate = Joi.array().items(
   })
 );
 
+const optionItemValidate = {
+  id: Joi.string().allow(null, ""),
+  description: requireStringValidation("Option description"),
+  product_id: requireStringValidation("Option product ID"),
+};
+
 export const customProductOptionValidate = Joi.object({
-  id: Joi.string().allow(null),
+  id: stringValidation(),
   title: requireStringValidation("Option title"),
   use_image: Joi.boolean(),
   tag: requireStringValidation("Option tag"),
-  items: Joi.array()
-    .min(1)
-    .error(errorMessage("Require at least 1 option choice"))
-    .items(
+  items: Joi.when("use_image", {
+    is: true,
+    then: Joi.array().items(
       Joi.object({
-        id: Joi.string().allow(null),
-        image: Joi.when("use_image", {
-          is: true,
-          then: requireStringValidation(
-            "Image is required in the Option with type image",
-            "full"
-          ),
-          otherwise: Joi.string().allow(null),
-        }),
-        description: requireStringValidation("Option description"),
-        product_id: requireStringValidation("Option product ID"),
+        ...optionItemValidate,
+        image: requireStringValidation(
+          "Image",
+          "Image is required in the Option with type image"
+        ),
       })
     ),
+    otherwise: Joi.array().items(
+      Joi.object({
+        ...optionItemValidate,
+        image: stringValidation(),
+      })
+    ),
+  }),
 });
 
 export const customProductValidate = Joi.object({
@@ -53,14 +62,17 @@ export const customProductValidate = Joi.object({
   description: requireStringValidation("Product description"),
   images: Joi.array()
     .min(1)
-    .error(errorMessage("Require at least 1 image"))
     .max(4)
-    .error(errorMessage("Require at maximum 4 images"))
     .items(Joi.string().trim())
     .required()
-    .error(errorMessage("Require at least 1 image")),
+    .label("Image")
+    .messages({
+      "any.required": "Required at least one image",
+      "array.min": "Required at least one image",
+      "array.max": "Maximum 4 images are allowed",
+    }),
   attributes: Joi.array().items(basicAttributeValidate),
-  specification: Joi.array().items(basicAttributeValidate),
+  specifications: Joi.array().items(basicAttributeValidate),
   options: Joi.array().items(customProductOptionValidate),
   collection_id: requireStringValidation("Collection"),
   company_id: requireStringValidation("Brand company"),
@@ -81,4 +93,5 @@ export default {
       collection_id: Joi.string().trim().allow(""),
     },
   },
+  shareByEmail: validateShareProduct,
 };

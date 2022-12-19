@@ -1,6 +1,7 @@
 import { UserProductSpecificationRequest } from "@/api/user_product_specification/user_product_specification.model";
 import productRepository from "@/repositories/product.repository";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { customProductRepository } from "../custom_product/custom_product.repository";
 import { userProductSpecificationRepository } from "./user_product_specification.repository";
 
 export default class UserProductSpecificationController {
@@ -12,7 +13,10 @@ export default class UserProductSpecificationController {
     const currentUserId = req.auth.credentials.user_id as string;
     const productId = req.params.id;
 
-    const product = await productRepository.find(req.params.id);
+    const repo = payload.custom_product
+      ? customProductRepository
+      : productRepository;
+    const product = await repo.find(req.params.id);
 
     if (!product) {
       return toolkit
