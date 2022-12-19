@@ -879,15 +879,7 @@ export const up = (connection: ConnectionInterface) => {
       id: EmailTemplateID.brand.booking_demo,
       topic: TOPIC_TYPES.MARKETING,
       targeted_for: TARGETED_FOR_TYPES.BRAND,
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-      title: "TISC live demo session is booked.",
-=======
       title: "TISC live demo session is booked!",
->>>>>>> Stashed changes
-=======
-      title: "TISC live demo session is booked",
->>>>>>> 9caa396098379bf143038dd0d3cd16619f0d9f33
       message: liveDemoMessage,
       deleted_at: null,
       updated_at: currentTime,
