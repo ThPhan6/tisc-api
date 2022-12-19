@@ -1,4 +1,4 @@
-import { AUTH_NAMES, ROUTES } from "@/constants";
+import { AUTH_NAMES, ROUTES, MESSAGES } from "@/constants";
 import { Server, Request, ResponseToolkit } from "@hapi/hapi";
 import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
@@ -10,10 +10,10 @@ import { base64ToString, decrypt } from "@/helper/cryptojs.helper";
 import { ENVIROMENT } from "@/config";
 
 export const throwError = async (message?: string) => {
-  throw Boom.unauthorized(message || "Invalid token signature");
+  throw Boom.unauthorized(message || MESSAGES.GENERAL.INVALID_TOKEN_SIGNATURE);
 };
 export const throwForbidden = async () => {
-  throw Boom.forbidden();
+  throw Boom.forbidden(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
 };
 
 const customScheme = (_server: Server) => {

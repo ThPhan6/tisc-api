@@ -76,6 +76,14 @@ export const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
     plugin: Inert,
   },
   {
+    plugin: require('hapi-sentry'),
+    options: {
+      client: {
+        dsn: "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504"
+      }
+    }
+  },
+  {
     plugin: Vision,
   },
   {
