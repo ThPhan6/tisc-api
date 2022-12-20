@@ -425,13 +425,13 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         LET prjProducts = (
           FOR pp IN project_products
           FILTER pp.project_id == prj.id
-          RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
+          RETURN KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
         )
 
         LET deleted = (
           FOR pp IN prjProducts
           FILTER pp.deleted_at != null
-          COLLECT WITH COUNT INTO length RETURN length
+          RETURN DISTINCT KEEP(pp, 'product_id', 'status')
         )
 
         LET considerPrjProducts = (
@@ -489,7 +489,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
             metricArea: prj.measurement_unit == @metricUnit ? area : area * (1 / @meterToFoot),
             imperialArea: prj.measurement_unit == @metricUnit ? area * @meterToFoot : area,
             productCount: LENGTH(products),
-            deleted: deleted[0],
+            deleted: LENGTH(deleted),
             consider: LENGTH(considerPrjProducts) - unlisted[0],
             unlisted: unlisted[0],
             specified: LENGTH(specifiedPrjProducts) - cancelled[0],
@@ -534,7 +534,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       LET spacing = (
         FOR z IN project_zones
         FILTER z.deleted_at == null
-        FILTER z.project_id == prj.id
+        FILTER z.project_id == @projectId
         RETURN KEEP(z, 'id', 'name', 'areas')
       )
 
@@ -547,7 +547,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
 
       LET prjProducts = (
         FOR pp IN project_products
-        FILTER pp.project_id == prj.id
+        FILTER pp.project_id == @projectId
         RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
       )
 
