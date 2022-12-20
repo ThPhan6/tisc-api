@@ -696,7 +696,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           brands: considerProductBrands,
           customProducts: considerCustomProducts,
           deleted: LENGTH(considerDeleted),
-          consider: LENGTH(considerProductBrands) + LENGTH(considerCustomProducts) - unlisted[0],
+          consider: LENGTH(considerBrandProducts) + LENGTH(considerCustomProducts) - unlisted[0],
           unlisted: unlisted[0],
         },
         specified: {
