@@ -548,8 +548,6 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       LET prjProducts = (
         FOR pp IN project_products
         FILTER pp.project_id == prj.id
-        FOR p IN products
-        FILTER p.deleted == null
         RETURN DISTINCT KEEP(pp, 'id','product_id', 'status', 'consider_status', 'specified_status', 'deleted_at')
       )
 
