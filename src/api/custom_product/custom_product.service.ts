@@ -26,15 +26,15 @@ import {
   CustomProductPayload,
   CollectionRelationType,
 } from "@/types";
-import { difference, isEqual } from "lodash";
+import { isEqual } from "lodash";
 import { v4 } from "uuid";
 import { ShareProductBodyRequest } from "../product/product.type";
 import { customProductRepository } from "./custom_product.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { userRepository } from "@/repositories/user.repository";
 import { mailService } from "@/service/mail.service";
 import { getCustomProductSharedUrl } from "@/helper/product.helper";
 import { getFileURI } from "@/helper/image.helper";
+import { projectProductRepository } from "../project_product/project_product.repository";
 
 class CustomProductService {
   private mappingProductOptions = async (
@@ -274,7 +274,14 @@ class CustomProductService {
     }
 
     // Check projects have this product here
+    const projectProduct = await projectProductRepository.findBy({
+      product_id: product.id,
+    });
 
+    if (projectProduct) {
+      return errorMessageResponse(MESSAGES.PRODUCT.WAS_USED_IN_PROJECT);
+    }
+    //
     const result = await customProductRepository.delete(id);
 
     if (!result) {
