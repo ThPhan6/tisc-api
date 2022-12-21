@@ -8,6 +8,8 @@ const Joi = HapiJoi.defaults((schema) =>
 export default {
   getList: Joi.object({
     data: Joi.array().items({
+      id: Joi.string(),
+      parent_id: Joi.string().allow(null),
       logo: Joi.string().allow(null),
       name: Joi.string(),
       accessable: Joi.boolean().allow(null),
@@ -16,7 +18,7 @@ export default {
         name: Joi.string(),
         accessable: Joi.boolean().allow(null),
       }),
-      number: Joi.number(),
+      index: Joi.number(),
       parent_number: Joi.number().allow(null),
       subs: Joi.any(),
     }),

@@ -1,32 +1,16 @@
-import { IPagination } from "./../../type/common.type";
-export interface IAttribute {
-  id: string;
-  name: string;
-  count: number;
-  subs: {
-    id: string;
-    name: string;
-    basis_id: string;
-    content_type: string;
-    description: string;
-    description_1?: string;
-    description_2?: string;
-  }[];
-  created_at: string;
-}
-
+import { AttributeResponseData, AttributeProps, Pagination } from "@/types";
 export interface IAttributeResponse {
-  data: IAttribute;
+  data: AttributeResponseData;
   statusCode: number;
 }
 export interface IAttributesResponse {
   data: {
-    attributes: IAttribute[];
+    attributes: AttributeResponseData[];
     summary: {
       name: string;
       value: number;
     }[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }
@@ -43,7 +27,7 @@ export interface IAttributeRequest {
 export interface IUpdateAttributeRequest {
   name: string;
   subs: {
-    id: any;
+    id: string;
     name: string;
     basis_id: string;
     description: string;
@@ -60,38 +44,11 @@ export interface IContentTypesResponse {
   statusCode: number;
 }
 
-type TAttributeProduct = {
-  subs: {
-    basis: any;
-    id: string;
-    name: string;
-    basis_id: string;
-  }[];
-  id: string;
-  type: number;
-  name: string;
-  created_at: string;
-};
-
 export interface IGetAllAttributeResponse {
   data: {
-    general: TAttributeProduct[];
-    feature: TAttributeProduct[];
-    specification: TAttributeProduct[];
+    general: AttributeProps[];
+    feature: AttributeProps[];
+    specification: AttributeProps[];
   };
   statusCode: number;
-}
-
-export interface ISubAttribute {
-  id: string;
-  name: string;
-  basis_id: string;
-}
-
-export interface IContentType {
-  id: string;
-  name?: string;
-  type: string;
-  name_1?: string;
-  name_2?: string;
 }

@@ -1,562 +1,239 @@
-import { ATTRIBUTE_TYPES } from "./../../constant/common.constant";
-import { IPagination } from "./../../type/common.type";
+import { BASIS_TYPES, MESSAGES } from "@/constants";
 import {
-  BASIS_TYPES,
-  LONG_TEXT_ID,
-  MESSAGES,
-  SHORT_TEXT_ID,
-} from "../../constant/common.constant";
-import AttributeModel, {
-  ATTRIBUTE_NULL_ATTRIBUTES,
-  IAttributeAttributes,
-} from "../../model/attribute.model";
-import { IMessageResponse } from "../../type/common.type";
+  getSummaryTable,
+  toSingleSpaceAndToLowerCase,
+} from "@/helper/common.helper";
 import {
-  IAttributeRequest,
-  IAttributeResponse,
-  IAttributesResponse,
-  IContentTypesResponse,
-  IGetAllAttributeResponse,
-  ISubAttribute,
-  IUpdateAttributeRequest,
-} from "./attribute.type";
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import AttributeRepository from "@/repositories/attribute.repository";
+import BasisRepository from "@/repositories/basis.repository";
+import { AttributeType, SortOrder } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
-  isDuplicatedString,
-  sortObjectArray,
-} from "../../helper/common.helper";
-import BasisModel, { IBasisAttributes } from "../../model/basis.model";
-export default class AttributeService {
-  private attributeModel: AttributeModel;
-  private basisModel: BasisModel;
-  constructor() {
-    this.attributeModel = new AttributeModel();
-    this.basisModel = new BasisModel();
-  }
-  private getBasisType = (type: number) => {
-    switch (type) {
-      case BASIS_TYPES.CONVERSION:
-        return "Conversions";
-      case BASIS_TYPES.PRESET:
-        return "Presets";
-      case BASIS_TYPES.OPTION:
-        return "Options";
-      default:
-        return "Text";
-    }
-  };
+  checkAttributeDuplicateByName,
+  getFlatListBasis,
+  getListAttributeWithSort,
+  getSubBasisAttribute,
+  mappingAttributeData,
+  mappingContentTypeList,
+  mappingSubAttribute,
+  mappingSubAttributeUpdate,
+} from "./attribute.mapping";
+import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
-  private countAttribute = (attributes: IAttributeAttributes[]) => {
-    return attributes.reduce((pre, cur) => {
-      return pre + cur.subs.length;
-    }, 0);
-  };
-  private getFlatListContentType = async (): Promise<any[]> => {
-    let data = [];
-    const conversionGroups = await this.basisModel.getAllBasisByType(
+class AttributeService {
+  private async getFlatListContentType() {
+    const conversionGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.CONVERSION
     );
-    conversionGroups.forEach((conversionGroup: IBasisAttributes) => {
-      conversionGroup.subs.forEach((conversion: any) => {
-        data.push({
-          id: conversion.id,
-          name_1: conversion.name_1,
-          name_2: conversion.name_2,
-          type: "Conversions",
-        });
-      });
-    });
-    const presetGroups = await this.basisModel.getAllBasisByType(
+    const presetGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.PRESET
     );
-    presetGroups.forEach((presetGroup: IBasisAttributes) => {
-      presetGroup.subs.forEach((preset: any) => {
-        data.push({
-          id: preset.id,
-          name: preset.name,
-          type: "Presets",
-        });
-      });
-    });
-    const optionGroups = await this.basisModel.getAllBasisByType(
+    const optionGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.OPTION
     );
-    optionGroups.forEach((optionGroup: IBasisAttributes) => {
-      optionGroup.subs.forEach((option: any) => {
-        data.push({
-          id: option.id,
-          name: option.name,
-          type: "Options",
-        });
-      });
-    });
-    data.push({
-      id: LONG_TEXT_ID,
-      name: "Long Format",
-      type: "Text",
-    });
-    data.push({
-      id: SHORT_TEXT_ID,
-      name: "Short Format",
-      type: "Text",
-    });
+    return getFlatListBasis(conversionGroups, presetGroups, optionGroups);
+  }
 
-    return data;
-  };
+  public async create(payload: IAttributeRequest) {
+    const attribute = await AttributeRepository.findBy({
+      name: toSingleSpaceAndToLowerCase(payload.name),
+    });
+    if (attribute) {
+      return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_EXISTED);
+    }
 
-  private returnAttributeData = async (
-    attributes: IAttributeAttributes[],
-    subsBasis: any
-  ) => {
-    return attributes.map((attribute) => {
-      const { is_deleted, ...rest } = attribute;
-      const subsAttribute = attribute.subs.map((item: ISubAttribute) => {
-        if (item.basis_id === SHORT_TEXT_ID) {
-          return {
-            ...item,
-            basis: {
-              id: SHORT_TEXT_ID,
-              name: "Short Format",
-              type: "Text",
-            },
-          };
-        }
-        if (item.basis_id === LONG_TEXT_ID) {
-          return {
-            ...item,
-            basis: {
-              id: LONG_TEXT_ID,
-              name: "Long Format",
-              type: "Text",
-            },
-          };
-        }
-        const foundBasis = subsBasis.find(
-          (basis: any) => basis.id == item.basis_id
-        );
-
-        if (foundBasis) {
-          const { is_deleted, ...restBasis } = foundBasis;
-          return {
-            ...item,
-            basis: {
-              ...restBasis,
-            },
-          };
-        }
-        return {
-          ...item,
-          basis: {},
-        };
-      });
+    const duplicatedAttribute = checkAttributeDuplicateByName(payload);
+    if (duplicatedAttribute) {
+      return errorMessageResponse(duplicatedAttribute);
+    }
+    const subData = payload.subs.map((item) => {
       return {
-        ...rest,
-        subs: subsAttribute,
+        id: uuid(),
+        name: item.name,
+        basis_id: item.basis_id,
       };
     });
-  };
-  public create = (
-    payload: IAttributeRequest
-  ): Promise<IMessageResponse | IAttributeResponse> => {
-    return new Promise(async (resolve) => {
-      const attribute = await this.attributeModel.findBy({
-        name: payload.name.toLowerCase(),
-      });
-      if (attribute) {
-        return resolve({
-          message: MESSAGES.ATTRIBUTE_EXISTED,
-          statusCode: 400,
-        });
-      }
-      if (
-        isDuplicatedString(
-          payload.subs.map((item) => {
-            return item.name;
-          })
-        )
-      ) {
-        return resolve({
-          message: MESSAGES.ATTRIBUTE_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-      const subData = payload.subs.map((item) => {
-        return {
-          id: uuid(),
-          name: item.name,
-          basis_id: item.basis_id,
-        };
-      });
-      const createdAttribute = await this.attributeModel.create({
-        ...ATTRIBUTE_NULL_ATTRIBUTES,
-        name: payload.name,
-        type: payload.type,
-        subs: subData,
-      });
-      if (!createdAttribute) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(createdAttribute.id));
+    const createdAttribute = await AttributeRepository.create({
+      name: toSingleSpaceAndToLowerCase(payload.name),
+      type: payload.type,
+      subs: subData,
     });
-  };
-  public get = (id: string): Promise<IMessageResponse | IAttributeResponse> => {
-    return new Promise(async (resolve) => {
-      const contentTypes = await this.getFlatListContentType();
-      const attribute = await this.attributeModel.find(id);
-      if (!attribute) {
-        return resolve({
-          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const subResponses = attribute.subs.map((item) => {
-        const foundContentype = contentTypes.find(
-          (contentType) => contentType.id === item.basis_id
-        );
-        if (foundContentype) {
-          if (foundContentype.type === "Conversions") {
-            return {
-              ...item,
-              content_type: foundContentype.type,
-              description: "",
-              description_1: foundContentype.name_1,
-              description_2: foundContentype.name_2,
-            };
-          }
-          return {
-            ...item,
-            content_type: foundContentype.type,
-            description: foundContentype.name,
-          };
-        }
-        return {
-          ...item,
-          content_type: "",
-          description: "",
-        };
-      });
-      const { type, is_deleted, ...rest } = attribute;
-      return resolve({
-        data: {
-          ...rest,
-          count: attribute.subs.length,
-          subs: subResponses,
-        },
-        statusCode: 200,
-      });
-    });
-  };
+    if (!createdAttribute) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
+    }
+    return this.get(createdAttribute.id);
+  }
 
-  public getList = (
+  public async get(id: string) {
+    const contentTypes = await this.getFlatListContentType();
+    const attribute = await AttributeRepository.find(id);
+    if (!attribute) {
+      return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
+    }
+    const subResponses = mappingSubAttribute(attribute, contentTypes);
+    const { type, ...rest } = attribute;
+
+    return successResponse({
+      data: {
+        ...rest,
+        count: attribute.subs.length,
+        subs: subResponses,
+      },
+    });
+  }
+
+  public async getList(
     attribute_type: number,
     limit: number,
     offset: number,
-    filter: any,
-    group_order: string,
-    attribute_order: any,
-    content_type_order: any
-  ): Promise<IMessageResponse | IAttributesResponse> => {
-    return new Promise(async (resolve) => {
-      const contentTypes = await this.getFlatListContentType();
-      const attributes = await this.attributeModel.list(
+    _filter: any,
+    group_order: SortOrder | undefined,
+    attribute_order?: SortOrder,
+    content_type_order?: SortOrder
+  ) {
+    const contentTypes = await this.getFlatListContentType();
+    const attributeWithPagination =
+      await AttributeRepository.getListWithPagination(
         limit,
         offset,
-        { ...filter, type: attribute_type },
-        ["name", group_order]
+        attribute_type,
+        group_order
       );
 
-      const returnedAttributes = attributes.map(
-        (item: IAttributeAttributes) => {
-          const newSub = item.subs.map((sub) => {
-            const foundContentype = contentTypes.find(
-              (contentType) => contentType.id === sub.basis_id
-            );
-            if (foundContentype) {
-              if (foundContentype.type === "Conversions") {
-                return {
-                  ...sub,
-                  content_type: foundContentype.type,
-                  description: "",
-                  description_1: foundContentype.name_1,
-                  description_2: foundContentype.name_2,
-                };
-              }
-              return {
-                ...sub,
-                content_type: foundContentype.type,
-                description: foundContentype.name,
-              };
-            }
-            return {
-              ...sub,
-              content_type: "",
-              description: "",
-            };
-          });
-          let sortedSubs = newSub;
-          if (attribute_order) {
-            sortedSubs = sortObjectArray(newSub, "name", attribute_order);
-          }
-          if (content_type_order) {
-            sortedSubs = sortObjectArray(
-              newSub,
-              "content_type",
-              content_type_order
-            );
-          }
-          const { type, is_deleted, ...rest } = {
-            ...item,
-            count: sortedSubs.length,
-            subs: sortedSubs,
-          };
-          return rest;
-        }
-      );
-      const pagination: IPagination = await this.attributeModel.getPagination(
-        limit,
-        offset,
-        { type: attribute_type }
-      );
+    const returnedAttributes = getListAttributeWithSort(
+      attributeWithPagination.data,
+      contentTypes,
+      attribute_order,
+      content_type_order
+    );
 
-      const allAttributeByType =
-        await this.attributeModel.getAllAttributeByType(attribute_type);
-      const summary = [
-        {
-          name:
-            attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
-              ? "Specification Group"
-              : "Attribute Group",
-          value: allAttributeByType.length,
-        },
-        {
-          name:
-            attribute_type === ATTRIBUTE_TYPES.SPECIFICATION
-              ? "Specification"
-              : "Attribute",
-          value: this.countAttribute(allAttributeByType),
-        },
-      ];
-      return resolve({
-        data: {
-          attributes: returnedAttributes,
-          summary,
-          pagination,
-        },
-        statusCode: 200,
-      });
+    const allAttributeByType = await AttributeRepository.getByType(
+      attribute_type
+    );
+    const summaryTable = getSummaryTable(allAttributeByType);
+    const summary = [
+      {
+        name:
+          attribute_type === AttributeType.Specification
+            ? "Specification Group"
+            : "Attribute Group",
+        value: summaryTable.countGroup,
+      },
+      {
+        name:
+          attribute_type === AttributeType.Specification
+            ? "Specification"
+            : "Attribute",
+        value: summaryTable.countSub,
+      },
+    ];
+    return successResponse({
+      data: {
+        attributes: returnedAttributes,
+        summary,
+        pagination: attributeWithPagination.pagination,
+      },
     });
-  };
-  public update = (
-    id: string,
-    payload: IUpdateAttributeRequest
-  ): Promise<IMessageResponse | IAttributeResponse> => {
-    return new Promise(async (resolve) => {
-      const attribute = await this.attributeModel.find(id);
-      if (!attribute) {
-        return resolve({
-          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const duplicatedAttribute =
-        await this.attributeModel.getDuplicatedAttribute(id, payload.name);
-      if (duplicatedAttribute) {
-        return resolve({
-          message: MESSAGES.GROUP_ATTRIBUTE_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-      if (
-        isDuplicatedString(
-          payload.subs.map((item) => {
-            return item.name;
-          })
-        )
-      ) {
-        return resolve({
-          message: MESSAGES.ATTRIBUTE_DUPLICATED,
-          statusCode: 400,
-        });
-      }
-      const subData = payload.subs.map((item) => {
-        let found = false;
-        if (item.id) {
-          const foundItem = attribute.subs.find((sub) => sub.id === item.id);
-          if (foundItem) {
-            found = true;
-          }
-        }
-        if (found) {
-          return item;
-        }
-        return {
-          ...item,
-          id: uuid(),
-        };
-      });
-      const updatedAttribute = await this.attributeModel.update(id, {
-        ...payload,
-        subs: subData,
-      });
-      if (!updatedAttribute) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(id));
-    });
-  };
-  public delete = (id: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const attribute = await this.attributeModel.find(id);
-      if (!attribute) {
-        return resolve({
-          message: MESSAGES.ATTRIBUTE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const updatedAttribute = await this.attributeModel.update(id, {
-        is_deleted: true,
-      });
-      if (!updatedAttribute) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
-    });
-  };
+  }
 
-  public getListContentType = (): Promise<IContentTypesResponse> => {
-    return new Promise(async (resolve) => {
-      const conversionGroups = await this.basisModel.getAllBasisByType(
-        BASIS_TYPES.CONVERSION
-      );
-      const returnedConversionGroups = conversionGroups.map(
-        (conversionGroup: IBasisAttributes) => {
-          const conversions = conversionGroup.subs.map((conversion: any) => {
-            return {
-              id: conversion.id,
-              name_1: conversion.name_1,
-              name_2: conversion.name_2,
-            };
-          });
-          return {
-            id: conversionGroup.id,
-            name: conversionGroup.name,
-            count: conversionGroup.subs.length,
-            subs: conversions,
-          };
-        }
-      );
-      const presetGroups = await this.basisModel.getAllBasisByType(
-        BASIS_TYPES.PRESET
-      );
-      const returnedPresetGroups = presetGroups.map(
-        (presetGroup: IBasisAttributes) => {
-          const presets = presetGroup.subs.map((preset: any) => {
-            return {
-              id: preset.id,
-              name: preset.name,
-              count: preset.subs.length,
-            };
-          });
-          return {
-            id: presetGroup.id,
-            name: presetGroup.name,
-            count: presets.length,
-            subs: presets,
-          };
-        }
-      );
-      const optionGroups = await this.basisModel.getAllBasisByType(
-        BASIS_TYPES.OPTION
-      );
-      const returnedOptionGroups = optionGroups.map(
-        (optionGroup: IBasisAttributes) => {
-          const options = optionGroup.subs.map((option: any) => {
-            return {
-              id: option.id,
-              name: option.name,
-              count: option.subs.length,
-            };
-          });
-          return {
-            id: optionGroup.id,
-            name: optionGroup.name,
-            count: options.length,
-            subs: options,
-          };
-        }
-      );
-      const data = {
-        texts: [
-          {
-            id: LONG_TEXT_ID,
-            name: "Long Format",
-          },
-          {
-            id: SHORT_TEXT_ID,
-            name: "Short Format",
-          },
-        ],
-        conversions: returnedConversionGroups,
-        presets: returnedPresetGroups,
-        options: returnedOptionGroups,
-      };
-      return resolve({
-        data,
-        statusCode: 200,
-      });
-    });
-  };
+  public async update(id: string, payload: IUpdateAttributeRequest) {
+    const attribute = await AttributeRepository.find(id);
 
-  public getAllAttribute = (): Promise<
-    IMessageResponse | IGetAllAttributeResponse
-  > => {
-    return new Promise(async (resolve) => {
-      const bases: any = await this.basisModel.getAll();
-      const subsBasis = bases.reduce((pre: any, cur: any) => {
-        const temp = cur.subs.map((item: any) => ({
-          ...item,
-          type: this.getBasisType(cur.type),
-        }));
-        return pre.concat(temp);
-      }, []);
-      const returnedGeneralAttributes = await this.returnAttributeData(
-        await this.attributeModel.getAllAttributeByType(
-          ATTRIBUTE_TYPES.GENERAL
-        ),
-        subsBasis
+    if (!attribute) {
+      return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
+    }
+
+    if (attribute.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_MODIFY_MASTER_DATA);
+    }
+
+    const duplicatedAttributeGroup =
+      await AttributeRepository.getDuplicatedAttribute(
+        id,
+        toSingleSpaceAndToLowerCase(payload.name)
       );
-      const returnedFeatureAttributes = await this.returnAttributeData(
-        await this.attributeModel.getAllAttributeByType(
-          ATTRIBUTE_TYPES.FEATURE
-        ),
-        subsBasis
+    if (duplicatedAttributeGroup) {
+      return errorMessageResponse(
+        MESSAGES.ATTRIBUTE.GROUP_ATTRIBUTE_DUPLICATED
       );
-      const returnedSpecificationAttributes = await this.returnAttributeData(
-        await this.attributeModel.getAllAttributeByType(
-          ATTRIBUTE_TYPES.SPECIFICATION
-        ),
-        subsBasis
-      );
-      return resolve({
-        data: {
-          general: returnedGeneralAttributes,
-          feature: returnedFeatureAttributes,
-          specification: returnedSpecificationAttributes,
-        },
-        statusCode: 200,
-      });
+    }
+
+    const duplicatedAttribute = checkAttributeDuplicateByName(payload);
+    if (duplicatedAttribute) {
+      return errorMessageResponse(duplicatedAttribute);
+    }
+    const subData = mappingSubAttributeUpdate(attribute, payload);
+    const updatedAttribute = await AttributeRepository.update(id, {
+      ...payload,
+      subs: subData,
+      name: toSingleSpaceAndToLowerCase(payload.name),
     });
-  };
+    if (!updatedAttribute) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
+    }
+    return this.get(id);
+  }
+
+  public async delete(id: string) {
+    const attribute = await AttributeRepository.find(id);
+    if (!attribute) {
+      return errorMessageResponse(MESSAGES.CATEGORY.CATEGORY_NOT_FOUND, 404);
+    }
+    if (attribute.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_DELETE_MASTER_DATA);
+    }
+    await AttributeRepository.delete(id);
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+
+  public async getListContentType() {
+    const conversionGroups = await BasisRepository.getAllBasisByType(
+      BASIS_TYPES.CONVERSION
+    );
+    const presetGroups = await BasisRepository.getAllBasisByType(
+      BASIS_TYPES.PRESET
+    );
+    const optionGroups = await BasisRepository.getAllBasisByType(
+      BASIS_TYPES.OPTION
+    );
+
+    const responseData = mappingContentTypeList(
+      conversionGroups,
+      presetGroups,
+      optionGroups
+    );
+    return successResponse({
+      data: responseData,
+    });
+  }
+
+  public async getAllAttribute() {
+    const bases = await BasisRepository.getAll();
+    const subsBasis = getSubBasisAttribute(bases);
+    const returnedGeneralAttributes = mappingAttributeData(
+      await AttributeRepository.getByType(AttributeType.General),
+      subsBasis
+    );
+    const returnedFeatureAttributes = mappingAttributeData(
+      await AttributeRepository.getByType(AttributeType.Feature),
+      subsBasis
+    );
+    const returnedSpecificationAttributes = mappingAttributeData(
+      await AttributeRepository.getByType(AttributeType.Specification),
+      subsBasis
+    );
+    return successResponse({
+      data: {
+        general: returnedGeneralAttributes,
+        feature: returnedFeatureAttributes,
+        specification: returnedSpecificationAttributes,
+      },
+    });
+  }
 }
+
+export default new AttributeService();

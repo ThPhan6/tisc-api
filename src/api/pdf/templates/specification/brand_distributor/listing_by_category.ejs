@@ -1,0 +1,57 @@
+<div class="general-specification-content">
+    <table width="100%">
+      <tr>
+          <td width="50%" class="normal-roboto-bold-12">
+            Brand / Manufacturer
+          </td>
+          <td width="50%" class="normal-roboto-bold-12">
+            Distributor / Supplier
+          </td>
+      </tr>
+      <% data.forEach(function(item){ %>
+        <tr>
+            <td height="24" width="50%" class="normal-roboto-bold-8-18 bg-black" colspan="2">
+              <span class="pdlr-8 color-white uppercase"><%= item.name %></span>
+            </td>
+        </tr>
+        <% item.data.forEach(function(groupData){ %>
+          <tr>
+            <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
+              <span class="primary-roboto-bold-8-18"><%= groupData.product.brand.name %></span><br/>
+              <span><%= groupData.location.address %></span><br/>
+              <% if (groupData.location.country_id == '-1') { %>
+                <span>GLOBAL</span>
+              <% } else { %>
+                <span>
+                  <% if (groupData.location.city_name) { %>
+                    <%= groupData.location.city_name %>,
+                  <% } %>
+                  <% if (groupData.location.country_name) { %>
+                    <%= groupData.location.country_name %>,
+                  <% } %>
+                  <%= groupData.location.postal_code %>
+                </span>
+              <% } %>
+            </td>
+            <td class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow">
+              <span class="primary-roboto-bold-8-18"><%= groupData.distributor.name %></span><br/>
+              <span><%= groupData.distributor.address %></span><br/>
+              <% if (groupData.distributor.country_id == '-1') { %>
+                <span>GLOBAL</span>
+              <% } else { %>
+                <span>
+                  <% if (groupData.distributor.city_name) { %>
+                    <%= groupData.distributor.city_name %>,
+                  <% } %>
+                  <% if (groupData.distributor.country_name) { %>
+                    <%= groupData.distributor.country_name %>,
+                  <% } %>
+                  <%= groupData.distributor.postal_code %>
+                </span>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      <% }); %>
+    </table>
+</div>

@@ -1,16 +1,16 @@
 import * as Hapi from "@hapi/hapi";
 import BrandController from "./brand.controller";
-import commonValidate from "../../validate/common.validate";
+import { getAllValidation, getOneValidation } from "@/validate/common.validate";
 import IRoute from "../../helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   statuses,
 } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
 import response from "./brand.response";
 import validate from "./brand.validate";
 import Joi from "joi";
+import { imageOptionPayload, ROUTES, AUTH_NAMES } from "@/constants";
+
 export default class BrandRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -55,7 +55,7 @@ export default class BrandRoute implements IRoute {
           path: ROUTES.GET_LIST_BRAND_CARD,
           options: {
             handler: controller.getListCard,
-            validate: commonValidate.getAll,
+            validate: getAllValidation(),
             description: "Method that get list brand card",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
@@ -88,7 +88,7 @@ export default class BrandRoute implements IRoute {
           path: ROUTES.GET_ONE_BRAND,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
@@ -105,7 +105,7 @@ export default class BrandRoute implements IRoute {
           path: ROUTES.SEND_EMAIL_INVITE_BRAND,
           options: {
             handler: controller.invite,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that invite brand",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
@@ -176,21 +176,7 @@ export default class BrandRoute implements IRoute {
             description: "Method that update brand logo",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
-            payload: {
-              maxBytes: 1024 * 1024 * 5,
-              multipart: {
-                output: "stream",
-              },
-              parse: true,
-              failAction: (_request, _h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload file size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
-            },
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

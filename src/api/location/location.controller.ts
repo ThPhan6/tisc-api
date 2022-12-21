@@ -1,134 +1,119 @@
+import { errorMessageResponse } from "@/helper/response.helper";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { SYSTEM_TYPE } from "../../constant/common.constant";
-import LocationService from "./location.service";
-import { ILocationRequest } from "./location.type";
+import { locationService } from "./location.service";
+import { LocationRequest, UserAttributes, UserType } from "@/types";
+
 export default class LocationController {
-  private service: LocationService;
-  constructor() {
-    this.service = new LocationService();
+  private async validateBusinessNumber(
+    user: UserAttributes,
+    businessNumber: string
+  ) {
+    if (UserType.Designer !== user.type && businessNumber === "") {
+      return false;
+    }
+    return true;
   }
+
   public create = async (
-    req: Request & { payload: ILocationRequest },
+    req: Request & { payload: LocationRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.create(userId, payload);
+
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const businessNumber = this.validateBusinessNumber(
+      user,
+      payload.business_number as string
+    );
+
+    if (!businessNumber) {
+      return toolkit
+        .response(errorMessageResponse("Business number is required"))
+        .code(400);
+    }
+
+    const response = await locationService.create(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public update = async (
-    req: Request & { payload: ILocationRequest },
+    req: Request & { payload: LocationRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
+
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.update(userId, id, payload);
+
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const businessNumber = this.validateBusinessNumber(
+      user,
+      payload.business_number as string
+    );
+
+    if (!businessNumber) {
+      return toolkit
+        .response(errorMessageResponse("Business number is required"))
+        .code(400);
+    }
+
+    const response = await locationService.update(user, id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public get = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.get(id);
+    const response = await locationService.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllCountry = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await this.service.getAllCountry();
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getStates = async (req: Request, toolkit: ResponseToolkit) => {
-    const { country_id } = req.query;
-    const response = await this.service.getStates(country_id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getCities = async (req: Request, toolkit: ResponseToolkit) => {
-    const { country_id, state_id } = req.query;
-    const response = await this.service.getCities(country_id, state_id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getCountry = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
-    const response = await this.service.getCountry(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getAllCountryWithRegionGroup = async (
-    _req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const response = await this.service.getListCountryWithRegionGroup();
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getState = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
-    const response = await this.service.getState(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getCity = async (req: Request, toolkit: ResponseToolkit) => {
-    const { id } = req.params;
-    const response = await this.service.getCity(id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getList(
-      userId,
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await locationService.getList(
+      user,
       limit,
       offset,
-      filter,
       sort,
-      order
+      order,
+      filter
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public getListWithGroup = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getListWithGroup(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await locationService.getListWithGroup(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public getMarketLocationGroupByCountry = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { product_id } = req.params;
-    const response = await this.service.getMarketLocationGroupByCountry(
+    const response = await locationService.getMarketLocationGroupByCountry(
       product_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getBrandLocationGroupByCountry = async (
+
+  public getCompanyLocationGroupByCountry = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { brand_id } = req.params;
-    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
-      brand_id,
-      SYSTEM_TYPE.BRAND
+    const { brand_id, design_id } = req.params;
+    const response = await locationService.getCompanyLocationGroupByCountry(
+      brand_id || design_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getDesignLocationGroupByCountry = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const { design_id } = req.params;
-    const response = await this.service.getBrandOrDesignLocationGroupByCountry(
-      design_id,
-      SYSTEM_TYPE.DESIGN
-    );
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.delete(userId, id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getFunctionalTypes = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getFunctionalTypes(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await locationService.delete(user, id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

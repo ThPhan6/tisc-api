@@ -1,153 +1,87 @@
+import { countWord } from "@/helper/common.helper";
 import {
-  IQuotationAttributes,
-  QUOTATION_NULL_ATTRIBUTES,
-} from "./../../model/quotation.model";
-import { MESSAGES } from "../../constant/common.constant";
-import { countWord } from "../../helper/common.helper";
-import QuotationModel from "../../model/quotation.model";
-import { IMessageResponse, IPagination } from "./../../type/common.type";
-import {
-  IQuotationRequest,
-  IQuotationResponse,
-  IQuotationsResponse,
-} from "./quotation.type";
-export default class QuotationService {
-  private quotationModel: QuotationModel;
-  constructor() {
-    this.quotationModel = new QuotationModel();
-  }
-  public create = async (
-    payload: IQuotationRequest
-  ): Promise<IMessageResponse | IQuotationResponse> => {
-    return new Promise(async (resolve) => {
-      if (countWord(payload.quotation) > 120) {
-        return resolve({
-          message: MESSAGES.QUOTATION_MAX_WORD,
-          statusCode: 400,
-        });
-      }
-      const createdQuotation = await this.quotationModel.create({
-        ...QUOTATION_NULL_ATTRIBUTES,
-        author: payload.author,
-        identity: payload.identity,
-        quotation: payload.quotation,
-      });
-      if (!createdQuotation) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = createdQuotation;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
-    });
-  };
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import QuotationRepository from "@/repositories/quotation.repository";
+import { successMessageResponse } from "@/helper/response.helper";
+import { IQuotationRequest } from "./quotation.type";
+import { SortOrder } from "@/types";
+import { MESSAGES } from "@/constants";
 
-  public getList = async (
+export default class QuotationService {
+  private quotationRepository: QuotationRepository;
+  constructor() {
+    this.quotationRepository = new QuotationRepository();
+  }
+
+  public async create(payload: IQuotationRequest) {
+    if (countWord(payload.quotation) > 120) {
+      return errorMessageResponse(MESSAGES.QUOTATION_MAX_WORD);
+    }
+    const createdQuotation = await this.quotationRepository.create({
+      author: payload.author,
+      identity: payload.identity,
+      quotation: payload.quotation,
+    });
+    if (!createdQuotation) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+    return successResponse({ data: createdQuotation });
+  }
+
+  public async getList(
     limit: number,
     offset: number,
     filter: any,
-    sort: any
-  ): Promise<IMessageResponse | IQuotationsResponse> => {
-    return new Promise(async (resolve) => {
-      const quotations = await this.quotationModel.list(
+    sort: string,
+    order: SortOrder
+  ) {
+    const quotations =
+      await this.quotationRepository.getListQuotationWithPagination(
         limit,
         offset,
         filter,
-        sort
+        sort,
+        order
       );
-      if (!quotations) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      const result = quotations.map((item: IQuotationAttributes) => {
-        const { is_deleted, ...rest } = item;
-        return rest;
-      });
-      const pagination: IPagination = await this.quotationModel.getPagination(
-        limit,
-        offset
-      );
-      return resolve({
-        data: {
-          quotations: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
+    if (!quotations) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    return successResponse({
+      data: {
+        quotations: quotations.data,
+        pagination: quotations.pagination,
+      },
     });
-  };
-  public getOne = async (
-    id: string
-  ): Promise<IMessageResponse | IQuotationResponse> => {
-    return new Promise(async (resolve) => {
-      const quotation = await this.quotationModel.find(id);
-      if (!quotation) {
-        return resolve({
-          message: MESSAGES.QUOTATION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const { is_deleted, ...rest } = quotation;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  }
+
+  public async getOne(id: string) {
+    const quotation = await this.quotationRepository.find(id);
+    if (!quotation) {
+      return errorMessageResponse(MESSAGES.QUOTATION_NOT_FOUND, 404);
+    }
+    return successResponse({
+      data: quotation,
     });
-  };
-  public update = async (
-    id: string,
-    payload: IQuotationRequest
-  ): Promise<IMessageResponse | IQuotationResponse> => {
-    return new Promise(async (resolve) => {
-      const quotation = await this.quotationModel.find(id);
-      if (!quotation) {
-        return resolve({
-          message: MESSAGES.QUOTATION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const updatedQuotation = await this.quotationModel.update(id, payload);
-      if (!updatedQuotation) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = updatedQuotation;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  }
+
+  public async update(id: string, payload: IQuotationRequest) {
+    const quotation = await this.quotationRepository.findAndUpdate(id, payload);
+    if (!quotation[0]) {
+      return errorMessageResponse(MESSAGES.QUOTATION_NOT_FOUND);
+    }
+    return successResponse({
+      data: quotation[0],
     });
-  };
-  public delete = async (id: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const foundQuotation = await this.quotationModel.find(id);
-      if (!foundQuotation) {
-        return resolve({
-          message: MESSAGES.QUOTATION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const updatedQuotation = await this.quotationModel.update(id, {
-        is_deleted: true,
-      });
-      if (!updatedQuotation) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
-    });
-  };
+  }
+
+  public async delete(id: string) {
+    const quotation = await this.quotationRepository.findAndDelete(id);
+    if (!quotation) {
+      return errorMessageResponse(MESSAGES.QUOTATION_NOT_FOUND);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
 }
+export const quotationService = new QuotationService();

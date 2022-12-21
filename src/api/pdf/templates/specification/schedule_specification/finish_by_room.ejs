@@ -1,0 +1,204 @@
+<div class="general-specification-content">
+  <table width="100%" class="dynamic-table">
+    <tr>
+      <td class="border-bottom-box-shadow-bold">
+        <span class="normal-roboto-bold-8-18 uppercase">code</span>
+      </td>
+      <td class="border-bottom-box-shadow-bold">
+        <span class="normal-roboto-bold-8-18 uppercase">description</span>
+      </td>
+      <td class="border-bottom-box-shadow-bold">
+        <span class="normal-roboto-bold-8-18 uppercase">requirement & instructions</span>
+      </td>
+    </tr>
+    <% data.codes.forEach(function(item) { %>
+      <tr>
+        <td class="primary-roboto-light-8-18">
+          <span><%= item.code %></span>
+        </td>
+        <td class="primary-roboto-light-8-18">
+          <span><%= item.description %></span>
+        </td>
+        <td class="primary-roboto-light-8-18">
+          <span><%= item.requirementTypes.join(', ') %> <%= item.instructionTypes.join(', ') %></span>
+        </td>
+      </tr>
+    <% }) %>
+    <tr><td class="border-bottom-box-shadow" colspan="3"></td></tr>
+    <tr style="height: 15px"></tr>
+    </table>
+    <table>
+    <tr class="bg-black">
+      <td width="52" style="text-align: center">
+        <span class="normal-roboto-bold-8-10 color-white uppercase">floor</span>
+      </td>
+      <td width="52" style="text-align: center">
+        <span class="normal-roboto-bold-8-10 color-white uppercase">base</span>
+      </td>
+      <td width="52" style="text-align: center">
+        <p
+          style="padding: 4px 15px"
+          class="normal-roboto-bold-8-10 color-white uppercase"
+        >
+          front wall
+        </p>
+      </td>
+      <td width="52" style="text-align: center">
+        <p
+          style="padding: 4px 15px"
+          class="normal-roboto-bold-8-10 color-white uppercase"
+        >
+          left wall
+        </p>
+      </td>
+      <td width="52" style="text-align: center">
+        <p
+          style="padding: 4px 15px"
+          class="normal-roboto-bold-8-10 color-white uppercase"
+        >
+          back wall
+        </p>
+      </td>
+      <td width="52" style="text-align: center">
+        <p
+          style="padding: 4px 15px"
+          class="normal-roboto-bold-8-10 color-white uppercase"
+        >
+          right wall
+        </p>
+      </td>
+
+      <td width="52" style="text-align: center">
+        <span class="normal-roboto-bold-8-10 color-white uppercase"
+          >ceiling</span
+        >
+      </td>
+      <td width="52" style="text-align: center">
+        <span class="normal-roboto-bold-8-10 color-white uppercase">door</span>
+      </td>
+      <td width="52" style="text-align: center">
+        <span class="normal-roboto-bold-8-10 color-white uppercase"
+          >cabinet</span
+        >
+      </td>
+    </tr>
+    <% data.finishSchedules.forEach(function(item) { %>
+      <tr class="border-bottom-box-shadow-bold">
+        <td width="52" style="text-align: center">
+          <span class="primary-roboto-bold-8-18"><%= item.room_id %></span>
+        </td>
+        <td style="padding-left: 8px" colspan="8">
+          <span class="primary-roboto-bold-8-18"><%= item.room_name %></span>
+        </td>
+      </tr>
+      <% item.finishSchedules.forEach(function(finishSchedule) { %>
+        <tr>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.floor) { %>
+                <%= finishSchedule.material_code.code %>
+              <% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.base.floor || finishSchedule.base.ceiling) { %>
+                <%= finishSchedule.material_code.code %>
+                <br />
+                <% if (finishSchedule.base.floor) { %>floor<% } %><% if (finishSchedule.base.ceiling) { %><% if (finishSchedule.base.floor) { %>+<% } %>ceiling<% } %><% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.front_wall) { %>
+                <%= finishSchedule.material_code.code %>
+              <% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.left_wall) { %>
+                <%= finishSchedule.material_code.code %>
+              <% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.back_wall) { %>
+                <%= finishSchedule.material_code.code %>
+              <% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.right_wall) { %>
+                <%= finishSchedule.material_code.code %>
+              <% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.ceiling) { %>
+                <%= finishSchedule.material_code.code %>
+              <% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.door.frame || finishSchedule.door.panel) { %>
+                <%= finishSchedule.material_code.code %>
+                <br />
+                <% if (finishSchedule.door.frame) { %>frame<% } %><% if (finishSchedule.door.panel) { %><% if (finishSchedule.door.frame) { %>+<% } %>panel<% } %><% } %>
+            </span>
+          </td>
+          <td
+            width="52"
+            style="text-align: center"
+            class="primary-roboto-light-8-8"
+          >
+            <span>
+              <% if (finishSchedule.cabinet.carcass || finishSchedule.cabinet.door) { %>
+                <%= finishSchedule.material_code.code %>
+                <br />
+                <% if (finishSchedule.cabinet.carcass) { %>carcass<% } %><% if (finishSchedule.cabinet.door) { %><% if (finishSchedule.cabinet.carcass) { %>+<% } %>door<% } %><% } %>
+            </span>
+          </td>
+        </tr>
+      <% }) %>
+      <tr class="border-bottom-box-shadow"></tr>
+      <tr style="height: 18px"></tr>
+    <% }) %>
+  </table>
+</div>

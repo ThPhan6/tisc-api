@@ -1,8 +1,14 @@
-import { IPagination } from "./../../type/common.type";
+import {
+  IProductAttributes,
+  Pagination,
+  ActiveStatus,
+  DistributorWithLocation,
+} from "@/types";
+
 export interface IBrandsResponse {
   data: {
     brands: IBrand[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }
@@ -105,6 +111,46 @@ export interface IBrandSummary {
   statusCode: number;
 }
 
-export interface IUpdateBrandStatusRequest {
-  status: number;
+export interface ListBrandCustom {
+  brand: {
+    id: string;
+    name: string;
+    logo: string | null;
+    status: ActiveStatus;
+    created_at: string;
+    origin: string;
+    locations: number;
+    teams: number;
+    collection: number;
+    assign_team: {
+      avatar: string;
+      email: string;
+      firstname: string;
+      id: string;
+      lastname: string;
+    }[];
+  };
+  cards: IProductAttributes[];
+  distributors: DistributorWithLocation[];
 }
+
+export interface BrandOfficialWebsite {
+  country_id: string;
+  url: string;
+}
+
+export interface BrandAttributes {
+  id: string;
+  name: string;
+  parent_company: string;
+  logo: string | null;
+  slogan: string;
+  mission_n_vision: string;
+  official_websites: BrandOfficialWebsite[];
+  team_profile_ids: string[];
+  status: ActiveStatus;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export type GetUserGroupBrandSort = "name" | "origin" | "status";

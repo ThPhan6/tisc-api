@@ -1,195 +1,51 @@
-import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import Joi from "joi";
+import {
+  errorMessage,
+  getListValidation,
+  requireEmailValidation,
+  requireStringValidation,
+} from "@/validate/common.validate";
 
-const customFilter = (value: any, helpers: any) => {
-  try {
-    const filter = JSON.parse(decodeURIComponent(value));
-    if (typeof filter === "object") {
-      return filter;
-    }
-    return helpers.error("any.invalid");
-  } catch (error) {
-    return helpers.error("any.invalid");
-  }
+const locationValidate = {
+  business_name: requireStringValidation("Business name"),
+  business_number: Joi.string().trim().allow(""),
+  functional_type_ids: Joi.array()
+    .items(requireStringValidation("Functional type"))
+    .required()
+    .error(errorMessage("Functional type is required")),
+  country_id: requireStringValidation("Country"),
+  state_id: Joi.string().trim().allow(""),
+  city_id: Joi.string().trim().allow(""),
+  address: requireStringValidation("Address"),
+  postal_code: requireStringValidation("Postal code"),
+  general_phone: requireStringValidation("General phone"),
+  general_email: requireEmailValidation("General email"),
 };
+
 export default {
   getMarketLocationsCountryGroup: {
     params: {
-      product_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Product id is required")),
+      product_id: requireStringValidation("Product id"),
     },
   },
   getBrandLocationsCountryGroup: {
     params: {
-      brand_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand id is required")),
+      brand_id: requireStringValidation("Brand id"),
     },
   },
   getDesignLocationsCountryGroup: {
     params: {
-      design_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Design id is required")),
-    },
-  },
-  getStates: {
-    query: {
-      country_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-    },
-  },
-  getCities: {
-    query: {
-      country_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string(),
+      design_id: requireStringValidation("Design id"),
     },
   },
   create: {
-    payload: {
-      business_name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Business name is required")),
-      business_number: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Business number is required")
-        ),
-      functional_type_ids: Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction("Functional type is required")
-            )
-        )
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Functional type is required")
-        ),
-      country_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country is required")),
-      state_id: Joi.string().trim().allow(""),
-      city_id: Joi.string().trim().allow(""),
-      address: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Address is required")),
-      postal_code: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Postal code is required")),
-      general_phone: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("General phone is required")),
-      general_email: Joi.string()
-        .trim()
-        .email()
-        .required()
-        .error(commonFailValidatedMessageFunction("General email is required")),
-    },
+    payload: locationValidate,
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Location id is required")),
+      id: requireStringValidation("Location id"),
     },
-    payload: {
-      business_name: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Business name is required")),
-      business_number: Joi.string()
-        .trim()
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Business number is required")
-        ),
-      functional_type_ids: Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .required()
-            .error(
-              commonFailValidatedMessageFunction("Functional type is required")
-            )
-        )
-        .required()
-        .error(
-          commonFailValidatedMessageFunction("Functional type is required")
-        ),
-      country_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
-      state_id: Joi.string().trim().allow(""),
-      city_id: Joi.string().trim().allow(""),
-      address: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Address is required")),
-      postal_code: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Postal code is required")),
-      general_phone: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("General phone is required")),
-      general_email: Joi.string()
-        .trim()
-        .email()
-        .required()
-        .error(commonFailValidatedMessageFunction("General email is required")),
-    },
+    payload: locationValidate,
   },
-  getList: {
-    query: Joi.object({
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          return customFilter(value, helpers);
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-      sort: Joi.string(),
-      order: Joi.string().valid("ASC", "DESC"),
-    }).custom((value) => {
-      return {
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        filter: value.filter,
-        sort: value.sort ? value.sort : "created_at",
-        order: value.order ? value.order : "ASC",
-      };
-    }),
-  } as any,
+  getList: getListValidation(),
 };

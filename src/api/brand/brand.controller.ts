@@ -1,92 +1,94 @@
-import BrandService from "./brand.service";
+import { brandService } from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { BRAND_STATUS_OPTIONS } from "../../constant/common.constant";
-import {
-  IBrandRequest,
-  IUpdateBrandProfileRequest,
-  IUpdateBrandStatusRequest,
-} from "./brand.type";
+import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
+import { BRAND_STATUS_OPTIONS } from "@/constants";
+import { ActiveStatus, UserAttributes } from "@/types";
 
 export default class BrandController {
-  private service: BrandService;
-  constructor() {
-    this.service = new BrandService();
-  }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, order } = req.query;
-    const response = await this.service.getList(
+    const { limit, offset, filter, sort, order, haveProduct } = req.query;
+    const response = await brandService.getList(
       limit,
       offset,
       filter,
       sort,
-      order
+      order,
+      haveProduct
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public getListCard = async (req: Request, toolkit: ResponseToolkit) => {
-    const { filter, sort } = req.query;
-    const response = await this.service.getListCard(filter, sort);
+    const { filter, sort, order } = req.query;
+    const response = await brandService.getListCard(filter, sort, order);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getOne(id);
+    const response = await brandService.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public getAllBrandSummary = async (
     _req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await this.service.getAllBrandSummary();
+    const response = await brandService.getBrandsSummary();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public invite = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const userId = req.auth.credentials.user_id as string;
+    const response = await brandService.invite(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 
-    const response = await this.service.invite(userId, id);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
   public getAllByAlphabet = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await this.service.getAllByAlphabet();
+    const response = await brandService.getAllByAlphabet();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public getBrandStatuses = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(BRAND_STATUS_OPTIONS).code(200);
   };
+
   public updateBrandProfile = async (
     req: Request & { payload: IUpdateBrandProfileRequest },
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await this.service.updateBrandProfile(userId, payload);
+    const response = await brandService.updateBrandProfile(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public updateBrandLogo = async (
     req: Request & { payload: { logo: any } },
     toolkit: ResponseToolkit
   ) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const logo = req.payload.logo;
-    const response = await this.service.updateLogo(userId, logo);
+    const response = await brandService.updateLogo(user, logo);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public create = async (
     req: Request & { payload: IBrandRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.create(payload);
+    const response = await brandService.create(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
   public updateBrandStatus = async (
-    req: Request & { payload: IUpdateBrandStatusRequest },
+    req: Request & { payload: { status: ActiveStatus } },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.updateBrandStatus(id, payload);
+    const response = await brandService.updateBrandStatus(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -1,0 +1,104 @@
+<div class="general-specification-content">
+  <table width="100%" class="dynamic-table">
+    <% data.forEach(function(groupData, index) { %>
+      <% if (index > 0) { %>
+        <tr><td style="opacity:0" colspan="4">TISC</td></tr>
+      <% } %>
+    <tr>
+      <td>
+        <span class="primary-roboto-light-8-18 uppercase"><%= groupData.material_code.code %></span>
+      </td>
+      <td colspan="2">
+        <span class="primary-roboto-light-8-18 uppercase"><%= groupData.material_code.description %></span>
+      </td>
+
+      <td style="width: 108px;">
+        <span class="normal-garamond-light-8-12 uppercase">date</span>
+        <span class="primary-roboto-light-8-18 uppercase"><%= groupData.specified_date %></span>
+      </td>
+    </tr>
+    <tr><td class="border-bottom-box-shadow-bold" colspan="4"></td></tr>
+    <tr>
+      <td style="vertical-align:top" class="primary-roboto-light-8-18">
+        <span class="uppercase normal-garamond-light-8-12">brand</span>
+        <br />
+        <span class="uppercase normal-garamond-light-8-12">specification</span>
+      </td>
+      <td style="vertical-align:top" class="primary-roboto-light-8-18">
+        <span><%= groupData.product.brand.name %></span> <br />
+        <span><%= groupData.product.description %></span> <br />
+        <% groupData.options.forEach(function(option) { %>
+          <span><%= option %></span> <br />
+        <% }) %>
+      </td>
+      <td style="vertical-align:top" class="primary-roboto-light-8-18">
+        <span class="normal-garamond-light-8-12 uppercase">id</span>
+        <span style="margin-left: 8px"><%= groupData.product.sku_text %></span>
+      </td>
+      <td style="width: 108px;">
+        <img style="width: 108px; height: 108px;" src="<%= groupData.productImage %>"></img>
+      </td>
+    </tr>
+    <tr><td class="border-bottom-box-shadow" colspan="4"></td></tr>
+    <tr>
+      <td class="primary-roboto-light-8-18 ">
+        <span class="normal-garamond-light-8-12 uppercase">dimension</span>
+      </td>
+      <td colspan="3" class="primary-roboto-light-8-18">
+        <span>
+          <%= item.product.dimension %>
+        </span>
+      </td>
+    </tr>
+
+    <tr><td class="border-bottom-box-shadow" colspan="4"></td></tr>
+    <tr>
+      <td class="primary-roboto-light-8-18 ">
+        <span class="normal-garamond-light-8-12 uppercase">weight</span>
+      </td>
+      <td class="primary-roboto-light-8-18">
+        <span>
+          <%= item.product.weight %>
+        </span>
+      </td>
+      <td class="primary-roboto-light-8-18" colspan="2">
+        <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">lead time</span>
+        <span>Time period </span>
+      </td>
+    </tr>
+    <tr><td class="border-bottom-box-shadow" colspan="4"></td></tr>
+    <tr>
+      <td class="primary-roboto-light-8-18 border-bottom-box-shadow">
+          <span class="normal-garamond-light-8-12 uppercase">order</span>
+      </td>
+      <td class="primary-roboto-light-8-18 border-bottom-box-shadow">
+          <% if (groupData.order_method == 1) { %>
+            <span>Custom Order</span>
+          <% } else { %>
+            <span>Direct Purchase</span>
+          <% } %>
+      </td>
+      <td class="primary-roboto-light-8-18 border-bottom-box-shadow" colspan="2">
+        <div class="avoid">
+            <span class="uppercase normal-garamond-light-8-12" style="padding-right: 24px;">total qty</span>
+            <span><%= groupData.quantity %><span style="margin-left:8px"><%= groupData.unitType %></span></span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: text-top;" class="border-bottom-box-shadow primary-roboto-light-8-18 ">
+        <div class="avoid">
+          <span class="normal-garamond-light-8-12 uppercase">location</span>
+        </div>
+      </td>
+      <td colspan="3" class="border-bottom-box-shadow primary-roboto-light-8-18">
+        <div class="avoid">
+          <% groupData.finish_schedules.forEach(function(finishSchedule, index) { %>
+            <%= finishSchedule.room_id %>/<%= finishSchedule.room_name %><% if (index < groupData.finish_schedules.length - 1) { %>,<% } %>
+          <% }) %>
+        </div>
+      </td>
+    </tr>
+    <% }) %>
+  </table>
+</div>

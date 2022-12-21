@@ -1,18 +1,14 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import CategoryService from "./category.service";
+import { categoryService } from "./category.service";
 import { ICategoryRequest } from "./category.type";
-export default class CategoryController {
-  private service: CategoryService;
-  constructor() {
-    this.service = new CategoryService();
-  }
 
+export default class CategoryController {
   public create = async (
     req: Request & { payload: ICategoryRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.service.create(payload);
+    const response = await categoryService.create(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -24,20 +20,22 @@ export default class CategoryController {
       main_category_order,
       sub_category_order,
       category_order,
+      haveProduct,
     } = req.query;
-    const response = await this.service.getList(
+    const response = await categoryService.getList(
       limit,
       offset,
       filter,
       main_category_order,
       sub_category_order,
-      category_order
+      category_order,
+      haveProduct
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getById = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getById(id);
+    const response = await categoryService.getById(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -47,13 +45,13 @@ export default class CategoryController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await this.service.update(id, payload);
+    const response = await categoryService.update(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.delete(id);
+    const response = await categoryService.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -1,23 +1,4 @@
-import { IPagination } from "./../../type/common.type";
-
-export interface IDocument {
-  document: string;
-  question_and_answer: {
-    question: string;
-    answer: string;
-  }[];
-}
-export interface IDocumentation {
-  id: string;
-  logo: string | null;
-  type: number | null;
-  title: string;
-  document: IDocument;
-  created_at: string | null;
-  created_by: string;
-  updated_at: string | null;
-  author?: any;
-}
+import { IDocument, IDocumentation, Pagination } from "@/types";
 
 export interface IDocumentationRequest {
   title: string;
@@ -26,7 +7,7 @@ export interface IDocumentationRequest {
 export interface IHowto {
   id: string;
   title: string;
-  document: object;
+  document: IDocument;
 }
 export interface IHowtosResponse {
   data: any[];
@@ -48,7 +29,7 @@ export interface IDocumentationResponse {
 export interface IDocumentationsResponse {
   data: {
     documentations: IDocumentation[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

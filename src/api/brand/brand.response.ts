@@ -1,3 +1,5 @@
+import { paginationResponse } from "@/helper/response.helper";
+import { getSummaryResponseValidate } from "@/validate/common.response";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -29,12 +31,7 @@ export default {
           updated_at: Joi.string().allow(null),
         })
       ),
-      pagination: Joi.object({
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      }),
+      pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
   }) as any,
@@ -55,23 +52,7 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }) as any,
-  getAllBrandSummary: Joi.object({
-    data: Joi.array().items(
-      Joi.object({
-        id: Joi.string(),
-        quantity: Joi.number(),
-        label: Joi.string(),
-        subs: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            quantity: Joi.number(),
-            label: Joi.string(),
-          })
-        ),
-      })
-    ),
-    statusCode: Joi.number(),
-  }) as any,
+  getAllBrandSummary: getSummaryResponseValidate(),
   brandProfile: Joi.object({
     data: Joi.object({
       id: Joi.string(),
@@ -91,6 +72,7 @@ export default {
     data: Joi.array().items({
       id: Joi.string(),
       name: Joi.string(),
+      created_at: Joi.string(),
       logo: Joi.any(),
       country: Joi.any(),
       category_count: Joi.number(),

@@ -10,3 +10,6 @@ package-lock.json
 public/avatar
 coverage
 .nyc_output
+mochawesome-report
+.DS_Store
+data/lark.json

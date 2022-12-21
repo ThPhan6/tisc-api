@@ -1,110 +1,69 @@
+import { MESSAGES } from "@/constants";
 import {
-  MESSAGES,
-  TARGETED_FOR_OPTIONS,
-  TOPIC_OPTIONS,
-} from "../../constant/common.constant";
-import AutoEmailModel, {
-  IAutoEmailAttributes,
-} from "../../model/auto_email.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
-import {
-  IAutoEmailResponse,
-  IAutoEmailsResponse,
-  IUpdateAutoEmailRequest,
-} from "./auto_email.type";
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import AutoEmailRepository from "@/repositories/auto_email.repository";
+import { SortOrder } from "@/types";
+import { mappingAutoEmails } from "./auto_email.mapping";
+import { IUpdateAutoEmailRequest } from "./auto_email.type";
+
 export default class AutoEmailService {
-  private autoEmailModel: AutoEmailModel;
+  private autoEmailRepository: AutoEmailRepository;
   constructor() {
-    this.autoEmailModel = new AutoEmailModel();
+    this.autoEmailRepository = new AutoEmailRepository();
   }
-  public update = async (
-    id: string,
-    payload: IUpdateAutoEmailRequest
-  ): Promise<IMessageResponse | IAutoEmailResponse> => {
-    return new Promise(async (resolve) => {
-      const foundAutoEmail = await this.autoEmailModel.find(id);
-      if (!foundAutoEmail) {
-        return resolve({
-          message: MESSAGES.AUTO_EMAIL_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const updatedAutoEmail = await this.autoEmailModel.update(id, payload);
-      if (!updatedAutoEmail) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = updatedAutoEmail;
 
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  public async update(id: string, payload: IUpdateAutoEmailRequest) {
+    const foundAutoEmail = await this.autoEmailRepository.find(id);
+    if (!foundAutoEmail) {
+      return errorMessageResponse(MESSAGES.AUTO_EMAIL_NOT_FOUND, 404);
+    }
+    const updatedAutoEmail = await this.autoEmailRepository.update(id, payload);
+    if (!updatedAutoEmail) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+    return successResponse({
+      data: updatedAutoEmail,
     });
-  };
+  }
 
-  public getList = async (
+  public async getList(
     limit: number,
     offset: number,
     filter: any,
-    sort: any
-  ): Promise<IMessageResponse | IAutoEmailsResponse> => {
-    return new Promise(async (resolve) => {
-      const autoEmails = await this.autoEmailModel.list(
+    sort: string,
+    order: SortOrder
+  ) {
+    const autoEmails =
+      await this.autoEmailRepository.getListAutoEmailWithPagination(
         limit,
         offset,
         filter,
-        sort
+        sort,
+        order
       );
-      if (!autoEmails) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      const result = autoEmails.map((item: IAutoEmailAttributes) => {
-        const { is_deleted, ...rest } = item;
-        return {
-          ...rest,
-          targeted_for_key: TARGETED_FOR_OPTIONS.find(
-            (targetedFor) => targetedFor.value === rest.targeted_for
-          )?.key,
-          topic_key: TOPIC_OPTIONS.find((topic) => topic.value === rest.topic)
-            ?.key,
-        };
-      });
-      const pagination: IPagination = await this.autoEmailModel.getPagination(
-        limit,
-        offset
-      );
-      return resolve({
-        data: {
-          auto_emails: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
-    });
-  };
+    if (!autoEmails) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
 
-  public getOne = async (
-    id: string
-  ): Promise<IMessageResponse | IAutoEmailResponse> => {
-    return new Promise(async (resolve) => {
-      const autoEmail = await this.autoEmailModel.find(id);
-      if (!autoEmail) {
-        return resolve({
-          message: MESSAGES.AUTO_EMAIL_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const { is_deleted, ...rest } = autoEmail;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+    const result = mappingAutoEmails(autoEmails.data);
+    return successResponse({
+      data: {
+        auto_emails: result,
+        pagination: autoEmails.pagination,
+      },
     });
-  };
+  }
+
+  public async getOne(id: string) {
+    const autoEmail = await this.autoEmailRepository.find(id);
+    if (!autoEmail) {
+      return errorMessageResponse(MESSAGES.AUTO_EMAIL_NOT_FOUND, 404);
+    }
+    return successResponse({
+      data: autoEmail,
+    });
+  }
 }
+export const autoEmailService = new AutoEmailService();

@@ -1,563 +1,348 @@
+import { locationService } from "./../location/location.service";
 import {
   BRAND_STATUSES,
-  DESIGN_STATUSES,
   MESSAGES,
-} from "./../../constant/common.constant";
-import UserModel, { USER_NULL_ATTRIBUTES } from "../../model/user.model";
+  AUTH_EMAIL_TYPE,
+  DesignFirmRoles,
+  RoleType,
+} from "@/constants";
+import {
+  IMessageResponse,
+  UserAttributes,
+  ActiveStatus,
+  UserType,
+  UserTypeValue,
+  UserStatus,
+} from "@/types";
 import {
   IAdminLoginRequest,
   IResetPasswordRequest,
-  IForgotPasswordResponse,
   IRegisterRequest,
   IForgotPasswordRequest,
   ILoginResponse,
 } from "./auth.type";
-import { IMessageResponse } from "../../type/common.type";
 import {
   comparePassword,
-  createResetPasswordToken,
   createHash,
   createHashWithSalt,
-} from "../../helper/password.helper";
+} from "@/helper/password.helper";
+import { signJwtToken } from "@/helper/jwt.helper";
 import {
-  signAdminToken,
-  signBrandAdminToken,
-  signBrandTeamToken,
-  signConsultantTeamToken,
-  signDesignAdminToken,
-  signDesignTeamToken,
-} from "../../helper/jwt.helper";
-import { ROLES, USER_STATUSES } from "../../constant/user.constant";
-import MailService from "../../service/mail.service";
-import { EMAIL_TYPE, SYSTEM_TYPE } from "../../constant/common.constant";
-import BrandModel from "../../model/brand.model";
-import { getAccessLevel } from "../../helper/common.helper";
-import DesignModel, {
-  DESIGN_NULL_ATTRIBUTES,
-} from "../../model/designer.model";
-import PermissionService from "../permission/permission.service";
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+
+import { mailService } from "@/service/mail.service";
+import { permissionService } from "@/api/permission/permission.service";
+
+import { brandRepository } from "@/repositories/brand.repository";
+import { designerRepository } from "@/repositories/designer.repository";
+import { userRepository } from "@/repositories/user.repository";
+
+const errorMessage = {
+  [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
+  [UserType.Designer]: MESSAGES.DESIGN_INACTIVE_LOGIN,
+  [UserType.TISC]: MESSAGES.ACCOUNT_INACTIVE_LOGIN,
+};
 
 class AuthService {
-  private userModel: UserModel;
-  private mailService: MailService;
-  private brandModel: BrandModel;
-  private designModel: DesignModel;
-  private permissionService: PermissionService;
-  constructor() {
-    this.userModel = new UserModel();
-    this.mailService = new MailService();
-    this.brandModel = new BrandModel();
-    this.designModel = new DesignModel();
-    this.permissionService = new PermissionService();
-  }
-
-  private findBrandOrDesignInactive = async (
-    type: number,
-    relation_id: string
-  ) => {
-    if (type === SYSTEM_TYPE.BRAND) {
-      const foundBrand = await this.brandModel.find(relation_id);
-      if (foundBrand && foundBrand.status === BRAND_STATUSES.INACTIVE)
-        return MESSAGES.BRAND_INACTIVE_LOGIN;
-    } else {
-      const foundDesign = await this.designModel.find(relation_id);
-      if (foundDesign && foundDesign.status === DESIGN_STATUSES.INACTIVE) {
-        return MESSAGES.DESIGN_INACTIVE_LOGIN;
-      }
+  private responseWithToken = (userId: string, type?: UserType) => {
+    const response = {
+      type,
+      token: signJwtToken(userId),
+      message: MESSAGES.SUCCESS,
+      statusCode: 200,
+    };
+    if (type) {
+      return {
+        ...response,
+        type,
+      };
     }
-    return false;
+    return response;
   };
 
-  public tiscLogin = (
-    payload: IAdminLoginRequest,
-    type?: number
-  ): Promise<ILoginResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      if (type && type !== SYSTEM_TYPE.TISC) {
-        return resolve({
-          message: MESSAGES.LOGIN_INCORRECT_TYPE,
-          statusCode: 400,
-        });
-      }
-      const user = await this.userModel.findBy({
-        email: payload.email,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.ACCOUNT_NOT_EXIST,
-          statusCode: 404,
-        });
-      }
-      if (!user.is_verified) {
-        return resolve({
-          message: MESSAGES.VERIFY_ACCOUNT_FIRST,
-          statusCode: 404,
-        });
-      }
-      if (!comparePassword(payload.password, user.password || "")) {
-        return resolve({
-          message: MESSAGES.PASSWORD_NOT_CORRECT,
-          statusCode: 400,
-        });
-      }
-      if (user.role_id === ROLES.TISC_ADMIN) {
-        return resolve({
-          token: signAdminToken(user.id),
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.TISC_CONSULTANT_TEAM) {
-        return resolve({
-          token: signConsultantTeamToken(user.id),
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      return resolve({
-        message: MESSAGES.USER_ROLE_NOT_FOUND,
-        statusCode: 404,
-      });
-    });
+  private authValidation = (inputPassword: string, user: UserAttributes) => {
+    if (!user.is_verified) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    }
+    if (user.status === UserStatus.Pending) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST);
+    }
+    if (user.status === UserStatus.Blocked) {
+      return errorMessageResponse(MESSAGES.GENERAL.BLOCKED);
+    }
+    if (!comparePassword(inputPassword, user.password)) {
+      return errorMessageResponse(MESSAGES.PASSWORD_NOT_CORRECT);
+    }
   };
-  public login = (
-    payload: IAdminLoginRequest,
-    type?: number
-  ): Promise<ILoginResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      if (type && type === SYSTEM_TYPE.TISC) {
-        return resolve({
-          message: MESSAGES.LOGIN_INCORRECT_TYPE,
-          statusCode: 400,
-        });
-      }
-      const user = await this.userModel.findBy({
-        email: payload.email,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.ACCOUNT_NOT_EXIST,
-          statusCode: 404,
-        });
-      }
-      const brandOrDesignInactive = await this.findBrandOrDesignInactive(
-        user.type,
-        user?.relation_id || ""
-      );
-      if (brandOrDesignInactive) {
-        return resolve({
-          message: brandOrDesignInactive,
-          statusCode: 401,
-        });
-      }
-      if (!user.is_verified) {
-        return resolve({
-          message: MESSAGES.VERIFY_ACCOUNT_FIRST,
-          statusCode: 404,
-        });
-      }
-      if (!comparePassword(payload.password, user.password || "")) {
-        return resolve({
-          message: MESSAGES.PASSWORD_NOT_CORRECT,
-          statusCode: 400,
-        });
-      }
-      if (user.role_id === ROLES.BRAND_ADMIN) {
-        return resolve({
-          token: signBrandAdminToken(user.id),
-          type: "brand",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.BRAND_TEAM) {
-        return resolve({
-          token: signBrandTeamToken(user.id),
-          type: "brand",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.DESIGN_ADMIN) {
-        return resolve({
-          token: signDesignAdminToken(user.id),
-          type: "design",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      if (user.role_id === ROLES.DESIGN_TEAM) {
-        return resolve({
-          token: signDesignTeamToken(user.id),
-          type: "design",
-          message: MESSAGES.SUCCESS,
-          statusCode: 200,
-        });
-      }
-      return resolve({
-        message: MESSAGES.USER_ROLE_NOT_FOUND,
-        statusCode: 404,
-      });
+
+  private checkTypeValidationError = (
+    expectType: UserTypeValue,
+    type: UserTypeValue,
+    operation: "eq" | "neq" = "eq"
+  ) => {
+    if (operation === "eq" && expectType !== type) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+    if (operation === "neq" && expectType === type) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+    return undefined;
+  };
+
+  private updateNewPassword = async (userId: string, password: string) => {
+    return userRepository.update(userId, {
+      reset_password_token: null,
+      password: createHash(password),
     });
   };
 
-  public forgotPassword = (
+  public tiscLogin = async (
+    payload: IAdminLoginRequest
+  ): Promise<ILoginResponse | IMessageResponse> => {
+    const user = await userRepository.findBy({ email: payload.email });
+    if (!user) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+    const isInvalid = this.authValidation(payload.password, user);
+    if (isInvalid) {
+      return isInvalid;
+    }
+    const isIncorrectType = this.checkTypeValidationError(
+      UserType.TISC,
+      user.type
+    );
+    if (isIncorrectType) {
+      return isIncorrectType;
+    }
+    return this.responseWithToken(user.id);
+  };
+
+  public login = async (payload: IAdminLoginRequest) => {
+    ///
+    const user = await userRepository.findByCompanyIdWithCompanyStatus(
+      payload.email
+    );
+    if (!user) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const isInvalid = this.authValidation(payload.password, user);
+    if (isInvalid) {
+      return isInvalid;
+    }
+
+    const isIncorrectType = this.checkTypeValidationError(
+      UserType.TISC,
+      user.type,
+      "neq"
+    );
+    if (isIncorrectType) {
+      return isIncorrectType;
+    }
+
+    //// company status validation
+    if (user.company_status === ActiveStatus.Inactive) {
+      return errorMessageResponse(errorMessage[user.type], 401);
+    }
+    if (user.company_status === ActiveStatus.Pending) {
+      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+    }
+    ///
+    return this.responseWithToken(user.id, RoleType[user.role_id]);
+  };
+
+  public forgotPassword = async (
     payload: IForgotPasswordRequest,
     browserName: string
-  ): Promise<IForgotPasswordResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        email: payload.email,
-        is_verified: true,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.ACCOUNT_NOT_EXIST,
-          statusCode: 404,
-        });
-      }
-      if (
-        (
-          payload.type === SYSTEM_TYPE.TISC &&
-          user.type !== SYSTEM_TYPE.TISC
-        ) ||
-        (
-          payload.type !== SYSTEM_TYPE.TISC &&
-          user.type === SYSTEM_TYPE.TISC
-        )
-      ) {
-        return resolve({
-          message: MESSAGES.ACCOUNT_NOT_EXIST,
-          statusCode: 404,
-        });
-      }
-
-      let reset_password_token: string;
-      let isDuplicated = true;
-      do {
-        reset_password_token = createResetPasswordToken();
-        const duplicateResetPasswordTokenFromDb = await this.userModel.findBy({
-          reset_password_token: reset_password_token,
-        });
-        if (!duplicateResetPasswordTokenFromDb) isDuplicated = false;
-      } while (isDuplicated);
-      const result = await this.userModel.update(user.id, {
-        reset_password_token: reset_password_token,
-      });
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      await this.mailService.sendResetPasswordEmail(result, browserName);
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  ) => {
+    const user = await userRepository.findBy({
+      email: payload.email,
+      is_verified: true,
     });
+    if (!user) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+    if (
+      (payload.type === UserType.TISC && user.type !== UserType.TISC) ||
+      (payload.type !== UserType.TISC && user.type === UserType.TISC)
+    ) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+    const token = await userRepository.generateToken("reset_password_token");
+    const updatedData = await userRepository.update(user.id, {
+      reset_password_token: token,
+    });
+    if (updatedData === false) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 404);
+    }
+    /// send reset password
+    await mailService.sendResetPasswordEmail(updatedData, browserName);
+    return successMessageResponse(MESSAGES.SUCCESS);
   };
-  public isValidResetPasswordToken = (
-    token: string
-  ): Promise<{ data: boolean; statusCode: number }> =>
-    new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        reset_password_token: token,
-        is_verified: true,
-      });
-      if (!user) {
-        return resolve({
-          data: false,
-          statusCode: 200,
-        });
-      }
-      return resolve({
-        data: true,
-        statusCode: 200,
-      });
-    });
 
-  public resendEmail = (
+  public checkTokenExisted = async (token: string) => {
+    if (token == '') {
+      return successResponse({ data: false });
+    }
+    return successResponse({ data: await userRepository.checkTokenExisted(token) });
+  };
+
+  public resendEmail = async (
     type: string,
     email: string,
     browserName: string
-  ): Promise<any> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        email,
-      });
-      if (!user) {
-        return resolve({
-          statusCode: 404,
-          message: MESSAGES.ACCOUNT_NOT_EXIST,
-        });
-      }
-      let sentEmail;
-      if (type === EMAIL_TYPE.FORGOT_PASSWORD)
-        sentEmail = await this.mailService.sendResetPasswordEmail(
-          user,
-          browserName
-        );
-      else if (type === EMAIL_TYPE.VERIFICATION)
-        sentEmail = await this.mailService.sendRegisterEmail(user);
-      if (sentEmail) {
-        return resolve(sentEmail);
-      }
-      return resolve({
-        statusCode: 400,
-        message: MESSAGES.SEND_EMAIL_WRONG,
-      });
-    });
+  ) => {
+    const user = await userRepository.getResendEmail(email);
+    if (!user) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+    let isSuccess = false;
+    if (type === AUTH_EMAIL_TYPE.FORGOT_PASSWORD) {
+      isSuccess = await mailService.sendResetPasswordEmail(user, browserName);
+    }
+    if (type === AUTH_EMAIL_TYPE.VERIFICATION) {
+      isSuccess = await mailService.sendRegisterEmail(user);
+    }
+    if (isSuccess) {
+      return successResponse();
+    }
+    return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);
   };
 
-  public resetPassword = (
-    payload: IResetPasswordRequest
-  ): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        reset_password_token: payload.reset_password_token,
-        is_verified: true,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const newPassword = createHash(payload.password);
-      const result = await this.userModel.update(user.id, {
-        reset_password_token: null,
-        password: newPassword,
-      });
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  public resetPassword = async (payload: IResetPasswordRequest) => {
+    const user = await userRepository.findBy({
+      reset_password_token: payload.reset_password_token,
+      is_verified: true,
     });
+    if (!user) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+    const newPassword = createHash(payload.password);
+    const updatedData = await userRepository.update(user.id, {
+      reset_password_token: null,
+      password: newPassword,
+    });
+    if (updatedData) {
+      return successMessageResponse(MESSAGES.SUCCESS);
+    }
+    return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
-  public resetPasswordAndLogin = (
-    payload: IResetPasswordRequest
-  ): Promise<ILoginResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        reset_password_token: payload.reset_password_token,
-        is_verified: true,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const newPassword = createHash(payload.password);
-      const updated = await this.userModel.update(user.id, {
-        reset_password_token: null,
-        password: newPassword,
-      });
-      if (!updated) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      if (user.type === SYSTEM_TYPE.TISC) {
-        return resolve(
-          await this.tiscLogin({
-            email: user.email,
-            password: payload.password,
-          }, user.type)
-        );
-      }
-      return resolve(
-        await this.login({
-          email: user.email,
-          password: payload.password,
-        }, user.type)
-      );
+  public resetPasswordAndLogin = async (payload: IResetPasswordRequest) => {
+    const user = await userRepository.findBy({
+      reset_password_token: payload.reset_password_token,
+      is_verified: true,
     });
+
+    if (!user) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+    const updated = await this.updateNewPassword(user.id, payload.password);
+    if (updated) {
+      return this.responseWithToken(user.id);
+    }
+    return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
-  public register = (payload: IRegisterRequest): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        email: payload.email,
-      });
-      if (user) {
-        return resolve({
-          message: MESSAGES.EMAIL_USED,
-          statusCode: 400,
-        });
-      }
-      //create design firm
-      // let createdDesign;
-      // const lastDeletedDesign = await this.designModel.getLastDeleted(
-      //   payload.email
-      // );
-      // if (lastDeletedDesign !== false) {
-      //   createdDesign = await this.designModel.create({
-      //     ...DESIGN_NULL_ATTRIBUTES,
-      //     name: lastDeletedDesign.name,
-      //     parent_company: lastDeletedDesign.parent_company,
-      //     logo: lastDeletedDesign.logo,
-      //     slogan: lastDeletedDesign.slogan,
-      //     profile_n_philosophy: lastDeletedDesign.profile_n_philosophy,
-      //     official_website: lastDeletedDesign.official_website,
-      //     design_capabilities: lastDeletedDesign.design_capabilities,
-      //     team_profile_ids: lastDeletedDesign.team_profile_ids,
-      //     location_ids: lastDeletedDesign.location_ids,
-      //     material_code_ids: lastDeletedDesign.material_code_ids,
-      //     project_ids: lastDeletedDesign.project_ids,
-      //     status: DESIGN_STATUSES.ACTIVE,
-      //   });
-      // } else {
-      const createdDesign = await this.designModel.create({
-        ...DESIGN_NULL_ATTRIBUTES,
-        name: payload.company_name || payload.firstname + " Design Firm",
-        status: DESIGN_STATUSES.ACTIVE,
-      });
-      // }
-      if (!createdDesign) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      const saltHash = createHashWithSalt(payload.password);
-      const password = saltHash.hash;
-      let verificationToken: string;
-      let isDuplicated = true;
-      do {
-        verificationToken = createResetPasswordToken();
-        const duplicateVerificationTokenFromDb = await this.userModel.findBy({
-          verification_token: verificationToken,
-        });
-        if (!duplicateVerificationTokenFromDb) isDuplicated = false;
-      } while (isDuplicated);
-      const createdUser = await this.userModel.create({
-        ...USER_NULL_ATTRIBUTES,
-        firstname: payload.firstname,
-        lastname: payload.lastname,
-        password,
-        email: payload.email,
-        role_id: ROLES.DESIGN_ADMIN,
-        is_verified: false,
-        access_level: getAccessLevel(ROLES.DESIGN_ADMIN),
-        verification_token: verificationToken,
-        status: USER_STATUSES.PENDING,
-        type: SYSTEM_TYPE.DESIGN,
-        relation_id: createdDesign.id,
-        retrieve_favourite: false,
-      });
-      if (!createdUser) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      await this.permissionService.createDesignPermission(createdDesign.id);
-      await this.mailService.sendDesignRegisterEmail(createdUser);
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  public register = async (payload: IRegisterRequest) => {
+    const user = await userRepository.findBy({
+      email: payload.email,
     });
+    if (user) {
+      return errorMessageResponse(MESSAGES.EMAIL_USED);
+    }
+
+    const createdDesign = await designerRepository.create({
+      name: payload.company_name || payload.firstname,
+    });
+
+    if (!createdDesign) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    const defaultLocation = await locationService.createDefaultLocation(
+      createdDesign.id,
+      UserType.Designer,
+      payload.email
+    );
+
+    const token = await userRepository.generateToken("verification_token");
+    const saltHash = createHashWithSalt(payload.password);
+    const password = saltHash.hash;
+
+    const createdUser = await userRepository.create({
+      firstname: payload.firstname ?? "",
+      lastname: payload.lastname ?? "",
+      password,
+      email: payload.email,
+      role_id: DesignFirmRoles.Admin,
+      verification_token: token,
+      type: UserType.Designer,
+      relation_id: createdDesign.id ?? null,
+      location_id: defaultLocation?.id,
+    });
+    if (!createdUser) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
+    await permissionService.initPermission(createdUser);
+    await mailService.sendRegisterEmail(createdUser);
+    return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public verify = (verification_token: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        verification_token,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.VERIFICATION_LINK_HAS_EXPIRED,
-          statusCode: 400,
-        });
-      }
-      const updatedUser = await this.userModel.update(user.id, {
-        verification_token: null,
-        is_verified: true,
-        status: USER_STATUSES.ACTIVE,
-      });
-      if (!updatedUser) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  public verify = async (verification_token: string) => {
+    const user = await userRepository.findBy({ verification_token });
+    if (!user) {
+      return errorMessageResponse(MESSAGES.VERIFICATION_LINK_HAS_EXPIRED);
+    }
+    const updatedUser = await userRepository.update(user.id, {
+      verification_token: null,
+      is_verified: true,
+      status: UserStatus.Active,
     });
+    if (!updatedUser) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public createPasswordAndVerify = (
+  public createPasswordAndVerify = async (
     verification_token: string,
     password: string
-  ): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        verification_token,
-      });
-      if (!user) {
-        return resolve({
-          message: MESSAGES.VERIFICATION_LINK_HAS_EXPIRED,
-          statusCode: 400,
-        });
-      }
-      const saltHash = createHashWithSalt(password);
-      const updatedUser = await this.userModel.update(user.id, {
-        verification_token: null,
-        is_verified: true,
-        password: saltHash.hash,
-        status: USER_STATUSES.ACTIVE,
-      });
-      if (!updatedUser) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      // update brand status after verify the first brand admin
-      if (user.type === SYSTEM_TYPE.BRAND && user.relation_id) {
-        const brand = await this.brandModel.find(user.relation_id);
-        if (brand && brand.status === BRAND_STATUSES.PENDING) {
-          await this.brandModel.update(brand.id, {
-            status: BRAND_STATUSES.ACTIVE,
-          });
-        }
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  ) => {
+    const user = await userRepository.findBy({ verification_token });
+    if (!user) {
+      return errorMessageResponse(MESSAGES.VERIFICATION_LINK_HAS_EXPIRED);
+    }
+    const saltHash = createHashWithSalt(password);
+    const updatedUser = await userRepository.update(user.id, {
+      verification_token: null,
+      is_verified: true,
+      password: saltHash.hash,
+      status: UserStatus.Active,
     });
-  };
-  public checkEmail = (email: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.findBy({
-        email,
-      });
-      if (user) {
-        return resolve({
-          message: MESSAGES.EMAIL_ALREADY_USED,
-          statusCode: 400,
-        });
-      }
 
-      return resolve({
-        message: MESSAGES.AVAILABLE,
-        statusCode: 200,
+    if (!updatedUser) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    // update brand status after verify the first brand admin
+    if (user.type === UserType.Brand && user.relation_id) {
+      await brandRepository.update(user.relation_id, {
+        status: BRAND_STATUSES.ACTIVE,
       });
-    });
+    }
+    return this.responseWithToken(user.id, user.type);
+  };
+
+  public checkEmail = async (email: string) => {
+    const user = await userRepository.findBy({ email });
+    if (user) {
+      return errorMessageResponse(MESSAGES.EMAIL_ALREADY_USED);
+    }
+    return successMessageResponse(MESSAGES.AVAILABLE);
   };
 }
 

@@ -1,110 +1,166 @@
-import MaterialCodeModel, {
-  MATERIAL_CODE_NULL_ATTRIBUTES,
-} from "../../model/material_code.model";
-import { IMessageResponse } from "../../type/common.type";
+import { MESSAGES } from "@/constants";
 import {
-  IGetListCodeMaterialCode,
-  IMaterialCodeGroupResponse,
-  IMaterialCodeRequest,
-  IMaterialCodeResponse,
-} from "./material_code.type";
-import { v4 as uuid } from "uuid";
-import { MESSAGES } from "../../constant/common.constant";
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { materialCodeRepository } from "@/repositories/material_code.repository";
+import { projectProductRepository } from "./../project_product/project_product.repository";
+import {
+  mappingCheckDuplicatePayload,
+  mappingDataCreate,
+  mappingMaterialCodeUpdate,
+  mappingSortMaterialCode,
+  mappingSummaryMaterialCode,
+} from "./material_code.mapping";
+import { IMaterialCodeRequest } from "./material_code.type";
+import { UserAttributes, SortOrder } from "@/types";
 
-export default class MaterialCodeService {
-  private materialCodeModel: MaterialCodeModel;
-
-  constructor() {
-    this.materialCodeModel = new MaterialCodeModel();
+class MaterialCodeService {
+  public async create(user: UserAttributes, payload: IMaterialCodeRequest) {
+    const newPayload = mappingDataCreate(payload);
+    const createdMaterialCode = await materialCodeRepository.create({
+      ...newPayload,
+      design_id: user.relation_id || "",
+    });
+    if (!createdMaterialCode) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
+    }
+    return successResponse({ data: createdMaterialCode });
   }
-  public create = (
-    user_id: string,
+
+  public async get(id: string) {
+    const materialCode = await materialCodeRepository.find(id);
+    if (!materialCode) {
+      return errorMessageResponse(
+        MESSAGES.MATERIAL_CODE.MATERIAL_CODE_NOT_FOUND,
+        404
+      );
+    }
+    return successResponse({
+      data: materialCode,
+    });
+  }
+
+  public async getMaterialCodes(
+    mainMaterialCodeOrder: SortOrder | undefined,
+    subMaterialCodeOrder: SortOrder,
+    materialCodeOrder: SortOrder,
+    designId?: string
+  ) {
+    const materialCodes = await materialCodeRepository.getListMaterialCode(
+      mainMaterialCodeOrder,
+      designId
+    );
+
+    const sortedMaterialCodes = mappingSortMaterialCode(
+      materialCodes,
+      subMaterialCodeOrder,
+      materialCodeOrder
+    );
+
+    const summaryTable = mappingSummaryMaterialCode(materialCodes);
+
+    const summary = [
+      {
+        name: "Main List",
+        value: summaryTable.countMainMaterialCode,
+      },
+      {
+        name: "Sub-List",
+        value: summaryTable.countSubMaterialCode,
+      },
+      {
+        name: "Product Code",
+        value: summaryTable.countMaterialCode,
+      },
+    ];
+
+    return successResponse({
+      data: {
+        material_codes: sortedMaterialCodes,
+        summary,
+      },
+    });
+  }
+
+  public async getListCodeMaterialCode(user: UserAttributes) {
+    const materialCodes = await materialCodeRepository.getCodesByUser(user.id);
+    return successResponse({
+      data: materialCodes,
+    });
+  }
+
+  public async update(
+    id: string,
+    user: UserAttributes,
     payload: IMaterialCodeRequest
-  ): Promise<IMessageResponse | IMaterialCodeResponse> =>
-    new Promise(async (resolve) => {
-      const newPayload = {
-        ...payload,
-        subs: payload.subs.map((sub) => ({
-          ...sub,
-          id: uuid(),
-          codes: sub.codes.map((code) => ({
-            ...code,
-            id: uuid(),
-          })),
-        })),
-      };
-      const createdMaterialCode = await this.materialCodeModel.create({
-        ...MATERIAL_CODE_NULL_ATTRIBUTES,
-        ...newPayload,
-        design_id: user_id,
-      });
-      if (!createdMaterialCode) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(createdMaterialCode.id));
-    });
-  public get = (
-    id: string
-  ): Promise<IMaterialCodeResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const materialCode = await this.materialCodeModel.find(id);
-      if (!materialCode) {
-        return resolve({
-          message: MESSAGES.MATERIAL_CODE_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      return resolve({
-        data: materialCode,
-        statusCode: 200,
-      });
+  ) {
+    const materialCode = await materialCodeRepository.find(id);
+
+    if (!materialCode) {
+      return errorMessageResponse(
+        MESSAGES.MATERIAL_CODE.MATERIAL_CODE_NOT_FOUND,
+        404
+      );
+    }
+
+    const mainMaterialCodeDuplicated =
+      await materialCodeRepository.getExistedMaterialCode(
+        id,
+        user.relation_id,
+        payload.name
+      );
+
+    if (mainMaterialCodeDuplicated) {
+      return errorMessageResponse(MESSAGES.MATERIAL_CODE.MATERIAL_CODE_EXISTED);
+    }
+
+    const payloadDuplicated = mappingCheckDuplicatePayload(payload);
+
+    if (payloadDuplicated) return errorMessageResponse(payloadDuplicated);
+
+    const subMaterialCodes = mappingMaterialCodeUpdate(payload);
+
+    const updatedMaterialCode = await materialCodeRepository.update(id, {
+      name: payload.name,
+      subs: subMaterialCodes,
     });
 
-  public getMaterialCodeGroup = (
-    design_id: string
-  ): Promise<IMaterialCodeGroupResponse | IMessageResponse> =>
-    new Promise(async (resolve) => {
-      const materialCodes = await this.materialCodeModel.getAllMaterialCodeByDesignId(design_id);
-      const result = materialCodes.map((materialCode) => {
-        const mainList = materialCode.subs.map((mainList) => {
-          return {
-            id: mainList.id,
-            name: mainList.name,
-            count: mainList.codes.length,
-            codes: mainList.codes,
-          };
-        });
-        return {
-          id: materialCode.id,
-          name: materialCode.name,
-          count: mainList.length,
-          subs: mainList,
-        };
-      });
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+    if (!updatedMaterialCode) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
+    }
+
+    return successResponse({ data: updatedMaterialCode });
+  }
+
+  public async delete(id: string) {
+    const materialCode = await materialCodeRepository.find(id);
+
+    if (!materialCode) {
+      return errorMessageResponse(
+        MESSAGES.MATERIAL_CODE.MATERIAL_CODE_NOT_FOUND,
+        404
+      );
+    }
+
+    const usedMaterialCode = await projectProductRepository.findBy({
+      material_code_id: id,
     });
 
-  public getListCodeMaterialCode = (
-    design_id: string
-  ): Promise<IGetListCodeMaterialCode> =>
-    new Promise(async (resolve) => {
-      const materialCodes = await this.materialCodeModel.getAllMaterialCodeByDesignId(design_id);
-      const result = materialCodes
-        .map((materialCode) => {
-          return materialCode.subs.map((mainList) => {
-            return mainList.codes.map((code) => code);
-          });
-        })
-        .flat(Infinity);
-      return resolve({
-        data: result as IGetListCodeMaterialCode["data"],
-        statusCode: 200,
-      });
-    });
+    if (usedMaterialCode) {
+      return errorMessageResponse(MESSAGES.MATERIAL_CODE.CAN_NOT_DELETE);
+    }
+
+    const deletedMaterialCode = await materialCodeRepository.delete(id);
+
+    if (!deletedMaterialCode) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_DELETE);
+    }
+
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
 }
+
+export const materialCodeService = new MaterialCodeService();
+export default MaterialCodeService;

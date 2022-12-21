@@ -12,19 +12,25 @@ import CategoryRoute from "./api/category/category.route";
 import AttributeRoute from "./api/attribute/attribute.route";
 import BasisRoute from "./api/basis/basis.route";
 import LocationRoute from "./api/location/location.route";
-import ProductTipRoute from "./api/product_tip/product_tip.route";
-import ProductDownloadRoute from "./api/product_download/product_download.route";
 import QuotationRoute from "./api/quotation/quotation.route";
 import AutoEmailRoute from "./api/auto_email/auto_email.route";
 import DistributorRoute from "./api/distributor/distributor.route";
 import MarketAvailabilityRoute from "./api/market_availability/market_availability.route";
-import ProductCatelogueNDownloadRoute from "./api/product_catelogue_n_download/product_catelogue_n_download.route";
 import ProjectRoute from "./api/project/project.route";
 import ProjectZoneRoute from "./api/project_zone/project_zone.route";
-import ConsideredProductRoute from "./api/considered_product/considered_product.route";
 import MaterialCodeRoute from "./api/material_code/material_code.route";
-import SpecifiedProductRoute from "./api/specified_product/specified_product.route";
 import FavouriteRoute from "./api/favourite/favourite.route";
+import UserProductSpecificationRoute from "./api/user_product_specification/user_product_specification.route";
+import ProjectProductRoute from "./api/project_product/project_product.route";
+import SettingRoute from "./api/setting/setting.route";
+import PDFRoute from "./api/pdf/pdf.route";
+import GeneralInquiryRoute from "./api/general_inquiry/general_inquiry.route";
+import ProjectTrackingRoute from "./api/project_tracking/project_tracking.route";
+import ActionTaskRoute from "./api/action_task/action_task.route";
+import InvoiceRoute from "./api/invoice/invoice.route";
+import CustomProductRoute from "./api/custom_product/custom_product.route";
+import CustomResourceRoute from "./api/custom_resource/custom_resource.route";
+import BookingRoute from "./api/booking/booking.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -41,18 +47,24 @@ export default class Router {
     await new AttributeRoute().register(server);
     await new BasisRoute().register(server);
     await new LocationRoute().register(server);
-    await new ProductTipRoute().register(server);
-    await new ProductDownloadRoute().register(server);
     await new QuotationRoute().register(server);
     await new AutoEmailRoute().register(server);
     await new DistributorRoute().register(server);
     await new MarketAvailabilityRoute().register(server);
-    await new ProductCatelogueNDownloadRoute().register(server);
     await new ProjectRoute().register(server);
     await new ProjectZoneRoute().register(server);
-    await new ConsideredProductRoute().register(server);
     await new MaterialCodeRoute().register(server);
-    await new SpecifiedProductRoute().register(server);
     await new FavouriteRoute().register(server);
+    await new UserProductSpecificationRoute().register(server);
+    await new ProjectProductRoute().register(server);
+    await new SettingRoute().register(server);
+    await new PDFRoute().register(server);
+    await new GeneralInquiryRoute().register(server);
+    await new ProjectTrackingRoute().register(server);
+    await new ActionTaskRoute().register(server);
+    await new InvoiceRoute().register(server);
+    await new CustomProductRoute().register(server);
+    await new CustomResourceRoute().register(server);
+    await new BookingRoute().register(server);
   }
 }

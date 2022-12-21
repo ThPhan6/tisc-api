@@ -1,78 +1,55 @@
-import { MESSAGES } from "./../../constant/common.constant";
+import ContactRepository from "@/repositories/contact.repository";
+import { MESSAGES } from "@/constants";
 import {
-  IContactRequest,
-  IContactResponse,
-  IContactsResponse,
-} from "./contact.type";
-import { IMessageResponse } from "../../type/common.type";
-import ContactModel, {
-  CONTACT_NULL_ATTRIBUTES,
-} from "../../model/contact.model";
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { IContactRequest } from "./contact.type";
+
 export default class ContactService {
-  private contactModel: ContactModel;
+  private contactRepository: ContactRepository;
   constructor() {
-    this.contactModel = new ContactModel();
+    this.contactRepository = new ContactRepository();
   }
 
-  public create = (
-    payload: IContactRequest
-  ): Promise<IContactResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const result = await this.contactModel.create({
-        ...CONTACT_NULL_ATTRIBUTES,
-        name: payload.name,
-        email: payload.email,
-        inquiry: payload.inquiry || null,
-      });
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = result;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  public async create(payload: IContactRequest) {
+    const result = await this.contactRepository.create({
+      name: payload.name,
+      email: payload.email,
+      inquiry: payload.inquiry || null,
     });
-  };
+    if (!result) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    return successResponse({
+      data: result,
+    });
+  }
 
-  public getList = (
-    limit: number,
-    offset: number,
-    filter: any,
-    sort: any
-  ): Promise<IContactsResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const result = await this.contactModel.list(limit, offset, filter, sort);
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+  public async getList(limit: number, offset: number, filter: any, sort: any) {
+    const contacts = await this.contactRepository.getListContact(
+      limit,
+      offset,
+      filter,
+      sort
+    );
+    if (!contacts) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+    return successResponse({
+      data: contacts,
     });
-  };
-  public getById = (
-    id: string
-  ): Promise<IContactResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const result = await this.contactModel.find(id);
-      if (!result) {
-        return resolve({
-          message: MESSAGES.CONTACT_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+  }
+
+  public async getById(id: string) {
+    const contact = await this.contactRepository.find(id);
+    if (!contact) {
+      return errorMessageResponse(MESSAGES.CONTACT_NOT_FOUND, 404);
+    }
+    return successResponse({
+      data: contact,
     });
-  };
+  }
 }
+
+export const contactService = new ContactService();

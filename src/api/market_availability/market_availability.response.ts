@@ -1,4 +1,5 @@
-import * as HapiJoi from "joi";
+import { paginationResponse } from "@/helper/response.helper";
+import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -9,12 +10,7 @@ export default {
   getList: Joi.object({
     data: Joi.object({
       collections: Joi.array().items(Joi.any()),
-      pagination: Joi.object({
-        page: Joi.number(),
-        page_size: Joi.number(),
-        total: Joi.number(),
-        page_count: Joi.number(),
-      }),
+      pagination: Joi.object(paginationResponse),
     }),
     statusCode: Joi.number(),
   }) as any,

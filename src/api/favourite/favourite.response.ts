@@ -1,4 +1,6 @@
 import HapiJoi from "joi";
+import { productResponse } from "@/api/product/product.response";
+
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
     abortEarly: false,
@@ -18,7 +20,15 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
-          logo: Joi.string().allow(null),
+          logo: Joi.string().allow(null, ''),
+          mission_n_vision: Joi.string().allow(null, ''),
+          slogan: Joi.string().allow(null, ''),
+          official_websites: Joi.array().items(
+            Joi.object({
+              url: Joi.string(),
+              country_id: Joi.string(),
+            })
+          ),
         })
       ),
       category_count: Joi.number(),
@@ -33,38 +43,8 @@ export default {
         id: Joi.string(),
         name: Joi.string(),
         count: Joi.number(),
-        products: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            brand: Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-              logo: Joi.string().allow(null),
-            }),
-            collection: {
-              id: Joi.string(),
-              name: Joi.string(),
-            },
-            categories: Joi.array().items({
-              id: Joi.string(),
-              name: Joi.string(),
-            }),
-            name: Joi.string(),
-            code: Joi.string(),
-            description: Joi.any(),
-            general_attribute_groups: Joi.any(),
-            feature_attribute_groups: Joi.any(),
-            specification_attribute_groups: Joi.any(),
-            favorites: Joi.number(),
-            images: Joi.any(),
-            keywords: Joi.array().items(Joi.string().allow("")),
-            brand_location_id: Joi.any(),
-            distributor_location_id: Joi.any(),
-            created_by: Joi.any(),
-            created_at: Joi.string(),
-            is_liked: Joi.boolean(),
-          })
-        ),
+        brand_logo: Joi.string().allow(null),
+        products: Joi.array().items(productResponse),
       })
     ),
 

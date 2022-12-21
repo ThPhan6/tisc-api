@@ -1,28 +1,15 @@
 import {
   generalMessageResponse,
   defaultRouteOptionResponseStatus,
-} from "../../helper/response.helper";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+} from "@/helper/response.helper";
+import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
-import { ROUTES } from "../../constant/api.constant";
-import IRoute from "../../helper/route.helper";
-import commonValidate from "../../validate/common.validate";
+import IRoute from "@/helper/route.helper";
+import { getOneValidation } from "@/validate/common.validate";
 import BasisController from "./basis.controller";
 import validate from "./basis.validate";
 import response from "./basis.response";
-const getFailActionPayloadFile = (
-  _request: any,
-  _h: any,
-  err: any,
-  fileSize: number
-) => {
-  if (err.output) {
-    if (err.output.statusCode === 413) {
-      err.output.payload.message = `Can not upload option image size greater than ${fileSize}MB`;
-    }
-  }
-  throw err;
-};
+
 export default class BasisRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -68,7 +55,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_ONE_BASIS_CONVERSION,
           options: {
             handler: controller.getBasisConversionById,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get basis conversion",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
@@ -102,7 +89,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.DELETE_BASIS_CONVERSION,
           options: {
             handler: controller.deleteBasis,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete basis conversion",
             tags: ["api", "Basis conversion"],
             auth: AUTH_NAMES.PERMISSION,
@@ -129,11 +116,7 @@ export default class BasisRoute implements IRoute {
                 200: response.basisOption,
               },
             },
-            payload: {
-              maxBytes: 5 * 1024 * 1024,
-              failAction: (_request, _h, err: any) =>
-                getFailActionPayloadFile(_request, _h, err, 5),
-            },
+            payload: imageOptionPayload,
           },
         },
         {
@@ -141,7 +124,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_ONE_BASIS_OPTION,
           options: {
             handler: controller.getBasisOption,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one basis option",
             tags: ["api", "Basis option"],
             auth: AUTH_NAMES.PERMISSION,
@@ -185,11 +168,7 @@ export default class BasisRoute implements IRoute {
                 200: response.basisOption,
               },
             },
-            payload: {
-              maxBytes: 5 * 1024 * 1024,
-              failAction: (_request, _h, err: any) =>
-                getFailActionPayloadFile(_request, _h, err, 5),
-            },
+            payload: imageOptionPayload,
           },
         },
         {
@@ -197,7 +176,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.DELETE_BASIS_OPTION,
           options: {
             handler: controller.deleteBasis,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete basis option",
             tags: ["api", "Basis option"],
             auth: AUTH_NAMES.PERMISSION,
@@ -230,7 +209,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.GET_ONE_BASIS_PRESET,
           options: {
             handler: controller.getBasisPreset,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one basis preset",
             tags: ["api", "Basis preset"],
             auth: AUTH_NAMES.PERMISSION,
@@ -281,7 +260,7 @@ export default class BasisRoute implements IRoute {
           path: ROUTES.DELETE_BASIS_PRESET,
           options: {
             handler: controller.deleteBasis,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete basis preset",
             tags: ["api", "Basis preset"],
             auth: AUTH_NAMES.PERMISSION,

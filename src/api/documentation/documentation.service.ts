@@ -1,359 +1,199 @@
-import moment from "moment";
-import { DOCUMENTATION_TYPES, MESSAGES } from "../../constant/common.constant";
-import DocumentationModel, {
-  DOCUMENTATION_NULL_ATTRIBUTES,
-} from "../../model/documentation.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import { DOCUMENTATION_TYPES, MESSAGES } from "@/constants";
+import { getTimestamps } from "@/Database/Utils/Time";
+import { pagination } from "@/helper/common.helper";
 import {
-  IAllHowtoResponse,
-  IDocumentationRequest,
-  IDocumentationResponse,
-  IDocumentationsResponse,
-  IDocumentPolicy,
-  IGetPoliciesLandingPage,
-  IHowto,
-  IHowtosResponse,
-} from "./documentation.type";
-import UserModel from "../../model/user.model";
-import { replaceTemplate } from "../../helper/common.helper";
+  errorMessageResponse,
+  successMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { documentationRepository } from "@/repositories/documentation.repository";
+import { mappingGroupGeneralDocumentation } from "./documentation.mapping";
+import { IDocumentationRequest, IHowto } from "./documentation.type";
+import { SortOrder, UserAttributes } from "@/types";
 
 class DocumentationService {
-  private documentationModel: DocumentationModel;
-  private userModel: UserModel;
-  constructor() {
-    this.documentationModel = new DocumentationModel();
-    this.userModel = new UserModel();
+  public async create(payload: IDocumentationRequest, user: UserAttributes) {
+    const createdDocumentation = await documentationRepository.create({
+      title: payload.title,
+      document: payload.document,
+      created_by: user.id,
+      updated_at: getTimestamps(),
+      type: DOCUMENTATION_TYPES.GENERAL,
+    });
+
+    if (!createdDocumentation) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    return successResponse({
+      data: createdDocumentation,
+    });
   }
 
-  public create = (
-    payload: IDocumentationRequest,
-    user_id: string
-  ): Promise<IDocumentationResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          message: MESSAGES.USER_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const createdDocumentation = await this.documentationModel.create({
-        ...DOCUMENTATION_NULL_ATTRIBUTES,
-        title: payload.title,
-        document: payload.document,
-        created_by: user_id,
-        type: DOCUMENTATION_TYPES.GENERAL,
-      });
-      if (!createdDocumentation) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      await this.documentationModel.update(createdDocumentation.id, {
-        updated_at: moment(),
-      });
-      const { is_deleted, ...rest } = createdDocumentation;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
-    });
-  };
-
-  public getList = (
+  public async getList(
     limit: number,
     offset: number,
-    sort: any
-  ): Promise<IDocumentationsResponse | any> => {
-    return new Promise(async (resolve) => {
-      const pagination: IPagination =
-        await this.documentationModel.getPagination(limit, offset, {
-          type: DOCUMENTATION_TYPES.GENERAL,
-        });
-
-      const generalDocumentations =
-        await this.documentationModel.getListWithoutFilter(
-          DOCUMENTATION_TYPES.GENERAL,
-          limit,
-          offset,
-          sort
-        );
-      const result = generalDocumentations.map((documentation: any) => {
-        return {
-          id: documentation.id,
-          title: documentation.title,
-          updated_at: documentation.updated_at,
-          author: {
-            id: documentation.author.id,
-            firstname: documentation.author.firstname,
-            lastname: documentation.author.lastname,
-          },
-        };
-      });
-      return resolve({
-        data: {
-          documentations: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
-    });
-  };
-  public getAllHowto = (): Promise<IAllHowtoResponse> => {
-    return new Promise(async (resolve) => {
-      const tiscHowtos = await this.documentationModel.getAllBy(
-        {
-          type: DOCUMENTATION_TYPES.TISC_HOW_TO,
-        },
-        ["id", "title", "logo", "document", "created_at"],
-        "number",
-        "ASC"
-      );
-      const brandHowtos = await this.documentationModel.getAllBy(
-        {
-          type: DOCUMENTATION_TYPES.BRAND_HOW_TO,
-        },
-        ["id", "title", "logo", "document", "created_at"],
-        "number",
-        "ASC"
-      );
-      const designHowtos = await this.documentationModel.getAllBy(
-        {
-          type: DOCUMENTATION_TYPES.DESIGN_HOW_TO,
-        },
-        ["id", "title", "logo", "document", "created_at"],
-        "number",
-        "ASC"
-      );
-      return resolve({
-        data: {
-          tisc: tiscHowtos,
-          brand: brandHowtos,
-          design: designHowtos,
-        },
-        statusCode: 200,
-      });
-    });
-  };
-  public getHowto = (user_id: string): Promise<IHowtosResponse> => {
-    return new Promise(async (resolve) => {
-      const user = await this.userModel.find(user_id);
-      if (!user) {
-        return resolve({
-          data: [],
-          statusCode: 200,
-        });
-      }
-      const result = await this.documentationModel.getAllBy(
-        {
-          type: user.type + 1,
-        },
-        ["id", "title", "logo", "document", "created_at"],
-        "number",
-        "ASC"
+    sort: string,
+    order: SortOrder
+  ) {
+    const generalDocumentations =
+      await documentationRepository.getDocumentationsByType(
+        DOCUMENTATION_TYPES.GENERAL,
+        limit,
+        offset,
+        sort,
+        order
       );
 
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+    const totalDocumentation =
+      await documentationRepository.countDocumentationByType(
+        DOCUMENTATION_TYPES.GENERAL
+      );
+
+    return successResponse({
+      data: {
+        documentations: generalDocumentations,
+        pagination: pagination(limit, offset, totalDocumentation),
+      },
     });
-  };
-  public getById = (
-    id: string
-  ): Promise<IDocumentationResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const documentation = await this.documentationModel.find(id);
-      if (!documentation) {
-        return resolve({
-          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
-          statusCode: 404,
-        });
-      }
-      const { is_deleted, ...rest } = documentation;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
+  }
+
+  public async getAllHowto() {
+    return successResponse({
+      data: {
+        tisc: await documentationRepository.getHowtosByType(
+          DOCUMENTATION_TYPES.TISC_HOW_TO,
+          ["id", "title", "logo", "document", "created_at"],
+          "number",
+          "ASC"
+        ),
+
+        brand: await documentationRepository.getHowtosByType(
+          DOCUMENTATION_TYPES.BRAND_HOW_TO,
+          ["id", "title", "logo", "document", "created_at"],
+          "number",
+          "ASC"
+        ),
+
+        design: await documentationRepository.getHowtosByType(
+          DOCUMENTATION_TYPES.DESIGN_HOW_TO,
+          ["id", "title", "logo", "document", "created_at"],
+          "number",
+          "ASC"
+        ),
+      },
     });
-  };
-  public update = (
+  }
+
+  public async getHowto(user: UserAttributes) {
+    return successResponse({
+      data: await documentationRepository.getHowtosByType(
+        user.type + 1,
+        ["id", "title", "logo", "document", "created_at"],
+        "number",
+        "ASC"
+      ),
+    });
+  }
+
+  public async getById(id: string) {
+    const documentation = await documentationRepository.find(id);
+
+    if (!documentation) {
+      return errorMessageResponse(MESSAGES.NOT_FOUND_DOCUMENTATION, 404);
+    }
+
+    return successResponse({
+      data: documentation,
+    });
+  }
+
+  public async update(
     id: string,
     payload: IDocumentationRequest,
-    userId: string
-  ): Promise<IDocumentationResponse | IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const documentation = await this.documentationModel.find(id);
-      if (!documentation) {
-        return resolve({
-          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
-          statusCode: 404,
-        });
-      }
-      const updatedDocumentation =
-        documentation.type === DOCUMENTATION_TYPES.GENERAL
-          ? await this.documentationModel.update(id, {
-              ...payload,
-              created_by: userId,
-              updated_at: moment(),
-            })
-          : await this.documentationModel.update(id, {
-              document: payload.document,
-            });
-      if (!updatedDocumentation) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      const { is_deleted, ...rest } = updatedDocumentation;
-      return resolve({
-        data: rest,
-        statusCode: 200,
-      });
-    });
-  };
-  public updateHowto = (payload: {
-    data: IHowto[];
-  }): Promise<IHowtosResponse> =>
-    new Promise(async (resolve) => {
-      await Promise.all(
-        payload.data.map(async (howto) => {
-          return await this.documentationModel.update(howto.id, {
-            title: howto.title,
-            document: howto.document,
-          });
-        })
-      );
-      const firstHowto = await this.documentationModel.find(
-        payload.data[0]?.id
-      );
-      if (!firstHowto) {
-        return resolve({
-          data: [],
-          statusCode: 200,
-        });
-      }
-      const howtos = await this.documentationModel.getAllBy(
-        { type: firstHowto.type },
-        ["id", "title", "document", "created_at"],
-        "created_at",
-        "DESC"
-      );
-      return resolve({
-        data: howtos,
-        statusCode: 200,
-      });
-    });
-  public delete = (id: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const documentation = await this.documentationModel.find(id);
-      if (!documentation) {
-        return resolve({
-          message: MESSAGES.NOT_FOUND_DOCUMENTATION,
-          statusCode: 404,
-        });
-      }
-      if (documentation.type !== DOCUMENTATION_TYPES.GENERAL) {
-        return resolve({
-          message: "Cannot delete how to documentation",
-          statusCode: 400,
-        });
-      }
-      const result = await this.documentationModel.update(id, {
-        is_deleted: true,
-      });
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
-    });
-  };
+    user: UserAttributes
+  ) {
+    const documentation = await documentationRepository.find(id);
 
-  public getListPolicyForLandingPage = async (): Promise<
-    IMessageResponse | IGetPoliciesLandingPage
-  > => {
-    return new Promise(async (resolve) => {
-      const documentations = await this.documentationModel.getAllBy({
-        type: DOCUMENTATION_TYPES.GENERAL,
-      });
+    if (!documentation) {
+      return errorMessageResponse(MESSAGES.NOT_FOUND_DOCUMENTATION, 404);
+    }
 
-      let termsOfServices: IDocumentPolicy = {
-        id: "",
-        title: "",
-        document: {},
-      };
-      let privacyPolicy: IDocumentPolicy = {
-        id: "",
-        title: "",
-        document: {},
-      };
-      let cookiePolicy: IDocumentPolicy = {
-        id: "",
-        title: "",
-        document: {},
-      };
-      documentations.forEach((documentation) => {
-        const document = replaceTemplate(
-          documentation.document.document,
-          "last_revised",
-          moment(documentation.updated_at).format("YYYY-MM-DD") || ""
-        );
-        switch (documentation.number) {
-          case 1:
-            return (privacyPolicy = {
-              id: documentation.id,
-              title: documentation.title,
-              document: {
-                ...documentation.document,
-                document,
-              },
-            });
-          case 2:
-            return (termsOfServices = {
-              id: documentation.id,
-              title: documentation.title,
-              document: {
-                ...documentation.document,
-                document,
-              },
-            });
-          case 3:
-            return (cookiePolicy = {
-              id: documentation.id,
-              title: documentation.title,
-              document: {
-                ...documentation.document,
-                document,
-              },
-            });
-          default:
-            break;
-        }
-      });
-      return resolve({
-        data: [
-          {
-            terms_of_services: termsOfServices,
-          },
-          {
-            privacy_policy: privacyPolicy,
-          },
-          {
-            cookie_policy: cookiePolicy,
-          },
-        ],
-        statusCode: 200,
-      });
+    const updatedDocumentation = await documentationRepository.update(id, {
+      ...payload,
+      created_by: user.id,
+      updated_at: getTimestamps(),
     });
-  };
+
+    if (!updatedDocumentation) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
+    }
+
+    return successResponse({
+      data: updatedDocumentation,
+    });
+  }
+
+  public async updateHowto(payload: { data: IHowto[] }) {
+    for (const howto of payload.data) {
+      await documentationRepository.update(howto.id, {
+        title: howto.title,
+        document: howto.document,
+      });
+    }
+
+    const firstHowto = await documentationRepository.find(payload.data[0]?.id);
+    if (!firstHowto) {
+      return successResponse({
+        data: [],
+      });
+    }
+
+    const howtos = await documentationRepository.getHowtosByType(
+      firstHowto.type as number,
+      ["id", "title", "document", "created_at"],
+      "created_at",
+      "DESC"
+    );
+
+    return successResponse({
+      data: howtos,
+    });
+  }
+
+  public async delete(id: string) {
+    const documentation = await documentationRepository.find(id);
+
+    if (!documentation) {
+      return errorMessageResponse(MESSAGES.NOT_FOUND_DOCUMENTATION, 404);
+    }
+
+    if (documentation.type !== DOCUMENTATION_TYPES.GENERAL) {
+      return errorMessageResponse(
+        MESSAGES.DOCUMENTATION.CAN_NOT_DELETE_DOCUMENTATION
+      );
+    }
+
+    const deletedDocumentation = await documentationRepository.delete(id);
+
+    if (!deletedDocumentation) {
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_DELETE);
+    }
+
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
+  }
+
+  public async getListPolicyForLandingPage() {
+    const documentations = await documentationRepository.getAllBy({
+      type: DOCUMENTATION_TYPES.GENERAL,
+    });
+
+    return successResponse({
+      data: mappingGroupGeneralDocumentation(documentations),
+    });
+  }
 }
+
+export const documentationService = new DocumentationService();
 
 export default DocumentationService;

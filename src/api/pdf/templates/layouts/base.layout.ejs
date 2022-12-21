@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&lang=en" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      p {
+        margin: 0;
+        padding: 0;
+      }
+      table,
+      tr,
+      td {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-spacing: 0 !important;
+        page-break-inside: avoid !important;
+        border-collapse:collapse;
+      }
+      tr {
+        display: table;
+        width: 100%;
+        margin: 4px 0 4px 0;
+      }
+      td,
+      th {
+        page-break-inside: avoid !important;
+      }
+      .dynamic-table tr {
+        display: table-row;
+        width: 100%;
+        margin: 4px 0 4px 0;
+      }
+      .dynamic-table td {
+        page-break-inside: avoid !important;
+        margin: 4px 0 4px 0;
+      }
+
+      .avoid {
+        page-break-inside: avoid !important;
+        margin: 4px 0 4px 0;  /* to keep the page break from cutting too close to the text in the div */
+      }
+
+      .primary-roboto-light-14 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 14px;
+        line-height: 22px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-bold-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 20px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-bold-14 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 22px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+
+      .primary-roboto-light-8-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 12px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-light-8-16 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 16px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-light-8-18 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 18px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-light-8-8 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        padding: 5px 0;
+        /* line-height: 18px; */
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-bold-8-16 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 8px;
+        line-height: 16px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-bold-8-18 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 8px;
+        line-height: 18px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-light-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 12px;
+        /* line-height: 20px; */
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+      .primary-roboto-light-6 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 6px;
+        line-height: 12px;
+        color: #2b39d4;
+        letter-spacing: 0.32px;
+      }
+
+      .normal-roboto-light-6 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 6px;
+        line-height: 12px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-light-8-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 12px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-light-8-10 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 10px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-light-8-16 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 18px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-light-8-18 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 18px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-bold-8-18 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 8px;
+        line-height: 18px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-bold-8-10 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 8px;
+        line-height: 10px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-light-14-16 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 14px;
+        line-height: 16px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-bold-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 20px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-light-12 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 12px;
+        line-height: 20px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-roboto-bold-14 {
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 16px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-garamond-light-8-12 {
+        font-family: "Cormorant Garamond";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 12px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .normal-garamond-light-8-18 {
+        font-family: "Cormorant Garamond";
+        font-style: normal;
+        font-weight: 300;
+        font-size: 8px;
+        line-height: 18px;
+        color: #000000;
+        letter-spacing: 0.32px;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+      .divider {
+        border-bottom: 1px solid #000000;
+      }
+      .bold-400 {
+        font-weight: 400;
+      }
+      /* .box-shadow {
+      box-shadow: inset 0px -1px 0px #000000;
+    } */
+      .border-bottom-box-shadow {
+        /* box-shadow: inset 0px -0.5px 0px rgba(0, 0, 0, 0.3); */
+        /* box-shadow: inset 0px -0.5px 0px rgba(0, 0, 0, 0.3); */
+        border-bottom: 1px solid #dddddd;
+      }
+      .border-top-box-shadow {
+        /* box-shadow: inset 0px -0.5px 0px rgba(0, 0, 0, 0.3); */
+        /* box-shadow: inset 0px -0.5px 0px rgba(0, 0, 0, 0.3); */
+        border-top: 1px solid #dddddd;
+      }
+      .border-bottom-box-shadow-bold {
+        border-bottom: 1px solid #040404;
+      }
+      .border-top-box-shadow-bold {
+        border-top: 1px solid #040404;
+      }
+      .pt-4 {
+        padding-top: 4px;
+      }
+      .pb-4 {
+        padding-bottom: 4px;
+      }
+      .pb-2 {
+        padding-bottom: 2px;
+      }
+      .mb-5 {
+        margin-bottom: 5px;
+      }
+      .mb-8 {
+        margin-bottom: 8px;
+      }
+      .mb-12 {
+        margin-bottom: 12px;
+      }
+      .mb-32 {
+        margin-bottom: 32px;
+      }
+      .mr-16 {
+        margin-right: 16px;
+      }
+      .mr-8 {
+        margin-right: 8px;
+      }
+      .mb-4 {
+        margin-bottom: 4px;
+      }
+      .pt-185 {
+        padding-top: 185px;
+      }
+      .pl-150 {
+        padding-left: 150px;
+      }
+      .pr-48 {
+        padding-right: 48px;
+      }
+      .header-specification-layout {
+        padding: 32px 64px 0px 64px;
+      }
+      .footer-specification-layout {
+        padding: 0px 64px;
+      }
+      .footer-divider-top {
+        border-top: 1px solid #000000;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+      .general-specification-content {
+        padding: 0px 64px;
+      }
+      .mt-4 {
+        margin-top: 4px;
+      }
+      .mr-4 {
+        margin-right: 4px;
+      }
+      .mr-10 {
+        margin-right: 10px;
+      }
+      .mr-13 {
+        margin-right: 13px;
+      }
+      .mr-25 {
+        margin-right: 25px;
+      }
+      .mb-152 {
+        margin-bottom: 152px;
+      }
+      .mb-96 {
+        margin-bottom: 96px;
+      }
+      .pt-4 {
+        padding-top: 4px;
+      }
+      .mb-16 {
+        margin-bottom: 16px;
+      }
+      .bg-black {
+        background: #000000;
+      }
+      .color-white {
+        color: #ffffff;
+      }
+      .pdlr-8 {
+        padding: 0px 8px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .width-50-percent {
+        width: 50%;
+      }
+      .width-40-percent {
+        width: 40%;
+      }
+      .width-30-percent {
+        width: 30%;
+      }
+      .width-70-percent {
+        width: 70%;
+      }
+      .width-20-percent {
+        width: 20%;
+      }
+      .width-25-percent {
+        width: 25%;
+      }
+      .width-10-percent {
+        width: 10%;
+      }
+      .width-15-percent {
+        width: 15%;
+      }
+      .width-5-percent {
+        width: 5%;
+      }
+    </style>
+  </head>
+  <body>
+    <%- content %>
+  </body>
+</html>

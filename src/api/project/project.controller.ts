@@ -1,97 +1,143 @@
+import { projectService } from "./project.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import ProjectService from "./project.service";
-import { IProjectRequest } from "./project.type";
+import { CreateProjectRequest } from "./project.type";
+import { MESSAGES, PROJECT_STATUS_OPTIONS } from "@/constants";
+import { UserAttributes } from "@/types";
+import { projectRepository } from "@/repositories/project.repository";
 import {
-  MEASUREMENT_UNIT_OPTIONS,
-  PROJECT_STATUS_OPTIONS,
-} from "../../constant/common.constant";
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import { pagination } from "@/helper/common.helper";
 
 export default class ProjectController {
-  private service: ProjectService;
-  constructor() {
-    this.service = new ProjectService();
-  }
-
   public create = async (
-    req: Request & { payload: IProjectRequest },
+    req: Request & { payload: CreateProjectRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.create(userId, payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.create(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.get(id);
+    const response = await projectService.getProject(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getAll = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getAll(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.getAll(user.relation_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getProjectTypes = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getProjectTypes(userId);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getBuildingTypes = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getBuildingTypes(userId);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-  public getMeasurementUnits = async (
-    _req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    return toolkit.response(MEASUREMENT_UNIT_OPTIONS).code(200);
-  };
+
   public getProjectStatus = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(PROJECT_STATUS_OPTIONS).code(200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort } = req.query;
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getList(
-      userId,
+    const { limit, offset, filter, sort, order } = req.query;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.getProjects(
+      user,
       limit,
       offset,
       filter,
-      sort
+      sort,
+      order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public update = async (
-    req: Request & { payload: IProjectRequest },
+    req: Request & { payload: CreateProjectRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await this.service.update(id, userId, payload);
+    const response = await projectService.update(id, user, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public partialUpdate = async (
+    req: Request & { payload: Partial<CreateProjectRequest> },
+    toolkit: ResponseToolkit
+  ) => {
+    const { id } = req.params;
+    const payload = req.payload;
+    const response = await projectService.partialUpdate(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
+    const user = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
-    const response = await this.service.delete(id, userId);
+    const response = await projectService.delete(id, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getProjectSummary = async (req: Request, toolkit: ResponseToolkit) => {
-    const userId = req.auth.credentials.user_id as string;
-    const response = await this.service.getProjectSummary(userId);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.getProjectSummary(user);
     return toolkit.response(response).code(200);
   };
+
+  public getProjectOverallSummary = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const response = await projectService.getProjectOverallSummary();
+    return toolkit.response(response).code(200);
+  };
+
   public getProjectGroupByStatus = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { design_id } = req.query;
-    const response = await this.service.getProjectGroupByStatus(design_id);
+    const response = await projectService.getProjectGroupByStatus(design_id);
     return toolkit.response(response).code(200);
+  };
+
+  public getProjectListing = async (req: Request, toolkit: ResponseToolkit) => {
+    const { limit, offset, sort, order } = req.query;
+
+    const result = await projectRepository.getProjectListing(
+      limit,
+      offset,
+      sort,
+      order
+    );
+
+    return toolkit
+      .response(
+        successResponse({
+          data: {
+            projects: result[0].projects,
+            pagination: pagination(limit, offset, result[0].total),
+          },
+        })
+      )
+      .code(200);
+  };
+
+  public getProjectListingDetail = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const result = await projectRepository.getProjectListingDetail(
+      req.params.id
+    );
+    if (!result[0]) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND))
+        .code(404);
+    }
+    return toolkit
+      .response(
+        successResponse({
+          data: result[0],
+        })
+      )
+      .code(200);
   };
 }

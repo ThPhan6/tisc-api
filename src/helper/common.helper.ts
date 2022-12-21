@@ -1,11 +1,8 @@
-import {
-  SPECIFIED_PRODUCT_STATUS,
-  CONSIDERED_PRODUCT_STATUS,
-} from "./../constant/common.constant";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { ROLES } from "../constant/user.constant";
-import { template } from "lodash";
+import { template, round } from "lodash";
+import { INTEREST_RATE } from "@/constants";
+
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
     return values.indexOf(item) != idx;
@@ -67,89 +64,23 @@ export const countWord = (str: string) => {
   return arrStr.filter((word: any) => word !== "").length;
 };
 
-export const tosingleSpace = (str: string) => {
+export const toSingleSpace = (str: string) => {
   return str.trim().replace(/ +/g, " ");
+};
+export const toSingleSpaceAndToLowerCase = (str: string) => {
+  return toSingleSpace(str).toLowerCase();
 };
 
 export const getDistinctArray = (arr: Array<string>) => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
 };
 
-type AccessLevelType =
-  | "TISC Admin"
-  | "Consultant Team"
-  | "Brand Admin"
-  | "Brand Team"
-  | "Design Admin"
-  | "Design Team";
-export const getAccessLevel = (role_id: string) => {
-  let result: AccessLevelType;
-  switch (role_id) {
-    case ROLES.TISC_ADMIN:
-      result = "TISC Admin";
-      break;
-    case ROLES.TISC_CONSULTANT_TEAM:
-      result = "Consultant Team";
-      break;
-    case ROLES.BRAND_ADMIN:
-      result = "Brand Admin";
-      break;
-    case ROLES.BRAND_TEAM:
-      result = "Brand Team";
-      break;
-    case ROLES.DESIGN_ADMIN:
-      result = "Design Admin";
-      break;
-    default:
-      result = "Design Team";
-      break;
-  }
-  return result;
+export const generateUniqueString = (length: number = 64) => {
+  return randomBytes(length).toString("hex");
 };
 
 export const removeSpecialChars = (str: string, replaceStr: string = "") => {
   return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, replaceStr);
-};
-
-type ConsideredProductStatus = "Considered" | "Re-considered" | "Unlisted";
-export const getConsideredProductStatusName = (
-  status: number
-): ConsideredProductStatus => {
-  let result: ConsideredProductStatus;
-  switch (status) {
-    case CONSIDERED_PRODUCT_STATUS.CONSIDERED:
-      result = "Considered";
-      break;
-
-    case CONSIDERED_PRODUCT_STATUS.RE_CONSIDERED:
-      result = "Re-considered";
-      break;
-
-    default:
-      result = "Unlisted";
-      break;
-  }
-  return result;
-};
-type SpecifiedProductStatus = "Cancelled" | "Specified" | "Re-specified";
-export const getSpecifiedProductStatusName = (
-  status?: number
-): SpecifiedProductStatus => {
-  let result: SpecifiedProductStatus;
-  switch (status) {
-    case SPECIFIED_PRODUCT_STATUS.RE_SPECIFIED:
-      result = "Re-specified";
-      break;
-
-    case SPECIFIED_PRODUCT_STATUS.SPECIFIED:
-      result = "Specified";
-      break;
-
-    default:
-      result = "Cancelled";
-      break;
-  }
-  return result;
 };
 
 export const formatNumberDisplay = (
@@ -174,3 +105,85 @@ export const replaceTemplate = (
   const compiled = template(templateReplace);
   return compiled({ [key]: value });
 };
+
+export const getSummaryTable = (dataSummary: any) => {
+  const countGroup = dataSummary.length;
+  let countSub = 0;
+  let countItem = 0;
+
+  dataSummary.forEach((item: any) => {
+    if (item.subs) {
+      countSub += item.subs.length;
+      item.subs.forEach((subCategory: any) => {
+        if (subCategory.subs) countItem += subCategory.subs.length;
+      });
+    }
+  });
+  return {
+    countGroup,
+    countSub,
+    countItem,
+  };
+};
+
+export const pagination = (limit: number, offset: number, total: number) => ({
+  page: offset / limit + 1,
+  page_size: limit,
+  total: total,
+  page_count: Math.ceil(total / limit),
+});
+
+export const fillObject = (data: any, fillData: any) => {
+  const mutableObject1 = Object.assign({}, data);
+  const mutableObject2 = Object.assign({}, fillData);
+  Object.keys(mutableObject2).forEach(function (key) {
+    if (key in mutableObject1) {
+      if (typeof mutableObject1[key] === "object") {
+        mutableObject1[key] = fillObject(
+          mutableObject1[key],
+          mutableObject2[key]
+        );
+      } else {
+        mutableObject1[key] = mutableObject2[key];
+      }
+    }
+  });
+  return mutableObject1;
+};
+
+export function getEnumValues<T extends string | number>(e: any): T[] {
+  return typeof e === "object" ? Object.values(e) : [];
+}
+
+export function getEnumKeys(e: any): string[] {
+  return typeof e === "object" ? Object.keys(e) : [];
+}
+
+export const toNonAccentUnicode = (str: string) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+export const calculateInterestInvoice = (
+  amount: number,
+  overDueDay: number
+) => {
+  const ratePerYear = INTEREST_RATE / 100; // Rate of Interest per year as a percent
+  const overduePerYear = overDueDay / 365;
+  return round(amount * ratePerYear * overduePerYear, 2);
+};
+
+export const getKeyByValue = (object: any, value: any) => {
+  return Object.keys(object).find((key: string) => object[key] === value) || "";
+};
+
+export const getUnsetAttributes = (model: string, addition: string = "") =>
+  `UNSET(${model}, ['_id', '_key', '_rev', 'deleted_at', ${addition}])`;
+
+export const toUSMoney = (amount: number) => {
+  return amount.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+};
+
+export const numberToFixed = (n: number, fixed: number = 2) =>
+  n.toFixed(fixed).replace(/.00$|[.*0]$/, "");

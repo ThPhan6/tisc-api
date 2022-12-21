@@ -5,6 +5,82 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const dimensionWeightResponse = Joi.object({
+  id: Joi.string(),
+  name: Joi.string(),
+  with_diameter: Joi.boolean(),
+  attributes: Joi.array().items(
+    Joi.object({
+      basis_id: Joi.string().allow(null, ""),
+      basis_value_id: Joi.string().allow(null, ""),
+      conversion_value_1: Joi.any(),
+      conversion_value_2: Joi.any(),
+      id: Joi.string(),
+      name: Joi.string(),
+      text: Joi.string().allow(null, ""),
+      type: Joi.string().allow(null, ""),
+      with_diameter: Joi.boolean().allow(null),
+      conversion: Joi.object({
+        formula_1: Joi.any(),
+        formula_2: Joi.any(),
+        id: Joi.string(),
+        name_1: Joi.string(),
+        name_2: Joi.string(),
+        unit_1: Joi.string(),
+        unit_2: Joi.string(),
+      }),
+    })
+  ),
+});
+
+export const userProductSpecificationResponse = {
+  is_refer_document: Joi.bool(),
+  attribute_groups: Joi.array().items({
+    id: Joi.string(),
+    attributes: Joi.array().items({
+      id: Joi.string(),
+      basis_option_id: Joi.string(),
+    }),
+  }),
+};
+
+export const productResponse = {
+  id: Joi.string(),
+  brand_id: Joi.string(),
+  collection_id: Joi.any(),
+  category_ids: Joi.array().items(Joi.any()),
+  name: Joi.string(),
+  code: Joi.any(),
+  description: Joi.any(),
+  general_attribute_groups: Joi.array().items(Joi.any()),
+  feature_attribute_groups: Joi.array().items(Joi.any()),
+  specification_attribute_groups: Joi.array().items(Joi.any()),
+  favorites: Joi.number(),
+  images: Joi.any(),
+  keywords: Joi.array().items(Joi.string().allow("")),
+  brand_location_id: Joi.any(),
+  distributor_location_id: Joi.any(),
+  created_at: Joi.any(),
+  created_by: Joi.any(),
+  is_liked: Joi.boolean(),
+  brand: Joi.any(),
+  collection: Joi.object({
+    id: Joi.string(),
+    name: Joi.string(),
+  }),
+  categories: Joi.array().items(
+    Joi.object({
+      id: Joi.any(),
+      name: Joi.any(),
+    })
+  ),
+  updated_at: Joi.string().allow(null),
+  tips: Joi.any(),
+  downloads: Joi.any(),
+  catelogue_downloads: Joi.any(),
+  dimension_and_weight: dimensionWeightResponse,
+};
+
 export default {
   getList: Joi.object({
     data: Joi.object({
@@ -13,28 +89,7 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           count: Joi.number(),
-          products: Joi.array().items(
-            Joi.object({
-              id: Joi.string(),
-              brand_id: Joi.string(),
-              collection_id: Joi.any(),
-              category_ids: Joi.array().items(Joi.any()),
-              name: Joi.string(),
-              code: Joi.any(),
-              description: Joi.any(),
-              general_attribute_groups: Joi.array().items(Joi.any()),
-              feature_attribute_groups: Joi.array().items(Joi.any()),
-              specification_attribute_groups: Joi.array().items(Joi.any()),
-              favorites: Joi.number(),
-              images: Joi.any(),
-              keywords: Joi.array().items(Joi.string().allow("")),
-              brand_location_id: Joi.any(),
-              distributor_location_id: Joi.any(),
-              created_at: Joi.any(),
-              created_by: Joi.any(),
-              is_liked: Joi.boolean(),
-            })
-          ),
+          products: Joi.array().items(Joi.object(productResponse)),
         })
       ),
       brand: Joi.any(),
@@ -48,38 +103,7 @@ export default {
         name: Joi.string(),
         count: Joi.number(),
         brand_logo: Joi.string().allow(null),
-        products: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            brand_id: Joi.string(),
-            brand_name: Joi.string(),
-            brand: Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-              logo: Joi.any(),
-            }),
-            collection: Joi.object({
-              id: Joi.string(),
-              name: Joi.string(),
-            }),
-            collection_id: Joi.any(),
-            category_ids: Joi.array().items(Joi.any()),
-            name: Joi.string(),
-            code: Joi.any(),
-            description: Joi.any(),
-            general_attribute_groups: Joi.array().items(Joi.any()),
-            feature_attribute_groups: Joi.array().items(Joi.any()),
-            specification_attribute_groups: Joi.array().items(Joi.any()),
-            favorites: Joi.number(),
-            images: Joi.any(),
-            keywords: Joi.array().items(Joi.string().allow("")),
-            brand_location_id: Joi.any(),
-            distributor_location_id: Joi.any(),
-            created_at: Joi.any(),
-            created_by: Joi.any(),
-            is_liked: Joi.boolean(),
-          })
-        ),
+        products: Joi.array().items(Joi.object(productResponse)),
       })
     ),
     brand_summary: Joi.any(),
@@ -107,32 +131,7 @@ export default {
     statusCode: Joi.number(),
   }) as any,
   getOne: Joi.object({
-    data: Joi.object({
-      id: Joi.string(),
-      brand: Joi.any(),
-      collection: {
-        id: Joi.string(),
-        name: Joi.string(),
-      },
-      categories: Joi.array().items({
-        id: Joi.string(),
-        name: Joi.string(),
-      }),
-      name: Joi.string(),
-      code: Joi.string(),
-      description: Joi.any(),
-      general_attribute_groups: Joi.any(),
-      feature_attribute_groups: Joi.any(),
-      specification_attribute_groups: Joi.any(),
-      favorites: Joi.number(),
-      images: Joi.any(),
-      keywords: Joi.array().items(Joi.string().allow("")),
-      brand_location_id: Joi.any(),
-      distributor_location_id: Joi.any(),
-      created_by: Joi.any(),
-      created_at: Joi.string(),
-      is_liked: Joi.boolean(),
-    }),
+    data: Joi.object(productResponse),
     statusCode: Joi.number(),
   }) as any,
   getListRestCollectionProduct: Joi.object({

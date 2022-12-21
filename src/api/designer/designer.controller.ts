@@ -1,16 +1,12 @@
-import DesignerService from "./designer.service";
+import { DESIGN_STATUS_OPTIONS } from "@/constants";
+import { DesignerAttributes, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { DESIGN_STATUS_OPTIONS } from "../../constant/common.constant";
-import { IUpdateDesignStatusRequest } from "./designer.type";
+import { designerService } from "./designer.service";
 
 export default class DesignerController {
-  private service: DesignerService;
-  constructor() {
-    this.service = new DesignerService();
-  }
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { limit, offset, filter, sort, order } = req.query;
-    const response = await this.service.getList(
+    const response = await designerService.getList(
       limit,
       offset,
       filter,
@@ -21,7 +17,7 @@ export default class DesignerController {
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await this.service.getOne(id);
+    const response = await designerService.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getStatuses = async (_req: Request, toolkit: ResponseToolkit) => {
@@ -31,16 +27,25 @@ export default class DesignerController {
     _req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await this.service.getAllDesignSummary();
+    const response = await designerService.getAllDesignSummary();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public updateDesignStatus = async (
-    req: Request & { payload: IUpdateDesignStatusRequest },
+  public updateDesign = async (
+    req: Request & {
+      payload: Partial<DesignerAttributes>;
+    },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await this.service.updateDesignStatus(id, payload);
+    const response = await designerService.updateDesign(id, payload, user);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public getDesignLibrary = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await designerService.getDesignLibrary(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

@@ -1,133 +1,96 @@
-import { MESSAGES } from "../../constant/common.constant";
-import CollectionModel, {
-  COLLECTION_NULL_ATTRIBUTES,
-  ICollectionAttributes,
-} from "../../model/collection.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import { MESSAGES } from "@/constants";
 import {
-  ICollectionRequest,
-  ICollectionResponse,
-  ICollectionsResponse,
-} from "./collection.type";
-import MarketAvailabilityService from "../../api/market_availability/market_availability.service";
-import ProductModel from "../../model/product.model";
+  errorMessageResponse,
+  successResponse,
+  successMessageResponse,
+} from "@/helper/response.helper";
+import CollectionRepository from "@/repositories/collection.repository";
+import ProductRepository from "@/repositories/product.repository";
+import {marketAvailabilityRepository} from "@/repositories/market_availability.repository";
+import { ICollectionRequest } from "./collection.type";
+import {CollectionRelationType} from '@/types';
 
-export default class CollectionService {
-  private collectionModel: CollectionModel;
-  private marketAvailabilityService: MarketAvailabilityService;
-  private productModel: ProductModel;
-  constructor() {
-    this.collectionModel = new CollectionModel();
-    this.marketAvailabilityService = new MarketAvailabilityService();
-    this.productModel = new ProductModel();
-  }
-  public create = (
-    payload: ICollectionRequest
-  ): Promise<IMessageResponse | ICollectionResponse> => {
-    return new Promise(async (resolve) => {
-      const collection = await this.collectionModel.findBy({
-        name: payload.name,
-      });
-      if (collection) {
-        return resolve({
-          message: MESSAGES.COLLECTION_EXISTED,
-          statusCode: 400,
-        });
-      }
-      const createdCollection = await this.collectionModel.create({
-        ...COLLECTION_NULL_ATTRIBUTES,
-        name: payload.name,
-        brand_id: payload.brand_id,
-      });
-      if (!createdCollection) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      const authorizedBrandCountries =
-        await this.marketAvailabilityService.getBrandRegionCountries(
-          payload.brand_id
-        );
-      await this.marketAvailabilityService.create({
-        collection_id: createdCollection.id,
-        country_ids: authorizedBrandCountries.map((item) =>
-          item.id.toLowerCase()
-        ),
-      });
-      const { is_deleted, ...result } = createdCollection;
-      return resolve({
-        data: result,
-        statusCode: 200,
-      });
+class CollectionService {
+
+  public async create(payload: ICollectionRequest) {
+    const collection = await CollectionRepository.findBy({
+      name: payload.name,
+      relation_id: payload.relation_id,
+      relation_type: payload.relation_type
     });
-  };
-  public getList = (
-    brand_id: string,
+    if (collection) {
+      return errorMessageResponse(MESSAGES.COLLECTION_EXISTED);
+    }
+    const createdCollection = await CollectionRepository.create({
+      name: payload.name,
+      relation_id: payload.relation_id,
+      relation_type: payload.relation_type
+    });
+    if (!createdCollection) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+    //
+    if (createdCollection.relation_type === CollectionRelationType.Brand) {
+      /// create market availability
+      await marketAvailabilityRepository.upsertMarketAvailability(createdCollection.id);
+    }
+    //
+    return successResponse({ data: createdCollection });
+  }
+
+  public async getList(
+    relation_id: string,
+    type: CollectionRelationType,
     limit: number,
     offset: number
-  ): Promise<ICollectionsResponse> => {
-    return new Promise(async (resolve) => {
-      const collections: ICollectionAttributes[] =
-        await this.collectionModel.list(limit, offset, { brand_id });
-      const pagination: IPagination = await this.collectionModel.getPagination(
+  ) {
+    const collections =
+      await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
-        { brand_id }
+        relation_id,
+        type
       );
-
-      if (!collections) {
-        return resolve({
-          data: {
-            collections: [],
-            pagination,
-          },
-          statusCode: 200,
-        });
-      }
-      const result = collections.map((collection: ICollectionAttributes) => {
-        const { is_deleted, ...item } = collection;
-        return item;
-      });
-
-      return resolve({
-        data: {
-          collections: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
+    return successResponse({
+      data: {
+        collections: collections.data,
+        pagination: collections.pagination,
+      },
     });
-  };
-  public delete = (id: string): Promise<IMessageResponse> => {
-    return new Promise(async (resolve) => {
-      const collection = await this.collectionModel.find(id);
-      if (!collection) {
-        return resolve({
-          message: MESSAGES.COLLECTION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const product = await this.productModel.findBy({ collection_id: id });
-      if (product) {
-        return resolve({
-          message: MESSAGES.CANNOT_DELETE_COLLECTION_HAS_PRODUCT,
-          statusCode: 400,
-        });
-      }
-      const result = await this.collectionModel.update(id, {
-        is_deleted: true,
-      });
-      if (!result) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_DELETE,
-          statusCode: 400,
-        });
-      }
-      return resolve({
-        message: MESSAGES.SUCCESS,
-        statusCode: 200,
-      });
+  }
+
+  public async update(id: string, name: string) {
+    const collection = await CollectionRepository.findAndUpdate(id, { name });
+    if (!collection) {
+      return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async delete(id: string) {
+    const collection = await CollectionRepository.find(id);
+    if (!collection) {
+      return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
+    }
+    const product = await ProductRepository.findBy({
+      collection_id: id,
     });
-  };
+    if (product) {
+      return errorMessageResponse(
+        MESSAGES.CANNOT_DELETE_COLLECTION_HAS_PRODUCT
+      );
+    }
+    const deletedCollection = await CollectionRepository.delete(id);
+    if (!deletedCollection) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
+    }
+    if (collection.relation_type === CollectionRelationType.Brand) {
+      /// delete market availability
+      await marketAvailabilityRepository.deleteBy({collection_id: collection.id});
+    }
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
 }
+
+export default new CollectionService();

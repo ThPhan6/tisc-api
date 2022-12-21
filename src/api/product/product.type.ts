@@ -1,4 +1,9 @@
-import {ProductWithCollectionAndBrand} from '../../model/product.model';
+import {
+  ProductWithCollectionAndBrand,
+  ProductTip,
+  ProductDownload,
+  DimensionAndWeight,
+} from "@/types/product.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -33,8 +38,8 @@ export interface IAttributeGroup {
     basis_value_id?: string;
     type: "Text" | "Conversions" | "Presets" | "Options";
     text?: string;
-    conversion_value_1?: string;
-    conversion_value_2?: string;
+    conversion_value_1?: number | string;
+    conversion_value_2?: number | string;
     basis_options?: {
       id: string;
       option_code: string;
@@ -46,8 +51,8 @@ export interface IProductOptionAttribute {
   basis_id: string;
   type: "Text" | "Conversions" | "Presets" | "Options";
   text?: string;
-  conversion_value_1?: string;
-  conversion_value_2?: string;
+  conversion_value_1?: number | string;
+  conversion_value_2?: number | string;
   basis_options?: {
     id: string;
     option_code: string;
@@ -71,6 +76,10 @@ export interface IProductRequest {
   keywords: string[];
   brand_location_id: string;
   distributor_location_id: string;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
+  dimension_and_weight: DimensionAndWeight;
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -85,6 +94,10 @@ export interface IUpdateProductRequest {
   keywords: string[];
   brand_location_id: string;
   distributor_location_id: string;
+  tips: ProductTip[];
+  downloads: ProductDownload[];
+  catelogue_downloads: ProductDownload[];
+  dimension_and_weight: DimensionAndWeight;
 }
 export interface IProductResponse {
   data: IProduct;
@@ -182,6 +195,7 @@ export interface ShareProductBodyRequest {
   to_email: string;
   title: string;
   message: string;
+  custom_product?: boolean;
 }
 
 export interface CommonTypeResponse {
@@ -192,8 +206,8 @@ export interface CommonTypeResponse {
   statusCode: number;
 }
 
-
-export interface ProductListResponse extends Omit<ProductWithCollectionAndBrand, 'favorites'| 'is_deleted'> {
+export interface ProductListResponse
+  extends Omit<ProductWithCollectionAndBrand, "favorites" | "is_deleted"> {
   is_liked: boolean;
   favorites: number;
 }
@@ -214,4 +228,18 @@ export interface IDesignerProductsResponse {
     product_count: number;
   };
   statusCode: number;
+}
+
+export interface IAttributeGroupWithOptionalId extends IAttributeGroup {
+  id?: string;
+}
+export interface SelectionAttributeGroupWithOptionalId
+  extends IAttributeGroupWithOptionalId {
+  selection?: boolean;
+}
+
+export interface IAttributeGroupWithOptionId {
+  id?: string;
+  name: string;
+  attributes: IProductOptionAttribute[];
 }

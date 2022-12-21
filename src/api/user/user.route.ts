@@ -1,12 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+import IRoute from "@/helper/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
 import response from "./user.response";
-import commonValidate from "../../validate/common.validate";
+import { getListValidation } from "@/validate/common.validate";
 
 export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -42,7 +41,7 @@ export default class UserRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getOne,
+                // 200: response.getOne,
               },
             },
           },
@@ -52,7 +51,7 @@ export default class UserRoute implements IRoute {
           path: ROUTES.GET_LIST_TEAM_PROFILE,
           options: {
             handler: controller.getList,
-            validate: commonValidate.getList,
+            validate: getListValidation(),
             description: "Method that get list user",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
@@ -124,21 +123,7 @@ export default class UserRoute implements IRoute {
             description: "Method that update user avatar",
             tags: ["api", "User profile"],
             auth: AUTH_NAMES.GENERAL,
-            payload: {
-              maxBytes: 1024 * 1024 * 5,
-              multipart: {
-                output: "stream",
-              },
-              parse: true,
-              failAction: (_request, _h, err: any) => {
-                if (err.output) {
-                  if (err.output.statusCode === 413) {
-                    err.output.payload.message = `Can not upload file size greater than 5MB`;
-                  }
-                }
-                throw err;
-              },
-            },
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -148,27 +133,11 @@ export default class UserRoute implements IRoute {
           },
         },
         {
-          method: "GET",
-          path: ROUTES.GET_DEPARTMENTS,
-          options: {
-            handler: controller.getDepartments,
-            description: "Method that get departments",
-            tags: ["api", "Department"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getListDepartment,
-              },
-            },
-          },
-        },
-        {
           method: "POST",
           path: ROUTES.SEND_INVITE_TEAM_PROFILE,
           options: {
             handler: controller.invite,
-            validate: commonValidate.getOne,
+            validate: validate.getOne,
             description: "Method that invite team profile",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
@@ -184,7 +153,7 @@ export default class UserRoute implements IRoute {
           path: ROUTES.DELETE_TEAM_PROFILE,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: validate.getOne,
             description: "Method that delete team profile",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
@@ -269,6 +238,22 @@ export default class UserRoute implements IRoute {
             handler: controller.assignTeam,
             validate: validate.assignTeam,
             description: "Method that assign team",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.USER.GET_BY_TYPE_ROLE_AND_RELATION,
+          options: {
+            handler: controller.getListByTypeRoleAndRelation,
+            validate: validate.getListByTypeRoleAndRelation,
+            description: "Method that get list team profile by type, role and relation",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
             response: {

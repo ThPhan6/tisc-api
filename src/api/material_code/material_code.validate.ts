@@ -1,33 +1,54 @@
 import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import {
+  orderValidation,
+  requireStringValidation,
+} from "@/validate/common.validate";
 
 export default {
   create: {
     payload: {
-      name: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Material name is required")),
+      name: requireStringValidation("Material name"),
       subs: Joi.array().items({
-        name: Joi.string()
-          .required()
-          .error(
-            commonFailValidatedMessageFunction("Sub material name is required")
-          ),
+        name: requireStringValidation("Sub-list name"),
         codes: Joi.array().items({
-          code: Joi.string()
-            .required()
-            .error(commonFailValidatedMessageFunction("Code is required")),
-          description: Joi.string(),
+          code: requireStringValidation("Sub-list Code"),
+          description: requireStringValidation("Sub-list description"),
         }),
       }),
     },
   },
   getWithDesignId: {
+    query: Joi.object({
+      design_id: Joi.string().allow(null),
+      main_material_code_order: orderValidation,
+      sub_material_code_order: orderValidation,
+      material_code_order: orderValidation,
+    }).custom((value) => {
+      return {
+        design_id: value.design_id ? value.design_id : "",
+        sub_material_code_order: value.sub_material_code_order || "ASC",
+        material_code_order: value.material_code_order || "ASC",
+      };
+    }),
+  },
+
+  update: {
     params: {
-      design_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Design is required")),
+      id: requireStringValidation("Material code id"),
+    },
+    payload: {
+      name: requireStringValidation("Main material code name"),
+      subs: Joi.array().items(
+        Joi.object({
+          id: Joi.string().allow(null),
+          name: requireStringValidation("Sub-list name"),
+          codes: Joi.array().items({
+            id: Joi.string().allow(null),
+            code: requireStringValidation("Sub-list Code"),
+            description: requireStringValidation("Sub-list description"),
+          }),
+        })
+      ),
     },
   },
 };

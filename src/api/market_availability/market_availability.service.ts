@@ -1,348 +1,153 @@
-import { MESSAGES, REGION_KEY } from "../../constant/common.constant";
-import MarketAvailabilityModel, {
-  MARKET_AVAILABILITY_NULL_ATTRIBUTES,
-} from "../../model/market_availability.model";
-import CountryStateCityService from "../../service/country_state_city.service";
-import CollectionModel from "../../model/collection.model";
-import { IMessageResponse, IPagination } from "../../type/common.type";
+import { MESSAGES, Region } from "@/constants";
 import {
-  IMarketAvailabilitiesResponse,
-  IMarketAvailabilityGroupByCollectionResponse,
-  IMarketAvailabilityRequest,
-  IMarketAvailabilityResponse,
+  errorMessageResponse,
+  successResponse,
+} from "@/helper/response.helper";
+import {getEnumKeys} from '@/helper/common.helper';
+
+import {
+  SortOrder,
+  UserAttributes,
+  UserType,
+  RegionKey,
+  CollectionRelationType
+} from "@/types";
+import {
+  mappingGroupByCollection,
+  mappingMarketAvailibility,
+} from "./market_availability.mapping";
+import {
   IUpdateMarketAvailabilityRequest,
 } from "./market_availability.type";
-import DistributorModel from "../../model/distributor.model";
-import BrandModel from "../../model/brand.model";
-import { getDistinctArray } from "../../helper/common.helper";
-export default class MarketAvailabilityService {
-  private marketAvailabilityModel: MarketAvailabilityModel;
-  private countryStateCityService: CountryStateCityService;
-  private collectionModel: CollectionModel;
-  private distributorModel: DistributorModel;
-  private brandModel: BrandModel;
-  constructor() {
-    this.marketAvailabilityModel = new MarketAvailabilityModel();
-    this.countryStateCityService = new CountryStateCityService();
-    this.collectionModel = new CollectionModel();
-    this.distributorModel = new DistributorModel();
-    this.brandModel = new BrandModel();
-  }
-  public getRegionCountries = (
-    ids: string[]
-  ): Promise<
-    | {
-        id: string;
-        name: string;
-        phone_code: string;
-        region: string;
-      }[]
-  > =>
-    new Promise(async (resolve) => {
-      const countries = await Promise.all(
-        ids.map(async (country_id) => {
-          const countryDetail =
-            await this.countryStateCityService.getCountryDetail(country_id);
-          let region = REGION_KEY.AFRICA;
-          if (countryDetail.region?.toLowerCase() === "americas") {
-            if (countryDetail.subregion?.toLowerCase() === "northern america")
-              region = REGION_KEY.NORTH_AMERICA;
-            else region = REGION_KEY.SOUTH_AMERICA;
-          }
-          if (countryDetail.region?.toLowerCase() === "asia")
-            region = REGION_KEY.ASIA;
-          if (countryDetail.region?.toLowerCase() === "africa")
-            region = REGION_KEY.AFRICA;
-          if (countryDetail.region?.toLowerCase() === "oceania")
-            region = REGION_KEY.OCEANIA;
-          if (countryDetail.region?.toLowerCase() === "europe")
-            region = REGION_KEY.EUROPE;
-          return {
-            id: countryDetail.id,
-            name: countryDetail.name,
-            phone_code: countryDetail.phone_code,
-            region,
-          };
-        })
-      );
+import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
+import { collectionRepository } from "@/repositories/collection.repository";
+import { projectRepository } from '@/repositories/project.repository';
 
-      return resolve([
-        ...new Map(countries.map((item) => [item["id"], item])).values(),
-      ]);
-    });
-  public getBrandRegionCountries = (
-    brand_id: string
-  ): Promise<
-    | {
-        id: string;
-        name: string;
-        phone_code: string;
-        region: string;
-      }[]
-  > =>
-    new Promise(async (resolve) => {
-      const brand = await this.brandModel.find(brand_id);
-      if (!brand) {
-        return resolve([]);
-      }
-      const distributors = await this.distributorModel.getAllBy({ brand_id }, [
-        "country_id",
-        "authorized_country_ids",
-      ]);
-      const distinctCountryIds = getDistinctArray(
-        distributors.reduce((pre: any[], cur) => {
-          return pre.concat([cur.country_id], cur.authorized_country_ids);
-        }, [])
-      );
+class MarketAvailabilityService {
 
-      return resolve(await this.getRegionCountries(distinctCountryIds));
-    });
-
-  public create = (
-    payload: IMarketAvailabilityRequest
-  ): Promise<IMessageResponse | IMarketAvailabilityResponse> =>
-    new Promise(async (resolve) => {
-      const collection = await this.collectionModel.find(payload.collection_id);
-      if (!collection) {
-        return resolve({
-          message: MESSAGES.COLLECTION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const market = await this.marketAvailabilityModel.findBy({
-        collection_id: payload.collection_id,
-      });
-      if (market) {
-        return resolve({
-          message: MESSAGES.MARKET_AVAILABILITY_EXISTED,
-          statusCode: 400,
-        });
-      }
-
-      const createdMarket = await this.marketAvailabilityModel.create({
-        ...MARKET_AVAILABILITY_NULL_ATTRIBUTES,
-        collection_id: payload.collection_id,
-        collection_name: collection.name,
-        country_ids: payload.country_ids,
-      });
-      if (!createdMarket) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_CREATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(payload.collection_id));
-    });
-  public update = (
-    collection_id: string,
+  public async update(
+    user: UserAttributes,
+    collectionId: string,
     payload: IUpdateMarketAvailabilityRequest
-  ): Promise<IMessageResponse | IMarketAvailabilityResponse> =>
-    new Promise(async (resolve) => {
-      const collection = await this.collectionModel.find(collection_id);
-      if (!collection) {
-        return resolve({
-          message: MESSAGES.COLLECTION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const market = await this.marketAvailabilityModel.findBy({
-        collection_id: collection_id,
-      });
-      if (!market) {
-        return resolve({
-          message: MESSAGES.MARKET_AVAILABILITY_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const updatedMarket = await this.marketAvailabilityModel.update(
-        market.id,
-        payload
+  ) {
+    const market = await marketAvailabilityRepository.findByCollection(
+      user.relation_id,
+      collectionId
+    );
+
+    if (!market) {
+      return errorMessageResponse(
+        MESSAGES.MARKET_AVAILABILITY.MARKET_AVAILABILITY_NOT_FOUND,
+        404
       );
-      if (!updatedMarket) {
-        return resolve({
-          message: MESSAGES.SOMETHING_WRONG_UPDATE,
-          statusCode: 400,
-        });
-      }
-      return resolve(await this.get(collection_id));
-    });
-  public get = (
-    collection_id: string
-  ): Promise<IMessageResponse | IMarketAvailabilityResponse> =>
-    new Promise(async (resolve) => {
-      const collection = await this.collectionModel.find(collection_id);
-      if (!collection) {
-        return resolve({
-          message: MESSAGES.COLLECTION_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const market = await this.marketAvailabilityModel.findBy({
-        collection_id,
-      });
-      if (!market) {
-        return resolve({
-          message: MESSAGES.MARKET_AVAILABILITY_NOT_FOUND,
-          statusCode: 404,
-        });
-      }
-      const region_names = Object.values(REGION_KEY);
-      const distributorCountries = await this.getBrandRegionCountries(
-        collection.brand_id
-      );
-      return resolve({
+    }
+
+    const updatedMarket = await marketAvailabilityRepository.update(
+      market.id,
+      payload
+    );
+
+    if (!updatedMarket) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+
+    return this.get(user, collectionId);
+  }
+
+  public async get(user: UserAttributes, collectionId: string) {
+    const market = await marketAvailabilityRepository.findByCollection(user.relation_id, collectionId);
+    //
+    if (!market) {
+      return errorMessageResponse(MESSAGES.MARKET_AVAILABILITY_NOT_FOUND, 404);
+    }
+    //
+    const result = mappingMarketAvailibility(market, false);
+    return successResponse({
         data: {
-          collection_id,
-          collection_name: collection.name,
-          total_available: market.country_ids.length,
-          total: distributorCountries.length,
-          regions: region_names.map((item) => {
-            const countries = distributorCountries
-              .filter((country) => country.region === item)
-              .map((country) => {
-                return {
-                  ...country,
-                  id: country.id,
-                  available: market.country_ids.includes(country.id),
-                };
-              });
+          collection_id: result.collection_id,
+          collection_name: result.name,
+          regions: getEnumKeys(Region).map((region: any) => {
+            const regionName = region as RegionKey;
             return {
-              name: item,
-              count: countries.length,
-              countries,
-            };
+              count: result[regionName].length,
+              name: Region[regionName],
+              countries: result[regionName]
+            }
           }),
-        },
-        statusCode: 200,
-      });
+          total: result.countries.length,
+          total_available: result.available_countries
+        }
     });
-  public getList = (
-    brand_id: string,
+  }
+
+  public async getList(
+    user: UserAttributes,
+    brandId: string,
     limit: number,
     offset: number,
-    filter: any,
-    sort: any
-  ): Promise<IMessageResponse | IMarketAvailabilitiesResponse> =>
-    new Promise(async (resolve) => {
-      const collections = await this.collectionModel.list(
-        limit,
-        offset,
-        { ...filter, brand_id },
-        sort
-      );
-      const pagination: IPagination = await this.collectionModel.getPagination(
-        limit,
-        offset,
-        { brand_id }
-      );
-      const result = await Promise.all(
-        collections.map(async (collection: any) => {
-          const market = await this.marketAvailabilityModel.findBy({
-            collection_id: collection.id,
-          });
-          const countries = await this.getRegionCountries(
-            market?.country_ids || []
-          );
-          return {
-            collection_id: collection.id,
-            collection_name: collection.name,
-            available_countries: countries.length || 0,
-            africa: countries.filter(
-              (item) => item.region === REGION_KEY.AFRICA
-            ).length,
-            asia: countries.filter((item) => item.region === REGION_KEY.ASIA)
-              .length,
-            europe: countries.filter(
-              (item) => item.region === REGION_KEY.EUROPE
-            ).length,
-            north_america: countries.filter(
-              (item) => item.region === REGION_KEY.NORTH_AMERICA
-            ).length,
-            oceania: countries.filter(
-              (item) => item.region === REGION_KEY.OCEANIA
-            ).length,
-            south_america: countries.filter(
-              (item) => item.region === REGION_KEY.SOUTH_AMERICA
-            ).length,
-          };
-        })
-      );
-      return resolve({
-        data: {
-          collections: result,
-          pagination,
-        },
-        statusCode: 200,
-      });
+    sort: string,
+    order: SortOrder
+  ) {
+    //
+    if (user.type !== UserType.TISC && user.relation_id !== brandId) {
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
+    }
+    //
+    const marketAvailabilities = await marketAvailabilityRepository.getMarketAvailabilityPagination(
+      brandId, limit, offset,
+      sort, order
+    );
+    //
+    const collections = marketAvailabilities.data.map(
+      (market) => mappingMarketAvailibility(market)
+    );
+    return successResponse({
+      data: {
+        collections,
+        pagination: marketAvailabilities.pagination,
+      },
     });
+  }
 
-  public getMarketAvailabilityGroupByCollection = (
-    brand_id: string
-  ): Promise<IMessageResponse | IMarketAvailabilityGroupByCollectionResponse> =>
-    new Promise(async (resolve) => {
-      const collections = await this.collectionModel.getAllBy({
-        brand_id,
-      });
-      const marketAvailabilities = await Promise.all(
-        collections.map(async (collection) => {
-          const temp: any = await this.get(collection.id);
-          if (temp.statusCode !== 200) {
-            return {
-              data: {
-                collection_id: "",
-                collection_name: "",
-                total_available: 0,
-                total: 0,
-                regions: [
-                  {
-                    name: "",
-                    count: 0,
-                    countries: [
-                      {
-                        id: "",
-                        name: "",
-                        phone_code: "",
-                        region: "",
-                        available: false,
-                      },
-                    ],
-                  },
-                ],
-              },
-              statusCode: 200,
-            };
-          }
-          return temp as IMarketAvailabilityResponse;
-        })
-      );
-      const result = marketAvailabilities.map(
-        (marketAvailability: IMarketAvailabilityResponse) => {
-          let countRegion = 0;
-          const regions = marketAvailability.data.regions
-          .map((region) => {
-            const availableCountries = region.countries.filter((country) => country.available === true);
-            countRegion += availableCountries.length;
-            const regionCountry = availableCountries
-              .map((country) => {
-                return country.name;
-              })
-              .join(", ");
-            return {
-              region_name: region.name,
-              count: availableCountries.length,
-              region_country: regionCountry,
-            };
-          });
-          return {
-            collection_name: marketAvailability.data.collection_name,
-            count: countRegion,
-            regions,
-          };
-        }
-      );
-      return resolve({
-        data: result.filter((item) => item.collection_name !== ""),
-        statusCode: 200,
-      });
+  public async getMarketAvailabilityGroupByCollection(relationId: string) {
+    const collections = await marketAvailabilityRepository.getAllCollection(relationId);
+    return successResponse({
+      data: mappingGroupByCollection(collections),
     });
+  }
+
+  public async getAvailableCountryByCollection(collectionId: string, projectId?: string) {
+    const collection = await collectionRepository.find(collectionId);
+    if (!collection || collection.relation_type !== CollectionRelationType.Brand) {
+      return [];
+    }
+    const market = await marketAvailabilityRepository.findByCollection(
+      collection.relation_id,
+      collection.id
+    );
+    const result = mappingMarketAvailibility(market);
+
+    if (projectId) {
+      const project = await projectRepository.getProjectWithLocation(projectId);
+      if (!project) {
+        return [];
+      }
+      /// only for project location
+      if (result.countries.find((country) => {
+        return country.available && project.location.country_id === country.id
+      })) {
+        return [project.location.country_id];
+      }
+      return [];
+    }
+    return result.countries.reduce((countryIds, country) => {
+      if (country.available) {
+        countryIds.push(country.id);
+      }
+      return countryIds;
+    }, [] as string[]);
+  }
 }
+
+export const marketAvailabilityService = new MarketAvailabilityService();
+export default MarketAvailabilityService;

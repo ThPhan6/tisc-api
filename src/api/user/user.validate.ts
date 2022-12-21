@@ -1,48 +1,29 @@
-import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import Joi from "joi";
+import {
+  requireBooleanValidation,
+  requireEmailValidation,
+  requireStringValidation,
+  stringValidation,
+} from "@/validate/common.validate";
+import { BrandRoles, DesignFirmRoles, RoleIndex, TiscRoles } from "@/constants";
+import { UserType } from "@/types";
+
+const userPayload = {
+  firstname: requireStringValidation("First name"),
+  lastname: requireStringValidation("Last name"),
+  gender: requireBooleanValidation("Gender"),
+  location_id: requireStringValidation("Work location"),
+  department_id: requireStringValidation("Department"),
+  position: requireStringValidation("Position"),
+  email: requireEmailValidation("Work email"),
+  phone: requireStringValidation("Phone"),
+  mobile: requireStringValidation("Mobile"),
+  role_id: requireStringValidation("Access level"),
+};
+
 export default {
   create: {
-    payload: {
-      firstname: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("First name is required")),
-      lastname: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Last name is required")),
-      gender: Joi.boolean()
-        .required()
-        .error(commonFailValidatedMessageFunction("Gender is required")),
-      location_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Work location is required")),
-      department_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Department is required")),
-      position: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Position is required")),
-      email: Joi.string()
-        .email()
-        .required()
-        .error(commonFailValidatedMessageFunction("Work email is required")),
-      phone: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Phone is required")),
-      mobile: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Mobile is required")),
-      role_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Access level is required")),
-    },
+    payload: userPayload,
   },
   updateMe: {
     payload: {
@@ -51,6 +32,7 @@ export default {
       zone_code: Joi.string().allow(""),
       linkedin: Joi.string().allow(""),
       interested: Joi.array().items(Joi.number()),
+      personal_phone_code: Joi.string().allow("")
     },
   },
   updateAvatar: {
@@ -60,86 +42,50 @@ export default {
   },
   update: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Id is required")),
+      id: requireStringValidation("Id"),
     },
-    payload: {
-      firstname: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("First name is required")),
-      lastname: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Last name is required")),
-      gender: Joi.boolean()
-        .required()
-        .error(commonFailValidatedMessageFunction("Gender is required")),
-      location_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Work location is required")),
-      department_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Department is required")),
-      position: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Position is required")),
-      email: Joi.string()
-        .email()
-        .required()
-        .error(commonFailValidatedMessageFunction("Work email is required")),
-      phone: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Phone is required")),
-      mobile: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Mobile is required")),
-      role_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Access level is required")),
-    },
+    payload: userPayload,
   },
   getOne: {
     params: {
-      id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Id is required")),
+      id: requireStringValidation("Id"),
     },
   },
   getWithBrandId: {
     params: {
-      brand_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand is required")),
+      brand_id: requireStringValidation("Brand"),
     },
   },
   getWithDesignId: {
     params: {
-      design_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Design is required")),
+      design_id: requireStringValidation("Design"),
     },
   },
 
   assignTeam: {
     params: {
-      brand_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand is required")),
+      brand_id: requireStringValidation("Brand"),
     },
     payload: {
       user_ids: Joi.array().items(Joi.string()),
+    },
+  },
+  getListByTypeRoleAndRelation: {
+    query: {
+      type: Joi.number().valid(
+        UserType.TISC,
+        UserType.Brand,
+        UserType.Designer
+      ),
+      role: Joi.number().valid(
+        RoleIndex[TiscRoles.Admin],
+        RoleIndex[TiscRoles.Consultant],
+        RoleIndex[BrandRoles.Admin],
+        RoleIndex[BrandRoles.Member],
+        RoleIndex[DesignFirmRoles.Admin],
+        RoleIndex[DesignFirmRoles.Member]
+      ),
+      relation_id: stringValidation(),
     },
   },
 };

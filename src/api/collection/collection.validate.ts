@@ -1,52 +1,37 @@
-import * as Joi from "joi";
-import { commonFailValidatedMessageFunction } from "../../validate/common.validate";
+import Joi from "joi";
+import {
+  getListValidation,
+  requireStringValidation,
+  errorMessage,
+  getOneValidation,
+} from "@/validate/common.validate";
+import { getEnumValues } from "@/helper/common.helper";
+import { CollectionRelationType } from "@/types";
 
 export default {
   create: {
     payload: {
-      name: Joi.string()
-        .trim()
+      name: requireStringValidation("Collection name"),
+      relation_id: requireStringValidation("Relation"),
+      relation_type: Joi.number()
         .required()
-        .error(
-          commonFailValidatedMessageFunction("Collection name is required")
-        ),
-      brand_id: Joi.string()
-        .trim()
-        .required()
-        .error(commonFailValidatedMessageFunction("Brand is required")),
+        .valid(...getEnumValues(CollectionRelationType))
+        .error(errorMessage("Relation Type is required")),
     },
   },
-  getList: {
-    query: Joi.object({
-      brand_id: Joi.string()
-        .trim()
+  update: {
+    ...getOneValidation,
+    payload: {
+      name: requireStringValidation("Collection name"),
+    },
+  },
+  getList: getListValidation({
+    query: {
+      relation_id: requireStringValidation("Relation"),
+      relation_type: Joi.number()
         .required()
-        .error(commonFailValidatedMessageFunction("Brand is required")),
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-    }).custom((value) => {
-      return {
-        brand_id: value.brand_id,
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-      };
-    }),
-  } as any,
+        .valid(...getEnumValues(CollectionRelationType))
+        .error(errorMessage("Relation Type is required")),
+    },
+  }),
 };

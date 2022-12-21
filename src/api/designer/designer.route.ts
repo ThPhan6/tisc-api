@@ -1,13 +1,12 @@
 import * as Hapi from "@hapi/hapi";
 import DesignerController from "./designer.controller";
-import commonValidate from "../../validate/common.validate";
-import IRoute from "../../helper/route.helper";
+import { getOneValidation } from "@/validate/common.validate";
+import IRoute from "@/helper/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   statuses,
-} from "../../helper/response.helper";
-import { ROUTES } from "../../constant/api.constant";
-import { AUTH_NAMES } from "../../constant/auth.constant";
+} from "@/helper/response.helper";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./designer.response";
 import validate from "./designer.validate";
 
@@ -19,7 +18,7 @@ export default class DesignerRoute implements IRoute {
       server.route([
         {
           method: "GET",
-          path: ROUTES.GET_LIST_DESIGN_FIRM,
+          path: ROUTES.DESIGN_FIRM.GET_LIST_DESIGN_FIRM,
           options: {
             handler: controller.getList,
             validate: validate.getList,
@@ -36,10 +35,10 @@ export default class DesignerRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_ONE_DESIGN_FIRM,
+          path: ROUTES.DESIGN_FIRM.GET_ONE_DESIGN_FIRM,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one design firm",
             tags: ["api", "Designer"],
             auth: AUTH_NAMES.PERMISSION,
@@ -53,7 +52,24 @@ export default class DesignerRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_DESIGN_STATUSES,
+          path: ROUTES.DESIGN_FIRM.GET_DESIGN_FIRM_LIBRARY,
+          options: {
+            handler: controller.getDesignLibrary,
+            validate: getOneValidation,
+            description: "Method that get design firm library info",
+            tags: ["api", "Designer"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getLibrary,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.DESIGN_FIRM.GET_DESIGN_STATUSES,
           options: {
             handler: controller.getStatuses,
             description: "Method that get designer statuses",
@@ -67,7 +83,7 @@ export default class DesignerRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_ALL_DESIGN_FIRM_SUMMARY,
+          path: ROUTES.DESIGN_FIRM.GET_ALL_DESIGN_FIRM_SUMMARY,
           options: {
             handler: controller.getAllDesignSummary,
             description: "Method that get all design summary",
@@ -76,16 +92,16 @@ export default class DesignerRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getAllDesignSummary,
+                200: response.getAllDesignSummary,
               },
             },
           },
         },
         {
-          method: "PUT",
-          path: ROUTES.UPDATE_DESIGN_STATUS,
+          method: "PATCH",
+          path: ROUTES.DESIGN_FIRM.UPDATE_DESIGN_STATUS,
           options: {
-            handler: controller.updateDesignStatus,
+            handler: controller.updateDesign,
             validate: validate.updateDesignStatus,
             description: "Method that update design status",
             tags: ["api", "Designer"],
@@ -93,6 +109,23 @@ export default class DesignerRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "PATCH",
+          path: ROUTES.DESIGN_FIRM.UPDATE_DESIGN_FIRM,
+          options: {
+            handler: controller.updateDesign,
+            validate: validate.updateDesign,
+            description: "Method that update design office profile",
+            tags: ["api", "Designer"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
               },
             },
           },
