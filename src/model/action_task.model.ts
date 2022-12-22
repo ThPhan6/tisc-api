@@ -1,4 +1,4 @@
-import { ActionTaskAttribute } from "@/types/action_task.type";
+import { ActionTaskAttribute } from "@/types";
 import Model from "@/Database/Model";
 
 export default class ActionTaskModel extends Model<ActionTaskAttribute> {

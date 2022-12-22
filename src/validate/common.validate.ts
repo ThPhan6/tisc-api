@@ -1,4 +1,5 @@
-import * as Joi from "joi";
+import Joi from "joi";
+import moment from "moment";
 
 export const customFilter = (value: any, helpers: any) => {
   try {
@@ -12,9 +13,7 @@ export const customFilter = (value: any, helpers: any) => {
   }
 };
 
-export const commonFailValidatedMessageFunction = (message: string) => {
-  return new Error(message);
-};
+export const errorMessage = (message: string) => new Error(message);
 
 export const orderValidation = Joi.string().valid("ASC", "DESC");
 
@@ -23,7 +22,7 @@ const defaultGetListQueryValidation: Joi.PartialSchemaMap<any> = {
     .custom((value, helpers) => {
       return customFilter(value, helpers);
     }, "custom filter validation")
-    .error(commonFailValidatedMessageFunction("Invalid filter")),
+    .error(errorMessage("Invalid filter")),
 };
 
 const defaultGetListWithSortingQueryValidation: Joi.PartialSchemaMap<any> = {
@@ -33,7 +32,6 @@ const defaultGetListWithSortingQueryValidation: Joi.PartialSchemaMap<any> = {
 };
 
 const getDefaultGetListQueryCustom = (value: any) => ({
-  filter: value.filter,
   sort: value.sort || "created_at",
   order: value.order || "DESC",
 });
@@ -53,6 +51,7 @@ export const getAllValidation = (
 
 export const getListValidation = (options?: {
   query?: Joi.PartialSchemaMap<any>;
+  params?: Joi.PartialSchemaMap<any>;
   custom?: Joi.CustomValidator<any>;
   noSorting?: boolean;
 }) => ({
@@ -63,16 +62,14 @@ export const getListValidation = (options?: {
         if (!Number.isInteger(value)) return helpers.error("any.invalid");
         return value;
       })
-      .error(commonFailValidatedMessageFunction("Page must be an integer")),
+      .error(errorMessage("Page must be an integer")),
     pageSize: Joi.number()
       .min(1)
       .custom((value, helpers) => {
         if (!Number.isInteger(value)) return helpers.error("any.invalid");
         return value;
       })
-      .error(
-        commonFailValidatedMessageFunction("Page Size must be an integer")
-      ),
+      .error(errorMessage("Page Size must be an integer")),
 
     ...(options?.noSorting
       ? defaultGetListQueryValidation
@@ -87,75 +84,116 @@ export const getListValidation = (options?: {
     ...getDefaultGetListQueryCustom(value),
     ...options?.custom?.(value, helpers),
   })),
+  params: options?.params,
 });
 
-export default {
-  getList: {
-    query: Joi.object({
-      page: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(commonFailValidatedMessageFunction("Page must be an integer")),
-
-      pageSize: Joi.number()
-        .min(1)
-        .custom((value, helpers) => {
-          if (!Number.isInteger(value)) return helpers.error("any.invalid");
-          return value;
-        })
-        .error(
-          commonFailValidatedMessageFunction("Page Size must be an integer")
-        ),
-
-      sort: Joi.string(),
-      order: orderValidation,
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          return customFilter(value, helpers);
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-    }).custom((value) => {
-      return {
-        limit: !value.page || !value.pageSize ? 10 : value.pageSize,
-        offset:
-          !value.page || !value.pageSize
-            ? 0
-            : (value.page - 1) * value.pageSize,
-        filter: value.filter,
-        sort: value.sort ? [value.sort, value.order] : undefined,
-      };
-    }),
-  } as any,
-  getMany: {
-    query: {
-      filter: Joi.string()
-        .custom((value, helpers) => {
-          try {
-            const filter = JSON.parse(decodeURIComponent(value));
-            if (
-              typeof filter === "object" &&
-              filter.ids &&
-              Array.isArray(filter.ids) &&
-              filter.ids[0]
-            ) {
-              return filter;
-            }
-            return helpers.error("any.invalid");
-          } catch (error) {
-            return helpers.error("any.invalid");
-          }
-        }, "custom filter validation")
-        .error(commonFailValidatedMessageFunction("Invalid filter")),
-    },
-  },
-  getOne: {
-    params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Id can not be empty")),
-    },
+export const getOneValidation = {
+  params: {
+    id: Joi.string().required().error(errorMessage("Id can not be empty")),
   },
 };
+
+export const stringValidation = () => Joi.string().trim().allow("", null);
+export const numberValidation = () => Joi.number().allow(null);
+
+const regexPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
+
+export const requirePasswordValidation = Joi.string()
+  .required()
+  .regex(regexPassword)
+  .error(errorMessage("Password is required and valid"));
+
+// export const requireNumberValidation = (fieldName: string, full?: "full") =>
+//   Joi.number()
+//     .required()
+//     .error(
+//       errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
+//     );
+
+export const requireBooleanValidation = (fieldName: string, full?: "full") =>
+  Joi.boolean()
+    .required()
+    .error(
+      errorMessage(full === "full" ? fieldName : `${fieldName} is required`)
+    );
+
+export const requireDateValidation = (minDate: number, maxDate: number) =>
+  Joi.date()
+    .max(moment().startOf("day").add(maxDate, "days").format("YYYY-MM-DD"))
+    .min(moment().startOf("day").add(minDate, "days").format("YYYY-MM-DD"))
+    .required()
+    .error(
+      errorMessage(
+        `A date must be have format YYYY-MM-DD and between ${
+          minDate == 0 ? "today" : minDate
+        } with ${maxDate} next days`
+      )
+    )
+    .custom((value) => {
+      return moment(value).format("YYYY-MM-DD");
+    });
+
+type ErrorLocalState = {
+  label: string;
+  limit?: number;
+  value?: number;
+};
+export const customErrorMessages = (local: ErrorLocalState) => {
+  const { label } = local;
+  return {
+    "any.required": `${label} is required`,
+    "string.base": `${label} is required`,
+    "string.empty": `${label} is required`,
+    "string.email": `${label} is invalid`,
+    "string.domain": `${label} is invalid`,
+    "string.uri": `${label} is invalid`,
+    "string.guid": `${label} is invalid`,
+    "number.base": `${label} is required`,
+    "number.positive": `${label} must be greater than or equal to zero`,
+  } as Record<string, string>;
+};
+export const getCustomErrorMessage = (code: string, local: ErrorLocalState) =>
+  customErrorMessages(local)?.[code];
+
+export const requireStringValidation = (
+  fieldName: string,
+  customMessage?: string
+) =>
+  Joi.string()
+    .trim()
+    .required()
+    .error((errors: any) => {
+      errors[0].local.label = fieldName;
+      const message =
+        customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
+      return message ? Error(message) : errors[0];
+    });
+
+export const requireEmailValidation = (
+  fieldName: string = "Email",
+  customMessage?: string
+) =>
+  Joi.string()
+    .trim()
+    .required()
+    .email()
+    .lowercase()
+    .error((errors: any) => {
+      errors[0].local.label = fieldName;
+      const message =
+        customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
+      return message ? Error(message) : errors[0];
+    });
+
+export const requireNumberValidation = (fieldName: string) =>
+  Joi.number()
+    .required()
+    .error((errors: any) => {
+      errors[0].local.label = fieldName;
+      const customMessage = getCustomErrorMessage(
+        errors[0].code,
+        errors[0].local
+      );
+      return customMessage ? Error(customMessage) : errors[0];
+    });

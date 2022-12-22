@@ -1,8 +1,12 @@
 import DesignerModel from "@/model/designer.model";
 import BaseRepository from "./base.repository";
 import {
+  CustomProductAttributes,
+  CustomResouceType,
   DesignerAttributes,
+  DesignFirmFunctionalType,
   ListDesignerWithPaginate,
+  LocationType,
   ProjectStatus,
   SortOrder,
   UserStatus,
@@ -11,7 +15,8 @@ import {
   DesignerDataCustom,
   GetDesignFirmSort,
 } from "@/api/designer/designer.type";
-import { DesignFirmFunctionalType } from "@/api/location/location.type";
+import { getUnsetAttributes } from "@/helper/common.helper";
+import { locationRepository } from "./location.repository";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {
   protected model: DesignerModel;
@@ -57,14 +62,15 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
     order: SortOrder = "ASC"
   ) {
     const params = {
-      satelliteType: DesignFirmFunctionalType.Satellite,
+      satelliteType: DesignFirmFunctionalType.SatelliteOffice,
       live: ProjectStatus.Live,
       onHold: ProjectStatus["On Hold"],
       archived: ProjectStatus.Archived,
       activeStatus: UserStatus.Active,
+      designLocation: LocationType.designer,
     };
     const rawQuery = `
-
+     FILTER designers.deleted_at == null
       LET userCount = (
         FOR users IN users
         FILTER users.deleted_at == null
@@ -77,6 +83,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FOR loc IN locations
         FILTER loc.deleted_at == null
         FILTER loc.relation_id == designers.id
+        FILTER loc.type == @designLocation
         RETURN loc
       )
       LET satellitesCount = (
@@ -136,7 +143,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         RETURN common_types.name
       )
       RETURN MERGE(
-        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status'),
+        KEEP(designers, 'id', 'logo', 'name', 'parent_company', 'profile_n_philosophy', 'slogan', 'status', 'official_website'),
         {design_capabilities: CONCAT_SEPARATOR(', ', capabilities)}
       )
     `,
@@ -174,6 +181,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         LET loc = (
           FOR loc IN locations
           FILTER loc.relation_id == d.id
+          FILTER loc.type == @designLocation
           FILTER loc.deleted_at == null
           LET country = (
             FOR c in countries
@@ -273,9 +281,78 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         onHoldStatus: ProjectStatus["On Hold"],
         archiveStatus: ProjectStatus.Archived,
         activeStatus: UserStatus.Active,
+        designLocation: LocationType.designer,
       }
     );
     return designFirm[0];
+  }
+
+  public async getLibrary(
+    designId: string
+  ): Promise<{ products: CustomProductAttributes[] }> {
+    const result = await this.model.rawQueryV2(
+      `
+      LET brands = (
+        FOR b IN custom_resources
+        FILTER b.deleted_at == null
+        FILTER b.design_id == @designId
+        FILTER b.type == @brandType
+        FOR loc IN locations
+        FILTER loc.id == b.location_id
+        FILTER loc.deleted_at == null
+        RETURN MERGE(
+          ${getUnsetAttributes("b")},
+          KEEP(loc, ${locationRepository.basicAttributesQuery})
+        )
+      )
+
+      LET distributors = (
+        FOR b IN custom_resources
+        FILTER b.deleted_at == null
+        FILTER b.design_id == @designId
+        FILTER b.type == @distributorType
+        FOR loc IN locations
+        FILTER loc.id == b.location_id
+        FILTER loc.deleted_at == null
+        RETURN MERGE(
+          ${getUnsetAttributes("b")},
+          KEEP(loc, ${locationRepository.basicAttributesQuery})
+        )
+      )
+
+      LET products = (
+        FOR p IN custom_products
+        FILTER p.design_id == @designId
+        FILTER p.deleted_at == null
+        FOR b IN brands
+        FILTER b.id == p.company_id
+        FOR col IN collections
+        FILTER col.id == p.collection_id
+        RETURN MERGE(${getUnsetAttributes(
+          "p",
+          "'images'"
+        )}, {company_name: b.business_name, collection_name: col.name, image: FIRST(p.images) })
+      )
+
+      LET collections = (
+        FOR p IN products
+        COLLECT collection_id = p.collection_id, collection_name = p.collection_name  INTO group
+        RETURN {
+          id: collection_id,
+          name: collection_name,
+          products: (FOR g IN group RETURN KEEP(g.p, 'id', 'name', 'image') )
+        }
+      )
+
+      RETURN { brands, distributors, collections, products }
+    `,
+      {
+        designId,
+        brandType: CustomResouceType.Brand,
+        distributorType: CustomResouceType.Distributor,
+      }
+    );
+    return result[0];
   }
 }
 export const designerRepository = new DesignerRepository();

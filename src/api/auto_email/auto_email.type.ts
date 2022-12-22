@@ -1,5 +1,4 @@
-import { IAutoEmailAttributes } from "@/types/auto_email.type";
-import { IPagination } from "@/types";
+import { IAutoEmailAttributes, Pagination } from "@/types";
 export interface IUpdateAutoEmailRequest {
   topic: number;
   targeted_for: number;
@@ -15,7 +14,7 @@ export interface IAutoEmailResponse {
 export interface IAutoEmailsResponse {
   data: {
     auto_emails: IAutoEmailAttributes[];
-    pagination: IPagination;
+    pagination: Pagination;
   };
   statusCode: number;
 }

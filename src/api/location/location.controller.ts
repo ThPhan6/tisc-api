@@ -1,23 +1,21 @@
 import { errorMessageResponse } from "@/helper/response.helper";
-import { SYSTEM_TYPE } from "@/constants";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { locationService } from "./location.service";
-import { ILocationRequest } from "./location.type";
-import { UserAttributes } from "@/types";
+import { LocationRequest, UserAttributes, UserType } from "@/types";
 
 export default class LocationController {
   private async validateBusinessNumber(
     user: UserAttributes,
     businessNumber: string
   ) {
-    if (SYSTEM_TYPE.DESIGN !== user.type && businessNumber === "") {
+    if (UserType.Designer !== user.type && businessNumber === "") {
       return false;
     }
     return true;
   }
 
   public create = async (
-    req: Request & { payload: ILocationRequest },
+    req: Request & { payload: LocationRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
@@ -40,7 +38,7 @@ export default class LocationController {
   };
 
   public update = async (
-    req: Request & { payload: ILocationRequest },
+    req: Request & { payload: LocationRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;

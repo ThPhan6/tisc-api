@@ -1,34 +1,29 @@
 import Joi from "joi";
-import { commonFailValidatedMessageFunction } from "@/validate/common.validate";
+import {
+  requireNumberValidation,
+  requireStringValidation,
+} from "@/validate/common.validate";
 
 export default {
   getStates: {
     query: {
-      country_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
+      country_id: requireStringValidation("Country id"),
     },
   },
   getCities: {
     query: {
-      country_id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Country id is required")),
+      country_id: requireStringValidation("Country id"),
       state_id: Joi.string(),
     },
   },
   findById: {
     params: {
-      id: Joi.string()
-        .required()
-        .error(commonFailValidatedMessageFunction("Id is required")),
+      id: requireStringValidation("Id"),
     },
   },
   getCommonTypes: {
     params: {
-      type: Joi.number()
-        .required()
-        .error(commonFailValidatedMessageFunction("Type is required")),
+      type: requireNumberValidation("Type"),
       sort_order: Joi.string().valid("ASC", "DESC").allow(""),
     },
   },

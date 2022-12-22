@@ -6,12 +6,13 @@ import {
 } from "@/helper/response.helper";
 import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
-import { RespondedOrPendingStatus, UserAttributes } from "@/types";
 import {
+  RespondedOrPendingStatus,
+  UserAttributes,
   ActionTaskModelEnum,
   ActionTaskModelKey,
   ActionTaskStatus,
-} from "@/types/action_task.type";
+} from "@/types";
 import { projectRequestRepository } from "../project_tracking/project_request.repository";
 import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";

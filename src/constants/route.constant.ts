@@ -92,26 +92,8 @@ export const ROUTES = {
   GET_LIST_CONTACT: "/api/contact/list",
   GET_ONE_CONTACT: "/api/contact/get-one/{id}",
   GET_ONE_SUBSCRIPTION: "/api/subscription/get-one/{id}",
-  GET_LIST_COLLECTION: "/api/collection/get-list",
-  CREATE_COLLECTION: "/api/collection/create",
   GET_LIST_REST_COLLECTION_PRODUCT:
     "/api/product/get-list-rest-collection-product/{id}",
-
-  CREATE_PRODUCT_TIP: "/api/product-tip/create",
-  GET_LIST_PRODUCT_TIP: "/api/product-tip/get-list",
-  GET_ONE_PRODUCT_TIP: "/api/product-tip/get-one/{product_id}",
-  EDIT_PRODUCT_TIP: "/api/product-tip/update/{product_id}",
-  DELETE_PRODUCT_TIP: "/api/product-tip/delete/{product_id}",
-  GET_LIST_PRODUCT_TIP_BY_PRODUCT_ID:
-    "/api/product-tip/get-list-by-product/{id}",
-
-  CREATE_PRODUCT_DOWNLOAD: "/api/product-download/create",
-  GET_LIST_PRODUCT_DOWNLOAD: "/api/product-download/get-list",
-  GET_ONE_PRODUCT_DOWNLOAD: "/api/product-download/get-one/{product_id}",
-  EDIT_PRODUCT_DOWNLOAD: "/api/product-download/update/{product_id}",
-  DELETE_PRODUCT_DOWNLOAD: "/api/product-download/delete/{product_id}",
-  GET_LIST_PRODUCT_DOWNLOAD_BY_PRODUCT_ID:
-    "/api/product-download/get-list-by-product/{id}",
 
   GET_LIST_AUTO_EMAIL_TOPIC: "/api/email-auto/get-list-topic",
   GET_LIST_AUTO_EMAIL_TARGETED_FOR: "/api/email-auto/get-list-targeted-for",
@@ -131,11 +113,11 @@ export const ROUTES = {
   GET_LIST_DISTRIBUTOR: "/api/distributor/get-list",
   GET_ONE_DISTRIBUTOR: "/api/distributor/get-one/{id}",
   GET_MARKET_DISTRIBUTOR_COUNTRY_GROUP: "/api/distributor/market/{product_id}",
-  CREATE_MARKET_AVAILABILITY: "/api/market-availability/create",
+
   UPDATE_MARKET_AVAILABILITY: "/api/market-availability/update/{id}",
-  DELETE_MARKET_AVAILABILITY: "/api/market-availability/delete/{id}",
   GET_LIST_MARKET_AVAILABILITY: "/api/market-availability/get-list",
   GET_ONE_MARKET_AVAILABILITY: "/api/market-availability/get-one/{id}",
+
   UPDATE_DESIGN_PROFILE: "/api/design/update-profile",
   CREATE_PROJECT_ZONE: "/api/project-zone/create",
   UPDATE_PROJECT_ZONE: "/api/project-zone/update/{id}",
@@ -149,16 +131,6 @@ export const ROUTES = {
   GET_ONE_MATERIAL_CODE: "/api/material-code/get-one/{id}",
   GET_ALL_ATTRIBUTE: "/api/attribute/get-all",
 
-  CREATE_PRODUCT_CATELOGUE_DOWNLOAD: "/api/product-catelogue-download/create",
-  GET_LIST_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/get-list",
-  GET_ONE_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/get-one/{product_id}",
-  EDIT_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/update/{product_id}",
-  DELETE_PRODUCT_CATELOGUE_DOWNLOAD:
-    "/api/product-catelogue-download/delete/{product_id}",
-
   GET_COUNTRY: "/api/location/get-country/{id}",
   GET_STATE: "/api/location/get-state/{id}",
   GET_CITY: "/api/location/get-city/{id}",
@@ -168,28 +140,22 @@ export const ROUTES = {
   UPDATE_HOWTO: "/api/documentation/howto/update",
   GET_ALL_HOWTO: "/api/documentation/howto/get-all",
   GET_ALL_BRAND_SUMMARY: "/api/brand/summary",
-  DELETE_COLLECTION: "/api/collection/delete/{id}",
   GET_LIST_DESIGNER_BRAND_PRODUCTS: "/api/product/design/get-list",
   GET_PROJECT_TYPES: "/api/project/project-types",
   GET_BUILDING_TYPES: "/api/project/building-types",
   GET_PRODUCT_OPTIONS: "/api/product/{id}/attribute/{attribute_id}/get-options",
-  ASSIGN_PRODUCT_TO_PROJECT: "/api/product/assign",
   SHARE_PRODUCT_BY_EMAIL: "/api/product/share-via-email",
   GET_SHARING_GROUPS: "/api/product/sharing-groups",
   GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
+  GET_PROJECT_SUMMARY_OVERALL: "/api/project/get-summary-overall",
+  GET_PROJECT_LISTING: "/api/project/listing",
+  GET_ONE_PROJECT_LISTING: "/api/project/listing/{id}",
   GET_MARKET_LOCATIONS_COUNTRY_GROUP: "/api/location/market/{product_id}",
   GET_BRAND_LOCATIONS_COUNTRY_GROUP: "/api/location/brand/{brand_id}",
-  GET_CONSIDERED_PRODUCTS: "/api/considered-product/get-list/{project_id}",
-  GET_CONSIDERED_PRODUCT_STATUS: "/api/considered-product/status",
   GET_BRAND_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/brand/{brand_id}",
-  SPECIFY_PRODUCT: "/api/specified-product/specify",
-  GET_REQUIREMENT_TYPES: "/api/requirement-type/get-list",
-  GET_INSTRUCTION_TYPES: "/api/instruction-type/get-list",
-  GET_UNIT_TYPES: "/api/unit-type/get-list",
-  GET_ONE_SPECIFIED_PRODUCT:
-    "/api/specified-product/get-one/{considered_product_id}",
+
   GET_DESIGN_LOCATIONS_COUNTRY_GROUP: "/api/location/design/{design_id}",
   GET_DESIGN_TEAM_GROUP_BY_COUNTRY: "/api/team-profile/design/{design_id}",
   GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
@@ -211,8 +177,6 @@ export const ROUTES = {
   GET_LIST_ASSIGNED_PROJECT:
     "/api/considered-product/get-list-assigned/{project_id}/{product_id}",
   GET_TISC_TEAM_PROFILE: "/api/team/get-list-group-team-profile/{brand_id}",
-  UPDATE_STATUS_CONSIDER_PRODUCT: "/api/considered-product/update-status/{id}",
-  DELETE_CONSIDER_PRODUCT: "/api/considered-product/delete/{id}",
   GET_LIST_POLICY_LANDING_PAGE: "/api/documentation/get-list-policy",
   FAVOURITE: {
     SKIP: "/api/favourite/skip",
@@ -234,6 +198,7 @@ export const ROUTES = {
     FIND_CITY: "/api/setting/cities/{id}",
     GET_MEASUREMENT_UNIT: "/api/setting/measurement-units",
     GET_FUNCTIONAL_TYPE: "/api/setting/functional-type",
+    GET_DEFAULT_DIMENSION_AND_WEIGHT: "/api/setting/dimension-and-weight",
   },
   MATERIAL_CODE: {
     GET_MATERIAL_CODES: "/api/material-code/get-list",
@@ -255,10 +220,27 @@ export const ROUTES = {
     GET_LIST: "/api/action-task",
     UPDATE: "/api/action-task/{id}",
   },
+  INVOICE: {
+    CREATE: "/api/invoice",
+    DELETE: "/api/invoice/{id}/delete",
+    GET_LIST: "/api/invoice",
+    GET_SUMMARY: "/api/invoice/summary",
+    UPDATE: "/api/invoice/{id}",
+    GET: "/api/invoice/{id}",
+    SEND_REMINDER: "/api/invoice/{id}/send-reminder",
+    BILL: "/api/invoice/{id}/bill",
+    PAID: "/api/invoice/{id}/paid",
+    GET_INVOICE_PDF: "/api/invoice/{id}/invoice-pdf",
+  },
+  USER: {
+    GET_BY_TYPE_ROLE_AND_RELATION:
+      "/api/team-profile/get-by-type-role-relation",
+  },
   DESIGN_FIRM: {
     UPDATE_DESIGN_FIRM: "/api/design/office-profile/{id}",
     GET_LIST_DESIGN_FIRM: "/api/design/get-list",
     GET_ONE_DESIGN_FIRM: "/api/design/get-one/{id}",
+    GET_DESIGN_FIRM_LIBRARY: "/api/design/{id}/library",
     GET_DESIGN_STATUSES: "/api/design/statuses",
     GET_ALL_DESIGN_FIRM_SUMMARY: "/api/design/summary",
     UPDATE_DESIGN_STATUS: "/api/design/update-status/{id}",
@@ -296,6 +278,24 @@ export const ROUTES = {
     GENERATE_PROJECT_PDF: "/api/pdf/project/{project_id}/generate",
     GET_PROJECT_PDF_CONFIG: "/api/pdf/project/config/{project_id}",
   },
+  CUSTOM_PRODUCT: {
+    CREATE: "/api/custom-product/create",
+    UPDATE: "/api/custom-product/update/{id}",
+    GET_LIST: "/api/custom-product/get-list",
+    GET_ONE: "/api/custom-product/get-one/{id}",
+    DELETE: "/api/custom-product/delete/{id}",
+    DUPLICATE: "/api/custom-product/duplicate/{id}",
+  },
+  CUSTOM_RESOURCE: {
+    CREATE: "/api/custom-resource/create",
+    UPDATE: "/api/custom-resource/update/{id}",
+    GET_LIST: "/api/custom-resource/get-list",
+    GET_ALL: "/api/custom-resource/get-all",
+    GET_ONE: "/api/custom-resource/get-one/{id}",
+    GET_SUMMARY: "/api/custom-resource/summary",
+    DELETE: "/api/custom-resource/delete/{id}",
+    GET_DISTRIBUTORS_BY_COMPANY: "/api/custom-resource/distributor/{brand_id}",
+  },
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
@@ -309,8 +309,22 @@ export const ROUTES = {
     FORGOT_PASSWORD: "/api/auth/forgot-password",
     RESET_PASSWORD: "/api/auth/reset-password",
     RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
-    CREATE_PASSWORD_VERIFY: "/api/auth/create-password-verify/{verification_token}",
+    CREATE_PASSWORD_VERIFY:
+      "/api/auth/create-password-verify/{verification_token}",
     ACCOUNT_VERIFY: "/api/auth/verify/{verification_token}",
     RESEND_EMAIL: "/api/auth/resend-email/{type}/{email}",
-  }
+  },
+  COLLECTION: {
+    GET_LIST: "/api/collection/get-list",
+    CREATE: "/api/collection/create",
+    UPDATE: "/api/collection/update/{id}",
+    DELETE: "/api/collection/delete/{id}",
+  },
+  BOOKING: {
+    AVAILABLE_SCHEDULE: "/api/booking/available-schedule",
+    CREATE: "/api/booking/create",
+    GET_ONE: "/api/booking/{id}",
+    RE_SCHEDULE: "/api/booking/{id}/re-schedule",
+    CANCEL: "/api/booking/{id}/cancel",
+  },
 };

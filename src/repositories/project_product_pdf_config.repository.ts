@@ -17,7 +17,7 @@ class ProjectProductPDFConfigRepository extends BaseRepository<ProjectProductPDF
     has_cover: false,
     document_title: "",
     template_ids: [],
-  }
+  };
 
   constructor() {
     super();
@@ -28,20 +28,28 @@ class ProjectProductPDFConfigRepository extends BaseRepository<ProjectProductPDF
     projectId: string,
     payload: Partial<ProjectProductPDFConfigAttribute>
   ) => {
-    return this.model
-      .where('project_id', '==', projectId)
-      .update(payload);
-  }
+    return this.model.where("project_id", "==", projectId).update(payload);
+  };
 
   public findWithInfoByProjectId = async (projectId: string) => {
-    return await this.model.where('project_product_pdf_configs.project_id', '==', projectId)
-    .join('locations', 'locations.id', '==', 'project_product_pdf_configs.location_id')
-    .join('common_types', 'common_types.id', '==', 'project_product_pdf_configs.issuing_for_id')
-    .first(true) as ProjectProductPDFConfigWithLocationAndType | undefined;
-  }
-
-
+    return (await this.model
+      .where("project_product_pdf_configs.project_id", "==", projectId)
+      .join(
+        "locations",
+        "locations.id",
+        "==",
+        "project_product_pdf_configs.location_id"
+      )
+      .join(
+        "common_types",
+        "common_types.id",
+        "==",
+        "project_product_pdf_configs.issuing_for_id"
+      )
+      .first(true)) as ProjectProductPDFConfigWithLocationAndType | undefined;
+  };
 }
 
 export default ProjectProductPDFConfigRepository;
-export const projectProductPDFConfigRepository = new ProjectProductPDFConfigRepository();
+export const projectProductPDFConfigRepository =
+  new ProjectProductPDFConfigRepository();

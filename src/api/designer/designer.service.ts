@@ -1,4 +1,4 @@
-import { COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
+import { ALL_REGIONS, COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -15,6 +15,7 @@ import {
 } from "@/types";
 import { sumBy } from "lodash";
 import { v4 } from "uuid";
+import { mappingDimensionAndWeight } from "../attribute/attribute.mapping";
 import { settingService } from "../setting/setting.service";
 import { GetDesignFirmSort } from "./designer.type";
 
@@ -22,7 +23,7 @@ class DesignerService {
   public async getList(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: GetDesignFirmSort,
     order: "ASC" | "DESC"
   ) {
@@ -79,7 +80,7 @@ class DesignerService {
         id: v4(),
         quantity: sumBy(designFirmSummary.countries.summary, "count"),
         label: "COUNTRIES",
-        subs: designFirmSummary.countries.regions.map((region) => ({
+        subs: ALL_REGIONS.map((region) => ({
           id: v4(),
           quantity:
             designFirmSummary.countries.summary.find(
@@ -120,8 +121,12 @@ class DesignerService {
     payload: Partial<DesignerAttributes>,
     user: UserAttributes
   ) {
-    if (designId !== user.relation_id && user.type !== UserType.Designer) {
-      return errorMessageResponse(MESSAGES.GENERAL.JUST_OWNER_CAN_UPDATE);
+    if (
+      designId !== user.relation_id &&
+      user.type !== UserType.Designer &&
+      user.type !== UserType.TISC
+    ) {
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const designer = await designerRepository.find(designId);
@@ -159,6 +164,27 @@ class DesignerService {
         }),
       });
     }
+  }
+
+  public async getDesignLibrary(id: string) {
+    const designFirm = await designerRepository.find(id);
+    if (!designFirm) {
+      return errorMessageResponse(MESSAGES.DESIGN_NOT_FOUND, 404);
+    }
+
+    const library = await designerRepository.getLibrary(id);
+
+    return successResponse({
+      data: {
+        ...library,
+        products: library.products.map((p) => ({
+          ...p,
+          dimension_and_weight: mappingDimensionAndWeight(
+            p.dimension_and_weight
+          ),
+        })),
+      },
+    });
   }
 }
 

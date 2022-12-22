@@ -87,17 +87,17 @@ class ProjectTrackingService {
       priority: el.project_tracking.priority,
       priorityName: ProjectTrackingPriority[el.project_tracking.priority],
       projectName: el.project.name,
-      projectLocation: el.project.location,
+      projectLocation: el.projectLocation,
       projectType: el.project.project_type,
       designFirm: el.designFirm?.name,
       projectStatus: ProjectStatus[el.project.status],
       requestCount: el.projectRequests.length,
-      newRequest: el.projectRequests.some((el) =>
-        el.read_by ? el.read_by.includes(user.id) === false : true
+      newRequest: el.projectRequests.some((item) =>
+        item.read_by ? item.read_by.includes(user.id) === false : true
       ),
       notificationCount: el.notifications.length,
-      newNotification: el.notifications.some((el) =>
-        el.read_by ? el.read_by.includes(user.id) === false : true
+      newNotification: el.notifications.some((item) =>
+        item.read_by ? item.read_by.includes(user.id) === false : true
       ),
       newTracking: el.project_tracking.read_by
         ? el.project_tracking.read_by.includes(user.id) === false

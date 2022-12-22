@@ -1,7 +1,11 @@
-import { FUNCTIONAL_TYPE_OPTIONS, MEASUREMENT_UNIT_OPTIONS } from "@/constants";
-import { UserAttributes } from "@/types";
+import { MEASUREMENT_UNIT_OPTIONS } from "@/constants";
+import {
+  UserAttributes,
+  DesignLocationFunctionTypeOption
+} from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { settingService } from "./setting.service";
+import {getDefaultDimensionAndWeightAttribute} from '@/api/attribute/attribute.mapping';
 
 export default class SettingController {
 
@@ -69,6 +73,12 @@ export default class SettingController {
     _req: Request,
     toolkit: ResponseToolkit
   ) => {
-    return toolkit.response(FUNCTIONAL_TYPE_OPTIONS).code(200);
+    return toolkit.response(DesignLocationFunctionTypeOption).code(200);
+  };
+  public getDimensionAndWeight = async (
+    _req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    return toolkit.response(getDefaultDimensionAndWeightAttribute()).code(200);
   };
 }

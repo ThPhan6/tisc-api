@@ -8,6 +8,7 @@ export interface IPermissionAttributes {
   parent_id: string | null;
   type: UserType;
   routes: string[];
+  index: number;
   created_at: string;
   updated_at: string | null;
 }

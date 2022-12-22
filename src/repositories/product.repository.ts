@@ -1,12 +1,12 @@
-import {
-  IProductAttributes,
-  ProductWithCollectionAndBrand,
-  ProductWithRelationData,
-} from "@/types/product.type";
 import BaseRepository from "./base.repository";
 import ProductModel from "@/model/product.model";
 import { head, isUndefined } from "lodash";
-import { SortOrder } from "@/types";
+import {
+  SortOrder,
+  IProductAttributes,
+  ProductWithCollectionAndBrand,
+  ProductWithRelationData,
+} from "@/types";
 
 class ProductRepository extends BaseRepository<IProductAttributes> {
   protected model: ProductModel;
@@ -33,20 +33,31 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     this.model = new ProductModel();
   }
 
-  private getProductQuery = (
-    filterProductId?: string,
-    filterBrandId?: string,
-    filterCollectionId?: string,
-    filterCategoryId?: string,
-    withFavourite: boolean = true,
-    filterLiked: boolean = false,
-    keyword?: string,
-    sortName?: string,
-    sortOrder?: SortOrder
-  ) => {
+  private getProductQuery = (options: {
+    productId?: string;
+    brandId?: string;
+    collectionId?: string;
+    categoryId?: string;
+    withFavourite?: boolean;
+    filterLiked?: boolean;
+    keyword?: string;
+    sortName?: string;
+    sortOrder?: SortOrder;
+  }) => {
+    const {
+      filterLiked = false,
+      withFavourite = true,
+      brandId,
+      categoryId,
+      collectionId,
+      productId,
+      keyword,
+      sortName,
+      sortOrder,
+    } = options;
     return `
-      ${filterCategoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
-      ${filterProductId ? ` filter products.id == @productId ` : ""}
+      ${categoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
+      ${productId ? ` filter products.id == @productId ` : ""}
       filter products.deleted_at == null
       ${
         keyword
@@ -60,21 +71,18 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
               for subCategory in mainCategory.subs
                   for category in subCategory.subs
                       FILTER category.id in products.category_ids
-                      ${
-                        filterCategoryId
-                          ? ` FILTER category.id == @categoryId`
-                          : ""
-                      }
+                      ${categoryId ? ` FILTER category.id == @categoryId` : ""}
           return category
       )
       for brand in brands
           filter brand.id == products.brand_id
           filter brand.deleted_at == null
-          ${filterBrandId ? `filter brand.id == @brandId` : ""}
+          ${brandId ? `filter brand.id == @brandId` : ""}
+
       for collection in collections
           filter collection.id == products.collection_id
           filter collection.deleted_at == null
-          ${filterCollectionId ? `filter collection.id == @collectionId` : ""}
+          ${collectionId ? `filter collection.id == @collectionId` : ""}
           
       let favourite = (
           for product_favourite in product_favourites
@@ -110,13 +118,10 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       params.userId = userId;
     }
     const res = (await this.model.rawQuery(
-      this.getProductQuery(
+      this.getProductQuery({
         productId,
-        undefined,
-        undefined,
-        undefined,
-        !isUndefined(userId)
-      ),
+        withFavourite: !isUndefined(userId),
+      }),
       params
     )) as ProductWithRelationData[];
     return head(res);
@@ -141,17 +146,16 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     };
 
     return this.model.rawQuery(
-      this.getProductQuery(
-        undefined,
+      this.getProductQuery({
         brandId,
         collectionId,
         categoryId,
-        !isUndefined(userId),
-        likedOnly,
+        withFavourite: !isUndefined(userId),
+        filterLiked: likedOnly,
         keyword,
-        sort || "created_at",
-        order
-      ),
+        sortName: sort || "created_at",
+        sortOrder: order,
+      }),
       params
     );
   }
@@ -230,7 +234,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
 
   public getAllBrandProduct = async (brandId: string) => {
     return (await this.model.rawQuery(
-      this.getProductQuery(undefined, brandId, undefined, undefined, false),
+      this.getProductQuery({ brandId, withFavourite: false }),
       { brandId }
     )) as ProductWithRelationData[];
   };

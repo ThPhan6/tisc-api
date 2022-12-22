@@ -1,4 +1,4 @@
-import { MEASUREMENT_UNIT, MESSAGES, SYSTEM_TYPE } from "@/constants";
+import { MEASUREMENT_UNIT, MESSAGES } from "@/constants";
 import {
   formatNumberDisplay,
   isDuplicatedString,
@@ -40,9 +40,9 @@ class ProjectZoneService {
 
       if (
         project.design_id !== user.relation_id &&
-        user.type !== SYSTEM_TYPE.DESIGN
+        user.type !== UserType.Designer
       ) {
-        return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_UPDATE);
+        return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
       }
 
       const projectZoneExisted =
@@ -134,7 +134,7 @@ class ProjectZoneService {
   public async getList(
     user: UserAttributes,
     projectId: string,
-    zoneOrder: SortOrder,
+    zoneOrder: SortOrder | undefined,
     areaOrder: SortOrder,
     roomNameOrder: SortOrder,
     roomIdOrder: SortOrder
@@ -148,7 +148,7 @@ class ProjectZoneService {
       project.design_id !== user.relation_id &&
       user.type !== UserType.Designer
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
 
     const projectZones = await projectZoneRepository.getListProjectZone(
@@ -210,9 +210,9 @@ class ProjectZoneService {
 
     if (
       project.design_id !== user.relation_id &&
-      user.type !== SYSTEM_TYPE.DESIGN
+      user.type !== UserType.Designer
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_GET);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
 
     const result = mappingResponseUnitRoomSize(project, projectZone);
@@ -236,9 +236,9 @@ class ProjectZoneService {
 
     if (
       project.design_id !== user.relation_id &&
-      user.type !== SYSTEM_TYPE.DESIGN
+      user.type !== UserType.Designer
     ) {
-      return errorMessageResponse(MESSAGES.JUST_OWNER_CAN_DELETE);
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const deletedProjectZone = await projectZoneRepository.delete(

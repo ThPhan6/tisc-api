@@ -1,15 +1,18 @@
 import * as Hapi from "@hapi/hapi";
-import commonValidate, { getListValidation } from "@/validate/common.validate";
+import {
+  getListValidation,
+  getOneValidation,
+} from "@/validate/common.validate";
 import IRoute from "@/helper/route.helper";
 import {
   commonResponse,
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
-import { AUTH_NAMES } from "@/constant/auth.constant";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
-import { ROUTES } from "@/constants";
+
 export default class ProjectRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise((resolve) => {
@@ -38,7 +41,7 @@ export default class ProjectRoute implements IRoute {
           path: ROUTES.GET_ONE_PROJECT,
           options: {
             handler: controller.getOne,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that get one project",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,
@@ -121,7 +124,7 @@ export default class ProjectRoute implements IRoute {
           path: ROUTES.DELETE_PROJECT,
           options: {
             handler: controller.delete,
-            validate: commonValidate.getOne,
+            validate: getOneValidation,
             description: "Method that delete project",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,
@@ -144,6 +147,56 @@ export default class ProjectRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getSummary,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_PROJECT_SUMMARY_OVERALL,
+          options: {
+            handler: controller.getProjectOverallSummary,
+            description: "Method that get project overall summary",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSummaryOverall,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_PROJECT_LISTING,
+          options: {
+            validate: validate.getProjectListing,
+            handler: controller.getProjectListing,
+            description: "Method that get project listing",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getProjectListing,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_ONE_PROJECT_LISTING,
+          options: {
+            validate: validate.getOneProjectListing,
+            handler: controller.getProjectListingDetail,
+            description: "Method that get project listing detail",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getProjectListingDetail,
               },
             },
           },

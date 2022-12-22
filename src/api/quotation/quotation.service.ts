@@ -1,4 +1,3 @@
-import { MESSAGES } from "@/constant/common.constant";
 import { countWord } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -8,6 +7,7 @@ import QuotationRepository from "@/repositories/quotation.repository";
 import { successMessageResponse } from "@/helper/response.helper";
 import { IQuotationRequest } from "./quotation.type";
 import { SortOrder } from "@/types";
+import { MESSAGES } from "@/constants";
 
 export default class QuotationService {
   private quotationRepository: QuotationRepository;

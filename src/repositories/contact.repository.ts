@@ -19,7 +19,7 @@ class ContactRepository extends BaseRepository<IContactAttributes> {
   public async getListContact(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     sort: any
   ) {
     return (await this.model

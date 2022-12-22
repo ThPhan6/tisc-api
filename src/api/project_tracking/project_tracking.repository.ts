@@ -1,6 +1,8 @@
 import BaseRepository from "@/repositories/base.repository";
+import { locationRepository } from "@/repositories/location.repository";
 import {
   DesignerAttributes,
+  LocationType,
   ProjectAttributes,
   ProjectStatus,
   RespondedOrPendingStatus,
@@ -79,6 +81,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     {
       project_tracking: ProjectTrackingAttributes;
       project: ProjectAttributes;
+      projectLocation: string;
       projectRequests: ProjectRequestAttributes[];
       designFirm: DesignerAttributes;
       members: DesignerAttributes[];
@@ -112,8 +115,13 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
         : ""
     }
     ${sort === "project_name" ? `SORT project.name ${order}` : ""}
-    ${sort === "project_location" ? `SORT project.location ${order}` : ""}
     ${sort === "project_type" ? `SORT project.project_type ${order}` : ""}
+
+    FOR loc IN locations
+    FILTER loc.deleted_at == null
+    FILTER loc.id == project.location_id
+    LET location = ${locationRepository.getShortLocationQuery("loc")}
+    ${sort === "project_location" ? `SORT location ${order}` : ""}
 
     LET projectRequests = (
       FOR pr IN project_requests
@@ -148,6 +156,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     RETURN {
       project_tracking: UNSET(project_trackings, ['_key','_id','_rev']),
       project,
+      projectLocation: location,
       projectRequests,
       designFirm: designFirm[0],
       notifications,
@@ -343,7 +352,12 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     userId: string,
     brandId: string
   ) => {
-    const params = { trackingId, userId, brandId };
+    const params = {
+      trackingId,
+      userId,
+      brandId,
+      designLocation: LocationType.designer,
+    };
     const rawQuery = `
     FILTER project_trackings.id == @trackingId
     FILTER project_trackings.brand_id == @brandId
@@ -352,6 +366,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     FOR projects IN projects
     FILTER projects.id == project_trackings.project_id
     FILTER projects.deleted_at == null
+    FOR l IN locations
+    FILTER l.id == projects.location_id
 
     LET projectRequests = (
       FOR pr IN project_requests
@@ -450,6 +466,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER designer.deleted_at == null
       FOR loc IN locations
       FILTER loc.relation_id == designer.id
+      FILTER loc.type == @designLocation
       FILTER loc.deleted_at == null
 
       LET allLocations = (
@@ -488,7 +505,10 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     )
 
     RETURN {
-      projects: KEEP(projects, 'created_at','name','location','project_type','building_type','measurement_unit','design_due','construction_start'),
+      projects: MERGE(
+        KEEP(projects, 'created_at','name','project_type','building_type','measurement_unit','design_due','construction_start'),
+        { location: ${locationRepository.getShortLocationQuery("l")}}
+      ),
       projectRequests,
       notifications,
       designFirm: designFirm[0]

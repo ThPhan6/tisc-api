@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 export enum DesignFirmStatus {
   Active = 1,
   Inactive = 2,
@@ -28,6 +28,6 @@ export interface DesignerAttributes {
 }
 
 export interface ListDesignerWithPaginate {
-  pagination: IPagination;
+  pagination: Pagination;
   data: DesignerAttributes[];
 }

@@ -5,6 +5,45 @@ const Joi = HapiJoi.defaults((schema) =>
   })
 );
 
+export const dimensionWeightResponse = Joi.object({
+  id: Joi.string(),
+  name: Joi.string(),
+  with_diameter: Joi.boolean(),
+  attributes: Joi.array().items(
+    Joi.object({
+      basis_id: Joi.string().allow(null, ""),
+      basis_value_id: Joi.string().allow(null, ""),
+      conversion_value_1: Joi.any(),
+      conversion_value_2: Joi.any(),
+      id: Joi.string(),
+      name: Joi.string(),
+      text: Joi.string().allow(null, ""),
+      type: Joi.string().allow(null, ""),
+      with_diameter: Joi.boolean().allow(null),
+      conversion: Joi.object({
+        formula_1: Joi.any(),
+        formula_2: Joi.any(),
+        id: Joi.string(),
+        name_1: Joi.string(),
+        name_2: Joi.string(),
+        unit_1: Joi.string(),
+        unit_2: Joi.string(),
+      }),
+    })
+  ),
+});
+
+export const userProductSpecificationResponse = {
+  is_refer_document: Joi.bool(),
+  attribute_groups: Joi.array().items({
+    id: Joi.string(),
+    attributes: Joi.array().items({
+      id: Joi.string(),
+      basis_option_id: Joi.string(),
+    }),
+  }),
+};
+
 export const productResponse = {
   id: Joi.string(),
   brand_id: Joi.string(),
@@ -39,6 +78,7 @@ export const productResponse = {
   tips: Joi.any(),
   downloads: Joi.any(),
   catelogue_downloads: Joi.any(),
+  dimension_and_weight: dimensionWeightResponse,
 };
 
 export default {

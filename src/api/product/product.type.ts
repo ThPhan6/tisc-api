@@ -2,6 +2,7 @@ import {
   ProductWithCollectionAndBrand,
   ProductTip,
   ProductDownload,
+  DimensionAndWeight,
 } from "@/types/product.type";
 export interface IProduct {
   id: string;
@@ -37,8 +38,8 @@ export interface IAttributeGroup {
     basis_value_id?: string;
     type: "Text" | "Conversions" | "Presets" | "Options";
     text?: string;
-    conversion_value_1?: string;
-    conversion_value_2?: string;
+    conversion_value_1?: number | string;
+    conversion_value_2?: number | string;
     basis_options?: {
       id: string;
       option_code: string;
@@ -50,8 +51,8 @@ export interface IProductOptionAttribute {
   basis_id: string;
   type: "Text" | "Conversions" | "Presets" | "Options";
   text?: string;
-  conversion_value_1?: string;
-  conversion_value_2?: string;
+  conversion_value_1?: number | string;
+  conversion_value_2?: number | string;
   basis_options?: {
     id: string;
     option_code: string;
@@ -78,6 +79,7 @@ export interface IProductRequest {
   tips: ProductTip[];
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
+  dimension_and_weight: DimensionAndWeight;
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -95,6 +97,7 @@ export interface IUpdateProductRequest {
   tips: ProductTip[];
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
+  dimension_and_weight: DimensionAndWeight;
 }
 export interface IProductResponse {
   data: IProduct;
@@ -192,6 +195,7 @@ export interface ShareProductBodyRequest {
   to_email: string;
   title: string;
   message: string;
+  custom_product?: boolean;
 }
 
 export interface CommonTypeResponse {
@@ -228,6 +232,10 @@ export interface IDesignerProductsResponse {
 
 export interface IAttributeGroupWithOptionalId extends IAttributeGroup {
   id?: string;
+}
+export interface SelectionAttributeGroupWithOptionalId
+  extends IAttributeGroupWithOptionalId {
+  selection?: boolean;
 }
 
 export interface IAttributeGroupWithOptionId {

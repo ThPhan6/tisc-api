@@ -1,6 +1,14 @@
+import {
+  TiscRoles,
+  BrandRoles,
+  DesignFirmRoles
+} from '@/constants';
+
+export type UserRole = TiscRoles | BrandRoles | DesignFirmRoles;
+
 export interface UserAttributes {
   id: string;
-  role_id: string;
+  role_id: TiscRoles | BrandRoles | DesignFirmRoles;
   firstname: string;
   lastname: string;
   gender: boolean;
@@ -16,6 +24,7 @@ export interface UserAttributes {
   avatar: string | null;
   backup_email: string;
   personal_mobile: string;
+  personal_phone_code?: string;
   linkedin: string;
   is_verified: boolean;
   verification_token: string | null;

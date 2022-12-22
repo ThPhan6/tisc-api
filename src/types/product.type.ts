@@ -1,5 +1,8 @@
-import { IAttributeGroupWithOptionalId } from "@/api/product/product.type";
-import { BrandOfficialWebsite } from "@/types";
+import {
+  IAttributeGroupWithOptionalId,
+  SelectionAttributeGroupWithOptionalId,
+} from "@/api/product/product.type";
+import { BrandOfficialWebsite } from ".";
 
 export interface IProductAttributes {
   id: string;
@@ -11,7 +14,7 @@ export interface IProductAttributes {
   description: string;
   general_attribute_groups: IAttributeGroupWithOptionalId[];
   feature_attribute_groups: IAttributeGroupWithOptionalId[];
-  specification_attribute_groups: IAttributeGroupWithOptionalId[];
+  specification_attribute_groups: SelectionAttributeGroupWithOptionalId[];
   images: string[];
   keywords: string[];
   created_at: string;
@@ -20,7 +23,18 @@ export interface IProductAttributes {
   tips: ProductTip[];
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
+  dimension_and_weight: DimensionAndWeight;
 }
+
+export interface DimensionAndWeight {
+  with_diameter: boolean;
+  attributes: {
+    id: string;
+    conversion_value_1: number | string;
+    conversion_value_2: number | string;
+  }[]
+}
+
 
 export interface ProductTip {
   title: string;

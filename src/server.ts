@@ -1,45 +1,10 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIROMENT, plugins } from "@/config";
 import * as hapi from "@hapi/hapi";
 import Router from "./router";
-
-import * as Inert from "@hapi/inert";
-import * as Vision from "@hapi/vision";
-import * as HapiSwagger from "hapi-swagger";
 import AuthMiddleware from "./middleware/auth.middleware";
 import CaptchaMiddleware from "./middleware/captcha.middleware";
 import { slackService } from "./service/slack.service";
 import path from "path";
-
-const swaggerOptions = {
-  info: {
-    title: "API Documentation",
-    version: "3.0.0",
-  },
-  grouping: "tags",
-  sortEndpoints: "ordered",
-  security: [{ API_KEY: [] }],
-  securityDefinitions: {
-    API_KEY: {
-      type: "apiKey",
-      name: "Authorization",
-      in: "header",
-      "x-keyPrefix": "Bearer",
-    },
-  },
-};
-
-const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
-  {
-    plugin: Inert,
-  },
-  {
-    plugin: Vision,
-  },
-  {
-    plugin: HapiSwagger,
-    options: swaggerOptions,
-  },
-];
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIROMENT.HOST,
@@ -55,8 +20,13 @@ const server: hapi.Server = new hapi.Server({
     validate: {
       options: {
         modify: false,
-        abortEarly: false,
+        abortEarly: true,
         stripUnknown: true,
+        errors: {
+          wrap: {
+            label: "",
+          },
+        },
       },
       failAction: (_request, _h, err) => {
         throw err;
@@ -93,6 +63,18 @@ async function start() {
     CaptchaMiddleware.registerAll(server);
     await Router.loadRoute(server);
     await server.start();
+    server.events.on("log", (event, tags) => {
+      if (
+        tags.error &&
+        ["staging", "production"].includes(ENVIROMENT.NODE_ENV)
+      ) {
+        const plugins: any = server.plugins;
+        const sentry = plugins["hapi-sentry"];
+        if (sentry) {
+          sentry.client.captureException(event);
+        }
+      }
+    });
   } catch (err) {
     console.log(err);
     process.exit(1);

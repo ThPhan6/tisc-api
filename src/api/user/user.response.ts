@@ -20,6 +20,7 @@ const userData = Joi.object({
   avatar: Joi.any(),
   backup_email: Joi.any(),
   personal_mobile: Joi.any(),
+  personal_phone_code: Joi.any(),
   linkedin: Joi.any(),
   created_at: Joi.any(),
   phone_code: Joi.string().allow(""),

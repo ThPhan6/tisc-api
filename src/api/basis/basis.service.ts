@@ -1,5 +1,4 @@
-import { MESSAGES } from "@/constants";
-import { BASIS_TYPES } from "@/constants/basis.constant";
+import { MESSAGES, BASIS_TYPES } from "@/constants";
 import {
   getSummaryTable,
   isDuplicatedString,
@@ -35,7 +34,6 @@ import {
 } from "./basis.type";
 
 class BasisService {
-  constructor() {}
   public async createBasisConversion(payload: IBasisConversionRequest) {
     const conversionGroup = await BasisRepository.findBy({
       name: toSingleSpaceAndToLowerCase(payload.name),
@@ -80,7 +78,7 @@ class BasisService {
   public async getBasisConversions(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     conversion_group_order: SortOrder | undefined,
     conversion_between_order: SortOrder
   ) {
@@ -144,6 +142,11 @@ class BasisService {
         404
       );
     }
+
+    if (basisConversionGroup.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_MODIFY_MASTER_DATA);
+    }
+
     const duplicatedConversionGroup = await BasisRepository.getExistedBasis(
       id,
       toSingleSpaceAndToLowerCase(payload.name),
@@ -193,10 +196,14 @@ class BasisService {
   }
 
   public async deleteBasis(id: string) {
-    const basisConversion = await BasisRepository.findAndDelete(id);
+    const basisConversion = await BasisRepository.find(id);
     if (!basisConversion) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_NOT_FOUND, 404);
     }
+    if (basisConversion.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_DELETE_MASTER_DATA);
+    }
+    await BasisRepository.delete(id);
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
@@ -262,7 +269,7 @@ class BasisService {
   public async getListBasisOption(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     groupOrder: SortOrder | undefined,
     optionOrder: SortOrder
   ) {
@@ -343,7 +350,7 @@ class BasisService {
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
-    return await this.getBasisOption(id);
+    return this.getBasisOption(id);
   }
 
   public async createBasisPreset(payload: IBasisPresetRequest) {
@@ -402,7 +409,7 @@ class BasisService {
   public async getListBasisPreset(
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     groupOrder: SortOrder | undefined,
     presetOrder: SortOrder
   ) {
@@ -475,7 +482,7 @@ class BasisService {
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
-    return await this.getBasisPreset(id);
+    return this.getBasisPreset(id);
   }
 }
 

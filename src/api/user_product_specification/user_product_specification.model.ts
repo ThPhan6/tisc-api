@@ -11,10 +11,17 @@ export interface ProductSpecificationSelection {
   }[];
 }
 
+export const DEFAULT_USER_SPEC_SELECTION = {
+  is_refer_document: true,
+  attribute_groups: [],
+};
+
 export interface UserProductSpecificationAttributes {
   id: string;
   product_id: string;
   user_id: string;
+
+  custom_product?: boolean;
 
   specification: ProductSpecificationSelection;
 
@@ -28,6 +35,7 @@ export interface UserProductSpecificationAttributes {
 
 export interface UserProductSpecificationRequest {
   specification: ProductSpecificationSelection;
+  custom_product?: boolean;
 
   // vendor
   brand_location_id: string;

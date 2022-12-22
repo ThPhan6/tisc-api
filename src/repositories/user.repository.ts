@@ -1,20 +1,22 @@
 import UserModel from "@/model/user.model";
 import BaseRepository from "./base.repository";
-import { SYSTEM_TYPE } from "@/constants";
 import {
   ActiveStatus,
   SortOrder,
   UserAttributes,
+  ILocationAttributes,
+  CommonTypeAttributes,
   UserStatus,
   UserType,
 } from "@/types";
+import { DesignFirmRoles } from "@/constants";
 import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helper/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
   protected DEFAULT_ATTRIBUTE: Partial<UserAttributes> = {
-    role_id: "",
+    role_id: DesignFirmRoles.Member,
     firstname: "",
     lastname: "",
     gender: true,
@@ -30,6 +32,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     avatar: null,
     backup_email: "",
     personal_mobile: "",
+    personal_phone_code: "",
     linkedin: "",
     is_verified: false,
     verification_token: null,
@@ -60,8 +63,21 @@ class UserRepository extends BaseRepository<UserAttributes> {
   }
   public async getTiscUsers() {
     return (await this.model
-      .where("type", "==", SYSTEM_TYPE.TISC)
+      .where("type", "==", UserType.TISC)
       .where("status", "==", UserStatus.Active)
+      .get()) as UserAttributes[];
+  }
+  public async getByTypeRoleAndRelation(
+    type: UserType,
+    role: string,
+    relation_id?: string
+  ) {
+    return (await this.model
+      .where("type", "==", type)
+      .where("role_id", "==", role)
+      .where("relation_id", "==", relation_id || "TISC")
+      .where("status", "==", UserStatus.Active)
+      .join("locations", "locations.id", "==", "users.location_id")
       .get()) as UserAttributes[];
   }
   public async getInactiveDesignFirmByBackupData(
@@ -71,7 +87,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
     return (await this.model
       .where("backup_email", "==", backupEmail)
       .where("personal_mobile", "==", personalMobile)
-      .where("type", "==", SYSTEM_TYPE.DESIGN)
+      .where("type", "==", UserType.Designer)
       .first()) as UserAttributes | undefined;
   }
 
@@ -86,7 +102,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
   public async findByCompanyIdWithCompanyStatus(email: string) {
     const result = (await this.model.rawQuery(
       `
-        FILTER users.email == @email
+        FILTER LOWER(users.email) == @email
         FILTER users.deleted_at == null
         LET brands = (
           FOR brand IN brands
@@ -119,6 +135,14 @@ class UserRepository extends BaseRepository<UserAttributes> {
     } while (isDuplicated);
     return token;
   };
+
+  public checkTokenExisted = async (token: string) => {
+    const user = await this.model
+      .where("reset_password_token", "==", token)
+      .orWhere("verification_token", "==", token)
+      .first() as UserAttributes | undefined;
+    return user ? true : false;
+  }
 
   public getPagination = async (
     limit?: number,
@@ -174,7 +198,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
               access_level: role.name
           }
       )`;
-      const response = await this.model.rawQueryV2(query, params);
+      const result = await this.model.rawQueryV2(query, params);
       return {
         pagination: {
           page: offset / limit + 1,
@@ -182,7 +206,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
           total: totalRecords,
           page_count: Math.ceil(totalRecords / limit),
         },
-        data: response,
+        data: result,
       };
     }
     query += `return merge(
@@ -206,11 +230,12 @@ class UserRepository extends BaseRepository<UserAttributes> {
     };
   };
 
-  public getWithLocationAndDeparmentData = (relationId: string) => {
+  public getWithLocationAndDeparmentData = async (relationId: string) => {
     const rawQuery = `
       FOR users IN users
         FILTER users.deleted_at == null
         FILTER users.relation_id == @relationId
+        FILTER users.status == @userStatus
         FOR locations IN locations
           FILTER locations.id == users.location_id
           FILTER locations.deleted_at == null
@@ -229,7 +254,13 @@ class UserRepository extends BaseRepository<UserAttributes> {
         }
     )`;
 
-    return this.model.rawQueryV2(rawQuery, { relationId });
+    return (await this.model.rawQueryV2(rawQuery, {
+      relationId,
+      userStatus: UserStatus.Active,
+    })) as (UserAttributes & {
+      locations: ILocationAttributes;
+      common_types?: CommonTypeAttributes;
+    })[];
   };
 
   public async getTeamProfile(ids: string[], keySelect: string[]) {

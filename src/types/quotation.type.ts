@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface IQuotationAttributes {
   id: string;
@@ -10,6 +10,6 @@ export interface IQuotationAttributes {
 }
 
 export interface ListQuotationWithPagination {
-  pagination: IPagination;
+  pagination: Pagination;
   data: IQuotationAttributes[];
 }

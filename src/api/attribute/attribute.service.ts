@@ -23,9 +23,8 @@ import {
   mappingSubAttributeUpdate,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-class AttributeService {
-  constructor() {}
 
+class AttributeService {
   private async getFlatListContentType() {
     const conversionGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.CONVERSION
@@ -91,7 +90,7 @@ class AttributeService {
     attribute_type: number,
     limit: number,
     offset: number,
-    filter: any,
+    _filter: any,
     group_order: SortOrder | undefined,
     attribute_order?: SortOrder,
     content_type_order?: SortOrder
@@ -143,9 +142,15 @@ class AttributeService {
 
   public async update(id: string, payload: IUpdateAttributeRequest) {
     const attribute = await AttributeRepository.find(id);
+
     if (!attribute) {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
     }
+
+    if (attribute.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_MODIFY_MASTER_DATA);
+    }
+
     const duplicatedAttributeGroup =
       await AttributeRepository.getDuplicatedAttribute(
         id,
@@ -174,10 +179,14 @@ class AttributeService {
   }
 
   public async delete(id: string) {
-    const deletedAttribute = await AttributeRepository.findAndDelete(id);
-    if (!deletedAttribute) {
+    const attribute = await AttributeRepository.find(id);
+    if (!attribute) {
       return errorMessageResponse(MESSAGES.CATEGORY.CATEGORY_NOT_FOUND, 404);
     }
+    if (attribute.master) {
+      return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_DELETE_MASTER_DATA);
+    }
+    await AttributeRepository.delete(id);
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 

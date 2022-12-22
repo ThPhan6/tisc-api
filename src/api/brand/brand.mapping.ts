@@ -1,13 +1,12 @@
 import { getDistinctArray } from "@/helper/common.helper";
-import { ActiveStatus, BrandAttributes, ILocationAttributes } from "@/types";
+import { ActiveStatus, BrandAttributes } from "@/types";
 import { ListBrandCustom } from "./brand.type";
 
 export const mappingBrands = (dataBrandCustom: ListBrandCustom[]) => {
   return dataBrandCustom.map((dataBrand) => {
     const coverages = getDistinctArray(
       dataBrand.distributors.reduce((pre: string[], cur) => {
-        const temp = [cur.country_id].concat(cur.authorized_country_ids);
-        return pre.concat(temp);
+        return pre.concat(cur.authorized_country_ids);
       }, [])
     );
 

@@ -9,8 +9,6 @@ import {
   IBasisConversionUpdateRequest,
 } from "./basis.type";
 export default class BasisController {
-  constructor() {}
-
   public createBasisConversion = async (
     req: Request & { payload: IBasisConversionRequest },
     toolkit: ResponseToolkit

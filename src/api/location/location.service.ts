@@ -1,5 +1,4 @@
-import { MESSAGES, SYSTEM_TYPE } from "@/constants";
-import { COMMON_TYPES } from "@/constants/common.constant";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -7,26 +6,28 @@ import {
 } from "@/helper/response.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
-import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import productRepository from "@/repositories/product.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
 import {
   ILocationAttributes,
   IMessageResponse,
+  LocationRequest,
+  LocationType,
   SortOrder,
   UserAttributes,
+  UserType,
+  LocationWithTeamCountAndFunctionType,
 } from "@/types";
-import { head } from "lodash";
+import { head, isEqual } from "lodash";
 import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
-import { ILocationRequest } from "./location.type";
 
 export default class LocationService {
   private async getFunctionalType(
     user: UserAttributes,
     functional_type_ids: string[]
   ) {
-    if (user.type !== SYSTEM_TYPE.DESIGN) {
+    if (user.type !== UserType.Designer) {
       return Promise.all(
         functional_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
@@ -40,43 +41,12 @@ export default class LocationService {
     return getDesignFunctionType(functional_type_ids);
   }
 
-  private mappingLocationData = async (locations: ILocationAttributes[]) => {
-    return Promise.all(
-      locations.map(async (location) => {
-        const totalUser = await userRepository.countUserInLocation(location.id);
-        const functionalTypeOption = getDesignFunctionType(
-          location.functional_type_ids
-        );
-        let functionalTypes;
-        if (functionalTypeOption) {
-          functionalTypes = functionalTypeOption;
-          functionalTypes = await commonTypeRepository.getByListIds(
-            location.functional_type_ids
-          );
-        }
-        return {
-          ...location,
-          functional_types: functionalTypes,
-          teams: totalUser,
-        };
-      })
-    );
-  };
-
-  public getFunctionalTypes = async (user: UserAttributes) => {
-    const functionTypes = await commonTypeRepository.getAllByRelationAndType(
-      user.relation_id,
-      COMMON_TYPES.COMPANY_FUNCTIONAL
-    );
-    return successResponse({ data: functionTypes });
-  };
-
-  public create = async (user: UserAttributes, payload: ILocationRequest) => {
+  public create = async (user: UserAttributes, payload: LocationRequest) => {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {
@@ -96,16 +66,22 @@ export default class LocationService {
 
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
-      functional_type_ids: functionalTypes.map((item) => item.id),
+      functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       business_number:
-        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
-      functional_type: functionalTypes.map((item) => item.name).join(", "),
+        user.type === UserType.Designer ? "" : payload.business_number,
+      functional_type:
+        functionalTypes?.map((item) => item.name).join(", ") || "",
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
       general_phone: payload.general_phone,
       general_email: payload.general_email,
-      type: user.type,
+      type:
+        user.type === UserType.Brand
+          ? LocationType.brand
+          : user.type === UserType.Designer
+          ? LocationType.designer
+          : LocationType.tisc,
       relation_id: user.relation_id,
     });
     if (!createdLocation) {
@@ -117,13 +93,13 @@ export default class LocationService {
   public update = async (
     user: UserAttributes,
     id: string,
-    payload: ILocationRequest
+    payload: LocationRequest
   ) => {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
-        payload.state_id,
-        payload.city_id
+        payload.city_id,
+        payload.state_id
       );
 
     if (isValidGeoLocation !== true) {
@@ -146,7 +122,7 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
     }
     if (
-      user.type !== location.type ||
+      isEqual(user.type, location.type) === false ||
       user.relation_id !== location.relation_id
     ) {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE, 404);
@@ -155,9 +131,10 @@ export default class LocationService {
     const updatedLocation = await locationRepository.update(id, {
       business_name: payload.business_name,
       business_number:
-        user.type === SYSTEM_TYPE.DESIGN ? "" : payload.business_number,
-      functional_type: functionalTypes.map((item) => item.name).join(", "),
-      functional_type_ids: functionalTypes.map((item) => item.id),
+        user.type === UserType.Designer ? "" : payload.business_number,
+      functional_type:
+        functionalTypes?.map((item) => item.name).join(", ") || "",
+      functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -171,30 +148,29 @@ export default class LocationService {
   };
 
   public get = async (id: string) => {
-    const location = await locationRepository.find(id);
+    const location =
+      await locationRepository.findWithCountMemberAndFunctionType(id);
     if (!location) {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
     }
-    const locationData = await this.mappingLocationData([location]);
-    return successResponse({ data: head(locationData) });
+    return successResponse({ data: location });
   };
 
   public getList = async (
     user: UserAttributes,
-    limit?: number,
-    offset?: number,
+    limit: number,
+    offset: number,
     sort?: string,
     order?: SortOrder,
     _filter?: any
   ) => {
     const response = await locationRepository.getLocationPagination(
+      user.relation_id,
       limit,
       offset,
-      user.relation_id,
       sort,
       order
     );
-    response.data = await this.mappingLocationData(response.data);
     return successResponse({
       data: {
         locations: response.data,
@@ -207,19 +183,16 @@ export default class LocationService {
     return this.getCompanyLocationGroupByCountry(user.relation_id);
   };
 
-  public getCompanyLocationGroupByCountry = async (
-    relationId: string | null
-  ) => {
+  public getCompanyLocationGroupByCountry = async (relationId: string) => {
     const response = await locationRepository.getLocationPagination(
-      undefined,
-      undefined,
       relationId,
+      undefined,
+      undefined,
       "country_name"
     );
     /// format data
-    const locations = await this.mappingLocationData(response.data);
     return successResponse({
-      data: mappingByCountries(locations),
+      data: mappingByCountries(response.data),
     });
   };
 
@@ -228,29 +201,19 @@ export default class LocationService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const market =
-      await marketAvailabilityRepository.findMarketAvailabilityByCollection(
-        product.collection_id
-      );
-    if (!market) {
-      return successResponse({ data: [] });
-    }
-
-    const locations =
-      await locationRepository.getLocationByRelationAndCountryIds(
-        product.brand_id,
-        market.country_ids
-      );
-    const locationData = await this.mappingLocationData(locations);
+    //
+    const response = await locationRepository.getLocationPagination(
+      product.brand_id
+    );
     return successResponse({
-      data: mappingByCountries(locationData, true),
+      data: mappingByCountries(response.data, true),
     });
   };
+
   public delete = async (
     user: UserAttributes,
     id: string
   ): Promise<IMessageResponse> => {
-
     const location = await locationRepository.find(id);
     if (!location) {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND, 404);
@@ -259,11 +222,22 @@ export default class LocationService {
     if (user.relation_id !== location.relation_id) {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE);
     }
+    const totalUserInLocation = await userRepository.countUserInLocation(
+      location.id
+    );
+    if (totalUserInLocation > 0) {
+      return errorMessageResponse(MESSAGES.LOCATION.USER_USED);
+    }
+
     await locationRepository.delete(id);
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public createDefaultLocation = async (relationId: string, type: number, email: string) => {
+  public createDefaultLocation = async (
+    relationId: string,
+    type: number,
+    email: string
+  ) => {
     return locationRepository.create({
       business_name: "Global",
       functional_type_ids: [""],
@@ -283,6 +257,56 @@ export default class LocationService {
       type,
       relation_id: relationId,
     });
+  };
+
+  public upsertLocation = async (
+    payload: Partial<ILocationAttributes>,
+    locationId?: string
+  ) => {
+    const { city_id, country_id = "", state_id } = payload;
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        country_id,
+        city_id,
+        state_id
+      );
+
+    if (isValidGeoLocation !== true) {
+      return {
+        error: isValidGeoLocation,
+      };
+    }
+
+    const fullLocation = await countryStateCityService.getCountryStateCity(
+      country_id,
+      city_id,
+      state_id
+    );
+
+    if (!fullLocation) {
+      return {
+        error: errorMessageResponse(
+          MESSAGES.COUNTRY_STATE_CITY.COUNTRY_STATE_CITY_NOT_FOUND
+        ),
+      };
+    }
+
+    const locationInfo = {
+      ...fullLocation,
+      ...payload,
+    };
+
+    const upsertLocation: ILocationAttributes = await (locationId
+      ? locationRepository.findAndUpdate(locationId, locationInfo)
+      : locationRepository.create(locationInfo));
+
+    if (!upsertLocation) {
+      return {
+        error: errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE),
+      };
+    }
+
+    return { location: upsertLocation };
   };
 }
 export const locationService = new LocationService();

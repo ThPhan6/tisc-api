@@ -1,6 +1,7 @@
 import { paginationResponse } from "@/helper/response.helper";
+import { getSummaryResponseValidate } from "@/validate/common.response";
 import * as HapiJoi from "joi";
-import { getSummaryResponseValidate } from "../brand/brand.response";
+
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 
 const designerValidate = Joi.object({
@@ -56,7 +57,7 @@ export default {
     }),
     statusCode: Joi.number(),
   }) as any,
-  getProjectTrackingSummary: getSummaryResponseValidate as any,
+  getProjectTrackingSummary: getSummaryResponseValidate(),
   getProjectTrackingDetail: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({

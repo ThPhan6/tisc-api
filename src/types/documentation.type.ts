@@ -1,4 +1,4 @@
-import { IPagination } from "@/types";
+import { Pagination } from "@/types";
 
 export interface IDocumentationAttributes {
   id: string;
@@ -35,5 +35,5 @@ export type DocumentationType = 1 | 2 | 3 | 4;
 
 export interface ListDocumentationWithPagination {
   data: IDocumentation[];
-  pagination: IPagination;
+  pagination: Pagination;
 }

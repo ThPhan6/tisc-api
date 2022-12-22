@@ -7,7 +7,7 @@ import {
   generalMessageResponse,
 } from "@/helper/response.helper";
 import authResponse from "./auth.response";
-import {AUTH_NAMES, ROUTES} from '@/constants';
+import { AUTH_NAMES, ROUTES } from "@/constants";
 
 export default class AuthRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -53,8 +53,8 @@ export default class AuthRoute implements IRoute {
           method: "GET",
           path: ROUTES.AUTH.VALIDATE_RESET_TOKEN,
           options: {
-            handler: controller.isValidResetPasswordToken,
-            validate: validate.isValidResetPasswordToken,
+            handler: controller.checkTokenExisted,
+            validate: validate.checkTokenExisted,
             description: "Method that check valid reset password token",
             tags: ["api", "Authentication"],
             auth: false,
@@ -162,7 +162,7 @@ export default class AuthRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: generalMessageResponse,
+                200: authResponse.login,
               },
             },
           },

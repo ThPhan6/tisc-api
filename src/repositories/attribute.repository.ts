@@ -1,10 +1,10 @@
 import AttributeModel from "@/model/attribute.model";
-import { SortOrder } from "@/types";
 import {
+  SortOrder,
   AttributeType,
   AttributeProps,
   ListAttributeWithPagination,
-} from "@/types/attribute.type";
+} from "@/types";
 import BaseRepository from "./base.repository";
 
 class AttributeRepository extends BaseRepository<AttributeProps> {
@@ -34,6 +34,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
   public async getByType(type: AttributeType) {
     return (await this.model
       .where("type", "==", type)
+      .where("selectable", "!=", false)
       .get()) as AttributeProps[];
   }
 
