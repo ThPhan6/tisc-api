@@ -1,0 +1,26 @@
+version: '3.1'
+services:
+    tisc_database:
+        image: arangodb:3.9
+        container_name: tisc_database
+        environment:
+            - 'ARANGO_ROOT_PASSWORD=pxsDPf5X2SWp5u5D'
+        networks:
+            - tisc
+        ports: # open port
+            - '8529:8529'
+    tisc_api:
+        image: tuanes/tisc-api:1.0.0.beta.1
+        container_name: tisc_api
+        env_file:
+            - ../.env
+        depends_on:
+            - tisc_database
+        tty: true
+        networks:
+            - tisc
+        ports: # open port
+            - '8080:80'
+networks:
+    tisc:
+        driver: bridge

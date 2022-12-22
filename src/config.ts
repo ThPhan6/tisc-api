@@ -1,4 +1,3 @@
-import * as hapi from "@hapi/hapi";
 import dotenv from "dotenv";
 dotenv.config();
 //
@@ -74,7 +73,7 @@ const swaggerOptions = {
   },
 };
 
-export const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
+export const plugins: any = [
   {
     plugin: Inert,
   },

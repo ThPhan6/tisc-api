@@ -2,6 +2,7 @@ import Connection, {connection} from '@/Database/Connections/ArangoConnection';
 import moment from 'moment';
 import * as fs from 'fs';
 import {template, difference, isFunction, reverse} from 'lodash';
+import {ENVIROMENT} from '@/config';
 
 type MigrationSeedModel = 'seeds' | 'migrations';
 interface MigrationSeedAttribute {
@@ -15,6 +16,7 @@ class DatabaseConsole {
   private templatePath = `${process.cwd()}/console/templates`;
 
   private init = async (collection: MigrationSeedModel) => {
+    try { await this.createDatabase() } catch {}
     try { await connection.collection(collection).create() } catch {}
   }
 
@@ -31,7 +33,7 @@ class DatabaseConsole {
     );
   }
 
-  public createDatabase = async (name: string) => {
+  public createDatabase = async (name: string = ENVIROMENT.DATABASE_NAME) => {
     const newConnection = new Connection();
     newConnection.useDatabase('_system');
     await newConnection.createDatabase(name);

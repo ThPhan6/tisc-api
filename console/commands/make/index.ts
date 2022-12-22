@@ -6,7 +6,7 @@ const [first, last] = args;
 const commandInfo = (type: 'seed' | 'migration') => {
   console.log(
     '\x1b[35m',
-    `\nUsage: npm run make:${type} <filename> --collection=<collection>\n`,
+    `\nUsage: yarn make:${type} <filename> --collection=<collection>\n`,
     '\x1b[0m'
   )
 }
