@@ -48,6 +48,7 @@ export const ENVIROMENT = {
   ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || "1",
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "vuongd36@gmail.com",
   TISC_CATPCHA_SECRET_KEY: process.env.TISC_CATPCHA_SECRET_KEY || "",
+  CHECK_CAPTCHA: process.env.CHECK_CAPTCHA || "false",
 };
 
 export const jwtConfig = {
