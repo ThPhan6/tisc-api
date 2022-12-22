@@ -99,7 +99,7 @@ export enum TARGETED_FOR_TYPES {
   DESIGN_FIRM = 2,
   DISTRIBUTOR = 3,
   GENERAL = 4,
-  TISC_TEAM = 5
+  TISC_TEAM = 5,
 }
 
 export const TARGETED_FOR_OPTIONS: {

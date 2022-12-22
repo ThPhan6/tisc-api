@@ -41,11 +41,13 @@ export const ENVIROMENT = {
   LARK_APP_ID: process.env.LARK_APP_ID || "",
   LARK_APP_SECRET: process.env.LARK_APP_SECRET || "",
   LARK_CALENDAR_ID: process.env.LARK_CALENDAR_ID || "",
-  LARK_USER_ID: process.env.LARK_USER_ID || "ou_2def8f86ea5122661c8d1e97a5c7eb54",
+  LARK_USER_ID:
+    process.env.LARK_USER_ID || "ou_2def8f86ea5122661c8d1e97a5c7eb54",
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
   TISC_WEBSITE: process.env.TISC_WEBSITE || "www.tisc.global",
-  ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || '1',
-  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || 'vuongd36@gmail.com',
+  ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || "1",
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "vuongd36@gmail.com",
+  TISC_CATPCHA_SECRET_KEY: process.env.TISC_CATPCHA_SECRET_KEY || "",
 };
 
 export const jwtConfig = {
@@ -76,12 +78,12 @@ export const plugins: Array<hapi.ServerRegisterPluginObject<any>> = [
     plugin: Inert,
   },
   {
-    plugin: require('hapi-sentry'),
+    plugin: require("hapi-sentry"),
     options: {
       client: {
-        dsn: "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504"
-      }
-    }
+        dsn: "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
+      },
+    },
   },
   {
     plugin: Vision,

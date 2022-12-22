@@ -2,6 +2,7 @@ import { ENVIROMENT, plugins } from "@/config";
 import * as hapi from "@hapi/hapi";
 import Router from "./router";
 import AuthMiddleware from "./middleware/auth.middleware";
+import CaptchaMiddleware from "./middleware/captcha.middleware";
 import { slackService } from "./service/slack.service";
 import path from "path";
 
@@ -59,6 +60,7 @@ async function start() {
     server.validator(require("joi"));
     await server.register(plugins);
     AuthMiddleware.registerAll(server);
+    CaptchaMiddleware.registerAll(server);
     await Router.loadRoute(server);
     await server.start();
     server.events.on("log", (event, tags) => {

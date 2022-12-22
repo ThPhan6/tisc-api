@@ -1,10 +1,10 @@
 import * as Hapi from "@hapi/hapi";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
-import IRoute from "../../helper/route.helper";
+import { ROUTES, AUTH_NAMES } from "@/constants";
+import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import IRoute from "@/helper/route.helper";
 import ContactController from "./contact.controller";
 import validate from "./contact.validate";
 import contactResponse from "./contact.response";
-import { ROUTES } from "@/constants";
 
 export default class ContactRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -19,7 +19,7 @@ export default class ContactRoute implements IRoute {
             validate: validate.create,
             description: "Method that create contact",
             tags: ["api", "Contact"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

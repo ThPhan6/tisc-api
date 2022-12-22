@@ -7,6 +7,7 @@ export const AUTH_NAMES = {
   GENERAL: "general",
   ADMIN: "admin",
   PERMISSION: "permission",
+  CAPTCHA: "captcha",
 };
 
 export const PERMISSION_TITLE = {

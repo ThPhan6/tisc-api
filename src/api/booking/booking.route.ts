@@ -2,7 +2,7 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "@/helper/response.helper";
-import { ROUTES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import validate from "./booking.validate";
@@ -40,6 +40,7 @@ export default class BookingRoute implements IRoute {
             validate: validate.create,
             description: "Method that post booking",
             tags: ["api", "Booking"],
+            auth: AUTH_NAMES.CAPTCHA,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

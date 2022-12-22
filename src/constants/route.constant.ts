@@ -1,17 +1,4 @@
 export const ROUTES = {
-  AUTH: {
-    TISC_LOGIN: "/api/auth/login",
-    OTHER_ACCOUNT_LOGIN: "/api/auth/brand-design/login",
-    CHECK_TOKEN_EXPIRED: "/api/auth/token/{token}/validate",
-    FORGOT_PASSWORD: "/api/auth/forgot-password",
-    RESET_PASSWORD: "/api/auth/reset-password",
-    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
-    DESIGN_REGISTER: "/api/auth/register",
-    VERIFY_TOKEN: "/api/auth/verify/{verification_token}",
-    CREATE_PASSWORD_AND_VERIFY: "/api/auth/create-password-verify/{verification_token}",
-    RESEND_EMAIL_CONFIRMATION: "/api/auth/resend-email/{type}/{email}",
-    CHECK_EMAIL_EXISTED: "/api/auth/check-email/{email}"
-  },
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_CARD: "/api/brand/get-list-card",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
@@ -313,6 +300,20 @@ export const ROUTES = {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
   },
+  AUTH: {
+    TISC_LOGIN: "/api/auth/login",
+    DESIGN_REGISTER: "/api/auth/register",
+    BRAND_DESIGN_LOGIN: "/api/auth/brand-design/login",
+    VALIDATE_EMAIL: "/api/auth/check-email/{email}",
+    VALIDATE_RESET_TOKEN: "/api/auth/is-valid-reset-password-token/{token}",
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    RESET_PASSWORD: "/api/auth/reset-password",
+    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
+    CREATE_PASSWORD_VERIFY:
+      "/api/auth/create-password-verify/{verification_token}",
+    ACCOUNT_VERIFY: "/api/auth/verify/{verification_token}",
+    RESEND_EMAIL: "/api/auth/resend-email/{type}/{email}",
+  },
   COLLECTION: {
     GET_LIST: "/api/collection/get-list",
     CREATE: "/api/collection/create",
@@ -325,5 +326,5 @@ export const ROUTES = {
     GET_ONE: "/api/booking/{id}",
     RE_SCHEDULE: "/api/booking/{id}/re-schedule",
     CANCEL: "/api/booking/{id}/cancel",
-  }
+  },
 };
