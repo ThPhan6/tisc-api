@@ -4,7 +4,8 @@ COPY ./ /var/www/
 RUN chmod +x /var/www/entrypoint.sh
 
 WORKDIR /var/www/
-RUN yarn && yarn build
+RUN yarn
+RUN yarn build
 
 ENV HOST=localhost
 ENV PORT=80

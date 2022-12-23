@@ -16,7 +16,6 @@ services:
             - ../.env
         depends_on:
             - tisc_database
-        tty: true
         networks:
             - tisc
         ports: # open port
