@@ -1,15 +1,16 @@
 import { IContactRequest } from "./contact.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import {contactService} from "./contact.service";
+import { contactService } from "./contact.service";
+import { createOrUpdateBlock } from "@/helper/block.helper";
 
 export default class ContactController {
-
   public create = async (
     req: Request & { payload: IContactRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
     const response = await contactService.create(payload);
+    await createOrUpdateBlock(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

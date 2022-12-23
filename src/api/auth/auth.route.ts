@@ -8,6 +8,7 @@ import {
 } from "@/helper/response.helper";
 import authResponse from "./auth.response";
 import { AUTH_NAMES, ROUTES } from "@/constants";
+import { preventAttempt } from "@/middleware/prevent_attempt.middleware";
 
 export default class AuthRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -24,6 +25,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that authenticate user",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -41,6 +43,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that authenticate brand user",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -74,6 +77,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that return reset password token to user",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -91,6 +95,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that reset password for user",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -108,6 +113,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that reset password and login",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -125,6 +131,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that register an user",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -159,6 +166,7 @@ export default class AuthRoute implements IRoute {
             description: "Method that create password and verify an user",
             tags: ["api", "Authentication"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

@@ -9,6 +9,7 @@ import validate from "./booking.validate";
 import BookingController from "./booking.controller";
 import response from "./booking.response";
 import { getOneValidation } from "@/validate/common.validate";
+import { preventAttempt } from "@/middleware/prevent_attempt.middleware";
 
 export default class BookingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -41,6 +42,7 @@ export default class BookingRoute implements IRoute {
             description: "Method that post booking",
             tags: ["api", "Booking"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

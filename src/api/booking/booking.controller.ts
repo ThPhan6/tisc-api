@@ -1,3 +1,4 @@
+import { createOrUpdateBlock } from "@/helper/block.helper";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { bookingService } from "./booking.service";
 import { BookingPayloadRequest, ReScheduleBookingPayloadRequest } from "./booking.type";
@@ -15,6 +16,7 @@ export default class BookingController {
   ) => {
     const payload = req.payload;
     const response = await bookingService.create(payload);
+    await createOrUpdateBlock(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
