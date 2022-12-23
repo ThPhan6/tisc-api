@@ -12,6 +12,8 @@ services:
     tisc_api:
         image: tuanes/tisc-api:1.0.0.beta.1
         container_name: tisc_api
+        volumes:
+          - ../data:/var/www/data
         env_file:
             - ../.env
         depends_on:

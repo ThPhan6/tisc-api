@@ -18,7 +18,8 @@ class DatabaseConsole {
   private init = async (collection: MigrationSeedModel): Promise<boolean> => {
     try { await this.createDatabase() } catch (e: any) {
       // ArangoError: service unavailable due to startup or maintenance mode -> wait for service start
-      if (isString(e.message) && e.message.indexOf('unavailable')) {
+      if (isString(e.message) && e.message.indexOf('unavailable') > -1) {
+        console.log('Go here', e.message);
         return await this.init(collection);
       }
     }
