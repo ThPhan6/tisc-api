@@ -21,7 +21,7 @@ services:
         networks:
             - tisc
         ports: # open port
-            - '8080:80'
+            - '8001:80'
 networks:
     tisc:
         driver: bridge
