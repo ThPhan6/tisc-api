@@ -31,4 +31,5 @@
 1. Build with docker files
     - RUN `docker build . -t <image_name>:<image_tag>` in root folder
 2. Test image
-    - update `docker-compose.yml` in `docker` folders and run the docker
+    - Set `PORT=80` in `.env`, (image will expose port 80)
+    - Update `docker-compose.yml` in `docker` folders and run the docker
