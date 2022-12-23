@@ -1,7 +1,7 @@
 import { IContactRequest } from "./contact.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { contactService } from "./contact.service";
-import { createOrUpdateBlock } from "@/helper/block.helper";
+import { upsertBlockedIp } from "@/helper/blocked_ip.helper";
 
 export default class ContactController {
   public create = async (
@@ -10,7 +10,7 @@ export default class ContactController {
   ) => {
     const payload = req.payload;
     const response = await contactService.create(payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

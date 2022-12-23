@@ -7,7 +7,7 @@ import {
   IRegisterRequest,
   IResetPasswordRequest,
 } from "./auth.type";
-import { createOrUpdateBlock } from "@/helper/block.helper";
+import { upsertBlockedIp } from "@/helper/blocked_ip.helper";
 
 export default class AuthController {
   private authService: AuthService;
@@ -20,7 +20,7 @@ export default class AuthController {
     toolkit: ResponseToolkit
   ) => {
     const response = await this.authService.tiscLogin(req.payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public brandLogin = async (
@@ -28,7 +28,7 @@ export default class AuthController {
     toolkit: ResponseToolkit
   ) => {
     const response = await this.authService.login(req.payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -42,7 +42,7 @@ export default class AuthController {
       payload,
       currentBrowser
     );
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -52,7 +52,7 @@ export default class AuthController {
   ) => {
     const payload = req.payload;
     const response = await this.authService.resetPassword(payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -62,7 +62,7 @@ export default class AuthController {
   ) => {
     const payload = req.payload;
     const response = await this.authService.resetPasswordAndLogin(payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -72,7 +72,7 @@ export default class AuthController {
   ) => {
     const payload = req.payload;
     const response = await this.authService.register(payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -92,7 +92,7 @@ export default class AuthController {
       verification_token,
       password
     );
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -1,11 +1,14 @@
-import { createOrUpdateBlock } from "@/helper/block.helper";
+import { upsertBlockedIp } from "@/helper/blocked_ip.helper";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { bookingService } from "./booking.service";
-import { BookingPayloadRequest, ReScheduleBookingPayloadRequest } from "./booking.type";
+import {
+  BookingPayloadRequest,
+  ReScheduleBookingPayloadRequest,
+} from "./booking.type";
 
 export default class BookingController {
   public availableSchedule = async (req: Request, toolkit: ResponseToolkit) => {
-    const {date, timezone} = req.query;
+    const { date, timezone } = req.query;
     const response = await bookingService.availableSchedule(date, timezone);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -16,27 +19,27 @@ export default class BookingController {
   ) => {
     const payload = req.payload;
     const response = await bookingService.create(payload);
-    await createOrUpdateBlock(req, response.statusCode || 400);
+    await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public reSchedule = async (
-    req: Request & {payload: ReScheduleBookingPayloadRequest},
+    req: Request & { payload: ReScheduleBookingPayloadRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const {id} = req.params;
+    const { id } = req.params;
     const response = await bookingService.reSchedule(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const response = await bookingService.get(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public cancel = async (req: Request, toolkit: ResponseToolkit) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const response = await bookingService.cancel(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

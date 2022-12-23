@@ -1,4 +1,4 @@
-export enum BlockFormType {
+export enum BlockedType {
   Login,
   Brand_design_login,
   Forgot_password,
