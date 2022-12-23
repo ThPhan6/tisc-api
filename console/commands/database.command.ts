@@ -1,7 +1,8 @@
 import Connection, {connection} from '@/Database/Connections/ArangoConnection';
 import moment from 'moment';
 import * as fs from 'fs';
-import {template, difference, isFunction, reverse} from 'lodash';
+import {template, difference, isFunction, reverse, isString} from 'lodash';
+import {ENVIROMENT} from '@/config';
 
 type MigrationSeedModel = 'seeds' | 'migrations';
 interface MigrationSeedAttribute {
@@ -14,8 +15,16 @@ class DatabaseConsole {
   private databasePath = `${process.cwd()}/database`;
   private templatePath = `${process.cwd()}/console/templates`;
 
-  private init = async (collection: MigrationSeedModel) => {
+  private init = async (collection: MigrationSeedModel): Promise<boolean> => {
+    try { await this.createDatabase() } catch (e: any) {
+      // ArangoError: service unavailable due to startup or maintenance mode -> wait for service start
+      if (isString(e.message) && e.message.indexOf('unavailable') > -1) {
+        console.log('Go here', e.message);
+        return await this.init(collection);
+      }
+    }
     try { await connection.collection(collection).create() } catch {}
+    return true;
   }
 
   private createTemplate = async (
@@ -31,7 +40,7 @@ class DatabaseConsole {
     );
   }
 
-  public createDatabase = async (name: string) => {
+  public createDatabase = async (name: string = ENVIROMENT.DATABASE_NAME) => {
     const newConnection = new Connection();
     newConnection.useDatabase('_system');
     await newConnection.createDatabase(name);
