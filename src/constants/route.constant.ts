@@ -305,7 +305,7 @@ export const ROUTES = {
     DESIGN_REGISTER: "/api/auth/register",
     BRAND_DESIGN_LOGIN: "/api/auth/brand-design/login",
     VALIDATE_EMAIL: "/api/auth/check-email/{email}",
-    VALIDATE_RESET_TOKEN: "/api/auth/is-valid-reset-password-token/{token}",
+    CHECK_TOKEN_EXPIRED: "/api/auth/token/{token}/validate",
     FORGOT_PASSWORD: "/api/auth/forgot-password",
     RESET_PASSWORD: "/api/auth/reset-password",
     RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",

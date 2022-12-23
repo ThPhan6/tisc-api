@@ -51,11 +51,11 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.AUTH.VALIDATE_RESET_TOKEN,
+          path: ROUTES.AUTH.CHECK_TOKEN_EXPIRED,
           options: {
             handler: controller.checkTokenExisted,
             validate: validate.checkTokenExisted,
-            description: "Method that check valid reset password token",
+            description: "Method that check valid token",
             tags: ["api", "Authentication"],
             auth: false,
             response: {
