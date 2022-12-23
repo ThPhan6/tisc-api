@@ -8,9 +8,6 @@ import { Request } from "@hapi/hapi";
 export const getFormType = (route: string) => {
   let value = 0;
   switch (route) {
-    case ROUTES.AUTH.TISC_LOGIN:
-      value = BlockFormType.Login;
-      break;
     case ROUTES.AUTH.BRAND_DESIGN_LOGIN:
       value = BlockFormType.Brand_design_login;
       break;
@@ -37,6 +34,7 @@ export const getFormType = (route: string) => {
       break;
 
     default:
+      value = BlockFormType.Login;
       break;
   }
   return value;
