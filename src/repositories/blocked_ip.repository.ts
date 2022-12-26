@@ -1,6 +1,7 @@
 import BaseRepository from "./base.repository";
 import BlockedIpModel, { IBlockedIpAttributes } from "@/model/blocked_ip.model";
 import { v4 as uuidv4 } from "uuid";
+import moment from "moment";
 
 class BlockedIpRepository extends BaseRepository<IBlockedIpAttributes> {
   protected model: BlockedIpModel;
@@ -17,7 +18,7 @@ class BlockedIpRepository extends BaseRepository<IBlockedIpAttributes> {
   }
 
   public async upsert(user_ip: string, blocked_type: number, payload: any) {
-    const now = new Date();
+    const now = moment().format("YYYY-MM-DD HH:mm:ss");
     return this.model.rawQueryV2(
       `UPSERT {user_ip: '${user_ip}', blocked_type: ${blocked_type}}
       INSERT @payloadWithId
