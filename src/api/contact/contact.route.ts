@@ -5,6 +5,7 @@ import IRoute from "@/helper/route.helper";
 import ContactController from "./contact.controller";
 import validate from "./contact.validate";
 import contactResponse from "./contact.response";
+import { preventAttempt } from "@/middleware/prevent_attempt.middleware";
 
 export default class ContactRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -20,6 +21,7 @@ export default class ContactRoute implements IRoute {
             description: "Method that create contact",
             tags: ["api", "Contact"],
             auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

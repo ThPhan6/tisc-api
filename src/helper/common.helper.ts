@@ -187,3 +187,19 @@ export const toUSMoney = (amount: number) => {
 
 export const numberToFixed = (n: number, fixed: number = 2) =>
   n.toFixed(fixed).replace(/.00$|[.*0]$/, "");
+
+export const convertMsToTime = (milliseconds: number) => {
+  let seconds = Math.floor(milliseconds / 1000);
+  let minutes = Math.floor(seconds / 60);
+  let hours = Math.floor(minutes / 60);
+  let arr = [];
+  seconds = seconds % 60;
+  minutes = minutes % 60;
+  hours = hours % 24;
+
+  if (hours > 0) arr.push(hours + "h");
+  if (minutes > 0) arr.push(minutes + "m");
+  if (seconds > 0) arr.push(seconds + "s");
+
+  return arr.join(" ");
+};
