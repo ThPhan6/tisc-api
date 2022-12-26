@@ -15,7 +15,6 @@ import Axios, { AxiosInstance } from "axios";
 import { toUSMoney } from "@/helper/common.helper";
 import { emailQueue } from "@/queues/email.queue";
 import { logRepository } from "@/repositories/log.repository";
-emailQueue.process();
 
 export default class MailService {
   private frontpageURL: string;
