@@ -1,6 +1,7 @@
 import { ENVIROMENT } from "@/config";
 import Bull from "bull";
 import { mailService } from "@/service/mail.service";
+import { TransactionEmailPayload } from "@/types";
 
 class EmailQueue {
   private queue: Bull.Queue<any>;
@@ -13,8 +14,7 @@ class EmailQueue {
 
   public process = () => {
     this.queue.process(async (job, done) => {
-      let data: any = {};
-      data = {
+      let data: Omit<TransactionEmailPayload, "sender"> = {
         to: [{ email: job.data.email }],
         subject: job.data.subject,
         htmlContent: job.data.html,
@@ -22,10 +22,7 @@ class EmailQueue {
       if (job.data.attachment) {
         data = {
           ...data,
-          attachment: {
-            content: job.data.attachment_content,
-            name: job.data.attachment_name,
-          },
+          attachment: job.data.attachment,
         };
       }
       await mailService.sendTransactionEmail(data, job.data.from);

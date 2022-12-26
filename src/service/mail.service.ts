@@ -220,8 +220,12 @@ export default class MailService {
       email: receiver_email,
       subject: template.subject,
       html: template.html,
-      attachment_content,
-      attachment_name,
+      attachment: [
+        {
+          content: attachment_content,
+          name: attachment_name,
+        },
+      ],
       from,
     });
     return true;
@@ -251,8 +255,12 @@ export default class MailService {
       email: receiver_email,
       subject: template.subject,
       html: template.html,
-      attachment_content,
-      attachment_name,
+      attachment: [
+        {
+          content: attachment_content,
+          name: attachment_name,
+        },
+      ],
       from,
     });
     return true;
