@@ -1,7 +1,6 @@
 import { ENVIROMENT } from "@/config";
 import Bull from "bull";
 import { mailService } from "@/service/mail.service";
-import { emailLogRepository } from "@/repositories/email_log.repository";
 
 class EmailQueue {
   private queue: Bull.Queue<any>;
@@ -16,7 +15,7 @@ class EmailQueue {
     this.queue.process(async (job, done) => {
       let data: any = {};
       data = {
-        to: [{ email: "" }],
+        to: [{ email: job.data.email }],
         subject: job.data.subject,
         htmlContent: job.data.html,
       };
@@ -29,14 +28,7 @@ class EmailQueue {
           },
         };
       }
-      const response = await mailService.sendTransactionEmail(data);
-      if (!response) {
-        await emailLogRepository.create({
-          type: job.data.type,
-          email: job.data.email,
-          message: "Fail",
-        });
-      }
+      await mailService.sendTransactionEmail(data, job.data.from);
       done();
     });
   };

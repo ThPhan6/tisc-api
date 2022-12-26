@@ -14,6 +14,7 @@ import {
 import Axios, { AxiosInstance } from "axios";
 import { toUSMoney } from "@/helper/common.helper";
 import { emailQueue } from "@/queues/email.queue";
+import { logRepository } from "@/repositories/log.repository";
 emailQueue.process();
 
 export default class MailService {
@@ -23,16 +24,6 @@ export default class MailService {
   private defaultSender: TransactionEmailPayload["sender"] = {
     email: ENVIROMENT.SENDINBLUE_FROM,
     name: "TISC Team",
-  };
-  private emailTypes = {
-    forgotPassword: "Forgot Password",
-    inviteBrand: "Invite Brand",
-    register: "Register",
-    inviteTeamProfile: "Invite Team member",
-    booking: "Booking",
-    shareProduct: "Share Product",
-    invoiceReceipt: "Invoice Receipt",
-    invoiceReminder: "Invoice Reminder",
   };
   private getTargetedForFromUserType = (userType: UserType) => {
     if (UserType.TISC === userType) {
@@ -58,7 +49,8 @@ export default class MailService {
   }
 
   public sendTransactionEmail = async (
-    payload: Omit<TransactionEmailPayload, "sender">
+    payload: Omit<TransactionEmailPayload, "sender">,
+    from?: string
   ) => {
     //
     if (ENVIROMENT.ALLOW_SEND_EMAIL !== "1") {
@@ -71,7 +63,17 @@ export default class MailService {
         sender: this.defaultSender,
       })
       .then(() => true)
-      .catch(() => false);
+      .catch(async (error) => {
+        await logRepository.create({
+          extra: {
+            title: payload.subject,
+            to: payload.to,
+            from,
+          },
+          message: error.response?.data?.message,
+        });
+        return false;
+      });
   };
 
   private getEmailTemplate = async (templateId: string, payload: object) => {
@@ -103,12 +105,11 @@ export default class MailService {
       email: user.email,
       subject: template.subject,
       html: template.html,
-      type: this.emailTypes.register,
     });
     return true;
   }
 
-  public async sendBrandInviteEmail(user: UserAttributes) {
+  public async sendBrandInviteEmail(user: UserAttributes, from?: string) {
     const template = await this.getEmailTemplate(
       EmailTemplateID.brand.invite_by_tisc,
       {
@@ -125,7 +126,7 @@ export default class MailService {
       email: user.email,
       subject: template.subject,
       html: template.html,
-      type: this.emailTypes.inviteBrand,
+      from,
     });
     return true;
   }
@@ -161,7 +162,6 @@ export default class MailService {
       email: user.email,
       subject: template.subject,
       html: template.html,
-      type: this.emailTypes.forgotPassword,
     });
     return true;
   }
@@ -192,7 +192,7 @@ export default class MailService {
       email: inviteUser.email,
       subject: template.subject,
       html: template.html,
-      type: this.emailTypes.inviteTeamProfile,
+      from: senderUser.email,
     });
     return true;
   }
@@ -202,7 +202,8 @@ export default class MailService {
     receiver_first_name: string,
     billing_amount: number,
     attachment_content: string,
-    attachment_name: string
+    attachment_name: string,
+    from?: string
   ) {
     const template = await this.getEmailTemplate(
       EmailTemplateID.general.invoice_receipt,
@@ -221,7 +222,7 @@ export default class MailService {
       html: template.html,
       attachment_content,
       attachment_name,
-      type: this.emailTypes.invoiceReceipt,
+      from,
     });
     return true;
   }
@@ -231,7 +232,8 @@ export default class MailService {
     receiver_first_name: string,
     attachment_content: string,
     attachment_name: string,
-    overdue?: boolean
+    overdue?: boolean,
+    from?: string
   ) {
     const emailTemplate = overdue
       ? EmailTemplateID.general.invoice_overdue
@@ -251,7 +253,7 @@ export default class MailService {
       html: template.html,
       attachment_content,
       attachment_name,
-      type: this.emailTypes.invoiceReminder,
+      from,
     });
     return true;
   }
@@ -290,7 +292,7 @@ export default class MailService {
       email: to,
       subject: subject,
       html: html,
-      type: this.emailTypes.shareProduct,
+      from,
     });
     return true;
   }
@@ -308,7 +310,6 @@ export default class MailService {
       email: data.to,
       subject: template.subject,
       html: template.html,
-      type: this.emailTypes.booking,
     });
     return true;
   }

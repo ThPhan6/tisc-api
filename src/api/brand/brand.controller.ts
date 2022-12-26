@@ -40,7 +40,8 @@ export default class BrandController {
 
   public invite = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await brandService.invite(id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await brandService.invite(id, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

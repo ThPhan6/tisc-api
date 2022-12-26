@@ -153,7 +153,8 @@ class InvoiceService {
       invoice.ordered_user.firstname,
       billingAmount,
       pdfBuffer.data.toString("base64"),
-      `${invoice.name}.pdf`
+      `${invoice.name}.pdf`,
+      user.email
     );
     return this.get(user, invoiceId);
   }
@@ -279,7 +280,7 @@ class InvoiceService {
     return successResponse({ data: response });
   }
 
-  public async sendReminder(invoiceId: string) {
+  public async sendReminder(invoiceId: string, user: UserAttributes) {
     const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
     if (!invoice) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
@@ -293,7 +294,8 @@ class InvoiceService {
       invoice.ordered_user.firstname,
       pdfBuffer.data.toString("base64"),
       `${invoice.name}.pdf`,
-      isOverdue
+      isOverdue,
+      user.email
     );
     if (!sent) {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);

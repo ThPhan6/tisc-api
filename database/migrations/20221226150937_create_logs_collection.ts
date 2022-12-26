@@ -1,7 +1,7 @@
 import {ConnectionInterface} from '@/Database/Connections/ArangoConnection';
 
 export const up = async (connection: ConnectionInterface) => {
-  const table = connection.collection('email_logs');
+  const table = connection.collection('logs');
   await table.create();
   await table.ensureIndex({
     fields: ['id'],
@@ -13,5 +13,5 @@ export const up = async (connection: ConnectionInterface) => {
 }
 
 export const down = (connection: ConnectionInterface) => {
-  return connection.collection('email_logs').drop();
+  return connection.collection('logs').drop();
 }
