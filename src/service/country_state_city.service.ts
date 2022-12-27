@@ -186,7 +186,7 @@ class CountryStateCityService {
     const response = await ipLookupService.search(ipAddress);
 
     if (
-      response.response_code !== 200 ||
+      response.response_code !== '200' ||
       response.country_code2 === '' ||
       response.country_code2 === '-'
     ) {

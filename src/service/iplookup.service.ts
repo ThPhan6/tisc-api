@@ -9,7 +9,7 @@ interface IpLookupResponse {
   country_name: string;
   country_code2: string;
   isp: string;
-  response_code: 200 | 400;
+  response_code: '200' | '400';
   response_message: string;
 }
 
