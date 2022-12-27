@@ -8,6 +8,7 @@ import {
   RespondedOrPendingStatus,
   SortOrder,
 } from "@/types";
+import { isNumber } from "lodash";
 import { v4 } from "uuid";
 import { ProjectRequestAttributes } from "./project_request.model";
 import ProjectTrackingModel, {
@@ -76,7 +77,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     offset: number,
     filter: GetProjectListFilter,
     sort: GetProjectListSort,
-    order: SortOrder
+    order: SortOrder,
+    userId?: string
   ): Promise<
     {
       project_tracking: ProjectTrackingAttributes;
@@ -89,6 +91,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     }[]
   > {
     const params = {
+      userId,
       brandId,
       offset,
       limit,
@@ -152,7 +155,9 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
     )
 
-    LIMIT @offset, @limit
+    ${userId ? "FILTER @userId IN members[*].id" : ""}
+
+    ${isNumber(offset) && isNumber(limit) ? "LIMIT @offset, @limit" : ""}
     RETURN {
       project_tracking: UNSET(project_trackings, ['_key','_id','_rev']),
       project,

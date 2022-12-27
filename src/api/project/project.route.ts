@@ -9,7 +9,7 @@ import {
   defaultRouteOptionResponseStatus,
 } from "@/helper/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
-import validate from "./project.validate";
+import validate, { getProjectValidate } from "./project.validate";
 import response from "./project.response";
 import ProjectController from "./project.controller";
 
@@ -89,10 +89,27 @@ export default class ProjectRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_LIST_PROJECT,
           options: {
-            handler: controller.getList,
+            handler: controller.getList(false),
             validate: getListValidation(),
             description: "Method that get list project",
             tags: ["api", "Project"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_DESIGNER_WORKSPACE,
+          options: {
+            validate: getListValidation(getProjectValidate),
+            handler: controller.getList(true),
+            description: "Method that get designer workspace",
+            tags: ["api", "Project", "Workspace"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

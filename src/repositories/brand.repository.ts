@@ -139,7 +139,8 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     })) as ListBrandCustom[];
   }
 
-  public async getAllBrandsWithSort(
+  public async getTiscWorkspace(
+    userId: string,
     sort: string,
     order: SortOrder
   ): Promise<{
@@ -156,6 +157,16 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     return this.model.rawQuery(
       `
       FILTER brands.deleted_at == null
+
+      LET teams = (
+        FOR user IN users
+        FILTER user.deleted_at == null
+        FILTER user.status == @activeStatus
+        FILTER user.id IN brands.team_profile_ids
+        RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
+      )
+
+      FILTER @userId IN teams[*].id
 
       LET locations = (
         FOR loc IN locations
@@ -190,14 +201,6 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         RETURN DISTINCT collection.id
       )
 
-      LET teams = (
-        FOR user IN users
-        FILTER user.deleted_at == null
-        FILTER user.status == @activeStatus
-        FILTER user.id IN brands.team_profile_ids
-        RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
-      )
-
       SORT brands.@sort @order
 
       RETURN MERGE(
@@ -212,6 +215,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       )
     `,
       {
+        userId,
         sort,
         order,
         activeStatus: UserStatus.Active,

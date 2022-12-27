@@ -118,8 +118,12 @@ class BrandService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getListCard(_filter: any, sort: string, order: SortOrder) {
-    const brands = await brandRepository.getAllBrandsWithSort(sort, order);
+  public async getTiscWorkspace(
+    userId: string,
+    sort: string,
+    order: SortOrder
+  ) {
+    const brands = await brandRepository.getTiscWorkspace(userId, sort, order);
     return successResponse({
       data: brands,
     });
