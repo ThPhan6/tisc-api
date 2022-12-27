@@ -5,6 +5,7 @@ import { AUTH_NAMES, ROUTES } from "@/constants";
 import ProjectTrackingController from "./project_tracking.controller";
 import validate from "./project_tracking.validate";
 import response from "./project_tracking.response";
+import { getProjectValidate } from "../project/project.validate";
 
 export default class ProjectTrackingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -33,10 +34,27 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "GET",
           path: ROUTES.PROJECT_TRACKING.GET_LIST,
           options: {
-            handler: controller.getListProjectTracking,
+            handler: controller.getListProjectTracking(false),
             validate: validate.getList,
-            description: "Method that create project tracking list",
+            description: "Method that get project tracking list",
             tags: ["api", "Project Tracking"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListProjectTracking,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_BRAND_WORKSPACE,
+          options: {
+            handler: controller.getListProjectTracking(true),
+            validate: getProjectValidate,
+            description: "Method that get brand user workspace",
+            tags: ["api", "Project Tracking", "Workspace"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

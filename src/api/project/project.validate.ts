@@ -30,6 +30,15 @@ const projectValidate = {
     .error(errorMessage("Status is required")),
 };
 
+export const getProjectValidate = {
+  query: {
+    project_status: Joi.number()
+      .valid(...getEnumValues(ProjectStatus))
+      .allow(null)
+      .error(errorMessage("Invalid Project status filter value")),
+  },
+};
+
 export default {
   create: {
     payload: projectValidate,

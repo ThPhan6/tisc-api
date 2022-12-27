@@ -37,6 +37,12 @@ class CountryRepository extends BaseRepository<ICountryAttributes> {
         countries: countries
     }`, {});
   }
+
+  public findByIsoCode = async (code: string) => {
+    return await this.model.where('iso3', '==', code)
+      .orWhere('iso2', '==', code)
+      .first() as ICountryAttributes | undefined;
+  }
 }
 
 export default new CountryRepository();

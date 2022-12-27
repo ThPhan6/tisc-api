@@ -18,7 +18,8 @@ export default class BookingController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await bookingService.create(payload);
+    const ipAddress = req.headers["x-forwarded-for"] || req.info.remoteAddress;
+    const response = await bookingService.create(payload, ipAddress);
     await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

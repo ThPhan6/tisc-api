@@ -59,6 +59,7 @@ class ProjectTrackingService {
   };
 
   public async getListProjectTracking(
+    getWorkspace: boolean,
     user: UserAttributes,
     limit: number,
     offset: number,
@@ -73,13 +74,9 @@ class ProjectTrackingService {
         offset,
         filter,
         sort,
-        order
+        order,
+        getWorkspace ? user.id : undefined
       );
-
-    const total = await projectTrackingRepository.getListProjectTrackingTotal(
-      user.relation_id,
-      filter
-    );
 
     const results = projectTrackings.map((el) => ({
       id: el.project_tracking.id,
@@ -105,10 +102,16 @@ class ProjectTrackingService {
       assignedTeams: el.members,
     }));
 
+    const total = getWorkspace
+      ? null
+      : await projectTrackingRepository.getListProjectTrackingTotal(
+          user.relation_id,
+          filter
+        );
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: pagination(limit, offset, total[0]),
+        pagination: total && pagination(limit, offset, total[0]),
       },
     });
   }

@@ -118,8 +118,12 @@ class BrandService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getListCard(_filter: any, sort: string, order: SortOrder) {
-    const brands = await brandRepository.getAllBrandsWithSort(sort, order);
+  public async getTiscWorkspace(
+    userId: string,
+    sort: string,
+    order: SortOrder
+  ) {
+    const brands = await brandRepository.getTiscWorkspace(userId, sort, order);
     return successResponse({
       data: brands,
     });
@@ -181,7 +185,7 @@ class BrandService {
     });
   }
 
-  public async create(payload: IBrandRequest) {
+  public async create(payload: IBrandRequest, ipAddress?: string) {
     const brand = await brandRepository.findBy({
       name: payload.name,
     });
@@ -209,7 +213,8 @@ class BrandService {
     const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
       UserType.Brand,
-      payload.email
+      payload.email,
+      ipAddress
     );
 
     let verificationToken: string;

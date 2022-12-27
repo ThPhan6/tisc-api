@@ -83,23 +83,28 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     offset: number,
     sort: string,
     order: SortOrder,
-    filter: any
+    filter: { project_status?: ProjectStatus },
+    userId?: string
   ) {
     const params = {
       design_id: designId,
       offset,
       limit,
+      userId,
     };
+
     const sortColumn = sort == "location" ? sort : `projects.${sort}`;
 
     const rawQuery = `
     FILTER projects.deleted_at == null
     FILTER projects.design_id == @design_id
     ${
-      isNumber(filter?.status)
-        ? `FILTER projects.status == ${filter.status}`
+      isNumber(filter?.project_status)
+        ? `FILTER projects.status == ${filter.project_status}`
         : ""
     }
+    ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
+
     LET users = (
         FOR users in users
         FILTER users.deleted_at == null
@@ -115,7 +120,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     LET location = ${locationRepository.getShortLocationQuery("loc")}
 
     ${sort ? `SORT ${sortColumn} ${order} ` : ``}
-    LIMIT @offset, @limit
+    ${isNumber(offset) && isNumber(limit) ? "LIMIT @offset, @limit" : ""}
     RETURN MERGE(
       KEEP(
         projects,

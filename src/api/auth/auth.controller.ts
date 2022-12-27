@@ -71,7 +71,8 @@ export default class AuthController {
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await this.authService.register(payload);
+    const ipAddress = req.headers["x-forwarded-for"] || req.info.remoteAddress;
+    const response = await this.authService.register(payload, ipAddress);
     await upsertBlockedIp(req, response.statusCode || 400);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

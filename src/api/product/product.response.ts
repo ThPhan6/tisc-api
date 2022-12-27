@@ -95,7 +95,7 @@ export default {
       brand: Joi.any(),
     }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getListDesignerProducts: Joi.object({
     data: Joi.array().items(
       Joi.object({
@@ -106,9 +106,16 @@ export default {
         products: Joi.array().items(Joi.object(productResponse)),
       })
     ),
-    brand_summary: Joi.any(),
+    allProducts: Joi.array().items(Joi.object(productResponse)),
+    brand_summary: Joi.object({
+      brand_name: Joi.string(),
+      brand_logo: Joi.string().allow(""),
+      collection_count: Joi.number(),
+      card_count: Joi.number(),
+      product_count: Joi.number(),
+    }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   brandProductSummary: Joi.object({
     data: Joi.object({
       categories: Joi.array().items(
@@ -129,11 +136,11 @@ export default {
       product_count: Joi.number(),
     }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getOne: Joi.object({
     data: Joi.object(productResponse),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getListRestCollectionProduct: Joi.object({
     data: Joi.array().items(
       Joi.object({
@@ -145,7 +152,7 @@ export default {
       })
     ),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   getProductOptions: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
@@ -156,7 +163,7 @@ export default {
       image: Joi.any(),
     }),
     statusCode: Joi.number(),
-  }) as any,
+  }),
   commonTypes: Joi.object({
     data: Joi.array().items({
       id: Joi.string(),
