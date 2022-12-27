@@ -276,10 +276,10 @@ class AuthService {
     const token = await userRepository.generateToken("verification_token");
     const saltHash = createHashWithSalt(payload.password);
     const password = saltHash.hash;
-
+    const [firstname, ...rest] = payload.firstname.split(' ');
     const createdUser = await userRepository.create({
-      firstname: payload.firstname ?? "",
-      lastname: payload.lastname ?? "",
+      firstname: firstname || "",
+      lastname: rest?.join(' ') || "",
       password,
       email: payload.email,
       role_id: DesignFirmRoles.Admin,
