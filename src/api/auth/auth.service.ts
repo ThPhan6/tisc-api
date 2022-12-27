@@ -247,7 +247,10 @@ class AuthService {
     return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
-  public register = async (payload: IRegisterRequest) => {
+  public register = async (
+    payload: IRegisterRequest,
+    ipAddress: string
+  ) => {
     const user = await userRepository.findBy({
       email: payload.email,
     });
@@ -266,7 +269,8 @@ class AuthService {
     const defaultLocation = await locationService.createDefaultLocation(
       createdDesign.id,
       UserType.Designer,
-      payload.email
+      payload.email,
+      ipAddress
     );
 
     const token = await userRepository.generateToken("verification_token");
