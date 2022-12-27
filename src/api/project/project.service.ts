@@ -137,7 +137,6 @@ class ProjectService {
     sort: string,
     order: SortOrder
   ) {
-    console.log("filter", filter);
     await projectRepository.syncProjectLocations();
 
     const projects = await projectRepository.getListProject(
