@@ -86,13 +86,13 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FILTER loc.type == @designLocation
         RETURN loc
       )
-      LET mainOfficeFirmLocations = FIRST(
+      LET mainOfficeFirmLocation = FIRST(
         FOR loc IN firmLocations
         FILTER loc.functional_type == "Main office"
         SORT loc.created_at ASC
         RETURN loc
       )
-      LET tempLocation = mainOfficeFirmLocations || firmLocations[0]
+      LET tempLocation = mainOfficeFirmLocation || firmLocations[0]
       LET satellitesCount = (
         FOR loc IN firmLocations
         FILTER @satelliteType IN loc.functional_type_ids
