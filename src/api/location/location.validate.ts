@@ -47,5 +47,9 @@ export default {
     },
     payload: locationValidate,
   },
-  getList: getListValidation(),
+  getList: getListValidation({
+    query: {
+      is_sort_main_office_first: Joi.boolean(),
+    },
+  }),
 };

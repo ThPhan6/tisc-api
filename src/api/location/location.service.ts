@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES, GLOBAL_COUNTRY_ID } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -19,7 +19,11 @@ import {
   DesignFirmFunctionalType,
 } from "@/types";
 import { isEqual } from "lodash";
-import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
+import {
+  getDesignFunctionType,
+  mappingByCountries,
+  sortMainOfficeFirst,
+} from "./location.mapping";
 
 export default class LocationService {
   private async getFunctionalType(
@@ -159,7 +163,8 @@ export default class LocationService {
     offset: number,
     sort?: string,
     order?: SortOrder,
-    _filter?: any
+    _filter?: any,
+    is_sort_main_office_first?: boolean
   ) => {
     const response = await locationRepository.getLocationPagination(
       user.relation_id,
@@ -170,7 +175,9 @@ export default class LocationService {
     );
     return successResponse({
       data: {
-        locations: response.data,
+        locations: is_sort_main_office_first
+          ? sortMainOfficeFirst(response.data)
+          : response.data,
         pagination: response.pagination,
       },
     });
