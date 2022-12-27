@@ -1,3 +1,5 @@
+import {UserType} from '@/types';
+
 export interface ILocationAttributes {
   id: string;
   business_name: string;
@@ -17,7 +19,7 @@ export interface ILocationAttributes {
   general_email: string;
   created_at: string;
   updated_at: string | null;
-  type: LocationType;
+  type: UserType;
   relation_id: string | null;
 }
 
@@ -136,12 +138,6 @@ export interface LocationRequest {
   postal_code: string;
   general_phone: string;
   general_email: string;
-}
-
-export enum LocationType {
-  tisc = 1,
-  brand = 2,
-  designer = 3,
 }
 
 export interface BasicLocationAttributes

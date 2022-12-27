@@ -181,7 +181,7 @@ class BrandService {
     });
   }
 
-  public async create(payload: IBrandRequest) {
+  public async create(payload: IBrandRequest, ipAddress?: string) {
     const brand = await brandRepository.findBy({
       name: payload.name,
     });
@@ -209,7 +209,8 @@ class BrandService {
     const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
       UserType.Brand,
-      payload.email
+      payload.email,
+      ipAddress
     );
 
     let verificationToken: string;

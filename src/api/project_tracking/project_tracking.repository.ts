@@ -2,7 +2,7 @@ import BaseRepository from "@/repositories/base.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import {
   DesignerAttributes,
-  LocationType,
+  UserType,
   ProjectAttributes,
   ProjectStatus,
   RespondedOrPendingStatus,
@@ -356,7 +356,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       trackingId,
       userId,
       brandId,
-      designLocation: LocationType.designer,
+      designLocation: UserType.Designer,
     };
     const rawQuery = `
     FILTER project_trackings.id == @trackingId

@@ -5,7 +5,7 @@ import {
   ActiveStatus,
   BrandAttributes,
   GetUserGroupBrandSort,
-  LocationType,
+  UserType,
   SortOrder,
   UserAttributes,
   UserStatus,
@@ -59,7 +59,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER haveProduct > 0
       `
           : ""
-      } 
+      }
       LET assignTeams = (
         FOR member IN users
         FILTER member.deleted_at == null
@@ -135,7 +135,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     `;
     return (await this.model.rawQuery(rawQuery, {
       activeStatus: UserStatus.Active,
-      brandLocation: LocationType.brand,
+      brandLocation: UserType.Brand,
     })) as ListBrandCustom[];
   }
 
@@ -171,7 +171,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER products.deleted_at == null
         RETURN products
       )
-      
+
       LET categories = (
         FOR product IN cards
         FOR categories IN categories
@@ -215,7 +215,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         sort,
         order,
         activeStatus: UserStatus.Active,
-        brandLocation: LocationType.brand,
+        brandLocation: UserType.Brand,
       }
     );
   }
@@ -308,7 +308,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       )
 
       LET categories = (
-        FOR p in allProducts 
+        FOR p in allProducts
         FOR cate1 IN categories
         FILTER cate1.deleted_at == null
         FOR cate2 IN cate1.subs
@@ -354,7 +354,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         },
       }
     `,
-      { activeStatus: UserStatus.Active, brandLocation: LocationType.brand }
+      { activeStatus: UserStatus.Active, brandLocation: UserType.Brand }
     );
     return summary[0];
   }

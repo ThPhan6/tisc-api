@@ -6,7 +6,7 @@ import {
   DesignerAttributes,
   DesignFirmFunctionalType,
   ListDesignerWithPaginate,
-  LocationType,
+  UserType,
   ProjectStatus,
   SortOrder,
   UserStatus,
@@ -67,7 +67,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       onHold: ProjectStatus["On Hold"],
       archived: ProjectStatus.Archived,
       activeStatus: UserStatus.Active,
-      designLocation: LocationType.designer,
+      designLocation: UserType.Designer,
     };
     const rawQuery = `
      FILTER designers.deleted_at == null
@@ -281,7 +281,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         onHoldStatus: ProjectStatus["On Hold"],
         archiveStatus: ProjectStatus.Archived,
         activeStatus: UserStatus.Active,
-        designLocation: LocationType.designer,
+        designLocation: UserType.Designer,
       }
     );
     return designFirm[0];
