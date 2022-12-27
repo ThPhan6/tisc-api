@@ -39,8 +39,8 @@ class CountryRepository extends BaseRepository<ICountryAttributes> {
   }
 
   public findByIsoCode = async (code: string) => {
-    return await this.model.where('iso3', '==', code)
-      .orWhere('iso2', '==', code)
+    return await this.model.where('iso3', '==', code.toUpperCase())
+      .orWhere('iso2', '==', code.toUpperCase())
       .first() as ICountryAttributes | undefined;
   }
 }
