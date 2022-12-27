@@ -86,6 +86,13 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FILTER loc.type == @designLocation
         RETURN loc
       )
+      LET mainOfficeFirmLocation = FIRST(
+        FOR loc IN firmLocations
+        FILTER loc.functional_type == "Main office"
+        SORT loc.created_at ASC
+        RETURN loc
+      )
+      LET tempLocation = mainOfficeFirmLocation || firmLocations[0]
       LET satellitesCount = (
         FOR loc IN firmLocations
         FILTER @satelliteType IN loc.functional_type_ids
@@ -114,8 +121,8 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         {
           capacities: LENGTH(designers.capabilities),
           designers: userCount[0],
-          origin: firmLocations[0].country_name,
-          main_office: firmLocations[0].city_name,
+          origin: tempLocation.country_name,
+          main_office: tempLocation.city_name,
           satellites: satellitesCount[0],
           projects: LENGTH(projectStatus),
           live: (FOR s IN projectStatus FILTER s == @live COLLECT WITH COUNT INTO length RETURN length)[0],
