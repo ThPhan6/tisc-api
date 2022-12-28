@@ -2,7 +2,8 @@ import {
   VALID_IMAGE_TYPES,
   DESIGN_STORE,
   MESSAGES,
-  BrandStoragePath
+  BrandStoragePath,
+  ImageSize,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
@@ -91,9 +92,9 @@ export const uploadImage = async (validImages: ValidImage[]) => {
   );
 };
 
-
 export const uploadLogo = async (
-  newPath: string, oldPath: string,
+  newPath: string,
+  oldPath: string,
   base: string = DESIGN_STORE
 ) => {
   let logoPath;
@@ -112,13 +113,13 @@ export const uploadLogo = async (
     ) {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
-    logoPath = `${base}/${fileName}.${fileType.ext}`;
-
+    logoPath = `${base}/${fileName}.webp`;
+    const webp = await toWebp(Buffer.from(newPath, "base64"), ImageSize.small);
     await uploadImage([
       {
-        buffer: Buffer.from(newPath, "base64"),
+        buffer: webp,
         path: logoPath,
-        mime_type: fileType.mime,
+        mime_type: "image/webp",
       },
     ]);
   }

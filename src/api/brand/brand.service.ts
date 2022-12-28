@@ -10,7 +10,7 @@ import {
 import { brandRepository } from "@/repositories/brand.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { uploadLogoBrand } from "@/service/image.service";
+import { uploadLogo } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
 import {
@@ -142,8 +142,21 @@ class BrandService {
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
-
-    const updatedBrand = await brandRepository.update(brand.id, payload);
+    let dataToUpdate: any;
+    if (payload.logo) {
+      let logoPath = await uploadLogo(
+        payload.logo || `/brand-logo`,
+        brand.logo || `/brand-logo`,
+        "brand"
+      );
+      if (typeof logoPath === "object") {
+        return errorMessageResponse(logoPath.message);
+      }
+      dataToUpdate = { ...payload, logo: `/${logoPath}` };
+    } else {
+      dataToUpdate = payload;
+    }
+    const updatedBrand = await brandRepository.update(brand.id, dataToUpdate);
     if (!updatedBrand) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
@@ -157,30 +170,6 @@ class BrandService {
         slogan: updatedBrand.slogan || "",
         mission_n_vision: updatedBrand.mission_n_vision || "",
         official_websites: updatedBrand.official_websites,
-      },
-    });
-  }
-
-  public async updateLogo(user: UserAttributes, logo: any) {
-    if (user.type !== UserType.Brand || !user.relation_id) {
-      return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
-    }
-
-    const brand = await brandRepository.find(user.relation_id);
-
-    if (!brand) {
-      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
-    }
-
-    if (!logo._data) {
-      return errorMessageResponse(MESSAGES.IMAGE.LOGO_NOT_VALID);
-    }
-
-    const urlUploadedLogo = await uploadLogoBrand(logo, brand);
-
-    return successResponse({
-      data: {
-        url: "/brand-logo/" + urlUploadedLogo,
       },
     });
   }

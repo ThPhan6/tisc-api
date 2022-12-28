@@ -165,28 +165,6 @@ export default class BrandRoute implements IRoute {
         },
         {
           method: "PUT",
-          path: ROUTES.UPDATE_BRAND_LOGO,
-          options: {
-            handler: controller.updateBrandLogo,
-            validate: {
-              payload: {
-                logo: Joi.any(),
-              },
-            },
-            description: "Method that update brand logo",
-            tags: ["api", "Brand"],
-            auth: AUTH_NAMES.PERMISSION,
-            payload: imageOptionPayload,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.logo,
-              },
-            },
-          },
-        },
-        {
-          method: "PUT",
           path: ROUTES.UPDATE_BRAND_STATUS,
           options: {
             handler: controller.updateBrandStatus,

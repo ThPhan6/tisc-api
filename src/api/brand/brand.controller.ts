@@ -67,16 +67,6 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public updateBrandLogo = async (
-    req: Request & { payload: { logo: any } },
-    toolkit: ResponseToolkit
-  ) => {
-    const user = req.auth.credentials.user as UserAttributes;
-    const logo = req.payload.logo;
-    const response = await brandService.updateLogo(user, logo);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-
   public create = async (
     req: Request & { payload: IBrandRequest },
     toolkit: ResponseToolkit

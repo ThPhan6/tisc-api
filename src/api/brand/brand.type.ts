@@ -65,6 +65,7 @@ export interface IBrandCardsResponse {
 }
 
 export interface IUpdateBrandProfileRequest {
+  logo: string;
   name: string;
   parent_company: string;
   slogan: string;
