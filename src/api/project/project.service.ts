@@ -341,10 +341,14 @@ class ProjectService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getProjectSummary(currentUser: UserAttributes) {
-    const projects = await projectRepository.getAllBy({
-      design_id: currentUser.relation_id,
-    });
+  public async getProjectSummary(
+    workspace: boolean,
+    currentUser: UserAttributes
+  ) {
+    const projects = await projectRepository.getProjectSummary(
+      currentUser.relation_id,
+      workspace ? currentUser.id : undefined
+    );
 
     return {
       projects: projects.length,

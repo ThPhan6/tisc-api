@@ -111,7 +111,7 @@ class ProjectTrackingService {
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: total && pagination(limit, offset, total[0]),
+        pagination: total ? pagination(limit, offset, total[0]) : undefined,
       },
     });
   }

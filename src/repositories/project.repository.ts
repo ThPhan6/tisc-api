@@ -405,6 +405,22 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     return overallSummary[0];
   }
 
+  public async getProjectSummary(
+    relationId: string,
+    userId?: string
+  ): Promise<{ status: ProjectStatus }[]> {
+    const projectSummary = await this.model.rawQuery(
+      `
+      FILTER projects.deleted_at == null
+      FILTER projects.design_id == @relationId
+        ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
+        RETURN KEEP(projects, 'status')
+      `,
+      { relationId, userId }
+    );
+    return projectSummary;
+  }
+
   public async getProjectListing(
     limit: number,
     offset: number,
