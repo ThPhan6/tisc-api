@@ -62,7 +62,7 @@ const style = `
     }
 
     .text-blue-light {
-        color: #4f84ff !important;
+        color: #000000 !important;
     }
 
     .non-padding {
@@ -116,7 +116,7 @@ const newProjectAddedMessage = `
         <div class="content-email">
             <div class="message-email">
                 <p>Hi <%= receiver_first_name %>,</p>
-                <p style="line-height: 2;" class="pb-15"><span ><%= sender_first_name %> <%= sender_last_name %></span> has
+                <p style="line-height: 2;" class="pb-15"><span class="text-blue-light"><%= sender_first_name %> <%= sender_last_name %></span> has
                     invited you collaborate on a new project.</p>
 
                 <p class="text-bold-black">Project name: <%= project_name %></p>
@@ -126,7 +126,7 @@ const newProjectAddedMessage = `
                 </div>
 
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -158,19 +158,19 @@ const projectRemovedMessage = `
         <div class="content-email">
             <div class="message-email">
                 <p>Hi <%= receiver_first_name %>,</p>
-                <p style="line-height: 2;" class="pb-15"><span ><%= sender_first_name %> <%= sender_last_name %></span> has released you from the below project.</p>
+                <p style="line-height: 2;" class="pb-15"><span class="text-blue-light"><%= sender_first_name %> <%= sender_last_name %></span> has released you from the below project.</p>
 
                 <p class="text-bold-black">Project name: <%= project_name %></p>
 
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
                 </div>
                 <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                 </p>
-                <span ><%= url %></span>
+                <span class="text-blue-light"><%= url %></span>
             </div>
         </div>
     </div>
@@ -196,7 +196,7 @@ const welcomeToTheTeamMessage = `
         <div class="content-email">
             <div class="message-email">
                 <p>Hi <%= firstname %>,</p>
-                <p style="line-height: 2;" class="pb-15"><span ><%= sender_first_name %></span> has
+                <p style="line-height: 2;" class="pb-15"><span class="text-blue-light"><%= sender_first_name %></span> has
                     invited you to join the TISC, a platform and tools dedicated to
                     improving operation and increasing productivity for the design and construction industry.</p>
 
@@ -210,16 +210,16 @@ const welcomeToTheTeamMessage = `
                     the features and
                     functions of
                     the platform. The information will update over time. Of course, you could always refer to
-                    <span >Contact Support</span> if you have further questions.</p>
+                    <span class="text-blue-light">Contact Support</span> if you have further questions.</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
                 </div>
                 <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
                 </p>
-                <span ><%= url %></span>
+                <span class="text-blue-light"><%= url %></span>
             </div>
         </div>
     </div>
@@ -244,7 +244,7 @@ const liveDemoMessage = `
     <div class="wrapper">
         <div class="content-email">
             <div class="message-email">
-                <p>Hi <span ><%= first_name %></span>,</p>
+                <p>Hi <span class="text-blue-light"><%= first_name %></span>,</p>
                 <p class="pb-30">Thanks for taking an interest in our service. We are excited to learn more about your
                     brand and
                     product line while introducing our platform.</p>
@@ -259,21 +259,21 @@ const liveDemoMessage = `
                 </ul>
                 <p>Your session is confirmed at:</p>
                 <p><%= timezone %> </p>
-                <p class=" text-bold pb-30"><%= start_time %></p>
+                <p class="text-blue-light text-bold pb-30"><%= start_time %></p>
 
                 <p>Location:</p>
                 <p class="text-bold-black pb-30">Lark Meeting web conference.
-                    <a class=" text-non-decoration" href="<%= conference_url %>">Join now</a>
+                    <a class="text-blue-light text-non-decoration" href="<%= conference_url %>">Join now</a>
                 </p>
                 <div class="pb-30">
                     <p>To change event, click the below button:</p>
-                    <a class=" text-non-decoration mr-3" href="<%= reschedule_url %>">Reschedule</a>
-                    <a class=" text-non-decoration" href="<%= cancel_url %>">Cancel</a>
+                    <a class="text-blue-light text-non-decoration mr-3" href="<%= reschedule_url %>">Reschedule</a>
+                    <a class="text-blue-light text-non-decoration" href="<%= cancel_url %>">Cancel</a>
                 </div>
                 <p class="pb-30">Thank you and talk to you soon.</p>
 
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -309,21 +309,21 @@ const resetPasswordMessage = `
           <a href="<%= url %>" class="button-account-password">Reset password</a>
         </div>
         <p class="pb-30">For security, this request was received from a <span
-            ><%=operating_system %> operating system</span>
-          device using <span ><%=browser_name%></span>. If you did not request a
+            class="text-blue-light"><%=operating_system %> operating system</span>
+          device using <span class="text-blue-light"><%=browser_name%></span>. If you did not request a
           password
-          reset, please ignore this email or <span >Contact Support</span> if you have
+          reset, please ignore this email or <span class="text-blue-light">Contact Support</span> if you have
           questions.</p>
 
         <p>TISC Team</p>
-        <p class=" pb-15">tisc.global</p>
+        <p class="text-blue-light pb-15">tisc.global</p>
         <div class="pb-15">
           <div class="hr">
           </div>
         </div>
         <p>If you're having trouble with the button, copy and paste the URL below into your web browser.
         </p>
-        <span >
+        <span class="text-blue-light">
           <%= url %>
         </span>
       </div>
@@ -364,13 +364,13 @@ const signedUpMessage = `
           time.</p>
         <div class="pb-10">
           <ul class="non-padding">
-            <li class="non-bullet pb-10"><span >1.</span> Office Profile: including
+            <li class="non-bullet pb-10"><span class="text-blue-light">1.</span> Office Profile: including
               logo, website and firm capacity</li>
-            <li class="non-bullet pb-10"><span >2.</span> Locations: at least one
+            <li class="non-bullet pb-10"><span class="text-blue-light">2.</span> Locations: at least one
               address is required</li>
-            <li class="non-bullet pb-10"><span >3.</span> Team Profiles: create team
+            <li class="non-bullet pb-10"><span class="text-blue-light">3.</span> Team Profiles: create team
               profiles and invite them to join</li>
-            <li class="non-bullet pb-10"><span >4.</span> Material/product code: your
+            <li class="non-bullet pb-10"><span class="text-blue-light">4.</span> Material/product code: your
               custom code system
             </li>
           </ul>
@@ -383,9 +383,9 @@ const signedUpMessage = `
           the features and
           functions of
           the platform. The information will update over time. Of course, you could always refer to
-          <span >Contact Support</span> if you have further questions.</p>
+          <span class="text-blue-light">Contact Support</span> if you have further questions.</p>
         <p>TISC Team</p>
-        <p class=" pb-15">tisc.global</p>
+        <p class="text-blue-light pb-15">tisc.global</p>
         <div class="pb-15">
           <div class="hr">
           </div>
@@ -429,13 +429,13 @@ const activatedAccountMessage = `
           time.</p>
         <div class="pb-30">
           <ul class="non-padding">
-            <li class="non-bullet pb-10"><span >1.</span> Brand Profile: including logo and company statement
+            <li class="non-bullet pb-10"><span class="text-blue-light">1.</span> Brand Profile: including logo and company statement
             </li>
-            <li class="non-bullet pb-10"><span >2.</span> Locations: at least one address is required
+            <li class="non-bullet pb-10"><span class="text-blue-light">2.</span> Locations: at least one address is required
             </li>
-            <li class="non-bullet pb-10"><span >3.</span> Team Profiles: create team profiles and invite them to join
+            <li class="non-bullet pb-10"><span class="text-blue-light">3.</span> Team Profiles: create team profiles and invite them to join
             </li>
-            <li class="non-bullet pb-10"><span >4.</span> Distributors: add distributors & define their coverage
+            <li class="non-bullet pb-10"><span class="text-blue-light">4.</span> Distributors: add distributors & define their coverage
             </li>
           </ul>
         </div>
@@ -445,9 +445,9 @@ const activatedAccountMessage = `
           the features and
           functions of
           the platform. The information will update over time. Of course, you could always refer to
-          <span >Contact Support</span> if you have further questions.</p>
+          <span class="text-blue-light">Contact Support</span> if you have further questions.</p>
         <p>TISC Team</p>
-        <p class=" pb-15">tisc.global</p>
+        <p class="text-blue-light pb-15">tisc.global</p>
         <div class="pb-15">
           <div class="hr">
           </div>
@@ -488,7 +488,7 @@ const inquiryMessage = `
 
                 <p class="pb-20">Have a pleasant day!</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -524,7 +524,7 @@ const feedbackMessage = `
 
                 <p class="pb-20">Have a pleasant day!</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -560,7 +560,7 @@ const recommendationMessage = `
 
                 <p class="pb-20">Have a pleasant day!</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -596,7 +596,7 @@ const suspendedMessage = `
 
                 <p class="pb-20">Thank you for your patience.</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -632,9 +632,9 @@ const reinstatedMessage = `
                     <a href="<%= url %>" class="button-account-password">Log in</a>
                 </div>
                 <p class="pb-20">Please refer to
-                <span >Contact Support</span> if you have further questions.</p>
+                <span class="text-blue-light">Contact Support</span> if you have further questions.</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -670,7 +670,7 @@ const closedMessage = `
                 </div>
                 <p class="pb-20">It's always been a pleasure to collaborate with you, and thank you for your support.</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -705,9 +705,9 @@ const withdrewMessage = `
                 <p class="pb-20">We are apologising for interrupting your operation and causing inconvenience. Please inform the rest of the team members and take necessary project actions accordingly.</p>
 
                 <p class="pb-20">Refer to
-                <span >Contact Support</span> if you have further questions.</p>
+                <span class="text-blue-light">Contact Support</span> if you have further questions.</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -739,10 +739,10 @@ const maintenanceMessage = `
                 <p class="text-bold pb-20">IMPORTANT MESSAGE!</p>
                 <p>Attention to TISC account user:</p>
                 <p class="pb-20">Please be aware that our service will be unavailable at <%= from%> to <%= to%> as our tech team will be performing scheduled maintenance at this time. During this time, you will be unable to log in your account. Before maintenance takes place, please make sure you have inform your operation team and associated parties.</p>
-                <p class="pb-20">This maintenance is necessary to improve product performance and platform servebility. We apologize for any inconvenience. For more information, or if you have any questions, please refer to our <span >Contact Support</span>.</p>
+                <p class="pb-20">This maintenance is necessary to improve product performance and platform servebility. We apologize for any inconvenience. For more information, or if you have any questions, please refer to our <span class="text-blue-light">Contact Support</span>.</p>
 
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -781,7 +781,7 @@ const invoiceSupportMessage = `
                 </div>
                 <p class="pb-20">Have a pleasant day!</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -820,7 +820,7 @@ const invoiceReminderMessage = `
                 </div>
                 <p class="pb-20">Have a pleasant day!</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
@@ -859,7 +859,7 @@ const invoiceOverdueMessage = `
                 </div>
                 <p class="pb-20">Have a pleasant day!</p>
                 <p>TISC Team</p>
-                <p class=" pb-15">tisc.global</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
                 <div class="pb-15">
                     <div class="hr">
                     </div>
