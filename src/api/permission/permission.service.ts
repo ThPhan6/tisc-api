@@ -50,6 +50,9 @@ export default class PermissionService {
     ) {
       return errorMessageResponse(MESSAGES.PERMISSION.NO_MODIFY_ADMIN_PERM);
     }
+    await companyPermissionRepository.update(id, {
+      accessable: !companyPermission.accessable,
+    });
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
