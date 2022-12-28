@@ -258,7 +258,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
 
-    const createdDesign = await designerRepository.create({ name: "" });
+    const createdDesign = await designerRepository.create({ name: "Your Company" });
 
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
