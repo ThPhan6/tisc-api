@@ -113,7 +113,7 @@ const getRegexMessage = (regex?: string) => {
 export const requirePasswordValidation = Joi.string()
   .required()
   .regex(regexPassword)
-  .error(errorMessage("Password is required and valid"));
+  .error(errorMessage("Password must contain at least 8 characters, including UPPERCASE, lowercase, symbols and numbers"));
 
 // export const requireNumberValidation = (fieldName: string, full?: "full") =>
 //   Joi.number()
