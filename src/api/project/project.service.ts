@@ -417,11 +417,6 @@ class ProjectService {
           },
           {
             id: v4(),
-            quantity: summary.products.deleted,
-            label: "Deleted",
-          },
-          {
-            id: v4(),
             quantity: summary.products.specified,
             label: "Specified",
           },
@@ -429,6 +424,11 @@ class ProjectService {
             id: v4(),
             quantity: summary.products.cancelled,
             label: "Cancelled",
+          },
+          {
+            id: v4(),
+            quantity: summary.products.deleted,
+            label: "Deleted",
           },
         ],
       },
