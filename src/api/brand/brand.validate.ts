@@ -21,6 +21,7 @@ export default {
   }),
   updateBrandProfile: {
     payload: {
+      logo: Joi.any(),
       name: requireStringValidation("Brand name"),
       parent_company: Joi.string().trim().allow(""),
       slogan: Joi.string().trim().allow(""),
