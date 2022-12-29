@@ -24,7 +24,7 @@ export default class BrandController {
     const response = await brandService.getTiscWorkspace(
       sort,
       order,
-      user.role_id === TiscRoles.Consultant ? user.id : undefined
+      user.role_id !== TiscRoles.Admin ? user.id : undefined
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

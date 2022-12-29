@@ -1,4 +1,9 @@
-import { ALL_REGIONS, COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  ALL_REGIONS,
+  COMMON_TYPES,
+  DesignFirmRoles,
+  MESSAGES,
+} from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -139,6 +144,11 @@ class ProjectService {
   ) {
     await projectRepository.syncProjectLocations();
 
+    const filterId =
+      getWorkspace && user.role_id !== DesignFirmRoles.Admin
+        ? user.id
+        : undefined;
+
     const projects = await projectRepository.getListProject(
       user.relation_id,
       limit,
@@ -146,7 +156,7 @@ class ProjectService {
       sort,
       order,
       filter,
-      getWorkspace ? user.id : undefined
+      filterId
     );
 
     const totalProject = getWorkspace

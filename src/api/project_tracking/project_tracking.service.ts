@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import { BrandRoles, COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -68,6 +68,9 @@ class ProjectTrackingService {
     sort: GetProjectListSort = "created_at",
     order: SortOrder = "DESC"
   ) {
+    const filterId =
+      getWorkspace && user.role_id !== BrandRoles.Admin ? user.id : undefined;
+
     const projectTrackings =
       await projectTrackingRepository.getListProjectTracking(
         user.relation_id,
@@ -76,7 +79,7 @@ class ProjectTrackingService {
         filter,
         sort,
         order,
-        getWorkspace ? user.id : undefined
+        filterId
       );
 
     const results = projectTrackings.map((el) => ({
