@@ -119,11 +119,11 @@ class BrandService {
   }
 
   public async getTiscWorkspace(
-    userId: string,
     sort: string,
-    order: SortOrder
+    order: SortOrder,
+    userId?: string
   ) {
-    const brands = await brandRepository.getTiscWorkspace(userId, sort, order);
+    const brands = await brandRepository.getTiscWorkspace(sort, order, userId);
     return successResponse({
       data: brands,
     });

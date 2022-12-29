@@ -140,9 +140,9 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   }
 
   public async getTiscWorkspace(
-    userId: string,
     sort: string,
-    order: SortOrder
+    order: SortOrder,
+    userId?: string
   ): Promise<{
     id: string;
     created_at: string;
