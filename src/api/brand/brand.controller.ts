@@ -22,9 +22,9 @@ export default class BrandController {
     const { sort, order } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await brandService.getTiscWorkspace(
-      user.role_id === TiscRoles.Consultant ? user.id : "",
       sort,
-      order
+      order,
+      user.role_id === TiscRoles.Consultant ? user.id : undefined
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
