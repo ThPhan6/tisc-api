@@ -74,7 +74,13 @@ export const sortBasisConversion = (
     };
   });
 };
-
+const toValidImageItem = async (image: any, fileName: string) => {
+  return {
+    buffer: await toWebp(Buffer.from(image, "base64")),
+    path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
+    mime_type: "image/webp",
+  };
+};
 export const mappingBasisOptionCreate = async (
   payload: IBasisOptionRequest
 ) => {
@@ -109,14 +115,14 @@ export const mappingBasisOptionCreate = async (
             ) {
               isValidImage = false;
             }
-            validUploadImages.push({
-              buffer: await toWebp(Buffer.from(value.image, "base64")),
-              path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
-              mime_type: "image/webp",
-            });
+            const validImageItem = await toValidImageItem(
+              value.image,
+              fileName
+            );
+            validUploadImages.push(validImageItem);
             return {
               id: uuid(),
-              image: `/${BASIS_OPTION_STORE}/${fileName}.webp`,
+              image: `/${validImageItem.path}`,
               value_1: value.value_1,
               value_2: value.value_2,
               unit_1: value.unit_1,
@@ -234,12 +240,12 @@ export const mappingBasisOptionUpdate = async (
                 isValidImage = false;
               }
               const fileName = randomName(8);
-              validUploadImages.push({
-                buffer: await toWebp(Buffer.from(value.image, "base64")),
-                path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
-                mime_type: "image/webp",
-              });
-              imagePath = `/${BASIS_OPTION_STORE}/${fileName}.webp`;
+              const validImageItem = await toValidImageItem(
+                value.image,
+                fileName
+              );
+              validUploadImages.push(validImageItem);
+              imagePath = `/${validImageItem.path}`;
             }
             return foundValue
               ? {
