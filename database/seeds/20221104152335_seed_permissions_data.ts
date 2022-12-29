@@ -339,6 +339,7 @@ const permissionData = [
       ROUTES.PROJECT_TRACKING.GET_SUMMARY,
       ROUTES.PROJECT_TRACKING.GET_ONE,
       ROUTES.PROJECT_TRACKING.GET_SUMMARY,
+      ROUTES.PROJECT_TRACKING.UPDATE,
       ROUTES.ACTION_TASK.CREATE,
       ROUTES.ACTION_TASK.GET_LIST,
       ROUTES.ACTION_TASK.UPDATE,
@@ -531,7 +532,7 @@ const permissionData = [
     subs: [
       {
         logo: null,
-        name: "Overal Listing",
+        name: "Overall Listing",
         type: 3,
         index: 32,
         id: "permission_13_0",
