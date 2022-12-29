@@ -1,8 +1,8 @@
 import { brandService } from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
-import { BRAND_STATUS_OPTIONS } from "@/constants";
-import { ActiveStatus, UserAttributes } from "@/types";
+import { BRAND_STATUS_OPTIONS, TiscRoles } from "@/constants";
+import { ActiveStatus, UserAttributes, UserType } from "@/types";
 
 export default class BrandController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -20,8 +20,9 @@ export default class BrandController {
 
   public getTiscWorkspace = async (req: Request, toolkit: ResponseToolkit) => {
     const { sort, order } = req.query;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await brandService.getTiscWorkspace(
-      req.auth.credentials.user_id as string,
+      user.role_id === TiscRoles.Consultant ? user.id : "",
       sort,
       order
     );
