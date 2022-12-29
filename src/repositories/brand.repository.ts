@@ -140,7 +140,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   }
 
   public async getTiscWorkspace(
-    _userId: string,
+    userId: string,
     sort: string,
     order: SortOrder
   ): Promise<{
@@ -165,6 +165,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER user.id IN brands.team_profile_ids
         RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
       )
+      ${userId ? "FILTER @userId IN teams[*].id" : ""}
 
       LET locations = (
         FOR loc IN locations
@@ -217,6 +218,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         order,
         activeStatus: UserStatus.Active,
         brandLocation: UserType.Brand,
+        userId,
       }
     );
   }
