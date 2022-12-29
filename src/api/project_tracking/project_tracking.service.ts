@@ -112,9 +112,10 @@ class ProjectTrackingService {
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: isNumber(total)
-          ? pagination(limit, offset, total[0])
-          : undefined,
+        pagination:
+          typeof total?.[0] === "number"
+            ? pagination(limit, offset, total[0])
+            : undefined,
       },
     });
   }
