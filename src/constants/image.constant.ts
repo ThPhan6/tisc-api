@@ -27,3 +27,31 @@ export const imageOptionPayload: RouteOptionsPayload = {
     throw err;
   },
 };
+
+export enum ImageSize {
+  large = 900,
+  medium = 300,
+  small = 100,
+  thumbnail = 50
+}
+
+export enum ImageDPI {
+  high = 300,
+  medium = 150,
+  low = 72
+}
+
+export enum ImageQuality {
+  high = 100,
+  medium = 80,
+  low = 50
+}
+
+/* https://sharp.pixelplumbing.com/api-resize */
+export enum ImageFit {
+  cover = 'cover',
+  contain = 'contain',
+  fill = 'fill',
+  inside = 'inside',
+  outside = 'outside'
+}
