@@ -1,12 +1,12 @@
 import sharp from "sharp";
 import { ENVIROMENT } from "@/config";
-import {ImageSize, ImageQuality, ImageFit} from '@/constants';
+import { ImageSize, ImageQuality, ImageFit } from "@/constants";
 
 export const toWebp = async (
   image: Buffer,
   size: ImageSize = ImageSize.medium,
   quality: ImageQuality = ImageQuality.high,
-  isSquare: Boolean = false,
+  isSquare: Boolean = true,
   fit: ImageFit = ImageFit.cover
 ) => {
   let output = sharp(image).webp({ lossless: true, quality });
@@ -16,7 +16,7 @@ export const toWebp = async (
     output = output.resize(size);
   }
   return output.toBuffer();
-}
+};
 
 export const getFileURI = (filename: string) => {
   if (!filename) {

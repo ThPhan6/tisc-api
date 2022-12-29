@@ -1,6 +1,12 @@
 import { locationService } from "./../location/location.service";
-import { BRAND_STATUSES, MESSAGES, BrandRoles, ALL_REGIONS } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import {
+  BRAND_STATUSES,
+  MESSAGES,
+  BrandRoles,
+  ALL_REGIONS,
+  ImageSize,
+} from "@/constants";
+import { pagination, randomName, simplizeString } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
   errorMessageResponse,
@@ -145,9 +151,11 @@ class BrandService {
     let dataToUpdate: any;
     if (payload.logo) {
       let logoPath = await uploadLogo(
-        payload.logo || `/brand-logo`,
-        brand.logo || `/brand-logo`,
-        "brand"
+        payload.logo || ``,
+        brand.logo || ``,
+        `brand/${brand.id}/logo`,
+        ImageSize.small,
+        `${simplizeString(brand.name)}-${randomName(8)}-s`
       );
       if (typeof logoPath === "object") {
         return errorMessageResponse(logoPath.message);

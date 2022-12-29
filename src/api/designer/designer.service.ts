@@ -1,5 +1,10 @@
-import { ALL_REGIONS, COMMON_TYPES, DESIGN_STORE, MESSAGES } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import {
+  ALL_REGIONS,
+  COMMON_TYPES,
+  ImageSize,
+  MESSAGES,
+} from "@/constants";
+import { pagination, randomName, simplizeString } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -143,8 +148,11 @@ class DesignerService {
       return successMessageResponse(MESSAGES.SUCCESS);
     } else {
       let logoPath = await uploadLogo(
-        payload.logo || `/${DESIGN_STORE}`,
-        designer.logo || `/${DESIGN_STORE}`
+        payload.logo || ``,
+        designer.logo || ``,
+        `design/${designer.id}/logo`,
+        ImageSize.small,
+        `${simplizeString(designer.name)}-${randomName(8)}-s`
       );
 
       if (typeof logoPath == "object") {

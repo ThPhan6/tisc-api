@@ -5,6 +5,7 @@ import {
   randomName,
   sortObjectArray,
 } from "@/helper/common.helper";
+import { toWebp } from "@/helper/image.helper";
 import { deleteFile, isExists } from "@/service/aws.service";
 import { IBasisAttributes } from "@/types";
 import { v4 as uuid } from "uuid";
@@ -109,13 +110,13 @@ export const mappingBasisOptionCreate = async (
               isValidImage = false;
             }
             validUploadImages.push({
-              buffer: Buffer.from(value.image, "base64"),
-              path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-              mime_type: fileType.mime,
+              buffer: await toWebp(Buffer.from(value.image, "base64")),
+              path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
+              mime_type: "image/webp",
             });
             return {
               id: uuid(),
-              image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+              image: `/${BASIS_OPTION_STORE}/${fileName}.webp`,
               value_1: value.value_1,
               value_2: value.value_2,
               unit_1: value.unit_1,
@@ -234,11 +235,11 @@ export const mappingBasisOptionUpdate = async (
               }
               const fileName = randomName(8);
               validUploadImages.push({
-                buffer: Buffer.from(value.image, "base64"),
-                path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                mime_type: fileType.mime,
+                buffer: await toWebp(Buffer.from(value.image, "base64")),
+                path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
+                mime_type: "image/webp",
               });
-              imagePath = `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`;
+              imagePath = `/${BASIS_OPTION_STORE}/${fileName}.webp`;
             }
             return foundValue
               ? {

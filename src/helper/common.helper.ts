@@ -83,6 +83,11 @@ export const removeSpecialChars = (str: string, replaceStr: string = "") => {
   return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, replaceStr);
 };
 
+export const simplizeString = (str: string) => {
+  return removeSpecialChars(
+    str.trim().toLowerCase().split(" ").join("-").replace(/ /g, "-")
+  );
+};
 export const formatNumberDisplay = (
   num: number | string,
   locale: string = "en-us"
