@@ -20,6 +20,7 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
+import { isNumber } from "lodash";
 
 class ProjectTrackingService {
   public createProjectRequest = async (
@@ -111,7 +112,9 @@ class ProjectTrackingService {
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: total ? pagination(limit, offset, total[0]) : undefined,
+        pagination: isNumber(total)
+          ? pagination(limit, offset, total[0])
+          : undefined,
       },
     });
   }

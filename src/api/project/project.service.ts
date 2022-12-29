@@ -18,7 +18,7 @@ import {
   UserAttributes,
   UserType,
 } from "@/types";
-import { isEqual, pick, sumBy, uniq } from "lodash";
+import { isEqual, isNumber, pick, sumBy, uniq } from "lodash";
 import { v4 } from "uuid";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { CreateProjectRequest } from "./project.type";
@@ -156,7 +156,7 @@ class ProjectService {
     return successResponse({
       data: {
         projects,
-        pagination: totalProject
+        pagination: isNumber(totalProject)
           ? pagination(limit, offset, totalProject)
           : undefined,
       },
