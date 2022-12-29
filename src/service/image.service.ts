@@ -9,6 +9,7 @@ import {
   getFileTypeFromBase64,
   randomName,
   removeSpecialChars,
+  simplizeString,
 } from "@/helper/common.helper";
 import { toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
@@ -53,13 +54,13 @@ export const uploadImagesProduct = (
   brandName: string,
   brandId: string
 ) => {
-  const formatedBrandName = removeSpecialChars(
-    brandName.trim().toLowerCase().split(" ").join("-").replace(/ /g, "-")
-  );
-  const timestamps = moment();
+  const formatedBrandName = simplizeString(brandName);
   return Promise.all(
     images.map(async (image, index) => {
-      const mediumBuffer = await toWebp(Buffer.from(image, "base64"));
+      const mediumBuffer = await toWebp(
+        Buffer.from(image, "base64"),
+        ImageSize.large
+      );
       const cleanKeywords = keywords.length
         ? "-" +
           keywords
@@ -68,14 +69,14 @@ export const uploadImagesProduct = (
             })
             .join("-")
         : "";
-      const fileName = `${formatedBrandName}${cleanKeywords}-${timestamps.unix()}${index}`;
+      const fileName = `${formatedBrandName}${cleanKeywords}-l-${index + 1}`;
 
       await upload(
         mediumBuffer,
-        `product/${brandId}/${fileName}_medium.webp`,
+        `product/${brandId}/${fileName}.webp`,
         "image/webp"
       );
-      return `/product/${brandId}/${fileName}_medium.webp`;
+      return `/product/${brandId}/${fileName}.webp`;
     })
   );
 };
@@ -95,7 +96,9 @@ export const uploadImage = async (validImages: ValidImage[]) => {
 export const uploadLogo = async (
   newPath: string,
   oldPath: string,
-  base: string = DESIGN_STORE
+  base: string = DESIGN_STORE,
+  size: number = ImageSize.small,
+  file_name?: string
 ) => {
   let logoPath;
   if ((await isExists(newPath.slice(1))) || oldPath === newPath) {
@@ -105,7 +108,7 @@ export const uploadLogo = async (
 
     //upload logo
     const fileType = await getFileTypeFromBase64(newPath);
-    const fileName = randomName(8);
+    const fileName = file_name || randomName(8);
 
     if (
       !fileType ||
@@ -114,7 +117,7 @@ export const uploadLogo = async (
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     logoPath = `${base}/${fileName}.webp`;
-    const webp = await toWebp(Buffer.from(newPath, "base64"), ImageSize.small);
+    const webp = await toWebp(Buffer.from(newPath, "base64"), size);
     await uploadImage([
       {
         buffer: webp,
