@@ -72,6 +72,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FOR users IN users
         FILTER users.relation_id == brands.id
         FILTER users.deleted_at == null
+        FILTER users.status == @activeStatus
         COLLECT WITH COUNT INTO length
         return length
       )
@@ -140,9 +141,9 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
   }
 
   public async getTiscWorkspace(
-    userId: string,
     sort: string,
-    order: SortOrder
+    order: SortOrder,
+    userId?: string
   ): Promise<{
     id: string;
     created_at: string;
@@ -165,8 +166,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER user.id IN brands.team_profile_ids
         RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
       )
-
-      FILTER @userId IN teams[*].id
+      ${userId ? "FILTER @userId IN teams[*].id" : ""}
 
       LET locations = (
         FOR loc IN locations
@@ -215,11 +215,11 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       )
     `,
       {
-        userId,
         sort,
         order,
         activeStatus: UserStatus.Active,
         brandLocation: UserType.Brand,
+        userId,
       }
     );
   }

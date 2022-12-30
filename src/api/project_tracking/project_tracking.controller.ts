@@ -1,4 +1,7 @@
-import { MESSAGES } from "@/constants";
+import {
+  MESSAGES,
+  BrandRoles,
+} from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
@@ -61,86 +64,89 @@ export default class ProjectTrackingController {
     return toolkit.response(response).code(200);
   };
 
-  public getProjectTrackingSummary = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
-    const currentUser = req.auth.credentials.user as UserAttributes;
-    const response = await projectTrackingRepository.getSummary(
-      currentUser.relation_id
-    );
-    const summary = response[0];
+  public getProjectTrackingSummary =
+    (workspace: boolean) => async (req: Request, toolkit: ResponseToolkit) => {
+      const currentUser = req.auth.credentials.user as UserAttributes;
+      let userId = undefined;
+      if ( workspace && currentUser.role_id !== BrandRoles.Admin ) {
+        userId = currentUser.id;
+      }
+      const response = await projectTrackingRepository.getSummary(
+        currentUser.relation_id,
+        userId
+      );
+      const summary = response[0];
 
-    if (!summary) {
-      return toolkit
-        .response(errorMessageResponse(MESSAGES.SOMETHING_WRONG))
-        .code(404);
-    }
+      if (!summary) {
+        return toolkit
+          .response(errorMessageResponse(MESSAGES.SOMETHING_WRONG))
+          .code(404);
+      }
 
-    const mappingSummary: SummaryInfo[] = [
-      {
-        id: v4(),
-        label: "PROJECTS",
-        quantity: summary.project.total,
-        subs: [
-          {
-            id: v4(),
-            label: "Live",
-            quantity: summary.project.live,
-          },
-          {
-            id: v4(),
-            label: "On Hold",
-            quantity: summary.project.onHold,
-          },
-          {
-            id: v4(),
-            label: "Archived",
-            quantity: summary.project.archived,
-          },
-        ],
-      },
-      {
-        id: v4(),
-        label: "REQUESTS",
-        quantity: summary.request.total,
-        subs: [
-          {
-            id: v4(),
-            label: "Pending",
-            quantity: summary.request.pending,
-          },
-          {
-            id: v4(),
-            label: "Responded",
-            quantity: summary.request.responded,
-          },
-        ],
-      },
-      {
-        id: v4(),
-        label: "NOTIFICATIONS",
-        quantity: summary.notification.total,
-        subs: [
-          {
-            id: v4(),
-            label: "Keep-in-view",
-            quantity: summary.notification.keepInView,
-          },
-          {
-            id: v4(),
-            label: "Followed-up",
-            quantity: summary.notification.followedUp,
-          },
-        ],
-      },
-    ];
-    return toolkit.response(
-      successResponse({
-        data: mappingSummary,
-      })
-    );
-  };
+      const mappingSummary: SummaryInfo[] = [
+        {
+          id: v4(),
+          label: "PROJECTS",
+          quantity: summary.project.total,
+          subs: [
+            {
+              id: v4(),
+              label: "Live",
+              quantity: summary.project.live,
+            },
+            {
+              id: v4(),
+              label: "On Hold",
+              quantity: summary.project.onHold,
+            },
+            {
+              id: v4(),
+              label: "Archived",
+              quantity: summary.project.archived,
+            },
+          ],
+        },
+        {
+          id: v4(),
+          label: "REQUESTS",
+          quantity: summary.request.total,
+          subs: [
+            {
+              id: v4(),
+              label: "Pending",
+              quantity: summary.request.pending,
+            },
+            {
+              id: v4(),
+              label: "Responded",
+              quantity: summary.request.responded,
+            },
+          ],
+        },
+        {
+          id: v4(),
+          label: "NOTIFICATIONS",
+          quantity: summary.notification.total,
+          subs: [
+            {
+              id: v4(),
+              label: "Keep-in-view",
+              quantity: summary.notification.keepInView,
+            },
+            {
+              id: v4(),
+              label: "Followed-up",
+              quantity: summary.notification.followedUp,
+            },
+          ],
+        },
+      ];
+      return toolkit.response(
+        successResponse({
+          data: mappingSummary,
+        })
+      );
+    };
 
   public getProjectTrackingDetail = async (
     req: Request,

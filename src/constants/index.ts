@@ -12,3 +12,4 @@ export * from "./design.constant";
 export * from "./project.constant";
 export * from "./documentation.constant";
 export * from "./common.constant";
+export * from "./storage.constant";

@@ -385,8 +385,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           cancelled: cancelled[0],
         },
         area: {
-          metric,
-          imperial,
+          metric: metric + imperial * (1 / @meterToFoot),
+          imperial: imperial + metric * @meterToFoot,
         },
       }
     `,
@@ -399,9 +399,26 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         unlistedStatus: ProductConsiderStatus.Unlisted,
         cancelledStatus: ProductSpecifyStatus.Cancelled,
         metricUnit: MEASUREMENT_UNIT.METRIC,
+        meterToFoot: SQUARE_METER_TO_SQUARE_FOOT,
       }
     );
     return overallSummary[0];
+  }
+
+  public async getProjectSummary(
+    relationId: string,
+    userId?: string
+  ): Promise<{ status: ProjectStatus }[]> {
+    const projectSummary = await this.model.rawQuery(
+      `
+      FILTER projects.deleted_at == null
+      FILTER projects.design_id == @relationId
+        ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
+        RETURN KEEP(projects, 'status')
+      `,
+      { relationId, userId }
+    );
+    return projectSummary;
   }
 
   public async getProjectListing(
