@@ -1,4 +1,9 @@
-import { ALL_REGIONS, COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  ALL_REGIONS,
+  COMMON_TYPES,
+  DesignFirmRoles,
+  MESSAGES,
+} from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -18,7 +23,7 @@ import {
   UserAttributes,
   UserType,
 } from "@/types";
-import { isEqual, pick, sumBy, uniq } from "lodash";
+import { isEqual, isNumber, pick, sumBy, uniq } from "lodash";
 import { v4 } from "uuid";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { CreateProjectRequest } from "./project.type";
@@ -139,6 +144,11 @@ class ProjectService {
   ) {
     await projectRepository.syncProjectLocations();
 
+    const filterId =
+      getWorkspace && user.role_id !== DesignFirmRoles.Admin
+        ? user.id
+        : undefined;
+
     const projects = await projectRepository.getListProject(
       user.relation_id,
       limit,
@@ -146,7 +156,7 @@ class ProjectService {
       sort,
       order,
       filter,
-      getWorkspace ? user.id : undefined
+      filterId
     );
 
     const totalProject = getWorkspace
@@ -156,7 +166,7 @@ class ProjectService {
     return successResponse({
       data: {
         projects,
-        pagination: totalProject
+        pagination: isNumber(totalProject)
           ? pagination(limit, offset, totalProject)
           : undefined,
       },
@@ -341,10 +351,14 @@ class ProjectService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getProjectSummary(currentUser: UserAttributes) {
-    const projects = await projectRepository.getAllBy({
-      design_id: currentUser.relation_id,
-    });
+  public async getProjectSummary(
+    workspace: boolean,
+    currentUser: UserAttributes
+  ) {
+    const projects = await projectRepository.getProjectSummary(
+      currentUser.relation_id,
+      workspace ? currentUser.id : undefined
+    );
 
     return {
       projects: projects.length,
@@ -413,11 +427,6 @@ class ProjectService {
           },
           {
             id: v4(),
-            quantity: summary.products.deleted,
-            label: "Deleted",
-          },
-          {
-            id: v4(),
             quantity: summary.products.specified,
             label: "Specified",
           },
@@ -425,6 +434,11 @@ class ProjectService {
             id: v4(),
             quantity: summary.products.cancelled,
             label: "Cancelled",
+          },
+          {
+            id: v4(),
+            quantity: summary.products.deleted,
+            label: "Deleted",
           },
         ],
       },

@@ -210,6 +210,7 @@ export const mappingFinishSchedules = (data: any) => {
   data.forEach((item: any) => {
     codes.push({
       ...item.material_code,
+      code: `${item.code} ${item.suffix_code}`,
       requirementTypes: item.requirementTypes,
       instructionTypes: item.instructionTypes
     });

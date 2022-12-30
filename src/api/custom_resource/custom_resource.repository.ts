@@ -107,6 +107,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         FOR loc IN locations
         FILTER loc.id == cr.location_id
         FILTER loc.deleted_at == null
+        SORT loc.business_name ASC
         RETURN {id: cr.id, name: loc.business_name}
       `,
       { type, designFirmId }

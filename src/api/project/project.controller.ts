@@ -78,11 +78,12 @@ export default class ProjectController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getProjectSummary = async (req: Request, toolkit: ResponseToolkit) => {
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await projectService.getProjectSummary(user);
-    return toolkit.response(response).code(200);
-  };
+  public getProjectSummary =
+    (workspace: boolean) => async (req: Request, toolkit: ResponseToolkit) => {
+      const user = req.auth.credentials.user as UserAttributes;
+      const response = await projectService.getProjectSummary(workspace, user);
+      return toolkit.response(response).code(200);
+    };
 
   public getProjectOverallSummary = async (
     _req: Request,

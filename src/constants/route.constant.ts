@@ -2,6 +2,9 @@ export const ROUTES = {
   GET_TISC_WORKSPACE: "/api/workspace",
   GET_BRAND_WORKSPACE: "/api/brand/workspace",
   GET_DESIGNER_WORKSPACE: "/api/designer/workspace",
+  GET_TISC_WORKSPACE_SUMMARY: "/api/workspace/summary",
+  GET_BRAND_WORKSPACE_SUMMARY: "/api/brand/workspace/summary",
+  GET_DESIGNER_WORKSPACE_SUMMARY: "/api/designer/workspace/summary",
 
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",

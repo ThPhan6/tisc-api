@@ -205,7 +205,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
   }
 
   public getSummary = async (
-    brandId: string
+    brandId: string,
+    userId?: string
   ): Promise<
     {
       project: {
@@ -235,28 +236,30 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       responded: RespondedOrPendingStatus.Responded,
       keepInView: ProjectTrackingNotificationStatus["Keep-in-view"],
       followedUp: ProjectTrackingNotificationStatus["Followed-up"],
+      userId,
     };
     const rawQuery = `
     LET mapping = (
       FOR pt IN project_trackings
       FILTER pt.brand_id == @brandId
-      FILTER pt.deleted_at == null
+      && pt.deleted_at == null
+      ${userId ? "&& @userId IN pt.assigned_teams" : ""}
 
       FOR prj IN projects
       FILTER prj.id == pt.project_id
-      FILTER prj.deleted_at == null
+      && prj.deleted_at == null
 
       LET projectRequests = (
         FOR pr IN project_requests
         FILTER pr.project_tracking_id == pt.id
-        FILTER pr.deleted_at == null
+        && pr.deleted_at == null
         RETURN pr
       )
 
       LET notifications = (
         FOR ptn IN project_tracking_notifications
         FILTER ptn.deleted_at == null
-        FILTER ptn.project_tracking_id == pt.id
+        && ptn.project_tracking_id == pt.id
         RETURN ptn
       )
       RETURN {projects: prj, projectRequests, notifications}
