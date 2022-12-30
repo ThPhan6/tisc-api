@@ -560,6 +560,7 @@ const permissionData = [
         index: 34,
         id: "permission_13_2",
         routes: [
+          ROUTES.GET_ONE_PROJECT,
           ROUTES.GET_LIST_PROJECT_ZONE,
           ROUTES.CREATE_PROJECT_ZONE,
           ROUTES.UPDATE_PROJECT_ZONE,
@@ -574,6 +575,7 @@ const permissionData = [
         index: 35,
         id: "permission_13_3",
         routes: [
+          ROUTES.GET_ONE_PROJECT,
           ROUTES.PROJECT_PRODUCT.GET_CONSIDERED_PRODUCT_LIST,
           ROUTES.PROJECT_PRODUCT.DELETE_CONSIDERED_PRODUCT,
           ROUTES.PROJECT_PRODUCT.UPDATE_CONSIDERED_PRODUCT_STATUS,
@@ -596,6 +598,7 @@ const permissionData = [
         index: 36,
         id: "permission_13_4",
         routes: [
+          ROUTES.GET_ONE_PROJECT,
           ROUTES.PROJECT_PRODUCT.DELETE_CONSIDERED_PRODUCT,
           ROUTES.PROJECT_PRODUCT.UPDATE_CONSIDERED_PRODUCT_SPECIFY,
           ROUTES.PROJECT_PRODUCT.UPDATE_SPECIFIED_PRODUCT_STATUS,
