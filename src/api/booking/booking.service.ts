@@ -128,7 +128,7 @@ export default class BookingService {
     return successResponse({ data: schedule });
   }
 
-  public async create(payload: BookingPayloadRequest) {
+  public async create(payload: BookingPayloadRequest, ipAddress: string) {
     const schedule = await this.validationSchedule(
       payload.date,
       payload.slot,
@@ -143,7 +143,7 @@ export default class BookingService {
       first_name: payload.name,
       last_name: "",
       email: payload.email,
-    });
+    }, ipAddress);
     if (brand.statusCode !== 200) {
       return errorMessageResponse(
         brand.message ?? MESSAGES.GENERAL.SOMETHING_WRONG_CREATE

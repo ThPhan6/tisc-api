@@ -129,6 +129,7 @@ class ProjectService {
   }
 
   public async getProjects(
+    getWorkspace: boolean,
     user: UserAttributes,
     limit: number,
     offset: number,
@@ -144,21 +145,20 @@ class ProjectService {
       offset,
       sort,
       order,
-      {
-        ...filter,
-        status: filter?.status,
-      }
+      filter,
+      getWorkspace ? user.id : undefined
     );
 
-    const totalProject = await projectRepository.countProjectBy(
-      user.relation_id,
-      filter
-    );
+    const totalProject = getWorkspace
+      ? null
+      : await projectRepository.countProjectBy(user.relation_id, filter);
 
     return successResponse({
       data: {
         projects,
-        pagination: pagination(limit, offset, totalProject),
+        pagination: totalProject
+          ? pagination(limit, offset, totalProject)
+          : undefined,
       },
     });
   }

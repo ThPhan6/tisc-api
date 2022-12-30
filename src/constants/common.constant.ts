@@ -178,3 +178,5 @@ export const ALL_REGIONS = [
   "Oceania",
   "S. America",
 ];
+
+export const HeadquarterCompanyFunctionTypeId = '4d158e0d-7460-45a8-b618-9575333f2332';

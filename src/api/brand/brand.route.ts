@@ -52,12 +52,12 @@ export default class BrandRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_LIST_BRAND_CARD,
+          path: ROUTES.GET_TISC_WORKSPACE,
           options: {
-            handler: controller.getListCard,
+            handler: controller.getTiscWorkspace,
             validate: getAllValidation(),
-            description: "Method that get list brand card",
-            tags: ["api", "Brand"],
+            description: "Method that get workspace",
+            tags: ["api", "Brand", "Workspace"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {

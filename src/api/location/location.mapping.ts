@@ -1,9 +1,11 @@
 import {
   ILocationAttributes,
   CountryGroupCount,
-  DesignLocationFunctionTypeOption
+  DesignLocationFunctionTypeOption,
+  LocationWithTeamCountAndFunctionType,
 } from "@/types";
-import {head} from 'lodash';
+import { head } from "lodash";
+import { sortObjectArray } from "@/helper/common.helper";
 
 export const getUniqueCountries = (locations: ILocationAttributes[]) => {
   return locations.reduce((res: CountryGroupCount[], location) => {
@@ -52,10 +54,29 @@ export const getDesignFunctionType = (functional_type_ids: string[]) => {
     (option) => option.id === firstFunctionType
   );
   if (functionalTypeOption) {
-    return [{
-      id: String(functionalTypeOption.id),
-      name: String(functionalTypeOption.name),
-    }]
+    return [
+      {
+        id: String(functionalTypeOption.id),
+        name: String(functionalTypeOption.name),
+      },
+    ];
   }
   return undefined;
+};
+
+export const sortMainOfficeFirst = (
+  data: LocationWithTeamCountAndFunctionType[]
+) => {
+  const mainOffices = sortObjectArray(
+    data.filter((item) => item.functional_type === "Main office"),
+    "functional_type",
+    "ASC"
+  );
+
+  const rest = sortObjectArray(
+    data.filter((item) => item.functional_type !== "Main office"),
+    "business_number",
+    "ASC"
+  );
+  return mainOffices.concat(rest);
 };

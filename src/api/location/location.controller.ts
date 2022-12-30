@@ -69,7 +69,8 @@ export default class LocationController {
   };
 
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, order } = req.query;
+    const { limit, offset, filter, sort, order, is_sort_main_office_first } =
+      req.query;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await locationService.getList(
       user,
@@ -77,7 +78,8 @@ export default class LocationController {
       offset,
       sort,
       order,
-      filter
+      filter,
+      is_sort_main_office_first
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

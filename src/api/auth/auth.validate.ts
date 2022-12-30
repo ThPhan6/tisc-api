@@ -22,7 +22,7 @@ export default {
   register: {
     payload: {
       email: requireEmailValidation(),
-      firstname: requireStringValidation("First name"),
+      firstname: requireStringValidation("First name / last name", undefined, true),
       lastname: Joi.string(),
       company_name: Joi.string().allow(null, ""),
       password: requirePasswordValidation,

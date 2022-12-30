@@ -18,9 +18,13 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getListCard = async (req: Request, toolkit: ResponseToolkit) => {
-    const { filter, sort, order } = req.query;
-    const response = await brandService.getListCard(filter, sort, order);
+  public getTiscWorkspace = async (req: Request, toolkit: ResponseToolkit) => {
+    const { sort, order } = req.query;
+    const response = await brandService.getTiscWorkspace(
+      req.auth.credentials.user_id as string,
+      sort,
+      order
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

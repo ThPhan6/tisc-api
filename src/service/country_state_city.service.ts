@@ -2,6 +2,7 @@ import countryRepository from "@/repositories/country.repository";
 import stateRepository from "@/repositories/state.repository";
 import cityRepository from "@/repositories/city.repository";
 import { GLOBAL_COUNTRY_ID, GlobalCountry, MESSAGES } from "@/constants";
+import { ipLookupService } from '@/service/iplookup.service';
 import {
   ICountryAttributes,
   IStateAttributes,
@@ -172,7 +173,35 @@ class CountryStateCityService {
       }
     }
     return true;
-  };
+  }
+
+  public findCountryByIpAddress = async (ipAddress?: string) => {
+    const defaultCountry = {
+      id: GlobalCountry.country_id,
+      name: GlobalCountry.country_name,
+    }
+    if (!ipAddress) {
+      return defaultCountry;
+    }
+    const response = await ipLookupService.search(ipAddress);
+
+    if (
+      response.response_code !== '200' ||
+      response.country_code2 === '' ||
+      response.country_code2 === '-'
+    ) {
+      return defaultCountry;
+    }
+
+    const country = await countryRepository.findByIsoCode(response.country_code2);
+    if (!country) {
+      return defaultCountry;
+    }
+    return {
+      id: country.id,
+      name: country.name
+    };
+  }
 }
 
 export const countryStateCityService = new CountryStateCityService();
