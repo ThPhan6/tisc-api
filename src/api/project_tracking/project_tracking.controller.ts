@@ -1,4 +1,7 @@
-import { MESSAGES } from "@/constants";
+import {
+  MESSAGES,
+  BrandRoles,
+} from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
@@ -64,9 +67,13 @@ export default class ProjectTrackingController {
   public getProjectTrackingSummary =
     (workspace: boolean) => async (req: Request, toolkit: ResponseToolkit) => {
       const currentUser = req.auth.credentials.user as UserAttributes;
+      let userId = undefined;
+      if ( workspace && currentUser.role_id !== BrandRoles.Admin ) {
+        userId = currentUser.id;
+      }
       const response = await projectTrackingRepository.getSummary(
         currentUser.relation_id,
-        workspace ? currentUser.id : undefined
+        userId
       );
       const summary = response[0];
 

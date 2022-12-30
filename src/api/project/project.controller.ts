@@ -1,8 +1,8 @@
 import { projectService } from "./project.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { CreateProjectRequest } from "./project.type";
-import { MESSAGES, PROJECT_STATUS_OPTIONS } from "@/constants";
-import { UserAttributes } from "@/types";
+import { MESSAGES, PROJECT_STATUS_OPTIONS, DesignFirmRoles } from "@/constants";
+import { UserAttributes, UserType } from "@/types";
 import { projectRepository } from "@/repositories/project.repository";
 import {
   errorMessageResponse,
@@ -81,7 +81,14 @@ export default class ProjectController {
   public getProjectSummary =
     (workspace: boolean) => async (req: Request, toolkit: ResponseToolkit) => {
       const user = req.auth.credentials.user as UserAttributes;
-      const response = await projectService.getProjectSummary(workspace, user);
+      let userId = undefined;
+      if (
+        workspace &&
+        (user.type == UserType.Designer && user.role_id !== DesignFirmRoles.Admin)
+      ) {
+        userId = user.id;
+      }
+      const response = await projectService.getProjectSummary(user, userId);
       return toolkit.response(response).code(200);
     };
 

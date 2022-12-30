@@ -72,6 +72,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FOR users IN users
         FILTER users.relation_id == brands.id
         FILTER users.deleted_at == null
+        FILTER users.status == @activeStatus
         COLLECT WITH COUNT INTO length
         return length
       )
