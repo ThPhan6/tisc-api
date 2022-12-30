@@ -62,7 +62,7 @@ const style = `
     }
 
     .text-blue-light {
-        color: #4f84ff !important;
+        color: #000000 !important;
     }
 
     .non-padding {

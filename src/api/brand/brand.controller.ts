@@ -1,8 +1,8 @@
 import { brandService } from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
-import { BRAND_STATUS_OPTIONS } from "@/constants";
-import { ActiveStatus, UserAttributes } from "@/types";
+import { BRAND_STATUS_OPTIONS, TiscRoles } from "@/constants";
+import { ActiveStatus, UserAttributes, UserType } from "@/types";
 
 export default class BrandController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -18,9 +18,14 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getListCard = async (req: Request, toolkit: ResponseToolkit) => {
-    const { filter, sort, order } = req.query;
-    const response = await brandService.getListCard(filter, sort, order);
+  public getTiscWorkspace = async (req: Request, toolkit: ResponseToolkit) => {
+    const { sort, order } = req.query;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await brandService.getTiscWorkspace(
+      sort,
+      order,
+      user.role_id !== TiscRoles.Admin ? user.id : undefined
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -60,16 +65,6 @@ export default class BrandController {
     const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
     const response = await brandService.updateBrandProfile(user, payload);
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
-
-  public updateBrandLogo = async (
-    req: Request & { payload: { logo: any } },
-    toolkit: ResponseToolkit
-  ) => {
-    const user = req.auth.credentials.user as UserAttributes;
-    const logo = req.payload.logo;
-    const response = await brandService.updateLogo(user, logo);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

@@ -13,26 +13,30 @@ import {
   ILocationAttributes,
   IMessageResponse,
   LocationRequest,
-  LocationType,
   SortOrder,
   UserAttributes,
   UserType,
-  LocationWithTeamCountAndFunctionType,
+  DesignFirmFunctionalType,
 } from "@/types";
-import { head, isEqual } from "lodash";
-import { getDesignFunctionType, mappingByCountries } from "./location.mapping";
+import { isEqual } from "lodash";
+import {
+  getDesignFunctionType,
+  mappingByCountries,
+  sortMainOfficeFirst,
+} from "./location.mapping";
 
 export default class LocationService {
   private async getFunctionalType(
-    user: UserAttributes,
+    type: UserType,
+    relationId: null | string,
     functional_type_ids: string[]
   ) {
-    if (user.type !== UserType.Designer) {
+    if (type !== UserType.Designer) {
       return Promise.all(
         functional_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
             id,
-            user.relation_id,
+            relationId,
             COMMON_TYPES.COMPANY_FUNCTIONAL
           );
         })
@@ -60,7 +64,8 @@ export default class LocationService {
     );
 
     const functionalTypes = await this.getFunctionalType(
-      user,
+      user.type,
+      user.relation_id,
       payload.functional_type_ids
     );
 
@@ -76,12 +81,7 @@ export default class LocationService {
       postal_code: payload.postal_code,
       general_phone: payload.general_phone,
       general_email: payload.general_email,
-      type:
-        user.type === UserType.Brand
-          ? LocationType.brand
-          : user.type === UserType.Designer
-          ? LocationType.designer
-          : LocationType.tisc,
+      type: user.type,
       relation_id: user.relation_id,
     });
     if (!createdLocation) {
@@ -113,7 +113,8 @@ export default class LocationService {
     );
 
     const functionalTypes = await this.getFunctionalType(
-      user,
+      user.type,
+      user.relation_id,
       payload.functional_type_ids
     );
 
@@ -162,7 +163,8 @@ export default class LocationService {
     offset: number,
     sort?: string,
     order?: SortOrder,
-    _filter?: any
+    _filter?: any,
+    is_sort_main_office_first?: boolean
   ) => {
     const response = await locationRepository.getLocationPagination(
       user.relation_id,
@@ -173,7 +175,9 @@ export default class LocationService {
     );
     return successResponse({
       data: {
-        locations: response.data,
+        locations: is_sort_main_office_first
+          ? sortMainOfficeFirst(response.data)
+          : response.data,
         pagination: response.pagination,
       },
     });
@@ -233,18 +237,27 @@ export default class LocationService {
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
+  // this function is only for Brand & Design Firm Account
   public createDefaultLocation = async (
     relationId: string,
-    type: number,
-    email: string
+    type: UserType,
+    email: string,
+    ipAddress?: string,
   ) => {
+    const country = await countryStateCityService.findCountryByIpAddress(ipAddress);
+    const functionTypes = await this.getFunctionalType(
+      type,
+      null,
+      type === UserType.Brand ? ['Headquarter'] : [DesignFirmFunctionalType.MainOffice]
+    );
+
     return locationRepository.create({
-      business_name: "Global",
-      functional_type_ids: [""],
+      business_name: "Company Name",
+      functional_type_ids: functionTypes ? functionTypes.map((item) => item.id) : [""],
       business_number: "",
-      functional_type: "",
-      country_id: "-1",
-      country_name: "Global",
+      functional_type: functionTypes?.map((item) => item.name).join(', ') || '',
+      country_id: country.id,
+      country_name: country.name,
       state_id: "",
       state_name: "",
       city_id: "",

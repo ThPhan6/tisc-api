@@ -83,23 +83,28 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     offset: number,
     sort: string,
     order: SortOrder,
-    filter: any
+    filter: { project_status?: ProjectStatus },
+    userId?: string
   ) {
     const params = {
       design_id: designId,
       offset,
       limit,
+      userId,
     };
+
     const sortColumn = sort == "location" ? sort : `projects.${sort}`;
 
     const rawQuery = `
     FILTER projects.deleted_at == null
     FILTER projects.design_id == @design_id
     ${
-      isNumber(filter?.status)
-        ? `FILTER projects.status == ${filter.status}`
+      isNumber(filter?.project_status)
+        ? `FILTER projects.status == ${filter.project_status}`
         : ""
     }
+    ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
+
     LET users = (
         FOR users in users
         FILTER users.deleted_at == null
@@ -115,7 +120,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     LET location = ${locationRepository.getShortLocationQuery("loc")}
 
     ${sort ? `SORT ${sortColumn} ${order} ` : ``}
-    LIMIT @offset, @limit
+    ${isNumber(offset) && isNumber(limit) ? "LIMIT @offset, @limit" : ""}
     RETURN MERGE(
       KEEP(
         projects,
@@ -380,8 +385,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           cancelled: cancelled[0],
         },
         area: {
-          metric,
-          imperial,
+          metric: metric + imperial * (1 / @meterToFoot),
+          imperial: imperial + metric * @meterToFoot,
         },
       }
     `,
@@ -394,9 +399,26 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         unlistedStatus: ProductConsiderStatus.Unlisted,
         cancelledStatus: ProductSpecifyStatus.Cancelled,
         metricUnit: MEASUREMENT_UNIT.METRIC,
+        meterToFoot: SQUARE_METER_TO_SQUARE_FOOT,
       }
     );
     return overallSummary[0];
+  }
+
+  public async getProjectSummary(
+    relationId: string,
+    userId?: string
+  ): Promise<{ status: ProjectStatus }[]> {
+    const projectSummary = await this.model.rawQuery(
+      `
+      FILTER projects.deleted_at == null
+      FILTER projects.design_id == @relationId
+        ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
+        RETURN KEEP(projects, 'status')
+      `,
+      { relationId, userId }
+    );
+    return projectSummary;
   }
 
   public async getProjectListing(

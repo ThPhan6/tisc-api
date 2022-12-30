@@ -84,5 +84,6 @@ class SlackService {
     });
   }
 }
+
 export default SlackService;
 export const slackService = new SlackService();

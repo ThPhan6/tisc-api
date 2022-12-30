@@ -1,32 +1,21 @@
 import sharp from "sharp";
 import { ENVIROMENT } from "@/config";
+import { ImageSize, ImageQuality, ImageFit } from "@/constants";
 
 export const toWebp = async (
-  image: any,
-  type: "large" | "medium" | "small" | "thumbnail"
+  image: Buffer,
+  size: ImageSize = ImageSize.medium,
+  quality: ImageQuality = ImageQuality.high,
+  isSquare: Boolean = true,
+  fit: ImageFit = ImageFit.cover
 ) => {
-  let width = 0;
-  let height = 0;
-  switch (type) {
-    case "large":
-      width = 500;
-      height = 500;
-      break;
-    case "medium":
-      width = 300;
-      height = 300;
-      break;
-    case "small":
-      width = 200;
-      height = 200;
-      break;
-
-    default:
-      width = 150;
-      height = 150;
-      break;
+  let output = sharp(image).webp({ lossless: true, quality });
+  if (isSquare) {
+    output = output.resize(size, size, { fit });
+  } else {
+    output = output.resize(size);
   }
-  return sharp(image).resize(width, height).toBuffer();
+  return output.toBuffer();
 };
 
 export const getFileURI = (filename: string) => {

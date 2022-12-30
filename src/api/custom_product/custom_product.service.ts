@@ -2,6 +2,7 @@ import {
   COMMON_TYPES,
   DefaultLogo,
   DefaultProductImage,
+  ImageSize,
   MESSAGES,
   VALID_IMAGE_TYPES,
 } from "@/constants";
@@ -33,7 +34,7 @@ import { customProductRepository } from "./custom_product.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { mailService } from "@/service/mail.service";
 import { getCustomProductSharedUrl } from "@/helper/product.helper";
-import { getFileURI } from "@/helper/image.helper";
+import { getFileURI, toWebp } from "@/helper/image.helper";
 import { projectProductRepository } from "../project_product/project_product.repository";
 
 class CustomProductService {
@@ -79,9 +80,12 @@ class CustomProductService {
           fileType.ext
         }`;
         validUploadImages.push({
-          buffer: Buffer.from(item.image, "base64"),
+          buffer: await toWebp(
+            Buffer.from(item.image, "base64"),
+            ImageSize.small
+          ),
           path,
-          mime_type: fileType.mime,
+          mime_type: "image/webp",
         });
         return { ...item, id: itemId, image: path };
       });
@@ -141,7 +145,6 @@ class CustomProductService {
       brand.business_name,
       brand.id
     );
-    console.log("uploadedImages", uploadedImages);
 
     const { isValidImage, mappingOptions, validUploadImages } =
       await this.mappingProductOptions(user.relation_id, payload.options);
@@ -149,8 +152,7 @@ class CustomProductService {
     if (!isValidImage) {
       return errorMessageResponse("An option omage is invalid");
     }
-    const uploadOptionImages = await uploadImage(validUploadImages);
-    console.log("uploadOptionImages", uploadOptionImages);
+    await uploadImage(validUploadImages);
 
     const createdProduct = await customProductRepository.create({
       ...payload,

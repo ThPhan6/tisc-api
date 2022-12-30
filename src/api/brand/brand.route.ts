@@ -52,12 +52,12 @@ export default class BrandRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.GET_LIST_BRAND_CARD,
+          path: ROUTES.GET_TISC_WORKSPACE,
           options: {
-            handler: controller.getListCard,
+            handler: controller.getTiscWorkspace,
             validate: getAllValidation(),
-            description: "Method that get list brand card",
-            tags: ["api", "Brand"],
+            description: "Method that get workspace",
+            tags: ["api", "Brand", "Workspace"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
@@ -159,28 +159,6 @@ export default class BrandRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.brandProfile,
-              },
-            },
-          },
-        },
-        {
-          method: "PUT",
-          path: ROUTES.UPDATE_BRAND_LOGO,
-          options: {
-            handler: controller.updateBrandLogo,
-            validate: {
-              payload: {
-                logo: Joi.any(),
-              },
-            },
-            description: "Method that update brand logo",
-            tags: ["api", "Brand"],
-            auth: AUTH_NAMES.PERMISSION,
-            payload: imageOptionPayload,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.logo,
               },
             },
           },

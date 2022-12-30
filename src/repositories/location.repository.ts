@@ -2,7 +2,7 @@ import LocationModel from "@/model/location.model";
 import BaseRepository from "./base.repository";
 import {
   ILocationAttributes,
-  LocationType,
+  UserType,
   SortOrder,
   LocationWithTeamCountAndFunctionType,
   DesignLocationFunctionTypeOption,
@@ -210,7 +210,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   };
 
   public async getLocationDesign() {
-    const params = { designLocation: LocationType.designer };
+    const params = { designLocation: UserType.Designer };
     let rawQuery = `
       FILTER locations.deleted_at == null
       FOR designer in designers
@@ -223,7 +223,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
   }
 
   public async getOriginCountry() {
-    const params = { designLocation: LocationType.designer };
+    const params = { designLocation: UserType.Designer };
     let rawQuery = `
       FILTER locations.deleted_at == null
       FOR designer in designers

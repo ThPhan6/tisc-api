@@ -5,6 +5,7 @@ import {
   randomName,
   sortObjectArray,
 } from "@/helper/common.helper";
+import { toWebp } from "@/helper/image.helper";
 import { deleteFile, isExists } from "@/service/aws.service";
 import { IBasisAttributes } from "@/types";
 import { v4 as uuid } from "uuid";
@@ -73,7 +74,13 @@ export const sortBasisConversion = (
     };
   });
 };
-
+const toValidImageItem = async (image: any, fileName: string) => {
+  return {
+    buffer: await toWebp(Buffer.from(image, "base64")),
+    path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
+    mime_type: "image/webp",
+  };
+};
 export const mappingBasisOptionCreate = async (
   payload: IBasisOptionRequest
 ) => {
@@ -108,14 +115,14 @@ export const mappingBasisOptionCreate = async (
             ) {
               isValidImage = false;
             }
-            validUploadImages.push({
-              buffer: Buffer.from(value.image, "base64"),
-              path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-              mime_type: fileType.mime,
-            });
+            const validImageItem = await toValidImageItem(
+              value.image,
+              fileName
+            );
+            validUploadImages.push(validImageItem);
             return {
               id: uuid(),
-              image: `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
+              image: `/${validImageItem.path}`,
               value_1: value.value_1,
               value_2: value.value_2,
               unit_1: value.unit_1,
@@ -233,12 +240,12 @@ export const mappingBasisOptionUpdate = async (
                 isValidImage = false;
               }
               const fileName = randomName(8);
-              validUploadImages.push({
-                buffer: Buffer.from(value.image, "base64"),
-                path: `${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`,
-                mime_type: fileType.mime,
-              });
-              imagePath = `/${BASIS_OPTION_STORE}/${fileName}.${fileType.ext}`;
+              const validImageItem = await toValidImageItem(
+                value.image,
+                fileName
+              );
+              validUploadImages.push(validImageItem);
+              imagePath = `/${validImageItem.path}`;
             }
             return foundValue
               ? {

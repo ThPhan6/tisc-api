@@ -98,11 +98,22 @@ export const numberValidation = () => Joi.number().allow(null);
 
 const regexPassword =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^()+=~`{}|/:;‘“<>[,.-])[A-Za-z\d@$!%*?&_#^()+=~`{}|/:;’“<>[,.-]{8,}$/;
+const regexNormalCharacter = /^[A-Za-z0-9 ]+$/;
+
+const getRegexMessage = (regex?: string) => {
+  if (!regex) {
+    return "is not valid";
+  }
+  if (regexNormalCharacter.toString() === regex) {
+    return "is only allowed UPPERCASE, lowercase, spaces, and numbers";
+  }
+  return `does not match with pattern ${regex}`;
+}
 
 export const requirePasswordValidation = Joi.string()
   .required()
   .regex(regexPassword)
-  .error(errorMessage("Password is required and valid"));
+  .error(errorMessage("Password must contain at least 8 characters, including UPPERCASE, lowercase, symbols and numbers"));
 
 // export const requireNumberValidation = (fieldName: string, full?: "full") =>
 //   Joi.number()
@@ -139,8 +150,8 @@ type ErrorLocalState = {
   limit?: number;
   value?: number;
 };
-export const customErrorMessages = (local: ErrorLocalState) => {
-  const { label } = local;
+export const customErrorMessages = (local: any) => {
+  const { label, regex } = local;
   return {
     "any.required": `${label} is required`,
     "string.base": `${label} is required`,
@@ -149,6 +160,7 @@ export const customErrorMessages = (local: ErrorLocalState) => {
     "string.domain": `${label} is invalid`,
     "string.uri": `${label} is invalid`,
     "string.guid": `${label} is invalid`,
+    "string.pattern.base": `${label} ${getRegexMessage(regex?.toString())}`,
     "number.base": `${label} is required`,
     "number.positive": `${label} must be greater than or equal to zero`,
   } as Record<string, string>;
@@ -158,23 +170,29 @@ export const getCustomErrorMessage = (code: string, local: ErrorLocalState) =>
 
 export const requireStringValidation = (
   fieldName: string,
-  customMessage?: string
-) =>
-  Joi.string()
+  customMessage?: string,
+  isNormalCharacter: boolean = false
+) => {
+  let validation = Joi.string()
     .trim()
-    .required()
-    .error((errors: any) => {
-      errors[0].local.label = fieldName;
-      const message =
-        customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
-      return message ? Error(message) : errors[0];
-    });
+    .required();
+  if (isNormalCharacter) {
+    validation = validation.regex(regexNormalCharacter)
+  }
+  return validation.error((errors: any) => {
+    errors[0].local.label = fieldName;
+    const message =
+      customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
+    return message ? Error(message) : errors[0];
+  });
+}
+
 
 export const requireEmailValidation = (
   fieldName: string = "Email",
   customMessage?: string
-) =>
-  Joi.string()
+) => {
+  return Joi.string()
     .trim()
     .required()
     .email()
@@ -185,9 +203,11 @@ export const requireEmailValidation = (
         customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
       return message ? Error(message) : errors[0];
     });
+}
 
-export const requireNumberValidation = (fieldName: string) =>
-  Joi.number()
+
+export const requireNumberValidation = (fieldName: string) => {
+  return Joi.number()
     .required()
     .error((errors: any) => {
       errors[0].local.label = fieldName;
@@ -197,3 +217,4 @@ export const requireNumberValidation = (fieldName: string) =>
       );
       return customMessage ? Error(customMessage) : errors[0];
     });
+}
