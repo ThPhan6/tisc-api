@@ -36,7 +36,7 @@ class EmailQueue {
             to: job.data.to,
             from: job.data.from,
           },
-          message: error.toString(),
+          message: error.stack || "",
         });
       }
     });
