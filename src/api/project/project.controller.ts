@@ -34,19 +34,22 @@ export default class ProjectController {
   public getProjectStatus = async (_req: Request, toolkit: ResponseToolkit) => {
     return toolkit.response(PROJECT_STATUS_OPTIONS).code(200);
   };
-  public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, filter, sort, order } = req.query;
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await projectService.getProjects(
-      user,
-      limit,
-      offset,
-      filter,
-      sort,
-      order
-    );
-    return toolkit.response(response).code(response.statusCode ?? 200);
-  };
+  public getList =
+    (getWorkspace: boolean) =>
+    async (req: Request, toolkit: ResponseToolkit) => {
+      const { limit, offset, filter, sort, order } = req.query;
+      const user = req.auth.credentials.user as UserAttributes;
+      const response = await projectService.getProjects(
+        getWorkspace,
+        user,
+        limit,
+        offset,
+        filter,
+        sort,
+        order
+      );
+      return toolkit.response(response).code(response.statusCode ?? 200);
+    };
 
   public update = async (
     req: Request & { payload: CreateProjectRequest },
@@ -75,11 +78,12 @@ export default class ProjectController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getProjectSummary = async (req: Request, toolkit: ResponseToolkit) => {
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await projectService.getProjectSummary(user);
-    return toolkit.response(response).code(200);
-  };
+  public getProjectSummary =
+    (workspace: boolean) => async (req: Request, toolkit: ResponseToolkit) => {
+      const user = req.auth.credentials.user as UserAttributes;
+      const response = await projectService.getProjectSummary(workspace, user);
+      return toolkit.response(response).code(200);
+    };
 
   public getProjectOverallSummary = async (
     _req: Request,

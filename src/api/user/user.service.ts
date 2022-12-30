@@ -6,6 +6,7 @@ import {
   RoleNames,
   TiscRoles,
   RoleIndex,
+  ImageSize,
 } from "@/constants";
 
 import {
@@ -29,13 +30,13 @@ import {
   UserType,
 } from "@/types";
 import { groupBy, uniq } from "lodash";
-import moment from "moment";
 import {
   IAssignTeamRequest,
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import { getKeyByValue } from "@/helper/common.helper";
+import { getKeyByValue, randomName } from "@/helper/common.helper";
+import { toWebp } from "@/helper/image.helper";
 
 export default class UserService {
   private mailService: MailService;
@@ -252,19 +253,14 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.AVATAR_NOT_VALID);
     }
 
-    const fileNameParts = avatar.hapi.filename.split(".");
-    const fileName = fileNameParts[0] + "_" + moment();
-    const newFileName = fileName + "." + fileNameParts[1];
-    const filePath = `avatar/${newFileName}`;
+    let fileName = `${user.firstname}-${user.lastname}-${randomName(8)}-s.webp`;
+    let filePath = `avatar/${fileName}`;
+
     if (user.avatar) {
       await deleteFile(user.avatar.slice(1));
     }
-
-    const uploadedData = await upload(
-      Buffer.from(avatar._data),
-      filePath,
-      avatar.hapi.headers["content-type"]
-    );
+    const webp = await toWebp(Buffer.from(avatar._data), ImageSize.small);
+    const uploadedData = await upload(webp, filePath, "image/webp");
 
     if (!uploadedData) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);

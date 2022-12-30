@@ -1,6 +1,12 @@
 import { locationService } from "./../location/location.service";
-import { BRAND_STATUSES, MESSAGES, BrandRoles, ALL_REGIONS } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import {
+  BRAND_STATUSES,
+  MESSAGES,
+  BrandRoles,
+  ALL_REGIONS,
+  ImageSize,
+} from "@/constants";
+import { pagination, randomName, simplizeString } from "@/helper/common.helper";
 import { createResetPasswordToken } from "@/helper/password.helper";
 import {
   errorMessageResponse,
@@ -10,7 +16,7 @@ import {
 import { brandRepository } from "@/repositories/brand.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
-import { uploadLogoBrand } from "@/service/image.service";
+import { uploadLogo } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
 import {
@@ -118,8 +124,12 @@ class BrandService {
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getListCard(_filter: any, sort: string, order: SortOrder) {
-    const brands = await brandRepository.getAllBrandsWithSort(sort, order);
+  public async getTiscWorkspace(
+    sort: string,
+    order: SortOrder,
+    userId?: string
+  ) {
+    const brands = await brandRepository.getTiscWorkspace(sort, order, userId);
     return successResponse({
       data: brands,
     });
@@ -138,8 +148,23 @@ class BrandService {
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
-
-    const updatedBrand = await brandRepository.update(brand.id, payload);
+    let dataToUpdate: any;
+    if (payload.logo) {
+      let logoPath = await uploadLogo(
+        payload.logo || ``,
+        brand.logo || ``,
+        `brand/${brand.id}/logo`,
+        ImageSize.small,
+        `${simplizeString(brand.name)}-${randomName(8)}-s`
+      );
+      if (typeof logoPath === "object") {
+        return errorMessageResponse(logoPath.message);
+      }
+      dataToUpdate = { ...payload, logo: `/${logoPath}` };
+    } else {
+      dataToUpdate = payload;
+    }
+    const updatedBrand = await brandRepository.update(brand.id, dataToUpdate);
     if (!updatedBrand) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
@@ -157,31 +182,7 @@ class BrandService {
     });
   }
 
-  public async updateLogo(user: UserAttributes, logo: any) {
-    if (user.type !== UserType.Brand || !user.relation_id) {
-      return errorMessageResponse(MESSAGES.BRAND.NOT_IN_BRAND);
-    }
-
-    const brand = await brandRepository.find(user.relation_id);
-
-    if (!brand) {
-      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
-    }
-
-    if (!logo._data) {
-      return errorMessageResponse(MESSAGES.IMAGE.LOGO_NOT_VALID);
-    }
-
-    const urlUploadedLogo = await uploadLogoBrand(logo, brand);
-
-    return successResponse({
-      data: {
-        url: "/brand-logo/" + urlUploadedLogo,
-      },
-    });
-  }
-
-  public async create(payload: IBrandRequest) {
+  public async create(payload: IBrandRequest, ipAddress?: string) {
     const brand = await brandRepository.findBy({
       name: payload.name,
     });
@@ -209,7 +210,8 @@ class BrandService {
     const defaultLocation = await locationService.createDefaultLocation(
       createdBrand.id,
       UserType.Brand,
-      payload.email
+      payload.email,
+      ipAddress
     );
 
     let verificationToken: string;

@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import { BrandRoles, COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -20,6 +20,7 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
+import { isNumber } from "lodash";
 
 class ProjectTrackingService {
   public createProjectRequest = async (
@@ -59,6 +60,7 @@ class ProjectTrackingService {
   };
 
   public async getListProjectTracking(
+    getWorkspace: boolean,
     user: UserAttributes,
     limit: number,
     offset: number,
@@ -66,6 +68,9 @@ class ProjectTrackingService {
     sort: GetProjectListSort = "created_at",
     order: SortOrder = "DESC"
   ) {
+    const filterId =
+      getWorkspace && user.role_id !== BrandRoles.Admin ? user.id : undefined;
+
     const projectTrackings =
       await projectTrackingRepository.getListProjectTracking(
         user.relation_id,
@@ -73,13 +78,9 @@ class ProjectTrackingService {
         offset,
         filter,
         sort,
-        order
+        order,
+        filterId
       );
-
-    const total = await projectTrackingRepository.getListProjectTrackingTotal(
-      user.relation_id,
-      filter
-    );
 
     const results = projectTrackings.map((el) => ({
       id: el.project_tracking.id,
@@ -105,10 +106,19 @@ class ProjectTrackingService {
       assignedTeams: el.members,
     }));
 
+    const total = getWorkspace
+      ? null
+      : await projectTrackingRepository.getListProjectTrackingTotal(
+          user.relation_id,
+          filter
+        );
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: pagination(limit, offset, total[0]),
+        pagination:
+          typeof total?.[0] === "number"
+            ? pagination(limit, offset, total[0])
+            : undefined,
       },
     });
   }

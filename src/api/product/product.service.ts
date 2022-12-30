@@ -389,11 +389,6 @@ class ProductService {
       sortName,
       orderBy
     );
-    if (categoryId || !brandId) {
-      return successResponse({
-        data: sortBy(mappingByBrand(products), "name"),
-      });
-    }
     if (brandId) {
       const variants = getTotalVariantOfProducts(products);
       const brand = await brandRepository.find(brandId);
@@ -409,6 +404,16 @@ class ProductService {
         },
       });
     }
+
+    if (categoryId) {
+      return successResponse({
+        data: sortBy(mappingByBrand(products), "name"),
+      });
+    }
+
+    return successResponse({
+      allProducts: products,
+    });
   };
 
   public delete = async (productId: string) => {
