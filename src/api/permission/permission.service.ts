@@ -50,32 +50,9 @@ export default class PermissionService {
     ) {
       return errorMessageResponse(MESSAGES.PERMISSION.NO_MODIFY_ADMIN_PERM);
     }
-
-    if (
-      companyPermission.permission_id === "permission_13_0" &&
-      companyPermission.accessable === true
-    ) {
-      // project overal listing
-      await companyPermissionRepository
-        .getModel()
-        .whereIn("permission_id", [
-          "permission_13_0",
-          "permission_13_1",
-          "permission_13_2",
-          "permission_13_3",
-          "permission_13_4",
-        ])
-        .where("relation_id", "==", companyPermission.relation_id)
-        .where("role_id", "==", companyPermission.role_id)
-        .update({
-          accessable: false,
-        });
-    } else {
-      await companyPermissionRepository.update(id, {
-        accessable: !companyPermission.accessable,
-      });
-    }
-
+    await companyPermissionRepository.update(id, {
+      accessable: !companyPermission.accessable,
+    });
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 

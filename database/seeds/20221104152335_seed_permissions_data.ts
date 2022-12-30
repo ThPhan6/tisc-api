@@ -285,7 +285,7 @@ const permissionData = [
     name: "MY WORKSPACE",
     parent_id: null,
     type: 2,
-    routes: [ROUTES.PROJECT_TRACKING.GET_SUMMARY, ROUTES.GET_BRAND_WORKSPACE],
+    routes: [ROUTES.GET_BRAND_WORKSPACE, ROUTES.GET_BRAND_WORKSPACE_SUMMARY],
     index: 17,
     id: "permission_5",
   },
@@ -339,6 +339,7 @@ const permissionData = [
       ROUTES.PROJECT_TRACKING.GET_SUMMARY,
       ROUTES.PROJECT_TRACKING.GET_ONE,
       ROUTES.PROJECT_TRACKING.GET_SUMMARY,
+      ROUTES.PROJECT_TRACKING.UPDATE,
       ROUTES.ACTION_TASK.CREATE,
       ROUTES.ACTION_TASK.GET_LIST,
       ROUTES.ACTION_TASK.UPDATE,
@@ -450,7 +451,10 @@ const permissionData = [
     type: 3,
     index: 28,
     id: "permission_10",
-    routes: [ROUTES.GET_PROJECT_SUMMARY, ROUTES.GET_DESIGNER_WORKSPACE],
+    routes: [
+      ROUTES.GET_DESIGNER_WORKSPACE,
+      ROUTES.GET_DESIGNER_WORKSPACE_SUMMARY,
+    ],
   },
   {
     logo: "/logo/favourite.svg",
@@ -475,6 +479,8 @@ const permissionData = [
       ROUTES.GET_BRAND_LOCATIONS_COUNTRY_GROUP,
       ROUTES.GENERAL_INQUIRY.CREATE,
       ROUTES.PROJECT_TRACKING.CREATE,
+      ROUTES.FAVOURITE.SKIP,
+      ROUTES.FAVOURITE.RETRIEVE,
     ],
   },
   {
@@ -526,7 +532,7 @@ const permissionData = [
     subs: [
       {
         logo: null,
-        name: "Overal Listing",
+        name: "Overall Listing",
         type: 3,
         index: 32,
         id: "permission_13_0",
