@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import { BrandRoles, COMMON_TYPES, MESSAGES } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -20,6 +20,7 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
+import { isNumber } from "lodash";
 
 class ProjectTrackingService {
   public createProjectRequest = async (
@@ -67,6 +68,9 @@ class ProjectTrackingService {
     sort: GetProjectListSort = "created_at",
     order: SortOrder = "DESC"
   ) {
+    const filterId =
+      getWorkspace && user.role_id !== BrandRoles.Admin ? user.id : undefined;
+
     const projectTrackings =
       await projectTrackingRepository.getListProjectTracking(
         user.relation_id,
@@ -75,7 +79,7 @@ class ProjectTrackingService {
         filter,
         sort,
         order,
-        getWorkspace ? user.id : undefined
+        filterId
       );
 
     const results = projectTrackings.map((el) => ({
@@ -111,7 +115,10 @@ class ProjectTrackingService {
     return successResponse({
       data: {
         projectTrackings: results,
-        pagination: total && pagination(limit, offset, total[0]),
+        pagination:
+          typeof total?.[0] === "number"
+            ? pagination(limit, offset, total[0])
+            : undefined,
       },
     });
   }

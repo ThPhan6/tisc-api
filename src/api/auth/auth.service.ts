@@ -260,9 +260,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
 
-    const createdDesign = await designerRepository.create({
-      name: payload.company_name || payload.firstname,
-    });
+    const createdDesign = await designerRepository.create({ name: "Your Company" });
 
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
