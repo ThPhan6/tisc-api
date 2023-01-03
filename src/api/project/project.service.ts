@@ -1,7 +1,6 @@
 import {
   ALL_REGIONS,
   COMMON_TYPES,
-  DesignFirmRoles,
   MESSAGES,
 } from "@/constants";
 import { pagination } from "@/helper/common.helper";
@@ -126,7 +125,7 @@ class ProjectService {
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
-    const { location, ...data } = project;
+    // const { location, ...data } = project;
 
     return successResponse({
       data: project,
@@ -144,10 +143,7 @@ class ProjectService {
   ) {
     await projectRepository.syncProjectLocations();
 
-    const filterId =
-      getWorkspace && user.role_id !== DesignFirmRoles.Admin
-        ? user.id
-        : undefined;
+    const filterId = getWorkspace ? user.id : undefined;
 
     const projects = await projectRepository.getListProject(
       user.relation_id,
