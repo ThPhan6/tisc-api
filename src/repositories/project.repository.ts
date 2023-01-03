@@ -83,7 +83,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     offset: number,
     sort: string,
     order: SortOrder,
-    filter: { project_status?: ProjectStatus },
+    filter: { status?: ProjectStatus },
     userId?: string
   ) {
     const params = {
@@ -99,8 +99,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     FILTER projects.deleted_at == null
     FILTER projects.design_id == @design_id
     ${
-      isNumber(filter?.project_status)
-        ? `FILTER projects.status == ${filter.project_status}`
+      isNumber(filter?.status)
+        ? `FILTER projects.status == ${filter.status}`
         : ""
     }
     ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
@@ -616,7 +616,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted_at == null
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
-          { image: FIRST(p.images), 
+          { image: FIRST(p.images),
             status: pp.consider_status
           }
         )
@@ -653,7 +653,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted_at == null
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
-          { image: FIRST(p.images), 
+          { image: FIRST(p.images),
             status: pp.specified_status
           }
         )
