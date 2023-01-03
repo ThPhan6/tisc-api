@@ -352,12 +352,12 @@ class ProjectService {
   }
 
   public async getProjectSummary(
-    workspace: boolean,
-    currentUser: UserAttributes
+    currentUser: UserAttributes,
+    userId?: string
   ) {
     const projects = await projectRepository.getProjectSummary(
       currentUser.relation_id,
-      workspace ? currentUser.id : undefined
+      userId
     );
 
     return {
