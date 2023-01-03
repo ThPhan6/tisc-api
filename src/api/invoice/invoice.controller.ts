@@ -62,7 +62,8 @@ export default class InvoiceController {
   }
   public async sendReminder(req: Request, toolkit: ResponseToolkit) {
     const { id } = req.params;
-    const response = await invoiceService.sendReminder(id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.sendReminder(id, user);
     return toolkit.response(response).code(response.statusCode);
   }
   public async delete(req: Request, toolkit: ResponseToolkit) {

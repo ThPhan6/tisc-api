@@ -48,6 +48,8 @@ export const ENVIROMENT = {
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "vuongd36@gmail.com",
   TISC_CATPCHA_SECRET_KEY: process.env.TISC_CATPCHA_SECRET_KEY || "",
   CHECK_CAPTCHA: process.env.CHECK_CAPTCHA || "false",
+  REDIS_HOST: process.env.REDIS_HOST || "127.0.0.1",
+  REDIS_PORT: process.env.REDIS_PORT || "6379",
 };
 
 export const jwtConfig = {
