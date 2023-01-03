@@ -39,6 +39,7 @@ import { permissionService } from "@/api/permission/permission.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
+import { startCase } from 'lodash';
 
 const errorMessage = {
   [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
@@ -260,7 +261,7 @@ class AuthService {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
 
-    const createdDesign = await designerRepository.create({ name: "Your Company" });
+    const createdDesign = await designerRepository.create({ name: startCase(`${payload.firstname} company`) });
 
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
