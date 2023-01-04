@@ -54,7 +54,7 @@ export default class BrandRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_TISC_WORKSPACE_SUMMARY,
           options: {
-            handler: controller.getAllBrandSummary(false),
+            handler: controller.getAllBrandSummary(true),
             description: "Method that get all brand summary by user",
             tags: ["api", "Brand"],
             auth: AUTH_NAMES.PERMISSION,
