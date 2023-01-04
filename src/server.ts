@@ -6,6 +6,7 @@ import CaptchaMiddleware from "./middleware/captcha.middleware";
 import { slackService } from "./service/slack.service";
 import path from "path";
 import { emailQueue } from "./queues/email.queue";
+import { databaseBackupQueue } from "./queues/database_backup.queue";
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIROMENT.HOST,
@@ -63,6 +64,8 @@ async function start() {
     AuthMiddleware.registerAll(server);
     CaptchaMiddleware.registerAll(server);
     emailQueue.process();
+    databaseBackupQueue.process();
+    databaseBackupQueue.add();
     await Router.loadRoute(server);
     await server.start();
     server.events.on("log", (event, tags) => {
