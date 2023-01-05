@@ -1,7 +1,7 @@
 import { brandService } from "./brand.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
-import { BRAND_STATUS_OPTIONS } from "@/constants";
+import { BRAND_STATUS_OPTIONS, TiscRoles } from "@/constants";
 import { ActiveStatus, UserAttributes } from "@/types";
 
 export default class BrandController {
@@ -35,11 +35,12 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getAllBrandSummary = async (
-    _req: Request,
+  public getAllBrandSummary = (workspace: boolean) => async (
+    req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const response = await brandService.getBrandsSummary();
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await brandService.getBrandsSummary(workspace ? user.id : undefined);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -49,8 +50,12 @@ export default class BrandController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getAllByAlphabet = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await brandService.getAllByAlphabet();
+  public getAllByAlphabet = async (req: Request, toolkit: ResponseToolkit) => {
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const response = await brandService.getAllByAlphabet(
+      user.role_id !== TiscRoles.Admin ? user.id : undefined
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
