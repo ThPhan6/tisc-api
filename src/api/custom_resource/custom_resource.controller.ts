@@ -34,7 +34,7 @@ export default class CustomResourceController {
 
     const { limit, offset, sort, order, type } = req.query;
 
-    const total = await customResourceRepository.getTotalByType(type);
+    const total = await customResourceRepository.getTotalByTypeAndRelation(type, user.relation_id);
 
     const response = await customResourceRepository.getList(
       limit,

@@ -180,6 +180,7 @@ const permissionData = [
           ROUTES.DELETE_PRODUCT,
           ROUTES.PRE_SPECFICATION.GET_USER_SPEC_SELECTION,
           ROUTES.PRE_SPECFICATION.UPDATE_USER_SPEC_SELECTION,
+          ROUTES.GET_LIST_CATEGORY,
         ],
         index: 10,
         id: "permission_3_3",
