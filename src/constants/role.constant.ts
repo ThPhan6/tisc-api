@@ -51,3 +51,25 @@ export const RoleIndex = {
   [DesignFirmRoles.Admin]: 5,
   [DesignFirmRoles.Member]: 6,
 };
+
+export const DefaultPermission = {
+  tisc_consultant_team: [
+    "permission_0",
+    "permission_3_1",
+    "permission_3_2",
+    "permission_3_3"
+  ],
+  brand_team: [
+    "permission_5",
+    "permission_6",
+    "permission_7"
+  ],
+  design_team: [
+    "permission_10",
+    "permission_11",
+    "permission_12",
+    "permission_13_2",
+    "permission_13_3",
+    "permission_13_4"
+  ]
+}
