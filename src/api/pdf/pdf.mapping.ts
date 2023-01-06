@@ -232,7 +232,10 @@ export const mappingFinishSchedules = (data: any) => {
       }
       response[index].finishSchedules.push({
         ...finishSchedule,
-        material_code: item.material_code
+        material_code: {
+          ...item.material_code,
+          code: `${item.material_code.code} ${item.suffix_code}`
+        }
       });
     });
   })
