@@ -247,7 +247,7 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
           LET saleTaxAmount = (invoice.tax / 100) * totalGross
           LET grandTotal = totalGross + saleTaxAmount
           
-          LET dueDayDiff = DATE_DIFF(invoice.due_date, DATE_NOW(), 'd')
+          LET dueDayDiff = (invoice.payment_date && invoice.payment_date != '')? DATE_DIFF(invoice.due_date, invoice.payment_date, 'd'): DATE_DIFF(invoice.due_date, DATE_NOW(), 'd')
           LET overdueDays = dueDayDiff > 0 ? dueDayDiff : 0
           LET ratePerYear = ${INTEREST_RATE / 100}
           LET overduePerYear = overdueDays / 365
