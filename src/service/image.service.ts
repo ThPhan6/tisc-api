@@ -104,7 +104,9 @@ export const uploadLogo = async (
   if ((await isExists(newPath.slice(1))) || oldPath === newPath) {
     logoPath = oldPath?.slice(1);
   } else {
-    await deleteFile(oldPath.slice(1));
+    if (oldPath && oldPath !== "") {
+      await deleteFile(oldPath.slice(1));
+    }
 
     //upload logo
     const fileType = await getFileTypeFromBase64(newPath);

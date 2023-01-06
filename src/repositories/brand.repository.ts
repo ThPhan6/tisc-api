@@ -29,11 +29,12 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     this.model = new BrandModel();
   }
 
-  public async getAllAndSortByName() {
-    return (await this.model
-      .select()
-      .order("name", "ASC")
-      .get()) as BrandAttributes[];
+  public async getAllAndSortByName(userId?: string) {
+    let query = this.model.select();
+    if (userId) {
+        query = query.whereIn('team_profile_ids', userId, 'inverse');
+    }
+    return (await query.order("name", "ASC").get()) as BrandAttributes[];
   }
 
   public async getByIds(ids: string[]) {
@@ -224,7 +225,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
     );
   }
 
-  public async getOverallSummary(): Promise<{
+  public async getOverallSummary(userId?: string): Promise<{
     brand: {
       total: number;
       totalLocation: number;
@@ -244,12 +245,20 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       cards: number;
     };
   }> {
+    const params: any = {
+      activeStatus: UserStatus.Active,
+      brandLocation: UserType.Brand
+    };
+    if (userId) {
+      params.userId = userId;
+    }
+
     const summary = await this.model.rawQueryV2(
       `
       LET brand = (
         FOR b in brands
         FILTER b.deleted_at == null
-
+        ${userId ? 'FILTER @userId IN b.team_profile_ids' : ''}
         LET loc = (
           FOR loc IN locations
           FILTER loc.relation_id == b.id
@@ -358,7 +367,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         },
       }
     `,
-      { activeStatus: UserStatus.Active, brandLocation: UserType.Brand }
+      params
     );
     return summary[0];
   }

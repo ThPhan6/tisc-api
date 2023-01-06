@@ -59,9 +59,9 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         FILTER cr.type == @updatingType
         FILTER (cr.id IN @associateIds AND @resourceId NOT IN cr.associate_resource_ids)
           OR (cr.id NOT IN @associateIds AND @resourceId IN cr.associate_resource_ids)
-        UPDATE cr 
-        WITH { 
-          associate_resource_ids: cr.id IN @associateIds AND @resourceId NOT IN cr.associate_resource_ids ? 
+        UPDATE cr
+        WITH {
+          associate_resource_ids: cr.id IN @associateIds AND @resourceId NOT IN cr.associate_resource_ids ?
           UNION_DISTINCT(cr.associate_resource_ids, [@resourceId]) :
             OUTERSECTION(cr.associate_resource_ids, [@resourceId]),
           updated_at: @now
@@ -81,17 +81,10 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
     return result;
   }
 
-  public async getTotalByType(type: CustomResouceType) {
-    const result = await this.model.rawQueryV2(
-      `
-        FOR cr IN custom_resources
-        FILTER cr.deleted_at == null
-        FILTER cr.type == @type
-        COLLECT WITH COUNT INTO length RETURN length
-      `,
-      { type }
-    );
-    return result[0];
+  public async getTotalByTypeAndRelation(type: CustomResouceType, design_id: string) {
+    return await this.model.where('type', '==', type)
+      .where('design_id', '==', design_id)
+      .count();
   }
 
   public async getAllByType(
@@ -132,7 +125,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         RETURN {
           count: lENGTH(distributorGroup),
           country_name: country,
-          distributors: (FOR d IN distributorGroup 
+          distributors: (FOR d IN distributorGroup
             RETURN MERGE(
               KEEP(d.cr, 'id', 'contacts', 'location_id'),
               KEEP(d.loc, ${locationRepository.basicAttributesQuery}),
@@ -183,7 +176,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
           FILTER cr.id IN crs.associate_resource_ids
           RETURN DISTINCT crs.id
         ) : 0
-        
+
         LET location = ${locationRepository.getShortLocationQuery("loc")}
         LET business_name = loc.business_name
         LET created_at = cr.created_at
