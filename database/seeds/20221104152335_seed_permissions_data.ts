@@ -303,6 +303,8 @@ const permissionData = [
       ROUTES.PROJECT_TRACKING.GET_ONE,
       ROUTES.PROJECT_TRACKING.GET_SUMMARY,
       ROUTES.ACTION_TASK.GET_LIST,
+      ROUTES.ACTION_TASK.CREATE,
+      ROUTES.ACTION_TASK.UPDATE,
     ],
     index: 17,
     id: "permission_5",
