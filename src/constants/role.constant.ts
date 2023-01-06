@@ -55,6 +55,7 @@ export const RoleIndex = {
 export const DefaultPermission = {
   tisc_consultant_team: [
     "permission_0",
+    "permission_3",
     "permission_3_1",
     "permission_3_2",
     "permission_3_3"
@@ -68,6 +69,7 @@ export const DefaultPermission = {
     "permission_10",
     "permission_11",
     "permission_12",
+    "permission_13",
     "permission_13_2",
     "permission_13_3",
     "permission_13_4"
