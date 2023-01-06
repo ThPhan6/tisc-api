@@ -78,8 +78,8 @@ class BrandService {
     });
   }
 
-  public async getAllByAlphabet() {
-    const allBrand = await brandRepository.getAllAndSortByName();
+  public async getAllByAlphabet(userId?: string) {
+    const allBrand = await brandRepository.getAllAndSortByName(userId);
 
     let result = mappingBrandsAlphabet(allBrand);
 
@@ -252,8 +252,8 @@ class BrandService {
     });
   }
 
-  public async getBrandsSummary() {
-    const summary = await brandRepository.getOverallSummary();
+  public async getBrandsSummary(userId?: string) {
+    const summary = await brandRepository.getOverallSummary(userId);
     const results: SummaryInfo[] = [
       {
         id: v4(),

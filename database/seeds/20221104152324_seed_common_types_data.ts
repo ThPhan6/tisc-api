@@ -72,11 +72,11 @@ const records = [
   { "type": COMMON_TYPES.PROJECT_BUILDING, "name": "Concept & Competition" },
   {
     "type": COMMON_TYPES.PROJECT_BUILDING,
-    "name": "Conversation & Restoration"
+    "name": "Conservation & Restoration"
   },
   {
     "type": COMMON_TYPES.PROJECT_BUILDING,
-    "name": "Iterior Fit-out & Renovation"
+    "name": "Interior Fit-out & Renovation"
   },
   {
     "type": COMMON_TYPES.PROJECT_BUILDING,

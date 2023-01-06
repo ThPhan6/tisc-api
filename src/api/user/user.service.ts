@@ -37,6 +37,7 @@ import {
 } from "./user.type";
 import { getKeyByValue, randomName } from "@/helper/common.helper";
 import { toWebp } from "@/helper/image.helper";
+import { uploadLogo } from "@/service/image.service";
 
 export default class UserService {
   private mailService: MailService;
@@ -243,35 +244,24 @@ export default class UserService {
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 
-  public updateAvatar = async (user: UserAttributes, avatar: any) => {
-    if (
-      !avatar._data ||
-      !VALID_IMAGE_TYPES.find(
-        (item) => item === avatar.hapi.headers["content-type"]
-      )
-    ) {
-      return errorMessageResponse(MESSAGES.AVATAR_NOT_VALID);
-    }
-
-    let fileName = `${user.firstname}-${user.lastname}-${randomName(8)}-s.webp`;
-    let filePath = `avatar/${fileName}`;
-
-    if (user.avatar) {
-      await deleteFile(user.avatar.slice(1));
-    }
-    const webp = await toWebp(Buffer.from(avatar._data), ImageSize.small);
-    const uploadedData = await upload(webp, filePath, "image/webp");
-
-    if (!uploadedData) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+  public updateAvatar = async (user: UserAttributes, avatar: string) => {
+    let logoPath = await uploadLogo(
+      avatar,
+      user.avatar || ``,
+      `avatar`,
+      ImageSize.small,
+      `${user.firstname}-${user.lastname}-${randomName(8)}-s`
+    );
+    if (typeof logoPath === "object") {
+      return errorMessageResponse(logoPath.message);
     }
 
     await userRepository.update(user.id, {
-      avatar: `/${filePath}`,
+      avatar: `/${logoPath}`,
     });
 
     return successResponse({
-      data: { url: `/${filePath}` },
+      data: { url: `/${logoPath}` },
     });
   };
 
