@@ -96,7 +96,7 @@ export default class PermissionService {
     if (roleId === DesignFirmRoles.Member) {
       return DefaultPermission.design_team.includes(permissionId);
     }
-    return true;
+    return false;
   };
 }
 
