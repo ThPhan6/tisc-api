@@ -39,7 +39,7 @@ export default {
         product: Joi.object({
           id: Joi.string(),
           name: Joi.string(),
-          description: Joi.string(),
+          description: Joi.string().allow(""),
           collection: Joi.string(),
           image: Joi.string(),
         }),
