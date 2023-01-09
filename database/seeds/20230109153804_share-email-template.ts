@@ -1,0 +1,179 @@
+import {ConnectionInterface} from '@/Database/Connections/ArangoConnection';
+import moment from "moment";
+import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constants";
+import { EmailTemplateID } from "@/types";
+
+const template = `
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Shared Product</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style media="screen"></style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+  <style>
+    .wrapper {
+      font-family: "Inter";
+      background-color: #f0f8ff;
+      padding: 24px;
+    }
+    .wrapper p {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .content {
+      width: 584px;
+      background: #fff;
+      min-height: 732px;
+    }
+    .message {
+      padding: 0 16px 16px;
+    }
+    .tisc-table-content {
+      width: 100%;
+      border-spacing: 0;
+    }
+    .tisc-table-content td {
+      height: 32px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.3);
+      padding-top: 16px;
+      font-size: 14px;
+    }
+    .tisc-table-content td p {
+      font-size: 12px;
+    }
+    .tisc-message-text {
+      margin: 0;
+      padding: 16px 16px 32px;
+    }
+    .tisc-table-product {
+      width: 100%;
+      border-spacing: 0;
+      padding: 7px 0;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.3);
+    }
+    .tisc-table-product td {
+      height: 28px;
+    }
+    .tisc-table-product td p {
+      font-size: 12px;
+    }
+    .tisc-footer-text {
+      padding: 8px 0px;
+      font-size: 12px !important;
+    }
+    .tisc-footer-text-2 {
+      padding: 0px 0px;
+      font-size: 12px !important;
+    }
+    .tisc-footer-text a {
+      color: #2B39D4;
+      text-decoration: none;
+    }
+    .tisc-table-content td a {
+      text-decoration: none;
+      color: #000;
+    }
+    .tisc-image {
+      border: 0.3px solid #000000;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="content">
+      <div class="message">
+        <table class="tisc-table-content">
+          <tbody>
+            <tr>
+              <td> To: </td>
+              <td> <a href="<%= to %>"><%= to %></a> </td>
+            </tr>
+            <tr>
+              <td> From: </td>
+              <td> <a href="<%= from %>"><%= from %></a> </td>
+            </tr>
+            <tr>
+              <td> Subject: </td>
+              <td> <%= subject %> </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <p class="tisc-message-text">
+                  <%= message %>
+                  <br />
+                  <br />
+                  <%= sender %>
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="tisc-table-product">
+          <tbody>
+            <tr>
+                <td rowspan="3" width="82" style="padding-right: 12px;">
+                  <a href="<%= product_url %>">
+                    <img class="tisc-image" src="<%= product_image %>" width="70" height="70" style="border: 0.3px solid #000000;" />
+                  </a>
+                </td>
+                <td width="100%">
+                  <p><%= brand_name %></p>
+                </td>
+                <td>
+                  <img class="tisc-image" src="<%= brand_logo %>" width="24" height="24" style="display:block" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" width="100%">
+                  <p><%= collection_name %></p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" width="100%">
+                  <p><%= product_description %></p>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="tisc-footer-text">
+          <span>Information provided by </span>
+          <a href="mailto:support@tisc.global">tisc.global</a>
+          <br />
+          <span>
+            If you're having trouble with the above link, please paste the URL below into your web browser.
+          </span>
+          <br />
+          <span>
+            <%= product_url %>
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+`;
+
+export const up = (connection: ConnectionInterface) => {
+  const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+
+  return connection.insert(
+    'email_autoresponders', {
+      id: EmailTemplateID.general.share_via_email,
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      title: "Product Share Email Template",
+      message: template,
+      deleted_at: null,
+      updated_at: currentTime,
+      created_at: currentTime,
+    }
+  );
+}
