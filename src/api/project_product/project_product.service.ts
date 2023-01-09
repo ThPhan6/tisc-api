@@ -16,7 +16,7 @@ import {
   Availability,
   SummaryItemPosition,
 } from "@/types";
-import { isEmpty, sumBy, countBy, isArray } from "lodash";
+import { isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
