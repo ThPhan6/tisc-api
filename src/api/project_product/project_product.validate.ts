@@ -2,6 +2,7 @@ import { getEnumValues } from "@/helper/common.helper";
 import {
   errorMessage,
   requireStringValidation,
+  stringValidation,
 } from "@/validate/common.validate";
 import Joi from "joi";
 import {
@@ -85,7 +86,7 @@ export default {
         }),
       }),
       brand_location_id: requireStringValidation("Brand location"),
-      distributor_location_id: requireStringValidation("Distributor location"),
+      distributor_location_id: stringValidation(),
       entire_allocation: Joi.boolean(),
       allocation: Joi.array().items(Joi.string().allow("")),
       material_code_id: requireStringValidation("Material code"),
