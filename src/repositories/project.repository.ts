@@ -143,6 +143,21 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     return this.model.where("design_id", "==", designId).count();
   }
 
+  public async getActiveProjectsByDesignFirm(
+    designId: string,
+    status: ProjectStatus = ProjectStatus.Live,
+    selects: string[] = [],
+    userId?: string
+  ) {
+    let query = this.model.where('design_id', '==', designId)
+      .where('status', '==', status);
+    if (userId) {
+      query = query.whereIn('team_profile_ids', userId, 'inverse');
+    }
+
+    return query.select(selects).order('created_at', 'DESC').get();
+  }
+
   public async getAllProjectByWithSelect(
     params: {
       [key: string]: string | number | null | boolean;

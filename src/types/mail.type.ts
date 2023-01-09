@@ -55,6 +55,7 @@ export const EmailTemplateID = {
     maintenance: '94fd4181-aec2-4acb-8792-f55d6eb61eeb',
     invoice_receipt: '47154d35-b95e-4c5d-b402-02b4bbce3d2b',
     invoice_reminder: 'ad92e211-a516-417b-ac23-9eff7495b7f0',
-    invoice_overdue: '3eef39cb-2eeb-405f-ae39-850146325a34'
+    invoice_overdue: '3eef39cb-2eeb-405f-ae39-850146325a34',
+    share_via_email: '5883807e-cba4-4109-9245-78d378be3999'
   }
 }

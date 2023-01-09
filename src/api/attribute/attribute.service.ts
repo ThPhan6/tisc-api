@@ -39,13 +39,6 @@ class AttributeService {
   }
 
   public async create(payload: IAttributeRequest) {
-    const attribute = await AttributeRepository.findBy({
-      name: toSingleSpaceAndToLowerCase(payload.name),
-    });
-    if (attribute) {
-      return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_EXISTED);
-    }
-
     const duplicatedAttribute = checkAttributeDuplicateByName(payload);
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
@@ -149,17 +142,6 @@ class AttributeService {
 
     if (attribute.master) {
       return errorMessageResponse(MESSAGES.GENERAL.CAN_NOT_MODIFY_MASTER_DATA);
-    }
-
-    const duplicatedAttributeGroup =
-      await AttributeRepository.getDuplicatedAttribute(
-        id,
-        toSingleSpaceAndToLowerCase(payload.name)
-      );
-    if (duplicatedAttributeGroup) {
-      return errorMessageResponse(
-        MESSAGES.ATTRIBUTE.GROUP_ATTRIBUTE_DUPLICATED
-      );
     }
 
     const duplicatedAttribute = checkAttributeDuplicateByName(payload);

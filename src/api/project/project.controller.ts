@@ -27,7 +27,7 @@ export default class ProjectController {
   };
   public getAll = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await projectService.getAll(user.relation_id);
+    const response = await projectService.getAll(user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
