@@ -278,8 +278,8 @@ export default class MailService {
     sender: string,
     product_url: string
   ) {
-    const html = await ejs.renderFile(
-      `${process.cwd()}/src/templates/product-share-by-email.ejs`,
+    const template = await this.getEmailTemplate(
+      EmailTemplateID.general.share_via_email,
       {
         to,
         from,
@@ -294,12 +294,15 @@ export default class MailService {
         product_url,
       }
     );
+    if (!template) {
+      return false;
+    }
+
     //
     emailQueue.add({
       email: to,
       subject: subject,
-      html: html,
-      from,
+      htmlContent: template.html,
     });
     return true;
   }

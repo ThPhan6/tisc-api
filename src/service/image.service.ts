@@ -13,10 +13,14 @@ import {
 } from "@/helper/common.helper";
 import { toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
-import { deleteFile, isExists, upload } from "@/service/aws.service";
+import {
+  deleteFile,
+  getBufferFile,
+  isExists,
+  upload,
+} from "@/service/aws.service";
 import { ValidImage } from "@/types";
-import moment from "moment";
-
+import { isEqual } from "lodash";
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -47,7 +51,40 @@ export const splitImageByType = async (images: string[]) => {
   }
   return { imagePath, imageBase64 };
 };
-
+const fileNameFromKeywords = (
+  keywords: string[],
+  formatedBrandName: string
+) => {
+  const cleanKeywords = keywords.length
+    ? "-" +
+      keywords
+        .map((item) => {
+          return item.trim().replace(/ /g, "-");
+        })
+        .join("-")
+    : "";
+  return `${formatedBrandName}${cleanKeywords}-l-${randomName(8)}`;
+};
+export const updateProductImageNames = (
+  images: string[],
+  keywords: string[],
+  brandName: string,
+  brandId: string
+) => {
+  return Promise.all(
+    images.map(async (image) => {
+      const bufferFromStorage = await getBufferFile(image.slice(1));
+      const formatedBrandName = simplizeString(brandName);
+      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      await upload(
+        bufferFromStorage,
+        `product/${brandId}/${fileName}.webp`,
+        "image/webp"
+      );
+      return `/product/${brandId}/${fileName}.webp`;
+    })
+  );
+};
 export const uploadImagesProduct = (
   images: string[],
   keywords: string[],
@@ -56,21 +93,17 @@ export const uploadImagesProduct = (
 ) => {
   const formatedBrandName = simplizeString(brandName);
   return Promise.all(
-    images.map(async (image, index) => {
+    images.map(async (image) => {
+      const fileType = await getFileTypeFromBase64(image);
+      if (!fileType) {
+        return image;
+      }
       const mediumBuffer = await toWebp(
         Buffer.from(image, "base64"),
         ImageSize.large
       );
-      const cleanKeywords = keywords.length
-        ? "-" +
-          keywords
-            .map((item) => {
-              return item.trim().replace(/ /g, "-");
-            })
-            .join("-")
-        : "";
-      const fileName = `${formatedBrandName}${cleanKeywords}-l-${index + 1}`;
 
+      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
       await upload(
         mediumBuffer,
         `product/${brandId}/${fileName}.webp`,

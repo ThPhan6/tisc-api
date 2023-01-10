@@ -9,6 +9,7 @@ import {
   dimensionAndWeightValidate,
   validateShareProduct,
 } from "@/api/product/product.validate";
+import { words } from "lodash";
 
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
@@ -59,7 +60,15 @@ export const customProductOptionValidate = Joi.object({
 
 export const customProductValidate = Joi.object({
   name: requireStringValidation("Product name"),
-  description: requireStringValidation("Product description"),
+  description: requireStringValidation("Product description").custom(
+    (value, helpers) => {
+      if (words(value).length > 50)
+        return helpers.message({
+          custom: "Product description length max 50 words",
+        });
+      return value;
+    }
+  ),
   images: Joi.array()
     .min(1)
     .max(4)
