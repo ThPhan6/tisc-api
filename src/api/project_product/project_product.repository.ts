@@ -485,7 +485,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
           collection_name: pro.collection.name,
           specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-          product_id: CONCAT_SEPARATOR(', ', productCode),
+          product_id: CONCAT_SEPARATOR(', ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(', ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
       )
@@ -703,7 +703,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     },
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(', ', skus) == ''?'N/A': CONCAT_SEPARATOR(', ', skus),
                 }),
                 distributor: distributor,
                 location: location,
@@ -837,7 +837,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     brand: brand,
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(', ', skus) == ''?'N/A': CONCAT_SEPARATOR(', ', skus),
                 }),
                 distributor: distributor,
                 location: location,
