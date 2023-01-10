@@ -60,15 +60,7 @@ export const customProductOptionValidate = Joi.object({
 
 export const customProductValidate = Joi.object({
   name: requireStringValidation("Product name"),
-  description: requireStringValidation("Product description").custom(
-    (value, helpers) => {
-      if (words(value).length > 50)
-        return helpers.message({
-          custom: "Product description length max 50 words",
-        });
-      return value;
-    }
-  ),
+  description: requireStringValidation("Product description"),
   images: Joi.array()
     .min(1)
     .max(4)
