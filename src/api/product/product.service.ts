@@ -196,14 +196,12 @@ class ProductService {
       if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-      const newImages = imageBase64.length
-        ? await uploadImagesProduct(
-            payload.images,
-            payload.keywords,
-            brand.name,
-            brand.id
-          )
-        : [];
+      const newImages = await uploadImagesProduct(
+        payload.images,
+        payload.keywords,
+        brand.name,
+        brand.id
+      );
 
       images = newImages;
     }
@@ -215,6 +213,7 @@ class ProductService {
         brand.id
       );
     }
+    console.log(images);
     const updatedProduct = await productRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
