@@ -57,7 +57,7 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 400);
     }
 
-    if (project.team_profile_ids.includes(user.id)) {
+    if (!project.team_profile_ids.includes(user.id)) {
       return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
