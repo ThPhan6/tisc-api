@@ -213,7 +213,6 @@ class ProductService {
         brand.id
       );
     }
-    console.log(images);
     const updatedProduct = await productRepository.update(id, {
       ...payload,
       general_attribute_groups: saveGeneralAttributeGroups,
