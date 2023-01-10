@@ -2,7 +2,6 @@ import {
   ALL_REGIONS,
   COMMON_TYPES,
   MESSAGES,
-  DesignFirmRoles,
 } from "@/constants";
 import { pagination } from "@/helper/common.helper";
 import {
@@ -175,7 +174,7 @@ class ProjectService {
       user.relation_id,
       ProjectStatus.Live,
       ["id", "code", "name"],
-      user.role_id !== DesignFirmRoles.Admin ? user.id : undefined
+      user.id
     );
 
     return successResponse({
