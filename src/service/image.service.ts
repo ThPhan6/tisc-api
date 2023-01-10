@@ -11,7 +11,7 @@ import {
   removeSpecialChars,
   simplizeString,
 } from "@/helper/common.helper";
-import { toWebp } from "@/helper/image.helper";
+import { toPng, toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
 import {
   deleteFile,
@@ -102,12 +102,17 @@ export const uploadImagesProduct = (
         Buffer.from(image, "base64"),
         ImageSize.large
       );
-
+      const pngBuffer = await toPng(Buffer.from(image, "base64"));
       const fileName = fileNameFromKeywords(keywords, formatedBrandName);
       await upload(
         mediumBuffer,
         `product/${brandId}/${fileName}.webp`,
         "image/webp"
+      );
+      await upload(
+        pngBuffer,
+        `product/${brandId}/${fileName}.png`,
+        "image/png"
       );
       return `/product/${brandId}/${fileName}.webp`;
     })
