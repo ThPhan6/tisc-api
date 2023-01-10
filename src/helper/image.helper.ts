@@ -24,3 +24,8 @@ export const getFileURI = (filename: string) => {
   }
   return `${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}${filename}`;
 };
+
+export const toPng = async (image: Buffer) => {
+  let output = sharp(image).png({ quality: ImageQuality.high });
+  return output.toBuffer();
+};
