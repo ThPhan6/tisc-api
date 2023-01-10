@@ -476,7 +476,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FOR pro IN brand.products
 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
-      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode)
+      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
 
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
@@ -638,7 +638,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
             LET skus = (
                 FOR option IN selectedOptions
-                RETURN option.product_id
+                RETURN option.product_id == ''? 'N/A': option.product_id
             )
 
             LET location = FIRST(
@@ -748,7 +748,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                               FILTER productSpecificationAttribute.basis_options != null
                                   FOR optionCode IN productSpecificationAttribute.basis_options
                                       FILTER optionCode.id == attribute.basis_option_id
-                                      RETURN optionCode.option_code
+                                      RETURN optionCode.option_code == ''?'N/A':optionCode.option_code
             )
 
             FOR brand IN brands
