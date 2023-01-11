@@ -70,7 +70,7 @@ class DatabaseQueue {
     });
   };
   public add = () => {
-    this.queue.add({}, { repeat: { cron: "0 16 * * *" } });
+    this.queue.add({}, { repeat: { cron: ENVIROMENT.BACKUP_CRON_EXPRESSION } });
   };
 }
 

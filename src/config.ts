@@ -21,6 +21,7 @@ export const ENVIROMENT = {
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD ?? "",
   DATABASE_ENDPOINT: process.env.DATABASE_ENDPOINT ?? "",
   BACKUP_ALL: process.env.BACKUP_ALL ?? "",
+  BACKUP_CRON_EXPRESSION: process.env.BACKUP_CRON_EXPRESSION ?? "",
   API_URL: process.env.API_URL ?? "",
   SENDINBLUE_FROM: process.env.SENDINBLUE_FROM ?? "no-reply@tisc.global",
   FE_URL: process.env.FE_URL ?? "",
