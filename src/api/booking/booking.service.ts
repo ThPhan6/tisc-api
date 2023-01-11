@@ -1,5 +1,5 @@
 import { MESSAGES } from "@/constants";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import {
   errorMessageResponse,
   successResponse,
@@ -167,7 +167,7 @@ export default class BookingService {
           },
         },
         [
-          { type: "user", user_id: ENVIROMENT.LARK_USER_ID },
+          { type: "user", user_id: ENVIRONMENT.LARK_USER_ID },
           { type: "third_party", third_party_email: payload.email },
         ]
       );
@@ -357,8 +357,8 @@ export default class BookingService {
     const bookingTime = startTime.tz(booking.timezone);
     const bookingFulltime = bookingTime.format("HH:mm on dddd, MMMM DD, YYYY");
 
-    const schedule_url = `${ENVIROMENT.FE_URL}/booking/${booking.id}/re-schedule`;
-    const cancel_url = `${ENVIROMENT.FE_URL}/booking/${booking.id}/cancel`;
+    const schedule_url = `${ENVIRONMENT.FE_URL}/booking/${booking.id}/re-schedule`;
+    const cancel_url = `${ENVIRONMENT.FE_URL}/booking/${booking.id}/cancel`;
     //
     ///
     await mailService.sendBookingScheduleEmail({
@@ -372,7 +372,7 @@ export default class BookingService {
     });
     ///
     // await mailService.sendBookingScheduleEmail({
-    //   to: ENVIROMENT.ADMIN_EMAIL_ADDRESS,
+    //   to: ENVIRONMENT.ADMIN_EMAIL_ADDRESS,
     //   first_name: "Liming Rao",
     //   start_time: sgFulltime,
     //   conference_url: booking.meeting_url,

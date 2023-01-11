@@ -33,7 +33,7 @@ import {
 import moment from "moment";
 import { mailService } from "@/service/mail.service";
 import { pdfService } from "@/api/pdf/pdf.service";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 
 class InvoiceService {
   private calculateBillingAmount = (

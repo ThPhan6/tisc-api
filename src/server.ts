@@ -1,4 +1,4 @@
-import { ENVIROMENT, plugins } from "@/config";
+import { ENVIRONMENT, plugins } from "@/config";
 import * as hapi from "@hapi/hapi";
 import Router from "./router";
 import AuthMiddleware from "./middleware/auth.middleware";
@@ -9,8 +9,8 @@ import { emailQueue } from "./queues/email.queue";
 import { databaseBackupQueue } from "./queues/database_backup.queue";
 
 const server: hapi.Server = new hapi.Server({
-  host: ENVIROMENT.HOST,
-  port: ENVIROMENT.PORT,
+  host: ENVIRONMENT.HOST,
+  port: ENVIRONMENT.PORT,
   routes: {
     cors: {
       origin: [`*`],
@@ -71,7 +71,7 @@ async function start() {
     server.events.on("log", (event, tags) => {
       if (
         tags.error &&
-        ["staging", "production"].includes(ENVIROMENT.NODE_ENV)
+        ["staging", "production"].includes(ENVIRONMENT.NODE_ENV)
       ) {
         const plugins: any = server.plugins;
         const sentry = plugins["hapi-sentry"];

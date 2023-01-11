@@ -1,4 +1,4 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import Bull from "bull";
 import { exec } from "child_process";
 import path from "path";
@@ -7,19 +7,20 @@ import moment from "moment";
 import JSZip from "jszip";
 import { upload } from "@/service/aws.service";
 import { CollectionsToBackup } from "@/constants";
+import { slackService } from "@/service/slack.service";
 class DatabaseQueue {
   private queue: Bull.Queue<any>;
   constructor() {
     this.queue = new Bull(
       "Database backup queue",
-      `redis://${ENVIROMENT.REDIS_HOST}:${ENVIROMENT.REDIS_PORT}`
+      `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
     );
   }
   private backup = (exeStr: string) => {
     return new Promise((resolve) => {
       exec(exeStr, (error, stdout) => {
         if (error) {
-          console.log(error);
+          slackService.errorHook('', '', error.stack)
           return;
         }
         resolve(stdout);
@@ -31,7 +32,7 @@ class DatabaseQueue {
       try {
         const zip = new JSZip();
         const generalDir = `dump/${moment().format("YYYYMMDD_hhmmss")}_${
-          ENVIROMENT.DATABASE_NAME
+          ENVIRONMENT.DATABASE_NAME
         }`;
         var tempDir = path.resolve("") + `/${generalDir}`;
 
@@ -42,21 +43,25 @@ class DatabaseQueue {
           (pre, cur) => pre + ` --collection ${cur} `,
           ""
         );
+        
         const exeStr = `arangodump --server.endpoint ${
-          ENVIROMENT.DATABASE_ENDPOINT
-        } --server.database ${ENVIROMENT.DATABASE_NAME} --server.username ${
-          ENVIROMENT.DATABASE_USERNAME
-        } --server.password ${ENVIROMENT.DATABASE_PASSWORD} ${
-          ENVIROMENT.BACKUP_ALL === "false" ? collectionOptionStr : ""
+          ENVIRONMENT.DATABASE_ENDPOINT
+        } --server.database ${ENVIRONMENT.DATABASE_NAME} --server.username ${
+          ENVIRONMENT.DATABASE_USERNAME
+        } --server.password ${ENVIRONMENT.DATABASE_PASSWORD} ${
+          ENVIRONMENT.BACKUP_ALL === "false" ? collectionOptionStr : ""
         } --output-directory ${tempDir} --overwrite true`;
+        //back up all collection or specified collections
         await this.backup(exeStr);
         const files = await fs.readdirSync(tempDir);
+        //add all backup file into zip file
         await Promise.all(
           files.map(async (file) => {
             const fileData = await fs.readFileSync(`${tempDir}/${file}`);
             zip.file(file, fileData, { binary: true });
           })
         );
+        //create zip file and upload to storage
         zip.generateAsync({ type: "nodebuffer" }).then(function (content) {
           upload(content, generalDir + ".zip", "application/zip");
         });
@@ -65,12 +70,12 @@ class DatabaseQueue {
         }
         done();
       } catch (error: any) {
-        console.log(error);
+        slackService.errorHook('', '', error.stack)
       }
     });
   };
   public add = () => {
-    this.queue.add({}, { repeat: { cron: ENVIROMENT.BACKUP_CRON_EXPRESSION } });
+    this.queue.add({}, { repeat: { cron: ENVIRONMENT.BACKUP_CRON_EXPRESSION } });
   };
 }
 

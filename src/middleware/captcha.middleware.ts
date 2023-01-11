@@ -2,7 +2,7 @@ import { Server, Request } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
 import { reCaptchaService } from "@/service/captcha.service";
 import { AUTH_NAMES } from "@/constants";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 
 export default class CaptchaMiddleware {
   public static throwError = () => {
@@ -23,7 +23,7 @@ export default class CaptchaMiddleware {
           request: Request & { payload: { captcha: string } },
           h
         ) => {
-          if (ENVIROMENT.CHECK_CAPTCHA === "true") {
+          if (ENVIRONMENT.CHECK_CAPTCHA === "true") {
             const captcha = request.payload.captcha || "";
             if (!captcha) {
               CaptchaMiddleware.throwError();

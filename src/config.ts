@@ -10,7 +10,7 @@ import moment from "moment";
 export const DefaultTimezone = "Asia/Singapore";
 moment.tz.setDefault(DefaultTimezone);
 
-export const ENVIROMENT = {
+export const ENVIRONMENT = {
   NODE_ENV: process.env.NODE_ENV ?? "dev",
   API_VERSION: process.env.API_VERSION ?? "1.0.0",
   HOST: process.env.HOST ?? "",
@@ -63,7 +63,7 @@ export const jwtConfig = {
 const swaggerOptions = {
   info: {
     title: "API Documentation",
-    version: ENVIROMENT.API_VERSION,
+    version: ENVIRONMENT.API_VERSION,
   },
   grouping: "tags",
   sortEndpoints: "ordered",
