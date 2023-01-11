@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES, DesignFirmRoles } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
@@ -57,10 +57,7 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 400);
     }
 
-    if (
-      user.role_id !== DesignFirmRoles.Admin &&
-      !project.team_profile_ids.includes(user.id)
-    ) {
+    if (!project.team_profile_ids.includes(user.id)) {
       return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 

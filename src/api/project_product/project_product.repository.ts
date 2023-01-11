@@ -476,7 +476,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FOR pro IN brand.products
 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
-      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode)
+      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
 
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
@@ -485,7 +485,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
           collection_name: pro.collection.name,
           specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-          product_id: CONCAT_SEPARATOR(', ', productCode),
+          product_id: CONCAT_SEPARATOR(', ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(', ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
       )
@@ -638,7 +638,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
             LET skus = (
                 FOR option IN selectedOptions
-                RETURN option.product_id
+                RETURN option.product_id == ''? 'N/A': option.product_id
             )
 
             LET location = FIRST(
@@ -703,7 +703,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     },
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(', ', skus) == ''?'N/A': CONCAT_SEPARATOR(', ', skus),
                 }),
                 distributor: distributor,
                 location: location,
@@ -748,7 +748,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                               FILTER productSpecificationAttribute.basis_options != null
                                   FOR optionCode IN productSpecificationAttribute.basis_options
                                       FILTER optionCode.id == attribute.basis_option_id
-                                      RETURN optionCode.option_code
+                                      RETURN optionCode.option_code == ''?'N/A':optionCode.option_code
             )
 
             FOR brand IN brands
@@ -837,7 +837,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     brand: brand,
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(', ', skus) == ''?'N/A': CONCAT_SEPARATOR(', ', skus),
                 }),
                 distributor: distributor,
                 location: location,

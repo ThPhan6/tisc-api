@@ -50,9 +50,7 @@ const attributeGroupsValidate = (
                     id: Joi.string().error(
                       errorMessage(`${type} Option Product is required`)
                     ),
-                    option_code: Joi.string().error(
-                      errorMessage(`${type} Option Product ID is required`)
-                    ),
+                    option_code: Joi.string().allow(null, ""),
                   })
                 )
               : Joi.any(),

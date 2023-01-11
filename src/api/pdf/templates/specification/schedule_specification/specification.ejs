@@ -5,9 +5,10 @@
           <td class="border-bottom-box-shadow-bold">
             <span class="primary-roboto-light-8-18 uppercase"><%= item.material_code.code %> <%= item.suffix_code %></span>
           </td>
-          <td class="border-bottom-box-shadow-bold" colspan="2">
+          <td class="border-bottom-box-shadow-bold" style="width: 200px;">
             <span class="primary-roboto-light-8-18 uppercase"><%= item.material_code.description %></span>
           </td>
+          <td class="border-bottom-box-shadow-bold"></td>
           <td style="width: 108px;" class="border-bottom-box-shadow-bold">
             <span class="normal-garamond-light-8-12 uppercase">date</span>
             <span class="primary-roboto-light-8-18 uppercase"><%= item.specified_date %></span>
@@ -160,7 +161,7 @@
           <span class="normal-garamond-light-8-12 uppercase">id</span>
           <span style="margin-left: 8px"><%= item.product.sku_text %></span>
         </td>
-        <td style="width: 108px;" class="border-bottom-box-shadow">
+        <td style="width: 108px; vertical-align: top;" class="border-bottom-box-shadow">
           <img style="width: 108px; height: 108px;" src="<%= item.productImage %>"></img>
         </td>
       </tr>
