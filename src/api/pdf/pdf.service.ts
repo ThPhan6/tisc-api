@@ -253,6 +253,12 @@ export default class PDFService {
               const templatePath = findEjsTemplatePath(template.name);
               if (templatePath) {
                 /// mapping data
+                response = response.map((item: any) => {
+                  return {
+                    ...item,
+                    productImage: item.productImage.replace(".webp", ".png"),
+                  };
+                });
                 let data = response;
                 if (templatePath.group === "brand") {
                   data = mappingPdfDataByBrand(response);

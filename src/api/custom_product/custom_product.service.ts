@@ -220,19 +220,16 @@ class CustomProductService {
     let images = product.images;
     // Upload images if have changes
     if (isEqual(product.images, payload.images) === false) {
-      const { imageBase64, imagePath } = await splitImageByType(payload.images);
+      const { imageBase64 } = await splitImageByType(payload.images);
       if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-      const newImages = imageBase64.length
-        ? await uploadImagesProduct(
-            imageBase64,
-            [],
-            brand.business_name,
-            brand.id
-          )
-        : [];
-      images = imagePath.concat(newImages);
+      images = await uploadImagesProduct(
+        payload.images,
+        [],
+        brand.business_name,
+        brand.id
+      );
     }
 
     let options = product.options;

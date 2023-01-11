@@ -169,15 +169,12 @@ class ProjectService {
     });
   }
 
-  public async getAll(relation_id: string) {
-    const projects = await projectRepository.getAllProjectByWithSelect(
-      {
-        design_id: relation_id,
-        status: ProjectStatus.Live,
-      },
+  public async getAll(user: UserAttributes) {
+    const projects = await projectRepository.getActiveProjectsByDesignFirm(
+      user.relation_id,
+      ProjectStatus.Live,
       ["id", "code", "name"],
-      "created_at",
-      "DESC"
+      user.id
     );
 
     return successResponse({
