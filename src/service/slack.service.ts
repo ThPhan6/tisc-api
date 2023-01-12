@@ -1,10 +1,10 @@
-import {ENVIROMENT} from '@/config';
+import {ENVIRONMENT} from '@/config';
 import axios from 'axios';
 
 class SlackService {
   private webhookUrl = '';
   constructor() {
-      this.webhookUrl = ENVIROMENT.SLACK_INCOMING_WEBHOOK;
+      this.webhookUrl = ENVIRONMENT.SLACK_INCOMING_WEBHOOK;
   }
 
   public errorHook = (
@@ -16,8 +16,8 @@ class SlackService {
     query = {},
   ) => {
     if (
-      !ENVIROMENT.SLACK_INCOMING_WEBHOOK ||
-      ENVIROMENT.NODE_ENV === 'dev'
+      !ENVIRONMENT.SLACK_INCOMING_WEBHOOK ||
+      ENVIRONMENT.NODE_ENV === 'dev'
     ) {
       return true;
     }
@@ -29,7 +29,7 @@ class SlackService {
            "type": "section",
            "text": {
              "type": "mrkdwn",
-             "text": `*_Error on ${ENVIROMENT.NODE_ENV} Server_* :ladybug:`
+             "text": `*_Error on ${ENVIRONMENT.NODE_ENV} Server_* :ladybug:`
            }
          },
          {

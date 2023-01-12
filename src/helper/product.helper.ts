@@ -1,7 +1,7 @@
 import { encrypt, stringToBase64 } from "./cryptojs.helper";
 import { UserAttributes, IProductAttributes, UserType } from "@/types";
 import { RoleType } from "@/constants";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 
 export const getProductSharedUrl = (
   user: UserAttributes,
@@ -14,7 +14,7 @@ export const getProductSharedUrl = (
       user_id: user.id,
     })
   );
-  let sharedUrl = `${ENVIROMENT.FE_URL}/shared-product/${product.id}?signature=${signature}`;
+  let sharedUrl = `${ENVIRONMENT.FE_URL}/shared-product/${product.id}?signature=${signature}`;
 
   if (!receiver) {
     return sharedUrl;
@@ -22,13 +22,13 @@ export const getProductSharedUrl = (
   //
   const roleType = RoleType[receiver.role_id];
   if (roleType === UserType.TISC) {
-    return `${ENVIROMENT.FE_URL}/tisc/products/configuration/${product.id}`;
+    return `${ENVIRONMENT.FE_URL}/tisc/products/configuration/${product.id}`;
   }
   if (roleType === UserType.Brand) {
-    return `${ENVIROMENT.FE_URL}/brand/product/${product.id}`;
+    return `${ENVIRONMENT.FE_URL}/brand/product/${product.id}`;
   }
   if (roleType === UserType.Designer) {
-    return `${ENVIROMENT.FE_URL}/design-firms/products/brand-products/${product.id}`;
+    return `${ENVIRONMENT.FE_URL}/design-firms/products/brand-products/${product.id}`;
   }
   //
   return sharedUrl;
@@ -45,5 +45,5 @@ export const getCustomProductSharedUrl = (
       user_id: user.id,
     })
   );
-  return `${ENVIROMENT.FE_URL}/shared-custom-product/${product.id}?signature=${signature}`;
+  return `${ENVIRONMENT.FE_URL}/shared-custom-product/${product.id}?signature=${signature}`;
 };

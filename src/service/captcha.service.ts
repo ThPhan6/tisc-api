@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import {ENVIROMENT} from '@/config';
+import {ENVIRONMENT} from '@/config';
 
 interface IReCaptchaResponse {
     success: true | false;
@@ -20,7 +20,7 @@ export default class ReCaptchaService {
         return new Promise(resolve => {
             this.client
                 .post(
-                    `/siteverify?secret=${ENVIROMENT.TISC_CATPCHA_SECRET_KEY}&response=${recaptchaResponse}`
+                    `/siteverify?secret=${ENVIRONMENT.TISC_CATPCHA_SECRET_KEY}&response=${recaptchaResponse}`
                 )
                 .then((response: AxiosResponse<IReCaptchaResponse>) => {
                     resolve(response.data.success);

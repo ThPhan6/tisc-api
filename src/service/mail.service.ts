@@ -1,4 +1,4 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
@@ -21,7 +21,7 @@ export default class MailService {
   private apiInstance: AxiosInstance;
 
   private defaultSender: TransactionEmailPayload["sender"] = {
-    email: ENVIROMENT.SENDINBLUE_FROM,
+    email: ENVIRONMENT.SENDINBLUE_FROM,
     name: "TISC Team",
   };
   private getTargetedForFromUserType = (userType: UserType) => {
@@ -35,14 +35,14 @@ export default class MailService {
   };
 
   public constructor() {
-    this.frontpageURL = ENVIROMENT.FE_URL || "";
+    this.frontpageURL = ENVIRONMENT.FE_URL || "";
     this.apiInstance = Axios.create({
       baseURL: "https://api.sendinblue.com/v3/smtp",
       timeout: 10000,
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        "api-key": ENVIROMENT.SENDINBLUE_API_KEY,
+        "api-key": ENVIRONMENT.SENDINBLUE_API_KEY,
       },
     });
   }
@@ -52,7 +52,7 @@ export default class MailService {
     from?: string
   ) => {
     //
-    if (ENVIROMENT.ALLOW_SEND_EMAIL !== "1") {
+    if (ENVIRONMENT.ALLOW_SEND_EMAIL !== "1") {
       return true;
     }
     //

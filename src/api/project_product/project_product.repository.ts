@@ -10,7 +10,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import {
   BrandAttributes,
   SortOrder,
@@ -943,7 +943,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 dimension_and_weight: productDimensionWeight
             }),
             options: inventory.options,
-            productImage: CONCAT('${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
+            productImage: CONCAT('${ENVIRONMENT.SPACES_ENDPOINT}/${ENVIRONMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
             material_code: code,
             master_material_code_name: CONCAT(material_code.name, '/', sub.name),
             unitType: unitType,

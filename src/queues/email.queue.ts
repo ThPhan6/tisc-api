@@ -1,4 +1,4 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import Bull from "bull";
 import { mailService } from "@/service/mail.service";
 import { TransactionEmailPayload } from "@/types";
@@ -9,7 +9,7 @@ class EmailQueue {
   constructor() {
     this.queue = new Bull(
       "Email queue",
-      `redis://${ENVIROMENT.REDIS_HOST}:${ENVIROMENT.REDIS_PORT}`
+      `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
     );
   }
 

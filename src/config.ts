@@ -10,7 +10,7 @@ import moment from "moment";
 export const DefaultTimezone = "Asia/Singapore";
 moment.tz.setDefault(DefaultTimezone);
 
-export const ENVIROMENT = {
+export const ENVIRONMENT = {
   NODE_ENV: process.env.NODE_ENV ?? "dev",
   API_VERSION: process.env.API_VERSION ?? "1.0.0",
   HOST: process.env.HOST ?? "",
@@ -19,6 +19,9 @@ export const ENVIROMENT = {
   DATABASE_NAME: process.env.DATABASE_NAME ?? "",
   DATABASE_USERNAME: process.env.DATABASE_USERNAME ?? "",
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD ?? "",
+  DATABASE_ENDPOINT: process.env.DATABASE_ENDPOINT ?? "",
+  BACKUP_ALL: process.env.BACKUP_ALL ?? "",
+  BACKUP_CRON_EXPRESSION: process.env.BACKUP_CRON_EXPRESSION ?? "",
   API_URL: process.env.API_URL ?? "",
   SENDINBLUE_FROM: process.env.SENDINBLUE_FROM ?? "no-reply@tisc.global",
   FE_URL: process.env.FE_URL ?? "",
@@ -60,7 +63,7 @@ export const jwtConfig = {
 const swaggerOptions = {
   info: {
     title: "API Documentation",
-    version: ENVIROMENT.API_VERSION,
+    version: ENVIRONMENT.API_VERSION,
   },
   grouping: "tags",
   sortEndpoints: "ordered",
