@@ -95,12 +95,12 @@ const template = `
           <table class="tisc-table-content">
             <tbody>
               <tr>
-                <td>From:</td>
-                <td><a href="<%= from %>"><%= from %></a></td>
+                <td style="width: 10%; padding-right: 8px">From:</td>
+                <td style="width: 90%"><a href="<%= from %>"><%= from %></a></td>
               </tr>
               <tr>
-                <td>Subject:</td>
-                <td><%= subject %></td>
+                <td style="width: 10%; padding-right: 8px">Subject:</td>
+                <td style="width: 90%"><%= subject %></td>
               </tr>
               <tr>
                 <td colspan="2">
