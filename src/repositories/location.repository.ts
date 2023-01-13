@@ -39,13 +39,15 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       offset,
     } = options;
 
-    const params = {
+    let params = {
       relationId: relationId,
-      sort,
       order,
       activeStatus: UserStatus.Active,
       id,
     } as any;
+    if (sort !== "functional_type") {
+      params.sort = sort;
+    }
     if (isFinite(limit) && isFinite(offset)) {
       params.offset = offset;
       params.limit = limit;
@@ -113,7 +115,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
         LET functional_type = CONCAT_SEPARATOR(', ', function_types[*].name)
         ${
           sort === "functional_type"
-            ? "SORT @sort @order"
+            ? "SORT functional_type @order"
             : "SORT location.@sort @order"
         }
         ${isFinite(limit) && isFinite(offset) ? "LIMIT @offset, @limit" : ""}
@@ -170,20 +172,20 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       query.params
     )) as LocationWithTeamCountAndFunctionType[];
     let totalSize = dataResponse.length;
-    if (limit && offset) {
+    if (isFinite(limit) && isFinite(offset)) {
       const totalQuery = this.getQueryWithMemberAndFunctionType({
         relationId,
         sort,
         order,
         isCount: true,
       });
-      //
+
       totalSize =
         head(
           await this.model.rawQueryV2(totalQuery.query, totalQuery.params)
         ) || 0;
       return {
-        pagination: pagination(limit, offset, totalSize),
+        pagination: pagination(limit || 0, offset || 0, totalSize),
         data: dataResponse,
       };
     }
