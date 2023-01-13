@@ -5,6 +5,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import { IContactRequest } from "./contact.type";
+import { mailService } from "@/service/mail.service";
 
 export default class ContactService {
   private contactRepository: ContactRepository;
@@ -21,6 +22,7 @@ export default class ContactService {
     if (!result) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
+    await mailService.sendContactEmail(payload);
     return successResponse({
       data: result,
     });

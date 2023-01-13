@@ -53,6 +53,7 @@ export const ENVIRONMENT = {
   CHECK_CAPTCHA: process.env.CHECK_CAPTCHA || "false",
   REDIS_HOST: process.env.REDIS_HOST || "127.0.0.1",
   REDIS_PORT: process.env.REDIS_PORT || "6379",
+  CONTACT_RECEIVER: process.env.CONTACT_RECEIVER || "hello@tisc.global",
 };
 
 export const jwtConfig = {

@@ -15,6 +15,7 @@ import Axios, { AxiosInstance } from "axios";
 import { toUSMoney } from "@/helper/common.helper";
 import { emailQueue } from "@/queues/email.queue";
 import { logRepository } from "@/repositories/log.repository";
+import { IContactRequest } from "@/api/contact/contact.type";
 
 export default class MailService {
   private frontpageURL: string;
@@ -318,6 +319,27 @@ export default class MailService {
     //
     emailQueue.add({
       email: data.to,
+      subject: template.subject,
+      html: template.html,
+    });
+    return true;
+  }
+  public async sendContactEmail(data: IContactRequest) {
+    const template = await this.getEmailTemplate(
+      EmailTemplateID.general.contact,
+      {
+        from: data.email,
+        subject: "Contact",
+        message: data.inquiry,
+        sender: data.name,
+      }
+    );
+    if (!template) {
+      return false;
+    }
+    //
+    emailQueue.add({
+      email: ENVIRONMENT.CONTACT_RECEIVER,
       subject: template.subject,
       html: template.html,
     });
