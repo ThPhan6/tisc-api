@@ -172,7 +172,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
       query.params
     )) as LocationWithTeamCountAndFunctionType[];
     let totalSize = dataResponse.length;
-    if (limit && (offset || offset === 0)) {
+    if (isFinite(limit) && isFinite(offset)) {
       const totalQuery = this.getQueryWithMemberAndFunctionType({
         relationId,
         sort,
@@ -185,7 +185,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
           await this.model.rawQueryV2(totalQuery.query, totalQuery.params)
         ) || 0;
       return {
-        pagination: pagination(limit, offset, totalSize),
+        pagination: pagination(limit || 0, offset || 0, totalSize),
         data: dataResponse,
       };
     }
