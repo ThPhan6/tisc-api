@@ -13,6 +13,7 @@ import {
 } from "@/helper/common.helper";
 import { toPng, toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
+import { imageQueue } from "@/queues/image.queue";
 import {
   deleteFile,
   getBufferFile,
@@ -98,22 +99,14 @@ export const uploadImagesProduct = (
       if (!fileType) {
         return image;
       }
-      const mediumBuffer = await toWebp(
-        Buffer.from(image, "base64"),
-        ImageSize.large
-      );
-      const pngBuffer = await toPng(Buffer.from(image, "base64"));
+
       const fileName = fileNameFromKeywords(keywords, formatedBrandName);
-      await upload(
-        mediumBuffer,
-        `product/${brandId}/${fileName}.webp`,
-        "image/webp"
-      );
-      await upload(
-        pngBuffer,
-        `product/${brandId}/${fileName}.png`,
-        "image/png"
-      );
+      imageQueue.add({
+        file: image,
+        file_name: `product/${brandId}/${fileName}.webp`,
+        file_type: "image/webp",
+        create_png: true,
+      });
       return `/product/${brandId}/${fileName}.webp`;
     })
   );
