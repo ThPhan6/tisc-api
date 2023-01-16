@@ -7,20 +7,21 @@ import moment from "moment";
 import JSZip from "jszip";
 import { upload } from "@/service/aws.service";
 import { CollectionsToBackup } from "@/constants";
-import { slackService } from "@/service/slack.service";
-class DatabaseQueue {
-  private queue: Bull.Queue<any>;
+import { BaseQueue } from "./base.queue";
+class DatabaseQueue extends BaseQueue {
   constructor() {
-    this.queue = new Bull(
-      "Database backup queue",
-      `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
+    super(
+      new Bull(
+        "Database_backup_queue",
+        `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
+      )
     );
   }
   private backup = (exeStr: string) => {
     return new Promise((resolve) => {
       exec(exeStr, (error, stdout) => {
         if (error) {
-          slackService.errorHook('', '', error.stack)
+          this.log(error);
           return;
         }
         resolve(stdout);
@@ -43,7 +44,7 @@ class DatabaseQueue {
           (pre, cur) => pre + ` --collection ${cur} `,
           ""
         );
-        
+
         const exeStr = `arangodump --server.endpoint ${
           ENVIRONMENT.DATABASE_ENDPOINT
         } --server.database ${ENVIRONMENT.DATABASE_NAME} --server.username ${
@@ -70,12 +71,15 @@ class DatabaseQueue {
         }
         done();
       } catch (error: any) {
-        slackService.errorHook('', '', error.stack)
+        this.log(error);
       }
     });
   };
   public add = () => {
-    this.queue.add({}, { repeat: { cron: ENVIRONMENT.BACKUP_CRON_EXPRESSION } });
+    this.queue.add(
+      {},
+      { repeat: { cron: ENVIRONMENT.BACKUP_CRON_EXPRESSION } }
+    );
   };
 }
 

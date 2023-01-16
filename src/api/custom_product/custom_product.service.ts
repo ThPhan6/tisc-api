@@ -16,7 +16,7 @@ import collectionRepository from "@/repositories/collection.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import {
   splitImageByType,
-  uploadImage,
+  uploadImages,
   uploadImagesProduct,
   validateImageType,
 } from "@/service/image.service";
@@ -44,7 +44,7 @@ class CustomProductService {
   ) => {
     let isValidImage = true;
     const validUploadImages: {
-      buffer: Buffer;
+      image: string;
       path: string;
       mime_type: string;
     }[] = [];
@@ -80,10 +80,7 @@ class CustomProductService {
           fileType.ext
         }`;
         validUploadImages.push({
-          buffer: await toWebp(
-            Buffer.from(item.image, "base64"),
-            ImageSize.small
-          ),
+          image: item.image,
           path,
           mime_type: "image/webp",
         });
@@ -152,7 +149,7 @@ class CustomProductService {
     if (!isValidImage) {
       return errorMessageResponse("An option omage is invalid");
     }
-    await uploadImage(validUploadImages);
+    uploadImages(validUploadImages, ImageSize.small);
 
     const createdProduct = await customProductRepository.create({
       ...payload,
@@ -241,8 +238,7 @@ class CustomProductService {
       if (!isValidImage) {
         return errorMessageResponse("An option image is invalid");
       }
-      const uploadOptionImages = await uploadImage(validUploadImages);
-      console.log("uploadOptionImages", uploadOptionImages);
+      uploadImages(validUploadImages, ImageSize.small);
     }
 
     const result = await customProductRepository.update(id, {

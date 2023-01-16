@@ -2,16 +2,14 @@ import {
   VALID_IMAGE_TYPES,
   DESIGN_STORE,
   MESSAGES,
-  BrandStoragePath,
   ImageSize,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
   randomName,
-  removeSpecialChars,
   simplizeString,
 } from "@/helper/common.helper";
-import { toPng, toWebp } from "@/helper/image.helper";
+import { toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
 import { imageQueue } from "@/queues/image.queue";
 import {
@@ -21,7 +19,6 @@ import {
   upload,
 } from "@/service/aws.service";
 import { ValidImage } from "@/types";
-import { isEqual } from "lodash";
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -112,16 +109,20 @@ export const uploadImagesProduct = (
   );
 };
 
-export const uploadImage = async (validImages: ValidImage[]) => {
-  return Promise.all(
-    validImages.map(async (item) => {
-      return upload(
-        item.buffer,
-        item.path[0] === "/" ? item.path.slice(1) : item.path,
-        item.mime_type
-      );
-    })
-  );
+export const uploadImages = (
+  validImages: ValidImage[],
+  size: number = ImageSize.small
+) => {
+  validImages.map((item) => {
+    imageQueue.add({
+      file: item.image,
+      file_name: item.path[0] === "/" ? item.path.slice(1) : item.path,
+      file_type: "image/webp",
+      create_png: false,
+      size,
+    });
+    return true;
+  });
 };
 
 export const uploadLogo = async (
@@ -151,13 +152,7 @@ export const uploadLogo = async (
     }
     logoPath = `${base}/${fileName}.webp`;
     const webp = await toWebp(Buffer.from(newPath, "base64"), size);
-    await uploadImage([
-      {
-        buffer: webp,
-        path: logoPath,
-        mime_type: "image/webp",
-      },
-    ]);
+    await upload(webp, logoPath, "image/webp");
   }
   return logoPath;
 };

@@ -9,6 +9,7 @@ export interface ImagePayload {
   file_name: string;
   file_type: string;
   create_png?: boolean;
+  size?: number
 }
 class ImageQueue extends BaseQueue {
   constructor() {
@@ -23,11 +24,11 @@ class ImageQueue extends BaseQueue {
   public process = () => {
     this.queue.process(async (job, done) => {
       try {
-        const mediumBuffer = await toWebp(
+        const buffer = await toWebp(
           Buffer.from(job.data.file, "base64"),
-          ImageSize.large
+          job.data.size || ImageSize.large
         );
-        await upload(mediumBuffer, job.data.file_name, job.data.file_type);
+        await upload(buffer, job.data.file_name, job.data.file_type);
         if (job.data.create_png) {
           const pngBuffer = await toPng(Buffer.from(job.data.file, "base64"));
           await upload(

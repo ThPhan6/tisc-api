@@ -1,5 +1,6 @@
 import Bull from "bull";
 import { slackService } from "@/service/slack.service";
+import { logRepository } from "@/repositories/log.repository";
 
 export class BaseQueue {
   protected queue: Bull.Queue<any>;
@@ -21,6 +22,16 @@ export class BaseQueue {
   public log(error: any, type?: "slack" | "log_collections") {
     if (!type || type === "slack") {
       slackService.errorHook("", "", error.stack);
+    }
+    if(type === 'log_collections') {
+      logRepository.create({
+        extra: {
+          title: error.subject,
+          to: error.to,
+          from: error.from,
+        },
+        message: error.message,
+      });
     }
   }
 }
