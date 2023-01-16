@@ -9,13 +9,13 @@ export interface ImagePayload {
   file_name: string;
   file_type: string;
   create_png?: boolean;
-  size?: number
+  size?: number;
 }
 class ImageQueue extends BaseQueue {
   constructor() {
     super(
       new Bull(
-        "Email_queue",
+        "Image_queue",
         `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
       )
     );
