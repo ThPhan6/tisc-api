@@ -185,15 +185,11 @@ class CountryStateCityService {
     }
     const response = await ipLookupService.search(ipAddress);
 
-    if (
-      response.response_code !== '200' ||
-      response.country_code2 === '' ||
-      response.country_code2 === '-'
-    ) {
+    if (!response.region) {
       return defaultCountry;
     }
 
-    const country = await countryRepository.findByIsoCode(response.country_code2);
+    const country = await countryRepository.findByIsoCode(response.region);
     if (!country) {
       return defaultCountry;
     }
