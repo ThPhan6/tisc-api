@@ -3,6 +3,8 @@ import {
   DESIGN_STORE,
   MESSAGES,
   ImageSize,
+  ImageQuality,
+  ImageFit,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
@@ -151,7 +153,14 @@ export const uploadLogo = async (
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     logoPath = `${base}/${fileName}.webp`;
-    const webp = await toWebp(Buffer.from(newPath, "base64"), size);
+
+    const webp = await toWebp(
+      Buffer.from(newPath, "base64"),
+      size,
+      ImageQuality.high,
+      true,
+      ImageFit.contain
+    );
     await upload(webp, logoPath, "image/webp");
   }
   return logoPath;
