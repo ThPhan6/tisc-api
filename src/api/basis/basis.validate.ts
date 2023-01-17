@@ -10,17 +10,25 @@ const basisOptionsValidate = Joi.array()
   .items({
     image: Joi.string().when("....is_have_image", {
       is: true,
-      then: Joi.required(),
+      then: Joi.optional().allow(""),
       otherwise: Joi.optional().allow(""),
     }),
     value_1: Joi.string().allow(""),
     value_2: Joi.string().allow(""),
     unit_1: Joi.string().allow(""),
     unit_2: Joi.string().allow(""),
+    id: Joi.string().allow(""),
   })
   .required()
-  .error(errorMessage("Basis option value is required"));
-
+  .error(errorMessage("Basis option value is required"))
+  .custom((value) => {
+    return value.map((item: any) => {
+      return {
+        ...item,
+        image: item.image || "/default/option_default.webp",
+      };
+    });
+  });
 export default {
   createBasisConversion: {
     payload: {
