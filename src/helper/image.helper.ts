@@ -11,7 +11,7 @@ export const toWebp = async (
 ) => {
   let output = sharp(image).webp({ lossless: true, quality });
   if (isSquare) {
-    output = output.resize(size, size, { fit });
+    output = output.resize(size, size, { fit, background: 'white' });
   } else {
     output = output.resize(size);
   }
