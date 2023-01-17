@@ -2,14 +2,15 @@ import { ENVIRONMENT } from "@/config";
 import Bull from "bull";
 import { mailService } from "@/service/mail.service";
 import { TransactionEmailPayload } from "@/types";
-import { logRepository } from "@/repositories/log.repository";
+import { BaseQueue } from "./base.queue";
 
-class EmailQueue {
-  private queue: Bull.Queue<any>;
+class EmailQueue extends BaseQueue {
   constructor() {
-    this.queue = new Bull(
-      "Email queue",
-      `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
+    super(
+      new Bull(
+        "Email_queue",
+        `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
+      )
     );
   }
 
@@ -30,14 +31,15 @@ class EmailQueue {
         await mailService.sendTransactionEmail(data, job.data.from);
         done();
       } catch (error: any) {
-        logRepository.create({
-          extra: {
-            title: job.data.subject,
+        this.log(
+          {
+            subject: job.data.subject,
             to: job.data.to,
             from: job.data.from,
+            message: error.stack || "",
           },
-          message: error.stack || "",
-        });
+          "log_collections"
+        );
       }
     });
   };
