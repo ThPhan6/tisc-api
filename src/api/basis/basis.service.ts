@@ -228,7 +228,7 @@ class BasisService {
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
-    uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
+    await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
 
     const createdBasisOption = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
@@ -339,7 +339,7 @@ class BasisService {
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE.IMAGE_INVALID);
     }
-    uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
+    await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
 
     const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
