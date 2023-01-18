@@ -1,4 +1,4 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import * as ejs from "ejs";
 import os from "os";
 import { autoEmailRepository } from "@/repositories/auto_email.repository";
@@ -13,16 +13,18 @@ import {
 } from "@/types";
 import Axios, { AxiosInstance } from "axios";
 import { toUSMoney } from "@/helper/common.helper";
+import { emailQueue } from "@/queues/email.queue";
+import { logRepository } from "@/repositories/log.repository";
+import { IContactRequest } from "@/api/contact/contact.type";
 
 export default class MailService {
   private frontpageURL: string;
   private apiInstance: AxiosInstance;
 
   private defaultSender: TransactionEmailPayload["sender"] = {
-    email: ENVIROMENT.SENDINBLUE_FROM,
+    email: ENVIRONMENT.SENDINBLUE_FROM,
     name: "TISC Team",
-  }
-
+  };
   private getTargetedForFromUserType = (userType: UserType) => {
     if (UserType.TISC === userType) {
       return "TISC";
@@ -31,26 +33,27 @@ export default class MailService {
       return "Brand";
     }
     return "Design Firm";
-  }
+  };
 
   public constructor() {
-    this.frontpageURL = ENVIROMENT.FE_URL || "";
+    this.frontpageURL = ENVIRONMENT.FE_URL || "";
     this.apiInstance = Axios.create({
       baseURL: "https://api.sendinblue.com/v3/smtp",
       timeout: 10000,
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        "api-key": ENVIROMENT.SENDINBLUE_API_KEY,
+        "api-key": ENVIRONMENT.SENDINBLUE_API_KEY,
       },
     });
   }
 
-  private sendTransactionEmail = async (
-    payload: Omit<TransactionEmailPayload, "sender">
+  public sendTransactionEmail = async (
+    payload: Omit<TransactionEmailPayload, "sender">,
+    from?: string
   ) => {
     //
-    if (ENVIROMENT.ALLOW_SEND_EMAIL !== "1") {
+    if (ENVIRONMENT.ALLOW_SEND_EMAIL !== "1") {
       return true;
     }
     //
@@ -60,7 +63,17 @@ export default class MailService {
         sender: this.defaultSender,
       })
       .then(() => true)
-      .catch(() => false);
+      .catch(async (error) => {
+        await logRepository.create({
+          extra: {
+            title: payload.subject,
+            to: payload.to,
+            from,
+          },
+          message: error.response?.data?.message,
+        });
+        return false;
+      });
   };
 
   private getEmailTemplate = async (templateId: string, payload: object) => {
@@ -88,14 +101,15 @@ export default class MailService {
     if (!template) {
       return false;
     }
-    return this.sendTransactionEmail({
-      to: [{ email: user.email }],
+    emailQueue.add({
+      email: user.email,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
     });
+    return true;
   }
 
-  public async sendBrandInviteEmail(user: UserAttributes) {
+  public async sendBrandInviteEmail(user: UserAttributes, from?: string) {
     const template = await this.getEmailTemplate(
       EmailTemplateID.brand.invite_by_tisc,
       {
@@ -108,11 +122,13 @@ export default class MailService {
     if (!template) {
       return false;
     }
-    return this.sendTransactionEmail({
-      to: [{ email: user.email }],
+    emailQueue.add({
+      email: user.email,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
+      from,
     });
+    return true;
   }
 
   public async sendResetPasswordEmail(
@@ -142,11 +158,12 @@ export default class MailService {
     if (!template) {
       return false;
     }
-    return this.sendTransactionEmail({
-      to: [{ email: user.email }],
+    emailQueue.add({
+      email: user.email,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
     });
+    return true;
   }
 
   public async sendInviteEmailTeamProfile(
@@ -171,11 +188,13 @@ export default class MailService {
     if (!template) {
       return false;
     }
-    return this.sendTransactionEmail({
-      to: [{ email: inviteUser.email }],
+    emailQueue.add({
+      email: inviteUser.email,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
+      from: senderUser.email,
     });
+    return true;
   }
 
   public async sendInvoiceCreated(
@@ -183,7 +202,8 @@ export default class MailService {
     receiver_first_name: string,
     billing_amount: number,
     attachment_content: string,
-    attachment_name: string
+    attachment_name: string,
+    from?: string
   ) {
     const template = await this.getEmailTemplate(
       EmailTemplateID.general.invoice_receipt,
@@ -196,17 +216,19 @@ export default class MailService {
     if (!template) {
       return false;
     }
-    return this.sendTransactionEmail({
-      to: [{ email: receiver_email }],
+    emailQueue.add({
+      email: receiver_email,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
       attachment: [
         {
           content: attachment_content,
           name: attachment_name,
         },
       ],
+      from,
     });
+    return true;
   }
 
   public async sendInvoiceReminder(
@@ -214,7 +236,8 @@ export default class MailService {
     receiver_first_name: string,
     attachment_content: string,
     attachment_name: string,
-    overdue?: boolean
+    overdue?: boolean,
+    from?: string
   ) {
     const emailTemplate = overdue
       ? EmailTemplateID.general.invoice_overdue
@@ -228,17 +251,19 @@ export default class MailService {
     if (!template) {
       return false;
     }
-    return this.sendTransactionEmail({
-      to: [{ email: receiver_email }],
+    emailQueue.add({
+      email: receiver_email,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
       attachment: [
         {
           content: attachment_content,
           name: attachment_name,
         },
       ],
+      from,
     });
+    return true;
   }
 
   public async sendShareProductViaEmail(
@@ -275,11 +300,12 @@ export default class MailService {
     }
 
     //
-    return this.sendTransactionEmail({
-      to: [{ email: to }],
+    emailQueue.add({
+      email: to,
       subject: subject,
       htmlContent: template.html,
     });
+    return true;
   }
 
   public async sendBookingScheduleEmail(data: BookingEmailPayload) {
@@ -291,11 +317,33 @@ export default class MailService {
       return false;
     }
     //
-    return this.sendTransactionEmail({
-      to: [{ email: data.to }],
+    emailQueue.add({
+      email: data.to,
       subject: template.subject,
-      htmlContent: template.html,
+      html: template.html,
     });
+    return true;
+  }
+  public async sendContactEmail(data: IContactRequest) {
+    const template = await this.getEmailTemplate(
+      EmailTemplateID.general.contact,
+      {
+        from: data.email,
+        subject: "Contact",
+        message: data.inquiry,
+        sender: data.name,
+      }
+    );
+    if (!template) {
+      return false;
+    }
+    //
+    emailQueue.add({
+      email: ENVIRONMENT.CONTACT_RECEIVER,
+      subject: template.subject,
+      html: template.html,
+    });
+    return true;
   }
 }
 

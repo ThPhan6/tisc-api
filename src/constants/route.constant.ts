@@ -1,19 +1,4 @@
 export const ROUTES = {
-  AUTH: {
-    TISC_LOGIN: "/api/auth/login",
-    OTHER_ACCOUNT_LOGIN: "/api/auth/brand-design/login",
-    CHECK_TOKEN_EXPIRED: "/api/auth/token/{token}/validate",
-    FORGOT_PASSWORD: "/api/auth/forgot-password",
-    RESET_PASSWORD: "/api/auth/reset-password",
-    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
-    DESIGN_REGISTER: "/api/auth/register",
-    VERIFY_TOKEN: "/api/auth/verify/{verification_token}",
-    CREATE_PASSWORD_AND_VERIFY:
-      "/api/auth/create-password-verify/{verification_token}",
-    RESEND_EMAIL_CONFIRMATION: "/api/auth/resend-email/{type}/{email}",
-    CHECK_EMAIL_EXISTED: "/api/auth/check-email/{email}",
-  },
-
   GET_TISC_WORKSPACE: "/api/workspace",
   GET_BRAND_WORKSPACE: "/api/brand/workspace",
   GET_DESIGNER_WORKSPACE: "/api/designer/workspace",
@@ -320,6 +305,20 @@ export const ROUTES = {
   PRE_SPECFICATION: {
     GET_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/get-list",
     UPDATE_USER_SPEC_SELECTION: "/api/product/{id}/select-specification/update",
+  },
+  AUTH: {
+    TISC_LOGIN: "/api/auth/login",
+    DESIGN_REGISTER: "/api/auth/register",
+    BRAND_DESIGN_LOGIN: "/api/auth/brand-design/login",
+    VALIDATE_EMAIL: "/api/auth/check-email/{email}",
+    CHECK_TOKEN_EXPIRED: "/api/auth/token/{token}/validate",
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    RESET_PASSWORD: "/api/auth/reset-password",
+    RESET_PASSWORD_AND_LOGIN: "/api/auth/reset-password-and-login",
+    CREATE_PASSWORD_VERIFY:
+      "/api/auth/create-password-verify/{verification_token}",
+    ACCOUNT_VERIFY: "/api/auth/verify/{verification_token}",
+    RESEND_EMAIL: "/api/auth/resend-email/{type}/{email}",
   },
   COLLECTION: {
     GET_LIST: "/api/collection/get-list",

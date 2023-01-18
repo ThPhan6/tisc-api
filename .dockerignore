@@ -1,0 +1,14 @@
+.git
+.nyc_output
+node_modules
+mochawesome-report
+tests
+dist
+DS_Store
+sonoar-project.properties
+yarn.lock
+yarn-error.log
+package-lock.json
+.env
+.env_example
+data

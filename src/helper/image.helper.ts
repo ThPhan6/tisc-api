@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import { ImageSize, ImageQuality, ImageFit } from "@/constants";
 
 export const toWebp = async (
@@ -11,7 +11,7 @@ export const toWebp = async (
 ) => {
   let output = sharp(image).webp({ lossless: true, quality });
   if (isSquare) {
-    output = output.resize(size, size, { fit });
+    output = output.resize(size, size, { fit, background: 'white' });
   } else {
     output = output.resize(size);
   }
@@ -22,7 +22,7 @@ export const getFileURI = (filename: string) => {
   if (!filename) {
     return filename;
   }
-  return `${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}${filename}`;
+  return `${ENVIRONMENT.SPACES_ENDPOINT}/${ENVIRONMENT.SPACES_BUCKET}${filename}`;
 };
 
 export const toPng = async (image: Buffer) => {

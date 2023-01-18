@@ -10,7 +10,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import {
   BrandAttributes,
   SortOrder,
@@ -348,6 +348,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
+          ${brand_order ? `SORT pp.brand.name ${brand_order}` : ''}
           RETURN pp
       )
 
@@ -485,7 +486,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
           collection_name: pro.collection.name,
           specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-          product_id: CONCAT_SEPARATOR(', ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(', ', productCode),
+          product_id: CONCAT_SEPARATOR(' - ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(' - ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
       )
@@ -703,7 +704,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     },
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus) == ''?'N/A': CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(' - ', skus) == ''?'N/A': CONCAT_SEPARATOR(' - ', skus),
                 }),
                 distributor: distributor,
                 location: location,
@@ -837,7 +838,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     brand: brand,
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus) == ''?'N/A': CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(' - ', skus) == ''?'N/A': CONCAT_SEPARATOR(' - ', skus),
                 }),
                 distributor: distributor,
                 location: location,
@@ -943,7 +944,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 dimension_and_weight: productDimensionWeight
             }),
             options: inventory.options,
-            productImage: CONCAT('${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
+            productImage: CONCAT('${ENVIRONMENT.SPACES_ENDPOINT}/${ENVIRONMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
             material_code: code,
             master_material_code_name: CONCAT(material_code.name, '/', sub.name),
             unitType: unitType,

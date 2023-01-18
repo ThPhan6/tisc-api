@@ -2,13 +2,13 @@ import {
   VALID_IMAGE_TYPES,
   DESIGN_STORE,
   MESSAGES,
-  BrandStoragePath,
   ImageSize,
+  ImageQuality,
+  ImageFit,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
   randomName,
-  removeSpecialChars,
   simplizeString,
 } from "@/helper/common.helper";
 import { toPng, toWebp } from "@/helper/image.helper";
@@ -20,7 +20,7 @@ import {
   upload,
 } from "@/service/aws.service";
 import { ValidImage } from "@/types";
-import { isEqual } from "lodash";
+
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -157,7 +157,14 @@ export const uploadLogo = async (
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     logoPath = `${base}/${fileName}.webp`;
-    const webp = await toWebp(Buffer.from(newPath, "base64"), size);
+
+    const webp = await toWebp(
+      Buffer.from(newPath, "base64"),
+      size,
+      ImageQuality.high,
+      true,
+      ImageFit.contain
+    );
     await uploadImage([
       {
         buffer: webp,

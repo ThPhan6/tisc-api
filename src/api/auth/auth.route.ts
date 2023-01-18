@@ -7,8 +7,8 @@ import {
   generalMessageResponse,
 } from "@/helper/response.helper";
 import authResponse from "./auth.response";
-import {ROUTES} from '@/constants/route.constant';
-
+import { AUTH_NAMES, ROUTES } from "@/constants";
+import { preventAttempt } from "@/middleware/prevent_attempt.middleware";
 
 export default class AuthRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -24,7 +24,8 @@ export default class AuthRoute implements IRoute {
             validate: validate.login,
             description: "Method that authenticate user",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -35,13 +36,14 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: ROUTES.AUTH.OTHER_ACCOUNT_LOGIN,
+          path: ROUTES.AUTH.BRAND_DESIGN_LOGIN,
           options: {
             handler: controller.brandLogin,
             validate: validate.login,
             description: "Method that authenticate brand user",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -56,7 +58,7 @@ export default class AuthRoute implements IRoute {
           options: {
             handler: controller.checkTokenExisted,
             validate: validate.checkTokenExisted,
-            description: "Method that check valid reset password token",
+            description: "Method that check valid token",
             tags: ["api", "Authentication"],
             auth: false,
             response: {
@@ -74,7 +76,8 @@ export default class AuthRoute implements IRoute {
             validate: validate.forgotPassword,
             description: "Method that return reset password token to user",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -91,7 +94,8 @@ export default class AuthRoute implements IRoute {
             validate: validate.resetPassword,
             description: "Method that reset password for user",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -108,7 +112,8 @@ export default class AuthRoute implements IRoute {
             validate: validate.resetPassword,
             description: "Method that reset password and login",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -125,7 +130,8 @@ export default class AuthRoute implements IRoute {
             validate: validate.register,
             description: "Method that register an user",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -136,7 +142,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: ROUTES.AUTH.VERIFY_TOKEN,
+          path: ROUTES.AUTH.ACCOUNT_VERIFY,
           options: {
             handler: controller.verify,
             validate: validate.verify,
@@ -153,13 +159,14 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: ROUTES.AUTH.CREATE_PASSWORD_AND_VERIFY,
+          path: ROUTES.AUTH.CREATE_PASSWORD_VERIFY,
           options: {
             handler: controller.createPasswordAndVerify,
             validate: validate.createPasswordAndVerify,
             description: "Method that create password and verify an user",
             tags: ["api", "Authentication"],
-            auth: false,
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -170,7 +177,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "POST",
-          path: ROUTES.AUTH.RESEND_EMAIL_CONFIRMATION,
+          path: ROUTES.AUTH.RESEND_EMAIL,
           options: {
             handler: controller.resendEmail,
             validate: validate.resendEmail,
@@ -187,7 +194,7 @@ export default class AuthRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.AUTH.CHECK_EMAIL_EXISTED,
+          path: ROUTES.AUTH.VALIDATE_EMAIL,
           options: {
             handler: controller.checkEmail,
             validate: validate.checkEmail,
