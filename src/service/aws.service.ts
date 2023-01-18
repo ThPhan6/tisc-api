@@ -1,4 +1,4 @@
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import {
   S3,
   ListBucketsCommand,
@@ -7,13 +7,13 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
-const bucket = ENVIROMENT.SPACES_BUCKET || "";
+const bucket = ENVIRONMENT.SPACES_BUCKET || "";
 export const s3Client = new S3({
-  endpoint: ENVIROMENT.SPACES_ENDPOINT || "",
-  region: ENVIROMENT.SPACES_REGION || "",
+  endpoint: ENVIRONMENT.SPACES_ENDPOINT || "",
+  region: ENVIRONMENT.SPACES_REGION || "",
   credentials: {
-    accessKeyId: ENVIROMENT.SPACES_KEY || "",
-    secretAccessKey: ENVIROMENT.SPACES_SECRET || "",
+    accessKeyId: ENVIRONMENT.SPACES_KEY || "",
+    secretAccessKey: ENVIRONMENT.SPACES_SECRET || "",
   },
 });
 

@@ -33,7 +33,7 @@ import {
 import moment from "moment";
 import { mailService } from "@/service/mail.service";
 import { pdfService } from "@/api/pdf/pdf.service";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 
 class InvoiceService {
   private calculateBillingAmount = (
@@ -45,11 +45,24 @@ class InvoiceService {
     const saleTaxAmount = (tax / 100) * totalGross;
     return totalGross + saleTaxAmount;
   };
+  private getOverDueDays = (
+    invoice: InvoiceWithRelations | InvoiceWithUserAndServiceType
+  ) => {
+    let diff: number;
+    if (invoice.payment_date && invoice.payment_date !== "") {
+      diff = moment(invoice.payment_date).diff(
+        moment(invoice.due_date),
+        "days"
+      );
+    } else {
+      diff = moment().diff(moment(invoice.due_date), "days");
+    }
+    return diff > 0 ? diff : 0;
+  };
   private calculateInvoice = (
     invoice: InvoiceWithRelations | InvoiceWithUserAndServiceType
   ) => {
-    const diff = moment().diff(moment(invoice.due_date), "days");
-    const overdueDays = diff > 0 ? diff : 0;
+    const overdueDays = this.getOverDueDays(invoice);
     const totalGross = invoice.quantity * invoice.unit_rate;
     const saleTaxAmount = (invoice.tax / 100) * totalGross;
     const billingAmount = totalGross + saleTaxAmount;
@@ -153,7 +166,8 @@ class InvoiceService {
       invoice.ordered_user.firstname,
       billingAmount,
       pdfBuffer.data.toString("base64"),
-      `${invoice.name}.pdf`
+      `${invoice.name}.pdf`,
+      user.email
     );
     return this.get(user, invoiceId);
   }
@@ -279,7 +293,7 @@ class InvoiceService {
     return successResponse({ data: response });
   }
 
-  public async sendReminder(invoiceId: string) {
+  public async sendReminder(invoiceId: string, user: UserAttributes) {
     const invoice = await invoiceRepository.findInvoiceWithRelations(invoiceId);
     if (!invoice) {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
@@ -293,7 +307,8 @@ class InvoiceService {
       invoice.ordered_user.firstname,
       pdfBuffer.data.toString("base64"),
       `${invoice.name}.pdf`,
-      isOverdue
+      isOverdue,
+      user.email
     );
     if (!sent) {
       return errorMessageResponse(MESSAGES.SEND_EMAIL_WRONG);

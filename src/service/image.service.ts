@@ -1,22 +1,27 @@
+import { ENVIRONMENT } from "@/config";
 import {
   VALID_IMAGE_TYPES,
   DESIGN_STORE,
   MESSAGES,
-  BrandStoragePath,
   ImageSize,
+  ImageQuality,
+  ImageFit,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
   randomName,
-  removeSpecialChars,
   simplizeString,
 } from "@/helper/common.helper";
-import { toWebp } from "@/helper/image.helper";
+import { toPng, toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
-import { deleteFile, isExists, upload } from "@/service/aws.service";
+import { imageQueue } from "@/queues/image.queue";
+import {
+  deleteFile,
+  getBufferFile,
+  isExists,
+  upload,
+} from "@/service/aws.service";
 import { ValidImage } from "@/types";
-import moment from "moment";
-
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -47,7 +52,40 @@ export const splitImageByType = async (images: string[]) => {
   }
   return { imagePath, imageBase64 };
 };
-
+const fileNameFromKeywords = (
+  keywords: string[],
+  formatedBrandName: string
+) => {
+  const cleanKeywords = keywords.length
+    ? "-" +
+      keywords
+        .map((item) => {
+          return item.trim().replace(/ /g, "-");
+        })
+        .join("-")
+    : "";
+  return `${formatedBrandName}${cleanKeywords}-l-${randomName(8)}`;
+};
+export const updateProductImageNames = (
+  images: string[],
+  keywords: string[],
+  brandName: string,
+  brandId: string
+) => {
+  return Promise.all(
+    images.map(async (image) => {
+      const bufferFromStorage = await getBufferFile(image.slice(1));
+      const formatedBrandName = simplizeString(brandName);
+      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      await upload(
+        bufferFromStorage,
+        `product/${brandId}/${fileName}.webp`,
+        "image/webp"
+      );
+      return `/product/${brandId}/${fileName}.webp`;
+    })
+  );
+};
 export const uploadImagesProduct = (
   images: string[],
   keywords: string[],
@@ -56,41 +94,72 @@ export const uploadImagesProduct = (
 ) => {
   const formatedBrandName = simplizeString(brandName);
   return Promise.all(
-    images.map(async (image, index) => {
-      const mediumBuffer = await toWebp(
-        Buffer.from(image, "base64"),
-        ImageSize.large
-      );
-      const cleanKeywords = keywords.length
-        ? "-" +
-          keywords
-            .map((item) => {
-              return item.trim().replace(/ /g, "-");
-            })
-            .join("-")
-        : "";
-      const fileName = `${formatedBrandName}${cleanKeywords}-l-${index + 1}`;
+    images.map(async (image) => {
+      const fileType = await getFileTypeFromBase64(image);
+      if (!fileType) {
+        return image;
+      }
 
-      await upload(
-        mediumBuffer,
-        `product/${brandId}/${fileName}.webp`,
-        "image/webp"
-      );
+      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      if (ENVIRONMENT.USE_QUEUE_TO_UPLOAD_IMAGES === "true") {
+        imageQueue.add({
+          file: image,
+          file_name: `product/${brandId}/${fileName}.webp`,
+          file_type: "image/webp",
+          create_png: true,
+        });
+      } else {
+        const webpBuffer = await toWebp(
+          Buffer.from(image, "base64"),
+          ImageSize.large
+        );
+        const pngBuffer = await toPng(Buffer.from(image, "base64"));
+        await upload(
+          webpBuffer,
+          `product/${brandId}/${fileName}.webp`,
+          "image/webp"
+        );
+        await upload(
+          pngBuffer,
+          `product/${brandId}/${fileName}.png`,
+          "image/png"
+        );
+      }
       return `/product/${brandId}/${fileName}.webp`;
     })
   );
 };
 
-export const uploadImage = async (validImages: ValidImage[]) => {
-  return Promise.all(
-    validImages.map(async (item) => {
-      return upload(
-        item.buffer,
-        item.path[0] === "/" ? item.path.slice(1) : item.path,
-        item.mime_type
-      );
-    })
-  );
+export const uploadImages = (
+  validImages: ValidImage[],
+  size: number = ImageSize.small
+) => {
+  if (ENVIRONMENT.USE_QUEUE_TO_UPLOAD_IMAGES === "true") {
+    validImages.map((item) => {
+      imageQueue.add({
+        file: item.image,
+        file_name: item.path[0] === "/" ? item.path.slice(1) : item.path,
+        file_type: "image/webp",
+        create_png: false,
+        size,
+      });
+      return true;
+    });
+  } else {
+    return Promise.all(
+      validImages.map(async (item) => {
+        const webpBuffer = await toWebp(
+          Buffer.from(item.image, "base64"),
+          size
+        );
+        return upload(
+          webpBuffer,
+          item.path[0] === "/" ? item.path.slice(1) : item.path,
+          "image/webp"
+        );
+      })
+    );
+  }
 };
 
 export const uploadLogo = async (
@@ -104,7 +173,9 @@ export const uploadLogo = async (
   if ((await isExists(newPath.slice(1))) || oldPath === newPath) {
     logoPath = oldPath?.slice(1);
   } else {
-    await deleteFile(oldPath.slice(1));
+    if (oldPath && oldPath !== "") {
+      await deleteFile(oldPath.slice(1));
+    }
 
     //upload logo
     const fileType = await getFileTypeFromBase64(newPath);
@@ -117,14 +188,15 @@ export const uploadLogo = async (
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     logoPath = `${base}/${fileName}.webp`;
-    const webp = await toWebp(Buffer.from(newPath, "base64"), size);
-    await uploadImage([
-      {
-        buffer: webp,
-        path: logoPath,
-        mime_type: "image/webp",
-      },
-    ]);
+
+    const webp = await toWebp(
+      Buffer.from(newPath, "base64"),
+      size,
+      ImageQuality.high,
+      true,
+      ImageFit.contain
+    );
+    await upload(webp, logoPath, "image/webp");
   }
   return logoPath;
 };

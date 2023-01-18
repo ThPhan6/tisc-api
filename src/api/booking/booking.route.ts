@@ -75,6 +75,7 @@ export default class BookingRoute implements IRoute {
             validate: validate.reSchedule,
             description: "Method that patch reschedule booking",
             tags: ["api", "Booking"],
+            auth: AUTH_NAMES.CAPTCHA,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -91,6 +92,7 @@ export default class BookingRoute implements IRoute {
             validate: getOneValidation,
             description: "Method that delete booking",
             tags: ["api", "Booking"],
+            auth: AUTH_NAMES.CAPTCHA,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

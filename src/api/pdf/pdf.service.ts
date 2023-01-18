@@ -32,7 +32,7 @@ import {
 } from "@/helper/response.helper";
 import { pdfNode } from "@/service/pdf/pdf.service";
 import * as ejs from "ejs";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import { numberToFixed } from "@/helper/common.helper";
 
 export default class PDFService {
@@ -253,6 +253,12 @@ export default class PDFService {
               const templatePath = findEjsTemplatePath(template.name);
               if (templatePath) {
                 /// mapping data
+                response = response.map((item: any) => {
+                  return {
+                    ...item,
+                    productImage: item.productImage.replace(".webp", ".png"),
+                  };
+                });
                 let data = response;
                 if (templatePath.group === "brand") {
                   data = mappingPdfDataByBrand(response);
@@ -335,7 +341,7 @@ export default class PDFService {
     data: any
   ) => {
     const params = {
-      logo: `${ENVIROMENT.SPACES_ENDPOINT}/files-tisc/logo/black-logo.svg`,
+      logo: `${ENVIRONMENT.SPACES_ENDPOINT}/files-tisc/logo/black-logo.svg`,
       title,
     };
     const colWidth =

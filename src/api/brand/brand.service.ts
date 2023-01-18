@@ -78,8 +78,8 @@ class BrandService {
     });
   }
 
-  public async getAllByAlphabet() {
-    const allBrand = await brandRepository.getAllAndSortByName();
+  public async getAllByAlphabet(userId?: string) {
+    const allBrand = await brandRepository.getAllAndSortByName(userId);
 
     let result = mappingBrandsAlphabet(allBrand);
 
@@ -102,7 +102,7 @@ class BrandService {
     });
   }
 
-  public async invite(id: string) {
+  public async invite(id: string, user: UserAttributes) {
     const brand = await brandRepository.find(id);
 
     if (!brand) {
@@ -119,7 +119,7 @@ class BrandService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND);
     }
 
-    await mailService.sendBrandInviteEmail(inviteUser);
+    await mailService.sendBrandInviteEmail(inviteUser, user.email);
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
@@ -252,8 +252,8 @@ class BrandService {
     });
   }
 
-  public async getBrandsSummary() {
-    const summary = await brandRepository.getOverallSummary();
+  public async getBrandsSummary(userId?: string) {
+    const summary = await brandRepository.getOverallSummary(userId);
     const results: SummaryInfo[] = [
       {
         id: v4(),

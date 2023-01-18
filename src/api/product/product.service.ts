@@ -24,6 +24,7 @@ import { userRepository } from "@/repositories/user.repository";
 import {
   splitImageByType,
   uploadImagesProduct,
+  updateProductImageNames,
   validateImageType,
 } from "@/service/image.service";
 import { mailService } from "@/service/mail.service";
@@ -191,19 +192,26 @@ class ProductService {
     let images = product.images;
     // Upload images if have changes
     if (isEqual(product.images, payload.images) === false) {
-      const { imageBase64, imagePath } = await splitImageByType(payload.images);
+      const { imageBase64 } = await splitImageByType(payload.images);
       if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-      const newImages = imageBase64.length
-        ? await uploadImagesProduct(
-            payload.images,
-            payload.keywords,
-            brand.name,
-            brand.id
-          )
-        : [];
-      images = imagePath.concat(newImages);
+      const newImages = await uploadImagesProduct(
+        payload.images,
+        payload.keywords,
+        brand.name,
+        brand.id
+      );
+
+      images = newImages;
+    }
+    if (!isEqual(payload.keywords, product.keywords)) {
+      images = await updateProductImageNames(
+        images,
+        payload.keywords,
+        brand.name,
+        brand.id
+      );
     }
     const updatedProduct = await productRepository.update(id, {
       ...payload,

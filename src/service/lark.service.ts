@@ -1,4 +1,4 @@
-import {ENVIROMENT} from '@/config';
+import {ENVIRONMENT} from '@/config';
 import {MESSAGES} from '@/constants';
 import axios from 'axios';
 import moment from 'moment';
@@ -25,10 +25,10 @@ class LarkOpenAPIService {
   private intervalRefreshToken: any;
   //
   constructor() {
-    this.baseUrl = ENVIROMENT.LARK_OPEN_API_URL;
+    this.baseUrl = ENVIRONMENT.LARK_OPEN_API_URL;
     this.appAccessTokenPayload = {
-      app_id: ENVIROMENT.LARK_APP_ID,
-      app_secret: ENVIROMENT.LARK_APP_SECRET
+      app_id: ENVIRONMENT.LARK_APP_ID,
+      app_secret: ENVIRONMENT.LARK_APP_SECRET
     };
     if (fs.existsSync(this.dataPath)) {
       this.lark_token = JSON.parse(fs.readFileSync(this.dataPath, 'utf8'));
@@ -87,7 +87,7 @@ class LarkOpenAPIService {
     await this.getAppAccessToken();
     //
     return axios.get(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events`,
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIRONMENT.LARK_CALENDAR_ID}/events`,
       {
         params: {start_time, end_time},
         headers: { Authorization: `Bearer ${this.lark_token.access_token}` }
@@ -102,7 +102,7 @@ class LarkOpenAPIService {
     await this.getAppAccessToken();
     //
     const response = await axios.post<CreateEventResponse>(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events`,
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIRONMENT.LARK_CALENDAR_ID}/events`,
       {
         ...data,
         visibility: 'public',
@@ -133,7 +133,7 @@ class LarkOpenAPIService {
     await this.getAppAccessToken();
     //
     return axios.patch(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${event_id}`,
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIRONMENT.LARK_CALENDAR_ID}/events/${event_id}`,
       data,
       { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
     )
@@ -143,14 +143,14 @@ class LarkOpenAPIService {
   public deleteEvent = async (event_id: string) => {
     await this.getAppAccessToken();
     //
-    return axios.delete(`${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${event_id}`,
+    return axios.delete(`${this.baseUrl}/calendar/v4/calendars/${ENVIRONMENT.LARK_CALENDAR_ID}/events/${event_id}`,
       { headers: { Authorization: `Bearer ${this.lark_token.access_token}` }}
     )
   }
 
   private createScheduleParticipant = async (eventId: string, participants: ParticipantPayload[]) => {
     return await axios.post<CreateEventResponse>(
-      `${this.baseUrl}/calendar/v4/calendars/${ENVIROMENT.LARK_CALENDAR_ID}/events/${eventId}/attendees`,
+      `${this.baseUrl}/calendar/v4/calendars/${ENVIRONMENT.LARK_CALENDAR_ID}/events/${eventId}/attendees`,
       {
         attendees: participants,
         need_notification: false,

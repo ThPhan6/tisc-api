@@ -6,6 +6,7 @@ import {
   DesignFirmRoles,
   RoleData,
   MESSAGES,
+  DefaultPermission,
 } from "@/constants";
 import {
   errorMessageResponse,
@@ -69,7 +70,7 @@ export default class PermissionService {
           role_id: roleId,
           relation_id: user.relation_id,
           permission_id: permission.id,
-          accessable: this.getRoleAccessable(roleId, permission.name),
+          accessable: this.getRoleAccessable(roleId, permission.id),
         });
       });
     });
@@ -77,7 +78,7 @@ export default class PermissionService {
     return true;
   };
 
-  private getRoleAccessable = (roleId: UserRole, permissionName: string) => {
+  private getRoleAccessable = (roleId: UserRole, permissionId: string) => {
     if (
       roleId === TiscRoles.Admin ||
       roleId === BrandRoles.Admin ||
@@ -87,48 +88,16 @@ export default class PermissionService {
     }
 
     if (roleId === TiscRoles.Consultant) {
-      const noAdminAccessable = [
-        "Brands",
-        "Design Firms",
-        "Listing",
-        "Categories",
-        "Documentation",
-        "Locations",
-        "Team Profiles",
-        "Messages",
-        "Revenues",
-      ];
-      if (!noAdminAccessable.includes(permissionName)) {
-        return true;
-      }
+      return DefaultPermission.tisc_consultant_team.includes(permissionId);
     }
     if (roleId === BrandRoles.Member) {
-      const noBrandAccessable = [
-        "Brand Profile",
-        "Locations",
-        "Team Profiles",
-        "Distributors",
-        "Market Availability",
-        "Subscription",
-        "Billed Services",
-      ];
-      if (!noBrandAccessable.includes(permissionName)) {
-        return true;
-      }
+      return DefaultPermission.brand_team.includes(permissionId);
     }
     if (roleId === DesignFirmRoles.Member) {
-      const noDesignAccessable = [
-        "Office Profile",
-        "Locations",
-        "Team Profiles",
-        "Material/Product Code",
-      ];
-      if (!noDesignAccessable.includes(permissionName)) {
-        return true;
-      }
+      return DefaultPermission.design_team.includes(permissionId);
     }
-
     return false;
   };
 }
+
 export const permissionService = new PermissionService();

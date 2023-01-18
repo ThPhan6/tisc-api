@@ -233,7 +233,9 @@
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12">Due Date:</span><br />
         <span class="normal-roboto-light-12">Payment Date:</span><br />
+        <% if(overdue_amount !== '$0.00') { %>
         <span class="normal-roboto-light-12">Overdue Fines</span>
+        <% } %>
       </td>
       <td
         style="vertical-align: top"
@@ -245,7 +247,9 @@
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"><%=due_date%></span><br />
         <span class="normal-roboto-light-12"><%=payment_date%></span><br />
+        <% if(overdue_amount !== '$0.00') { %>
         <span class="normal-roboto-light-12"></span>
+        <% } %>
       </td>
       <td
         style="vertical-align: top"
@@ -258,7 +262,9 @@
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"></span><br />
+        <% if(overdue_amount !== '$0.00') { %>
         <span class="normal-roboto-light-12" style="color: #bfbfbf">+</span>
+        <% } %>
       </td>
       <td
         class="
@@ -270,7 +276,9 @@
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"></span><br />
         <span class="normal-roboto-light-12"></span><br />
+        <% if(overdue_amount !== '$0.00') { %>
         <span class="normal-roboto-light-12"><%=overdue_amount%></span>
+        <% } %>
       </td>
     </tr>
     <tr>

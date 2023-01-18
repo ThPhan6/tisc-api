@@ -8,10 +8,10 @@
       <td>
         <span class="primary-roboto-light-8-18 uppercase"><%= groupData.material_code.code %></span>
       </td>
-      <td colspan="2">
+      <td style="width: 200px;">
         <span class="primary-roboto-light-8-18 uppercase"><%= groupData.material_code.description %></span>
       </td>
-
+      <td></td>
       <td style="width: 108px;">
         <span class="normal-garamond-light-8-12 uppercase">date</span>
         <span class="primary-roboto-light-8-18 uppercase"><%= groupData.specified_date %></span>
@@ -35,7 +35,7 @@
         <span class="normal-garamond-light-8-12 uppercase">id</span>
         <span style="margin-left: 8px"><%= groupData.product.sku_text %></span>
       </td>
-      <td style="width: 108px;">
+      <td style="width: 108px; vertical-align: top;">
         <img style="width: 108px; height: 108px;" src="<%= groupData.productImage %>"></img>
       </td>
     </tr>

@@ -1,4 +1,4 @@
-import { MESSAGES, BASIS_TYPES } from "@/constants";
+import { MESSAGES, BASIS_TYPES, ImageSize } from "@/constants";
 import {
   getSummaryTable,
   isDuplicatedString,
@@ -10,7 +10,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import BasisRepository from "@/repositories/basis.repository";
-import { uploadImage } from "@/service/image.service";
+import { uploadImages } from "@/service/image.service";
 import { SortOrder } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
@@ -228,7 +228,7 @@ class BasisService {
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
-    await uploadImage(mappingBasisOption.valid_upload_image);
+    await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
 
     const createdBasisOption = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
@@ -339,8 +339,7 @@ class BasisService {
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE.IMAGE_INVALID);
     }
-
-    await uploadImage(mappingBasisOption.valid_upload_image);
+    await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
 
     const updatedAttribute = await BasisRepository.update(id, {
       ...payload,

@@ -38,6 +38,7 @@ class ProjectProductService {
     payload: AssignProductToProjectRequest,
     user: UserAttributes
   ) => {
+
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
     }
@@ -51,8 +52,13 @@ class ProjectProductService {
     }
 
     const project = await projectRepository.find(payload.project_id);
+
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 400);
+    }
+
+    if (!project.team_profile_ids.includes(user.id)) {
+      return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_PERFORM);
     }
 
     const projectProduct = await projectProductRepository.findBy({

@@ -83,7 +83,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     offset: number,
     sort: string,
     order: SortOrder,
-    filter: { project_status?: ProjectStatus },
+    filter: { status?: ProjectStatus },
     userId?: string
   ) {
     const params = {
@@ -99,8 +99,8 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     FILTER projects.deleted_at == null
     FILTER projects.design_id == @design_id
     ${
-      isNumber(filter?.project_status)
-        ? `FILTER projects.status == ${filter.project_status}`
+      isNumber(filter?.status)
+        ? `FILTER projects.status == ${filter.status}`
         : ""
     }
     ${userId ? "FILTER @userId IN projects.team_profile_ids" : ""}
@@ -141,6 +141,21 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         .count();
     }
     return this.model.where("design_id", "==", designId).count();
+  }
+
+  public async getActiveProjectsByDesignFirm(
+    designId: string,
+    status: ProjectStatus = ProjectStatus.Live,
+    selects: string[] = [],
+    userId?: string
+  ) {
+    let query = this.model.where('design_id', '==', designId)
+      .where('status', '==', status);
+    if (userId) {
+      query = query.whereIn('team_profile_ids', userId, 'inverse');
+    }
+
+    return query.select(selects).order('created_at', 'DESC').get();
   }
 
   public async getAllProjectByWithSelect(
@@ -616,7 +631,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted_at == null
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
-          { image: FIRST(p.images), 
+          { image: FIRST(p.images),
             status: pp.consider_status
           }
         )
@@ -653,7 +668,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER p.deleted_at == null
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
-          { image: FIRST(p.images), 
+          { image: FIRST(p.images),
             status: pp.specified_status
           }
         )

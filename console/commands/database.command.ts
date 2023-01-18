@@ -2,7 +2,7 @@ import Connection, {connection} from '@/Database/Connections/ArangoConnection';
 import moment from 'moment';
 import * as fs from 'fs';
 import {template, difference, isFunction, reverse, isString} from 'lodash';
-import {ENVIROMENT} from '@/config';
+import {ENVIRONMENT} from '@/config';
 
 type MigrationSeedModel = 'seeds' | 'migrations';
 interface MigrationSeedAttribute {
@@ -40,7 +40,7 @@ class DatabaseConsole {
     );
   }
 
-  public createDatabase = async (name: string = ENVIROMENT.DATABASE_NAME) => {
+  public createDatabase = async (name: string = ENVIRONMENT.DATABASE_NAME) => {
     const newConnection = new Connection();
     newConnection.useDatabase('_system');
     await newConnection.createDatabase(name);

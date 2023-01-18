@@ -10,7 +10,7 @@ import moment from "moment";
 export const DefaultTimezone = "Asia/Singapore";
 moment.tz.setDefault(DefaultTimezone);
 
-export const ENVIROMENT = {
+export const ENVIRONMENT = {
   NODE_ENV: process.env.NODE_ENV ?? "dev",
   API_VERSION: process.env.API_VERSION ?? "1.0.0",
   HOST: process.env.HOST ?? "",
@@ -19,6 +19,9 @@ export const ENVIROMENT = {
   DATABASE_NAME: process.env.DATABASE_NAME ?? "",
   DATABASE_USERNAME: process.env.DATABASE_USERNAME ?? "",
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD ?? "",
+  DATABASE_ENDPOINT: process.env.DATABASE_ENDPOINT ?? "",
+  BACKUP_ALL: process.env.BACKUP_ALL ?? "",
+  BACKUP_CRON_EXPRESSION: process.env.BACKUP_CRON_EXPRESSION ?? "",
   API_URL: process.env.API_URL ?? "",
   SENDINBLUE_FROM: process.env.SENDINBLUE_FROM ?? "no-reply@tisc.global",
   FE_URL: process.env.FE_URL ?? "",
@@ -29,9 +32,7 @@ export const ENVIROMENT = {
   SPACES_ENDPOINT: process.env.SPACES_ENDPOINT ?? "",
   SPACES_REGION: process.env.SPACES_REGION ?? "",
   X_CSCAPI_KEY: process.env.X_CSCAPI_KEY ?? "",
-  TEST_TISC_ADMIN_TOKEN: process.env.TEST_TISC_ADMIN_TOKEN ?? "",
-  TEST_TISC_CONSULTANT_TEAM_TOKEN:
-    process.env.TEST_TISC_CONSULTANT_TEAM_TOKEN ?? "",
+  IPINFO_ACCESS_TOKEN: process.env.IPINFO_ACCESS_TOKEN ?? "-",
   SLACK_INCOMING_WEBHOOK: process.env.SLACK_INCOMING_WEBHOOK ?? "",
   SHARE_HASH_SECRET_KEY:
     process.env.SHARE_HASH_SECRET_KEY || "Cu9Zj+zNEA!5X!7^$8eZZhrw",
@@ -48,6 +49,10 @@ export const ENVIROMENT = {
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "vuongd36@gmail.com",
   TISC_CATPCHA_SECRET_KEY: process.env.TISC_CATPCHA_SECRET_KEY || "",
   CHECK_CAPTCHA: process.env.CHECK_CAPTCHA || "false",
+  REDIS_HOST: process.env.REDIS_HOST || "127.0.0.1",
+  REDIS_PORT: process.env.REDIS_PORT || "6379",
+  CONTACT_RECEIVER: process.env.CONTACT_RECEIVER || "hello@tisc.global",
+  USE_QUEUE_TO_UPLOAD_IMAGES: process.env.USE_QUEUE_TO_UPLOAD_IMAGES || "false",
 };
 
 export const jwtConfig = {
@@ -58,7 +63,7 @@ export const jwtConfig = {
 const swaggerOptions = {
   info: {
     title: "API Documentation",
-    version: ENVIROMENT.API_VERSION,
+    version: ENVIRONMENT.API_VERSION,
   },
   grouping: "tags",
   sortEndpoints: "ordered",

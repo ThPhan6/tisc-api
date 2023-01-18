@@ -10,7 +10,7 @@ import {
   ProjectProductStatus,
 } from "./project_product.type";
 import { v4 as uuidv4 } from "uuid";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import {
   BrandAttributes,
   SortOrder,
@@ -348,6 +348,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
+          ${brand_order ? `SORT pp.brand.name ${brand_order}` : ''}
           RETURN pp
       )
 
@@ -476,7 +477,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       FOR pro IN brand.products
 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
-      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode)
+      LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
 
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
@@ -485,7 +486,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
           collection_name: pro.collection.name,
           specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
-          product_id: CONCAT_SEPARATOR(', ', productCode),
+          product_id: CONCAT_SEPARATOR(' - ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(' - ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
       )
@@ -638,7 +639,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
             LET skus = (
                 FOR option IN selectedOptions
-                RETURN option.product_id
+                RETURN option.product_id == ''? 'N/A': option.product_id
             )
 
             LET location = FIRST(
@@ -664,7 +665,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 )
             )
 
-            LET distributor = FIRST(
+            LET distributor = project_products.distributor_location_id ?  FIRST(
                 FOR custom_resource IN custom_resources
                     FILTER custom_resource.id == project_products.distributor_location_id
                     FILTER custom_resource.deleted_at == null
@@ -686,7 +687,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                             }
                         }
                     )
-            )
+            ) : FIRST(
+              RETURN  {
+                name: 'N/A',
+                address: 'N/A',
+                country_id: 'N/A',
+                state_name: 'N/A',
+                postal_code: 'N/A',
+                contact: {
+                    first_name: 'N/A',
+                    last_name: '',
+                    position: 'N/A',
+                    work_email: 'N/A',
+                    work_phone: 'N/A',
+                    work_mobile: 'N/A',
+                }
+            }
+          )
 
 
             FOR collection IN collections
@@ -703,7 +720,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     },
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(' - ', skus) == ''?'N/A': CONCAT_SEPARATOR(' - ', skus),
                 }),
                 distributor: distributor,
                 location: location,
@@ -748,7 +765,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                               FILTER productSpecificationAttribute.basis_options != null
                                   FOR optionCode IN productSpecificationAttribute.basis_options
                                       FILTER optionCode.id == attribute.basis_option_id
-                                      RETURN optionCode.option_code
+                                      RETURN optionCode.option_code == ''?'N/A':optionCode.option_code
             )
 
             FOR brand IN brands
@@ -794,7 +811,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 )
             )
 
-            LET distributor = FIRST(
+            LET distributor = project_products.distributor_location_id? FIRST(
                 FOR distributor IN distributors
                     FILTER distributor.deleted_at == null
                     FILTER distributor.id == project_products.distributor_location_id
@@ -815,7 +832,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                         }
                     }
                 )
-            )
+            ): FIRST(
+              RETURN  {
+                name: 'N/A',
+                address: 'N/A',
+                country_id: 'N/A',
+                state_name: 'N/A',
+                postal_code: 'N/A',
+                contact: {
+                    first_name: 'N/A',
+                    last_name: '',
+                    position: 'N/A',
+                    work_email: 'N/A',
+                    work_phone: 'N/A',
+                    work_mobile: 'N/A',
+                }
+            }
+          )
 
             LET categories = (
                 FOR mainCategory IN categories
@@ -837,7 +870,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     brand: brand,
                     collection: collection,
                     skus: skus,
-                    sku_text: CONCAT_SEPARATOR(', ', skus),
+                    sku_text: CONCAT_SEPARATOR(' - ', skus) == ''?'N/A': CONCAT_SEPARATOR(' - ', skus),
                 }),
                 distributor: distributor,
                 location: location,
@@ -943,7 +976,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 dimension_and_weight: productDimensionWeight
             }),
             options: inventory.options,
-            productImage: CONCAT('${ENVIROMENT.SPACES_ENDPOINT}/${ENVIROMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
+            productImage: CONCAT('${ENVIRONMENT.SPACES_ENDPOINT}/${ENVIRONMENT.SPACES_BUCKET}', FIRST(inventory.product.images)),
             material_code: code,
             master_material_code_name: CONCAT(material_code.name, '/', sub.name),
             unitType: unitType,
