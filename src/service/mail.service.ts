@@ -303,7 +303,7 @@ export default class MailService {
     emailQueue.add({
       email: to,
       subject: subject,
-      htmlContent: template.html,
+      html: template.html,
     });
     return true;
   }
