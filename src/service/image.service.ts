@@ -1,3 +1,4 @@
+import { ENVIRONMENT } from "@/config";
 import {
   VALID_IMAGE_TYPES,
   DESIGN_STORE,
@@ -13,6 +14,7 @@ import {
 } from "@/helper/common.helper";
 import { toPng, toWebp } from "@/helper/image.helper";
 import { errorMessageResponse } from "@/helper/response.helper";
+import { imageQueue } from "@/queues/image.queue";
 import {
   deleteFile,
   getBufferFile,
@@ -20,7 +22,6 @@ import {
   upload,
 } from "@/service/aws.service";
 import { ValidImage } from "@/types";
-
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -98,37 +99,67 @@ export const uploadImagesProduct = (
       if (!fileType) {
         return image;
       }
-      const mediumBuffer = await toWebp(
-        Buffer.from(image, "base64"),
-        ImageSize.large
-      );
-      const pngBuffer = await toPng(Buffer.from(image, "base64"));
+
       const fileName = fileNameFromKeywords(keywords, formatedBrandName);
-      await upload(
-        mediumBuffer,
-        `product/${brandId}/${fileName}.webp`,
-        "image/webp"
-      );
-      await upload(
-        pngBuffer,
-        `product/${brandId}/${fileName}.png`,
-        "image/png"
-      );
+      if (ENVIRONMENT.USE_QUEUE_TO_UPLOAD_IMAGES === "true") {
+        imageQueue.add({
+          file: image,
+          file_name: `product/${brandId}/${fileName}.webp`,
+          file_type: "image/webp",
+          create_png: true,
+        });
+      } else {
+        const webpBuffer = await toWebp(
+          Buffer.from(image, "base64"),
+          ImageSize.large
+        );
+        const pngBuffer = await toPng(Buffer.from(image, "base64"));
+        await upload(
+          webpBuffer,
+          `product/${brandId}/${fileName}.webp`,
+          "image/webp"
+        );
+        await upload(
+          pngBuffer,
+          `product/${brandId}/${fileName}.png`,
+          "image/png"
+        );
+      }
       return `/product/${brandId}/${fileName}.webp`;
     })
   );
 };
 
-export const uploadImage = async (validImages: ValidImage[]) => {
-  return Promise.all(
-    validImages.map(async (item) => {
-      return upload(
-        item.buffer,
-        item.path[0] === "/" ? item.path.slice(1) : item.path,
-        item.mime_type
-      );
-    })
-  );
+export const uploadImages = (
+  validImages: ValidImage[],
+  size: number = ImageSize.small
+) => {
+  if (ENVIRONMENT.USE_QUEUE_TO_UPLOAD_IMAGES === "true") {
+    validImages.map((item) => {
+      imageQueue.add({
+        file: item.image,
+        file_name: item.path[0] === "/" ? item.path.slice(1) : item.path,
+        file_type: "image/webp",
+        create_png: false,
+        size,
+      });
+      return true;
+    });
+  } else {
+    return Promise.all(
+      validImages.map(async (item) => {
+        const webpBuffer = await toWebp(
+          Buffer.from(item.image, "base64"),
+          size
+        );
+        return upload(
+          webpBuffer,
+          item.path[0] === "/" ? item.path.slice(1) : item.path,
+          "image/webp"
+        );
+      })
+    );
+  }
 };
 
 export const uploadLogo = async (
@@ -165,13 +196,7 @@ export const uploadLogo = async (
       true,
       ImageFit.contain
     );
-    await uploadImage([
-      {
-        buffer: webp,
-        path: logoPath,
-        mime_type: "image/webp",
-      },
-    ]);
+    await upload(webp, logoPath, "image/webp");
   }
   return logoPath;
 };

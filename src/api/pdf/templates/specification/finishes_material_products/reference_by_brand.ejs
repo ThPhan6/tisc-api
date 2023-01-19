@@ -24,7 +24,7 @@
             <% if (item.location.city_name) { %>
               <%= item.location.address %>,
             <% } else { %>
-              Empty Address
+              N/A
             <% } %>
           </span>
         </td>
@@ -33,7 +33,7 @@
             <% if (item.distributor.city_name) { %>
               <%= item.distributor.address %>,
             <% } else { %>
-              Empty Address
+              N/A
             <% } %>
           </span>
         </td>
@@ -67,13 +67,13 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.location.contact.first_name === "N/A" &&  item.location.contact.last_name === "N/A" ? "N/A":item.location.contact.first_name + " "+item.location.contact.last_name  %></span>
+          <span class="primary-roboto-light-8-18"><%= item.location.contact.first_name === "N/A" && item.location.contact.last_name === "N/A" ? "N/A":item.location.contact.first_name + " "+item.location.contact.last_name  %></span>
         </td>
         <td colspan="2">
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.distributor.contact.first_name %> <%= item.distributor.contact.last_name %></span>
+          <span class="primary-roboto-light-8-18"><%= item.distributor.contact.first_name === "N/A" && item.distributor.contact.last_name === "N/A" ? "N/A":item.distributor.contact.first_name + " "+item.distributor.contact.last_name  %></span>
         </td>
       </tr>
       <tr>
@@ -88,7 +88,7 @@
             <span class="uppercase normal-garamond-light-8-12">work email</span>
           </div>
           <span class="primary-roboto-light-8-18">
-            <%= item.distributor.contact.email %>
+            <%= item.distributor.contact.email || "N/A" %>
           </span>
         </td>
       </tr>

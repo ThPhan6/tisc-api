@@ -34,7 +34,8 @@
               <span class="primary-roboto-bold-8-18" style="opacity:0">XXXX</span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-25">contact</span>
-                <span class="primary-roboto-light-8-18"><%= groupData.distributor.contact.first_name %> <%= groupData.distributor.contact.last_name %></span>
+                <span class="primary-roboto-light-8-18"><%= groupData.distributor.contact.first_name === "N/A" && groupData.distributor.contact.last_name === "N/A" ? "N/A": groupData.distributor.contact.first_name + " " + groupData.distributor.contact.last_name  %></span>
+
               </span><br/>
               <span>
                 <span class="normal-garamond-light-8-18 uppercase mr-13">work email</span>

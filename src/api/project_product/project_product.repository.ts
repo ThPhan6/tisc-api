@@ -665,7 +665,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 )
             )
 
-            LET distributor = FIRST(
+            LET distributor = project_products.distributor_location_id ?  FIRST(
                 FOR custom_resource IN custom_resources
                     FILTER custom_resource.id == project_products.distributor_location_id
                     FILTER custom_resource.deleted_at == null
@@ -687,7 +687,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                             }
                         }
                     )
-            )
+            ) : FIRST(
+              RETURN  {
+                name: 'N/A',
+                address: 'N/A',
+                country_id: 'N/A',
+                state_name: 'N/A',
+                postal_code: 'N/A',
+                contact: {
+                    first_name: 'N/A',
+                    last_name: '',
+                    position: 'N/A',
+                    work_email: 'N/A',
+                    work_phone: 'N/A',
+                    work_mobile: 'N/A',
+                }
+            }
+          )
 
 
             FOR collection IN collections
@@ -795,7 +811,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 )
             )
 
-            LET distributor = FIRST(
+            LET distributor = project_products.distributor_location_id? FIRST(
                 FOR distributor IN distributors
                     FILTER distributor.deleted_at == null
                     FILTER distributor.id == project_products.distributor_location_id
@@ -816,7 +832,23 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                         }
                     }
                 )
-            )
+            ): FIRST(
+              RETURN  {
+                name: 'N/A',
+                address: 'N/A',
+                country_id: 'N/A',
+                state_name: 'N/A',
+                postal_code: 'N/A',
+                contact: {
+                    first_name: 'N/A',
+                    last_name: '',
+                    position: 'N/A',
+                    work_email: 'N/A',
+                    work_phone: 'N/A',
+                    work_mobile: 'N/A',
+                }
+            }
+          )
 
             LET categories = (
                 FOR mainCategory IN categories
