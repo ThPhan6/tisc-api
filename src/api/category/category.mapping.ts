@@ -1,10 +1,13 @@
 import { MESSAGES } from "@/constants";
 import {
+  getLodashOrder,
   isDuplicatedString,
   sortObjectArray,
   toSingleSpace,
+  toSingleSpaceAndToLowerCase,
 } from "@/helper/common.helper";
 import { ICategoryAttributes } from "@/types/category.type";
+import { orderBy, sortBy } from "lodash";
 import { ICategoryRequest } from "./category.type";
 const uuid = require("uuid").v4;
 
@@ -58,75 +61,46 @@ export const checkCategoryDuplicateByName = (
   }
 };
 
-export const mappingSubCategories = (mainCategory: ICategoryRequest) => {
-  return mainCategory.subs.map((item) => {
-    const categories = item.subs.map((element) => {
-      return {
-        id: uuid(),
-        name: element.name,
-      };
-    });
-    return {
-      id: uuid(),
-      name: item.name,
-      subs: categories,
-    };
-  });
-};
-
 export const mappingSortCategory = (
   categories: ICategoryAttributes[],
   subCategoryOrder: "ASC" | "DESC",
   categoryOrder: "ASC" | "DESC"
 ) => {
   return categories.map((item: any) => {
-    const sortedSubCategories = sortObjectArray(
+    const sortedSubCategories = orderBy(
       item.subs,
       "name",
-      subCategoryOrder
+      getLodashOrder(subCategoryOrder)
     );
-    const returnedSubCategories = sortedSubCategories.map((sub) => {
-      return {
-        ...sub,
-        count: sub.subs.length,
-        subs: sortObjectArray(sub.subs, "name", categoryOrder),
-      };
-    });
+
+    const mappedCategories = sortedSubCategories.map((mainCate) => ({
+      ...mainCate,
+      count: mainCate.subs.length,
+      subs: sortObjectArray(mainCate.subs, "name", categoryOrder),
+    }));
     return {
       ...item,
       count: item.subs.length,
-      subs: returnedSubCategories,
+      subs: mappedCategories,
     };
   });
 };
 
-export const mappingCategoriesUpdate = (categoriesGroup: ICategoryRequest) => {
-  return categoriesGroup.subs.map((subCategory) => {
-    const subCategories = subCategory.subs.map((category) => {
-      if (category.id) {
-        return {
-          ...category,
-          name: category.name,
-        };
-      }
-      return {
+export const mappingCategories = (categories: ICategoryRequest) => {
+  return sortBy(
+    categories.subs.map((mainCate) => {
+      const subCategories = mainCate.subs.map((category) => ({
         ...category,
-        id: uuid(),
-        name: category.name,
-      };
-    });
-    if (subCategory.id) {
+        id: category.id || uuid(),
+        name: toSingleSpaceAndToLowerCase(category.name),
+      }));
       return {
-        ...subCategory,
-        name: subCategory.name,
+        ...mainCate,
+        id: mainCate.id || uuid(),
+        name: toSingleSpaceAndToLowerCase(mainCate.name),
         subs: subCategories,
       };
-    }
-    return {
-      ...subCategory,
-      id: uuid(),
-      name: subCategory.name,
-      subs: subCategories,
-    };
-  });
+    }),
+    "name"
+  );
 };
