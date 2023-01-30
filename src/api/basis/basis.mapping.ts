@@ -224,7 +224,11 @@ export const mappingBasisOptionUpdate = async (
             } else {
               basisOptionGroup.subs.map((sub: any) => {
                 sub.subs.map(async (element: any) => {
-                  if (element.id === value.id && element.image) {
+                  if (
+                    element.id === value.id &&
+                    element.image &&
+                    element.image !== "/default/option_default.webp"
+                  ) {
                     await deleteFile(element.image.slice(1));
                   }
                 });
@@ -232,20 +236,26 @@ export const mappingBasisOptionUpdate = async (
 
               const fileType = await getFileTypeFromBase64(value.image);
               if (
-                !fileType ||
-                !VALID_IMAGE_TYPES.find(
+                fileType &&
+                VALID_IMAGE_TYPES.find(
                   (validType) => validType === fileType.mime
                 )
               ) {
-                isValidImage = false;
+                const fileName = randomName(8);
+                const validImageItem = await toValidImageItem(
+                  value.image,
+                  fileName
+                );
+                validUploadImages.push(validImageItem);
+                imagePath = `/${validImageItem.path}`;
+              } else {
+                const isExistedImage = await isExists(value.image);
+
+                if (!isExistedImage) {
+                  isValidImage = false;
+                }
+                imagePath = value.image;
               }
-              const fileName = randomName(8);
-              const validImageItem = await toValidImageItem(
-                value.image,
-                fileName
-              );
-              validUploadImages.push(validImageItem);
-              imagePath = `/${validImageItem.path}`;
             }
             return foundValue
               ? {
