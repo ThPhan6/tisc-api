@@ -25,6 +25,12 @@ export const getProductSharedUrl = (
     return `${ENVIROMENT.FE_URL}/tisc/products/configuration/${product.id}`;
   }
   if (roleType === UserType.Brand) {
+    if (
+      user.relation_id !== receiver.relation_id ||
+      product.brand_id !== receiver.relation_id
+    ) {
+      return sharedUrl;
+    }
     return `${ENVIROMENT.FE_URL}/brand/product/${product.id}`;
   }
   if (roleType === UserType.Designer) {
