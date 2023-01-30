@@ -231,75 +231,47 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-
-    const officialWebsites = await Promise.all(
-      product.brand.official_websites.map(async (officialWebsite) => {
-        const country = await countryStateCityService.getCountryDetail(
-          officialWebsite.country_id
-        );
+    const countryIds = product.brand.official_websites.map((ow) => ow.country_id);
+    const countries = await countryStateCityService.getCountries(countryIds);
+    const officialWebsites = product.brand.official_websites.map((officialWebsite) => {
+        let countryName = "Global";
+        if (countries) {
+          const country = countries.find((c) => c.id === officialWebsite.country_id);
+          if (country) {
+            countryName = country.name;
+          }
+        }
         return {
           ...officialWebsite,
-          country_name:
-            officialWebsite.country_id === "-1" ? "Global" : country.name,
+          country_name: countryName
         };
       })
+    //
+    const attributeGroups = await AttributeRepository.getAll();
+    const flatAttributeGroups = mappingAttributeOrBasis(attributeGroups);
+    //
+    const basisGroups = await BasisRepository.getAll();
+    const flatBasisGroups = mappingAttributeOrBasis(basisGroups)
+    //
+    const newSpecificationGroups = mappingAttributeGroups(
+      product.specification_attribute_groups,
+      flatAttributeGroups,
+      flatBasisGroups,
+      flatBasisGroups
     );
 
-    const allFeatureAttributeGroup = await AttributeRepository.getByType(
-      AttributeType.Feature
-    );
-    const allFeatureAttribute: any[] = mappingAttributeOrBasis(
-      allFeatureAttributeGroup
-    );
-
-    const allGeneralAttributeGroup = await AttributeRepository.getByType(
-      AttributeType.General
-    );
-    const allGeneralAttribute: any[] = mappingAttributeOrBasis(
-      allGeneralAttributeGroup
-    );
-    const allSpecificationAttributeGroup = await AttributeRepository.getByType(
-      AttributeType.Specification
-    );
-    const allSpecificationAttribute: any[] = mappingAttributeOrBasis(
-      allSpecificationAttributeGroup
+    const newGeneralGroups = mappingAttributeGroups(
+      product.general_attribute_groups,
+      flatAttributeGroups,
+      flatBasisGroups,
+      flatBasisGroups
     );
 
-    const allBasisOptionGroup = await BasisRepository.getAllBy({
-      type: BASIS_TYPES.OPTION,
-    });
-
-    const allBasisOptionValue: any[] =
-      mappingAttributeOrBasis(allBasisOptionGroup);
-
-    const allBasisConversionGroup = await BasisRepository.getAllBy({
-      type: BASIS_TYPES.CONVERSION,
-    });
-    const allBasisConversion = mappingAttributeOrBasis(allBasisConversionGroup);
-
-    const newSpecificationGroups = await Promise.all(
-      mappingAttributeGroups(
-        product.specification_attribute_groups,
-        allSpecificationAttribute,
-        allBasisConversion,
-        allBasisOptionValue
-      )
-    );
-
-    const newGeneralGroups = await Promise.all(
-      mappingAttributeGroups(
-        product.general_attribute_groups,
-        allGeneralAttribute,
-        allBasisConversion
-      )
-    );
-
-    const newFeatureGroups = await Promise.all(
-      mappingAttributeGroups(
-        product.feature_attribute_groups,
-        allFeatureAttribute,
-        allBasisConversion
-      )
+    const newFeatureGroups = mappingAttributeGroups(
+      product.feature_attribute_groups,
+      flatAttributeGroups,
+      flatBasisGroups,
+      flatBasisGroups
     );
 
     return successResponse({
