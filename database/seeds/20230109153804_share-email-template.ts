@@ -1,4 +1,4 @@
-import {ConnectionInterface} from '@/Database/Connections/ArangoConnection';
+import { ConnectionInterface } from "@/Database/Connections/ArangoConnection";
 import moment from "moment";
 import { TOPIC_TYPES, TARGETED_FOR_TYPES } from "@/constants";
 import { EmailTemplateID } from "@/types";
@@ -91,15 +91,15 @@ const template = `
         <table class="tisc-table-content">
           <tbody>
             <tr>
-              <td> To: </td>
+              <td style="width: 72px; padding-right: 12px; padding-left: 0"> To: </td>
               <td> <a href="<%= to %>"><%= to %></a> </td>
             </tr>
             <tr>
-              <td> From: </td>
+              <td style="width: 72px; padding-right: 12px; padding-left: 0"> From: </td>
               <td> <a href="<%= from %>"><%= from %></a> </td>
             </tr>
             <tr>
-              <td> Subject: </td>
+              <td style="width: 72px; padding-right: 12px; padding-left: 0"> Subject: </td>
               <td> <%= subject %> </td>
             </tr>
             <tr>
@@ -164,16 +164,14 @@ const template = `
 export const up = (connection: ConnectionInterface) => {
   const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
-  return connection.insert(
-    'email_autoresponders', {
-      id: EmailTemplateID.general.share_via_email,
-      topic: TOPIC_TYPES.MESSAGES,
-      targeted_for: TARGETED_FOR_TYPES.GENERAL,
-      title: "Product Share Email Template",
-      message: template,
-      deleted_at: null,
-      updated_at: currentTime,
-      created_at: currentTime,
-    }
-  );
-}
+  return connection.insert("email_autoresponders", {
+    id: EmailTemplateID.general.share_via_email,
+    topic: TOPIC_TYPES.MESSAGES,
+    targeted_for: TARGETED_FOR_TYPES.GENERAL,
+    title: "Product Share Email Template",
+    message: template,
+    deleted_at: null,
+    updated_at: currentTime,
+    created_at: currentTime,
+  });
+};

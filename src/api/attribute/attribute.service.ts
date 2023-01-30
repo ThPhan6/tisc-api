@@ -11,16 +11,15 @@ import {
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { AttributeType, SortOrder } from "@/types";
-import { v4 as uuid } from "uuid";
 import {
   checkAttributeDuplicateByName,
   getFlatListBasis,
   getListAttributeWithSort,
   getSubBasisAttribute,
   mappingAttributeData,
+  mappingAttributes,
   mappingContentTypeList,
   mappingSubAttribute,
-  mappingSubAttributeUpdate,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
@@ -43,13 +42,9 @@ class AttributeService {
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
     }
-    const subData = payload.subs.map((item) => {
-      return {
-        id: uuid(),
-        name: item.name,
-        basis_id: item.basis_id,
-      };
-    });
+
+    const subData = mappingAttributes(payload);
+
     const createdAttribute = await AttributeRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
@@ -148,7 +143,9 @@ class AttributeService {
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
     }
-    const subData = mappingSubAttributeUpdate(attribute, payload);
+
+    const subData = mappingAttributes(payload);
+
     const updatedAttribute = await AttributeRepository.update(id, {
       ...payload,
       subs: subData,

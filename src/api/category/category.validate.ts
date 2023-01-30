@@ -74,6 +74,7 @@ export default {
       category_order: orderValidation,
     },
     custom: (value) => ({
+      main_category_order: value.main_category_order || "ASC",
       sub_category_order: value.sub_category_order || "ASC",
       category_order: value.category_order || "ASC",
     }),
