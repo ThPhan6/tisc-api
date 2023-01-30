@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import * as FileType from "file-type";
 import { template, round } from "lodash";
 import { INTEREST_RATE } from "@/constants";
+import { SortOrder } from "@/types";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -192,3 +193,6 @@ export const toUSMoney = (amount: number) => {
 
 export const numberToFixed = (n: number, fixed: number = 2) =>
   n.toFixed(fixed).replace(/.00$|[.*0]$/, "");
+
+export const getLodashOrder = (order: SortOrder) =>
+  order.toLowerCase() as "asc" | "desc";
