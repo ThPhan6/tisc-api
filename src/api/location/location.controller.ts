@@ -72,6 +72,7 @@ export default class LocationController {
     const { limit, offset, filter, sort, order, is_sort_main_office_first } =
       req.query;
     const user = req.auth.credentials.user as UserAttributes;
+
     const response = await locationService.getList(
       user,
       limit,
