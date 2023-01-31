@@ -29,7 +29,7 @@ const PdfConfig: CreateOptions & PDFWithChildProcessOptions = {
     env: {
       OPENSSL_CONF: "/dev/null"
     }
-  }
+  },
 
   // paginationOffset: 1,       // Override the initial pagination number
   // "header": {
