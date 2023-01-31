@@ -104,7 +104,7 @@ export default {
       option_order: orderValidation,
     },
     custom: (value) => ({
-      group_order: value.group_order,
+      group_order: value.group_order || "ASC",
       option_order: value.option_order || "ASC",
     }),
   }),
