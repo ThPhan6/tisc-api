@@ -3,6 +3,9 @@ import PdfConfig from './pdf.config';
 import * as memoryStreams from "memory-streams";
 import {head, takeRight} from 'lodash';
 import hummus from 'muhammara';
+import * as Boom from "@hapi/boom";
+import {MESSAGES} from '@/constants';
+import {slackService} from '@/service/slack.service';
 
 class PDFResult {
   private result: PdfGenerator.CreateResult;
@@ -13,8 +16,13 @@ class PDFResult {
 
   public toBuffer(): Promise<Buffer> {
     return new Promise((resolve) => {
-      this.result.toBuffer((_err, buffer) => {
-       resolve(buffer);
+      this.result.toBuffer((err, buffer) => {
+        if (err) {
+          console.log(err);
+          slackService.errorHook('PDF creation', 'POST', err.stack);
+          Boom.badRequest(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
+        }
+        resolve(buffer);
       });
     });
   }
@@ -59,9 +67,10 @@ class PDFService {
       var newBuffer = outStream.toBuffer();
       outStream.end();
       return newBuffer;
-    } catch (_e) {
+    } catch (err) {
+      console.error(err);
       outStream.end();
-      throw new Error('Error during PDF combination');
+      Boom.badRequest(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
     }
   }
 }
