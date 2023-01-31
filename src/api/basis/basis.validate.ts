@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import Joi from "joi";
 import {
   errorMessage,
   getListValidation,
@@ -6,19 +6,32 @@ import {
   requireStringValidation,
 } from "@/validate/common.validate";
 
+const requireUnitValue = (item: any, helpers: any) => {
+  if (
+    item.unit_1 !== '' && item.value_1 === '' ||
+    item.unit_2 !== '' && item.value_2 === ''
+  ) {
+    return helpers.error("any.invalid");
+  }
+  return item;
+}
+
 const basisOptionsValidate = Joi.array()
-  .items({
-    image: Joi.string().when("....is_have_image", {
-      is: true,
-      then: Joi.optional().allow(""),
-      otherwise: Joi.optional().allow(""),
-    }),
-    value_1: Joi.string().allow(""),
-    value_2: Joi.string().allow(""),
-    unit_1: Joi.string().allow(""),
-    unit_2: Joi.string().allow(""),
-    id: Joi.string().allow(""),
-  })
+  .items(
+    Joi.object({
+      image: Joi.string().when("....is_have_image", {
+        is: true,
+        then: Joi.optional().allow(""),
+        otherwise: Joi.optional().allow(""),
+      }),
+      value_1: Joi.string().allow(""),
+      value_2: Joi.string().allow(""),
+      unit_1: Joi.string().allow(""),
+      unit_2: Joi.string().allow(""),
+      id: Joi.string().allow(""),
+    })
+    .custom(requireUnitValue)
+  )
   .required()
   .error(errorMessage("Basis option value is required"))
   .custom((value) => {
@@ -29,6 +42,22 @@ const basisOptionsValidate = Joi.array()
       };
     });
   });
+
+const basisPresetValidation = Joi.array()
+  .items(
+      Joi.object({
+      value_1: Joi.string().allow(""),
+      value_2: Joi.string().allow(""),
+      unit_1: Joi.string().allow(""),
+      unit_2: Joi.string().allow(""),
+    })
+    .custom(requireUnitValue)
+  )
+  .required()
+  .error(errorMessage("Basis preset value is required"));
+
+
+
 export default {
   createBasisConversion: {
     payload: {
@@ -113,15 +142,7 @@ export default {
       name: requireStringValidation("Basis preset group name"),
       subs: Joi.array().items({
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: Joi.array()
-          .items({
-            value_1: Joi.string().allow(""),
-            value_2: Joi.string().allow(""),
-            unit_1: Joi.string().allow(""),
-            unit_2: Joi.string().allow(""),
-          })
-          .required()
-          .error(errorMessage("Basis preset value is required")),
+        subs: basisPresetValidation
       }),
     },
   },
@@ -134,16 +155,7 @@ export default {
       subs: Joi.array().items({
         id: Joi.string(),
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: Joi.array()
-          .items({
-            id: Joi.string(),
-            value_1: Joi.string().allow(""),
-            value_2: Joi.string().allow(""),
-            unit_1: Joi.string().allow(""),
-            unit_2: Joi.string().allow(""),
-          })
-          .required()
-          .error(errorMessage("Basis preset value is required")),
+        subs: basisPresetValidation
       }),
     },
   },
