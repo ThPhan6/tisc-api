@@ -21,11 +21,12 @@ export const getProductSharedUrl = (
   }
   //
   const roleType = RoleType[receiver.role_id];
-  if (roleType === UserType.TISC) {
-    return `${ENVIROMENT.FE_URL}/tisc/products/configuration/${product.id}`;
-  }
+  // TISC is public product page
+  // if (roleType === UserType.TISC) {
+  //   return `${ENVIROMENT.FE_URL}/tisc/products/configuration/${product.id}`;
+  // }
   if (roleType === UserType.Brand) {
-    if (
+    if ( // if product is not of user brand or shared to another user brand return public product page
       user.relation_id !== receiver.relation_id ||
       product.brand_id !== receiver.relation_id
     ) {
