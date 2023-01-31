@@ -92,7 +92,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FILTER basicAttr.subs != null
             FOR option IN basicAttr.subs
             FILTER option.id == specAttribute.basis_option_id
-      RETURN CONCAT( option.value_1, ' ', option.unit_1,
+      RETURN CONCAT(option.value_1, ' ', option.unit_1,
         ' - ', option.value_2, ' ', option.unit_2)
     )
     LET productCode = (
@@ -730,7 +730,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   FILTER basicAttr.id == attr.basis_id && basicAttr.subs != null
                     FOR option IN basicAttr.subs
                     FILTER option.id == specAttribute.basis_option_id
-              RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
+              RETURN CONCAT(option.value_1, ' ', option.unit_1,
                 ' - ', option.value_2, ' ', option.unit_2)
             )
 
