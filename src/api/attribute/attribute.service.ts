@@ -13,6 +13,7 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
+import attributeRepository from "@/repositories/attribute.repository";
 import AttributeRepository from "@/repositories/attribute.repository";
 import basisRepository from "@/repositories/basis.repository";
 import BasisRepository from "@/repositories/basis.repository";
@@ -21,8 +22,6 @@ import {
   checkAttributeDuplicateByName,
   getFlatListBasis,
   getListAttributeWithSort,
-  getSubBasisAttribute,
-  mappingAttributeData,
   mappingAttributes,
   mappingSubAttribute,
 } from "./attribute.mapping";
@@ -195,26 +194,10 @@ class AttributeService {
   }
 
   public async getAllAttribute() {
-    const bases = await BasisRepository.getAll();
-    const subsBasis = getSubBasisAttribute(bases);
-    const returnedGeneralAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(AttributeType.General),
-      subsBasis
-    );
-    const returnedFeatureAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(AttributeType.Feature),
-      subsBasis
-    );
-    const returnedSpecificationAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(AttributeType.Specification),
-      subsBasis
-    );
+    const { general, feature, specification } =
+      await attributeRepository.getAllAttributesGroupByType();
     return successResponse({
-      data: {
-        general: returnedGeneralAttributes,
-        feature: returnedFeatureAttributes,
-        specification: returnedSpecificationAttributes,
-      },
+      data: { general, feature, specification },
     });
   }
 }

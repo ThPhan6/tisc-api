@@ -172,66 +172,6 @@ export const mappingAttributes = (payload: IUpdateAttributeRequest) => {
   return sortBy(attributes, "name");
 };
 
-export const mappingAttributeData = (
-  attributes: AttributeProps[],
-  subsBasis: any
-) => {
-  return attributes.map((attribute) => {
-    const subsAttribute = attribute.subs.map((item: SubAttribute) => {
-      if (item.basis_id === SHORT_TEXT_ID) {
-        return {
-          ...item,
-          basis: {
-            id: SHORT_TEXT_ID,
-            name: "Short Format",
-            type: "Text",
-          },
-        };
-      }
-      if (item.basis_id === LONG_TEXT_ID) {
-        return {
-          ...item,
-          basis: {
-            id: LONG_TEXT_ID,
-            name: "Long Format",
-            type: "Text",
-          },
-        };
-      }
-      const foundBasis = subsBasis.find(
-        (basis: any) => basis.id == item.basis_id
-      );
-
-      if (foundBasis) {
-        return {
-          ...item,
-          basis: {
-            ...foundBasis,
-          },
-        };
-      }
-      return {
-        ...item,
-        basis: {},
-      };
-    });
-    return {
-      ...attribute,
-      subs: subsAttribute,
-    };
-  });
-};
-
-export const getSubBasisAttribute = (basisGroups: IBasisAttributes[]) => {
-  return basisGroups.reduce((pre, cur) => {
-    const temp = cur.subs.map((item: any) => ({
-      ...item,
-      type: getBasisType(cur.type),
-    }));
-    return pre.concat(temp);
-  }, []);
-};
-
 export const getDefaultDimensionAndWeightAttribute =
   (): DimensionAndWeightInterface => {
     return {
