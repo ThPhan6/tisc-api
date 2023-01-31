@@ -1,4 +1,9 @@
-import { BASIS_TYPES, MESSAGES } from "@/constants";
+import {
+  BASIS_TYPES,
+  LONG_TEXT_ID,
+  MESSAGES,
+  SHORT_TEXT_ID,
+} from "@/constants";
 import {
   getSummaryTable,
   toSingleSpaceAndToLowerCase,
@@ -9,6 +14,7 @@ import {
   successResponse,
 } from "@/helper/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
+import basisRepository from "@/repositories/basis.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { AttributeType, SortOrder } from "@/types";
 import {
@@ -18,7 +24,6 @@ import {
   getSubBasisAttribute,
   mappingAttributeData,
   mappingAttributes,
-  mappingContentTypeList,
   mappingSubAttribute,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
@@ -170,23 +175,22 @@ class AttributeService {
   }
 
   public async getListContentType() {
-    const conversionGroups = await BasisRepository.getAllBasisByType(
-      BASIS_TYPES.CONVERSION
-    );
-    const presetGroups = await BasisRepository.getAllBasisByType(
-      BASIS_TYPES.PRESET
-    );
-    const optionGroups = await BasisRepository.getAllBasisByType(
-      BASIS_TYPES.OPTION
-    );
+    const basesGroupByType = await basisRepository.getAllBasesGroupByType();
 
-    const responseData = mappingContentTypeList(
-      conversionGroups,
-      presetGroups,
-      optionGroups
-    );
     return successResponse({
-      data: responseData,
+      data: {
+        texts: [
+          {
+            id: LONG_TEXT_ID,
+            name: "Long Format",
+          },
+          {
+            id: SHORT_TEXT_ID,
+            name: "Short Format",
+          },
+        ],
+        ...basesGroupByType,
+      },
     });
   }
 

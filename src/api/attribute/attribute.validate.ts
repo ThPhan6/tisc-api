@@ -69,5 +69,9 @@ export default {
       attribute_order: orderValidation,
       content_type_order: orderValidation,
     },
+    custom: (value) => ({
+      group_order: value.group_order || "ASC",
+      attribute_order: value.attribute_order || "ASC",
+    }),
   }),
 };
