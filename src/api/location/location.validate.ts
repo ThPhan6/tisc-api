@@ -51,5 +51,9 @@ export default {
     query: {
       is_sort_main_office_first: Joi.boolean(),
     },
+    custom: (value) => ({
+      sort: value.sort || "business_name",
+      order: value.order || "ASC",
+    }),
   }),
 };

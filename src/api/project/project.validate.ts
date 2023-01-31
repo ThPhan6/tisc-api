@@ -57,6 +57,12 @@ export default {
       design_id: requireStringValidation("Design id"),
     },
   },
+  getList: getListValidation({
+    custom: (value) => ({
+      sort: value.sort || "code",
+      order: value.order || "ASC",
+    }),
+  }),
   assignTeamProject: {
     params: {
       id: requireStringValidation("Project id"),
