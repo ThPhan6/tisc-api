@@ -300,13 +300,15 @@ class ProjectService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
     const diff = objectDiff(project, payload);
-    logService.create(ActivityTypes.update_project, {
-      path,
-      user_id: user.id,
-      relation_id: user.relation_id,
-      data: { project_id: project.id },
-      ...diff,
-    });
+    if (!isEqual(diff.pre_data, diff.changed_data)) {
+      logService.create(ActivityTypes.update_project, {
+        path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: { project_id: project.id },
+        ...diff,
+      });
+    }
     return successResponse({
       data: updatedProject,
     });

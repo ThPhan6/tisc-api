@@ -25,6 +25,7 @@ import {
 } from "./project_zone.mapping";
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
 import { ActivityTypes, logService } from "@/service/log.service";
+import { isEqual } from "lodash";
 
 class ProjectZoneService {
   private async validateProjectZone(
@@ -298,16 +299,18 @@ class ProjectZoneService {
 
     const returnedAreas = mappingResponseUnitRoomSize(project, projectZone);
     const diff = objectDiff(projectZone, payload);
-    logService.create(ActivityTypes.update_project_space, {
-      path,
-      user_id: user.id,
-      relation_id: user.relation_id,
-      data: {
-        project_zone_id: projectZone.id,
-        project_id: project.id,
-      },
-      ...diff,
-    });
+    if (!isEqual(diff.pre_data, diff.changed_data)) {
+      logService.create(ActivityTypes.update_project_space, {
+        path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          project_zone_id: projectZone.id,
+          project_id: project.id,
+        },
+        ...diff,
+      });
+    }
     return successResponse({
       data: { ...updatedProjectZone, areas: returnedAreas },
     });

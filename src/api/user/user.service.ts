@@ -27,7 +27,7 @@ import {
   UserStatus,
   UserType,
 } from "@/types";
-import { groupBy, uniq } from "lodash";
+import { groupBy, isEqual, uniq } from "lodash";
 import {
   IAssignTeamRequest,
   IUpdateMeRequest,
@@ -213,15 +213,17 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
     const diff = objectDiff(user, payload);
-    logService.create(ActivityTypes.update_team_profile, {
-      path,
-      user_id: authenticatedUser.id,
-      relation_id: authenticatedUser.relation_id,
-      data: {
-        user_id: userId,
-      },
-      ...diff,
-    });
+    if (!isEqual(diff.pre_data, diff.changed_data)) {
+      logService.create(ActivityTypes.update_team_profile, {
+        path,
+        user_id: authenticatedUser.id,
+        relation_id: authenticatedUser.relation_id,
+        data: {
+          user_id: userId,
+        },
+        ...diff,
+      });
+    }
     return this.get(user.id, authenticatedUser);
   };
 
