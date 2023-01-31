@@ -1,9 +1,5 @@
-import {
-  ALL_REGIONS,
-  COMMON_TYPES,
-  MESSAGES,
-} from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import { ALL_REGIONS, COMMON_TYPES, MESSAGES } from "@/constants";
+import { objectDiff, pagination } from "@/helper/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -14,6 +10,7 @@ import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import { countryStateCityService } from "@/service/country_state_city.service";
+import { ActivityTypes, logService } from "@/service/log.service";
 import {
   ICountryStateCity,
   ProjectStatus,
@@ -22,13 +19,17 @@ import {
   UserAttributes,
   UserType,
 } from "@/types";
-import { isEqual, isNumber, pick, sumBy, uniq } from "lodash";
+import { isEqual, isNumber, pick, sumBy, uniq, difference } from "lodash";
 import { v4 } from "uuid";
 import { mappingProjectGroupByStatus } from "./project.mapping";
 import { CreateProjectRequest } from "./project.type";
 
 class ProjectService {
-  public async create(user: UserAttributes, payload: CreateProjectRequest) {
+  public async create(
+    user: UserAttributes,
+    payload: CreateProjectRequest,
+    path: string
+  ) {
     if (user.type !== UserType.Designer) {
       return errorMessageResponse(MESSAGES.JUST_DESIGNER_CAN_CREATE);
     }
@@ -113,7 +114,12 @@ class ProjectService {
     if (!createdProject) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
-
+    logService.create(ActivityTypes.create_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { project_id: createdProject.id },
+    });
     return successResponse({
       data: createdProject,
     });
@@ -185,7 +191,8 @@ class ProjectService {
   public async update(
     id: string,
     user: UserAttributes,
-    payload: CreateProjectRequest
+    payload: CreateProjectRequest,
+    path: string
   ) {
     const project = await projectRepository.getProjectWithLocation(id);
 
@@ -292,7 +299,14 @@ class ProjectService {
     if (!updatedProject) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
-
+    const diff = objectDiff(project, payload);
+    logService.create(ActivityTypes.update_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { project_id: project.id },
+      ...diff,
+    });
     return successResponse({
       data: updatedProject,
     });
@@ -300,7 +314,9 @@ class ProjectService {
 
   public partialUpdate = async (
     id: string,
-    payload: Partial<CreateProjectRequest>
+    payload: Partial<CreateProjectRequest>,
+    user: UserAttributes,
+    path: string
   ) => {
     const project = await projectRepository.find(id);
     if (!project) {
@@ -316,13 +332,18 @@ class ProjectService {
     if (!updatedProject) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
-
+    logService.create(ActivityTypes.assign_member_to_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { user_id: user.id, project_id: project.id },
+    });
     return successResponse({
       data: updatedProject,
     });
   };
 
-  public async delete(id: string, user: UserAttributes) {
+  public async delete(id: string, user: UserAttributes, path: string) {
     const project = await projectRepository.find(id);
     if (!project) {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
@@ -340,14 +361,16 @@ class ProjectService {
     if (!deletedProject) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
     }
-
+    logService.create(ActivityTypes.delete_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { project_id: project.id },
+    });
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 
-  public async getProjectSummary(
-    currentUser: UserAttributes,
-    userId?: string
-  ) {
+  public async getProjectSummary(currentUser: UserAttributes, userId?: string) {
     const projects = await projectRepository.getProjectSummary(
       currentUser.relation_id,
       userId

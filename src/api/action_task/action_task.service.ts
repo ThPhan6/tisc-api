@@ -6,6 +6,7 @@ import {
 } from "@/helper/response.helper";
 import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
+import { ActivityTypes, logService } from "@/service/log.service";
 import {
   RespondedOrPendingStatus,
   UserAttributes,
@@ -24,7 +25,11 @@ import {
 } from "./action_task.type";
 
 class ActionTaskService {
-  public async create(user: UserAttributes, payload: ActionTaskRequestCreate) {
+  public async create(
+    user: UserAttributes,
+    payload: ActionTaskRequestCreate,
+    path: string
+  ) {
     // insert into common_types
     payload.common_type_ids = await settingService.findOrCreateList(
       payload.common_type_ids,
@@ -71,7 +76,19 @@ class ActionTaskService {
       default:
         break;
     }
-
+    logService.create(ActivityTypes.create_action_task, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: {
+        task_name: await settingService.getManyNames(payload.common_type_ids),
+        model_id: payload.model_id,
+        model_name:
+          payload.model_name === "request"
+            ? "project request"
+            : payload.model_name,
+      },
+    });
     return successResponse({ data: createdActionTask });
   }
 
@@ -101,15 +118,35 @@ class ActionTaskService {
     });
   }
 
-  public async update(id: string, payload: ActionTaskRequestUpdateStatus) {
+  public async update(
+    id: string,
+    payload: ActionTaskRequestUpdateStatus,
+    user: UserAttributes,
+    path: string
+  ) {
     const updatedStatus = await actionTaskRepository.findAndUpdate(id, {
       status: payload.status,
     });
-
     if (!updatedStatus) {
       return errorMessageResponse(MESSAGES.ACTION_TASK.NOT_FOUND, 404);
     }
-
+    logService.create(ActivityTypes.update_action_task, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: {
+        model_id: id,
+        model_name:
+          updatedStatus[0].model_name === "general_inquiries"
+            ? "inquiry"
+            : updatedStatus[0].model_name === "project_requests"
+            ? "request"
+            : "notification",
+        task_name: await settingService.getManyNames([
+          updatedStatus[0].common_type_id,
+        ]),
+      },
+    });
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 }

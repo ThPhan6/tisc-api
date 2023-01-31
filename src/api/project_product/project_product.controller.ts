@@ -15,7 +15,8 @@ export default class ProjectProductController {
     const currentUser = req.auth.credentials.user as UserAttributes;
     const upsertResponse = await projectProductService.assignProductToProduct(
       req.payload,
-      currentUser
+      currentUser,
+      req.path
     );
 
     return toolkit
@@ -71,7 +72,8 @@ export default class ProjectProductController {
     const response = await projectProductService.updateConsiderProduct(
       id,
       payload,
-      user
+      user,
+      req.path
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -90,6 +92,7 @@ export default class ProjectProductController {
       id,
       others,
       user,
+      req.path,
       finish_schedules,
       true
     );
@@ -109,7 +112,8 @@ export default class ProjectProductController {
     const response = await projectProductService.updateConsiderProduct(
       id,
       req.payload,
-      user
+      user,
+      req.path
     );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -123,7 +127,8 @@ export default class ProjectProductController {
     const user = req.auth.credentials.user as UserAttributes;
     const response = await projectProductService.deleteConsiderProduct(
       id,
-      user
+      user,
+      req.path
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

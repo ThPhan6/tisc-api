@@ -1,5 +1,6 @@
 import { logRepository } from "@/repositories/log.repository";
 import { template } from "lodash";
+import moment from "moment";
 export enum ActivityTypes {
   assign_product_to_project,
   create_inquiry_request,
@@ -15,13 +16,8 @@ export enum ActivityTypes {
   specify_product_to_project,
   update_status_product_specified,
   remove_product_specified,
-  respecified_product,
-  create_action_task_general_inquiry,
-  update_action_task_general_inquiry,
-  create_action_task_project_request,
-  update_action_task_project_request,
-  create_action_task_notification,
-  update_action_task_notification,
+  create_action_task,
+  update_action_task,
   assign_member_to_project_tracking,
   update_priority,
   create_team_profile,
@@ -59,11 +55,11 @@ class LogService {
         break;
       case ActivityTypes.create_project_space:
         message =
-          "Created project space <%= id %> of project <%= project_id %>";
+          "Created project space <%= project_zone_id %> of project <%= project_id %>";
         break;
       case ActivityTypes.update_project_space:
         message =
-          "Updated project space <%= id %> of project <%= project_id %>";
+          "Updated project space <%= project_zone_id %> of project <%= project_id %>";
         break;
       case ActivityTypes.update_status_product_considered:
         message =
@@ -85,34 +81,15 @@ class LogService {
         message =
           "Removed product <%= product_id %> from project <%= project_id %>";
         break;
-      case ActivityTypes.respecified_product:
+      case ActivityTypes.create_action_task:
         message =
-          "Re-Specified product <%= product_id %> in project <%= project_id %>";
+          "Created new task <%= task_name %> of <%= model_name %> <%= model_id %>";
         break;
-      case ActivityTypes.create_action_task_general_inquiry:
+      case ActivityTypes.update_action_task:
         message =
-          "Created new task <%= task_name %> of inquiry <%= inquiry_id %>";
+          "Updated status of task <%= task_name %> of <%= model_name %> <%= model_id %>";
         break;
-      case ActivityTypes.update_action_task_general_inquiry:
-        message =
-          "Updated status of task <%= task_name %> of inquiry <%= inquiry_id %>";
-        break;
-      case ActivityTypes.create_action_task_project_request:
-        message =
-          "Created new task <%= task_name %> of project request <%= project_request_id %>";
-        break;
-      case ActivityTypes.update_action_task_project_request:
-        message =
-          "Updated status of task <%= task_name %> of project request <%= project_request_id %>";
-        break;
-      case ActivityTypes.create_action_task_notification:
-        message =
-          "Created new task <%= task_name %> of notification <%= notification_id %>";
-        break;
-      case ActivityTypes.update_action_task_notification:
-        message =
-          "Updated status of task <%= task_name %> of notification <%= notification_id %>";
-        break;
+
       case ActivityTypes.assign_member_to_project_tracking:
         message =
           "Assigned user <%= user_id %> to project_tracking <%= project_tracking_id %>";
@@ -132,7 +109,7 @@ class LogService {
         break;
       case ActivityTypes.enabled_permission:
         message =
-          "Enabled permission <%= permission_id %> of role <%= role_name %>";
+          "<%= action %> permission <%= permission_id %> of role <%= role_name %>";
         break;
 
       default:
@@ -144,28 +121,27 @@ class LogService {
   public create = async (
     type: ActivityTypes,
     options: {
-      requested_time?: string;
       path?: string;
       user_id?: string;
       relation_id?: string;
-      pre_data?: any;
       data?: any;
+      pre_data?: any;
+      changed_data?: any;
     }
   ) => {
     await logRepository.create({
       extra: {
         is_activity: true,
-        requested_time: options.requested_time,
+        requested_time: moment().format("YYYY-MM-DD HH:mm:ss"),
         path: options.path,
         user_id: options.user_id,
         relation_id: options.relation_id,
-        pre_data: options.pre_data,
-        data: options.data,
+        data: {
+          pre_data: options.pre_data,
+          changed_data: options.changed_data,
+        },
       },
-      message: this.toMessage(type, {
-        pre_data: options.pre_data,
-        data: options.data,
-      }),
+      message: this.toMessage(type, options.data),
     });
   };
 }

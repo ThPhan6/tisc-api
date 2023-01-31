@@ -33,8 +33,9 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import { getKeyByValue, randomName } from "@/helper/common.helper";
+import { getKeyByValue, objectDiff, randomName } from "@/helper/common.helper";
 import { uploadLogo } from "@/service/image.service";
+import { ActivityTypes, logService } from "@/service/log.service";
 
 export default class UserService {
   private mailService: MailService;
@@ -44,7 +45,8 @@ export default class UserService {
 
   public create = async (
     authenticatedUser: UserAttributes,
-    payload: IUserRequest
+    payload: IUserRequest,
+    path: string
   ) => {
     const user = await userRepository.findBy({ email: payload.email });
     if (user) {
@@ -92,7 +94,14 @@ export default class UserService {
     if (!createdUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-
+    logService.create(ActivityTypes.create_team_profile, {
+      path,
+      user_id: authenticatedUser.id,
+      relation_id: authenticatedUser.relation_id,
+      data: {
+        user_id: createdUser.id,
+      },
+    });
     return this.get(createdUser.id, authenticatedUser);
   };
 
@@ -169,7 +178,8 @@ export default class UserService {
   public update = async (
     userId: string,
     payload: IUserRequest,
-    authenticatedUser: UserAttributes
+    authenticatedUser: UserAttributes,
+    path: string
   ) => {
     const user = await userRepository.find(userId);
     if (!user) {
@@ -202,7 +212,16 @@ export default class UserService {
     if (!updatedUser) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
-
+    const diff = objectDiff(user, payload);
+    logService.create(ActivityTypes.update_team_profile, {
+      path,
+      user_id: authenticatedUser.id,
+      relation_id: authenticatedUser.relation_id,
+      data: {
+        user_id: userId,
+      },
+      ...diff,
+    });
     return this.get(user.id, authenticatedUser);
   };
 
@@ -220,7 +239,11 @@ export default class UserService {
     return this.get(user.id, user);
   };
 
-  public delete = async (userId: string, authenticatedUser: UserAttributes) => {
+  public delete = async (
+    userId: string,
+    authenticatedUser: UserAttributes,
+    path: string
+  ) => {
     if (userId === authenticatedUser.id) {
       return errorMessageResponse(MESSAGES.DELETE_CURRENT_USER);
     }
@@ -238,6 +261,14 @@ export default class UserService {
     }
 
     await userRepository.delete(user.id);
+    logService.create(ActivityTypes.delete_team_profile, {
+      path,
+      user_id: authenticatedUser.id,
+      relation_id: authenticatedUser.relation_id,
+      data: {
+        user_id: userId,
+      },
+    });
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 

@@ -32,13 +32,14 @@ import {
 } from "./project_product.type";
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { validateBrandProductSpecification } from "./project_product.mapping";
+import { ActivityTypes, logService } from "@/service/log.service";
 
 class ProjectProductService {
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
-    user: UserAttributes
+    user: UserAttributes,
+    path: string
   ) => {
-
     if (!payload.entire_allocation && !payload.allocation.length) {
       return errorMessageResponse(MESSAGES.PROJECT_ZONE_MISSING, 400);
     }
@@ -97,7 +98,12 @@ class ProjectProductService {
       project_product_id: newProjectProductRecord.id,
       created_by: user.id,
     });
-
+    logService.create(ActivityTypes.assign_product_to_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { product_id: product.id, project_id: project.id },
+    });
     return successResponse({
       data: {
         ...newProjectProductRecord,
@@ -220,8 +226,9 @@ class ProjectProductService {
     projectProductId: string,
     payload: Partial<ProjectProductAttributes>,
     user: UserAttributes,
+    path: string,
     finishSchedulePayload: UpdateFinishChedulePayload[] = [],
-    isSpecifying: boolean = false // specifying
+    isSpecifying: boolean = false // specifying,
   ) => {
     //// validate permission
     const projectProduct = await projectProductRepository.findWithRelation(
@@ -308,6 +315,30 @@ class ProjectProductService {
     }
 
     if (projectProduct.custom_product) {
+      if (payload.consider_status) {
+        logService.create(ActivityTypes.update_status_product_considered, {
+          path,
+          user_id: user.id,
+          relation_id: user.relation_id,
+          data: {
+            product_id: projectProductId,
+            status_text: ProductConsiderStatus[payload.consider_status],
+            project_id: considerProduct[0].project_id,
+          },
+        });
+      }
+      if (payload.specified_status) {
+        logService.create(ActivityTypes.update_status_product_specified, {
+          path,
+          user_id: user.id,
+          relation_id: user.relation_id,
+          data: {
+            product_id: projectProductId,
+            status_text: ProductSpecifyStatus[payload.specified_status],
+            project_id: considerProduct[0].project_id,
+          },
+        });
+      }
       return successResponse({ data: considerProduct[0] });
     }
 
@@ -343,6 +374,15 @@ class ProjectProductService {
       type: notiType,
       created_by: user.id,
     });
+    logService.create(ActivityTypes.specify_product_to_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: {
+        product_id: projectProductId,
+        project_id: considerProduct[0].project_id,
+      },
+    });
     return successResponse({
       data: {
         ...considerProduct[0],
@@ -354,7 +394,8 @@ class ProjectProductService {
 
   public deleteConsiderProduct = async (
     projectProductId: string,
-    user: UserAttributes
+    user: UserAttributes,
+    path: string
   ) => {
     const projectProduct = await projectProductRepository.find(
       projectProductId
@@ -368,6 +409,28 @@ class ProjectProductService {
       const result = await projectProductRepository.delete(projectProduct.id);
       if (!result) {
         return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+      }
+      if (projectProduct.specified_status) {
+        logService.create(ActivityTypes.remove_product_specified, {
+          path,
+          user_id: user.id,
+          relation_id: user.relation_id,
+          data: {
+            product_id: projectProductId,
+            project_id: projectProduct.project_id,
+          },
+        });
+      }
+      if (!projectProduct.specified_status && projectProduct.consider_status) {
+        logService.create(ActivityTypes.remove_product_considered, {
+          path,
+          user_id: user.id,
+          relation_id: user.relation_id,
+          data: {
+            product_id: projectProductId,
+            project_id: projectProduct.project_id,
+          },
+        });
       }
       return successResponse({
         data: projectProduct,
@@ -399,7 +462,6 @@ class ProjectProductService {
     if (!result) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-
     return successResponse({
       data: {
         ...projectProduct,
@@ -426,22 +488,31 @@ class ProjectProductService {
 
     const total = sumBy(specifiedProducts, "count");
 
-    const cancelledCount = specifiedProducts.reduce((total: number, brand: any) => {
-        const cancelled = countBy(
-          brand.products,
-          (p) => p.specifiedDetail.specified_status === ProductSpecifyStatus.Cancelled
-        ).true || 0;
+    const cancelledCount = specifiedProducts.reduce(
+      (total: number, brand: any) => {
+        const cancelled =
+          countBy(
+            brand.products,
+            (p) =>
+              p.specifiedDetail.specified_status ===
+              ProductSpecifyStatus.Cancelled
+          ).true || 0;
         return total + cancelled;
-    }, 0);
+      },
+      0
+    );
 
     const availabilityRemarkCount = specifiedProducts.reduce(
       (total: number, brand: any) => {
-        const notAvailableCount = countBy(
-          brand.products,
-          (p) => p.availability !== Availability.Available
-        ).true || 0;
+        const notAvailableCount =
+          countBy(
+            brand.products,
+            (p) => p.availability !== Availability.Available
+          ).true || 0;
         return total + notAvailableCount;
-      }, 0);
+      },
+      0
+    );
 
     return successResponse({
       data: {
@@ -511,9 +582,12 @@ class ProjectProductService {
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
     const availabilityRemarkCount = specifiedProducts.reduce(
       (total: number, prod: any) => {
-        const markedAvailabilityCount = prod.product?.availability !== Availability.Available ? 1 : 0;
+        const markedAvailabilityCount =
+          prod.product?.availability !== Availability.Available ? 1 : 0;
         return total + markedAvailabilityCount;
-      }, 0 );
+      },
+      0
+    );
 
     return successResponse({
       data: {
