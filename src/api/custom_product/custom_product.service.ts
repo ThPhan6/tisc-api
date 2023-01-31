@@ -149,7 +149,7 @@ class CustomProductService {
     if (!isValidImage) {
       return errorMessageResponse("An option omage is invalid");
     }
-    uploadImages(validUploadImages, ImageSize.small);
+    await uploadImages(validUploadImages, ImageSize.small);
 
     const createdProduct = await customProductRepository.create({
       ...payload,
@@ -238,7 +238,7 @@ class CustomProductService {
       if (!isValidImage) {
         return errorMessageResponse("An option image is invalid");
       }
-      uploadImages(validUploadImages, ImageSize.small);
+      await uploadImages(validUploadImages, ImageSize.small);
     }
 
     const result = await customProductRepository.update(id, {

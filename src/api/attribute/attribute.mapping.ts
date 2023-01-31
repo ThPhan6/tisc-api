@@ -7,18 +7,24 @@ import {
   DimensionAndWeightConversion,
   DimensionAndWeightCategory,
 } from "@/constants";
-import { isDuplicatedString, numberToFixed } from "@/helper/common.helper";
+import {
+  getLodashOrder,
+  isDuplicatedString,
+  numberToFixed,
+  toSingleSpaceAndToLowerCase,
+} from "@/helper/common.helper";
 import {
   AttributeProps,
   IBasisAttributes,
   IContentType,
   SortOrder,
   SubAttribute,
+  DimensionAndWeight,
+  DimensionAndWeightInterface,
 } from "@/types";
-import { orderBy, isFinite, isString } from "lodash";
+import { orderBy, isFinite, isString, sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-import { DimensionAndWeight, DimensionAndWeightInterface } from "@/types";
 
 export const getBasisType = (type: number) => {
   switch (type) {
@@ -148,35 +154,22 @@ export const getListAttributeWithSort = (
       subs: orderBy(
         newSubs,
         content_type_order ? "content_type" : "name", // Default sort by name
-        (content_type_order
-          ? content_type_order.toLowerCase()
-          : attribute_order?.toLowerCase()) as "asc" | "desc"
+        getLodashOrder(content_type_order || attribute_order || "ASC") // Default sort by ASC
       ),
     };
     return rest;
   });
 };
 
-export const mappingSubAttributeUpdate = (
-  attribute: AttributeProps,
-  payload: IUpdateAttributeRequest
-) => {
-  return payload.subs.map((item) => {
-    let found = false;
-    if (item.id) {
-      const foundItem = attribute.subs.find((sub) => sub.id === item.id);
-      if (foundItem) {
-        found = true;
-      }
-    }
-    if (found) {
-      return item;
-    }
+export const mappingAttributes = (payload: IUpdateAttributeRequest) => {
+  const attributes = payload.subs.map((item) => {
     return {
       ...item,
-      id: uuid(),
+      id: item.id || uuid(),
+      name: toSingleSpaceAndToLowerCase(item.name),
     };
   });
+  return sortBy(attributes, "name");
 };
 
 export const mappingContentTypeList = (

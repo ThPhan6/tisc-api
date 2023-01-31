@@ -12,6 +12,7 @@ import {
 import BasisRepository from "@/repositories/basis.repository";
 import { uploadImages } from "@/service/image.service";
 import { SortOrder } from "@/types";
+import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
   addCountBasis,
@@ -51,8 +52,8 @@ class BasisService {
     const conversions = payload.subs.map((item) => {
       return {
         id: uuid(),
-        name_1: item.name_1,
-        name_2: item.name_2,
+        name_1: toSingleSpaceAndToLowerCase(item.name_1),
+        name_2: toSingleSpaceAndToLowerCase(item.name_2),
         formula_1: item.formula_1,
         formula_2: item.formula_2,
         unit_1: item.unit_1,
@@ -63,7 +64,7 @@ class BasisService {
     const createdBasisConversion = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.CONVERSION,
-      subs: conversions,
+      subs: sortBy(conversions, "name_1"),
     });
     if (!createdBasisConversion) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
@@ -162,28 +163,17 @@ class BasisService {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_CONVERSION_DUPLICATED);
     }
 
-    const conversions = payload.subs.map((item) => {
-      let found = false;
-      if (item.id) {
-        const foundItem = basisConversionGroup.subs.find(
-          (sub: any) => sub.id === item.id
-        );
-        if (foundItem) {
-          found = true;
-        }
-      }
-      if (found) {
-        return item;
-      }
-      return {
-        ...item,
-        id: uuid(),
-      };
-    });
+    const conversions = payload.subs.map((item) => ({
+      ...item,
+      id: item.id || uuid(),
+      name_1: toSingleSpaceAndToLowerCase(item.name_1),
+      name_2: toSingleSpaceAndToLowerCase(item.name_2),
+    }));
+
     const updatedBasisConversion = await BasisRepository.update(id, {
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.CONVERSION,
-      subs: conversions,
+      subs: sortBy(conversions, "name_1"),
     });
 
     if (!updatedBasisConversion) {
@@ -218,7 +208,7 @@ class BasisService {
     if (
       isDuplicatedString(
         payload.subs.map((item) => {
-          return item.name;
+          return toSingleSpaceAndToLowerCase(item.name);
         })
       )
     ) {
@@ -228,7 +218,7 @@ class BasisService {
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
-    uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
+    await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
 
     const createdBasisOption = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
@@ -339,7 +329,7 @@ class BasisService {
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE.IMAGE_INVALID);
     }
-    uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
+    await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
 
     const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
