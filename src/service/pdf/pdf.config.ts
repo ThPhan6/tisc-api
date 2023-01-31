@@ -1,5 +1,12 @@
 import {CreateOptions} from 'html-pdf';
-const PdfConfig: CreateOptions = {
+interface PDFWithChildProcessOptions {
+  childProcessOptions?: {
+    env?: {
+      OPENSSL_CONF: string
+    }
+  }
+}
+const PdfConfig: CreateOptions & PDFWithChildProcessOptions = {
 
   // Export options
   // "directory": "/tmp",       // The directory the file gets written into if not using .toFile(filename, callback). default: '/tmp'
@@ -18,6 +25,11 @@ const PdfConfig: CreateOptions = {
     "bottom": "0in",
     "left": "0in"
   },
+  childProcessOptions: {
+    env: {
+      OPENSSL_CONF: "/dev/null"
+    }
+  }
 
   // paginationOffset: 1,       // Override the initial pagination number
   // "header": {
