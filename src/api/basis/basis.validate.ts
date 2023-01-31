@@ -8,8 +8,11 @@ import {
 
 const requireUnitValue = (item: any, helpers: any) => {
   if (
-    item.unit_1 !== '' && item.value_1 === '' ||
-    item.unit_2 !== '' && item.value_2 === ''
+    (item.unit_1 !== '' && item.value_1 === '') ||
+    (item.unit_2 !== '' && item.value_2 === '') ||
+    (
+      item.unit_1 === '' && item.value_1 === '' &&
+      item.unit_2 === '' && item.value_2 === '')
   ) {
     return helpers.error("any.invalid");
   }
