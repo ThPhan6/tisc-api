@@ -162,8 +162,7 @@ export const uploadLogo = async (
       Buffer.from(newPath, "base64"),
       size,
       ImageQuality.high,
-      true,
-      ImageFit.contain
+      true
     );
     await uploadImage([
       {
