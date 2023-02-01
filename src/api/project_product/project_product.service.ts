@@ -375,7 +375,7 @@ class ProjectProductService {
       created_by: user.id,
     });
 
-    if (payload) {
+    if (payload && !payload.consider_status && !payload.specified_status) {
       const diff = objectDiff(projectProduct, payload);
       logService.create(ActivityTypes.update_product_specified, {
         path,
@@ -387,16 +387,19 @@ class ProjectProductService {
         },
         ...diff,
       });
-    } else {
-      logService.create(ActivityTypes.specify_product_to_project, {
-        path,
-        user_id: user.id,
-        relation_id: user.relation_id,
-        data: {
-          product_id: projectProductId,
-          project_id: considerProduct[0].project_id,
-        },
-      });
+    }
+    if (!payload) {
+      {
+        logService.create(ActivityTypes.specify_product_to_project, {
+          path,
+          user_id: user.id,
+          relation_id: user.relation_id,
+          data: {
+            product_id: projectProductId,
+            project_id: considerProduct[0].project_id,
+          },
+        });
+      }
     }
     return successResponse({
       data: {
