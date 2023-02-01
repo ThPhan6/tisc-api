@@ -137,9 +137,9 @@ class ActionTaskService {
       data: {
         model_id: id,
         model_name:
-          updatedStatus[0].model_name === "general_inquiries"
+          updatedStatus[0].model_name === ActionTaskModelEnum.inquiry
             ? "inquiry"
-            : updatedStatus[0].model_name === "project_requests"
+            : updatedStatus[0].model_name === ActionTaskModelEnum.request
             ? "request"
             : "notification",
         task_name: await settingService.getManyNames([
