@@ -16,6 +16,7 @@ export enum ActivityTypes {
   specify_product_to_project,
   update_status_product_specified,
   remove_product_specified,
+  update_product_specified,
   create_action_task,
   update_action_task,
   assign_member_to_project_tracking,
@@ -80,6 +81,10 @@ class LogService {
       case ActivityTypes.remove_product_specified:
         message =
           "Removed product <%= product_id %> from project <%= project_id %>";
+        break;
+      case ActivityTypes.update_product_specified:
+        message =
+          "Updated product specified <%= product_id %> from project <%= project_id %>";
         break;
       case ActivityTypes.create_action_task:
         message =

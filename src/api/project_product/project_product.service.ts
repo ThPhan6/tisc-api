@@ -3,7 +3,7 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
-import { fillObject } from "@/helper/common.helper";
+import { fillObject, objectDiff } from "@/helper/common.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
@@ -374,15 +374,30 @@ class ProjectProductService {
       type: notiType,
       created_by: user.id,
     });
-    logService.create(ActivityTypes.specify_product_to_project, {
-      path,
-      user_id: user.id,
-      relation_id: user.relation_id,
-      data: {
-        product_id: projectProductId,
-        project_id: considerProduct[0].project_id,
-      },
-    });
+
+    if (payload) {
+      const diff = objectDiff(projectProduct, payload);
+      logService.create(ActivityTypes.update_product_specified, {
+        path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          product_id: projectProductId,
+          project_id: considerProduct[0].project_id,
+        },
+        ...diff,
+      });
+    } else {
+      logService.create(ActivityTypes.specify_product_to_project, {
+        path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          product_id: projectProductId,
+          project_id: considerProduct[0].project_id,
+        },
+      });
+    }
     return successResponse({
       data: {
         ...considerProduct[0],
