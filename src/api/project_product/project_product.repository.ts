@@ -347,7 +347,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
-          SORT ${brand_order ? "pp.brand.name " + brand_order : ""}
+          ${brand_order ? `SORT pp.brand.name ${brand_order}` : ''}
           RETURN pp
       )
 
