@@ -92,7 +92,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FILTER basicAttr.subs != null
             FOR option IN basicAttr.subs
             FILTER option.id == specAttribute.basis_option_id
-      RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
+      RETURN CONCAT(option.value_1, ' ', option.unit_1,
         ' - ', option.value_2, ' ', option.unit_2)
     )
     LET productCode = (
@@ -115,7 +115,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     )
     RETURN {
       variant: CONCAT_SEPARATOR('; ', options),
-      productCode: CONCAT_SEPARATOR(', ', UNIQUE(productCode)),
+      productCode: CONCAT_SEPARATOR(' - ', UNIQUE(productCode)),
     }
   )`;
   private brandQuery = `pp.custom_product == true ? FIRST(
@@ -159,7 +159,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         )
         RETURN availability
       )
-
       RETURN MERGE(product, {availability: availability})
     ) : FIRST(
       FOR product IN products
@@ -348,11 +347,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
-          SORT ${
-            brand_order
-              ? "pp.brand.name " + brand_order
-              : ""
-          }
+          SORT ${brand_order ? "pp.brand.name " + brand_order : ""}
           RETURN pp
       )
 
@@ -735,7 +730,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   FILTER basicAttr.id == attr.basis_id && basicAttr.subs != null
                     FOR option IN basicAttr.subs
                     FILTER option.id == specAttribute.basis_option_id
-              RETURN CONCAT(attr.name, ': ', option.value_1, ' ', option.unit_1,
+              RETURN CONCAT(option.value_1, ' ', option.unit_1,
                 ' - ', option.value_2, ' ', option.unit_2)
             )
 
