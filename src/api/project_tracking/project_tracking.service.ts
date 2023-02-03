@@ -20,12 +20,14 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
+import { ActivityTypes, logService } from "@/service/log.service";
 
 class ProjectTrackingService {
   public createProjectRequest = async (
     payload: CreateProjectRequestBody,
     userId: string,
-    relationId: string
+    relationId: string,
+    path: string
   ) => {
     payload.request_for_ids = await settingService.findOrCreateList(
       payload.request_for_ids,
@@ -52,7 +54,12 @@ class ProjectTrackingService {
       status: RespondedOrPendingStatus.Pending,
       project_tracking_id: projectTracking.id,
     });
-
+    logService.create(ActivityTypes.create_project_request, {
+      path,
+      user_id: userId,
+      relation_id: relationId,
+      data: { product_id: payload.product_id },
+    });
     return successResponse({
       data: response,
     });

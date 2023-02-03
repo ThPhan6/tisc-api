@@ -2,7 +2,7 @@ import * as chai from "chai";
 
 import chaiHttp = require("chai-http");
 
-import { ENVIROMENT } from "../../src/config";
+import { ENVIRONMENT } from "../../src/config";
 
 interface HttpRequestHeader {
   Authorization?: string;
@@ -149,7 +149,7 @@ export default class ApiService {
     this.chai.should();
   }
   public getInstance = () => {
-    return new HttpRequest(this.chai.request(ENVIROMENT.API_URL));
+    return new HttpRequest(this.chai.request(ENVIRONMENT.API_URL));
   };
 }
 export const apiService = new ApiService();

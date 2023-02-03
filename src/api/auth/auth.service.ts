@@ -185,10 +185,12 @@ class AuthService {
   };
 
   public checkTokenExisted = async (token: string) => {
-    if (token == '') {
+    if (token == "") {
       return successResponse({ data: false });
     }
-    return successResponse({ data: await userRepository.checkTokenExisted(token) });
+    return successResponse({
+      data: await userRepository.checkTokenExisted(token),
+    });
   };
 
   public resendEmail = async (

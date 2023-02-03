@@ -78,7 +78,7 @@ export const sortBasisConversion = (
 };
 const toValidImageItem = async (image: any, fileName: string) => {
   return {
-    buffer: await toWebp(Buffer.from(image, "base64")),
+    image,
     path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
     mime_type: "image/webp",
   };
@@ -88,7 +88,7 @@ export const mappingBasisOptionCreate = async (
 ) => {
   let isValidImage = true;
   const validUploadImages: {
-    buffer: Buffer;
+    image: string;
     path: string;
     mime_type: string;
   }[] = [];
@@ -179,7 +179,7 @@ export const mappingBasisOptionUpdate = async (
 ) => {
   let isValidImage = true;
   const validUploadImages: {
-    buffer: Buffer;
+    image: string;
     path: string;
     mime_type: string;
   }[] = [];
