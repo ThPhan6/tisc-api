@@ -2,6 +2,7 @@ import { MEASUREMENT_UNIT, MESSAGES } from "@/constants";
 import {
   formatNumberDisplay,
   isDuplicatedString,
+  objectDiff,
 } from "@/helper/common.helper";
 import {
   errorMessageResponse,
@@ -23,6 +24,8 @@ import {
   mappingResponseUnitRoomSize,
 } from "./project_zone.mapping";
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
+import { ActivityTypes, logService } from "@/service/log.service";
+import { isEqual } from "lodash";
 
 class ProjectZoneService {
   private async validateProjectZone(
@@ -101,7 +104,8 @@ class ProjectZoneService {
 
   public async create(
     user: UserAttributes,
-    payload: IUpdateProjectZoneRequest
+    payload: IUpdateProjectZoneRequest,
+    path: string
   ) {
     const project = await projectRepository.find(payload.project_id);
     if (!project) {
@@ -125,7 +129,15 @@ class ProjectZoneService {
       project,
       createdProjectZone
     );
-
+    logService.create(ActivityTypes.create_project_space, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: {
+        project_zone_id: createdProjectZone.id,
+        project_id: project.id,
+      },
+    });
     return successResponse({
       data: { ...createdProjectZone, areas: returnedAreas },
     });
@@ -255,7 +267,8 @@ class ProjectZoneService {
   public async update(
     user: UserAttributes,
     projectZoneId: string,
-    payload: IUpdateProjectZoneRequest
+    payload: IUpdateProjectZoneRequest,
+    path: string
   ) {
     const projectZone = await projectZoneRepository.find(projectZoneId);
 
@@ -285,7 +298,19 @@ class ProjectZoneService {
     }
 
     const returnedAreas = mappingResponseUnitRoomSize(project, projectZone);
-
+    const diff = objectDiff(projectZone, payload);
+    if (!isEqual(diff.pre_data, diff.changed_data)) {
+      logService.create(ActivityTypes.update_project_space, {
+        path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          project_zone_id: projectZone.id,
+          project_id: project.id,
+        },
+        ...diff,
+      });
+    }
     return successResponse({
       data: { ...updatedProjectZone, areas: returnedAreas },
     });

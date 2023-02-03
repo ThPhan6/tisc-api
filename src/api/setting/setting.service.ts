@@ -17,6 +17,10 @@ export default class SettingService {
     );
     return successResponse({ data: commonTypes });
   };
+  public getManyNames = async (ids: string[]) => {
+    const documents = await commonTypeRepository.getByListIds(ids);
+    return documents.map((item) => item.name).join(", ");
+  };
 
   public getCountries = async () => {
     const countries = await countryStateCityService.getAllCountry();

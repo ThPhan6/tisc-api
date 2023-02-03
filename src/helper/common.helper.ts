@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { template, round } from "lodash";
+import { template, round, omitBy, isEqual, pick } from "lodash";
 import { INTEREST_RATE } from "@/constants";
 import { SortOrder } from "@/types";
 
@@ -208,5 +208,18 @@ export const convertMsToTime = (milliseconds: number) => {
   if (seconds > 0) arr.push(seconds + "s");
 
   return arr.join(" ");
+};
+
+export const objectDiff = (oldObj: any, newObj: any) => {
+  const changedData = omitBy(newObj, (i, j) => {
+    if (typeof oldObj[j] === "object") return isEqual(oldObj[j], i);
+    return oldObj[j] === i;
+  });
+  const changedDataKeys = Object.keys(changedData);
+  const preData = pick(oldObj, changedDataKeys);
+  return {
+    pre_data: preData,
+    changed_data: changedData,
+  };
 };
 export const getLodashOrder = (order: SortOrder) => order.toLowerCase() as "asc" | "desc";
