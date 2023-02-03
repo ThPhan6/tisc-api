@@ -90,7 +90,7 @@ export default class ProjectRoute implements IRoute {
           path: ROUTES.GET_LIST_PROJECT,
           options: {
             handler: controller.getList(false),
-            validate: getListValidation(),
+            validate: validate.getList,
             description: "Method that get list project",
             tags: ["api", "Project"],
             auth: AUTH_NAMES.PERMISSION,
