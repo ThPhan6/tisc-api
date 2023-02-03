@@ -61,7 +61,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       filter products.deleted_at == null
       ${
         keyword
-          ? ` FILTER LOWER(products.name) like concat('%',@keyword, '%') `
+          ? ` FILTER LOWER(products.name) like LOWER(concat('%',@keyword, '%')) `
           : ""
       }
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
@@ -309,7 +309,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       params.categoryId = categoryId;
     }
     if (keyword) {
-      rawQuery += ` FILTER LOWER(products.name) like concat('%',@keyword, '%') `;
+      rawQuery += ` FILTER LOWER(products.name) like LOWER(concat('%',@keyword, '%')) `;
       params.keyword = keyword.toLowerCase();
     }
     if (sort_name && sort_order) {
