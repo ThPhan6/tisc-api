@@ -331,7 +331,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             brand,
             collection,
             specifiedDetail: MERGE(
-              UNSET(pp, ['_id', '_key', '_rev', 'deleted_at']),
+              UNSET(pp, ['_id', '_rev', 'deleted_at']),
               productSpecification ? productSpecification : {
                 specification: @defaultSpec,
                 brand_location_id: '',
@@ -347,8 +347,10 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
-          ${brand_order ? `SORT pp.brand.name ${brand_order}` : ''}
-          RETURN pp
+          ${brand_order ? `SORT pp.brand.name ${brand_order}` : 'SORT pp.specifiedDetail._key ASC'}
+          RETURN MERGE(pp, {
+            specifiedDetail: UNSET(pp.specifiedDetail, ['_key'])
+          })
       )
 
       LET zoneAssignedProducts = (
@@ -365,9 +367,11 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               SORT ${
                 brand_order
                   ? "pp.brand.name " + brand_order
-                  : "pp.specifiedDetail.updated_at DESC"
+                  : "pp.specifiedDetail._key ASC"
               }
-              RETURN pp
+              RETURN MERGE(pp, {
+                specifiedDetail: UNSET(pp.specifiedDetail, ['_key'])
+              })
             )
 
             SORT room.room_name ${room_order}
@@ -477,7 +481,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
       LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
-
+      SORT pro.product._key ASC
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         {
@@ -543,11 +547,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         brand_order || material_code_order
           ? `SORT ${brand_order ? "brand.name " + brand_order : ""} ${
               material_code_order
-                ? "code.description " + material_code_order
+                ? "material_code " + material_code_order
                 : ""
             }`
-          : ""
+          : "SORT pp._key ASC"
       }
+
       RETURN {
         project_products: UNSET(pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         product: KEEP(product, 'id', 'name', 'images', 'description', 'availability'),
