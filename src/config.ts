@@ -65,6 +65,7 @@ const swaggerOptions = {
     title: "API Documentation",
     version: ENVIRONMENT.API_VERSION,
   },
+  documentationPage: ENVIRONMENT.NODE_ENV !== "production",
   grouping: "tags",
   sortEndpoints: "ordered",
   security: [{ API_KEY: [] }],
