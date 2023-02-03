@@ -172,7 +172,7 @@ export const mappingAttributeGroups = (
   allConversions: IBasisAttributes[],
   allBasisOptions?: IBasisAttributes[]
 ) => {
-  return attribute_groups.map(async (group) => {
+  return attribute_groups.map((group) => {
     const newAttributes = isArray(group.attributes)
       ? group.attributes.reduce((data, attribute) => {
           const foundAttribute = allAttributes.find(
@@ -194,7 +194,7 @@ export const mappingAttributeGroups = (
                 (final, basisOption) => {
                   let foundBasisOption: any = false;
                   allBasisOptions?.forEach((item) => {
-                    const foundedOption = item.subs.find(
+                    const foundedOption = item.subs?.find(
                       (sub: any) => sub.id === basisOption.id
                     );
                     if (foundedOption) {
@@ -235,6 +235,25 @@ export const mappingAttributeGroups = (
             );
             if (conversion) {
               response.conversion = conversion;
+            }
+          }
+          /// display correct preset text
+          if (attribute.type === "Presets" && allBasisOptions) {
+            const basis = allBasisOptions.find((opt) => opt.id === attribute.basis_id);
+            if (basis) {
+              const basisValue = basis.subs.find((subBasis: any) => subBasis.id === attribute.basis_value_id);
+              if (basisValue) {
+                response.text = `${basisValue.value_1}`;
+                if (basisValue.unit_1) {
+                    response.text += ` ${basisValue.unit_1}`;
+                }
+                if (basisValue.value_2) {
+                  response.text += ` - ${basisValue.value_2}`;
+                  if (basisValue.unit_2) {
+                      response.text += ` ${basisValue.unit_2}`;
+                  }
+                }
+              }
             }
           }
           ///

@@ -1,7 +1,7 @@
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
 import { v4 as uuidv4 } from "uuid";
 import { IProjectZoneAttributes, ProjectAttributes, SortOrder } from "@/types";
-import { sortObjectArray } from "@/helper/common.helper";
+import { getLodashOrder, sortObjectArray } from "@/helper/common.helper";
 import { MEASUREMENT_UNIT } from "@/constants";
 import { orderBy } from "lodash";
 
@@ -75,9 +75,7 @@ export const mappingResponseProjectZones = (
         rooms: orderBy(
           rooms,
           roomIdOrder ? "room_id" : "room_name", // Default sort by room name
-          (roomIdOrder
-            ? roomIdOrder.toLowerCase()
-            : roomNameOrder?.toLowerCase()) as "asc" | "desc"
+          getLodashOrder(roomIdOrder || roomNameOrder)
         ),
       };
     });

@@ -27,7 +27,7 @@ export interface IAttributeRequest {
 export interface IUpdateAttributeRequest {
   name: string;
   subs: {
-    id: string;
+    id?: string;
     name: string;
     basis_id: string;
     description: string;

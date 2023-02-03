@@ -51,7 +51,7 @@ export default class UserRoute implements IRoute {
           path: ROUTES.GET_LIST_TEAM_PROFILE,
           options: {
             handler: controller.getList,
-            validate: getListValidation(),
+            validate: validate.getTeamProfileList,
             description: "Method that get list user",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
@@ -253,7 +253,8 @@ export default class UserRoute implements IRoute {
           options: {
             handler: controller.getListByTypeRoleAndRelation,
             validate: validate.getListByTypeRoleAndRelation,
-            description: "Method that get list team profile by type, role and relation",
+            description:
+              "Method that get list team profile by type, role and relation",
             tags: ["api", "Team profile"],
             auth: AUTH_NAMES.PERMISSION,
             response: {

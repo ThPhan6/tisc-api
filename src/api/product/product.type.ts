@@ -49,6 +49,7 @@ export interface IAttributeGroup {
 export interface IProductOptionAttribute {
   id: string;
   basis_id: string;
+  basis_value_id?: string;
   type: "Text" | "Conversions" | "Presets" | "Options";
   text?: string;
   conversion_value_1?: number | string;

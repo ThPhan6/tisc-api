@@ -1,4 +1,9 @@
-import { BASIS_TYPES, MESSAGES } from "@/constants";
+import {
+  BASIS_TYPES,
+  LONG_TEXT_ID,
+  MESSAGES,
+  SHORT_TEXT_ID,
+} from "@/constants";
 import {
   getSummaryTable,
   toSingleSpaceAndToLowerCase,
@@ -8,19 +13,17 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
+import attributeRepository from "@/repositories/attribute.repository";
 import AttributeRepository from "@/repositories/attribute.repository";
+import basisRepository from "@/repositories/basis.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { AttributeType, SortOrder } from "@/types";
-import { v4 as uuid } from "uuid";
 import {
   checkAttributeDuplicateByName,
   getFlatListBasis,
   getListAttributeWithSort,
-  getSubBasisAttribute,
-  mappingAttributeData,
-  mappingContentTypeList,
+  mappingAttributes,
   mappingSubAttribute,
-  mappingSubAttributeUpdate,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
@@ -43,13 +46,9 @@ class AttributeService {
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
     }
-    const subData = payload.subs.map((item) => {
-      return {
-        id: uuid(),
-        name: item.name,
-        basis_id: item.basis_id,
-      };
-    });
+
+    const subData = mappingAttributes(payload);
+
     const createdAttribute = await AttributeRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
@@ -148,7 +147,9 @@ class AttributeService {
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
     }
-    const subData = mappingSubAttributeUpdate(attribute, payload);
+
+    const subData = mappingAttributes(payload);
+
     const updatedAttribute = await AttributeRepository.update(id, {
       ...payload,
       subs: subData,
@@ -173,47 +174,30 @@ class AttributeService {
   }
 
   public async getListContentType() {
-    const conversionGroups = await BasisRepository.getAllBasisByType(
-      BASIS_TYPES.CONVERSION
-    );
-    const presetGroups = await BasisRepository.getAllBasisByType(
-      BASIS_TYPES.PRESET
-    );
-    const optionGroups = await BasisRepository.getAllBasisByType(
-      BASIS_TYPES.OPTION
-    );
+    const basesGroupByType = await basisRepository.getAllBasesGroupByType();
 
-    const responseData = mappingContentTypeList(
-      conversionGroups,
-      presetGroups,
-      optionGroups
-    );
     return successResponse({
-      data: responseData,
+      data: {
+        texts: [
+          {
+            id: LONG_TEXT_ID,
+            name: "Long Format",
+          },
+          {
+            id: SHORT_TEXT_ID,
+            name: "Short Format",
+          },
+        ],
+        ...basesGroupByType,
+      },
     });
   }
 
   public async getAllAttribute() {
-    const bases = await BasisRepository.getAll();
-    const subsBasis = getSubBasisAttribute(bases);
-    const returnedGeneralAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(AttributeType.General),
-      subsBasis
-    );
-    const returnedFeatureAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(AttributeType.Feature),
-      subsBasis
-    );
-    const returnedSpecificationAttributes = mappingAttributeData(
-      await AttributeRepository.getByType(AttributeType.Specification),
-      subsBasis
-    );
+    const { general, feature, specification } =
+      await attributeRepository.getAllAttributesGroupByType();
     return successResponse({
-      data: {
-        general: returnedGeneralAttributes,
-        feature: returnedFeatureAttributes,
-        specification: returnedSpecificationAttributes,
-      },
+      data: { general, feature, specification },
     });
   }
 }

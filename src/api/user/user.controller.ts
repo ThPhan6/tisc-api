@@ -6,8 +6,8 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import { MESSAGES } from '@/constants';
-import { errorMessageResponse } from '@/helper/response.helper';
+import { MESSAGES } from "@/constants";
+import { errorMessageResponse } from "@/helper/response.helper";
 import { INTERESTED_IN_OPTIONS } from "@/constants";
 
 export default class UserController {
@@ -17,7 +17,7 @@ export default class UserController {
   ) => {
     const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await userService.create(user, payload);
+    const response = await userService.create(user, payload, req.path);
     return toolkit.response(response).code(response.statusCode);
   };
   public getMe = async (req: Request, toolkit: ResponseToolkit) => {
@@ -71,7 +71,7 @@ export default class UserController {
     const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
     const userId = req.params.id;
-    const response = await userService.update(userId, payload, user);
+    const response = await userService.update(userId, payload, user, req.path);
     return toolkit.response(response).code(response.statusCode);
   };
   public updateAvatar = async (
@@ -87,7 +87,7 @@ export default class UserController {
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
     const userId = req.params.id;
-    const response = await userService.delete(userId, user);
+    const response = await userService.delete(userId, user, req.path);
     return toolkit.response(response).code(response.statusCode);
   };
   public getInterestedOptions = async (
@@ -103,13 +103,10 @@ export default class UserController {
   ) => {
     const { brand_id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
-    if (
-      user.type !== UserType.TISC
-      && user.relation_id !== brand_id
-    ) {
-      return toolkit.response(
-        errorMessageResponse(MESSAGES.GENERAL.NOT_FOUND)
-      ).code(404);
+    if (user.type !== UserType.TISC && user.relation_id !== brand_id) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_FOUND))
+        .code(404);
     }
     const response = await userService.getBrandOrDesignTeamGroupByCountry(
       brand_id
@@ -122,13 +119,10 @@ export default class UserController {
   ) => {
     const { design_id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
-    if (
-      user.type !== UserType.TISC
-      && user.relation_id !== design_id
-    ) {
-      return toolkit.response(
-        errorMessageResponse(MESSAGES.GENERAL.NOT_FOUND)
-      ).code(404);
+    if (user.type !== UserType.TISC && user.relation_id !== design_id) {
+      return toolkit
+        .response(errorMessageResponse(MESSAGES.GENERAL.NOT_FOUND))
+        .code(404);
     }
     const response = await userService.getBrandOrDesignTeamGroupByCountry(
       design_id
