@@ -12,7 +12,11 @@ export default class GeneralInquiryController {
 
     const user = req.auth.credentials.user as UserAttributes;
 
-    const response = await generalInquiryService.create(user, payload);
+    const response = await generalInquiryService.create(
+      user,
+      payload,
+      req.path
+    );
 
     return toolkit.response(response).code(response.statusCode ?? 200);
   }

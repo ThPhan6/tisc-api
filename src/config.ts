@@ -52,6 +52,7 @@ export const ENVIRONMENT = {
   REDIS_HOST: process.env.REDIS_HOST || "127.0.0.1",
   REDIS_PORT: process.env.REDIS_PORT || "6379",
   CONTACT_RECEIVER: process.env.CONTACT_RECEIVER || "hello@tisc.global",
+  MAXIMUM_BACKUP_FILE: process.env.MAXIMUM_BACKUP_FILE || "7",
 };
 
 export const jwtConfig = {

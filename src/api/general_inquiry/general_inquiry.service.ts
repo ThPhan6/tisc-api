@@ -6,6 +6,7 @@ import {
 } from "@/helper/response.helper";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import productRepository from "@/repositories/product.repository";
+import { ActivityTypes, logService } from "@/service/log.service";
 import {
   RespondedOrPendingStatus,
   SortOrder,
@@ -16,7 +17,11 @@ import { head, uniq } from "lodash";
 import { settingService } from "./../setting/setting.service";
 import { GeneralInquiryRequest } from "./general_inquiry.type";
 class GeneralInquiryService {
-  public async create(user: UserAttributes, payload: GeneralInquiryRequest) {
+  public async create(
+    user: UserAttributes,
+    payload: GeneralInquiryRequest,
+    path: string
+  ) {
     const product = await productRepository.find(payload.product_id);
 
     if (!product) {
@@ -42,7 +47,12 @@ class GeneralInquiryService {
     if (!createdGeneralInquiry) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
-
+    logService.create(ActivityTypes.create_inquiry_request, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { product_id: product.id },
+    });
     return successResponse({
       data: createdGeneralInquiry,
     });

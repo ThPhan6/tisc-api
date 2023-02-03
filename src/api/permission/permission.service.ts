@@ -7,6 +7,7 @@ import {
   RoleData,
   MESSAGES,
   DefaultPermission,
+  RoleNames,
 } from "@/constants";
 import {
   errorMessageResponse,
@@ -17,6 +18,7 @@ import { mappingPermission } from "./permission.mapping";
 import { UserAttributes, UserRole } from "@/types";
 import { CompanyPermissionAttributes } from "@/model/company_permission.model";
 import { isEmpty } from "lodash";
+import { ActivityTypes, logService } from "@/service/log.service";
 
 export default class PermissionService {
   public getList = async (user: UserAttributes, withRole: boolean = false) => {
@@ -38,7 +40,7 @@ export default class PermissionService {
     });
   };
 
-  public openClose = async (id: string) => {
+  public openClose = async (id: string, user: UserAttributes, path: string) => {
     const companyPermission = await companyPermissionRepository.find(id);
     if (!companyPermission) {
       return errorMessageResponse(MESSAGES.PERMISSION_NOT_FOUND);
@@ -53,6 +55,16 @@ export default class PermissionService {
     }
     await companyPermissionRepository.update(id, {
       accessable: !companyPermission.accessable,
+    });
+    logService.create(ActivityTypes.enabled_permission, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: {
+        permission_id: id,
+        role_name: RoleNames[companyPermission.role_id],
+        action: companyPermission.accessable === true ? "Disabled" : "Enabled",
+      },
     });
     return successMessageResponse(MESSAGES.SUCCESS);
   };

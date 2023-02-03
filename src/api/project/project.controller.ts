@@ -17,7 +17,7 @@ export default class ProjectController {
   ) => {
     const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await projectService.create(user, payload);
+    const response = await projectService.create(user, payload, req.path);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
@@ -58,7 +58,7 @@ export default class ProjectController {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await projectService.update(id, user, payload);
+    const response = await projectService.update(id, user, payload, req.path);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public partialUpdate = async (
@@ -67,14 +67,20 @@ export default class ProjectController {
   ) => {
     const { id } = req.params;
     const payload = req.payload;
-    const response = await projectService.partialUpdate(id, payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectService.partialUpdate(
+      id,
+      payload,
+      user,
+      req.path
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
-    const response = await projectService.delete(id, user);
+    const response = await projectService.delete(id, user, req.path);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

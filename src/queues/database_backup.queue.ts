@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import moment from "moment";
 import JSZip from "jszip";
-import { upload } from "@/service/aws.service";
+import { deleteFile, listFilePrefix, upload } from "@/service/aws.service";
 import { CollectionsToBackup } from "@/constants";
 import { BaseQueue } from "./base.queue";
 class DatabaseQueue extends BaseQueue {
@@ -28,6 +28,15 @@ class DatabaseQueue extends BaseQueue {
       });
     });
   };
+  private removeOldFiles =async () => {
+    const backupFiles = await listFilePrefix("dump/");
+        const keysToDelete = backupFiles?.Contents?.map((item) => item.Key)
+          .filter((item: any) => item.search(ENVIRONMENT.DATABASE_NAME) !== -1)
+          .slice(0, 1 - parseInt(ENVIRONMENT.MAXIMUM_BACKUP_FILE));
+        keysToDelete?.map(item => {
+          if(item) deleteFile(item)
+        })
+  }
   public process = () => {
     this.queue.process(async (_job, done) => {
       try {
@@ -62,6 +71,8 @@ class DatabaseQueue extends BaseQueue {
             zip.file(file, fileData, { binary: true });
           })
         );
+        //keep the maximum backup file
+        await this.removeOldFiles()
         //create zip file and upload to storage
         zip.generateAsync({ type: "nodebuffer" }).then(function (content) {
           upload(content, generalDir + ".zip", "application/zip");
