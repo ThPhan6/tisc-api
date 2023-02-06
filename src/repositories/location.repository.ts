@@ -200,57 +200,6 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     };
   };
 
-  public getLocationByRelationAndCountryIds = async (
-    relationId: string,
-    countryIds: string[]
-  ) => {
-    return (await this.getModel()
-      .getQuery()
-      .where("relation_id", "==", relationId)
-      .where("country_id", "in", countryIds)
-      .get()) as ILocationAttributes[];
-  };
-
-  public async getLocationDesign() {
-    const params = { designLocation: UserType.Designer };
-    let rawQuery = `
-      FILTER locations.deleted_at == null
-      FOR designer in designers
-      FILTER designer.deleted_at == null
-      FILTER locations.relation_id == designer.id
-      FILTER locations.type == @designLocation
-      RETURN locations
-  `;
-    return this.model.rawQuery(rawQuery, params);
-  }
-
-  public async getOriginCountry() {
-    const params = { designLocation: UserType.Designer };
-    let rawQuery = `
-      FILTER locations.deleted_at == null
-      FOR designer in designers
-      FILTER designer.deleted_at == null
-      FILTER locations.relation_id == designer.id
-      FILTER locations.type == @designLocation
-      RETURN locations.country_id
-    `;
-    return this.model.rawQuery(rawQuery, params);
-  }
-
-  public async getOriginLocation(relationId: string) {
-    return this.model.where("relation_id", "==", relationId).first();
-  }
-
-  public getFirstHeadquarterLocation(
-    relationId: string,
-    headquarterId: string
-  ) {
-    return this.model
-      .where("relation_id", "==", relationId)
-      .where("functional_type_ids", "in", headquarterId, "inverse")
-      .first();
-  }
-
   public getShortLocationQuery = (key: string) =>
     `${key}.city_name == '' ? ${key}.country_name : CONCAT(${key}.city_name, ', ', ${key}.country_name)`;
 
