@@ -4,7 +4,6 @@ import {
   MESSAGES,
   ImageSize,
   ImageQuality,
-  ImageFit,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
@@ -103,7 +102,7 @@ export const uploadImagesProduct = (
         Buffer.from(image, "base64"),
         ImageSize.large
       );
-      const pngBuffer = await toPng(Buffer.from(image, "base64"));
+      const pngBuffer = await toPng(webpBuffer);
       await upload(
         webpBuffer,
         `product/${brandId}/${fileName}.webp`,
