@@ -68,7 +68,30 @@ class ProjectProductService {
       product_id: payload.product_id,
     });
     if (projectProduct) {
-      return errorMessageResponse(MESSAGES.PRODUCT_ALREADY_ASSIGNED, 400);
+      const updatedProjectProduct = await projectProductRepository.update(
+        projectProduct.id,
+        payload
+      );
+
+      if (!updatedProjectProduct) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 400);
+      }
+      const projectTracking = await projectTrackingRepository.findBy({
+        project_id: payload.project_id,
+        brand_id: "brand_id" in product ? product.brand_id : "",
+      });
+      const notification = await projectTrackingNotificationRepository.findBy({
+        project_tracking_id: projectTracking?.id || "",
+        project_product_id: updatedProjectProduct.id,
+        created_by: user.id,
+      });
+      return successResponse({
+        data: {
+          ...updatedProjectProduct,
+          project_tracking_id: projectTracking?.id,
+          notification_id: notification?.id,
+        },
+      });
     }
 
     const newProjectProductRecord = await projectProductRepository.create({
