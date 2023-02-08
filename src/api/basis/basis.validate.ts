@@ -49,7 +49,7 @@ const basisOptionsValidate = Joi.array()
 const basisPresetValidation = Joi.array()
   .items(
       Joi.object({
-      value_1: Joi.string().allow(""),
+      value_1: Joi.string(),
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
       unit_2: Joi.string().allow(""),
