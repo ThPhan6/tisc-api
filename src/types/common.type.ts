@@ -6,7 +6,7 @@ export interface Pagination {
 }
 
 export interface ValidImage {
-  buffer: Buffer;
+  image: string;
   path: string;
   mime_type: string;
 }

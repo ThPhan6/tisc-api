@@ -13,7 +13,7 @@ export default class ActionTaskController {
   ) {
     const payload = req.payload;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await actionTaskService.create(user, payload);
+    const response = await actionTaskService.create(user, payload, req.path);
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
 
@@ -22,8 +22,9 @@ export default class ActionTaskController {
     toolkit: ResponseToolkit
   ) {
     const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await actionTaskService.update(id, payload);
+    const response = await actionTaskService.update(id, payload,user, req.path);
     return toolkit.response(response).code(response.statusCode ?? 200);
   }
 

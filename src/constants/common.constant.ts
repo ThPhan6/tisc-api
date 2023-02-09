@@ -99,7 +99,7 @@ export enum TARGETED_FOR_TYPES {
   DESIGN_FIRM = 2,
   DISTRIBUTOR = 3,
   GENERAL = 4,
-  TISC_TEAM = 5
+  TISC_TEAM = 5,
 }
 
 export const TARGETED_FOR_OPTIONS: {
@@ -179,4 +179,48 @@ export const ALL_REGIONS = [
   "S. America",
 ];
 
-export const HeadquarterCompanyFunctionTypeId = '4d158e0d-7460-45a8-b618-9575333f2332';
+export const HeadquarterCompanyFunctionTypeId =
+  "4d158e0d-7460-45a8-b618-9575333f2332";
+
+export const CollectionsToBackup = [
+  "action_tasks",
+  "attributes",
+  "bases",
+  "blocked_ips",
+  "bookings",
+  "brands",
+  "categories",
+  "collections",
+  "common_types",
+  "company_permissions",
+  "contacts",
+  "custom_products",
+  "custom_resources",
+  "designers",
+  "distributors",
+  "documentations",
+  "email_autoresponders",
+  "general_inquiries",
+  "inspirational_quotations",
+  "invoices",
+  "locations",
+  "market_availabilities",
+  "material_codes",
+  "migrations",
+  "permissions",
+  "product_favourites",
+  "products",
+  "project_product_finish_schedules",
+  "project_product_pdf_configs",
+  "project_products",
+  "project_requests",
+  "project_tracking_notifications",
+  "project_trackings",
+  "project_zones",
+  "projects",
+  "roles",
+  "seeds",
+  "templates",
+  "user_product_specifications",
+  "users",
+];

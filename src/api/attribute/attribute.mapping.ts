@@ -7,18 +7,24 @@ import {
   DimensionAndWeightConversion,
   DimensionAndWeightCategory,
 } from "@/constants";
-import { isDuplicatedString, numberToFixed } from "@/helper/common.helper";
+import {
+  getLodashOrder,
+  isDuplicatedString,
+  numberToFixed,
+  toSingleSpaceAndToLowerCase,
+} from "@/helper/common.helper";
 import {
   AttributeProps,
   IBasisAttributes,
   IContentType,
   SortOrder,
   SubAttribute,
+  DimensionAndWeight,
+  DimensionAndWeightInterface,
 } from "@/types";
-import { orderBy, isFinite, isString } from "lodash";
+import { orderBy, isFinite, isString, sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-import { DimensionAndWeight, DimensionAndWeightInterface } from "@/types";
 
 export const getBasisType = (type: number) => {
   switch (type) {
@@ -148,169 +154,22 @@ export const getListAttributeWithSort = (
       subs: orderBy(
         newSubs,
         content_type_order ? "content_type" : "name", // Default sort by name
-        (content_type_order
-          ? content_type_order.toLowerCase()
-          : attribute_order?.toLowerCase()) as "asc" | "desc"
+        getLodashOrder(content_type_order || attribute_order || "ASC") // Default sort by ASC
       ),
     };
     return rest;
   });
 };
 
-export const mappingSubAttributeUpdate = (
-  attribute: AttributeProps,
-  payload: IUpdateAttributeRequest
-) => {
-  return payload.subs.map((item) => {
-    let found = false;
-    if (item.id) {
-      const foundItem = attribute.subs.find((sub) => sub.id === item.id);
-      if (foundItem) {
-        found = true;
-      }
-    }
-    if (found) {
-      return item;
-    }
+export const mappingAttributes = (payload: IUpdateAttributeRequest) => {
+  const attributes = payload.subs.map((item) => {
     return {
       ...item,
-      id: uuid(),
+      id: item.id || uuid(),
+      name: toSingleSpaceAndToLowerCase(item.name),
     };
   });
-};
-
-export const mappingContentTypeList = (
-  conversionGroups: IBasisAttributes[],
-  presetGroups: IBasisAttributes[],
-  optionGroups: IBasisAttributes[]
-) => {
-  const returnedConversionGroups = conversionGroups.map(
-    (conversionGroup: IBasisAttributes) => {
-      const conversions = conversionGroup.subs.map((conversion: any) => {
-        return {
-          id: conversion.id,
-          name_1: conversion.name_1,
-          name_2: conversion.name_2,
-        };
-      });
-      return {
-        id: conversionGroup.id,
-        name: conversionGroup.name,
-        count: conversionGroup.subs.length,
-        subs: conversions,
-      };
-    }
-  );
-  const returnedPresetGroups = presetGroups.map(
-    (presetGroup: IBasisAttributes) => {
-      const presets = presetGroup.subs.map((preset: any) => {
-        return {
-          id: preset.id,
-          name: preset.name,
-          count: preset.subs.length,
-        };
-      });
-      return {
-        id: presetGroup.id,
-        name: presetGroup.name,
-        count: presets.length,
-        subs: presets,
-      };
-    }
-  );
-  const returnedOptionGroups = optionGroups.map(
-    (optionGroup: IBasisAttributes) => {
-      const options = optionGroup.subs.map((option: any) => {
-        return {
-          id: option.id,
-          name: option.name,
-          count: option.subs.length,
-        };
-      });
-      return {
-        id: optionGroup.id,
-        name: optionGroup.name,
-        count: options.length,
-        subs: options,
-      };
-    }
-  );
-
-  return {
-    texts: [
-      {
-        id: LONG_TEXT_ID,
-        name: "Long Format",
-      },
-      {
-        id: SHORT_TEXT_ID,
-        name: "Short Format",
-      },
-    ],
-    conversions: returnedConversionGroups,
-    presets: returnedPresetGroups,
-    options: returnedOptionGroups,
-  };
-};
-
-export const mappingAttributeData = (
-  attributes: AttributeProps[],
-  subsBasis: any
-) => {
-  return attributes.map((attribute) => {
-    const subsAttribute = attribute.subs.map((item: SubAttribute) => {
-      if (item.basis_id === SHORT_TEXT_ID) {
-        return {
-          ...item,
-          basis: {
-            id: SHORT_TEXT_ID,
-            name: "Short Format",
-            type: "Text",
-          },
-        };
-      }
-      if (item.basis_id === LONG_TEXT_ID) {
-        return {
-          ...item,
-          basis: {
-            id: LONG_TEXT_ID,
-            name: "Long Format",
-            type: "Text",
-          },
-        };
-      }
-      const foundBasis = subsBasis.find(
-        (basis: any) => basis.id == item.basis_id
-      );
-
-      if (foundBasis) {
-        return {
-          ...item,
-          basis: {
-            ...foundBasis,
-          },
-        };
-      }
-      return {
-        ...item,
-        basis: {},
-      };
-    });
-    return {
-      ...attribute,
-      subs: subsAttribute,
-    };
-  });
-};
-
-export const getSubBasisAttribute = (basisGroups: IBasisAttributes[]) => {
-  return basisGroups.reduce((pre, cur) => {
-    const temp = cur.subs.map((item: any) => ({
-      ...item,
-      type: getBasisType(cur.type),
-    }));
-    return pre.concat(temp);
-  }, []);
+  return sortBy(attributes, "name");
 };
 
 export const getDefaultDimensionAndWeightAttribute =

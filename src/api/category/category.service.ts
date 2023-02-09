@@ -13,10 +13,9 @@ import CategoryRepository from "@/repositories/category.repository";
 import { SortOrder } from "@/types";
 import {
   checkCategoryDuplicateByName,
-  mappingCategoriesUpdate,
+  mappingCategories,
   mappingCategoryGroup,
   mappingSortCategory,
-  mappingSubCategories,
 } from "./category.mapping";
 import { ICategoryRequest } from "./category.type";
 
@@ -42,7 +41,7 @@ export default class CategoryService {
     const categoryDuplicate = checkCategoryDuplicateByName(payload);
     if (categoryDuplicate) return errorMessageResponse(categoryDuplicate);
 
-    const subCategories = mappingSubCategories(payload);
+    const subCategories = mappingCategories(payload);
 
     const createdCategory = await this.categoryRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
@@ -131,7 +130,7 @@ export default class CategoryService {
     const categoryDuplicate = checkCategoryDuplicateByName(payload);
     if (categoryDuplicate) return errorMessageResponse(categoryDuplicate);
 
-    const subCategories = mappingCategoriesUpdate(payload);
+    const subCategories = mappingCategories(payload);
 
     const updatedCategory = await this.categoryRepository.update(id, {
       name: toSingleSpaceAndToLowerCase(payload.name),

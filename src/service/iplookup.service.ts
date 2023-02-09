@@ -1,25 +1,29 @@
 import axios from 'axios';
 import * as Boom from "@hapi/boom";
 import {MESSAGES} from '@/constants';
+import {ENVIRONMENT} from '@/config';
 
-interface IpLookupResponse {
+interface IpInfoResponse {
   ip: string;
-  ip_number: string;
-  ip_version: number;
-  country_name: string;
-  country_code2: string;
-  isp: string;
-  response_code: '200' | '400';
-  response_message: string;
+  city?: string;
+  region?: string;
+  country?: string;
+  loc?: string;
+  org?: string;
+  postal?: string;
+  timezone?: string;
+  bogon?: boolean;
 }
 
 class IpLookupService {
-  private endpointAPI = 'https://api.iplocation.net';
+  private endpointAPI = 'https://ipinfo.io';
 
   public search = async (ipAddress: string) => {
-    return axios.get<IpLookupResponse>(`${this.endpointAPI}/?ip=${ipAddress}`)
+    const requestURI = `${this.endpointAPI}/${ipAddress}?token=${ENVIRONMENT.IPINFO_ACCESS_TOKEN}`;
+    return axios.get<IpInfoResponse>(requestURI)
       .then((response) => response.data)
-      .catch(() => {
+      .catch((error) => {
+        console.error(error);
         throw Boom.badRequest(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN)
       });
   }

@@ -2,13 +2,14 @@ import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "@/helper/response.helper";
-import { ROUTES } from "@/constants";
+import { AUTH_NAMES, ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helper/route.helper";
 import validate from "./booking.validate";
 import BookingController from "./booking.controller";
 import response from "./booking.response";
 import { getOneValidation } from "@/validate/common.validate";
+import { preventAttempt } from "@/middleware/prevent_attempt.middleware";
 
 export default class BookingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -40,6 +41,8 @@ export default class BookingRoute implements IRoute {
             validate: validate.create,
             description: "Method that post booking",
             tags: ["api", "Booking"],
+            auth: AUTH_NAMES.CAPTCHA,
+            pre: [preventAttempt],
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -72,6 +75,7 @@ export default class BookingRoute implements IRoute {
             validate: validate.reSchedule,
             description: "Method that patch reschedule booking",
             tags: ["api", "Booking"],
+            auth: AUTH_NAMES.CAPTCHA,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -88,6 +92,7 @@ export default class BookingRoute implements IRoute {
             validate: getOneValidation,
             description: "Method that delete booking",
             tags: ["api", "Booking"],
+            auth: AUTH_NAMES.CAPTCHA,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

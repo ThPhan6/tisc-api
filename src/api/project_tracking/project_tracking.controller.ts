@@ -1,15 +1,17 @@
-import {
-  MESSAGES,
-} from "@/constants";
+import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
+import { ActivityTypes, logService } from "@/service/log.service";
 import { SummaryInfo, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { v4 } from "uuid";
 import { CreateProjectRequestBody } from "./project_request.model";
-import { ProjectTrackingAttributes } from "./project_tracking.model";
+import {
+  ProjectTrackingAttributes,
+  ProjectTrackingPriority,
+} from "./project_tracking.model";
 import { projectTrackingRepository } from "./project_tracking.repository";
 import { projectTrackingService } from "./project_tracking.service";
 
@@ -22,7 +24,8 @@ export default class ProjectTrackingController {
     const response = await projectTrackingService.createProjectRequest(
       req.payload,
       currentUser.id,
-      currentUser.relation_id
+      currentUser.relation_id,
+      req.path
     );
 
     return toolkit.response(response).code(200);
@@ -51,6 +54,7 @@ export default class ProjectTrackingController {
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await projectTrackingRepository.update(id, req.payload);
 
     if (response === false) {
@@ -59,7 +63,28 @@ export default class ProjectTrackingController {
       );
       return toolkit.response(errorResponse).code(errorResponse.statusCode);
     }
-
+    if (req.payload.assigned_teams && req.payload.assigned_teams[0]) {
+      logService.create(ActivityTypes.assign_member_to_project_tracking, {
+        path: req.path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          user_id: req.payload.assigned_teams[0],
+          project_tracking_id: id,
+        },
+      });
+    }
+    if (req.payload.priority) {
+      logService.create(ActivityTypes.update_priority, {
+        path: req.path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          priority_name: ProjectTrackingPriority[req.payload.priority],
+          project_tracking_id: id,
+        },
+      });
+    }
     return toolkit.response(response).code(200);
   };
 

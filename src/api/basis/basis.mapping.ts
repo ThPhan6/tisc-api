@@ -4,10 +4,12 @@ import {
   isDuplicatedString,
   randomName,
   sortObjectArray,
+  toSingleSpaceAndToLowerCase,
 } from "@/helper/common.helper";
 import { toWebp } from "@/helper/image.helper";
 import { deleteFile, isExists } from "@/service/aws.service";
 import { IBasisAttributes } from "@/types";
+import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
   IBasisConversionRequest,
@@ -76,7 +78,7 @@ export const sortBasisConversion = (
 };
 const toValidImageItem = async (image: any, fileName: string) => {
   return {
-    buffer: await toWebp(Buffer.from(image, "base64")),
+    image,
     path: `${BASIS_OPTION_STORE}/${fileName}.webp`,
     mime_type: "image/webp",
   };
@@ -86,7 +88,7 @@ export const mappingBasisOptionCreate = async (
 ) => {
   let isValidImage = true;
   const validUploadImages: {
-    buffer: Buffer;
+    image: string;
     path: string;
     mime_type: string;
   }[] = [];
@@ -141,7 +143,7 @@ export const mappingBasisOptionCreate = async (
       );
       return {
         id: uuid(),
-        name: item.name,
+        name: toSingleSpaceAndToLowerCase(item.name),
         subs: values,
       };
     })
@@ -150,7 +152,7 @@ export const mappingBasisOptionCreate = async (
   return {
     is_valid_image: isValidImage,
     valid_upload_image: validUploadImages,
-    basis_option: options,
+    basis_option: sortBy(options, "name"),
   };
 };
 
@@ -177,22 +179,14 @@ export const mappingBasisOptionUpdate = async (
 ) => {
   let isValidImage = true;
   const validUploadImages: {
-    buffer: Buffer;
+    image: string;
     path: string;
     mime_type: string;
   }[] = [];
   let options = await Promise.all(
     payload.subs.map(async (item) => {
       const { is_have_image, ...rest } = item;
-      let foundOption = false;
-      if (item.id) {
-        const foundItemOption = basisOptionGroup.subs.find(
-          (sub: any) => sub.id === item.id
-        );
-        if (foundItemOption) {
-          foundOption = true;
-        }
-      }
+
       const values = await Promise.all(
         item.subs.map(async (value) => {
           let foundValue = false;
@@ -224,7 +218,11 @@ export const mappingBasisOptionUpdate = async (
             } else {
               basisOptionGroup.subs.map((sub: any) => {
                 sub.subs.map(async (element: any) => {
-                  if (element.id === value.id && element.image) {
+                  if (
+                    element.id === value.id &&
+                    element.image &&
+                    element.image !== "/default/option_default.webp"
+                  ) {
                     await deleteFile(element.image.slice(1));
                   }
                 });
@@ -232,20 +230,26 @@ export const mappingBasisOptionUpdate = async (
 
               const fileType = await getFileTypeFromBase64(value.image);
               if (
-                !fileType ||
-                !VALID_IMAGE_TYPES.find(
+                fileType &&
+                VALID_IMAGE_TYPES.find(
                   (validType) => validType === fileType.mime
                 )
               ) {
-                isValidImage = false;
+                const fileName = randomName(8);
+                const validImageItem = await toValidImageItem(
+                  value.image,
+                  fileName
+                );
+                validUploadImages.push(validImageItem);
+                imagePath = `/${validImageItem.path}`;
+              } else {
+                const isExistedImage = await isExists(value.image);
+
+                if (!isExistedImage) {
+                  isValidImage = false;
+                }
+                imagePath = value.image;
               }
-              const fileName = randomName(8);
-              const validImageItem = await toValidImageItem(
-                value.image,
-                fileName
-              );
-              validUploadImages.push(validImageItem);
-              imagePath = `/${validImageItem.path}`;
             }
             return foundValue
               ? {
@@ -260,28 +264,24 @@ export const mappingBasisOptionUpdate = async (
           }
         })
       );
-      if (foundOption) {
-        return {
-          ...rest,
-          subs: values,
-        };
-      }
+
       return {
         ...rest,
         subs: values,
-        id: uuid(),
+        id: rest.id || uuid(),
+        name: toSingleSpaceAndToLowerCase(rest.name),
       };
     })
   );
   return {
     is_valid_image: isValidImage,
     valid_upload_image: validUploadImages,
-    basis_option: options,
+    basis_option: sortBy(options, "name"),
   };
 };
 
 export const mappingBasisPresetCreate = (payload: IBasisPresetRequest) => {
-  return payload.subs.map((item) => {
+  const presets = payload.subs.map((item) => {
     const values = item.subs.map((value) => {
       return {
         id: uuid(),
@@ -293,10 +293,12 @@ export const mappingBasisPresetCreate = (payload: IBasisPresetRequest) => {
     });
     return {
       id: uuid(),
-      name: item.name,
+      name: toSingleSpaceAndToLowerCase(item.name),
       subs: values,
     };
   });
+
+  return sortBy(presets, "name");
 };
 
 export const sortBasisOptionOrPreset = (
@@ -323,7 +325,7 @@ export const mappingBasisPresetUpdate = (
   payload: IUpdateBasisPresetRequest,
   basisPresetGroup: IBasisAttributes
 ) => {
-  return payload.subs.map((item) => {
+  const presets = payload.subs.map((item) => {
     let foundPreset = false;
     if (item.id) {
       const foundItem = basisPresetGroup.subs.find(
@@ -361,6 +363,8 @@ export const mappingBasisPresetUpdate = (
       ...item,
       subs: values,
       id: uuid(),
+      name: toSingleSpaceAndToLowerCase(item.name),
     };
   });
+  return sortBy(presets, "name");
 };

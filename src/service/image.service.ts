@@ -2,13 +2,12 @@ import {
   VALID_IMAGE_TYPES,
   DESIGN_STORE,
   MESSAGES,
-  BrandStoragePath,
   ImageSize,
+  ImageQuality,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
   randomName,
-  removeSpecialChars,
   simplizeString,
 } from "@/helper/common.helper";
 import { toPng, toWebp } from "@/helper/image.helper";
@@ -20,7 +19,6 @@ import {
   upload,
 } from "@/service/aws.service";
 import { ValidImage } from "@/types";
-import { isEqual } from "lodash";
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -98,14 +96,15 @@ export const uploadImagesProduct = (
       if (!fileType) {
         return image;
       }
-      const mediumBuffer = await toWebp(
+
+      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      const webpBuffer = await toWebp(
         Buffer.from(image, "base64"),
         ImageSize.large
       );
-      const pngBuffer = await toPng(Buffer.from(image, "base64"));
-      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      const pngBuffer = await toPng(webpBuffer);
       await upload(
-        mediumBuffer,
+        webpBuffer,
         `product/${brandId}/${fileName}.webp`,
         "image/webp"
       );
@@ -119,13 +118,17 @@ export const uploadImagesProduct = (
   );
 };
 
-export const uploadImage = async (validImages: ValidImage[]) => {
+export const uploadImages = (
+  validImages: ValidImage[],
+  size: number = ImageSize.small
+) => {
   return Promise.all(
     validImages.map(async (item) => {
+      const webpBuffer = await toWebp(Buffer.from(item.image, "base64"), size);
       return upload(
-        item.buffer,
+        webpBuffer,
         item.path[0] === "/" ? item.path.slice(1) : item.path,
-        item.mime_type
+        "image/webp"
       );
     })
   );
@@ -157,14 +160,14 @@ export const uploadLogo = async (
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     logoPath = `${base}/${fileName}.webp`;
-    const webp = await toWebp(Buffer.from(newPath, "base64"), size);
-    await uploadImage([
-      {
-        buffer: webp,
-        path: logoPath,
-        mime_type: "image/webp",
-      },
-    ]);
+
+    const webp = await toWebp(
+      Buffer.from(newPath, "base64"),
+      size,
+      ImageQuality.high,
+      true
+    );
+    await upload(webp, logoPath, "image/webp");
   }
   return logoPath;
 };

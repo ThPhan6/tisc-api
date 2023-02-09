@@ -28,7 +28,7 @@
             <% if (item.location.city_name) { %>
               <%= item.location.address %>,
             <% } else { %>
-              Empty Address
+              N/A
             <% } %>
           </span>
         </td>
@@ -37,7 +37,7 @@
             <% if (item.distributor.city_name) { %>
               <%= item.distributor.address %>,
             <% } else { %>
-              Empty Address
+              N/A
             <% } %>
           </span>
         </td>
@@ -77,7 +77,7 @@
           <div style="width: 64px; display: inline-block; ">
             <span class="uppercase normal-garamond-light-8-12">contact</span>
           </div>
-          <span class="primary-roboto-light-8-18"><%= item.distributor.contact.first_name %> <%= item.distributor.contact.last_name %></span>
+          <span class="primary-roboto-light-8-18"><%= item.distributor.contact.first_name === "N/A" && item.distributor.contact.last_name === "N/A" ? "N/A":item.distributor.contact.first_name + " "+item.distributor.contact.last_name  %></span>
         </td>
       </tr>
       <tr>

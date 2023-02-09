@@ -5,6 +5,7 @@ import { getBufferFile } from "@/service/aws.service";
 import { projectProductRepository } from "@/api/project_product/project_product.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { locationRepository } from "@/repositories/location.repository";
 import { MESSAGES, COMMON_TYPES } from "@/constants";
 import {
   mappingSpecifyPDFTemplate,
@@ -18,6 +19,7 @@ import {
   mappingPdfZoneArea,
   mappingMaterialCode,
 } from "./pdf.mapping";
+import {sortMainOfficeFirst} from '@/api/location/location.mapping';
 import { ProjectPDfData } from "./pdf.type";
 import {
   UserAttributes,
@@ -25,14 +27,14 @@ import {
   ProjectProductPDFConfigWithLocationAndType,
   ProjectAttributes,
 } from "@/types";
-import { isEmpty, map, merge, isUndefined, partition, clone } from "lodash";
+import { isEmpty, map, merge, isUndefined, partition, clone, head } from "lodash";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helper/response.helper";
 import { pdfNode } from "@/service/pdf/pdf.service";
 import * as ejs from "ejs";
-import { ENVIROMENT } from "@/config";
+import { ENVIRONMENT } from "@/config";
 import { numberToFixed } from "@/helper/common.helper";
 
 export default class PDFService {
@@ -313,35 +315,44 @@ export default class PDFService {
       return projectData.message;
     }
 
-    let projectProductPDFConfig =
-      await projectProductPDFConfigRepository.findBy({ project_id: projectId });
-
-    if (!projectProductPDFConfig) {
-      projectProductPDFConfig = await projectProductPDFConfigRepository.create({
-        project_id: projectId,
-        created_by: user.id,
-      });
-    }
-
+    let projectProductPDFConfig = await projectProductPDFConfigRepository.upsert({
+      project_id: projectId,
+      created_by: user.id,
+    });
+    //
     if (!projectProductPDFConfig) {
       return errorMessageResponse(MESSAGES.PDF_SPECIFY.ERROR_CREATE);
     }
+    //
     const templates = await templateRepository.getAll("sequence", "ASC");
     const templatesResponse = mappingSpecifyPDFTemplate(templates);
 
+    // default location
+    const locations = await locationRepository.getLocationPagination(
+      user.relation_id,
+      9999999,
+      0,
+      'business_name',
+      'ASC'
+    );
+    const firstLocation = head(sortMainOfficeFirst(locations.data));
+
     return successResponse({
       data: {
-        config: projectProductPDFConfig,
+        config: {
+          ...projectProductPDFConfig,
+          location_id: firstLocation ? firstLocation.id : ''
+        },
         templates: templatesResponse,
       },
     });
-  };
+  }
   public generateInvoicePdf = async (
     title: "Invoice" | "Receipt",
     data: any
   ) => {
     const params = {
-      logo: `${ENVIROMENT.SPACES_ENDPOINT}/files-tisc/logo/black-logo.svg`,
+      logo: `${ENVIRONMENT.SPACES_ENDPOINT}/files-tisc/logo/black-logo.svg`,
       title,
     };
     const colWidth =

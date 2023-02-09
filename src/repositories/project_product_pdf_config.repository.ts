@@ -4,6 +4,9 @@ import {
   ProjectProductPDFConfigWithLocationAndType,
 } from "@/types";
 import BaseRepository from "./base.repository";
+import moment from 'moment';
+import {v4 as uuidv4} from 'uuid';
+import {head} from 'lodash';
 
 class ProjectProductPDFConfigRepository extends BaseRepository<ProjectProductPDFConfigAttribute> {
   protected model: ProjectProductPDFConfigModel;
@@ -48,6 +51,38 @@ class ProjectProductPDFConfigRepository extends BaseRepository<ProjectProductPDF
       )
       .first(true)) as ProjectProductPDFConfigWithLocationAndType | undefined;
   };
+
+  public upsert = async (payload: Partial<ProjectProductPDFConfigAttribute>) => {
+    const now = moment().format("YYYY-MM-DD HH:mm:ss");
+    const result = await this.model.rawQueryV2(
+      `UPSERT {project_id: @project_id, created_by: @created_by, deleted_at: null}
+      INSERT @payloadWithId
+      UPDATE @payload
+      IN project_product_pdf_configs
+      RETURN MERGE(UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at']), {
+        location_id: '',
+        issuing_for_id: '',
+        issuing_date: '',
+        revision: '',
+        has_cover: false,
+        document_title: '',
+        template_ids: []
+      })
+    `,
+      {
+        ...payload,
+        payloadWithId: {
+          ...this.DEFAULT_ATTRIBUTE,
+          ...payload,
+          id: uuidv4(),
+          created_at: now,
+          updated_at: now,
+        },
+        payload,
+      }
+    ) as ProjectProductPDFConfigAttribute[];
+    return head(result);
+  }
 }
 
 export default ProjectProductPDFConfigRepository;

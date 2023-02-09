@@ -4,17 +4,16 @@ import {
   IProjectZoneRequest,
   IUpdateProjectZoneRequest,
 } from "./project_zone.type";
-import {UserAttributes} from '@/types';
+import { UserAttributes } from "@/types";
 
 export default class ProjectZoneController {
-
   public create = async (
     req: Request & { payload: IProjectZoneRequest },
     toolkit: ResponseToolkit
   ) => {
     const user = req.auth.credentials.user as UserAttributes;
     const payload = req.payload;
-    const response = await projectZoneService.create(user, payload);
+    const response = await projectZoneService.create(user, payload, req.path);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -55,7 +54,12 @@ export default class ProjectZoneController {
     const user = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
     const payload = req.payload;
-    const response = await projectZoneService.update(user, id, payload);
+    const response = await projectZoneService.update(
+      user,
+      id,
+      payload,
+      req.path
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

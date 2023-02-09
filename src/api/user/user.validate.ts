@@ -1,5 +1,6 @@
 import Joi from "joi";
 import {
+  getListValidation,
   requireBooleanValidation,
   requireEmailValidation,
   requireStringValidation,
@@ -32,7 +33,7 @@ export default {
       zone_code: Joi.string().allow(""),
       linkedin: Joi.string().allow(""),
       interested: Joi.array().items(Joi.number()),
-      personal_phone_code: Joi.string().allow("")
+      personal_phone_code: Joi.string().allow(""),
     },
   },
   updateAvatar: {
@@ -51,6 +52,12 @@ export default {
       id: requireStringValidation("Id"),
     },
   },
+  getTeamProfileList: getListValidation({
+    custom: (value) => ({
+      sort: value.sort || "firstname",
+      order: value.order || "ASC",
+    }),
+  }),
   getWithBrandId: {
     params: {
       brand_id: requireStringValidation("Brand"),
