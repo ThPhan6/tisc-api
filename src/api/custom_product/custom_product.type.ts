@@ -5,6 +5,7 @@ import { ProductSpecificationSelection } from "../user_product_specification/use
 export interface CustomProductBasicAttributes {
   name: string;
   content: string;
+  sequence?: number;
 }
 
 export interface CustomProductAttributes {
@@ -20,6 +21,7 @@ export interface CustomProductAttributes {
     title: string;
     use_image: boolean;
     tag: string;
+    sequence?: number;
     items: {
       id: string;
       image?: string;

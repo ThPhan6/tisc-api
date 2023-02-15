@@ -9,11 +9,11 @@ import {
   dimensionAndWeightValidate,
   validateShareProduct,
 } from "@/api/product/product.validate";
-import { words } from "lodash";
 
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
   content: Joi.string().trim(),
+  sequence: Joi.number().allow(null, ''),
 });
 
 export const customProductContactValidate = Joi.array().items(
@@ -38,6 +38,7 @@ export const customProductOptionValidate = Joi.object({
   title: requireStringValidation("Option title"),
   use_image: Joi.boolean(),
   tag: stringValidation(),
+  sequence: Joi.number().allow(null, ''),
   items: Joi.when("use_image", {
     is: true,
     then: Joi.array().items(
