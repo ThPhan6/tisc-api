@@ -13,7 +13,7 @@ import {
   IAttributeGroupWithOptionId,
   IProductOption,
 } from "./product.type";
-import { isArray } from "lodash";
+import { isArray, toNumber, isNaN } from "lodash";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -144,7 +144,7 @@ export const mappingAttribute = (
         return final;
       }, [] as any)
     : [];
-  if (attributeGroup.id) {
+  if (attributeGroup.id && isNaN(toNumber(attributeGroup.id))) {
     return {
       ...attributeGroup,
       attributes: newAttributes,
