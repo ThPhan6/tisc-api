@@ -190,7 +190,7 @@ export default {
           id: Joi.string(),
           firstname: Joi.string().allow(""),
           lastname: Joi.string().allow(""),
-          avatar: Joi.string().allow(null),
+          avatar: Joi.string().allow(null, ''),
           gender: Joi.boolean(),
           position: Joi.string().allow(""),
           email: Joi.string().allow(""),

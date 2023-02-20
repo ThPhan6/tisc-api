@@ -45,7 +45,7 @@ export default {
             id: Joi.string(),
             firstname: Joi.string(),
             lastname: Joi.string(),
-            avatar: Joi.string().allow(null),
+            avatar: Joi.string().allow(null, ''),
           })
         ),
         requestCount: Joi.number(),

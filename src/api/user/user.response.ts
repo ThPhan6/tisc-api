@@ -79,7 +79,7 @@ export default {
         users: Joi.array().items(
           Joi.object({
             id: Joi.string(),
-            avatar: Joi.string().allow(null),
+            avatar: Joi.string().allow(null, ''),
             firstname: Joi.string(),
             lastname: Joi.string().allow(""),
             gender: Joi.boolean().allow(null),
@@ -107,7 +107,7 @@ export default {
           Joi.object({
             id: Joi.string(),
             role_id: Joi.string(),
-            avatar: Joi.string().allow(null),
+            avatar: Joi.string().allow(null, ''),
             firstname: Joi.string(),
             lastname: Joi.string(),
             is_assigned: Joi.boolean(),
