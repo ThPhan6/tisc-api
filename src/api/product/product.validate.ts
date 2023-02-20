@@ -2,6 +2,7 @@ import Joi from "joi";
 import {
   errorMessage,
   requireStringValidation,
+  stringValidation,
 } from "@/validate/common.validate";
 import { getEnumValues } from "@/helper/common.helper";
 import { DimensionAndWeightAttributeId } from "@/constants";
@@ -24,6 +25,7 @@ const attributeGroupsValidate = (
   return Joi.array()
     .items(
       Joi.object({
+        id: stringValidation(),
         name: requireStringValidation(`${type} attribute title`),
         selection: Joi.boolean().allow(null),
         attributes: Joi.array()

@@ -48,7 +48,6 @@ import {
   ShareProductBodyRequest,
 } from "./product.type";
 import {
-  AttributeType,
   SortOrder,
   UserAttributes,
   BasisConversion,
