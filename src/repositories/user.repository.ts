@@ -160,6 +160,8 @@ class UserRepository extends BaseRepository<UserAttributes> {
         For location in locations
           filter location.deleted_at == null
           filter location.id == user.location_id
+        LET fullname = concat(user.firstname, ' '
+        ,user.lastname)
         LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
         LET status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${
       UserStatus.Blocked
@@ -170,9 +172,10 @@ class UserRepository extends BaseRepository<UserAttributes> {
       query += ` sort ${sort} @sortOrder `;
     } else if (sort === "access_level") {
       query += ` sort role.name @sortOrder `;
+    } else if (sort === "firstname") {
+      query += ` sort fullname @sortOrder `;
     } else {
-      query += `
-      let fullname = concat(user.firstname, ' ', user.lastname) sort fullname @sortOrder `;
+      query += ` sort user.${sort} @sortOrder `;
     }
 
     if (isNumber(limit) && isNumber(offset)) {
