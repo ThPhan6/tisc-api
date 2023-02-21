@@ -1,4 +1,4 @@
-import { errorMessageResponse } from "@/helper/response.helper";
+import { errorMessageResponse } from "@/helpers/response.helper";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { locationService } from "./location.service";
 import { LocationRequest, UserAttributes, UserType } from "@/types";

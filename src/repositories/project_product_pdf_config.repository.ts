@@ -1,4 +1,4 @@
-import ProjectProductPDFConfigModel from "@/model/project_product_pdf_config.model";
+import ProjectProductPDFConfigModel from "@/models/project_product_pdf_config.model";
 import {
   ProjectProductPDFConfigAttribute,
   ProjectProductPDFConfigWithLocationAndType,

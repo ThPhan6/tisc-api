@@ -4,7 +4,7 @@ import {
   requireEmailValidation,
   requirePasswordValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import Joi from "joi";
 
 export default {

@@ -1,7 +1,7 @@
 import BaseRepository from "./base.repository";
 import CompanyPermissionModel, {
   CompanyPermissionAttributes,
-} from "@/model/company_permission.model";
+} from "@/models/company_permission.model";
 import { CompanyPermissionWithInfo } from "@/types";
 import { DesignFirmRoles } from "@/constants";
 

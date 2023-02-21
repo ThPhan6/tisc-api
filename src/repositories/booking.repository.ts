@@ -1,6 +1,6 @@
-import BookingModel from "@/model/booking.model";
+import BookingModel from "@/models/booking.model";
 import BaseRepository from "./base.repository";
-import { BookingAttributes } from "@/model/booking.model";
+import { BookingAttributes } from "@/models/booking.model";
 
 class BookingRepository extends BaseRepository<BookingAttributes> {
   protected model: BookingModel;

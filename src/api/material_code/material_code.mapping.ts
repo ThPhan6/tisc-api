@@ -3,7 +3,7 @@ import {
   isDuplicatedString,
   sortObjectArray,
   toSingleSpace,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import { IMaterialCodeAttributes, SortOrder } from "@/types";
 import { v4 as uuid } from "uuid";
 import { IMaterialCodeRequest } from "./material_code.type";

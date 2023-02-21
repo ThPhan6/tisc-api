@@ -2,7 +2,7 @@ import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import AutoEmailRepository from "@/repositories/auto_email.repository";
 import { SortOrder } from "@/types";
 import { mappingAutoEmails } from "./auto_email.mapping";

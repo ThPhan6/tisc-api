@@ -4,14 +4,14 @@ import {
   ImageSize,
   MESSAGES,
 } from "@/constants";
-import { pagination, randomName, simplizeString } from "@/helper/common.helper";
+import { pagination, randomName, simplizeString } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { designerRepository } from "@/repositories/designer.repository";
-import { uploadLogo } from "@/service/image.service";
+import { uploadLogo } from "@/services/image.service";
 import {
   DesignerAttributes,
   SummaryInfo,

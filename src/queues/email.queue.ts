@@ -1,6 +1,6 @@
 import { ENVIRONMENT } from "@/config";
 import Bull from "bull";
-import { mailService } from "@/service/mail.service";
+import { mailService } from "@/services/mail.service";
 import { TransactionEmailPayload } from "@/types";
 import { BaseQueue } from "./base.queue";
 

@@ -1,4 +1,4 @@
-import UserModel from "@/model/user.model";
+import UserModel from "@/models/user.model";
 import BaseRepository from "./base.repository";
 import {
   ActiveStatus,
@@ -11,7 +11,7 @@ import {
 } from "@/types";
 import { DesignFirmRoles } from "@/constants";
 import { head, isNumber } from "lodash";
-import { generateUniqueString } from "@/helper/common.helper";
+import { generateUniqueString } from "@/helpers/common.helper";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;

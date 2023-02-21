@@ -3,14 +3,14 @@ import {
   getSummaryTable,
   isDuplicatedString,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import BasisRepository from "@/repositories/basis.repository";
-import { uploadImages } from "@/service/image.service";
+import { uploadImages } from "@/services/image.service";
 import { SortOrder } from "@/types";
 import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";

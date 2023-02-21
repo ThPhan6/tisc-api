@@ -2,7 +2,7 @@ import { IDocumentationAttributes } from "@/types";
 import { IDocumentPolicy } from "./documentation.type";
 import { unescape } from "lodash";
 import moment from "moment";
-import { replaceTemplate } from "@/helper/common.helper";
+import { replaceTemplate } from "@/helpers/common.helper";
 
 export const mappingGroupGeneralDocumentation = (
   documentations: IDocumentationAttributes[]

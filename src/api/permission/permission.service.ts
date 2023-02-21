@@ -13,12 +13,12 @@ import {
   errorMessageResponse,
   successResponse,
   successMessageResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { mappingPermission } from "./permission.mapping";
 import { UserAttributes, UserRole } from "@/types";
-import { CompanyPermissionAttributes } from "@/model/company_permission.model";
+import { CompanyPermissionAttributes } from "@/models/company_permission.model";
 import { isEmpty } from "lodash";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 
 export default class PermissionService {
   public getList = async (user: UserAttributes, withRole: boolean = false) => {

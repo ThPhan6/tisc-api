@@ -1,5 +1,5 @@
 import { GetListDistributorSort } from "@/api/distributor/distributor.type";
-import DistributorModel from "@/model/distributor.model";
+import DistributorModel from "@/models/distributor.model";
 import { IDistributorAttributes, SortOrder } from "@/types";
 import { pick, isEmpty } from "lodash";
 import { v4 } from "uuid";

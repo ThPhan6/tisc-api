@@ -4,7 +4,7 @@ import {locationRepository} from '@/repositories/location.repository';
 import {productFavouriteRepository} from '@/repositories/product_favourite.repository';
 import { MESSAGES } from "@/constants";
 import {UserAttributes} from '@/types';
-import {successMessageResponse, errorMessageResponse} from '@/helper/response.helper';
+import {successMessageResponse, errorMessageResponse} from '@/helpers/response.helper';
 import {isEmpty} from 'lodash';
 
 export default class FavouriteService {

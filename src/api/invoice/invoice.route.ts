@@ -1,6 +1,6 @@
 import { AUTH_NAMES, ROUTES } from "@/constants";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import IRoute from "@/helper/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
+import IRoute from "@/helpers/route.helper";
 import { Server } from "@hapi/hapi";
 import InvoiceController from "./invoice.controller";
 import response from "./invoice.response";

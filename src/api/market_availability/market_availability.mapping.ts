@@ -4,7 +4,7 @@ import {
   RegionMarket,
   RegionKey,
 } from "@/types";
-import {getEnumKeys} from '@/helper/common.helper';
+import {getEnumKeys} from '@/helpers/common.helper';
 import {startCase} from 'lodash';
 
 export const mappingRegion = (

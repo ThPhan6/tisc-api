@@ -1,5 +1,5 @@
 import {UserType} from '@/types';
-import {getEnumValues} from '@/helper/common.helper';
+import {getEnumValues} from '@/helpers/common.helper';
 
 export enum TiscRoles {
   Admin = "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
