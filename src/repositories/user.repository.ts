@@ -185,7 +185,6 @@ class UserRepository extends BaseRepository<UserAttributes> {
       query += `return merge(
           KEEP(user, 'id','firstname','lastname','position','email','phone','status','avatar','created_at'),
           {
-              fullname: fullname,
               work_location: work_location,
               phone_code: location.phone_code,
               access_level: role.name
