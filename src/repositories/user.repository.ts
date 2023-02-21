@@ -67,11 +67,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
-  public async getByTypeRoleAndRelation(
-    type: UserType,
-    role: string,
-    relation_id?: string
-  ) {
+  public async getByTypeRoleAndRelation(type: UserType, role: string, relation_id?: string) {
     return (await this.model
       .where("type", "==", type)
       .where("role_id", "==", role)
@@ -80,10 +76,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .join("locations", "locations.id", "==", "users.location_id")
       .get()) as UserAttributes[];
   }
-  public async getInactiveDesignFirmByBackupData(
-    backupEmail: string,
-    personalMobile: string
-  ) {
+  public async getInactiveDesignFirmByBackupData(backupEmail: string, personalMobile: string) {
     return (await this.model
       .where("backup_email", "==", backupEmail)
       .where("personal_mobile", "==", personalMobile)
@@ -137,12 +130,12 @@ class UserRepository extends BaseRepository<UserAttributes> {
   };
 
   public checkTokenExisted = async (token: string) => {
-    const user = await this.model
+    const user = (await this.model
       .where("reset_password_token", "==", token)
       .orWhere("verification_token", "==", token)
-      .first() as UserAttributes | undefined;
+      .first()) as UserAttributes | undefined;
     return user ? true : false;
-  }
+  };
 
   public getPagination = async (
     limit?: number,
@@ -168,9 +161,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
           filter location.deleted_at == null
           filter location.id == user.location_id
         LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
-        LET status = (user.status == ${
-          UserStatus.Active
-        } ? 'Activated' : (user.status == ${
+        LET status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${
       UserStatus.Blocked
     } ? 'Blocked' : 'Pending'))
      `;
@@ -180,7 +171,8 @@ class UserRepository extends BaseRepository<UserAttributes> {
     } else if (sort === "access_level") {
       query += ` sort role.name @sortOrder `;
     } else {
-      query += ` sort user.${sort} @sortOrder `;
+      query += `
+      let fullname = concat(user.firstname, ' ', user.lastname) sort fullname @sortOrder `;
     }
 
     if (isNumber(limit) && isNumber(offset)) {
@@ -191,14 +183,17 @@ class UserRepository extends BaseRepository<UserAttributes> {
       totalRecords = (head(totalRecords) ?? 0) as number;
       query += ` LIMIT ${offset}, ${limit} `;
       query += `return merge(
-          KEEP(user, 'id','firstname','lastname','fullname','position','email','phone','status','avatar','created_at'),
+          KEEP(user, 'id','firstname','lastname','position','email','phone','status','avatar','created_at'),
           {
+              fullname: fullname,
               work_location: work_location,
               phone_code: location.phone_code,
               access_level: role.name
           }
       )`;
+
       const result = await this.model.rawQueryV2(query, params);
+
       return {
         pagination: {
           page: offset / limit + 1,
@@ -209,14 +204,7 @@ class UserRepository extends BaseRepository<UserAttributes> {
         data: result,
       };
     }
-    query += `return merge(
-        KEEP(user, 'id','firstname','lastname','fullname','position','email','phone','status','avatar','created_at'),
-        {
-            work_location: work_location,
-            phone_code: location.phone_code,
-            access_level: role.name
-        }
-    )`;
+
     const response = await this.model.rawQueryV2(query, params);
     const totalSize = (response.length ?? 0) as number;
     return {
