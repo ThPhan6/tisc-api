@@ -1,4 +1,4 @@
-import CategoryModel from "@/model/category.model";
+import CategoryModel from "@/models/category.model";
 import BaseRepository from "./base.repository";
 import { SortOrder, ICategoryAttributes, IProductAttributes } from "@/types";
 

@@ -1,10 +1,10 @@
-import { getEnumValues } from "@/helper/common.helper";
+import { getEnumValues } from "@/helpers/common.helper";
 import { ProjectStatus } from "@/types";
 import {
   errorMessage,
   getListValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import * as Joi from "joi";
 import { ProjectTrackingPriority } from "./project_tracking.model";
 

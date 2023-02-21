@@ -2,14 +2,14 @@ import countryRepository from "@/repositories/country.repository";
 import stateRepository from "@/repositories/state.repository";
 import cityRepository from "@/repositories/city.repository";
 import { GLOBAL_COUNTRY_ID, GlobalCountry, MESSAGES } from "@/constants";
-import { ipLookupService } from '@/service/iplookup.service';
+import { ipLookupService } from '@/services/iplookup.service';
 import {
   ICountryAttributes,
   IStateAttributes,
   ICityAttributes,
   ICountryStateCity,
 } from "@/types";
-import { errorMessageResponse } from "@/helper/response.helper";
+import { errorMessageResponse } from "@/helpers/response.helper";
 import { isEmpty } from "lodash";
 
 class CountryStateCityService {

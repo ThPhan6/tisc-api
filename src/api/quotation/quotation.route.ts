@@ -1,11 +1,11 @@
-import { generalMessageResponse } from "./../../helper/response.helper";
+import { generalMessageResponse } from "@/helpers/response.helper";
 import * as Hapi from "@hapi/hapi";
 import {
   getListValidation,
   getOneValidation,
-} from "@/validate/common.validate";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
+} from "@/validates/common.validate";
+import IRoute from "@/helpers/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./quotation.validate";
 import response from "./quotation.response";

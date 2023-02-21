@@ -1,8 +1,8 @@
 import { AUTH_NAMES, ROUTES } from "@/constants";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import IRoute from "@/helper/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
+import IRoute from "@/helpers/route.helper";
 import { Server } from "@hapi/hapi";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 import response from "./custom_resource.response";
 import validate from "./custom_resource.validate";
 import CustomResourceController from "./custom_resource.controller";

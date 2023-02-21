@@ -1,9 +1,9 @@
-import { getEnumValues } from "@/helper/common.helper";
+import { getEnumValues } from "@/helpers/common.helper";
 import {
   errorMessage,
   requireStringValidation,
   stringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import Joi from "joi";
 import {
   OrderMethod,

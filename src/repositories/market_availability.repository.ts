@@ -1,4 +1,4 @@
-import MarketAvailabilityModel from "@/model/market_availability.model";
+import MarketAvailabilityModel from "@/models/market_availability.model";
 import { IMarketAvailabilityAttributes } from "@/types/market_availability.type";
 import BaseRepository from "./base.repository";
 import {

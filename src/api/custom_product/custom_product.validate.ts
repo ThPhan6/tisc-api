@@ -4,7 +4,7 @@ import {
   getOneValidation,
   requireEmailValidation,
   stringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import {
   dimensionAndWeightValidate,
   validateShareProduct,

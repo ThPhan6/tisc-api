@@ -1,4 +1,4 @@
-import { getEnumValues } from "@/helper/common.helper";
+import { getEnumValues } from "@/helpers/common.helper";
 import { ActiveStatus, GetUserGroupBrandSort } from "@/types";
 import Joi from "joi";
 import {
@@ -6,7 +6,7 @@ import {
   getListValidation,
   requireEmailValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 export default {
   getList: getListValidation({

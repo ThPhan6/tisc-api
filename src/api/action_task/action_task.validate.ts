@@ -1,9 +1,9 @@
-import { getEnumKeys, getEnumValues } from "@/helper/common.helper";
+import { getEnumKeys, getEnumValues } from "@/helpers/common.helper";
 import { ActionTaskModelEnum, ActionTaskStatus } from "@/types";
 import {
   errorMessage,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import Joi from "joi";
 
 export default {

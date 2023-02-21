@@ -1,4 +1,4 @@
-import DocumentationModel from "@/model/documentation.model";
+import DocumentationModel from "@/models/documentation.model";
 import {
   DocumentationType,
   IDocumentationAttributes,

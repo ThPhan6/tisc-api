@@ -1,4 +1,4 @@
-import { getDistinctArray } from "@/helper/common.helper";
+import { getDistinctArray } from "@/helpers/common.helper";
 import { ActiveStatus, BrandAttributes } from "@/types";
 import { ListBrandCustom } from "./brand.type";
 

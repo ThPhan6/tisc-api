@@ -1,4 +1,4 @@
-import CommonTypeModel from "@/model/common_type.model";
+import CommonTypeModel from "@/models/common_type.model";
 import BaseRepository from "./base.repository";
 import { CommonTypeAttributes, CommonTypeValue, SortOrder } from "@/types";
 import { COMMON_TYPES } from "@/constants";

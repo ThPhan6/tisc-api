@@ -5,7 +5,7 @@ import {
   errorMessage,
   getListValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import { GetDesignFirmSort } from "./designer.type";
 
 export default {

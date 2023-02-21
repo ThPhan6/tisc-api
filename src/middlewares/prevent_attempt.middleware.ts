@@ -1,9 +1,9 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
-import { getBlockPeriod, getBlockedType } from "@/helper/blocked_ip.helper";
+import { getBlockPeriod, getBlockedType } from "@/helpers/blocked_ip.helper";
 import moment from "moment";
 import { blockedIpRepository } from "@/repositories/blocked_ip.repository";
-import { convertMsToTime } from "@/helper/common.helper";
+import { convertMsToTime } from "@/helpers/common.helper";
 
 export const preventAttempt = async (
   request: Request,

@@ -4,8 +4,8 @@ import {
   requireEmailValidation,
   getOneValidation,
   getListValidation,
-} from "@/validate/common.validate";
-import { getEnumValues } from "@/helper/common.helper";
+} from "@/validates/common.validate";
+import { getEnumValues } from "@/helpers/common.helper";
 import { CustomResouceType } from "@/api/custom_product/custom_product.type";
 import { customProductContactValidate } from "../custom_product/custom_product.validate";
 

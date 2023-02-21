@@ -12,7 +12,7 @@ import {
   isDuplicatedString,
   numberToFixed,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import {
   AttributeProps,
   IBasisAttributes,

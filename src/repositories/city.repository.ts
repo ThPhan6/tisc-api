@@ -1,4 +1,4 @@
-import CityModel from "@/model/city.model";
+import CityModel from "@/models/city.model";
 import BaseRepository from "./base.repository";
 import { ICityAttributes, ICountryStateCity } from "@/types";
 

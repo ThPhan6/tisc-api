@@ -12,14 +12,14 @@ import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
-import { validateRoleType } from "@/helper/user.helper";
+} from "@/helpers/response.helper";
+import { validateRoleType } from "@/helpers/user.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
-import MailService from "@/service/mail.service";
+import MailService from "@/services/mail.service";
 import {
   IMessageResponse,
   SortOrder,
@@ -33,9 +33,9 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import { getKeyByValue, objectDiff, randomName } from "@/helper/common.helper";
-import { uploadLogo } from "@/service/image.service";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { getKeyByValue, objectDiff, randomName } from "@/helpers/common.helper";
+import { uploadLogo } from "@/services/image.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 
 export default class UserService {
   private mailService: MailService;

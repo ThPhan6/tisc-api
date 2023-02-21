@@ -1,7 +1,7 @@
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
 import { v4 as uuidv4 } from "uuid";
 import { IProjectZoneAttributes, ProjectAttributes, SortOrder } from "@/types";
-import { getLodashOrder, sortObjectArray } from "@/helper/common.helper";
+import { getLodashOrder, sortObjectArray } from "@/helpers/common.helper";
 import { MEASUREMENT_UNIT } from "@/constants";
 import { orderBy } from "lodash";
 

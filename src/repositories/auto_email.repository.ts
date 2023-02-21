@@ -1,4 +1,4 @@
-import AutoEmailModel from "@/model/auto_email.model";
+import AutoEmailModel from "@/models/auto_email.model";
 import {
   SortOrder,
   IAutoEmailAttributes,

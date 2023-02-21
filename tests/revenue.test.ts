@@ -1,5 +1,5 @@
 import { connection } from "@/Database/Connections/ArangoConnection";
-import { signJwtToken } from "@/helper/jwt.helper";
+import { signJwtToken } from "@/helpers/jwt.helper";
 
 import { brandData, brandLocationData, userBrandData } from "./temp-data/brand";
 import { tiscAdminData } from "./temp-data/user";

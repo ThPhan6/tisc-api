@@ -1,10 +1,10 @@
 import { MESSAGES } from "@/constants";
-import { getDistinctArray, pagination } from "@/helper/common.helper";
+import { getDistinctArray, pagination } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import {
   ICountryAttributes,
   SortOrder,
@@ -12,7 +12,7 @@ import {
   IDistributorAttributes,
 } from "@/types";
 import { distributorRepository } from "@/repositories/distributor.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/services/country_state_city.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { productRepository } from "@/repositories/product.repository";
 import { locationRepository } from "@/repositories/location.repository";

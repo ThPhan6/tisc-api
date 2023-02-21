@@ -1,4 +1,4 @@
-import LogModel, { LogAttributes } from "@/model/logs.model";
+import LogModel, { LogAttributes } from "@/models/logs.model";
 import BaseRepository from "./base.repository";
 
 class LogRepository extends BaseRepository<LogAttributes> {

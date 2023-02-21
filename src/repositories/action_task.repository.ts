@@ -1,4 +1,4 @@
-import ActionTaskModel from "@/model/action_task.model";
+import ActionTaskModel from "@/models/action_task.model";
 import BaseRepository from "@/repositories/base.repository";
 import {
   ActionTaskAttribute,

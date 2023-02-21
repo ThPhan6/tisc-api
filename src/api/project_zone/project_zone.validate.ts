@@ -4,7 +4,7 @@ import {
   orderValidation,
   requireNumberValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 export default {
   create: {

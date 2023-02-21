@@ -3,7 +3,7 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import {UserAttributes, ProjectProductPDFConfigAttribute} from '@/types';
 import moment from 'moment';
 import {kebabCase} from 'lodash';
-import {toNonAccentUnicode} from '@/helper/common.helper';
+import {toNonAccentUnicode} from '@/helpers/common.helper';
 
 export default class PDFController {
 
