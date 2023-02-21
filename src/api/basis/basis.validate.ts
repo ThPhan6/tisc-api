@@ -4,7 +4,7 @@ import {
   getListValidation,
   orderValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 const requireUnitValue = (item: any, helpers: any) => {
   if (

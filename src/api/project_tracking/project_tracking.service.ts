@@ -1,9 +1,9 @@
 import { COMMON_TYPES, MESSAGES } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import { pagination } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import productRepository from "@/repositories/product.repository";
 import { settingService } from "../setting/setting.service";
 import {
@@ -20,7 +20,7 @@ import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 
 class ProjectTrackingService {
   public createProjectRequest = async (

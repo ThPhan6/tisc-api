@@ -6,7 +6,7 @@ import {
   UserStatus,
 } from "@/types";
 import BaseRepository from "@/repositories/base.repository";
-import ProjectModel from "@/model/project.model";
+import ProjectModel from "@/models/project.model";
 import { forEach, isNumber, pick } from "lodash";
 import {
   ProductConsiderStatus,

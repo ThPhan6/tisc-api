@@ -4,7 +4,7 @@ import {
   stringValidation,
   numberValidation,
   getListValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import Joi from "joi";
 
 const invoiceValidate = {

@@ -6,12 +6,12 @@ import {
   MESSAGES,
   VALID_IMAGE_TYPES,
 } from "@/constants";
-import { getFileTypeFromBase64, randomName } from "@/helper/common.helper";
+import { getFileTypeFromBase64, randomName } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import collectionRepository from "@/repositories/collection.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import {
@@ -19,7 +19,7 @@ import {
   uploadImages,
   uploadImagesProduct,
   validateImageType,
-} from "@/service/image.service";
+} from "@/services/image.service";
 import {
   UserAttributes,
   UserType,
@@ -32,9 +32,9 @@ import { v4 } from "uuid";
 import { ShareProductBodyRequest } from "../product/product.type";
 import { customProductRepository } from "./custom_product.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { mailService } from "@/service/mail.service";
-import { getCustomProductSharedUrl } from "@/helper/product.helper";
-import { getFileURI, toWebp } from "@/helper/image.helper";
+import { mailService } from "@/services/mail.service";
+import { getCustomProductSharedUrl } from "@/helpers/product.helper";
+import { getFileURI, toWebp } from "@/helpers/image.helper";
 import { projectProductRepository } from "../project_product/project_product.repository";
 
 class CustomProductService {

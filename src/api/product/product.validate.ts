@@ -3,8 +3,8 @@ import {
   errorMessage,
   requireStringValidation,
   stringValidation,
-} from "@/validate/common.validate";
-import { getEnumValues } from "@/helper/common.helper";
+} from "@/validates/common.validate";
+import { getEnumValues } from "@/helpers/common.helper";
 import { DimensionAndWeightAttributeId } from "@/constants";
 
 export const validateShareProduct = {

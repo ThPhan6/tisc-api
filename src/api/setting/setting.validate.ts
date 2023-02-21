@@ -2,7 +2,7 @@ import Joi from "joi";
 import {
   requireNumberValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 export default {
   getStates: {

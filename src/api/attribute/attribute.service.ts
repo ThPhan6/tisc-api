@@ -7,12 +7,12 @@ import {
 import {
   getSummaryTable,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import attributeRepository from "@/repositories/attribute.repository";
 import AttributeRepository from "@/repositories/attribute.repository";
 import basisRepository from "@/repositories/basis.repository";

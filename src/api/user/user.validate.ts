@@ -5,7 +5,7 @@ import {
   requireEmailValidation,
   requireStringValidation,
   stringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import { BrandRoles, DesignFirmRoles, RoleIndex, TiscRoles } from "@/constants";
 import { UserType } from "@/types";
 

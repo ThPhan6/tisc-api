@@ -1,4 +1,4 @@
-import GeneralInquiryModel from "@/model/general_inquiry.model";
+import GeneralInquiryModel from "@/models/general_inquiry.model";
 import BaseRepository from "@/repositories/base.repository";
 import {
   GeneralInquiryAttribute,

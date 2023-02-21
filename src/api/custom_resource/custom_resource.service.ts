@@ -2,7 +2,7 @@ import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { locationRepository } from "@/repositories/location.repository";
 import {
   CustomResourcePayload,

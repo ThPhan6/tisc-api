@@ -2,8 +2,8 @@ import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
-import { fillObject, objectDiff } from "@/helper/common.helper";
+} from "@/helpers/response.helper";
+import { fillObject, objectDiff } from "@/helpers/common.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
 import { projectRepository } from "@/repositories/project.repository";
@@ -32,7 +32,7 @@ import {
 } from "./project_product.type";
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { validateBrandProductSpecification } from "./project_product.mapping";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 
 class ProjectProductService {
   public assignProductToProduct = async (

@@ -4,7 +4,7 @@ import {
   getListValidation,
   requireEmailValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 const distributorValidate = {
   brand_id: requireStringValidation("Brand id"),

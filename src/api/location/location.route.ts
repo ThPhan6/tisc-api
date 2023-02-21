@@ -1,8 +1,8 @@
 import * as Hapi from "@hapi/hapi";
 import LocationController from "./location.controller";
-import { getOneValidation } from "@/validate/common.validate";
-import IRoute from "@/helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import { getOneValidation } from "@/validates/common.validate";
+import IRoute from "@/helpers/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import response from "./location.response";
 import validate from "./location.validate";
 import { AUTH_NAMES, ROUTES } from "@/constants";

@@ -1,9 +1,9 @@
 import * as Hapi from "@hapi/hapi";
 import PDFController from "./pdf.controller";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import validate from "./pdf.validate";
 import response from "./pdf.response";
-import IRoute from "../../helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import { ROUTES, AUTH_NAMES } from "@/constants";
 
 export default class PDFRoute implements IRoute {

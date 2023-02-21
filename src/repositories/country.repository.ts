@@ -1,4 +1,4 @@
-import CountryModel from '@/model/country.model';
+import CountryModel from '@/models/country.model';
 import BaseRepository from './base.repository';
 import {ICountryAttributes} from '@/types';
 

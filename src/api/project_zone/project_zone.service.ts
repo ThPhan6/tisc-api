@@ -3,12 +3,12 @@ import {
   formatNumberDisplay,
   isDuplicatedString,
   objectDiff,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { projectRepository } from "@/repositories/project.repository";
 import {
@@ -24,7 +24,7 @@ import {
   mappingResponseUnitRoomSize,
 } from "./project_zone.mapping";
 import { IUpdateProjectZoneRequest } from "./project_zone.type";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 import { isEqual } from "lodash";
 
 class ProjectZoneService {
