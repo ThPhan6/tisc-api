@@ -204,6 +204,15 @@ class UserRepository extends BaseRepository<UserAttributes> {
       };
     }
 
+    query += `return merge(
+        KEEP(user, 'id','firstname','lastname','fullname','position','email','phone','status','avatar','created_at'),
+        {
+            work_location: work_location,
+            phone_code: location.phone_code,
+            access_level: role.name
+        }
+    )`;
+
     const response = await this.model.rawQueryV2(query, params);
     const totalSize = (response.length ?? 0) as number;
     return {
