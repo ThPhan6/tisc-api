@@ -1,11 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import UserController from "./user.controller";
 import validate from "./user.validate";
-import IRoute from "@/helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import IRoute from "@/helpers/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
 import response from "./user.response";
-import { getListValidation } from "@/validate/common.validate";
+import { getListValidation } from "@/validates/common.validate";
 
 export default class UserRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

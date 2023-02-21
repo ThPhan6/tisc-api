@@ -2,7 +2,7 @@ import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { CustomProductPayload, UserAttributes, UserType } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductService } from "./custom_product.service";

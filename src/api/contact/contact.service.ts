@@ -3,9 +3,9 @@ import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { IContactRequest } from "./contact.type";
-import { mailService } from "@/service/mail.service";
+import { mailService } from "@/services/mail.service";
 
 export default class ContactService {
   private contactRepository: ContactRepository;

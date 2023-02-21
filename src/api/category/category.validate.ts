@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { getListValidation, orderValidation } from "@/validate/common.validate";
+import { getListValidation, orderValidation } from "@/validates/common.validate";
 
 export default {
   create: {

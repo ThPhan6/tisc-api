@@ -3,10 +3,10 @@ import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { actionTaskRepository } from "@/repositories/action_task.repository";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 import {
   RespondedOrPendingStatus,
   UserAttributes,

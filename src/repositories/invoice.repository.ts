@@ -1,4 +1,4 @@
-import InvoiceModel from "@/model/invoice.model";
+import InvoiceModel from "@/models/invoice.model";
 import BaseRepository from "./base.repository";
 import {
   InvoiceAttributes,

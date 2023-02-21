@@ -5,13 +5,13 @@ import {
   DefaultLogo,
   DefaultProductImage,
 } from "@/constants";
-import { getProductSharedUrl } from "@/helper/product.helper";
-import { getFileURI } from "@/helper/image.helper";
+import { getProductSharedUrl } from "@/helpers/product.helper";
+import { getFileURI } from "@/helpers/image.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { brandRepository } from "@/repositories/brand.repository";
@@ -19,15 +19,15 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { productRepository } from "@/repositories/product.repository";
 import { productFavouriteRepository } from "@/repositories/product_favourite.repository";
 import { projectProductRepository } from "@/api/project_product/project_product.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/services/country_state_city.service";
 import { userRepository } from "@/repositories/user.repository";
 import {
   splitImageByType,
   uploadImagesProduct,
   updateProductImageNames,
   validateImageType,
-} from "@/service/image.service";
-import { mailService } from "@/service/mail.service";
+} from "@/services/image.service";
+import { mailService } from "@/services/mail.service";
 import { isEqual, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,

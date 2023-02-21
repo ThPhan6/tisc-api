@@ -1,9 +1,9 @@
 import * as Hapi from "@hapi/hapi";
 import ProductController from "./product.controller";
-import IRoute from "../../helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
+import IRoute from "@/helpers/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import ProductResponse from "./product.response";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 import validate from "./product.validate";
 import { imageOptionPayload, ROUTES, AUTH_NAMES } from "@/constants";
 

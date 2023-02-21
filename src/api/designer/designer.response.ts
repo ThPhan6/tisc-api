@@ -1,5 +1,5 @@
-import { paginationResponse } from "@/helper/response.helper";
-import { getSummaryResponseValidate } from "@/validate/common.response";
+import { paginationResponse } from "@/helpers/response.helper";
+import { getSummaryResponseValidate } from "@/validates/common.response";
 import * as HapiJoi from "joi";
 import { customProductResponse } from "../custom_product/custom_product.response";
 import { customResourceResponse } from "../custom_resource/custom_resource.response";

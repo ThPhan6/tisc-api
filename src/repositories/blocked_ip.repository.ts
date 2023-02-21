@@ -1,5 +1,5 @@
 import BaseRepository from "./base.repository";
-import BlockedIpModel, { IBlockedIpAttributes } from "@/model/blocked_ip.model";
+import BlockedIpModel, { IBlockedIpAttributes } from "@/models/blocked_ip.model";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 

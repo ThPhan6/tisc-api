@@ -5,8 +5,8 @@ import {
   randomName,
   sortObjectArray,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
-import { deleteFile, isExists } from "@/service/aws.service";
+} from "@/helpers/common.helper";
+import { deleteFile, isExists } from "@/services/aws.service";
 import { IBasisAttributes } from "@/types";
 import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";

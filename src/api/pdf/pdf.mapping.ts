@@ -1,6 +1,6 @@
 import {TemplateAttributes, TemplateGroup, TemplateSpecify, TemplateGroupType} from '@/types';
 import {mapValues, isEmpty, uniqBy, uniqWith, isEqual, uniq} from 'lodash';
-import {formatNumberDisplay} from '@/helper/common.helper';
+import {formatNumberDisplay} from '@/helpers/common.helper';
 
 export const mappingSpecifyPDFTemplate = (templates: TemplateAttributes[]) => {
   const templatesResponse: TemplateSpecify = {

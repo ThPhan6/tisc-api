@@ -1,5 +1,5 @@
 import { SortOrder, IProjectZoneAttributes } from "@/types";
-import ProjectZoneModel from "@/model/project_zone.model";
+import ProjectZoneModel from "@/models/project_zone.model";
 import BaseRepository from "./base.repository";
 
 class ProjectZoneRepository extends BaseRepository<IProjectZoneAttributes> {

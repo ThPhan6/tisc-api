@@ -1,4 +1,4 @@
-import ProjectProductFinishScheduleModel from "@/model/project_product_finish_schedule.model";
+import ProjectProductFinishScheduleModel from "@/models/project_product_finish_schedule.model";
 import { ProjectProductFinishSchedule } from "@/types";
 import BaseRepository from "./base.repository";
 import {isEmpty, merge} from 'lodash';

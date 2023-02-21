@@ -3,12 +3,12 @@ import {
   getSummaryTable,
   pagination,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successResponse,
   successMessageResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import CategoryRepository from "@/repositories/category.repository";
 import { SortOrder } from "@/types";
 import {

@@ -2,7 +2,7 @@ import Joi from "joi";
 import {
   errorMessage,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import moment from "moment";
 
 export default {

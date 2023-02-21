@@ -5,7 +5,7 @@ import {
   LocationWithTeamCountAndFunctionType,
 } from "@/types";
 import { head } from "lodash";
-import { sortObjectArray } from "@/helper/common.helper";
+import { sortObjectArray } from "@/helpers/common.helper";
 
 export const getUniqueCountries = (locations: ILocationAttributes[]) => {
   return locations.reduce((res: CountryGroupCount[], location) => {

@@ -1,8 +1,8 @@
 import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
-import IRoute from "@/helper/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
+import IRoute from "@/helpers/route.helper";
 import { Server } from "@hapi/hapi";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 import response from "./custom_product.response";
 import validate from "./custom_product.validate";
 import CustomProductController from "./custom_product.controller";

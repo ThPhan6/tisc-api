@@ -1,7 +1,7 @@
 import {
   paginationResponse,
   summaryTableResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({

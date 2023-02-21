@@ -1,4 +1,4 @@
-import { getDistinctArray, numberToFixed } from "@/helper/common.helper";
+import { getDistinctArray, numberToFixed } from "@/helpers/common.helper";
 import {
   IBasisAttributes,
   AttributeProps,

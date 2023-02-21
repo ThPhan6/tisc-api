@@ -1,5 +1,5 @@
 import { BASIS_TYPES, SHORT_TEXT_ID } from "@/constants";
-import AttributeModel from "@/model/attribute.model";
+import AttributeModel from "@/models/attribute.model";
 import {
   SortOrder,
   AttributeType,

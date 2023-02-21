@@ -1,8 +1,8 @@
 import { CommonTypeValue, SortOrder } from "@/types";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/services/country_state_city.service";
 import { countryRepository } from "@/repositories/country.repository";
-import { successResponse } from "@/helper/response.helper";
+import { successResponse } from "@/helpers/response.helper";
 
 export default class SettingService {
   public getCommonTypes = async (

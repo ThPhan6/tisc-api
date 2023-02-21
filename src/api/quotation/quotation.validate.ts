@@ -1,4 +1,4 @@
-import { requireStringValidation } from "@/validate/common.validate";
+import { requireStringValidation } from "@/validates/common.validate";
 
 const quotationPayload = {
   author: requireStringValidation("Author"),

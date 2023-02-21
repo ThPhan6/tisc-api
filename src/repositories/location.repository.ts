@@ -1,4 +1,4 @@
-import LocationModel from "@/model/location.model";
+import LocationModel from "@/models/location.model";
 import BaseRepository from "./base.repository";
 import {
   ILocationAttributes,
@@ -10,7 +10,7 @@ import {
 } from "@/types";
 import { isFinite, head } from "lodash";
 import { COMMON_TYPES } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import { pagination } from "@/helpers/common.helper";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
