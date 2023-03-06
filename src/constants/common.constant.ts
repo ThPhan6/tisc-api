@@ -223,4 +223,5 @@ export const CollectionsToBackup = [
   "templates",
   "user_product_specifications",
   "users",
+  "logs"
 ];

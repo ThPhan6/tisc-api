@@ -53,6 +53,7 @@ export const ENVIRONMENT = {
   REDIS_PORT: process.env.REDIS_PORT || "6379",
   CONTACT_RECEIVER: process.env.CONTACT_RECEIVER || "hello@tisc.global",
   MAXIMUM_BACKUP_FILE: process.env.MAXIMUM_BACKUP_FILE || "7",
+  SENTRY_DNS: process.env.SENTRY_DNS || "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
 };
 
 export const jwtConfig = {
@@ -87,7 +88,7 @@ export const plugins: any = [
     plugin: require("hapi-sentry"),
     options: {
       client: {
-        dsn: "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
+        dsn: ["staging", "production"].includes(ENVIRONMENT.NODE_ENV) ? ENVIRONMENT.SENTRY_DNS : '',
       },
     },
   },
