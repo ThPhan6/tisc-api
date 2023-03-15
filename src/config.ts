@@ -79,18 +79,17 @@ const swaggerOptions = {
     },
   },
 };
-
-export const plugins: any = [
+const sentryPlugin =["staging", "production"].includes(ENVIRONMENT.NODE_ENV)? {
+  plugin: require("hapi-sentry"),
+  options: {
+    client: {
+      dsn: ENVIRONMENT.SENTRY_DNS,
+    },
+  },
+}: undefined
+const initPlugins: any[] = [
   {
     plugin: Inert,
-  },
-  {
-    plugin: require("hapi-sentry"),
-    options: {
-      client: {
-        dsn: ["staging", "production"].includes(ENVIRONMENT.NODE_ENV) ? ENVIRONMENT.SENTRY_DNS : '',
-      },
-    },
   },
   {
     plugin: Vision,
@@ -100,3 +99,9 @@ export const plugins: any = [
     options: swaggerOptions,
   },
 ];
+
+if(sentryPlugin) {
+  initPlugins.push(initPlugins)
+}
+
+export const plugins = initPlugins
