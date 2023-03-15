@@ -111,7 +111,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                       FILTER productSpecificationAttribute.basis_options != null
                           FOR optionCode IN productSpecificationAttribute.basis_options
                               FILTER optionCode.id == attribute.basis_option_id
-                              RETURN optionCode.option_code
+                              LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
+                              RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
     )
     RETURN {
       variant: CONCAT_SEPARATOR('; ', options),
@@ -347,7 +348,11 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET entireProjectProducts = (
           FOR pp IN projectProducts
           FILTER pp.specifiedDetail.entire_allocation == true
-          ${brand_order ? `SORT pp.brand.name ${brand_order}` : 'SORT pp.specifiedDetail._key ASC'}
+          ${
+            brand_order
+              ? `SORT pp.brand.name ${brand_order}`
+              : "SORT pp.specifiedDetail._key ASC"
+          }
           RETURN MERGE(pp, {
             specifiedDetail: UNSET(pp.specifiedDetail, ['_key'])
           })
@@ -453,6 +458,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       specifiedStatus: ProjectProductStatus.specify,
     };
     const rawQuery = `
+    LET defaultOptions = (
+      FOR basisOptionGroup IN bases
+      FOR basisOption IN basisOptionGroup.subs
+      FOR basisOptionDetail IN basisOption.subs
+      FILTER basisOptionGroup.type == 3
+      RETURN basisOptionDetail
+      )
     LET productsByBrand = (
       FOR pp IN project_products
       FILTER pp.project_id == @projectId
@@ -546,9 +558,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       ${
         brand_order || material_code_order
           ? `SORT ${brand_order ? "brand.name " + brand_order : ""} ${
-              material_code_order
-                ? "material_code " + material_code_order
-                : ""
+              material_code_order ? "material_code " + material_code_order : ""
             }`
           : "SORT pp._key ASC"
       }
@@ -612,6 +622,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
     return this.model.rawQueryV2(
       `
+      LET defaultOptions = (
+        FOR basisOptionGroup IN bases
+        FOR basisOption IN basisOptionGroup.subs
+        FOR basisOptionDetail IN basisOption.subs
+        FILTER basisOptionGroup.type == 3
+        RETURN basisOptionDetail
+        )
       FOR project_products IN project_products
           FILTER project_products.deleted_at == null
           FILTER project_products.project_id == @projectId
@@ -769,7 +786,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                               FILTER productSpecificationAttribute.basis_options != null
                                   FOR optionCode IN productSpecificationAttribute.basis_options
                                       FILTER optionCode.id == attribute.basis_option_id
-                                      RETURN optionCode.option_code == ''?'N/A':optionCode.option_code
+                                      LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
+                                      RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
             )
 
             FOR brand IN brands
