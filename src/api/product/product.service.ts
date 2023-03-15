@@ -40,6 +40,7 @@ import {
   mappingByBrand,
   mappingByCategory,
   mappingByCollections,
+  mappingProductID,
 } from "./product.mapping";
 import {
   IProductOptionAttribute,
@@ -231,27 +232,33 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const countryIds = product.brand.official_websites.map((ow) => ow.country_id);
+    const countryIds = product.brand.official_websites.map(
+      (ow) => ow.country_id
+    );
     const countries = await countryStateCityService.getCountries(countryIds);
-    const officialWebsites = product.brand.official_websites.map((officialWebsite) => {
+    const officialWebsites = product.brand.official_websites.map(
+      (officialWebsite) => {
         let countryName = "Global";
         if (countries) {
-          const country = countries.find((c) => c.id === officialWebsite.country_id);
+          const country = countries.find(
+            (c) => c.id === officialWebsite.country_id
+          );
           if (country) {
             countryName = country.name;
           }
         }
         return {
           ...officialWebsite,
-          country_name: countryName
+          country_name: countryName,
         };
-      })
+      }
+    );
     //
     const attributeGroups = await AttributeRepository.getAll();
     const flatAttributeGroups = mappingAttributeOrBasis(attributeGroups);
     //
     const basisGroups = await BasisRepository.getAll();
-    const flatBasisGroups = mappingAttributeOrBasis(basisGroups)
+    const flatBasisGroups = mappingAttributeOrBasis(basisGroups);
     //
     const newSpecificationGroups = mappingAttributeGroups(
       product.specification_attribute_groups,
@@ -260,6 +267,7 @@ class ProductService {
       flatBasisGroups
     );
 
+    const productID = mappingProductID(newSpecificationGroups);
     const newGeneralGroups = mappingAttributeGroups(
       product.general_attribute_groups,
       flatAttributeGroups,
@@ -277,6 +285,7 @@ class ProductService {
     return successResponse({
       data: {
         ...product,
+        code: productID,
         brand: {
           ...product.brand,
           official_websites: officialWebsites,
