@@ -1,14 +1,14 @@
 import * as Hapi from "@hapi/hapi";
-import IRoute from "@/helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./distributor.validate";
 import response from "./distributor.response";
 import DistributorController from "./distributor.controller";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 
 export default class DistributorRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

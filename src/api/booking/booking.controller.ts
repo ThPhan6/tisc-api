@@ -1,4 +1,4 @@
-import { upsertBlockedIp } from "@/helper/blocked_ip.helper";
+import { upsertBlockedIp } from "@/helpers/blocked_ip.helper";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { bookingService } from "./booking.service";
 import {

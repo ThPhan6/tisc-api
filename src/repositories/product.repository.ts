@@ -1,5 +1,5 @@
 import BaseRepository from "./base.repository";
-import ProductModel from "@/model/product.model";
+import ProductModel from "@/models/product.model";
 import { head, isUndefined } from "lodash";
 import {
   SortOrder,

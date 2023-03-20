@@ -1,4 +1,4 @@
-import CollectionModel from "@/model/collection.model";
+import CollectionModel from "@/models/collection.model";
 import {
   SortOrder,
   ICollectionAttributes,

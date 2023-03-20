@@ -4,12 +4,12 @@ import {
   errorMessageResponse,
   successResponse,
   successMessageResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { bookingRepository } from "@/repositories/booking.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { locationRepository } from "@/repositories/location.repository";
-import { larkOpenAPIService } from "@/service/lark.service";
+import { larkOpenAPIService } from "@/services/lark.service";
 import "moment-timezone";
 import moment from "moment";
 import {
@@ -24,8 +24,8 @@ import {
 import { CreateEventResponse } from "@/types/lark.type";
 import { mappingSlotAvailable } from "./booking.mapping";
 import { brandService } from "../brand/brand.service";
-import { BookingAttributes } from "@/model/booking.model";
-import { mailService } from "@/service/mail.service";
+import { BookingAttributes } from "@/models/booking.model";
+import { mailService } from "@/services/mail.service";
 
 export default class BookingService {
   public async availableSchedule(

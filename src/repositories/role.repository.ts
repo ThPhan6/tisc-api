@@ -1,5 +1,5 @@
 import BaseRepository from "./base.repository";
-import RoleModel, {RoleAttributes} from "@/model/role.model";
+import RoleModel, {RoleAttributes} from "@/models/role.model";
 
 class RoleRepository extends BaseRepository<RoleAttributes> {
   protected model: RoleModel;

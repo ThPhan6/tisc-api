@@ -1,5 +1,5 @@
 import { connection } from "@/Database/Connections/ArangoConnection";
-import { signJwtToken } from "@/helper/jwt.helper";
+import { signJwtToken } from "@/helpers/jwt.helper";
 import {
   projectData,
   projectLocationData,

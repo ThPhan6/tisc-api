@@ -1,11 +1,11 @@
 import * as Hapi from "@hapi/hapi";
 import FavouriteController from "./favourite.controller";
 import validate from "./favourite.validate";
-import IRoute from "../../helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
-} from "../../helper/response.helper";
+} from "@/helpers/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import response from "./favourite.response";
 

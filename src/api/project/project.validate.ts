@@ -1,4 +1,4 @@
-import { getEnumValues } from "@/helper/common.helper";
+import { getEnumValues } from "@/helpers/common.helper";
 import { ProjectStatus } from "@/types";
 import * as Joi from "joi";
 import { MEASUREMENT_UNIT } from "@/constants";
@@ -6,7 +6,7 @@ import {
   errorMessage,
   getListValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 const projectValidate = {
   code: requireStringValidation("Project code"),

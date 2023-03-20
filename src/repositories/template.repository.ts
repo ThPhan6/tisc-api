@@ -1,4 +1,4 @@
-import TemplateModel from "@/model/template.model";
+import TemplateModel from "@/models/template.model";
 import { TemplateAttributes } from "@/types";
 import BaseRepository from "./base.repository";
 

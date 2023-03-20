@@ -2,8 +2,8 @@ import { MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
-import { ActivityTypes, logService } from "@/service/log.service";
+} from "@/helpers/response.helper";
+import { ActivityTypes, logService } from "@/services/log.service";
 import { SummaryInfo, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { v4 } from "uuid";

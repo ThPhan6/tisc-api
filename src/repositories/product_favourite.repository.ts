@@ -1,4 +1,4 @@
-import ProductFavouriteModel from '@/model/product_favourite.model';
+import ProductFavouriteModel from '@/models/product_favourite.model';
 import BaseRepository from './base.repository';
 import {ProductFavouriteAttributes} from '@/types';
 import {isEmpty} from 'lodash';

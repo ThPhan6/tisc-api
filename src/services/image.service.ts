@@ -9,15 +9,15 @@ import {
   getFileTypeFromBase64,
   randomName,
   simplizeString,
-} from "@/helper/common.helper";
-import { toPng, toWebp } from "@/helper/image.helper";
-import { errorMessageResponse } from "@/helper/response.helper";
+} from "@/helpers/common.helper";
+import { toPng, toWebp } from "@/helpers/image.helper";
+import { errorMessageResponse } from "@/helpers/response.helper";
 import {
   deleteFile,
   getBufferFile,
   isExists,
   upload,
-} from "@/service/aws.service";
+} from "@/services/aws.service";
 import { ValidImage } from "@/types";
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;

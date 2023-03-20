@@ -1,14 +1,14 @@
 import * as Hapi from "@hapi/hapi";
 import CollectionController from "./collection.controller";
-import IRoute from "../../helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
-} from "../../helper/response.helper";
+} from "@/helpers/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import CollectionResponse from "./collection.response";
 import validate from "./collection.validate";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 
 export default class CollectionRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

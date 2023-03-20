@@ -25,15 +25,15 @@ import {
   comparePassword,
   createHash,
   createHashWithSalt,
-} from "@/helper/password.helper";
-import { signJwtToken } from "@/helper/jwt.helper";
+} from "@/helpers/password.helper";
+import { signJwtToken } from "@/helpers/jwt.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 
-import { mailService } from "@/service/mail.service";
+import { mailService } from "@/services/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
 
 import { brandRepository } from "@/repositories/brand.repository";

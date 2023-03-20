@@ -2,8 +2,8 @@ import { MESSAGES, Region } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
-import {getEnumKeys} from '@/helper/common.helper';
+} from "@/helpers/response.helper";
+import {getEnumKeys} from '@/helpers/common.helper';
 
 import {
   SortOrder,

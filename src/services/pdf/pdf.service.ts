@@ -5,7 +5,7 @@ import {head, takeRight} from 'lodash';
 import hummus from 'muhammara';
 import * as Boom from "@hapi/boom";
 import {MESSAGES} from '@/constants';
-import {slackService} from '@/service/slack.service';
+import {slackService} from '@/services/slack.service';
 
 class PDFResult {
   private result: PdfGenerator.CreateResult;

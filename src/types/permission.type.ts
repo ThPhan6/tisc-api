@@ -1,5 +1,5 @@
-import { CompanyPermissionAttributes } from "@/model/company_permission.model";
-import { IPermissionAttributes } from "@/model/permission.model";
+import { CompanyPermissionAttributes } from "@/models/company_permission.model";
+import { IPermissionAttributes } from "@/models/permission.model";
 
 export interface CompanyPermissionWithInfo
   extends CompanyPermissionAttributes,

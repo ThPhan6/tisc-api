@@ -1,4 +1,4 @@
-import QuotationModel from "@/model/quotation.model";
+import QuotationModel from "@/models/quotation.model";
 import {
   SortOrder,
   IQuotationAttributes,

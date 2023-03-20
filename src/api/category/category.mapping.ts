@@ -5,7 +5,7 @@ import {
   sortObjectArray,
   toSingleSpace,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
+} from "@/helpers/common.helper";
 import { ICategoryAttributes } from "@/types/category.type";
 import { orderBy, sortBy } from "lodash";
 import { ICategoryRequest } from "./category.type";

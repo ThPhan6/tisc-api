@@ -33,6 +33,7 @@ export interface BasisOptionValue {
   value_2: string;
   unit_1: string;
   unit_2: string;
+  product_id?: string;
 }
 
 export interface BasisOption {

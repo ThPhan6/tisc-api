@@ -1,4 +1,4 @@
-import DesignerModel from "@/model/designer.model";
+import DesignerModel from "@/models/designer.model";
 import BaseRepository from "./base.repository";
 import {
   CustomProductAttributes,
@@ -15,7 +15,7 @@ import {
   DesignerDataCustom,
   GetDesignFirmSort,
 } from "@/api/designer/designer.type";
-import { getUnsetAttributes } from "@/helper/common.helper";
+import { getUnsetAttributes } from "@/helpers/common.helper";
 import { locationRepository } from "./location.repository";
 
 class DesignerRepository extends BaseRepository<DesignerAttributes> {

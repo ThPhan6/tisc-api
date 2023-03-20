@@ -3,7 +3,7 @@ import * as Joi from "joi";
 import {
   errorMessage,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 export default {
   update: {

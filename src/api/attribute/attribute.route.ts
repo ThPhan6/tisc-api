@@ -1,9 +1,9 @@
 import * as Hapi from "@hapi/hapi";
 import AttributeController from "./attribute.controller";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 import validate from "./attribute.validate";
-import IRoute from "@/helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import IRoute from "@/helpers/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import response from "./attribute.response";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 

@@ -12,7 +12,7 @@ import {
   EmailTemplateID,
 } from "@/types";
 import Axios, { AxiosInstance } from "axios";
-import { toUSMoney } from "@/helper/common.helper";
+import { toUSMoney } from "@/helpers/common.helper";
 import { emailQueue } from "@/queues/email.queue";
 import { logRepository } from "@/repositories/log.repository";
 import { IContactRequest } from "@/api/contact/contact.type";

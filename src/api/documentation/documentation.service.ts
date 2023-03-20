@@ -1,11 +1,11 @@
 import { DOCUMENTATION_TYPES, MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
-import { pagination } from "@/helper/common.helper";
+import { pagination } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { documentationRepository } from "@/repositories/documentation.repository";
 import { mappingGroupGeneralDocumentation } from "./documentation.mapping";
 import { IDocumentationRequest, IHowto } from "./documentation.type";

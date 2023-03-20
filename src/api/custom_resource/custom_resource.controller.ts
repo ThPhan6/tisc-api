@@ -1,9 +1,9 @@
 import { MESSAGES } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import { pagination } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import {
   CustomResourcePayload,
   SummaryInfo,

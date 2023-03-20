@@ -1,9 +1,9 @@
 import { ENVIRONMENT, plugins } from "@/config";
 import * as hapi from "@hapi/hapi";
 import Router from "./router";
-import AuthMiddleware from "./middleware/auth.middleware";
-import CaptchaMiddleware from "./middleware/captcha.middleware";
-import { slackService } from "./service/slack.service";
+import AuthMiddleware from "@/middlewares/auth.middleware";
+import CaptchaMiddleware from "@/middlewares/captcha.middleware";
+import { slackService } from "@/services/slack.service";
 import path from "path";
 import { emailQueue } from "./queues/email.queue";
 import { databaseBackupQueue } from "./queues/database_backup.queue";

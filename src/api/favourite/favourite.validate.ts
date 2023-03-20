@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { requireStringValidation } from "@/validate/common.validate";
+import { requireStringValidation } from "@/validates/common.validate";
 
 export default {
   retrieve: {

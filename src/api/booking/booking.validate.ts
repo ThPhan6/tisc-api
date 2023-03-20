@@ -1,12 +1,12 @@
 import Joi from "joi";
-import { getEnumValues } from "@/helper/common.helper";
+import { getEnumValues } from "@/helpers/common.helper";
 import {
   customErrorMessages,
   errorMessage,
   requireDateValidation,
   requireEmailValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import {
   BookingPayloadRequest,
   BookingSchedule,

@@ -7,8 +7,8 @@ import { projectRepository } from "@/repositories/project.repository";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
-import { pagination } from "@/helper/common.helper";
+} from "@/helpers/response.helper";
+import { pagination } from "@/helpers/common.helper";
 
 export default class ProjectController {
   public create = async (

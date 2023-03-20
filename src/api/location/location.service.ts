@@ -3,12 +3,12 @@ import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import productRepository from "@/repositories/product.repository";
 import { userRepository } from "@/repositories/user.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/services/country_state_city.service";
 import {
   ILocationAttributes,
   IMessageResponse,
