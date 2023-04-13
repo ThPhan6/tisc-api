@@ -23,6 +23,7 @@ import {
   GetListInvoiceSorting,
   InvoiceRequestCreate,
   InvoiceRequestUpdate,
+  PaymentIntentAttributes,
 } from "./invoice.type";
 import {
   calculateInterestInvoice,
@@ -33,7 +34,11 @@ import {
 import moment from "moment";
 import { mailService } from "@/services/mail.service";
 import { pdfService } from "@/api/pdf/pdf.service";
+import { airwallexService } from "@/services/airwallex.service";
+import { paymentRepository } from "@/repositories/payment.repository";
+import { userRepository } from "@/repositories/user.repository";
 import { ENVIRONMENT } from "@/config";
+import { locationRepository } from "@/repositories/location.repository";
 
 class InvoiceService {
   private calculateBillingAmount = (
@@ -349,6 +354,120 @@ class InvoiceService {
     );
     return successResponse({ data: result, fileName: invoice.name });
   }
+  public createPaymentIntent = async (
+    invoiceId: string,
+    user: UserAttributes
+  ) => {
+    const invoice: any = await this.get(user, invoiceId);
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    if (invoice.data.status === InvoiceStatus.Paid) {
+      return errorMessageResponse(MESSAGES.INVOICE.PAID);
+    }
+    const result = (await airwallexService.createPaymentIntent({
+      amount: invoice.data.total_gross,
+      currency: "USD",
+      metadata: {
+        invoice_id: invoice.data.id,
+        created_by: user.id,
+      },
+    })) as PaymentIntentAttributes;
+    await paymentRepository.create({
+      intent_id: result.id,
+      invoice_id: invoiceId,
+      created_by: user.id,
+      status: result.status,
+    });
+    return successResponse({ data: result });
+  };
+  private sendPaymentReceivedEmailToAdmin = async (options: {
+    invoice_id: string;
+    billing_number: string;
+    amount: number;
+    payment_user_id: string;
+  }) => {
+    const invoice = await invoiceRepository.findInvoiceWithRelations(
+      options.invoice_id
+    );
+    if (!invoice) {
+      return;
+    }
+    const paymentUser = await userRepository.find(options.payment_user_id);
+    if (!paymentUser) {
+      return;
+    }
+    await mailService.sendInvoicePaymentReceived(
+      invoice.created_user.email,
+      paymentUser.firstname,
+      paymentUser.lastname,
+      invoice.brand_name,
+      options.billing_number,
+      options.amount
+    );
+  };
+
+  private sendPaymentSuccessEmailToPaymentUser = async (options: {
+    payment_user_id: string;
+    invoice_id: string;
+  }) => {
+    const paymentUser = await userRepository.find(options.payment_user_id);
+    if (!paymentUser) {
+      return;
+    }
+    await mailService.sendInvoicePaymentSuccess(
+      paymentUser.email,
+      paymentUser.firstname,
+      `${ENVIRONMENT.FE_URL}/brand/adminstration/billed-services/${options.invoice_id}`
+    );
+  };
+
+  public receivePaymentInfo = async (payload: any) => {
+    // console.log(payload.name, payload.sourceId);
+    try {
+      const payment = await paymentRepository.findBy({
+        intent_id: payload.sourceId,
+      });
+      if (!payment) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+      const invoice = await invoiceRepository.find(payment.invoice_id);
+      if (!invoice) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+      if (payload && payload.name === "payment_attempt.received") {
+        await invoiceRepository.update(invoice.id, {
+          status: InvoiceStatus.Processing,
+        });
+      }
+      if (payload && payload.name === "payment_intent.cancelled") {
+        const diff = moment().diff(moment(invoice.due_date), "days");
+        await invoiceRepository.update(invoice.id, {
+          status: diff > 0 ? InvoiceStatus.Overdue : InvoiceStatus.Outstanding,
+        });
+      }
+      if (payload && payload.name === "payment_intent.succeeded") {
+        await invoiceRepository.update(invoice.id, {
+          status: InvoiceStatus.Paid,
+        });
+        //send email to TISC
+        await this.sendPaymentReceivedEmailToAdmin({
+          invoice_id: invoice.id,
+          billing_number: invoice.name,
+          payment_user_id: payload.data.object.metadata.created_by,
+          amount: payload.data.object.amount,
+        });
+        //send receipt to created_by
+        await this.sendPaymentSuccessEmailToPaymentUser({
+          payment_user_id: payload.data.object.metadata.created_by,
+          invoice_id: invoice.id,
+        });
+      }
+      return successMessageResponse(MESSAGES.SUCCESS);
+    } catch (error) {
+      return successMessageResponse(MESSAGES.SUCCESS);
+    }
+  };
 }
 export const invoiceService = new InvoiceService();
 export default InvoiceService;

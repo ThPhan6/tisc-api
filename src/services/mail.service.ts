@@ -265,6 +265,60 @@ export default class MailService {
     });
     return true;
   }
+  public async sendInvoicePaymentReceived(
+    receiver_email: string,
+    first_name: string,
+    last_name: string,
+    brand_name: string,
+    invoice_id: string,
+    amount: number,
+    from?: string
+  ) {
+    const emailTemplate = EmailTemplateID.general.invoice_payment_received;
+
+    const template = await this.getEmailTemplate(emailTemplate, {
+      first_name,
+      last_name,
+      brand_name,
+      invoice_id,
+      amount,
+    });
+
+    if (!template) {
+      return false;
+    }
+    emailQueue.add({
+      email: receiver_email,
+      subject: template.subject,
+      html: template.html,
+      from,
+    });
+    return true;
+  }
+  public async sendInvoicePaymentSuccess(
+    receiver_email: string,
+    receiver_first_name: string,
+    receipt_url: string,
+    from?: string
+  ) {
+    const emailTemplate = EmailTemplateID.general.invoice_payment_success;
+
+    const template = await this.getEmailTemplate(emailTemplate, {
+      receiver_first_name,
+      url: receipt_url,
+    });
+
+    if (!template) {
+      return false;
+    }
+    emailQueue.add({
+      email: receiver_email,
+      subject: template.subject,
+      html: template.html,
+      from,
+    });
+    return true;
+  }
 
   public async sendShareProductViaEmail(
     to: string,

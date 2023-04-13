@@ -119,7 +119,8 @@ export const MESSAGES = {
     NOT_FOUND: "Action task not found",
   },
   INVOICE: {
-    NOT_FOUND: "Revenue service not found",
+    PAID: "This invoice is paid.",
+    NOT_FOUND: "Revenue service not found.",
     ONLY_UPDATE_PENDING_INVOICE: "Only pending invoice is valid to update.",
     ONLY_BILL_PENDING_INVOICE: "Only pending invoice is valid to bill.",
     ONLY_PAID_OUTSTANDING_OR_OVERDUE:
