@@ -9,6 +9,7 @@ import {
 import { head } from "lodash";
 import { GetListInvoiceSorting } from "@/api/invoice/invoice.type";
 import { INTEREST_RATE } from "@/constants";
+import _ from "lodash";
 
 export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
   service_type_name: string;
@@ -16,6 +17,12 @@ export interface InvoiceWithUserAndServiceType extends InvoiceAttributes {
   lastname: string;
   brand_name: string;
   ordered_by_location_id: string;
+}
+export interface InvoiceWithUser extends InvoiceAttributes {
+  ordered_user: {
+    firstname: string;
+    email: string;
+  };
 }
 export interface InvoiceWithRelations extends InvoiceAttributes {
   brand_name: string;
@@ -279,6 +286,28 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
       product_card_conversion: number;
       others: number;
     };
+  }
+  public async getUnpaidInvoices(): Promise<Array<InvoiceWithUser>> {
+    let query = `
+    FOR invoices IN invoices
+      FILTER invoices.status IN @statuses
+      FOR users IN users
+        FILTER users.id == invoices.created_by
+        RETURN MERGE(
+          UNSET(invoices, ['_key','_id','_rev']),
+          {
+            firstname: users.firstname,
+          }
+        )
+    `;
+    return this.model.rawQueryV2(query, {
+      statuses: [
+        InvoiceStatus.Outstanding,
+        InvoiceStatus.Overdue,
+        InvoiceStatus.Pending,
+        InvoiceStatus.Processing,
+      ],
+    });
   }
 }
 

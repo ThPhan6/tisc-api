@@ -59,6 +59,7 @@ export const ENVIRONMENT = {
   AIRWALLEX_API_ENPOINT: process.env.AIRWALLEX_API_ENPOINT || "",
   AIRWALLEX_API_KEY: process.env.AIRWALLEX_API_KEY || "",
   AIRWALLEX_CLIENT_KEY: process.env.AIRWALLEX_CLIENT_KEY || "",
+  INVOICE_EMAIL_CRON_EXPRESSION: process.env.INVOICE_EMAIL_CRON_EXPRESSION || "",
 };
 
 export const jwtConfig = {
