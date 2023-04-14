@@ -423,7 +423,7 @@ class InvoiceService {
   };
 
   public receivePaymentInfo = async (payload: any) => {
-    // console.log(payload.name, payload.sourceId);
+     console.log(payload.name, payload.sourceId);
     try {
       const payment = await paymentRepository.findBy({
         intent_id: payload.sourceId,
@@ -435,18 +435,18 @@ class InvoiceService {
       if (!invoice) {
         return successMessageResponse(MESSAGES.SUCCESS);
       }
-      if (payload && payload.name === "payment_attempt.received") {
+      if (payload && payload.name === "payment_intent.succeeded") {
         await invoiceRepository.update(invoice.id, {
           status: InvoiceStatus.Processing,
         });
       }
-      if (payload && payload.name === "payment_intent.cancelled") {
+      if (payload && payload.name === "payment_attempt.capture_failed") {
         const diff = moment().diff(moment(invoice.due_date), "days");
         await invoiceRepository.update(invoice.id, {
           status: diff > 0 ? InvoiceStatus.Overdue : InvoiceStatus.Outstanding,
         });
       }
-      if (payload && payload.name === "payment_intent.succeeded") {
+      if (payload && payload.name === "payment_attempt.paid") {
         await invoiceRepository.update(invoice.id, {
           status: InvoiceStatus.Paid,
         });
