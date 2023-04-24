@@ -1,4 +1,9 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  COMMON_TYPES,
+  DefaultCurrency,
+  MESSAGES,
+  SupportedCurrency,
+} from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -39,6 +44,7 @@ import { paymentRepository } from "@/repositories/payment.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { ENVIRONMENT } from "@/config";
 import { locationRepository } from "@/repositories/location.repository";
+import { freeCurrencyService } from "@/services/free_currency.service";
 
 class InvoiceService {
   private calculateBillingAmount = (
@@ -354,6 +360,17 @@ class InvoiceService {
     );
     return successResponse({ data: result, fileName: invoice.name });
   }
+  private getSupportedCurrencyByLocationId = async (
+    locationId: string | null
+  ) => {
+    const currency = await locationRepository.getCurrencyByLocationId(
+      locationId
+    );
+    if (SupportedCurrency.includes(currency)) {
+      return [currency];
+    }
+    return [DefaultCurrency, currency];
+  };
   public createPaymentIntent = async (
     invoiceId: string,
     user: UserAttributes
@@ -365,12 +382,33 @@ class InvoiceService {
     if (invoice.data.status === InvoiceStatus.Paid) {
       return errorMessageResponse(MESSAGES.INVOICE.PAID);
     }
+    const exchanges = await freeCurrencyService.exchange();
+    const currencies = await this.getSupportedCurrencyByLocationId(
+      user.location_id
+    );
+    const exchangedMoney = currencies.reduce((pre, cur) => {
+      const exchange = exchanges.data[cur];
+      if (!exchange) return pre;
+      return {
+        ...pre,
+        [`amount_${cur.toLowerCase()}`]: invoice.data.total_gross * exchange,
+        [`surcharge_${cur.toLowerCase()}`]:
+          invoice.data.total_gross * exchange * ENVIRONMENT.SURCHARGE_RATE,
+        [`total_${cur.toLowerCase()}`]:
+          invoice.data.total_gross *
+          exchange *
+          (1 + ENVIRONMENT.SURCHARGE_RATE),
+      };
+    }, {});
     const result = (await airwallexService.createPaymentIntent({
       amount: invoice.data.total_gross,
-      currency: "USD",
+      currency: currencies[0],
       metadata: {
         invoice_id: invoice.data.id,
         created_by: user.id,
+        ...exchangedMoney,
+        surcharge: invoice.data.total_gross * ENVIRONMENT.SURCHARGE_RATE,
+        total: invoice.data.total_gross * (ENVIRONMENT.SURCHARGE_RATE + 1),
       },
     })) as PaymentIntentAttributes;
     await paymentRepository.create({
@@ -423,7 +461,7 @@ class InvoiceService {
   };
 
   public receivePaymentInfo = async (payload: any) => {
-     console.log(payload.name, payload.sourceId);
+    console.log(payload.name, payload.sourceId);
     try {
       const payment = await paymentRepository.findBy({
         intent_id: payload.sourceId,
