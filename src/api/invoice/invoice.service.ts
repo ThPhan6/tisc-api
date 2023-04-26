@@ -481,7 +481,11 @@ class InvoiceService {
           status: diff > 0 ? InvoiceStatus.Overdue : InvoiceStatus.Outstanding,
         });
       }
-      if (payload && payload.name === "payment_attempt.paid") {
+      if (
+        payload &&
+        (payload.name === "payment_attempt.paid" ||
+          payload.name === "payment_attempt.settled")
+      ) {
         await invoiceRepository.update(invoice.id, {
           status: InvoiceStatus.Paid,
         });
