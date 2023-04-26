@@ -78,7 +78,10 @@ class InvoiceService {
       ...invoice,
       billing_amount: billingAmount,
       billing_overdue_amount: billingAmount + overdueAmount,
-      surcharge: (billingAmount + overdueAmount) * ENVIRONMENT.SURCHARGE_RATE,
+      surcharge: toFixedNumber(
+        (billingAmount + overdueAmount) * ENVIRONMENT.SURCHARGE_RATE,
+        2
+      ),
       grand_total: toFixedNumber(
         (billingAmount + overdueAmount) * (ENVIRONMENT.SURCHARGE_RATE + 1),
         2
