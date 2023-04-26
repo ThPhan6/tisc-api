@@ -1,8 +1,6 @@
 import {
   COMMON_TYPES,
-  DefaultCurrency,
   MESSAGES,
-  SupportedCurrency,
 } from "@/constants";
 import {
   errorMessageResponse,
@@ -333,6 +331,10 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
     }
     const calculatedInvoice = this.calculateInvoice(invoice);
+    const totalAmount =
+      calculatedInvoice.total_gross + calculatedInvoice.sale_tax_amount;
+    const newBillingAmount =
+      calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount;
     const result = await pdfService.generateInvoicePdf(
       !invoice.payment_date || invoice.payment_date === ""
         ? "Invoice"
@@ -350,13 +352,13 @@ class InvoiceService {
         overdue_amount: toUSMoney(calculatedInvoice.overdue_amount),
         total_gross: toUSMoney(calculatedInvoice.total_gross),
         sale_tax_amount: toUSMoney(calculatedInvoice.sale_tax_amount),
-        total_amount: toUSMoney(
-          calculatedInvoice.total_gross + calculatedInvoice.sale_tax_amount
-        ),
-        billing_amount: toUSMoney(
-          calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount
-        ),
+        total_amount: toUSMoney(totalAmount),
+        billing_amount: toUSMoney(newBillingAmount),
         quantity: toUSMoney(calculatedInvoice.quantity).slice(1, -3),
+        surcharge: toUSMoney(newBillingAmount * ENVIRONMENT.SURCHARGE_RATE),
+        grand_total: toUSMoney(
+          newBillingAmount * (1 + ENVIRONMENT.SURCHARGE_RATE)
+        ),
       }
     );
     return successResponse({ data: result, fileName: invoice.name });
@@ -374,19 +376,21 @@ class InvoiceService {
     }
     const exchanges = await freeCurrencyService.exchange();
     const exchange = exchanges.data["SGD"];
+    const newBillingAmount =
+      invoice.data.billing_amount + invoice.data.overdue_amount;
     const grandTotalSGD = toFixedNumber(
-      invoice.data.total_gross * exchange * (1 + ENVIRONMENT.SURCHARGE_RATE),
+      newBillingAmount * exchange * (1 + ENVIRONMENT.SURCHARGE_RATE),
       2
     );
     const exchangedMoney = {
-      [`amount_sgd`]: invoice.data.total_gross * exchange,
+      [`amount_sgd`]: newBillingAmount * exchange,
       [`surcharge_sgd`]:
-        invoice.data.total_gross * exchange * ENVIRONMENT.SURCHARGE_RATE,
+        newBillingAmount * exchange * ENVIRONMENT.SURCHARGE_RATE,
       [`grand_total_sgd`]: grandTotalSGD,
-      [`amount_usd`]: invoice.data.total_gross,
-      [`surcharge_usd`]: invoice.data.total_gross * ENVIRONMENT.SURCHARGE_RATE,
+      [`amount_usd`]: newBillingAmount,
+      [`surcharge_usd`]: newBillingAmount * ENVIRONMENT.SURCHARGE_RATE,
       [`grand_total_usd`]: toFixedNumber(
-        invoice.data.total_gross * (1 + ENVIRONMENT.SURCHARGE_RATE),
+        newBillingAmount * (1 + ENVIRONMENT.SURCHARGE_RATE),
         2
       ),
     };

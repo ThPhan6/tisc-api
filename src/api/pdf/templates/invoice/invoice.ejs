@@ -3,31 +3,74 @@
   <table width="100%">
     <!-- billed date -->
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent pb-4">
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent pb-4"
+      >
         <span class="normal-roboto-bold-8-20">Billed Date</span>
       </td>
       <td class="primary-roboto-light-8-18 width-70-percent pb-4">
-        <span class="normal-roboto-light-12"><%=billed_date%></span>
+        <span class="normal-roboto-light-10"><%=billed_date%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent pb-4"
+      >
+        <span class="normal-roboto-bold-8-20">Due Date</span>
+      </td>
+      <td class="primary-roboto-light-8-18 width-70-percent pb-4">
+        <span class="normal-roboto-light-10"><%=due_date%></span>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="
+          primary-roboto-light-8-18
+          width-30-percent
+          pb-4
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-bold-8-20">Payment Date</span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-70-percent
+          pb-4
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-10"><%=payment_date%></span>
       </td>
     </tr>
 
     <!-- client name -->
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent pb-4">
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent pb-4"
+      >
         <span class="normal-roboto-bold-8-20">Client Name</span>
       </td>
       <td class="primary-roboto-light-8-18 width-70-percent pb-4">
-        <span class="normal-roboto-light-12"><%=brand_name%></span>
+        <span class="normal-roboto-light-10"><%=brand_name%></span>
       </td>
     </tr>
 
     <!-- ordered by -->
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent pb-4">
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent pb-4"
+      >
         <span class="normal-roboto-bold-8-20">Ordered By</span>
       </td>
       <td class="primary-roboto-light-8-18 width-70-percent pb-4">
-        <span class="normal-roboto-light-12">
+        <span class="normal-roboto-light-10">
           <%=ordered_user.firstname%> <%=ordered_user.lastname%></span
         >
       </td>
@@ -37,14 +80,26 @@
     <tr>
       <td
         style="vertical-align: top"
-        class="primary-roboto-light-8-18 width-30-percent border-bottom-box-shadow pb-10"
+        class="
+          primary-roboto-light-8-18
+          width-30-percent
+          border-bottom-box-shadow
+          pb-10
+        "
       >
         <span class="normal-roboto-bold-8-20">Billing Number</span>
       </td>
 
-      <td class="primary-roboto-light-8-18 width-70-percent border-bottom-box-shadow pb-10">
-        <span class="normal-roboto-light-12"><%=brand_name%></span>
-        <span class="normal-roboto-light-12"><%=bill_number%></span>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-70-percent
+          border-bottom-box-shadow
+          pb-10
+        "
+      >
+        <span class="normal-roboto-light-10"><%=brand_name%></span>
+        <span class="normal-roboto-light-10"><%=bill_number%></span>
       </td>
     </tr>
 
@@ -52,162 +107,201 @@
     <tr>
       <td
         style="vertical-align: top"
-        class="primary-roboto-light-8-18 width-30-percent border-bottom-box-shadow pt-4 pb-10"
+        class="
+          primary-roboto-light-8-18
+          width-30-percent
+          border-bottom-box-shadow
+          pt-4
+          pb-10
+        "
       >
         <span class="normal-roboto-bold-8-20">Office Address</span><br />
       </td>
-      <td class="primary-roboto-light-8-18 width-70-percent border-bottom-box-shadow pt-4 pb-10">
-        <span class="normal-roboto-light-12"><%=brand_location_part_1%></span><br />
-        <span class="normal-roboto-light-12"><%=brand_location_part_2%></span><br />
-        <span class="normal-roboto-light-12"><%=brand_location_part_3%></span>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-70-percent
+          border-bottom-box-shadow
+          pt-4
+          pb-10
+        "
+      >
+        <span class="normal-roboto-light-10"><%=brand_location_part_1%></span
+        ><br />
+        <span class="normal-roboto-light-10"><%=brand_location_part_2%></span
+        ><br />
+        <span class="normal-roboto-light-10"><%=brand_location_part_3%></span>
       </td>
     </tr>
 
     <!-- service type -->
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent pt-4 pb-10">
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent pt-4 pb-10"
+      >
         <span class="normal-roboto-bold-8-20">Service Type</span>
       </td>
       <td class="primary-roboto-light-8-18 width-70-percent pt-4 pb-10">
-        <span class="normal-roboto-light-12"><%=service_type_name%></span>
+        <span class="normal-roboto-light-10"><%=service_type_name%></span>
       </td>
     </tr>
 
     <!-- billed amount -->
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent">
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
         <span class="normal-roboto-bold-8-20">Billed Amount</span>
       </td>
       <td
         style="vertical-align: top"
-        class="primary-roboto-light-8-18 width-50-percent border-bottom-box-shadow"
+        class="
+          primary-roboto-light-8-18
+          width-50-percent
+          border-bottom-box-shadow
+        "
       >
-        <span class="normal-roboto-light-12">Unit rate</span><br />
-        <span class="normal-roboto-light-12">Quantity</span>
+        <span class="normal-roboto-light-10">Unit rate</span><br />
+        <span class="normal-roboto-light-10">Quantity</span>
       </td>
-      <td class="primary-roboto-light-8-18 border-bottom-box-shadow">
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span>
-      </td>
-      <td class="primary-roboto-light-8-18 width-5-percent border-bottom-box-shadow">
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12" style="color: #bfbfbf">x</span>
-      </td>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 border-bottom-box-shadow">
-        <span class="normal-roboto-light-12"><%=unit_rate%></span><br />
-        <span class="normal-roboto-light-12"><%=quantity%></span>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent">
-        <span class="normal-roboto-light-12"></span>
-      </td>
-      <td class="primary-roboto-light-8-18 width-25-percent border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12">Gross Total</span><br />
-        <span class="normal-roboto-light-12">Sales Tax (GST)</span>
-      </td>
-      <td class="primary-roboto-light-8-18 border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"><%=tax%>%</span>
-      </td>
-      <td class="primary-roboto-light-8-18 width-5-percent border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12" style="color: #bfbfbf">=</span><br />
-        <span class="normal-roboto-light-12" style="color: #bfbfbf">+</span>
+
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-10"></span><br />
+        <span class="normal-roboto-light-10" style="color: #bfbfbf">x</span>
       </td>
       <td
-        class="primary-roboto-light-8-18 border-bottom-box-shadow-bold"
-        style="width: <%= colWidth %>%"
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 border-bottom-box-shadow"
       >
-        <span class="normal-roboto-light-12"><%=total_gross%></span><br />
-        <span class="normal-roboto-light-12"><%=sale_tax_amount%></span>
+        <span class="normal-roboto-light-10"><%=unit_rate%></span><br />
+        <span class="normal-roboto-light-10"><%=quantity%></span>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent">
-        <span class="normal-roboto-light-12"></span>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-10"></span>
       </td>
-      <td class="primary-roboto-light-8-18 width-25-percent border-bottom-box-shadow-bold pb-2">
-        <span class="normal-roboto-light-12 uppercase">TOTAL AMOUNT</span>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-50-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-10">Gross Total</span><br />
+        <span class="normal-roboto-light-10">Sales Tax (GST)</span><br />
+        <span class="normal-roboto-light-10"
+          >Overdue Payment Charges <%=tax%>%</span
+        >
       </td>
-      <td class="primary-roboto-light-8-18 border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12"></span>
+
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow
+        "
+      >
+        <span class="normal-roboto-light-10" style="color: #bfbfbf">=</span
+        ><br />
+        <span class="normal-roboto-light-10" style="color: #bfbfbf">+</span
+        ><br />
+        <span class="normal-roboto-light-10" style="color: #bfbfbf">+</span>
       </td>
-      <td class="primary-roboto-light-8-18 width-5-percent border-bottom-box-shadow-bold pb-2">
-        <span class="normal-roboto-light-12"></span>
+      <td
+        class="primary-roboto-light-8-18 border-bottom-box-shadow"
+        style="width: <%= colWidth %>%"
+      >
+        <span class="normal-roboto-light-10"><%=total_gross%></span><br />
+        <span class="normal-roboto-light-10"><%=sale_tax_amount%></span><br />
+        <% if(overdue_amount !== '$0.00') { %>
+        <span class="normal-roboto-light-10"><%=overdue_amount%></span>
+        <% } %>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="vertical-align: top"
+        class="primary-roboto-light-8-18 width-30-percent"
+      >
+        <span class="normal-roboto-light-10"></span>
+      </td>
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-50-percent
+          border-bottom-box-shadow-bold
+          pb-2
+        "
+      >
+        <span class="normal-roboto-light-10 uppercase">TOTAL</span><br />
+        <span class="normal-roboto-light-10"
+          >3rd Party Payment Gateway Surcharge @ 3.5%</span
+        >
+      </td>
+
+      <td
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow-bold
+        "
+      >
+        <span class="normal-roboto-light-10" style="color: #bfbfbf">=</span
+        ><br />
+        <span class="normal-roboto-light-10" style="color: #bfbfbf">+</span>
       </td>
       <td
         class="primary-roboto-light-8-18 border-bottom-box-shadow-bold pb-2"
         style="width: <%= colWidth %>%"
       >
-        <span class="normal-roboto-light-12"><%=total_amount%></span>
+        <span class="normal-roboto-light-10"><%=billing_amount%></span><br />
+        <span class="normal-roboto-light-10"><%=surcharge%></span>
       </td>
     </tr>
+
     <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent">
-        <span class="normal-roboto-light-12"></span>
-      </td>
-      <td class="primary-roboto-light-8-18 width-25-percent border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12">Due Date:</span><br />
-        <span class="normal-roboto-light-12">Payment Date:</span><br />
-        <% if(overdue_amount !== '$0.00') { %>
-        <span class="normal-roboto-light-12">Overdue Fines</span>
-        <% } %>
-      </td>
       <td
         style="vertical-align: top"
-        class="primary-roboto-light-8-18 border-bottom-box-shadow-bold"
+        class="primary-roboto-light-8-18 width-30-percent"
       >
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"><%=due_date%></span><br />
-        <span class="normal-roboto-light-12"><%=payment_date%></span><br />
-        <% if(overdue_amount !== '$0.00') { %>
-        <span class="normal-roboto-light-12"></span>
-        <% } %>
+        <span class="normal-roboto-light-10"></span>
       </td>
       <td
-        style="vertical-align: top"
-        class="primary-roboto-light-8-18 width-5-percent border-bottom-box-shadow-bold"
+        class="
+          primary-roboto-light-8-18
+          width-50-percent
+          border-bottom-box-shadow-bold
+          pb-2
+        "
       >
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span><br />
-        <% if(overdue_amount !== '$0.00') { %>
-        <span class="normal-roboto-light-12" style="color: #bfbfbf">+</span>
-        <% } %>
+        <span class="normal-roboto-bold-12 uppercase">GRAND TOTAL</span>
       </td>
       <td
-        class="primary-roboto-light-8-18 border-bottom-box-shadow-bold"
-        style="width: <%= colWidth %>%"
+        class="
+          primary-roboto-light-8-18
+          width-5-percent
+          border-bottom-box-shadow-bold
+        "
       >
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span><br />
-        <span class="normal-roboto-light-12"></span><br />
-        <% if(overdue_amount !== '$0.00') { %>
-        <span class="normal-roboto-light-12"><%=overdue_amount%></span>
-        <% } %>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top" class="primary-roboto-light-8-18 width-30-percent">
-        <span class="normal-roboto-light-12"></span>
-      </td>
-      <td class="primary-roboto-light-8-18 width-25-percent border-bottom-box-shadow-bold pb-2">
-        <span class="normal-roboto-bold-12 uppercase">BILLING AMOUNT</span>
-      </td>
-      <td class="primary-roboto-light-8-18 border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12"></span>
-      </td>
-      <td class="primary-roboto-light-8-18 width-5-percent border-bottom-box-shadow-bold">
-        <span class="normal-roboto-light-12"></span>
+        <span class="normal-roboto-light-10"></span>
       </td>
       <td
         class="primary-roboto-light-8-18 border-bottom-box-shadow-bold pb-2"
         style="width: <%= colWidth %>%"
       >
-        <span class="normal-roboto-bold-12 uppercase"><%=billing_amount%></span>
+        <span class="normal-roboto-bold-12 uppercase"><%=grand_total%></span>
       </td>
     </tr>
   </table>

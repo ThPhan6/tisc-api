@@ -20,17 +20,3 @@ export enum Region {
   oceania = "Oceania",
   s_americas = "S. America",
 }
-
-export const SupportedCurrency = [
-  "USD",
-  "AUD",
-  "CAD",
-  "SGD",
-  "NZD",
-  "HKD",
-  "JPY",
-  "EUR",
-  "GBP",
-  "CHF",
-];
-export const DefaultCurrency = "SGD"
