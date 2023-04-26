@@ -1,7 +1,4 @@
-import {
-  COMMON_TYPES,
-  MESSAGES,
-} from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -80,6 +77,12 @@ class InvoiceService {
     return {
       ...invoice,
       billing_amount: billingAmount,
+      billing_overdue_amount: billingAmount + overdueAmount,
+      surcharge: (billingAmount + overdueAmount) * ENVIRONMENT.SURCHARGE_RATE,
+      grand_total: toFixedNumber(
+        (billingAmount + overdueAmount) * (ENVIRONMENT.SURCHARGE_RATE + 1),
+        2
+      ),
       overdue_days: overdueDays,
       overdue_amount: overdueAmount,
       total_gross: totalGross,
@@ -376,23 +379,22 @@ class InvoiceService {
     }
     const exchanges = await freeCurrencyService.exchange();
     const exchange = exchanges.data["SGD"];
-    const newBillingAmount =
-      invoice.data.billing_amount + invoice.data.overdue_amount;
     const grandTotalSGD = toFixedNumber(
-      newBillingAmount * exchange * (1 + ENVIRONMENT.SURCHARGE_RATE),
+      invoice.data.billing_overdue_amount *
+        exchange *
+        (1 + ENVIRONMENT.SURCHARGE_RATE),
       2
     );
     const exchangedMoney = {
-      [`amount_sgd`]: newBillingAmount * exchange,
+      [`amount_sgd`]: invoice.data.billing_overdue_amount * exchange,
       [`surcharge_sgd`]:
-        newBillingAmount * exchange * ENVIRONMENT.SURCHARGE_RATE,
+        invoice.data.billing_overdue_amount *
+        exchange *
+        ENVIRONMENT.SURCHARGE_RATE,
       [`grand_total_sgd`]: grandTotalSGD,
-      [`amount_usd`]: newBillingAmount,
-      [`surcharge_usd`]: newBillingAmount * ENVIRONMENT.SURCHARGE_RATE,
-      [`grand_total_usd`]: toFixedNumber(
-        newBillingAmount * (1 + ENVIRONMENT.SURCHARGE_RATE),
-        2
-      ),
+      [`amount_usd`]: invoice.data.billing_overdue_amount,
+      [`surcharge_usd`]: invoice.data.surcharge,
+      [`grand_total_usd`]: toFixedNumber(invoice.data.grand_total, 2),
     };
     const result = (await airwallexService.createPaymentIntent({
       amount: grandTotalSGD,
