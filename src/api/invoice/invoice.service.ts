@@ -33,6 +33,7 @@ import {
 import {
   calculateInterestInvoice,
   pagination,
+  toFixedNumber,
   toNonAccentUnicode,
   toUSMoney,
 } from "@/helpers/common.helper";
@@ -360,17 +361,6 @@ class InvoiceService {
     );
     return successResponse({ data: result, fileName: invoice.name });
   }
-  private getSupportedCurrencyByLocationId = async (
-    locationId: string | null
-  ) => {
-    const currency = await locationRepository.getCurrencyByLocationId(
-      locationId
-    );
-    if (SupportedCurrency.includes(currency)) {
-      return [currency];
-    }
-    return [DefaultCurrency, currency];
-  };
   public createPaymentIntent = async (
     invoiceId: string,
     user: UserAttributes
@@ -383,32 +373,30 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.PAID);
     }
     const exchanges = await freeCurrencyService.exchange();
-    const currencies = await this.getSupportedCurrencyByLocationId(
-      user.location_id
+    const exchange = exchanges.data["SGD"];
+    const grandTotalSGD = toFixedNumber(
+      invoice.data.total_gross * exchange * (1 + ENVIRONMENT.SURCHARGE_RATE),
+      2
     );
-    const exchangedMoney = currencies.reduce((pre, cur) => {
-      const exchange = exchanges.data[cur];
-      if (!exchange) return pre;
-      return {
-        ...pre,
-        [`amount_${cur.toLowerCase()}`]: invoice.data.total_gross * exchange,
-        [`surcharge_${cur.toLowerCase()}`]:
-          invoice.data.total_gross * exchange * ENVIRONMENT.SURCHARGE_RATE,
-        [`total_${cur.toLowerCase()}`]:
-          invoice.data.total_gross *
-          exchange *
-          (1 + ENVIRONMENT.SURCHARGE_RATE),
-      };
-    }, {});
+    const exchangedMoney = {
+      [`amount_sgd`]: invoice.data.total_gross * exchange,
+      [`surcharge_sgd`]:
+        invoice.data.total_gross * exchange * ENVIRONMENT.SURCHARGE_RATE,
+      [`grand_total_sgd`]: grandTotalSGD,
+      [`amount_usd`]: invoice.data.total_gross,
+      [`surcharge_usd`]: invoice.data.total_gross * ENVIRONMENT.SURCHARGE_RATE,
+      [`grand_total_usd`]: toFixedNumber(
+        invoice.data.total_gross * (1 + ENVIRONMENT.SURCHARGE_RATE),
+        2
+      ),
+    };
     const result = (await airwallexService.createPaymentIntent({
-      amount: invoice.data.total_gross,
-      currency: currencies[0],
+      amount: grandTotalSGD,
+      currency: "SGD",
       metadata: {
         invoice_id: invoice.data.id,
         created_by: user.id,
         ...exchangedMoney,
-        surcharge: invoice.data.total_gross * ENVIRONMENT.SURCHARGE_RATE,
-        total: invoice.data.total_gross * (ENVIRONMENT.SURCHARGE_RATE + 1),
       },
     })) as PaymentIntentAttributes;
     await paymentRepository.create({
