@@ -291,12 +291,20 @@ class InvoiceRepository extends BaseRepository<InvoiceAttributes> {
     let query = `
     FOR invoices IN invoices
       FILTER invoices.status IN @statuses
-      FOR users IN users
-        FILTER users.id == invoices.created_by
+      LET createdBy = FIRST(FOR users IN users
+        FILTER users.id == invoices.created_by return users)
+      LET orderedBy = FIRST(FOR users IN users
+        FILTER users.id == invoices.ordered_by return users)
         RETURN MERGE(
           UNSET(invoices, ['_key','_id','_rev']),
           {
-            firstname: users.firstname,
+            firstname: createdBy.firstname,
+            ordered_user: {
+              id: orderedBy.id,
+              firstname: orderedBy.firstname,
+              lastname: orderedBy.lastname,
+              email: orderedBy.email,
+            },
           }
         )
     `;

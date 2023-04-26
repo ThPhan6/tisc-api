@@ -44,6 +44,7 @@ class InvoiceEmailQueue extends BaseQueue {
         );
         done();
       } catch (error: any) {
+        this.log(error, "slack");
         this.log(
           {
             subject: job.data.subject,
@@ -57,7 +58,10 @@ class InvoiceEmailQueue extends BaseQueue {
     });
   };
   public add = () => {
-    this.queue.add({}, { repeat: { cron: ENVIRONMENT.INVOICE_EMAIL_CRON_EXPRESSION } });
+    this.queue.add(
+      {},
+      { repeat: { cron: ENVIRONMENT.INVOICE_EMAIL_CRON_EXPRESSION } }
+    );
   };
 }
 
