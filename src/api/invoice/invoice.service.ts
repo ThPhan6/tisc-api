@@ -458,7 +458,7 @@ class InvoiceService {
   };
 
   public receivePaymentInfo = async (payload: any) => {
-    console.log(payload.name, payload.sourceId);
+    // console.log(payload.name, payload.sourceId);
     try {
       const payment = await paymentRepository.findBy({
         intent_id: payload.sourceId,
@@ -486,21 +486,33 @@ class InvoiceService {
         (payload.name === "payment_attempt.paid" ||
           payload.name === "payment_attempt.settled")
       ) {
-        await invoiceRepository.update(invoice.id, {
-          status: InvoiceStatus.Paid,
-        });
-        //send email to TISC
-        await this.sendPaymentReceivedEmailToAdmin({
-          invoice_id: invoice.id,
-          billing_number: invoice.name,
-          payment_user_id: payload.data.object.metadata.created_by,
-          amount: payload.data.object.amount,
-        });
-        //send receipt to created_by
-        await this.sendPaymentSuccessEmailToPaymentUser({
-          payment_user_id: payload.data.object.metadata.created_by,
-          invoice_id: invoice.id,
-        });
+        const paymentAttempts = await airwallexService.listPaymentAttempts(
+          payload.sourceId
+        );
+        if (paymentAttempts !== false) {
+          const paymentAttempt = await paymentAttempts.items.find(
+            (item) =>
+              item.payment_intent_id === payload.sourceId &&
+              (item.status === "PAID" || item.status === "SETTLED")
+          );
+          if (paymentAttempt) {
+            await invoiceRepository.update(invoice.id, {
+              status: InvoiceStatus.Paid,
+            });
+            //send email to TISC
+            await this.sendPaymentReceivedEmailToAdmin({
+              invoice_id: invoice.id,
+              billing_number: invoice.name,
+              payment_user_id: payload.data.object.metadata.created_by,
+              amount: payload.data.object.amount,
+            });
+            //send receipt to created_by
+            await this.sendPaymentSuccessEmailToPaymentUser({
+              payment_user_id: payload.data.object.metadata.created_by,
+              invoice_id: invoice.id,
+            });
+          }
+        }
       }
       return successMessageResponse(MESSAGES.SUCCESS);
     } catch (error) {
