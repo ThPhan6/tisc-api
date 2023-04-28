@@ -342,9 +342,7 @@ class InvoiceService {
     const newBillingAmount =
       calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount;
     const result = await pdfService.generateInvoicePdf(
-      !invoice.payment_date || invoice.payment_date === ""
-        ? "Invoice"
-        : "Receipt",
+      invoice.status !== InvoiceStatus.Paid ? "Invoice" : "Receipt",
       {
         ...calculatedInvoice,
         bill_number: invoice.name.slice(-10),
@@ -498,6 +496,7 @@ class InvoiceService {
           if (paymentAttempt) {
             await invoiceRepository.update(invoice.id, {
               status: InvoiceStatus.Paid,
+              payment_date: moment().format("YYYY-MM-DD"),
             });
             //send email to TISC
             await this.sendPaymentReceivedEmailToAdmin({
