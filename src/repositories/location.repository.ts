@@ -156,8 +156,8 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     relationId: string,
     limit?: number,
     offset?: number,
-    sort: string = "created_at",
-    order: SortOrder = "DESC"
+    sort: string = "country_name",
+    order: SortOrder = "ASC"
   ) => {
     const query = this.getQueryWithMemberAndFunctionType({
       relationId,

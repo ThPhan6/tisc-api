@@ -33,7 +33,12 @@ import {
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import { getKeyByValue, objectDiff, randomName } from "@/helpers/common.helper";
+import {
+  getKeyByValue,
+  objectDiff,
+  randomName,
+  sortObjectArray,
+} from "@/helpers/common.helper";
 import { uploadLogo } from "@/services/image.service";
 import { ActivityTypes, logService } from "@/services/log.service";
 
@@ -353,34 +358,41 @@ export default class UserService {
   public getBrandOrDesignTeamGroupByCountry = async (relationId: string) => {
     const userWithLocations =
       await userRepository.getWithLocationAndDeparmentData(relationId);
-
     const results: {
       country_name: string;
       count: number;
       users: Partial<UserAttributes>[];
-    }[] = Object.entries(
-      groupBy(userWithLocations, "locations.country_name")
-    ).map(([country_name, users]) => ({
-      country_name:
-        country_name === "undefined" ? "Empty Location" : country_name,
-      users: users.map((user) => ({
-        id: user.id,
-        phone_code: user.phone_code,
-        avatar: user.avatar,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        gender: user.gender,
-        work_location: user.work_location,
-        department: user.common_types?.name || null,
-        position: user.position,
-        email: user.email,
-        phone: user.phone,
-        mobile: user.mobile,
-        access_level: RoleNames[user.role_id],
-        status: user.status,
-      })),
-      count: (users as any[]).length,
-    }));
+    }[] = sortObjectArray(
+      Object.entries(groupBy(userWithLocations, "locations.country_name")).map(
+        ([country_name, users]) => ({
+          country_name:
+            country_name === "undefined" ? "Empty Location" : country_name,
+          users: sortObjectArray(
+            users.map((user) => ({
+              id: user.id,
+              phone_code: user.phone_code,
+              avatar: user.avatar,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              gender: user.gender,
+              work_location: user.work_location,
+              department: user.common_types?.name || null,
+              position: user.position,
+              email: user.email,
+              phone: user.phone,
+              mobile: user.mobile,
+              access_level: RoleNames[user.role_id],
+              status: user.status,
+            })),
+            "firstname",
+            "ASC"
+          ),
+          count: (users as any[]).length,
+        })
+      ),
+      "country_name",
+      "ASC"
+    );
 
     return successResponse({ data: results });
   };
