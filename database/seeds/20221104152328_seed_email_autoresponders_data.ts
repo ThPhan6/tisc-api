@@ -1117,7 +1117,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_receipt,
-      topic: TOPIC_TYPES.MESSAGES,
+      topic: TOPIC_TYPES.OTHER,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Invoice - Thank you for your support",
       message: invoiceSupportMessage,
@@ -1127,7 +1127,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_reminder,
-      topic: TOPIC_TYPES.MESSAGES,
+      topic: TOPIC_TYPES.OTHER,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Invoice - Reminder",
       message: invoiceReminderMessage,
@@ -1147,7 +1147,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_payment_success,
-      topic: TOPIC_TYPES.OTHER,
+      topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "TISC - Payment successful, thank you!",
       message: invoicePaymentSuccessMessage,
@@ -1157,7 +1157,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_payment_received,
-      topic: TOPIC_TYPES.OTHER,
+      topic: TOPIC_TYPES.MESSAGES,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "TISC - Payment received!",
       message: invoicePaymentReceivedMessage,
