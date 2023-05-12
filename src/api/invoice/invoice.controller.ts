@@ -81,4 +81,15 @@ export default class InvoiceController {
       .header("Content-Disposition", `attachment; filename=${filename}`)
       .header("Content-Type", "application/pdf");
   }
+  public async createPaymentIntent(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await invoiceService.createPaymentIntent(id, user);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async receivePaymentInfo(req: Request, toolkit: ResponseToolkit) {
+    const payload = req.payload
+    const response = await invoiceService.receivePaymentInfo(payload);
+    return toolkit.response(response).code(response.statusCode);
+  }
 }

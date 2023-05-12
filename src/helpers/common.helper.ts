@@ -222,4 +222,9 @@ export const objectDiff = (oldObj: any, newObj: any) => {
     changed_data: changedData,
   };
 };
-export const getLodashOrder = (order: SortOrder) => order.toLowerCase() as "asc" | "desc";
+export const getLodashOrder = (order: SortOrder) =>
+  order.toLowerCase() as "asc" | "desc";
+
+export const toFixedNumber = (amount: number, n: number) => {
+  return parseFloat(amount.toFixed(n));
+};

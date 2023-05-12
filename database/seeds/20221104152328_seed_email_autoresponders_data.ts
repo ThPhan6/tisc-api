@@ -872,6 +872,76 @@ const invoiceOverdueMessage = `
 
 </html>
 `;
+const invoicePaymentSuccessMessage = `
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tisc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style media="screen"></style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+    ${style}
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content-email">
+            <div class="message-email">
+                <p>Hi <%= receiver_first_name %>,</p>
+                <p class="pb-20">We have just received your payment! You can find more details and download PDF receipt by visiting <%= url %></p>
+
+                <p class="pb-20">Have a pleasant day!</p>
+                <p>TISC Team</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
+                <div class="pb-15">
+                    <div class="hr">
+                    </div>
+                </div>
+                <p>This is an auto-generated message.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+`;
+const invoicePaymentReceivedMessage = `
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tisc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style media="screen"></style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
+    ${style}
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content-email">
+            <div class="message-email">
+                <p>From: <%= first_name %> <%= last_name %> of <%= brand_name %></p>
+                <p>Invoice number: <%= invoice_id %></p>
+                <p>Payment amount: <%= amount %></p>
+
+                <p>TISC Team</p>
+                <p class="text-blue-light pb-15">tisc.global</p>
+                <div class="pb-15">
+                    <div class="hr">
+                    </div>
+                </div>
+                <p>This is an auto-generated message.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+`;
 export const up = (connection: ConnectionInterface) => {
   const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
   return connection.insert("email_autoresponders", [
@@ -1071,6 +1141,26 @@ export const up = (connection: ConnectionInterface) => {
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Invoice - Overdue Payment Notice",
       message: invoiceOverdueMessage,
+      deleted_at: null,
+      updated_at: currentTime,
+      created_at: currentTime,
+    },
+    {
+      id: EmailTemplateID.general.invoice_payment_success,
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      title: "TISC - Payment successful, thank you!",
+      message: invoicePaymentSuccessMessage,
+      deleted_at: null,
+      updated_at: currentTime,
+      created_at: currentTime,
+    },
+    {
+      id: EmailTemplateID.general.invoice_payment_received,
+      topic: TOPIC_TYPES.MESSAGES,
+      targeted_for: TARGETED_FOR_TYPES.GENERAL,
+      title: "TISC - Payment received!",
+      message: invoicePaymentReceivedMessage,
       deleted_at: null,
       updated_at: currentTime,
       created_at: currentTime,

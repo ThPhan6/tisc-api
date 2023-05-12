@@ -53,6 +53,16 @@ export const ENVIRONMENT = {
   REDIS_PORT: process.env.REDIS_PORT || "6379",
   CONTACT_RECEIVER: process.env.CONTACT_RECEIVER || "hello@tisc.global",
   MAXIMUM_BACKUP_FILE: process.env.MAXIMUM_BACKUP_FILE || "7",
+  SENTRY_DNS:
+    process.env.SENTRY_DNS ||
+    "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
+  AIRWALLEX_API_ENPOINT: process.env.AIRWALLEX_API_ENPOINT || "",
+  AIRWALLEX_API_KEY: process.env.AIRWALLEX_API_KEY || "",
+  AIRWALLEX_CLIENT_KEY: process.env.AIRWALLEX_CLIENT_KEY || "",
+  INVOICE_EMAIL_CRON_EXPRESSION:
+    process.env.INVOICE_EMAIL_CRON_EXPRESSION || "",
+  SURCHARGE_RATE: parseFloat(process.env.SURCHARGE_RATE || "0.035"),
+  FREE_CURRENCY_API_KEY: process.env.FREE_CURRENCY_API_KEY || "",
 };
 
 export const jwtConfig = {
@@ -78,18 +88,19 @@ const swaggerOptions = {
     },
   },
 };
-
-export const plugins: any = [
+const sentryPlugin = ["staging", "production"].includes(ENVIRONMENT.NODE_ENV)
+  ? {
+      plugin: require("hapi-sentry"),
+      options: {
+        client: {
+          dsn: ENVIRONMENT.SENTRY_DNS,
+        },
+      },
+    }
+  : undefined;
+const initPlugins: any[] = [
   {
     plugin: Inert,
-  },
-  {
-    plugin: require("hapi-sentry"),
-    options: {
-      client: {
-        dsn: "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
-      },
-    },
   },
   {
     plugin: Vision,
@@ -99,3 +110,9 @@ export const plugins: any = [
     options: swaggerOptions,
   },
 ];
+
+if (sentryPlugin) {
+  initPlugins.push(initPlugins);
+}
+
+export const plugins = initPlugins;

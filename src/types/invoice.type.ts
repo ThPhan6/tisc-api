@@ -7,7 +7,8 @@ export enum InvoiceStatus {
   Outstanding,
   Overdue,
   Paid,
-  Pending
+  Pending,
+  Processing
 }
 
 export interface InvoiceAttributes {

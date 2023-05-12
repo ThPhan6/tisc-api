@@ -7,6 +7,7 @@ import { slackService } from "@/services/slack.service";
 import path from "path";
 import { emailQueue } from "./queues/email.queue";
 import { databaseBackupQueue } from "./queues/database_backup.queue";
+import { invoiceEmailQueue } from "./queues/invoice_mail.queue";
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIRONMENT.HOST,
@@ -66,6 +67,8 @@ async function start() {
     emailQueue.process();
     databaseBackupQueue.process();
     databaseBackupQueue.add();
+    invoiceEmailQueue.process();
+    invoiceEmailQueue.add();
     await Router.loadRoute(server);
     await server.start();
     server.events.on("log", (event, tags) => {
