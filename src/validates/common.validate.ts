@@ -31,9 +31,9 @@ const defaultGetListWithSortingQueryValidation: Joi.PartialSchemaMap<any> = {
   order: Joi.string().valid("ASC", "DESC"),
 };
 
-const getDefaultGetListQueryCustom = (value: any) => ({
-  sort: value.sort || "name",
-  order: value.order || "ASC",
+const getDefaultGetListQueryCustom = (value: any, list_type?: string) => ({
+  sort: value.sort || (list_type === "bill_services" ? "created_at" : "name"),
+  order: value.order || (list_type === "bill_services" ? "DESC" : "ASC"),
 });
 
 export const getAllValidation = (
@@ -54,6 +54,7 @@ export const getListValidation = (options?: {
   params?: Joi.PartialSchemaMap<any>;
   custom?: Joi.CustomValidator<any>;
   noSorting?: boolean;
+  listType?: string;
 }) => ({
   query: Joi.object({
     page: Joi.number()
@@ -81,7 +82,7 @@ export const getListValidation = (options?: {
     limit: !value.page || !value.pageSize ? 10 : value.pageSize,
     offset:
       !value.page || !value.pageSize ? 0 : (value.page - 1) * value.pageSize,
-    ...getDefaultGetListQueryCustom(value),
+    ...getDefaultGetListQueryCustom(value, options?.listType),
     ...options?.custom?.(value, helpers),
   })),
   params: options?.params,
@@ -108,12 +109,16 @@ const getRegexMessage = (regex?: string) => {
     return "is only allowed UPPERCASE, lowercase, spaces, and numbers";
   }
   return `does not match with pattern ${regex}`;
-}
+};
 
 export const requirePasswordValidation = Joi.string()
   .required()
   .regex(regexPassword)
-  .error(errorMessage("Password must contain at least 8 characters, including UPPERCASE, lowercase, symbols and numbers"));
+  .error(
+    errorMessage(
+      "Password must contain at least 8 characters, including UPPERCASE, lowercase, symbols and numbers"
+    )
+  );
 
 // export const requireNumberValidation = (fieldName: string, full?: "full") =>
 //   Joi.number()
@@ -173,11 +178,9 @@ export const requireStringValidation = (
   customMessage?: string,
   isNormalCharacter: boolean = false
 ) => {
-  let validation = Joi.string()
-    .trim()
-    .required();
+  let validation = Joi.string().trim().required();
   if (isNormalCharacter) {
-    validation = validation.regex(regexNormalCharacter)
+    validation = validation.regex(regexNormalCharacter);
   }
   return validation.error((errors: any) => {
     errors[0].local.label = fieldName;
@@ -185,8 +188,7 @@ export const requireStringValidation = (
       customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
     return message ? Error(message) : errors[0];
   });
-}
-
+};
 
 export const requireEmailValidation = (
   fieldName: string = "Email",
@@ -203,8 +205,7 @@ export const requireEmailValidation = (
         customMessage || getCustomErrorMessage(errors[0].code, errors[0].local);
       return message ? Error(message) : errors[0];
     });
-}
-
+};
 
 export const requireNumberValidation = (fieldName: string) => {
   return Joi.number()
@@ -217,4 +218,4 @@ export const requireNumberValidation = (fieldName: string) => {
       );
       return customMessage ? Error(customMessage) : errors[0];
     });
-}
+};
