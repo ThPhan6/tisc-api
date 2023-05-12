@@ -48,12 +48,9 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import {
-  SortOrder,
-  UserAttributes,
-  BasisConversion,
-} from "@/types";
+import { SortOrder, UserAttributes, BasisConversion } from "@/types";
 import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
+import { sortObjectArray } from "@/helpers/common.helper";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -505,8 +502,12 @@ class ProductService {
 
   public getFavoriteProductSummary = async (user: UserAttributes) => {
     const products = await productRepository.getFavouriteProducts(user.id);
-    const categories = getUniqueProductCategories(products);
-    const brands = getUniqueBrands(products);
+    const categories = sortObjectArray(
+      getUniqueProductCategories(products),
+      "name",
+      "ASC"
+    );
+    const brands = sortObjectArray(getUniqueBrands(products), "name", "ASC");
     return successResponse({
       data: {
         categories,
