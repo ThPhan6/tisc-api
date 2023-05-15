@@ -166,7 +166,7 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.ONLY_BILL_PENDING_INVOICE);
     }
     await invoiceRepository.update(invoiceId, {
-      due_date: moment().add(7, "days").format("YYYY-MM-DD"),
+      due_date: moment().add(1, "days").format("YYYY-MM-DD"),
       billed_date: moment().format("YYYY-MM-DD"),
       status: InvoiceStatus.Outstanding,
     });
