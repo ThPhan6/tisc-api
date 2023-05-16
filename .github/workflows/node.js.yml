@@ -53,7 +53,7 @@ jobs:
           script: /var/www/cdScript.sh staging
   deploy-production-server:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' # run this job only for the staging branch
+    if: github.ref == 'refs/heads/test-ci-cd' # run this job only for the staging branch
     steps:
       # DigitalOcean Droplet already have deploy files
       - uses: actions/checkout@v3
