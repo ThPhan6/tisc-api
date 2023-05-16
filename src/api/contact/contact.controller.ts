@@ -1,7 +1,7 @@
 import { IContactRequest } from "./contact.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { contactService } from "./contact.service";
-import { upsertBlockedIp } from "@/helper/blocked_ip.helper";
+import { upsertBlockedIp } from "@/helpers/blocked_ip.helper";
 
 export default class ContactController {
   public create = async (

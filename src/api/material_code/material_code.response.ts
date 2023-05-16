@@ -1,4 +1,4 @@
-import { summaryTableResponse } from "./../../helper/response.helper";
+import { summaryTableResponse } from "@/helpers/response.helper";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
 export default {

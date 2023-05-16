@@ -1,6 +1,6 @@
 import { SortOrder, IMaterialCodeAttributes, ICodeAttribute } from "@/types";
 import BaseRepository from "./base.repository";
-import MaterialCodeModel from "@/model/material_code.model";
+import MaterialCodeModel from "@/models/material_code.model";
 import { head } from "lodash";
 
 class MaterialCodeRepository extends BaseRepository<IMaterialCodeAttributes> {

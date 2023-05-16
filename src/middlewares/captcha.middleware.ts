@@ -1,6 +1,6 @@
 import { Server, Request } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
-import { reCaptchaService } from "@/service/captcha.service";
+import { reCaptchaService } from "@/services/captcha.service";
 import { AUTH_NAMES } from "@/constants";
 import { ENVIRONMENT } from "@/config";
 

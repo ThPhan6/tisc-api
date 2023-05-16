@@ -1,7 +1,7 @@
 import {
   paginationResponse,
   summaryTableResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -45,6 +45,7 @@ export const subsBasisOptionOrPresetResponse = {
       value_2: Joi.any(),
       unit_1: Joi.any(),
       unit_2: Joi.any(),
+      product_id: Joi.any(),
     }).allow(null)
   ),
 };

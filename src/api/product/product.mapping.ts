@@ -1,4 +1,4 @@
-import { getDistinctArray, numberToFixed } from "@/helper/common.helper";
+import { getDistinctArray, numberToFixed } from "@/helpers/common.helper";
 import {
   IBasisAttributes,
   AttributeProps,
@@ -13,7 +13,7 @@ import {
   IAttributeGroupWithOptionId,
   IProductOption,
 } from "./product.type";
-import { isArray } from "lodash";
+import { isArray, toNumber, isNaN } from "lodash";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -144,7 +144,7 @@ export const mappingAttribute = (
         return final;
       }, [] as any)
     : [];
-  if (attributeGroup.id) {
+  if (attributeGroup.id && isNaN(toNumber(attributeGroup.id))) {
     return {
       ...attributeGroup,
       attributes: newAttributes,
@@ -204,6 +204,11 @@ export const mappingAttributeGroups = (
                   if (foundBasisOption) {
                     final.push({
                       ...basisOption,
+                      option_code:
+                        basisOption.option_code &&
+                        basisOption.option_code !== ""
+                          ? basisOption.option_code
+                          : foundBasisOption.product_id,
                       value_1: foundBasisOption.value_1,
                       value_2: foundBasisOption.value_2,
                       unit_1: foundBasisOption.unit_1,
@@ -239,18 +244,22 @@ export const mappingAttributeGroups = (
           }
           /// display correct preset text
           if (attribute.type === "Presets" && allBasisOptions) {
-            const basis = allBasisOptions.find((opt) => opt.id === attribute.basis_id);
+            const basis = allBasisOptions.find(
+              (opt) => opt.id === attribute.basis_id
+            );
             if (basis) {
-              const basisValue = basis.subs.find((subBasis: any) => subBasis.id === attribute.basis_value_id);
+              const basisValue = basis.subs.find(
+                (subBasis: any) => subBasis.id === attribute.basis_value_id
+              );
               if (basisValue) {
                 response.text = `${basisValue.value_1}`;
                 if (basisValue.unit_1) {
-                    response.text += ` ${basisValue.unit_1}`;
+                  response.text += ` ${basisValue.unit_1}`;
                 }
                 if (basisValue.value_2) {
                   response.text += ` - ${basisValue.value_2}`;
                   if (basisValue.unit_2) {
-                      response.text += ` ${basisValue.unit_2}`;
+                    response.text += ` ${basisValue.unit_2}`;
                   }
                 }
               }
@@ -263,4 +272,19 @@ export const mappingAttributeGroups = (
       : [];
     return { ...group, attributes: newAttributes };
   });
+};
+export const mappingProductID = (
+  attribute_groups: IAttributeGroupWithOptionId[]
+) => {
+  let productIDs: string[] = [];
+  attribute_groups.map((group) => {
+    group.attributes.map((attribute) => {
+      attribute.basis_options?.map((option) => {
+        if (option.option_code) {
+          productIDs.push(option.option_code);
+        }
+      });
+    });
+  });
+  return productIDs.filter((item) => item && item !== "").join(", ");
 };

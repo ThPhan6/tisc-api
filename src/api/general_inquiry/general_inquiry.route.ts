@@ -1,9 +1,9 @@
-import IRoute from "@/helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import * as Hapi from "@hapi/hapi";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "./general_inquiry.validate";
 import response from "./general_inquiry.response";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import GeneralInquiryController from "./general_inquiry.controller";
 
 export default class GeneralInquiryRoute implements IRoute {

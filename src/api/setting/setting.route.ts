@@ -1,7 +1,7 @@
 import * as Hapi from "@hapi/hapi";
 import SettingController from "./setting.controller";
-import IRoute from "@/helper/route.helper";
-import { defaultRouteOptionResponseStatus } from "@/helper/response.helper";
+import IRoute from "@/helpers/route.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import response from "./setting.response";
 import validate from "./setting.validate";
 import { AUTH_NAMES, ROUTES } from "@/constants";

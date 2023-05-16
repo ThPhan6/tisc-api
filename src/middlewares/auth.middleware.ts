@@ -4,9 +4,9 @@ import jwt_decode from "jwt-decode";
 import * as Boom from "@hapi/boom";
 import { userRepository } from "@/repositories/user.repository";
 import { companyPermissionRepository } from "@/repositories/company_permission.repository";
-import { verifyJwtToken } from "@/helper/jwt.helper";
+import { verifyJwtToken } from "@/helpers/jwt.helper";
 import { UserAttributes } from "@/types";
-import { base64ToString, decrypt } from "@/helper/cryptojs.helper";
+import { base64ToString, decrypt } from "@/helpers/cryptojs.helper";
 import { ENVIRONMENT } from "@/config";
 
 export const throwError = async (message?: string) => {

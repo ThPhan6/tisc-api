@@ -1,7 +1,7 @@
 import { projectRepository } from "@/repositories/project.repository";
 import { templateRepository } from "@/repositories/template.repository";
 import { projectProductPDFConfigRepository } from "@/repositories/project_product_pdf_config.repository";
-import { getBufferFile } from "@/service/aws.service";
+import { getBufferFile } from "@/services/aws.service";
 import { projectProductRepository } from "@/api/project_product/project_product.repository";
 import { projectZoneRepository } from "@/repositories/project_zone.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
@@ -31,11 +31,11 @@ import { isEmpty, map, merge, isUndefined, partition, clone, head } from "lodash
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
-import { pdfNode } from "@/service/pdf/pdf.service";
+} from "@/helpers/response.helper";
+import { pdfNode } from "@/services/pdf/pdf.service";
 import * as ejs from "ejs";
 import { ENVIRONMENT } from "@/config";
-import { numberToFixed } from "@/helper/common.helper";
+import { numberToFixed } from "@/helpers/common.helper";
 
 export default class PDFService {
   private baseTemplate = `${process.cwd()}/src/api/pdf/templates`;

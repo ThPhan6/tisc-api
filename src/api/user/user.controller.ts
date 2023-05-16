@@ -7,7 +7,7 @@ import {
   IUserRequest,
 } from "./user.type";
 import { MESSAGES } from "@/constants";
-import { errorMessageResponse } from "@/helper/response.helper";
+import { errorMessageResponse } from "@/helpers/response.helper";
 import { INTERESTED_IN_OPTIONS } from "@/constants";
 
 export default class UserController {

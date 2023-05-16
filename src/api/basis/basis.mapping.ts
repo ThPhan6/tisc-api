@@ -5,9 +5,8 @@ import {
   randomName,
   sortObjectArray,
   toSingleSpaceAndToLowerCase,
-} from "@/helper/common.helper";
-import { toWebp } from "@/helper/image.helper";
-import { deleteFile, isExists } from "@/service/aws.service";
+} from "@/helpers/common.helper";
+import { deleteFile, isExists } from "@/services/aws.service";
 import { IBasisAttributes } from "@/types";
 import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
@@ -104,6 +103,7 @@ export const mappingBasisOptionCreate = async (
               value_2: value.value_2,
               unit_1: value.unit_1,
               unit_2: value.unit_2,
+              product_id: value.product_id
             };
           }
           if (value.image) {
@@ -129,6 +129,7 @@ export const mappingBasisOptionCreate = async (
               value_2: value.value_2,
               unit_1: value.unit_1,
               unit_2: value.unit_2,
+              product_id: value.product_id,
             };
           }
           return {
@@ -138,6 +139,7 @@ export const mappingBasisOptionCreate = async (
             value_2: value.value_2,
             unit_1: value.unit_1,
             unit_2: value.unit_2,
+            product_id: value.product_id,
           };
         })
       );

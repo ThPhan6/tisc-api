@@ -1,10 +1,10 @@
 import * as Hapi from "@hapi/hapi";
 import PermissionController from "./permission.controller";
-import IRoute from "../../helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
-import { defaultRouteOptionResponseStatus } from "../../helper/response.helper";
+import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import response from "./permission.response";
-import { getOneValidation } from "@/validate/common.validate";
+import { getOneValidation } from "@/validates/common.validate";
 
 export default class PermissionRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

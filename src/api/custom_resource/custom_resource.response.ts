@@ -1,5 +1,5 @@
-import { paginationResponse } from "@/helper/response.helper";
-import { getSummaryResponseValidate } from "@/validate/common.response";
+import { paginationResponse } from "@/helpers/response.helper";
+import { getSummaryResponseValidate } from "@/validates/common.response";
 import Joi from "joi";
 import { customProductContactValidate } from "../custom_product/custom_product.validate";
 import { locationBasicResponse } from "../location/location.response";

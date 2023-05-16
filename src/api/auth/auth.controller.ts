@@ -7,7 +7,7 @@ import {
   IRegisterRequest,
   IResetPasswordRequest,
 } from "./auth.type";
-import { upsertBlockedIp } from "@/helper/blocked_ip.helper";
+import { upsertBlockedIp } from "@/helpers/blocked_ip.helper";
 
 export default class AuthController {
   private authService: AuthService;

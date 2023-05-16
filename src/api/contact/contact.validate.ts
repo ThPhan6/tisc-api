@@ -3,7 +3,7 @@ import {
   errorMessage,
   requireEmailValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 export default {
   create: {

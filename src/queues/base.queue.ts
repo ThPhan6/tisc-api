@@ -1,5 +1,5 @@
 import Bull from "bull";
-import { slackService } from "@/service/slack.service";
+import { slackService } from "@/services/slack.service";
 import { logRepository } from "@/repositories/log.repository";
 
 export class BaseQueue {

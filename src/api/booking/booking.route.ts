@@ -1,15 +1,15 @@
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import * as Hapi from "@hapi/hapi";
-import IRoute from "@/helper/route.helper";
+import IRoute from "@/helpers/route.helper";
 import validate from "./booking.validate";
 import BookingController from "./booking.controller";
 import response from "./booking.response";
-import { getOneValidation } from "@/validate/common.validate";
-import { preventAttempt } from "@/middleware/prevent_attempt.middleware";
+import { getOneValidation } from "@/validates/common.validate";
+import { preventAttempt } from "@/middlewares/prevent_attempt.middleware";
 
 export default class BookingRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {

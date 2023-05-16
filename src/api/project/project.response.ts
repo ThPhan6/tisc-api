@@ -1,7 +1,7 @@
-import { getEnumValues } from "@/helper/common.helper";
-import { paginationResponse } from "@/helper/response.helper";
+import { getEnumValues } from "@/helpers/common.helper";
+import { paginationResponse } from "@/helpers/response.helper";
 import { ProjectStatus } from "@/types";
-import { getSummaryResponseValidate } from "@/validate/common.response";
+import { getSummaryResponseValidate } from "@/validates/common.response";
 import * as HapiJoi from "joi";
 import { areaResponse } from "../project_zone/project_zone.response";
 
@@ -190,7 +190,7 @@ export default {
           id: Joi.string(),
           firstname: Joi.string().allow(""),
           lastname: Joi.string().allow(""),
-          avatar: Joi.string().allow(null),
+          avatar: Joi.string().allow(null, ''),
           gender: Joi.boolean(),
           position: Joi.string().allow(""),
           email: Joi.string().allow(""),

@@ -1,4 +1,4 @@
-import StateModel from "@/model/state.model";
+import StateModel from "@/models/state.model";
 import BaseRepository from "./base.repository";
 import { IStateAttributes } from "@/types";
 

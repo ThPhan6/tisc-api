@@ -4,7 +4,7 @@ import {
   getListValidation,
   orderValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 const requireUnitValue = (item: any, helpers: any) => {
   if (
@@ -31,6 +31,7 @@ const basisOptionsValidate = Joi.array()
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
       unit_2: Joi.string().allow(""),
+      product_id: Joi.string().allow(""),
       id: Joi.string().allow(""),
     })
     .custom(requireUnitValue)

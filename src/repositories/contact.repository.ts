@@ -1,5 +1,5 @@
 import { IContactsResponse } from "@/api/contact/contact.type";
-import ContactModel from "@/model/contact.model";
+import ContactModel from "@/models/contact.model";
 import { IContactAttributes } from "@/types/contact.type";
 import BaseRepository from "./base.repository";
 

@@ -1,5 +1,5 @@
-import { paginationResponse } from "@/helper/response.helper";
-import { getSummaryResponseValidate } from "@/validate/common.response";
+import { paginationResponse } from "@/helpers/response.helper";
+import { getSummaryResponseValidate } from "@/validates/common.response";
 import * as HapiJoi from "joi";
 
 const Joi = HapiJoi.defaults((schema) => schema.options({ abortEarly: false }));
@@ -45,7 +45,7 @@ export default {
             id: Joi.string(),
             firstname: Joi.string(),
             lastname: Joi.string(),
-            avatar: Joi.string().allow(null),
+            avatar: Joi.string().allow(null, ''),
           })
         ),
         requestCount: Joi.number(),

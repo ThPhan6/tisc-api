@@ -1,11 +1,11 @@
-import { getEnumValues } from "@/helper/common.helper";
+import { getEnumValues } from "@/helpers/common.helper";
 import { AttributeType } from "@/types";
 import {
   errorMessage,
   getListValidation,
   orderValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 import * as Joi from "joi";
 
 export default {

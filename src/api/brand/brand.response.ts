@@ -1,5 +1,5 @@
-import { paginationResponse } from "@/helper/response.helper";
-import { getSummaryResponseValidate } from "@/validate/common.response";
+import { paginationResponse } from "@/helpers/response.helper";
+import { getSummaryResponseValidate } from "@/validates/common.response";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({

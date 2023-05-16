@@ -5,13 +5,13 @@ import {
   DefaultLogo,
   DefaultProductImage,
 } from "@/constants";
-import { getProductSharedUrl } from "@/helper/product.helper";
-import { getFileURI } from "@/helper/image.helper";
+import { getProductSharedUrl } from "@/helpers/product.helper";
+import { getFileURI } from "@/helpers/image.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import AttributeRepository from "@/repositories/attribute.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { brandRepository } from "@/repositories/brand.repository";
@@ -19,15 +19,15 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { productRepository } from "@/repositories/product.repository";
 import { productFavouriteRepository } from "@/repositories/product_favourite.repository";
 import { projectProductRepository } from "@/api/project_product/project_product.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
+import { countryStateCityService } from "@/services/country_state_city.service";
 import { userRepository } from "@/repositories/user.repository";
 import {
   splitImageByType,
   uploadImagesProduct,
   updateProductImageNames,
   validateImageType,
-} from "@/service/image.service";
-import { mailService } from "@/service/mail.service";
+} from "@/services/image.service";
+import { mailService } from "@/services/mail.service";
 import { isEqual, sortBy } from "lodash";
 import {
   getTotalVariantOfProducts,
@@ -40,6 +40,7 @@ import {
   mappingByBrand,
   mappingByCategory,
   mappingByCollections,
+  mappingProductID,
 } from "./product.mapping";
 import {
   IProductOptionAttribute,
@@ -48,7 +49,6 @@ import {
   ShareProductBodyRequest,
 } from "./product.type";
 import {
-  AttributeType,
   SortOrder,
   UserAttributes,
   BasisConversion,
@@ -231,27 +231,33 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const countryIds = product.brand.official_websites.map((ow) => ow.country_id);
+    const countryIds = product.brand.official_websites.map(
+      (ow) => ow.country_id
+    );
     const countries = await countryStateCityService.getCountries(countryIds);
-    const officialWebsites = product.brand.official_websites.map((officialWebsite) => {
+    const officialWebsites = product.brand.official_websites.map(
+      (officialWebsite) => {
         let countryName = "Global";
         if (countries) {
-          const country = countries.find((c) => c.id === officialWebsite.country_id);
+          const country = countries.find(
+            (c) => c.id === officialWebsite.country_id
+          );
           if (country) {
             countryName = country.name;
           }
         }
         return {
           ...officialWebsite,
-          country_name: countryName
+          country_name: countryName,
         };
-      })
+      }
+    );
     //
     const attributeGroups = await AttributeRepository.getAll();
     const flatAttributeGroups = mappingAttributeOrBasis(attributeGroups);
     //
     const basisGroups = await BasisRepository.getAll();
-    const flatBasisGroups = mappingAttributeOrBasis(basisGroups)
+    const flatBasisGroups = mappingAttributeOrBasis(basisGroups);
     //
     const newSpecificationGroups = mappingAttributeGroups(
       product.specification_attribute_groups,
@@ -260,6 +266,7 @@ class ProductService {
       flatBasisGroups
     );
 
+    const productID = mappingProductID(newSpecificationGroups);
     const newGeneralGroups = mappingAttributeGroups(
       product.general_attribute_groups,
       flatAttributeGroups,
@@ -277,6 +284,7 @@ class ProductService {
     return successResponse({
       data: {
         ...product,
+        code: productID,
         brand: {
           ...product.brand,
           official_websites: officialWebsites,

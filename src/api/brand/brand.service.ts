@@ -6,18 +6,18 @@ import {
   ALL_REGIONS,
   ImageSize,
 } from "@/constants";
-import { pagination, randomName, simplizeString } from "@/helper/common.helper";
-import { createResetPasswordToken } from "@/helper/password.helper";
+import { pagination, randomName, simplizeString } from "@/helpers/common.helper";
+import { createResetPasswordToken } from "@/helpers/password.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { userRepository } from "@/repositories/user.repository";
-import { countryStateCityService } from "@/service/country_state_city.service";
-import { uploadLogo } from "@/service/image.service";
-import { mailService } from "@/service/mail.service";
+import { countryStateCityService } from "@/services/country_state_city.service";
+import { uploadLogo } from "@/services/image.service";
+import { mailService } from "@/services/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
 import {
   ActiveStatus,

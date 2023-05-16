@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import moment from "moment";
 import JSZip from "jszip";
-import { deleteFile, listFilePrefix, upload } from "@/service/aws.service";
+import { deleteFile, listFilePrefix, upload } from "@/services/aws.service";
 import { CollectionsToBackup } from "@/constants";
 import { BaseQueue } from "./base.queue";
 class DatabaseQueue extends BaseQueue {

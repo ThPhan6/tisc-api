@@ -4,7 +4,7 @@ import {
   getListValidation,
   requireEmailValidation,
   requireStringValidation,
-} from "@/validate/common.validate";
+} from "@/validates/common.validate";
 
 const locationValidate = {
   business_name: requireStringValidation("Business name"),

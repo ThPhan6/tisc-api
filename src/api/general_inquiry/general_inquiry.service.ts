@@ -1,12 +1,12 @@
 import { COMMON_TYPES, MESSAGES } from "@/constants";
-import { pagination } from "@/helper/common.helper";
+import { pagination } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successResponse,
-} from "@/helper/response.helper";
+} from "@/helpers/response.helper";
 import { generalInquiryRepository } from "@/repositories/general_inquiry.repository";
 import productRepository from "@/repositories/product.repository";
-import { ActivityTypes, logService } from "@/service/log.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 import {
   RespondedOrPendingStatus,
   SortOrder,
