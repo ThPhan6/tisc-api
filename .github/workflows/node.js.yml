@@ -60,8 +60,8 @@ jobs:
       - name: Deploy TISC API to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DEV_SERVER_IP }}
-          username: ${{ secrets.DEV_SERVER_USERNAME }}
-          key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.DEV_SERVER_PORT }}
+          host: ${{ secrets.PRODUCTION_SERVER_IP }}
+          username: ${{ secrets.PRODUCTION_SERVER_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PRODUCTION_SERVER_PORT }}
           script: /var/www/cdScript.sh production
