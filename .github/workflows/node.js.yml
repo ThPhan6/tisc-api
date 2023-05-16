@@ -51,3 +51,17 @@ jobs:
           key: ${{ secrets.DEV_SERVER_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEV_SERVER_PORT }}
           script: /var/www/cdScript.sh staging
+  deploy-production-server:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' # run this job only for the master branch
+    steps:
+      # DigitalOcean Droplet already have deploy files
+      - uses: actions/checkout@v3
+      - name: Deploy TISC API to DigitalOcean Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_SERVER_IP }}
+          username: ${{ secrets.PRODUCTION_SERVER_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PRODUCTION_SERVER_PORT }}
+          script: /var/www/cdScript.sh master
