@@ -23,7 +23,7 @@ class InvoiceEmailQueue extends BaseQueue {
     this.queue.process(async (job, done) => {
       try {
         var tempDir =
-          path.resolve("") + `/logs/${moment().format("YYYYMMDD_hhmmss")}`;
+          path.resolve("") + `/logs/${moment().format("YYYYMMDD_HHmmss")}`;
 
         if (!fs.existsSync(tempDir)) {
           fs.mkdirSync(tempDir, { recursive: true });
