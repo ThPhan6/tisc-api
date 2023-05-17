@@ -63,6 +63,7 @@ export const ENVIRONMENT = {
     process.env.INVOICE_EMAIL_CRON_EXPRESSION || "",
   SURCHARGE_RATE: parseFloat(process.env.SURCHARGE_RATE || "0.035"),
   FREE_CURRENCY_API_KEY: process.env.FREE_CURRENCY_API_KEY || "",
+  AUTO_BILLING_SYSTEM_PERIOD: parseInt(process.env.AUTO_BILLING_SYSTEM_PERIOD || "7"),
 };
 
 export const jwtConfig = {

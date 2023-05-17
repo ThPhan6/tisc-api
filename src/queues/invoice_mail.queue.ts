@@ -6,6 +6,8 @@ import { invoiceRepository } from "@/repositories/invoice.repository";
 import moment from "moment";
 import { invoiceService } from "@/api/invoice/invoice.service";
 import _ from "lodash";
+import fs from "fs";
+import path from "path";
 
 class InvoiceEmailQueue extends BaseQueue {
   constructor() {
@@ -20,7 +22,15 @@ class InvoiceEmailQueue extends BaseQueue {
   public process = () => {
     this.queue.process(async (job, done) => {
       try {
+        var tempDir =
+          path.resolve("") + `/logs/${moment().format("YYYYMMDD_HHmmss")}`;
+
+        if (!fs.existsSync(tempDir)) {
+          fs.mkdirSync(tempDir, { recursive: true });
+        }
         const invoices = await invoiceRepository.getUnpaidInvoices();
+        fs.writeFileSync(`${tempDir}/unpaid.txt`, JSON.stringify(invoices.map(item => item.id)));
+        let dataToLog: any = [];
         await Promise.all(
           invoices.map(async (invoice) => {
             if (_.isEmpty(invoice.due_date)) {
@@ -30,7 +40,14 @@ class InvoiceEmailQueue extends BaseQueue {
             const pdfBuffer: any = await invoiceService.getInvoicePdf(
               invoice.id
             );
-            if (diff % 7 === 0) {
+            dataToLog.push({
+              email: invoice.ordered_user.email,
+              firstname: invoice.ordered_user.firstname,
+              diff,
+              is_sent: diff % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0,
+              email_type: diff > 0 ? "overdue" : "reminder",
+            });
+            if (diff % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0) {
               mailService.sendInvoiceReminder(
                 invoice.ordered_user.email,
                 invoice.ordered_user.firstname,
@@ -42,6 +59,7 @@ class InvoiceEmailQueue extends BaseQueue {
             return true;
           })
         );
+        fs.writeFileSync(`${tempDir}/mail.txt`, JSON.stringify(dataToLog));
         done();
       } catch (error: any) {
         this.log(error, "slack");
