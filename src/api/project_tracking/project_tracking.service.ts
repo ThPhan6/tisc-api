@@ -71,8 +71,8 @@ class ProjectTrackingService {
     limit: number,
     offset: number,
     filter: GetProjectListFilter,
-    sort: GetProjectListSort = "created_at",
-    order: SortOrder = "DESC"
+    sort: GetProjectListSort = "project_name",
+    order: SortOrder = "ASC"
   ) {
     const filterId = getWorkspace ? user.id : undefined;
     const projectTrackings =

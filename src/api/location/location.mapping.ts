@@ -31,9 +31,12 @@ export const mappingByCountries = (
 ) => {
   const uniqueCountries = getUniqueCountries(locations);
   let response = uniqueCountries.map((country) => {
-    const groupLocations = locations.filter(
-      (item) => item.country_name === country.country_name
+    const groupLocations = sortObjectArray(
+      locations.filter((item) => item.country_name === country.country_name),
+      "business_name",
+      "ASC"
     );
+
     return {
       ...country,
       locations: groupLocations,

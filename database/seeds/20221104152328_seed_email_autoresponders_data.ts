@@ -1117,7 +1117,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_receipt,
-      topic: TOPIC_TYPES.MESSAGES,
+      topic: TOPIC_TYPES.OTHER,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Invoice - Thank you for your support",
       message: invoiceSupportMessage,
@@ -1127,7 +1127,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_reminder,
-      topic: TOPIC_TYPES.MESSAGES,
+      topic: TOPIC_TYPES.OTHER,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Invoice - Reminder",
       message: invoiceReminderMessage,
@@ -1137,7 +1137,7 @@ export const up = (connection: ConnectionInterface) => {
     },
     {
       id: EmailTemplateID.general.invoice_overdue,
-      topic: TOPIC_TYPES.MESSAGES,
+      topic: TOPIC_TYPES.OTHER,
       targeted_for: TARGETED_FOR_TYPES.GENERAL,
       title: "Invoice - Overdue Payment Notice",
       message: invoiceOverdueMessage,

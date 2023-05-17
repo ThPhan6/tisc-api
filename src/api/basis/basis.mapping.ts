@@ -312,9 +312,15 @@ export const sortBasisOptionOrPreset = (
       ...preset,
       count: preset.subs.length,
     }));
+    const sorted1Value = returnedBasis.map((item: any) => {
+      return {
+        ...item,
+        subs: sortObjectArray(item.subs, "value_1", "ASC"),
+      };
+    });
     const { type, ...rest } = {
       ...item,
-      subs: sortObjectArray(returnedBasis, "name", order),
+      subs: sortObjectArray(sorted1Value, "name", order),
     };
     return {
       ...rest,

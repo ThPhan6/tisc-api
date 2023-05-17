@@ -16,20 +16,24 @@ export const sortObjectArray = (
   order: "ASC" | "DESC"
 ) => {
   const compare = (a: any, b: any) => {
+    let item1 =
+      typeof a[field] === "string" ? a[field].toLowerCase() : a[field];
+    let item2 =
+      typeof b[field] === "string" ? b[field].toLowerCase() : b[field];
     if (order === "ASC") {
-      if (a[field] < b[field]) {
+      if (item1 < item2) {
         return -1;
       }
-      if (a[field] > b[field]) {
+      if (item1 > item2) {
         return 1;
       }
 
       return 0;
     }
-    if (a[field] < b[field]) {
+    if (item1 < item2) {
       return 1;
     }
-    if (a[field] > b[field]) {
+    if (item1 > item2) {
       return -1;
     }
     return 0;
