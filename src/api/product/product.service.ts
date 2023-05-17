@@ -298,8 +298,16 @@ class ProductService {
 
   public getBrandProductSummary = async (brandId: string) => {
     const products = await productRepository.getProductBy(undefined, brandId);
-    const collections = getUniqueCollections(products);
-    const categories = getUniqueProductCategories(products);
+    const collections = sortObjectArray(
+      getUniqueCollections(products),
+      "name",
+      "ASC"
+    );
+    const categories = sortObjectArray(
+      getUniqueProductCategories(products),
+      "name",
+      "ASC"
+    );
     const variants = getTotalVariantOfProducts(products);
     return successResponse({
       data: {
@@ -351,7 +359,7 @@ class ProductService {
     }
     return successResponse({
       data: {
-        data: sortBy(returnedProducts, "name"),
+        data: sortObjectArray(returnedProducts, "name", "ASC"),
         brand: await brandRepository.find(brandId),
       },
     });
