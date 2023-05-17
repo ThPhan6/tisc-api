@@ -48,13 +48,13 @@ class InvoiceEmailQueue extends BaseQueue {
               email_type: diff > 0 ? "overdue" : "reminder",
             });
             if (diff % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0) {
-              mailService.sendInvoiceReminder(
-                invoice.ordered_user.email,
-                invoice.ordered_user.firstname,
-                pdfBuffer.data.toString("base64"),
-                `${invoice.name}.pdf`,
-                diff > 0
-              );
+              // mailService.sendInvoiceReminder(
+              //   invoice.ordered_user.email,
+              //   invoice.ordered_user.firstname,
+              //   pdfBuffer.data.toString("base64"),
+              //   `${invoice.name}.pdf`,
+              //   diff > 0
+              // );
             }
             return true;
           })
