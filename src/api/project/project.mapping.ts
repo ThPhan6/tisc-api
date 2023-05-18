@@ -23,7 +23,7 @@ export const mappingProjectGroupByStatus = (projects: ProjectAttributes[]) => {
       return {
         status_name: ProjectStatus[projectStatus.key],
         count: groupProjects.length,
-        projects: sortObjectArray(removedFieldsOfProject, "name", "ASC"),
+        projects: sortObjectArray(removedFieldsOfProject, "code", "ASC"),
       };
     }),
     "status_name",
