@@ -52,9 +52,11 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     count: boolean = false,
     limit?: number,
     offset?: number,
-    sort?: string,
+    sort?: string ,
     order?: SortOrder,
   ) => {
+    if(!sort) {sort = "name"}
+    if(!order) {order = "ASC"}
     const params: any = {
       relationId: relationId,
       relationType: CollectionRelationType.Brand,
