@@ -63,7 +63,9 @@ export const ENVIRONMENT = {
     process.env.INVOICE_EMAIL_CRON_EXPRESSION || "",
   SURCHARGE_RATE: parseFloat(process.env.SURCHARGE_RATE || "0.035"),
   FREE_CURRENCY_API_KEY: process.env.FREE_CURRENCY_API_KEY || "",
-  AUTO_BILLING_SYSTEM_PERIOD: parseInt(process.env.AUTO_BILLING_SYSTEM_PERIOD || "7"),
+  AUTO_BILLING_SYSTEM_PERIOD: parseInt(
+    process.env.AUTO_BILLING_SYSTEM_PERIOD || "7"
+  ),
 };
 
 export const jwtConfig = {
@@ -89,31 +91,41 @@ const swaggerOptions = {
     },
   },
 };
-const sentryPlugin = ["staging", "production"].includes(ENVIRONMENT.NODE_ENV)
-  ? {
-      plugin: require("hapi-sentry"),
-      options: {
-        client: {
-          dsn: ENVIRONMENT.SENTRY_DNS,
+
+const initPlugins: any[] = ["staging", "production"].includes(
+  ENVIRONMENT.NODE_ENV
+)
+  ? [
+      {
+        plugin: Inert,
+      },
+      {
+        plugin: Vision,
+      },
+      {
+        plugin: HapiSwagger,
+        options: swaggerOptions,
+      },
+      {
+        plugin: require("hapi-sentry"),
+        options: {
+          client: {
+            dsn: ENVIRONMENT.SENTRY_DNS,
+          },
         },
       },
-    }
-  : undefined;
-const initPlugins: any[] = [
-  {
-    plugin: Inert,
-  },
-  {
-    plugin: Vision,
-  },
-  {
-    plugin: HapiSwagger,
-    options: swaggerOptions,
-  },
-];
-
-if (sentryPlugin) {
-  initPlugins.push(initPlugins);
-}
+    ]
+  : [
+      {
+        plugin: Inert,
+      },
+      {
+        plugin: Vision,
+      },
+      {
+        plugin: HapiSwagger,
+        options: swaggerOptions,
+      },
+    ];
 
 export const plugins = initPlugins;
