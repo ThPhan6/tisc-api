@@ -43,30 +43,41 @@ class InvoiceEmailQueue extends BaseQueue {
             const pdfBuffer: any = await invoiceService.getInvoicePdf(
               invoice.id
             );
-            dataToLog.push({
-              email: invoice.ordered_user.email,
-              firstname: invoice.ordered_user.firstname,
-              diff,
-              is_sent: diff % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0,
-              email_type: diff > 0 ? "overdue" : "reminder",
-            });
-            if (diff % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0) {
-              mailService.sendInvoiceReminder(
-                invoice.ordered_user.email,
-                invoice.ordered_user.firstname,
-                pdfBuffer.data.toString("base64"),
-                `${invoice.name}.pdf`,
-                diff > 0
-              );
-            } else if (diff === 1) {
-              mailService.sendInvoiceReminder(
-                invoice.ordered_user.email,
-                invoice.ordered_user.firstname,
-                pdfBuffer.data.toString("base64"),
-                `${invoice.name}.pdf`,
-                true
-              );
+
+            if (diff <= 0) {
+              if (diff % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0) {
+                dataToLog.push({
+                  email: invoice.ordered_user.email,
+                  firstname: invoice.ordered_user.firstname,
+                  diff,
+                  email_type: "reminder",
+                });
+                mailService.sendInvoiceReminder(
+                  invoice.ordered_user.email,
+                  invoice.ordered_user.firstname,
+                  pdfBuffer.data.toString("base64"),
+                  `${invoice.name}.pdf`,
+                  false
+                );
+              }
+            } else {
+              if ((diff - 1) % ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD === 0) {
+                dataToLog.push({
+                  email: invoice.ordered_user.email,
+                  firstname: invoice.ordered_user.firstname,
+                  diff,
+                  email_type: "overdue",
+                });
+                mailService.sendInvoiceReminder(
+                  invoice.ordered_user.email,
+                  invoice.ordered_user.firstname,
+                  pdfBuffer.data.toString("base64"),
+                  `${invoice.name}.pdf`,
+                  true
+                );
+              }
             }
+
             return true;
           })
         );
