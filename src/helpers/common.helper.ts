@@ -21,22 +21,36 @@ export const sortObjectArray = (
     let item2 =
       typeof b[field] === "string" ? b[field].toLowerCase() : b[field];
     if (order === "ASC") {
-      if (item1 < item2) {
-        return -1;
+      if (typeof item1 === "string") {
+        return item1.localeCompare(item2, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      } else {
+        if (item1 < item2) {
+          return -1;
+        }
+        if (item1 > item2) {
+          return 1;
+        }
+
+        return 0;
       }
-      if (item1 > item2) {
+    }
+    if (typeof item1 === "string") {
+      return item2.localeCompare(item1, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    } else {
+      if (item1 < item2) {
         return 1;
       }
-
+      if (item1 > item2) {
+        return -1;
+      }
       return 0;
     }
-    if (item1 < item2) {
-      return 1;
-    }
-    if (item1 > item2) {
-      return -1;
-    }
-    return 0;
   };
   return values.sort(compare);
 };
