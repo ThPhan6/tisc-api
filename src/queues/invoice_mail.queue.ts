@@ -29,7 +29,10 @@ class InvoiceEmailQueue extends BaseQueue {
           fs.mkdirSync(tempDir, { recursive: true });
         }
         const invoices = await invoiceRepository.getUnpaidInvoices();
-        fs.writeFileSync(`${tempDir}/unpaid.txt`, JSON.stringify(invoices.map(item => item.id)));
+        fs.writeFileSync(
+          `${tempDir}/unpaid.txt`,
+          JSON.stringify(invoices.map((item) => item.id))
+        );
         let dataToLog: any = [];
         await Promise.all(
           invoices.map(async (invoice) => {
@@ -54,6 +57,14 @@ class InvoiceEmailQueue extends BaseQueue {
                 pdfBuffer.data.toString("base64"),
                 `${invoice.name}.pdf`,
                 diff > 0
+              );
+            } else if (diff === 1) {
+              mailService.sendInvoiceReminder(
+                invoice.ordered_user.email,
+                invoice.ordered_user.firstname,
+                pdfBuffer.data.toString("base64"),
+                `${invoice.name}.pdf`,
+                true
               );
             }
             return true;
