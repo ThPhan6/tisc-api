@@ -6,7 +6,12 @@ import {
   ALL_REGIONS,
   ImageSize,
 } from "@/constants";
-import { pagination, randomName, simplizeString } from "@/helpers/common.helper";
+import {
+  pagination,
+  randomName,
+  simplizeString,
+  sortObjectArray,
+} from "@/helpers/common.helper";
 import { createResetPasswordToken } from "@/helpers/password.helper";
 import {
   errorMessageResponse,
@@ -98,7 +103,14 @@ class BrandService {
     const officialWebsites = await this.getOfficialWebsites(brand);
 
     return successResponse({
-      data: { ...brand, official_websites: officialWebsites },
+      data: {
+        ...brand,
+        official_websites: sortObjectArray(
+          officialWebsites,
+          "country_name",
+          "ASC"
+        ),
+      },
     });
   }
 
