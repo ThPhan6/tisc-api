@@ -69,7 +69,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           : ""
       }
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
-      LIMIT ${offset}, ${limit}
+      ${limit? `LIMIT ${offset}, ${limit}`: ''}
       let categories = (
           for mainCategory in categories
           FILTER mainCategory.deleted_at == null
