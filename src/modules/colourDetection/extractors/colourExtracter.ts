@@ -1,30 +1,9 @@
-import { RGBColor } from '../types';
+import { ColorConversion } from '../types';
 import { exec } from 'child_process';
 import path from 'path';
-const ColorThief = require('colorthief');
+import { colorConverter } from '../parser';
 
-export async function getColorPalete(
-  imagePath: any, colorCount = 5
-): Promise<RGBColor[] | null> {
-  return await ColorThief.getPalette(imagePath, colorCount)
-    .then((palette: RGBColor[] | null) => {
-      return Promise.resolve(palette);
-    })
-    .catch((err: Error) => {
-      return Promise.reject(err);
-    })
-}
-export async function getColor(imagePath: any, quality?: number): Promise<RGBColor> {
-  return await ColorThief.getColor(imagePath, quality)
-    .then((color: RGBColor) => {
-      return Promise.resolve(color);
-    })
-    .catch((err: Error) => {
-      return Promise.reject(err);
-    })
-}
-
-export async function extractTopColor(imagePath: string): Promise<{[x: string]: number}[]> {
+export async function extractTopColor(imagePath: string): Promise<ColorConversion[]> {
   return new Promise((resolve, reject) => {
     const script = `python3 ${path.resolve(path.dirname(__dirname), 'extractors', 'extracter.py')} ${imagePath}`;
     exec(script, (err, stdout) => {
@@ -34,10 +13,27 @@ export async function extractTopColor(imagePath: string): Promise<{[x: string]: 
         }
         const [colourString] = stdout.split("\n");
         const colours = JSON.parse(colourString.replace(/'/g, '"')) as {[key: string]: number};
-        console.log('colours', colours);
-        const sortedColours = Object.entries(colours).sort(([_k1, v1], [_k2, v2]) => v2 - v1)
-          .map(([x,y]) => ({[x]:y}));
-        resolve(sortedColours);
+        const sortedColours = Object.entries(colours).sort(([_k1, v1], [_k2, v2]) => v2 - v1);
+        const totalColor = sortedColours.reduce((total, [_color, colors_fetched_counts]) => total + colors_fetched_counts, 0);
+        const result = sortedColours.map(([x,y]) => {
+            const colorConversion = colorConverter(x);
+            return {
+              conversion: {
+                origin: colorConversion,
+                hex: x,
+                rgb: colorConversion.toRgb(),
+                hsl: colorConversion.toHsl(),
+                cmyk: colorConversion.toCmyk(),
+                hwb: colorConversion.toHwb(),
+                lab: colorConversion.toLab(),
+                nCol: colorConversion.toNcol(),
+                name: colorConversion.toName(),
+              },
+              colors_fetched_counts: y,
+              density: (y / totalColor) * 100
+            }
+          });
+        resolve(result);
       }
     );
   })

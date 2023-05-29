@@ -1,2 +1,1 @@
-export * from './rgbToHSV';
-export * from './rgbToHex';
+export const colorConverter = require('./w3Color.js');
