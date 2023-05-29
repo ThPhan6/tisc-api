@@ -371,7 +371,9 @@ class ProductService {
     categoryId?: string,
     keyword?: string,
     sortName?: string,
-    orderBy?: "ASC" | "DESC"
+    orderBy?: "ASC" | "DESC",
+    limit?: number,
+    offset?: number
   ) => {
     const products = await productRepository.getProductBy(
       user.id,
@@ -380,7 +382,10 @@ class ProductService {
       undefined,
       keyword,
       sortName,
-      orderBy
+      orderBy,
+      false,
+      limit,
+      offset
     );
     if (brandId) {
       const variants = getTotalVariantOfProducts(products);

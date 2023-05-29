@@ -1,6 +1,7 @@
 import Joi from "joi";
 import {
   errorMessage,
+  getListValidation,
   requireStringValidation,
   stringValidation,
 } from "@/validates/common.validate";
@@ -142,15 +143,16 @@ export default {
       collection_id: Joi.string(),
     }),
   } as any,
-  getListDesignerBrandProducts: {
-    query: Joi.object({
+  getListDesignerBrandProducts: getListValidation({
+    query: {
       category_id: Joi.string(),
       brand_id: Joi.string(),
       name: Joi.string(),
       sort: Joi.string(),
       order: Joi.string().valid("ASC", "DESC"),
-    }),
-  } as any,
+    },
+    listType: 'designer_brand_products'
+  }) as any,
   getBrandProductSummary: {
     params: {
       brand_id: requireStringValidation("Brand id"),

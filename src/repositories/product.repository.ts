@@ -43,6 +43,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string;
     sortName?: string;
     sortOrder?: SortOrder;
+    limit?: number;
+    offset?: number;
   }) => {
     const {
       filterLiked = false,
@@ -54,6 +56,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       keyword,
       sortName,
       sortOrder,
+      limit,
+      offset,
     } = options;
     return `
       ${categoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
@@ -65,6 +69,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           : ""
       }
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
+      LIMIT ${offset}, ${limit}
       let categories = (
           for mainCategory in categories
           FILTER mainCategory.deleted_at == null
@@ -135,7 +140,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string,
     sort?: string,
     order: SortOrder = "DESC",
-    likedOnly: boolean = false
+    likedOnly: boolean = false,
+    limit?: number,
+    offset?: number
   ): Promise<ProductWithRelationData[]> {
     const params = {
       userId,
@@ -155,6 +162,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         keyword,
         sortName: sort || "created_at",
         sortOrder: order,
+        limit,
+        offset,
       }),
       params
     );
