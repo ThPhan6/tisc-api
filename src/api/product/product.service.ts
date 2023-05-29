@@ -50,7 +50,7 @@ import {
 } from "./product.type";
 import { SortOrder, UserAttributes, BasisConversion } from "@/types";
 import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
-import { sortObjectArray } from "@/helpers/common.helper";
+import { pagination, sortObjectArray } from "@/helpers/common.helper";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -408,9 +408,19 @@ class ProductService {
         data: sortBy(mappingByBrand(products), "name"),
       });
     }
-
+    const total = await productRepository.countProductBy(
+      user.id,
+      brandId,
+      categoryId,
+      undefined,
+      keyword,
+      sortName,
+      orderBy,
+      false,
+    );
     return successResponse({
       allProducts: products,
+      pagination: pagination(limit || 0, offset || 0, total[0]),
     });
   };
 
