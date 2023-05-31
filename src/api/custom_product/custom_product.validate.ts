@@ -4,6 +4,7 @@ import {
   getOneValidation,
   requireEmailValidation,
   stringValidation,
+  getListValidation,
 } from "@/validates/common.validate";
 import {
   dimensionAndWeightValidate,
@@ -13,7 +14,7 @@ import {
 export const basicAttributeValidate = Joi.object({
   name: Joi.string().trim(),
   content: Joi.string().trim(),
-  sequence: Joi.number().allow(null, ''),
+  sequence: Joi.number().allow(null, ""),
 });
 
 export const customProductContactValidate = Joi.array().items(
@@ -38,7 +39,7 @@ export const customProductOptionValidate = Joi.object({
   title: requireStringValidation("Option title"),
   use_image: Joi.boolean(),
   tag: stringValidation(),
-  sequence: Joi.number().allow(null, ''),
+  sequence: Joi.number().allow(null, ""),
   items: Joi.when("use_image", {
     is: true,
     then: Joi.array().items(
@@ -89,11 +90,12 @@ export default {
     ...getOneValidation,
     payload: customProductValidate,
   },
-  getListProduct: {
+  getListProduct: getListValidation({
     query: {
       company_id: Joi.string().trim().allow(""),
       collection_id: Joi.string().trim().allow(""),
     },
-  },
+    listType: "designer-custom-product",
+  }),
   shareByEmail: validateShareProduct,
 };

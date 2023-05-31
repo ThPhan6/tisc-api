@@ -43,6 +43,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string;
     sortName?: string;
     sortOrder?: SortOrder;
+    limit?: number;
+    offset?: number;
+    isCount?: boolean;
   }) => {
     const {
       filterLiked = false,
@@ -54,6 +57,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       keyword,
       sortName,
       sortOrder,
+      limit,
+      offset,
     } = options;
     return `
       ${categoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
@@ -65,6 +70,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           : ""
       }
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
+      ${limit ? `LIMIT ${offset}, ${limit}` : ""}
       let categories = (
           for mainCategory in categories
           FILTER mainCategory.deleted_at == null
@@ -98,7 +104,10 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         COLLECT WITH COUNT INTO length RETURN length
       )
       ${filterLiked ? `filter liked[0] > 0` : ""}
-      RETURN MERGE(
+      ${
+        options.isCount
+          ? "COLLECT WITH COUNT INTO length RETURN length"
+          : ` RETURN MERGE(
         UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         categories: categories,
         collection: {
@@ -109,7 +118,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         favorites: favourite[0],
         is_liked: liked[0] > 0
       }
-    )`;
+    )`
+      }
+     `;
   };
 
   public async findWithRelationData(productId: string, userId?: string) {
@@ -135,7 +146,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string,
     sort?: string,
     order: SortOrder = "DESC",
-    likedOnly: boolean = false
+    likedOnly: boolean = false,
+    limit?: number,
+    offset?: number
   ): Promise<ProductWithRelationData[]> {
     const params = {
       userId,
@@ -155,6 +168,45 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         keyword,
         sortName: sort || "created_at",
         sortOrder: order,
+        limit,
+        offset,
+      }),
+      params
+    );
+  }
+  public async countProductBy(
+    userId?: string,
+    brandId?: string,
+    categoryId?: string,
+    collectionId?: string,
+    keyword?: string,
+    sort?: string,
+    order: SortOrder = "DESC",
+    likedOnly: boolean = false,
+    limit?: number,
+    offset?: number
+  ): Promise<number[]> {
+    const params = {
+      userId,
+      brandId,
+      categoryId,
+      collectionId,
+      keyword,
+    };
+
+    return this.model.rawQuery(
+      this.getProductQuery({
+        brandId,
+        collectionId,
+        categoryId,
+        withFavourite: !isUndefined(userId),
+        filterLiked: likedOnly,
+        keyword,
+        sortName: sort || "created_at",
+        sortOrder: order,
+        limit,
+        offset,
+        isCount: true
       }),
       params
     );
