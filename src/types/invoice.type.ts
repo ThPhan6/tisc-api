@@ -29,4 +29,5 @@ export interface InvoiceAttributes {
   created_at: string;
   updated_at: string;
   status: InvoiceStatus
+  temp_paid?: boolean 
 }

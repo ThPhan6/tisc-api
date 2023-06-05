@@ -195,6 +195,17 @@ export default class InvoiceRoute implements IRoute {
             auth: false,
           },
         },
+        {
+          method: "PUT",
+          path: "/api/invoice/{id}/paid-temporarily",
+          options: {
+            handler: controller.paidTemporarily,
+            validate: validate.get,
+            description: "Method that paid temporarily",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.GENERAL,
+          },
+        },
       ]);
       resolve(true);
     });
