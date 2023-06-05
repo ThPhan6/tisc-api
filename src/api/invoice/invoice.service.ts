@@ -166,7 +166,9 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.ONLY_BILL_PENDING_INVOICE);
     }
     await invoiceRepository.update(invoiceId, {
-      due_date: moment().add(ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD, "days").format("YYYY-MM-DD"),
+      due_date: moment()
+        .add(ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD, "days")
+        .format("YYYY-MM-DD"),
       billed_date: moment().format("YYYY-MM-DD"),
       status: InvoiceStatus.Outstanding,
     });
@@ -468,6 +470,19 @@ class InvoiceService {
       if (!invoice) {
         return successMessageResponse(MESSAGES.SUCCESS);
       }
+      const statusesToReset = [
+        "payment_intent.cancelled",
+        "payment_attempt.authentication_failed",
+        "payment_attempt.authorization_failed",
+        "payment_attempt.cancelled",
+        "payment_attempt.capture_failed",
+        "payment_attempt.failed_to_process",
+      ];
+      if (payload && statusesToReset.includes(payload.name)) {
+        await invoiceRepository.update(invoice.id, {
+          temp_paid: false,
+        });
+      }
       if (payload && payload.name === "payment_intent.succeeded") {
         await invoiceRepository.update(invoice.id, {
           status: InvoiceStatus.Processing,
@@ -517,6 +532,10 @@ class InvoiceService {
     } catch (error) {
       return successMessageResponse(MESSAGES.SUCCESS);
     }
+  };
+  public paidTemporarily = async (invoice_id: string) => {
+    await invoiceRepository.update(invoice_id, { temp_paid: true });
+    return successMessageResponse(MESSAGES.SUCCESS);
   };
 }
 export const invoiceService = new InvoiceService();
