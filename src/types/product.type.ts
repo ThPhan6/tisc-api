@@ -24,6 +24,7 @@ export interface IProductAttributes {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
+  colors: any[]
 }
 
 export interface DimensionAndWeight {

@@ -14,11 +14,13 @@ def colorToHex(color):
 
 # function to read an image into RGB space
 def read_image(base64_string):
-    sbuf = StringIO();
-    imgdata = base64.b64decode(str(base64_string));
-    img = Image.open(BytesIO(imgdata));
-    # convert to RGB color spaces
+    img = Image.open(base64_string);
     return img.convert('RGB');
+    # sbuf = StringIO();
+    # imgdata = base64.b64decode(str(base64_string));
+    # img = Image.open(BytesIO(imgdata));
+    # # convert to RGB color spaces
+    # return img.convert('RGB');
 
 # PIL image input
 def dominant_colors(image):
@@ -28,7 +30,7 @@ def dominant_colors(image):
     ar = ar.reshape(numpy.product(shape[:2]), shape[2]).astype(float)
 
     kmeans = sklearn.cluster.MiniBatchKMeans(
-        n_clusters=5,
+        n_clusters=3,
         init="k-means++",
         max_iter=20,
         random_state=1000

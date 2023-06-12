@@ -19,6 +19,10 @@ import {
   upload,
 } from "@/services/aws.service";
 import { ValidImage } from "@/types";
+import fs from "fs";
+import path from "path";
+import moment from "moment";
+
 export const validateImageType = async (images: string[]) => {
   let isValidImage = true;
   for (const image of images) {
@@ -114,6 +118,53 @@ export const uploadImagesProduct = (
         "image/png"
       );
       return `/product/${brandId}/${fileName}.webp`;
+    })
+  );
+};
+export const getFileNameInPath = (path?: string): string => {
+  if (!path || path === "") return "";
+  const parts = path.split("/");
+  return parts[parts.length - 1];
+};
+export const cpFileBucketToLocal = (imagePaths: string[], folder: string) => {
+  const dir = `${path.resolve("")}/${folder}`;
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return Promise.all(
+    imagePaths.map(async (imagePath) => {
+      const buffer = await getBufferFile(imagePath.slice(1));
+      const localPath = `${path.resolve("")}/${folder}/${getFileNameInPath(
+        imagePath
+      )}`;
+      fs.writeFileSync(localPath, buffer);
+      return {
+        name: getFileNameInPath(imagePath),
+        file: localPath,
+      };
+    })
+  );
+};
+export const uploadImagesToLocal = (images: string[], folder: string) => {
+  return Promise.all(
+    images.map(async (image) => {
+      const fileType = await getFileTypeFromBase64(image);
+      if (!fileType) {
+        return undefined;
+      }
+
+      const fileName = moment.now();
+      const webpBuffer = await toWebp(
+        Buffer.from(image, "base64"),
+        ImageSize.large
+      );
+      const pngBuffer = await toPng(webpBuffer);
+      const filePath = `${path.resolve("")}/${folder}/${fileName}.png`;
+      fs.writeFileSync(filePath, pngBuffer);
+      return {
+        file: filePath,
+        name: fileName,
+      };
     })
   );
 };

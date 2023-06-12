@@ -47,7 +47,7 @@ w3color.prototype = {
   },
   toName : function () {
     var r, g, b, colorhexs = getColorArr('hexs');
-    for (i = 0; i < colorhexs.length; i++) {
+    for (var i = 0; i < colorhexs.length; i++) {
       r = parseInt(colorhexs[i].substr(0,2), 16);
       g = parseInt(colorhexs[i].substr(2,2), 16);
       b = parseInt(colorhexs[i].substr(4,2), 16);
@@ -208,7 +208,7 @@ function toColorObject(c) {
       if (arr.length != arrlength) {
         return emptyObject();
       }
-      for (i = 0; i < arrlength; i++) {
+      for (var i = 0; i < arrlength; i++) {
         if (arr[i] == "" || arr[i] == " ") {arr[i] = "0"; }
         if (arr[i].indexOf("%") > -1) {
           arr[i] = arr[i].replace("%", "");
@@ -247,7 +247,7 @@ function toColorObject(c) {
     }
     if (typ == "cmyk") {
       while (arr.length < arrlength) {arr.push("0"); }
-      for (i = 0; i < arrlength; i++) {
+      for (var i = 0; i < arrlength; i++) {
         if (arr[i].indexOf("%") > -1) {
           arr[i] = arr[i].replace("%", "");
           arr[i] = Number(arr[i]);
@@ -267,7 +267,7 @@ function toColorObject(c) {
   } else {
     match = false;
     colornames = getColorArr('names');
-    for (i = 0; i < colornames.length; i++) {
+    for (var i = 0; i < colornames.length; i++) {
       if (c.toLowerCase() == colornames[i].toLowerCase()) {
         colorhexs = getColorArr('hexs');
         match = true;
@@ -282,13 +282,13 @@ function toColorObject(c) {
     if (match == false) {
       c = c.replace("#", "");
       if (c.length == 3) {c = c.substr(0,1) + c.substr(0,1) + c.substr(1,1) + c.substr(1,1) + c.substr(2,1) + c.substr(2,1);}
-      for (i = 0; i < c.length; i++) {
+      for (var i = 0; i < c.length; i++) {
         if (!isHex(c.substr(i, 1))) {return emptyObject(); }
       }
       arr[0] = parseInt(c.substr(0,2), 16);
       arr[1] = parseInt(c.substr(2,2), 16);
       arr[2] = parseInt(c.substr(4,2), 16);
-      for (i = 0; i < 3; i++) {
+      for (var i = 0; i < 3; i++) {
         if (isNaN(arr[i])) {return emptyObject(); }
       }
       rgb = {
@@ -403,7 +403,7 @@ function hwbToRgb(hue, white, black) {
     white = Number((white / tot).toFixed(2));
     black = Number((black / tot).toFixed(2));
   }
-  for (i = 0; i < 3; i++) {
+  for (var i = 0; i < 3; i++) {
     rgbArr[i] *= (1 - (white) - (black));
     rgbArr[i] += (white);
     rgbArr[i] = Number(rgbArr[i] * 255);
@@ -571,7 +571,7 @@ function rgbToHsl(r, g, b) {
   min = rgb[0];
   max = rgb[0];
   maxcolor = 0;
-  for (i = 0; i < rgb.length - 1; i++) {
+  for (var i = 0; i < rgb.length - 1; i++) {
     if (rgb[i + 1] <= min) {min = rgb[i + 1];}
     if (rgb[i + 1] >= max) {max = rgb[i + 1];maxcolor = i + 1;}
   }
@@ -601,7 +601,7 @@ function rgbToHsl(r, g, b) {
   return {h : h, s : s, l : l};
 }
 function rgbToHwb(r, g, b) {
-  var h, w, bl;
+  var h, w, bl, max, min, chroma;
   r = r / 255;
   g = g / 255;
   b = b / 255;
@@ -622,7 +622,7 @@ function rgbToHwb(r, g, b) {
   return {h : h, w : w, b : bl};
 }
 function rgbToCmyk(r, g, b) {
-  var c, m, y, k;
+  var c, m, y, k, max;
   r = r / 255;
   g = g / 255;
   b = b / 255;

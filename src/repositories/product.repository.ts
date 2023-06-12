@@ -27,6 +27,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     tips: [],
     downloads: [],
     catelogue_downloads: [],
+    colors: [],
   };
   constructor() {
     super();
@@ -43,6 +44,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string;
     sortName?: string;
     sortOrder?: SortOrder;
+    has_color?: boolean;
   }) => {
     const {
       filterLiked = false,
@@ -99,7 +101,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       )
       ${filterLiked ? `filter liked[0] > 0` : ""}
       RETURN MERGE(
-        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by' ${
+          !options.has_color ? ",'colors'" : ""
+        }]), {
         categories: categories,
         collection: {
             id: collection.id,
@@ -121,6 +125,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       this.getProductQuery({
         productId,
         withFavourite: !isUndefined(userId),
+        has_color: true,
       }),
       params
     )) as ProductWithRelationData[];

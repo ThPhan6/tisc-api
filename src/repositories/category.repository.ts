@@ -20,6 +20,13 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
       return false;
     }
   }
+  public async getMany(ids: string[]) {
+    try {
+      return this.model.whereIn("id", ids).select();
+    } catch (error) {
+      return false;
+    }
+  }
 
   public async getAllCategoriesSortByName(
     limit: number,
@@ -105,3 +112,4 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
 }
 
 export default CategoryRepository;
+export const categoryRepository = new CategoryRepository();

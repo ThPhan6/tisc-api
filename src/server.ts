@@ -8,6 +8,7 @@ import path from "path";
 import { emailQueue } from "./queues/email.queue";
 import { databaseBackupQueue } from "./queues/database_backup.queue";
 import { invoiceEmailQueue } from "./queues/invoice_mail.queue";
+import { colorDetectionQueue } from "./queues/color_detection.queue";
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIRONMENT.HOST,
@@ -65,6 +66,7 @@ async function start() {
     AuthMiddleware.registerAll(server);
     CaptchaMiddleware.registerAll(server);
     emailQueue.process();
+    colorDetectionQueue.process();
     databaseBackupQueue.process();
     databaseBackupQueue.add();
     invoiceEmailQueue.process();
