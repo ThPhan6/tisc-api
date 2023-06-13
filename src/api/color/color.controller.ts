@@ -3,11 +3,14 @@ import { colorService } from "./color.service";
 
 class ColorController {
   public detectColor = async (
-    req: Request & { payload: { images: string[] } },
+    req: Request & { payload: { images: string[]; category_ids: string[] } },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
-    const response = await colorService.detectColor(payload.images);
+    const response = await colorService.detectColor(
+      payload.images,
+      payload.category_ids
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public getColorCollection = async (

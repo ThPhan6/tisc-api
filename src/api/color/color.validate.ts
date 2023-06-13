@@ -5,6 +5,10 @@ export default {
   detectColor: {
     payload: {
       // images: Joi.array().items(Joi.string()),
+      category_ids: Joi.array()
+        .items(Joi.string())
+        .required()
+        .error(errorMessage("Category is required")),
       images: Joi.array()
         .min(3)
         .max(9)

@@ -63,7 +63,7 @@ class ProductService {
       return pre.concat(cur.subs);
     }, []);
   };
-  private checkSupportedColorDetection = async (categoryIds: string[]) => {
+  public checkSupportedColorDetection = async (categoryIds: string[]) => {
     const categories: any = await categoryRepository.getMany(categoryIds);
     const found = categories.find(
       (item: any) =>

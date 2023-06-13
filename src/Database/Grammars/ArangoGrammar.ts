@@ -225,6 +225,7 @@ class ArangoGrammar {
   }
 
   protected getQuery() {
+    // console.log(this.query, this.bindVars)
     return {
       query: this.query,
       bindVars: this.bindVars,

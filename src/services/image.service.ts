@@ -149,18 +149,20 @@ export const uploadImagesToLocal = (images: string[], folder: string) => {
   return Promise.all(
     images.map(async (image) => {
       const fileType = await getFileTypeFromBase64(image);
+      let buffer: Buffer;
       if (!fileType) {
-        return undefined;
+        buffer = await getBufferFile(image.slice(1));
+      } else {
+        const webpBuffer = await toWebp(
+          Buffer.from(image, "base64"),
+          ImageSize.large
+        );
+        buffer = await toPng(webpBuffer);
       }
 
       const fileName = moment.now();
-      const webpBuffer = await toWebp(
-        Buffer.from(image, "base64"),
-        ImageSize.large
-      );
-      const pngBuffer = await toPng(webpBuffer);
       const filePath = `${path.resolve("")}/${folder}/${fileName}.png`;
-      fs.writeFileSync(filePath, pngBuffer);
+      fs.writeFileSync(filePath, buffer);
       return {
         file: filePath,
         name: fileName,

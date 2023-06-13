@@ -6,17 +6,17 @@ import {
 } from "@/helpers/response.helper";
 import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
-import {marketAvailabilityRepository} from "@/repositories/market_availability.repository";
+import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { ICollectionRequest } from "./collection.type";
-import {CollectionRelationType} from '@/types';
+import { CollectionRelationType } from "@/types";
+import { pagination } from "@/helpers/common.helper";
 
 class CollectionService {
-
   public async create(payload: ICollectionRequest) {
     const collection = await CollectionRepository.findBy({
       name: payload.name,
       relation_id: payload.relation_id,
-      relation_type: payload.relation_type
+      relation_type: payload.relation_type,
     });
     if (collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_EXISTED);
@@ -24,7 +24,7 @@ class CollectionService {
     const createdCollection = await CollectionRepository.create({
       name: payload.name,
       relation_id: payload.relation_id,
-      relation_type: payload.relation_type
+      relation_type: payload.relation_type,
     });
     if (!createdCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -32,7 +32,9 @@ class CollectionService {
     //
     if (createdCollection.relation_type === CollectionRelationType.Brand) {
       /// create market availability
-      await marketAvailabilityRepository.upsertMarketAvailability(createdCollection.id);
+      await marketAvailabilityRepository.upsertMarketAvailability(
+        createdCollection.id
+      );
     }
     //
     return successResponse({ data: createdCollection });
@@ -44,7 +46,7 @@ class CollectionService {
     limit: number,
     offset: number
   ) {
-    const collections =
+    const { collections, total } =
       await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
@@ -53,8 +55,8 @@ class CollectionService {
       );
     return successResponse({
       data: {
-        collections: collections.data,
-        pagination: collections.pagination,
+        collections,
+        pagination: pagination(limit, offset, total),
       },
     });
   }
@@ -86,7 +88,9 @@ class CollectionService {
     }
     if (collection.relation_type === CollectionRelationType.Brand) {
       /// delete market availability
-      await marketAvailabilityRepository.deleteBy({collection_id: collection.id});
+      await marketAvailabilityRepository.deleteBy({
+        collection_id: collection.id,
+      });
     }
 
     return successMessageResponse(MESSAGES.SUCCESS);
