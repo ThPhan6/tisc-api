@@ -5,6 +5,7 @@ import { uploadImagesToLocal } from "@/services/image.service";
 import { extractTopColor } from "@/modules/colourDetection";
 import { successResponse } from "@/helpers/response.helper";
 import { COLOR_COLLECTIONS } from "@/constants/collection.constant";
+import { sortObjectArray } from "@/helpers/common.helper";
 class ColorService {
   private extractColor = (imagePath: string) => {
     return new Promise((resolve) => {
@@ -24,6 +25,29 @@ class ColorService {
       })
     );
   };
+  private imagesToColors = (images: any[]) => {
+    return images.reduce((pre, cur) => {
+      const colors = cur.color_specification;
+      colors.forEach((color: any) => {
+        pre = {
+          ...pre,
+          [color.conversion.hex]: {
+            ...pre[color.conversion.hex],
+            colors_fetched_counts:
+              pre[color.conversion.hex]?.colors_fetched_counts ||
+              0 + color.colors_fetched_counts,
+            color,
+          },
+        };
+      });
+      return pre;
+    }, {});
+  };
+  private getTheMostColor = (images: any[]) => {
+    const colors = Object.values(this.imagesToColors(images));
+    return sortObjectArray(colors, "colors_fetched_counts", "DESC")[0]
+      ?.color as any;
+  };
   public detectColor = async (images: string[]) => {
     const folder = `public/temp/${moment.now().toString()}`;
     const dir = `${path.resolve("")}/${folder}`;
@@ -34,10 +58,19 @@ class ColorService {
       await uploadImagesToLocal(images, folder)
     ).filter((item) => item !== undefined);
     const result = await this.extractColors(uploadedToLocal);
+    const mostColor = this.getTheMostColor(result);
+    const recommendationCollection = this.recommendCollectionName({
+      saturation: mostColor.conversion.origin.sat,
+      lightness: mostColor.conversion.origin.lightness,
+      hue: mostColor.conversion.origin.hue,
+    });
     if (fs.existsSync(dir)) {
       fs.rmdirSync(dir, { recursive: true });
     }
-    return successResponse(result);
+    return successResponse({
+      recommendation_collection: recommendationCollection,
+      data: result,
+    });
   };
   private recommendCollectionName = (params: {
     saturation: number;
