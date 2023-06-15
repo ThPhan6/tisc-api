@@ -35,7 +35,7 @@
     - Update `docker-compose.yml` in `docker` folders and run the docker
 
 ### Color detection
-1. Install python
+1. Install python3
 2. Install pip 3
     - Run first `sudo apt update`. Then the command would be: `sudo apt install python3-pip`.
     - Run `pip3 -v` to check pip3 version.

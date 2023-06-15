@@ -115,6 +115,7 @@ export default {
       card_count: Joi.number(),
       product_count: Joi.number(),
     }),
+    pagination: Joi.any(),
     statusCode: Joi.number(),
   }),
   brandProductSummary: Joi.object({

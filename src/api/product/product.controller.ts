@@ -24,7 +24,8 @@ export default class ProductController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { category_id, brand_id, name, sort, order } = req.query;
+    const { category_id, brand_id, name, sort, order, limit, offset } =
+      req.query;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await productService.getListDesignerBrandProducts(
       user,
@@ -32,7 +33,9 @@ export default class ProductController {
       category_id,
       name,
       sort,
-      order
+      order,
+      limit,
+      offset
     );
     return toolkit.response(response).code(response?.statusCode ?? 200);
   };

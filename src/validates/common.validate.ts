@@ -30,10 +30,16 @@ const defaultGetListWithSortingQueryValidation: Joi.PartialSchemaMap<any> = {
   sort: Joi.string(),
   order: Joi.string().valid("ASC", "DESC"),
 };
-
+const defaultSortCreatedAt = ["bill_services", "designer_brand_products"];
 const getDefaultGetListQueryCustom = (value: any, list_type?: string) => ({
-  sort: value.sort || (list_type === "bill_services" ? "created_at" : "name"),
-  order: value.order || (list_type === "bill_services" ? "DESC" : "ASC"),
+  sort:
+    value.sort ||
+    (list_type && defaultSortCreatedAt.includes(list_type)
+      ? "created_at"
+      : "name"),
+  order:
+    value.order ||
+    (list_type && defaultSortCreatedAt.includes(list_type) ? "DESC" : "ASC"),
 });
 
 export const getAllValidation = (

@@ -30,7 +30,9 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
   public async getList(
     designId: string,
     companyId: string,
-    collectionId: string
+    collectionId: string,
+    limit?: number,
+    offset?: number
   ) {
     return this.model.rawQuery(
       `
@@ -48,6 +50,7 @@ export default class CustomProductRepository extends BaseRepository<CustomProduc
       ${collectionId ? "FILTER col.id == @collectionId" : ""}
       FILTER col.deleted_at == null
       SORT custom_products.updated_at DESC
+      LIMIT ${offset}, ${limit}
       RETURN MERGE(
         KEEP(custom_products, 'id', 'name', 'description', 'company_id', 'collection_id'),
         {
