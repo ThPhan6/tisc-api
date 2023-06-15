@@ -1,3 +1,4 @@
+import { DetectedImage } from "@/api/color/color.type";
 import {
   IAttributeGroupWithOptionalId,
   SelectionAttributeGroupWithOptionalId,
@@ -24,7 +25,7 @@ export interface IProductAttributes {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
-  colors: any[]
+  detected_color_images?: DetectedImage[]
 }
 
 export interface DimensionAndWeight {

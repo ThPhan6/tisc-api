@@ -20,7 +20,7 @@ export default async function (job: any) {
       fs.rmdirSync(dir, { recursive: true });
     }
     await productRepository.update(job.data.product_id, {
-      colors: colorService.mappingTemperature(result),
+      detected_color_images: colorService.mappingTemperature(result),
     });
 
     return Promise.resolve(true);

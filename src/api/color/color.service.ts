@@ -3,7 +3,10 @@ import path from "path";
 import moment from "moment";
 import { uploadImagesToLocal } from "@/services/image.service";
 import { extractTopColor } from "@/modules/colourDetection";
-import { errorMessageResponse, successResponse } from "@/helpers/response.helper";
+import {
+  errorMessageResponse,
+  successResponse,
+} from "@/helpers/response.helper";
 import { COLOR_COLLECTIONS } from "@/constants/collection.constant";
 import { sortObjectArray } from "@/helpers/common.helper";
 import { DetectedColor, ColorSpecification, DetectedImage } from "./color.type";
@@ -104,7 +107,8 @@ class ColorService {
   public detectColor = async (images: string[], categoryIds: string[]) => {
     const isSupported =
       productService.checkSupportedColorDetection(categoryIds);
-    if (!isSupported) return errorMessageResponse("Not supported for these categories");
+    if (!isSupported)
+      return errorMessageResponse("Not supported for these categories");
     const folder = `public/temp/${moment.now().toString()}`;
     const dir = `${path.resolve("")}/${folder}`;
     if (!fs.existsSync(dir)) {
@@ -125,11 +129,13 @@ class ColorService {
       fs.rmdirSync(dir, { recursive: true });
     }
     return successResponse({
-      recommendation_collection: {
-        id: recommendationCollection?.id,
-        name: recommendationCollection?.name,
+      data: {
+        recommendation_collection: {
+          id: recommendationCollection?.id,
+          name: recommendationCollection?.name,
+        },
+        images: this.mappingTemperature(result),
       },
-      data: this.mappingTemperature(result),
     });
   };
   public extractColors = (
@@ -145,7 +151,9 @@ class ColorService {
       })
     );
   };
-  public mappingTemperature = (detectedImages: DetectedImage[]) => {
+  public mappingTemperature = (
+    detectedImages: DetectedImage[]
+  ): DetectedImage[] => {
     return detectedImages.map((detectedImage) => {
       return {
         ...detectedImage,
@@ -168,7 +176,7 @@ class ColorService {
           };
         }),
       };
-    });
+    }) as any;
   };
 }
 

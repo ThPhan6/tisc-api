@@ -27,7 +27,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     tips: [],
     downloads: [],
     catelogue_downloads: [],
-    colors: [],
+    detected_color_images: [],
   };
   constructor() {
     super();
