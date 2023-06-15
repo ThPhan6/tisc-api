@@ -68,7 +68,7 @@
     ]
   },
   "scripts": {
-    "build": "ttsc",
+    "build": "ttsc && cp ./src/modules/colourDetection/extractors/extracter.py ./dist/modules/colourDetection/extractors/extracter.py",
     "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"npm run compile\"",
     "compile": "ttsc && cp ./src/modules/colourDetection/extractors/extracter.py ./dist/modules/colourDetection/extractors/extracter.py && node ./dist/server.js",
     "create:database": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/create_database",
