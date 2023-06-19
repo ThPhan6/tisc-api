@@ -191,6 +191,7 @@ const permissionData = [
           ROUTES.PRE_SPECFICATION.GET_USER_SPEC_SELECTION,
           ROUTES.PRE_SPECFICATION.UPDATE_USER_SPEC_SELECTION,
           ROUTES.GET_LIST_CATEGORY,
+          ROUTES.DETECT_COLOR,
         ],
         index: 10,
         id: "permission_3_3",

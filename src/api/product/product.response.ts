@@ -79,6 +79,7 @@ export const productResponse = {
   downloads: Joi.any(),
   catelogue_downloads: Joi.any(),
   dimension_and_weight: dimensionWeightResponse,
+  detected_color_images: Joi.any(),
 };
 
 export default {

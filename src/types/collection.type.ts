@@ -3,6 +3,7 @@ import { Pagination } from "@/types";
 export enum CollectionRelationType {
   Brand,
   CustomProduct,
+  Color
 }
 export interface ICollectionAttributes {
   id: string;
