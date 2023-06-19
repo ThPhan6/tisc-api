@@ -20,6 +20,23 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
       return false;
     }
   }
+  public async getMany(ids: string[]) {
+    try {
+      return this.model.rawQueryV2(
+        `
+        for mainCategory in categories
+          FILTER mainCategory.deleted_at == null
+              for subCategory in mainCategory.subs
+                  for category in subCategory.subs
+                      FILTER category.id in @ids
+          return category
+      `,
+        { ids }
+      );
+    } catch (error) {
+      return false;
+    }
+  }
 
   public async getAllCategoriesSortByName(
     limit: number,
@@ -105,3 +122,4 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
 }
 
 export default CategoryRepository;
+export const categoryRepository = new CategoryRepository();

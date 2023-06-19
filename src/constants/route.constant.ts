@@ -153,6 +153,8 @@ export const ROUTES = {
   SHARE_PRODUCT_BY_EMAIL: "/api/product/share-via-email",
   GET_SHARING_GROUPS: "/api/product/sharing-groups",
   GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
+  DETECT_COLOR: "/api/color/detect-color",
+  GET_COLOR_COLLECTION: "/api/color/collection",
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_PROJECT_SUMMARY_OVERALL: "/api/project/get-summary-overall",

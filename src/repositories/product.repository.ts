@@ -27,6 +27,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     tips: [],
     downloads: [],
     catelogue_downloads: [],
+    detected_color_images: [],
   };
   constructor() {
     super();
@@ -43,6 +44,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string;
     sortName?: string;
     sortOrder?: SortOrder;
+    has_color?: boolean;
     limit?: number;
     offset?: number;
     isCount?: boolean;
@@ -108,7 +110,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         options.isCount
           ? "COLLECT WITH COUNT INTO length RETURN length"
           : ` RETURN MERGE(
-        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by' ${
+          !options.has_color ? ",'detected_color_images'" : ""
+        }]), {
         categories: categories,
         collection: {
             id: collection.id,
@@ -132,6 +136,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       this.getProductQuery({
         productId,
         withFavourite: !isUndefined(userId),
+        has_color: true,
       }),
       params
     )) as ProductWithRelationData[];
@@ -206,7 +211,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         sortOrder: order,
         limit,
         offset,
-        isCount: true
+        isCount: true,
       }),
       params
     );

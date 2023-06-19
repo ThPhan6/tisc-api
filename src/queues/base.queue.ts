@@ -4,8 +4,10 @@ import { logRepository } from "@/repositories/log.repository";
 
 export class BaseQueue {
   protected queue: Bull.Queue<any>;
+  protected concurrency: number;
   constructor(queue: Bull.Queue<any>) {
-    this.queue = queue
+    this.queue = queue;
+    this.concurrency = 10;
     this.clearQueue();
   }
   private clearQueue() {
@@ -23,7 +25,7 @@ export class BaseQueue {
     if (!type || type === "slack") {
       slackService.errorHook("", "", error.stack);
     }
-    if(type === 'log_collections') {
+    if (type === "log_collections") {
       logRepository.create({
         extra: {
           title: error.subject,
