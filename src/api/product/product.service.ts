@@ -50,7 +50,9 @@ import {
 } from "./product.type";
 import { SortOrder, UserAttributes, BasisConversion } from "@/types";
 import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
-import { pagination, sortObjectArray } from "@/helpers/common.helper";
+import { sortObjectArray, pagination } from "@/helpers/common.helper";
+import { colorDetectionQueue } from "@/queues/color_detection.queue";
+import { categoryRepository } from "@/repositories/category.repository";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -60,6 +62,33 @@ class ProductService {
     return allBasisConversion.reduce((pre, cur) => {
       return pre.concat(cur.subs);
     }, []);
+  };
+  public checkSupportedColorDetection = async (categoryIds: string[]) => {
+    const categories: any = await categoryRepository.getMany(categoryIds);
+    const found = categories.find(
+      (item: any) =>
+        item.name.toLowerCase().search("stone") !== -1 ||
+        item.name.toLowerCase().search("wood") !== -1
+    );
+    if (found) {
+      return true;
+    }
+    return false;
+  };
+  private addQueueToDetectColor = async (
+    categoryIds: string[],
+    productId: string,
+    images: string[]
+  ) => {
+    const isSupportedColorDetection = await this.checkSupportedColorDetection(
+      categoryIds
+    );
+    if (isSupportedColorDetection) {
+      colorDetectionQueue.add({
+        product_id: productId,
+        images,
+      });
+    }
   };
   public async create(user: UserAttributes, payload: IProductRequest) {
     const product = await productRepository.findBy({
@@ -126,6 +155,12 @@ class ProductService {
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+    // Detect color if product has supported category
+    this.addQueueToDetectColor(
+      payload.category_ids,
+      createdProduct.id,
+      uploadedImages
+    );
     return this.get(createdProduct.id, user);
   }
 
@@ -201,6 +236,8 @@ class ProductService {
       );
 
       images = newImages;
+      // Detect color if product has supported category
+      this.addQueueToDetectColor(payload.category_ids, product.id, images);
     }
     if (!isEqual(payload.keywords, product.keywords)) {
       images = await updateProductImageNames(
