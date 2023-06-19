@@ -92,4 +92,9 @@ export default class InvoiceController {
     const response = await invoiceService.receivePaymentInfo(payload);
     return toolkit.response(response).code(response.statusCode);
   }
+  public async paidTemporarily(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const response = await invoiceService.paidTemporarily(id);
+    return toolkit.response(response).code(response.statusCode);
+  }
 }
