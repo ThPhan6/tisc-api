@@ -1,10 +1,10 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helpers/route.helper";
 import validate from "./color.validate";
-import { AUTH_NAMES, ROUTES } from "@/constants";
+import { AUTH_NAMES, imageOptionPayload, ROUTES } from "@/constants";
 import { colorController } from "./color.controller";
 import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
-import response from './color.response'
+import response from "./color.response";
 
 export default class ProductRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -19,10 +19,11 @@ export default class ProductRoute implements IRoute {
             description: "Method that detect color of images",
             tags: ["api", "Color"],
             auth: AUTH_NAMES.PERMISSION,
+            payload: imageOptionPayload,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.detectedData
+                200: response.detectedData,
               },
             },
           },

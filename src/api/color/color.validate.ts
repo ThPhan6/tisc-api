@@ -10,11 +10,9 @@ export default {
         .required()
         .error(errorMessage("Category is required")),
       images: Joi.array()
-        .min(3)
-        .max(9)
         .items(Joi.string())
         .required()
-        .error(errorMessage("Images is required at least 3 valid data")),
+        .error(errorMessage("Images is required")),
     },
   },
   getColorCollection: {
