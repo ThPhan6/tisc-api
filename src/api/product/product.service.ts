@@ -67,6 +67,9 @@ class ProductService {
     const categories: any = await categoryRepository.getManyConcatName(
       categoryIds
     );
+    if (!categories) {
+      return false;
+    }
     const found = categories.find(
       (item: string) =>
         item.toLowerCase().search("stone") !== -1 ||
