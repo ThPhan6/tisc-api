@@ -66,6 +66,9 @@ class CollectionService {
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
     }
+    if (collection.relation_type === CollectionRelationType.Color) {
+      return errorMessageResponse(MESSAGES.CANNOT_CHANGE_COLOR_COLLECTION, 400);
+    }
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
@@ -73,6 +76,9 @@ class CollectionService {
     const collection = await CollectionRepository.find(id);
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
+    }
+    if (collection.relation_type === CollectionRelationType.Color) {
+      return errorMessageResponse(MESSAGES.CANNOT_CHANGE_COLOR_COLLECTION, 400);
     }
     const product = await ProductRepository.findBy({
       collection_id: id,
