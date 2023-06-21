@@ -20,7 +20,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
       return false;
     }
   }
-  public async getMany(ids: string[]) {
+  public async getManyConcatName(ids: string[]) {
     try {
       return this.model.rawQueryV2(
         `
@@ -29,7 +29,7 @@ class CategoryRepository extends BaseRepository<ICategoryAttributes> {
               for subCategory in mainCategory.subs
                   for category in subCategory.subs
                       FILTER category.id in @ids
-          return category
+                      return CONCAT(mainCategory.name, ', ', subCategory.name, ', ', category.name)
       `,
         { ids }
       );

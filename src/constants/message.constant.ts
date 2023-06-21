@@ -189,6 +189,7 @@ export const MESSAGES = {
   CONTENT_TIP_MAX_WORDS: "Content max 100 words",
   BASIS_PRESET_NOT_FOUND: "Basis preset not found",
   COLLECTION_NOT_FOUND: "Collection not found",
+  CANNOT_CHANGE_COLOR_COLLECTION: "Cannot change color collection",
   CANNOT_DELETE_COLLECTION_HAS_PRODUCT:
     "Cannot delete collection has products.",
   PRODUCT_DOWNLOAD_EXISTED: "Product download existed",

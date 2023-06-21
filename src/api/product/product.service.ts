@@ -64,11 +64,16 @@ class ProductService {
     }, []);
   };
   public checkSupportedColorDetection = async (categoryIds: string[]) => {
-    const categories: any = await categoryRepository.getMany(categoryIds);
+    const categories: any = await categoryRepository.getManyConcatName(
+      categoryIds
+    );
+    if (!categories) {
+      return false;
+    }
     const found = categories.find(
-      (item: any) =>
-        item.name.toLowerCase().search("stone") !== -1 ||
-        item.name.toLowerCase().search("wood") !== -1
+      (item: string) =>
+        item.toLowerCase().search("stone") !== -1 ||
+        item.toLowerCase().search("wood") !== -1
     );
     if (found) {
       return true;
@@ -453,7 +458,7 @@ class ProductService {
       keyword,
       sortName,
       orderBy,
-      false,
+      false
     );
     return successResponse({
       allProducts: products,
