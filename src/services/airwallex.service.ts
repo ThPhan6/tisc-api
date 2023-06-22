@@ -45,6 +45,28 @@ class AirwallexService {
         });
     });
   };
+  public retrievePaymentIntent = (payment_intent_id: string) => {
+    return new Promise(async (resolve) => {
+      const authenticated = await this.login();
+      if (!authenticated) return resolve(false);
+      return axios
+        .create({
+          baseURL: ENVIRONMENT.AIRWALLEX_API_ENPOINT,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authenticated.token}`,
+          },
+        })
+        .get(`/api/v1/pa/payment_intents/${payment_intent_id}`)
+        .then((response) => resolve(response.data))
+        .catch((error) => {
+          console.error(error);
+          throw Boom.badRequest(
+            MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN
+          );
+        });
+    });
+  };
   public listPaymentAttempts = (
     paymentIntentId: string
   ): Promise<PaymentAttemptResponse | false> => {
