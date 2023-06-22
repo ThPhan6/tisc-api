@@ -380,6 +380,17 @@ class InvoiceService {
     if (invoice.data.status === InvoiceStatus.Paid) {
       return errorMessageResponse(MESSAGES.INVOICE.PAID);
     }
+    const paymentIntent = await paymentRepository.findBy({
+      invoice_id: invoiceId,
+      created_by: user.id,
+    });
+    if (paymentIntent) {
+      const result: any = await airwallexService.retrievePaymentIntent(
+        paymentIntent.intent_id
+      );
+      if (!result.latest_payment_attempt)
+        return successResponse({ data: result });
+    }
     const exchanges = await freeCurrencyService.exchange();
     const exchange = exchanges.data["SGD"];
     const grandTotalSGD = toFixedNumber(
@@ -458,7 +469,7 @@ class InvoiceService {
   };
 
   public receivePaymentInfo = async (payload: any) => {
-    // console.log(payload.name, payload.sourceId);
+    console.log(payload.name, payload.sourceId);
     try {
       const payment = await paymentRepository.findBy({
         intent_id: payload.sourceId,
@@ -486,6 +497,11 @@ class InvoiceService {
       if (payload && payload.name === "payment_intent.succeeded") {
         await invoiceRepository.update(invoice.id, {
           status: InvoiceStatus.Processing,
+        });
+      }
+      if (payload && payload.name === "refund.succeeded") {
+        await invoiceRepository.update(invoice.id, {
+          status: InvoiceStatus.Refund,
         });
       }
       if (payload && payload.name === "payment_attempt.capture_failed") {
