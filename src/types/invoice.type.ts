@@ -9,7 +9,7 @@ export enum InvoiceStatus {
   Paid,
   Pending,
   Processing,
-  Refund
+  Refunded
 }
 
 export interface InvoiceAttributes {
