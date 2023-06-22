@@ -380,23 +380,28 @@ class InvoiceService {
     if (invoice.data.status === InvoiceStatus.Paid) {
       return errorMessageResponse(MESSAGES.INVOICE.PAID);
     }
-    const paymentIntent = await paymentRepository.findBy({
-      invoice_id: invoiceId,
-      created_by: user.id,
-    });
+    const paymentIntent = await paymentRepository.findLastIntent(
+      invoiceId,
+      user.id
+    );
     if (paymentIntent) {
       const result: any = await airwallexService.retrievePaymentIntent(
         paymentIntent.intent_id
       );
       if (
-        !result.latest_payment_attempt ||
-        (result.status === "SUCCEEDED" &&
-          !["CANCELLED", "EXPIRED", "FAILED"].includes(
-            result.latest_payment_attempt.status as string
-          ))
-      )
+        !(
+          (result.status === "SUCCEEDED" &&
+            result.latest_payment_attempt &&
+            ["CANCELLED", "EXPIRED", "FAILED"].includes(
+              result.latest_payment_attempt.status as string
+            )) ||
+          result.status === "CANCELLED"
+        )
+      ) {
         return successResponse({ data: result });
+      }
     }
+
     const exchanges = await freeCurrencyService.exchange();
     const exchange = exchanges.data["SGD"];
     const grandTotalSGD = toFixedNumber(
