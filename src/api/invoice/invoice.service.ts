@@ -469,7 +469,7 @@ class InvoiceService {
   };
 
   public receivePaymentInfo = async (payload: any) => {
-    console.log(payload.name, payload.sourceId);
+    // console.log(payload.name, payload.sourceId);
     try {
       const payment = await paymentRepository.findBy({
         intent_id: payload.sourceId,
