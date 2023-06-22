@@ -118,7 +118,7 @@ class ColorService {
       await uploadImagesToLocal(images, folder)
     ).filter((item) => item !== undefined);
     const result = await this.extractColors(uploadedToLocal);
-    const mostColor = this.getTheMostColor(result);
+    const mostColor = this.getTheMostColor([result[0]]);
     const recommendationCollection = this.recommendCollection({
       saturation: mostColor.conversion.origin.sat,
       lightness: mostColor.conversion.origin.lightness,
