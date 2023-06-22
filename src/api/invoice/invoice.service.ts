@@ -388,7 +388,13 @@ class InvoiceService {
       const result: any = await airwallexService.retrievePaymentIntent(
         paymentIntent.intent_id
       );
-      if (!result.latest_payment_attempt)
+      if (
+        !result.latest_payment_attempt ||
+        (result.status === "SUCCEEDED" &&
+          !["CANCELLED", "EXPIRED", "FAILED"].includes(
+            result.latest_payment_attempt.status as string
+          ))
+      )
         return successResponse({ data: result });
     }
     const exchanges = await freeCurrencyService.exchange();
@@ -499,11 +505,7 @@ class InvoiceService {
           status: InvoiceStatus.Processing,
         });
       }
-      if (payload && payload.name === "refund.succeeded") {
-        await invoiceRepository.update(invoice.id, {
-          status: InvoiceStatus.Refund,
-        });
-      }
+
       if (payload && payload.name === "payment_attempt.capture_failed") {
         const diff = moment().diff(moment(invoice.due_date), "days");
         await invoiceRepository.update(invoice.id, {
@@ -543,6 +545,11 @@ class InvoiceService {
             });
           }
         }
+      }
+      if (payload && payload.name === "refund.succeeded") {
+        await invoiceRepository.update(invoice.id, {
+          status: InvoiceStatus.Refunded,
+        });
       }
       return successMessageResponse(MESSAGES.SUCCESS);
     } catch (error) {
