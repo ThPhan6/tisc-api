@@ -13,6 +13,14 @@ class PaymentRepository extends BaseRepository<PaymentAttributes> {
     super();
     this.model = new PaymentModel();
   }
+
+  public async findLastIntent(invoiceId: string, userId: string) {
+    return (await this.model
+      .where("invoice_id", "==", invoiceId)
+      .where("created_by", "==", userId)
+      .order("created_at", "DESC")
+      .first()) as any;
+  }
 }
 
 export default PaymentRepository;
