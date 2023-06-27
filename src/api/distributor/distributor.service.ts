@@ -16,9 +16,7 @@ import { countryStateCityService } from "@/services/country_state_city.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { productRepository } from "@/repositories/product.repository";
 import { locationRepository } from "@/repositories/location.repository";
-import {
-  marketAvailabilityService
-} from '@/api/market_availability/market_availability.service';
+import { marketAvailabilityService } from "@/api/market_availability/market_availability.service";
 import {
   mappingAuthorizedCountries,
   mappingAuthorizedCountriesName,
@@ -32,9 +30,7 @@ import {
 } from "./distributor.type";
 import { isEqual, pick } from "lodash";
 
-
 class DistributorService {
-
   public async create(payload: IDistributorRequest) {
     const distributor = await distributorRepository.findBy({
       name: payload.name,
@@ -351,18 +347,23 @@ class DistributorService {
     });
   }
 
-  public async getMarketDistributorGroupByCountry(productId: string, projectId?: string) {
+  public async getMarketDistributorGroupByCountry(
+    productId: string,
+    projectId?: string
+  ) {
     const product = await productRepository.find(productId);
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT.PRODUCT_NOT_FOUND, 404);
     }
-    const availableCountries = await marketAvailabilityService.getAvailableCountryByCollection(
-      product.collection_id,
-      projectId
-    );
+    const availableCountries =
+      await marketAvailabilityService.getAvailableCountryByCollection(
+        product.collection_id,
+        product.brand_id,
+        projectId,
+      );
     const distributors = await distributorRepository.getMarketDistributor(
       product.brand_id,
-      availableCountries,
+      availableCountries
     );
 
     const result = mappingMarketDistributorGroupByCountry(distributors);

@@ -3,10 +3,16 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ICollectionRequest } from "./collection.type";
 
 export default class CollectionController {
-
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const { limit, offset, relation_id, relation_type } = req.query;
-    const response = await CollectionService.getList(relation_id, relation_type, limit, offset);
+    const { limit, offset, relation_id, relation_type, category_ids } =
+      req.query;
+    const response = await CollectionService.getList(
+      relation_id,
+      relation_type,
+      limit,
+      offset,
+      { category_ids: category_ids?.split(",") }
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -20,7 +26,7 @@ export default class CollectionController {
   };
 
   public update = async (
-    req: Request & {payload: {name: string}},
+    req: Request & { payload: { name: string } },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
