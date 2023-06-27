@@ -471,10 +471,7 @@ class ProjectService {
     if (!design) {
       return errorMessageResponse(MESSAGES.DESIGN_NOT_FOUND, 404);
     }
-
-    const projects = await projectRepository.getAllBy({
-      design_id: designId,
-    });
+    const projects = await projectRepository.getProjectsWithLocation(designId)
 
     const result = mappingProjectGroupByStatus(projects);
 

@@ -30,7 +30,15 @@ class MarketAvailabilityService {
     collectionId: string,
     payload: IUpdateMarketAvailabilityRequest
   ) {
+    const collection = await collectionRepository.find(collectionId);
+    if (!collection) {
+      return errorMessageResponse(
+        MESSAGES.MARKET_AVAILABILITY.MARKET_AVAILABILITY_NOT_FOUND,
+        404
+      );
+    }
     const market = await marketAvailabilityRepository.findByCollection(
+      collection.relation_id,
       user.relation_id,
       collectionId
     );
@@ -55,7 +63,14 @@ class MarketAvailabilityService {
   }
 
   public async get(user: UserAttributes, collectionId: string) {
-    const market = await marketAvailabilityRepository.findByCollection(user.relation_id, collectionId);
+    const collection = await collectionRepository.find(collectionId);
+    if (!collection) {
+      return errorMessageResponse(
+        MESSAGES.MARKET_AVAILABILITY.MARKET_AVAILABILITY_NOT_FOUND,
+        404
+      );
+    }
+    const market = await marketAvailabilityRepository.findByCollection(collection.relation_id, user.relation_id, collectionId);
     //
     if (!market) {
       return errorMessageResponse(MESSAGES.MARKET_AVAILABILITY_NOT_FOUND, 404);
@@ -109,21 +124,23 @@ class MarketAvailabilityService {
     });
   }
 
-  public async getMarketAvailabilityGroupByCollection(relationId: string) {
-    const collections = await marketAvailabilityRepository.getAllCollection(relationId);
+  public async getMarketAvailabilityGroupByCollection(relationId: string, brandId: string) {
+    const collections = await marketAvailabilityRepository.getAllCollection(relationId, brandId);
     return successResponse({
       data: mappingGroupByCollection(collections),
     });
   }
 
-  public async getAvailableCountryByCollection(collectionId: string, projectId?: string) {
+  public async getAvailableCountryByCollection(collectionId: string, brandId: string, projectId?: string) {
     const collection = await collectionRepository.find(collectionId);
-    if (!collection || collection.relation_type !== CollectionRelationType.Brand) {
+    if (!collection || collection.relation_type === CollectionRelationType.CustomProduct) {
       return [];
     }
     const market = await marketAvailabilityRepository.findByCollection(
       collection.relation_id,
-      collection.id
+      brandId,
+      collection.id,
+      
     );
     const result = mappingMarketAvailibility(market);
 
