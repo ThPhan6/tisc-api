@@ -32,9 +32,12 @@ export default class CustomResourceController {
   public async getListResource(req: Request, toolkit: ResponseToolkit) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const { limit, offset, sort, order, type } = req.query;
-
-    const total = await customResourceRepository.getTotalByTypeAndRelation(type, user.relation_id);
+    let { limit, offset, sort, order, type } = req.query;
+    if (sort === "name") sort = "business_name";
+    const total = await customResourceRepository.getTotalByTypeAndRelation(
+      type,
+      user.relation_id
+    );
 
     const response = await customResourceRepository.getList(
       limit,
