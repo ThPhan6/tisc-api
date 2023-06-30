@@ -18,6 +18,9 @@ import { MEASUREMENT_UNIT, SQUARE_METER_TO_SQUARE_FOOT } from "@/constants";
 import { locationRepository } from "./location.repository";
 import { v4 } from "uuid";
 
+export type ProjectWithLocation = ProjectAttributes & {
+  location: ILocationAttributes;
+};
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected model: ProjectModel;
 
@@ -202,6 +205,24 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       { id }
     );
     return project[0];
+  }
+  public async getProjectsWithLocation(
+    designId: string
+  ): Promise<ProjectWithLocation[]> {
+    const projects = await this.model.rawQuery(
+      `
+        FILTER projects.deleted_at == null
+        FILTER projects.design_id == @designId
+        FOR loc IN locations
+        FILTER loc.id == projects.location_id
+        RETURN MERGE(
+          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']),
+          {location: KEEP(loc, ${locationRepository.basicAttributesQuery})}
+        )
+      `,
+      { designId }
+    );
+    return projects;
   }
 
   public async findProjectWithDesignData(id: string) {
@@ -580,7 +601,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
           areas: (FOR areas in z.areas SORT areas.name ASC return {
             id: areas.id,
             name: areas.name,
-            rooms: (FOR rooms in areas.rooms SORT rooms.room_name ASC return rooms)
+            rooms: (FOR rooms in areas.rooms SORT rooms.room_id ASC return rooms)
           })
         }
       )

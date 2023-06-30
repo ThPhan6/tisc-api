@@ -365,6 +365,7 @@ class InvoiceService {
         grand_total: toUSMoney(
           newBillingAmount * (1 + ENVIRONMENT.SURCHARGE_RATE)
         ),
+        remark: invoice.remark
       }
     );
     return successResponse({ data: result, fileName: invoice.name });
