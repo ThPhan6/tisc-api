@@ -43,6 +43,7 @@ export default class MarketAvailabilityController {
     const { brand_id } = req.params;
     const response =
       await marketAvailabilityService.getMarketAvailabilityGroupByCollection(
+        brand_id,
         brand_id
       );
     return toolkit.response(response).code(response.statusCode ?? 200);

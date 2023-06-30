@@ -10,6 +10,7 @@ import { marketAvailabilityRepository } from "@/repositories/market_availability
 import { ICollectionRequest } from "./collection.type";
 import { CollectionRelationType } from "@/types";
 import { pagination } from "@/helpers/common.helper";
+import { productService } from "../product/product.service";
 
 class CollectionService {
   public async create(payload: ICollectionRequest) {
@@ -33,7 +34,8 @@ class CollectionService {
     if (createdCollection.relation_type === CollectionRelationType.Brand) {
       /// create market availability
       await marketAvailabilityRepository.upsertMarketAvailability(
-        createdCollection.id
+        createdCollection.id,
+        payload.relation_id
       );
     }
     //
@@ -44,14 +46,26 @@ class CollectionService {
     relation_id: string,
     type: CollectionRelationType,
     limit: number,
-    offset: number
+    offset: number,
+    options?: {
+      category_ids: string[];
+    }
   ) {
+    let hasColorCollection: boolean = false;
+    if (options?.category_ids) {
+      const isSupportedColorCollection = await
+        productService.checkSupportedColorDetection(options.category_ids);
+      if (isSupportedColorCollection) hasColorCollection = true;
+    }
     const { collections, total } =
       await CollectionRepository.getListCollectionWithPaginate(
         limit,
         offset,
         relation_id,
-        type
+        type,
+        undefined,
+        undefined,
+        { has_color_collection: hasColorCollection }
       );
     return successResponse({
       data: {

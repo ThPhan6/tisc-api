@@ -105,8 +105,9 @@ class ColorService {
     });
   };
   public detectColor = async (images: string[], categoryIds: string[]) => {
-    const isSupported =
-      productService.checkSupportedColorDetection(categoryIds);
+    const isSupported = await productService.checkSupportedColorDetection(
+      categoryIds
+    );
     if (!isSupported)
       return errorMessageResponse("Not supported for these categories");
     const folder = `public/temp/${moment.now().toString()}`;

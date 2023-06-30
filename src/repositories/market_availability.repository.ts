@@ -5,8 +5,8 @@ import {
   CollectionRelationType,
   SortOrder,
   ListMarketAvailability,
-} from '@/types';
-import {head, isFinite} from 'lodash';
+} from "@/types";
+import { head, isFinite } from "lodash";
 
 class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAttributes> {
   protected model: MarketAvailabilityModel;
@@ -20,58 +20,72 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     this.model = new MarketAvailabilityModel();
   }
 
-  private upsertMarketAvailabilityQuery = (collectionId: string) => {
+  private upsertMarketAvailabilityQuery = () => {
     return `
       UPSERT {
-          collection_id: ${collectionId},
+          collection_id: @collectionId,
+          brand_id: @brandId,
           deleted_at: null
       }
       INSERT {
           id: UUID(),
-          collection_id: ${collectionId},
+          collection_id: @collectionId,
+          brand_id: @brandId,
           countries: [],
           created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
           updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
           deleted_at: null
       }
       UPDATE {
-          collection_id: ${collectionId},
+          collection_id: @collectionId,
+          brand_id: @brandId,
       }
       IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
-    `
-  }
-  public upsertMarketAvailability = async (collectionId: string) => {
-    const params = { collectionId };
-    const query = this.upsertMarketAvailabilityQuery('@collectionId');
+    `;
+  };
+  public upsertMarketAvailability = async (
+    collectionId: string,
+    brandId: string
+  ) => {
+    const params = { collectionId, brandId };
+    const query = this.upsertMarketAvailabilityQuery();
     return this.model.rawQueryV2(query, params);
-  }
+  };
 
   private getBuilderQuery = (
     relationId: string,
+    brandId: string,
     collectionId?: string,
     count: boolean = false,
     limit?: number,
     offset?: number,
-    sort?: string ,
+    sort?: string,
     order?: SortOrder,
+    isQueryGlobal?: boolean
   ) => {
-    if(!sort) {sort = "name"}
-    if(!order) {order = "ASC"}
+    if (!sort) {
+      sort = "name";
+    }
+    if (!order) {
+      order = "ASC";
+    }
     const params: any = {
-      relationId: relationId,
-      relationType: CollectionRelationType.Brand,
+      relationId,
+      relationType: CollectionRelationType.CustomProduct,
     };
     let query = `FOR collection IN collections
         FILTER collection.deleted_at == null
-        FILTER collection.relation_id == @relationId
-        FILTER collection.relation_type == @relationType
+        FILTER collection.relation_id == @relationId ${
+          isQueryGlobal ? ` OR collection.relation_id == ""` : ""
+        }
+        
+        FILTER collection.relation_type != @relationType
     `;
-
     if (count) {
       query += `COLLECT WITH COUNT INTO length RETURN length`;
       return { query, params };
     }
-
+    params.brandId = brandId;
     if (collectionId) {
       params.collectionId = collectionId;
     }
@@ -86,13 +100,13 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     }
     ////
 
-    query += `${collectionId ? 'FILTER collection.id == @collectionId' : ''}
-        ${isFinite(limit) && isFinite(offset) ? 'LIMIT @offset, @limit' : ''}
-        ${sort && order ? 'SORT collection.@sort @order' : ''}
+    query += `${collectionId ? "FILTER collection.id == @collectionId" : ""}
+        ${isFinite(limit) && isFinite(offset) ? "LIMIT @offset, @limit" : ""}
+        ${sort && order ? "SORT collection.@sort @order" : ""}
     LET authorized_countries = (
         FOR distributor IN distributors
             FILTER distributor.deleted_at == null
-            FILTER distributor.brand_id == @relationId
+            FILTER distributor.brand_id == @brandId
             FOR country IN countries
                 FILTER country.deleted_at == null
                 FILTER country.id in distributor.authorized_country_ids
@@ -107,47 +121,101 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     LET market_availability = FIRST(
       FOR availability IN market_availabilities
         FILTER availability.collection_id == collection.id
+        FILTER availability.brand_id == @brandId
         FILTER availability.deleted_at == null
+      RETURN availability
+    )
+
+    LET upsertMarketAvailability = market_availability ? market_availability : FIRST(
+      UPSERT {
+        collection_id: collection.id,
+        brand_id: @brandId,
+        deleted_at: null
+    }
+      INSERT {
+          id: UUID(),
+          collection_id: collection.id,
+          brand_id: @brandId,
+          countries: [],
+          created_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+          updated_at: DATE_FORMAT(DATE_NOW(), "%yyyy-%mm-%dd %hh:%ii:%ss"),
+          deleted_at: null
+      }
+      UPDATE {
+        collection_id: collection.id,
+        brand_id: @brandId,
+    }
+      IN market_availabilities OPTIONS { ignoreErrors: true, waitForSync: true }
+      RETURN NEW
+    )
+
+    LET market = FIRST(
         LET countries = (
-            FOR authorized_country IN authorized_countries
-            LET c = FIRST(availability.countries[* FILTER CURRENT.id == authorized_country.id])
-            RETURN {
-                id: authorized_country.id,
-                name: authorized_country.name,
-                region: authorized_country.region,
-                phone_code: authorized_country.phone_code,
-                available: c ? c.available : true
-            }
-        )
-        RETURN MERGE(availability, {
-            countries: countries
-        })
+          FOR authorized_country IN authorized_countries
+          LET c = FIRST(upsertMarketAvailability.countries[* FILTER CURRENT.id == authorized_country.id])
+          RETURN {
+              id: authorized_country.id,
+              name: authorized_country.name,
+              region: authorized_country.region,
+              phone_code: authorized_country.phone_code,
+              available: c ? c.available : true
+          }
+      )
+      RETURN MERGE(upsertMarketAvailability, {
+          countries: countries
+      })
     )
 
     RETURN MERGE({
-        id: market_availability.id,
+        id: market.id,
         name: collection.name,
         collection_id: collection.id,
         relation_id: collection.relation_id,
-        countries: market_availability.countries,
+        countries: market.countries,
     })`;
     return { query, params };
-  }
+  };
 
   public async getMarketAvailabilityPagination(
-    relationId: string,
+    brandId: string,
     limit: number = 10,
     offset: number = 0,
-    sort: string = 'created_at',
-    order: SortOrder = 'DESC',
+    sort: string = "created_at",
+    order: SortOrder = "DESC"
   ) {
     ///
-    const queryTotal = this.getBuilderQuery(relationId, undefined, true);
-    const totalResponse = await this.model.rawQueryV2(queryTotal.query, queryTotal.params);
+    const queryTotal = this.getBuilderQuery(
+      brandId,
+      brandId,
+      undefined,
+      true,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true
+    );
+    const totalResponse = await this.model.rawQueryV2(
+      queryTotal.query,
+      queryTotal.params
+    );
     const totalRecords = (head(totalResponse) ?? 0) as number;
     ///
-    const query = this.getBuilderQuery(relationId, undefined, false, limit, offset, sort, order);
-    const data = await this.model.rawQueryV2(query.query, query.params) as ListMarketAvailability[];
+    const query = this.getBuilderQuery(
+      brandId,
+      brandId,
+      undefined,
+      false,
+      limit,
+      offset,
+      sort,
+      order,
+      true
+    );
+    const data = (await this.model.rawQueryV2(
+      query.query,
+      query.params
+    )) as ListMarketAvailability[];
 
     return {
       pagination: {
@@ -160,16 +228,23 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     };
   }
 
-  public async getAllCollection(relationId: string) {
-    const query = this.getBuilderQuery(relationId);
-    return await this.model
-      .rawQueryV2(query.query, query.params) as ListMarketAvailability[];
+  public async getAllCollection(relationId: string, brandId: string) {
+    const query = this.getBuilderQuery(relationId, brandId);
+    return (await this.model.rawQueryV2(
+      query.query,
+      query.params
+    )) as ListMarketAvailability[];
   }
 
-  public async findByCollection(relationId: string, collectionId: string) {
-    const query = this.getBuilderQuery(relationId, collectionId);
-    return (head(await this.model
-      .rawQueryV2(query.query, query.params))) as ListMarketAvailability;
+  public async findByCollection(
+    relationId: string,
+    brandId: string,
+    collectionId: string
+  ) {
+    const query = this.getBuilderQuery(relationId, brandId, collectionId);
+    return head(
+      await this.model.rawQueryV2(query.query, query.params)
+    ) as ListMarketAvailability;
   }
 }
 
