@@ -57,26 +57,171 @@ class ColorService {
       saturation = Math.round(saturation * 100);
       lightness = Math.round(lightness * 100);
     }
-    if (saturation >= 15 && saturation <= 100) {
+    if (saturation >= 11 && saturation <= 100) {
       //step 2
-      if (lightness >= 0 && lightness <= 14)
+      let group = 1;
+
+      switch (saturation) {
+        case 11:
+        case 12:
+        case 13:
+          if (0 <= lightness && lightness <= 17) group = 1;
+          if (18 <= lightness && lightness <= 93) group = 2;
+          if (94 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 14:
+        case 15:
+          if (0 <= lightness && lightness <= 17) group = 1;
+          if (18 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+          if (0 <= lightness && lightness <= 16) group = 1;
+          if (17 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 22:
+        case 23:
+          if (0 <= lightness && lightness <= 16) group = 1;
+          if (17 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 24:
+        case 25:
+        case 26:
+        case 27:
+        case 28:
+        case 29:
+        case 30:
+        case 31:
+        case 32:
+          if (0 <= lightness && lightness <= 15) group = 1;
+          if (16 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 33:
+        case 34:
+        case 35:
+        case 36:
+        case 37:
+        case 38:
+        case 39:
+        case 40:
+        case 41:
+          if (0 <= lightness && lightness <= 15) group = 1;
+          if (16 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 42:
+        case 43:
+        case 44:
+        case 45:
+        case 46:
+        case 47:
+        case 48:
+        case 49:
+        case 50:
+        case 51:
+        case 52:
+          if (0 <= lightness && lightness <= 13) group = 1;
+          if (14 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 53:
+        case 54:
+        case 55:
+        case 56:
+        case 57:
+        case 58:
+        case 59:
+        case 60:
+        case 61:
+          if (0 <= lightness && lightness <= 12) group = 1;
+          if (13 <= lightness && lightness <= 92) group = 2;
+          if (93 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 62:
+        case 63:
+        case 64:
+        case 65:
+          if (0 <= lightness && lightness <= 12) group = 1;
+          if (13 <= lightness && lightness <= 94) group = 2;
+          if (95 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 66:
+        case 67:
+        case 68:
+        case 69:
+        case 70:
+        case 71:
+        case 72:
+        case 73:
+        case 74:
+        case 75:
+        case 76:
+        case 77:
+        case 78:
+        case 79:
+        case 80:
+          if (0 <= lightness && lightness <= 11) group = 1;
+          if (12 <= lightness && lightness <= 94) group = 2;
+          if (95 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 81:
+        case 82:
+        case 83:
+        case 84:
+        case 85:
+        case 86:
+        case 87:
+        case 88:
+        case 89:
+        case 90:
+        case 91:
+        case 92:
+        case 93:
+        case 94:
+        case 95:
+        case 96:
+        case 97:
+        case 98:
+          if (0 <= lightness && lightness <= 10) group = 1;
+          if (11 <= lightness && lightness <= 94) group = 2;
+          if (95 <= lightness && lightness <= 100) group = 3;
+          break;
+        case 99:
+        case 100:
+          if (0 <= lightness && lightness <= 9) group = 1;
+          if (10 <= lightness && lightness <= 94) group = 2;
+          if (95 <= lightness && lightness <= 100) group = 3;
+          break;
+
+        default:
+          break;
+      }
+      if (group === 1)
         return COLOR_COLLECTIONS.find(
           (item) => item.id === "4d9971c3-0c56-453a-9714-84f6c279dc4d"
         );
 
-      if (lightness >= 86 && lightness <= 100)
+      if (group === 3)
         return COLOR_COLLECTIONS.find(
           (item) => item.id === "ca5a1f78-718c-494f-adff-d67c316e4db4"
         );
 
-      if (lightness >= 15 && lightness <= 85) {
+      if (group === 2) {
         //step 3
         const found = COLOR_COLLECTIONS.find(
           (item) => hue >= item.hue.from && hue <= item.hue.to
         );
         return found;
       }
-    } else if (saturation >= 0 && saturation <= 14) {
+    } else if (saturation >= 0 && saturation <= 10) {
       //step 1
       const found = COLOR_COLLECTIONS.find(
         (item) =>
