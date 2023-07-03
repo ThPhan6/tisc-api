@@ -54,8 +54,8 @@ class ColorService {
     let lightness = params.lightness;
     let hue = params.hue;
     if (params.unit === "number") {
-      saturation = params.saturation * 100;
-      lightness = params.lightness * 100;
+      saturation = Math.round(saturation * 100);
+      lightness = Math.round(lightness * 100);
     }
     if (saturation >= 15 && saturation <= 100) {
       //step 2
