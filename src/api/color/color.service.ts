@@ -84,10 +84,6 @@ class ColorService {
         case 19:
         case 20:
         case 21:
-          if (0 <= lightness && lightness <= 16) group = 1;
-          if (17 <= lightness && lightness <= 92) group = 2;
-          if (93 <= lightness && lightness <= 100) group = 3;
-          break;
         case 22:
         case 23:
           if (0 <= lightness && lightness <= 16) group = 1;
@@ -116,8 +112,8 @@ class ColorService {
         case 39:
         case 40:
         case 41:
-          if (0 <= lightness && lightness <= 15) group = 1;
-          if (16 <= lightness && lightness <= 92) group = 2;
+          if (0 <= lightness && lightness <= 14) group = 1;
+          if (15 <= lightness && lightness <= 92) group = 2;
           if (93 <= lightness && lightness <= 100) group = 3;
           break;
         case 42:
