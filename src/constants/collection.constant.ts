@@ -1,6 +1,13 @@
+export const COLOR_COLLECTION_IDS = {
+  WHITE_OFFWHITE: "ca5a1f78-718c-494f-adff-d67c316e4db4",
+  LIGHT_GREY: "40901fbe-f7e4-4781-b68a-d04315cf467a",
+  MID_GREY: "bb27b0ec-3468-4236-8e0e-2cf51d2f64ae",
+  DARK_GREY: "f93477d1-d330-43e0-a765-db40c5858ed1",
+  BLACK_ALMOST_BLACK: "4d9971c3-0c56-453a-9714-84f6c279dc4d",
+};
 export const COLOR_COLLECTIONS = [
   {
-    id: "ca5a1f78-718c-494f-adff-d67c316e4db4",
+    id: COLOR_COLLECTION_IDS.WHITE_OFFWHITE,
     name: "White / Off-white Collection",
     saturation: {
       from: 0,
@@ -25,7 +32,7 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "40901fbe-f7e4-4781-b68a-d04315cf467a",
+    id: COLOR_COLLECTION_IDS.LIGHT_GREY,
     name: "Light Grey Collection",
     saturation: {
       from: 0,
@@ -50,7 +57,7 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "bb27b0ec-3468-4236-8e0e-2cf51d2f64ae",
+    id: COLOR_COLLECTION_IDS.MID_GREY,
     name: "Mid Grey Collection",
     saturation: {
       from: 0,
@@ -75,7 +82,7 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "f93477d1-d330-43e0-a765-db40c5858ed1",
+    id: COLOR_COLLECTION_IDS.DARK_GREY,
     name: "Dark Grey Collection",
     saturation: {
       from: 0,
@@ -100,7 +107,7 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "4d9971c3-0c56-453a-9714-84f6c279dc4d",
+    id: COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK,
     name: "Black & Almost Balck Collection",
     saturation: {
       from: 0,
