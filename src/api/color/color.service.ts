@@ -7,7 +7,10 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
-import { COLOR_COLLECTIONS } from "@/constants/collection.constant";
+import {
+  COLOR_COLLECTIONS,
+  COLOR_COLLECTION_IDS,
+} from "@/constants/collection.constant";
 import { sortObjectArray } from "@/helpers/common.helper";
 import { DetectedColor, ColorSpecification, DetectedImage } from "./color.type";
 import { productService } from "../product/product.service";
@@ -206,12 +209,12 @@ class ColorService {
       }
       if (group === 1)
         return COLOR_COLLECTIONS.find(
-          (item) => item.id === "4d9971c3-0c56-453a-9714-84f6c279dc4d"
+          (item) => item.id === COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK
         );
 
       if (group === 3)
         return COLOR_COLLECTIONS.find(
-          (item) => item.id === "ca5a1f78-718c-494f-adff-d67c316e4db4"
+          (item) => item.id === COLOR_COLLECTION_IDS.WHITE_OFFWHITE
         );
 
       if (group === 2) {
@@ -223,10 +226,106 @@ class ColorService {
       }
     } else if (saturation >= 0 && saturation <= 10) {
       //step 1
-      const found = COLOR_COLLECTIONS.find(
-        (item) =>
-          lightness >= item.lightness.from && lightness <= item.lightness.to
-      );
+      //1: black, 2: dark grey, 3: medium grey, 4: light grey, 5: white/off-white
+      let group = 1;
+      switch (saturation) {
+        case 0:
+          if (0 <= lightness && lightness <= 19) group = 1;
+          if (20 <= lightness && lightness <= 64) group = 2;
+          if (65 <= lightness && lightness <= 75) group = 3;
+          if (76 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 1:
+          if (0 <= lightness && lightness <= 19) group = 1;
+          if (20 <= lightness && lightness <= 69) group = 2;
+          if (70 <= lightness && lightness <= 84) group = 3;
+          if (85 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 2:
+          if (0 <= lightness && lightness <= 19) group = 1;
+          if (20 <= lightness && lightness <= 68) group = 2;
+          if (69 <= lightness && lightness <= 84) group = 3;
+          if (85 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 3:
+          if (0 <= lightness && lightness <= 19) group = 1;
+          if (20 <= lightness && lightness <= 69) group = 2;
+          if (70 <= lightness && lightness <= 84) group = 3;
+          if (85 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 4:
+          if (0 <= lightness && lightness <= 19) group = 1;
+          if (20 <= lightness && lightness <= 68) group = 2;
+          if (69 <= lightness && lightness <= 83) group = 3;
+          if (84 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 5:
+          if (0 <= lightness && lightness <= 18) group = 1;
+          if (19 <= lightness && lightness <= 68) group = 2;
+          if (69 <= lightness && lightness <= 84) group = 3;
+          if (85 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 6:
+          if (0 <= lightness && lightness <= 18) group = 1;
+          if (19 <= lightness && lightness <= 69) group = 2;
+          if (70 <= lightness && lightness <= 83) group = 3;
+          if (84 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 7:
+          if (0 <= lightness && lightness <= 18) group = 1;
+          if (19 <= lightness && lightness <= 68) group = 2;
+          if (69 <= lightness && lightness <= 84) group = 3;
+          if (85 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 8:
+        case 9:
+          if (0 <= lightness && lightness <= 18) group = 1;
+          if (19 <= lightness && lightness <= 67) group = 2;
+          if (68 <= lightness && lightness <= 83) group = 3;
+          if (84 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+        case 10:
+          if (0 <= lightness && lightness <= 18) group = 1;
+          if (19 <= lightness && lightness <= 66) group = 2;
+          if (67 <= lightness && lightness <= 83) group = 3;
+          if (84 <= lightness && lightness <= 93) group = 4;
+          if (94 <= lightness && lightness <= 100) group = 5;
+          break;
+
+        default:
+          break;
+      }
+      let groupId = "";
+      switch (group) {
+        case 1:
+          groupId = COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK;
+          break;
+        case 2:
+          groupId = COLOR_COLLECTION_IDS.DARK_GREY;
+          break;
+        case 3:
+          groupId = COLOR_COLLECTION_IDS.MID_GREY;
+          break;
+        case 4:
+          groupId = COLOR_COLLECTION_IDS.LIGHT_GREY;
+          break;
+        case 5:
+          groupId = COLOR_COLLECTION_IDS.WHITE_OFFWHITE;
+          break;
+
+        default:
+          break;
+      }
+      const found = COLOR_COLLECTIONS.find((item) => item.id === groupId);
       return found;
     }
     return undefined;
