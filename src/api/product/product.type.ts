@@ -66,7 +66,7 @@ export interface IAttributeGroupHasId {
 }
 export interface IProductRequest {
   brand_id: string;
-  collection_id: string;
+  collection_ids: string[];
   category_ids: string[];
   name: string;
   description: string;
@@ -84,7 +84,7 @@ export interface IProductRequest {
 }
 export interface IUpdateProductRequest {
   brand_id: string;
-  collection_id: string;
+  collection_ids: string[];
   category_ids: string[];
   name: string;
   description: string;

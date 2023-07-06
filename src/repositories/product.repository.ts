@@ -13,7 +13,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   protected DEFAULT_ATTRIBUTE: Partial<IProductAttributes> = {
     id: "",
     brand_id: "",
-    collection_id: "",
+    collection_ids: [],
     category_ids: [],
     name: "",
     code: "",
@@ -82,6 +82,14 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
                       ${categoryId ? ` FILTER category.id == @categoryId` : ""}
           return category
       )
+      let collections = (
+        for collections in collections
+        filter collections.id in products.collection_ids
+        return {
+          id: collections.id,
+          name: collections.name
+        }
+      )
       for brand in brands
           filter brand.id == products.brand_id
           filter brand.deleted_at == null
@@ -118,6 +126,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
             id: collection.id,
             name: collection.name
         },
+        collections: collections,
         brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
         favorites: favourite[0],
         is_liked: liked[0] > 0
@@ -254,11 +263,11 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
 
   public getRelatedCollection = async (
     productId: string,
-    collectionId: string
+    collectionIds: string[]
   ) => {
     return (await this.model
       .where("id", "!=", productId)
-      .where("collection_id", "==", collectionId)
+      .where("collection_id", "in", collectionIds)
       .get()) as IProductAttributes[];
   };
 

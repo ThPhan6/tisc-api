@@ -48,6 +48,7 @@ export const productResponse = {
   id: Joi.string(),
   brand_id: Joi.string(),
   collection_id: Joi.any(),
+  collection_ids: Joi.any(),
   category_ids: Joi.array().items(Joi.any()),
   name: Joi.string(),
   code: Joi.any(),
@@ -68,6 +69,7 @@ export const productResponse = {
     id: Joi.string(),
     name: Joi.string(),
   }),
+  collections: Joi.any(),
   categories: Joi.array().items(
     Joi.object({
       id: Joi.any(),
@@ -147,7 +149,8 @@ export default {
     data: Joi.array().items(
       Joi.object({
         id: Joi.string(),
-        collection_id: Joi.string(),
+        collection_id: Joi.any(),
+        collection_ids: Joi.any(),
         name: Joi.string(),
         images: Joi.any(),
         created_at: Joi.string(),
