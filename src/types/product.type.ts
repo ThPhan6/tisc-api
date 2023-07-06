@@ -47,10 +47,11 @@ export interface ProductDownload {
   url: string;
 }
 export interface ProductWithCollectionAndBrand extends IProductAttributes {
-  collection: {
+  collections: {
     id: string;
     name: string;
-  };
+    description: string
+  }[];
   brand: {
     id: string;
     name: string;

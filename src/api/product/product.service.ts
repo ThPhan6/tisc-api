@@ -633,7 +633,7 @@ class ProductService {
       getFileURI(product.images[0] || DefaultProductImage),
       product.brand.name,
       getFileURI(product.brand.logo || DefaultLogo),
-      product.collection.name || "N/A",
+      product.collections.map((item) => item.name).join(", ") || "N/A",
       product.name || "N/A",
       `${user.firstname || ""} ${user.lastname || ""}`,
       sharedUrl

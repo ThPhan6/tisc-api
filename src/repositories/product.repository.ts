@@ -87,7 +87,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         filter collections.id in products.collection_ids
         return {
           id: collections.id,
-          name: collections.name
+          name: collections.name,
+          description: collections.description
         }
       )
       for brand in brands

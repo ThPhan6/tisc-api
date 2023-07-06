@@ -91,6 +91,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
+          description: Joi.any(),
           count: Joi.number(),
           products: Joi.array().items(Joi.object(productResponse)),
         })
@@ -132,6 +133,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
+          description: Joi.any(),
         })
       ),
       category_count: Joi.number(),
