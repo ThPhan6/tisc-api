@@ -105,6 +105,7 @@ export default {
       Joi.object({
         id: Joi.string(),
         name: Joi.string(),
+        description: Joi.any(),
         count: Joi.number(),
         brand_logo: Joi.string().allow(null),
         products: Joi.array().items(Joi.object(productResponse)),
