@@ -83,8 +83,8 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
 export const mappingByCollections = (products: ProductWithRelationData[]) => {
   const colletions = getUniqueCollections(products);
   return colletions.map((collection) => {
-    let categoryProducts = products.filter(
-      (item) => item.collection_id === collection.id
+    let categoryProducts = products.filter((item) =>
+      item.collection_ids?.includes(collection.id)
     );
     ///
     return {

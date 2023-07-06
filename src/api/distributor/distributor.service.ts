@@ -357,7 +357,7 @@ class DistributorService {
     }
     const availableCountries =
       await marketAvailabilityService.getAvailableCountryByCollection(
-        product.collection_id,
+        product.collection_ids,
         product.brand_id,
         projectId,
       );
