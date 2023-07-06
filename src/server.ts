@@ -67,10 +67,10 @@ async function start() {
     CaptchaMiddleware.registerAll(server);
     emailQueue.process();
     colorDetectionQueue.process();
-    databaseBackupQueue.process();
-    databaseBackupQueue.add();
-    invoiceEmailQueue.process();
-    invoiceEmailQueue.add();
+    // databaseBackupQueue.process();
+    // databaseBackupQueue.add();
+    // invoiceEmailQueue.process();
+    // invoiceEmailQueue.add();
     await Router.loadRoute(server);
     await server.start();
     server.events.on("log", (event, tags) => {

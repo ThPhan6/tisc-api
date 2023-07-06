@@ -41,15 +41,14 @@ export const getUniqueBrands = (products: ProductWithRelationData[]) => {
 };
 
 export const getUniqueCollections = (products: ProductWithRelationData[]) => {
-  return products.reduce(
-    (res: ProductWithRelationData["collection"][], cur) => {
-      if (!res.find((collection) => collection.id === cur.collection.id)) {
-        res = res.concat(cur.collection);
-      }
-      return res;
+  const arr = products.reduce(
+    (res: ProductWithRelationData["collections"], cur) => {
+      return res.concat(cur.collections);
     },
     []
   );
+  return [...new Map(arr.map(item =>
+    [item.id, item])).values()]
 };
 
 export const mappingByCategory = (products: ProductWithRelationData[]) => {
@@ -90,6 +89,7 @@ export const mappingByCollections = (products: ProductWithRelationData[]) => {
     return {
       id: collection.id,
       name: collection.name,
+      description: collection.description,
       count: categoryProducts.length,
       products: categoryProducts,
     };
