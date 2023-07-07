@@ -141,7 +141,7 @@ class ProductService {
 
     const createdProduct = await productRepository.create({
       brand_id: payload.brand_id,
-      collection_id: payload.collection_id,
+      collection_ids: payload.collection_ids,
       category_ids: payload.category_ids,
       name: payload.name,
       code: "random",
@@ -395,7 +395,7 @@ class ProductService {
       }
       returnedProducts = mappingByCategory(products);
     } else if (collectionId) {
-      returnedProducts = mappingByCollections(products);
+      returnedProducts = mappingByCollections(products, collectionId === "all" ? undefined : collectionId);
     } else {
       returnedProducts = mappingByBrand(products);
     }
@@ -493,13 +493,13 @@ class ProductService {
     }
     const products = await productRepository.getRelatedCollection(
       product.id,
-      product.collection_id
+      product.collection_ids
     );
     return successResponse({
       data: products.map((item) => {
         return {
           id: item.id,
-          collection_id: item.collection_id,
+          collection_ids: item.collection_ids,
           name: item.name,
           images: item.images,
           created_at: item.created_at,
@@ -633,7 +633,7 @@ class ProductService {
       getFileURI(product.images[0] || DefaultProductImage),
       product.brand.name,
       getFileURI(product.brand.logo || DefaultLogo),
-      product.collection.name || "N/A",
+      product.collections.map((item) => item.name).join(", ") || "N/A",
       product.name || "N/A",
       `${user.firstname || ""} ${user.lastname || ""}`,
       sharedUrl

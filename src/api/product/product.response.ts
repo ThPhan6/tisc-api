@@ -48,6 +48,7 @@ export const productResponse = {
   id: Joi.string(),
   brand_id: Joi.string(),
   collection_id: Joi.any(),
+  collection_ids: Joi.any(),
   category_ids: Joi.array().items(Joi.any()),
   name: Joi.string(),
   code: Joi.any(),
@@ -64,10 +65,8 @@ export const productResponse = {
   created_by: Joi.any(),
   is_liked: Joi.boolean(),
   brand: Joi.any(),
-  collection: Joi.object({
-    id: Joi.string(),
-    name: Joi.string(),
-  }),
+  collection: Joi.any(),
+  collections: Joi.any(),
   categories: Joi.array().items(
     Joi.object({
       id: Joi.any(),
@@ -89,6 +88,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
+          description: Joi.any(),
           count: Joi.number(),
           products: Joi.array().items(Joi.object(productResponse)),
         })
@@ -102,6 +102,7 @@ export default {
       Joi.object({
         id: Joi.string(),
         name: Joi.string(),
+        description: Joi.any(),
         count: Joi.number(),
         brand_logo: Joi.string().allow(null),
         products: Joi.array().items(Joi.object(productResponse)),
@@ -130,6 +131,7 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
+          description: Joi.any(),
         })
       ),
       category_count: Joi.number(),
@@ -147,7 +149,8 @@ export default {
     data: Joi.array().items(
       Joi.object({
         id: Joi.string(),
-        collection_id: Joi.string(),
+        collection_id: Joi.any(),
+        collection_ids: Joi.any(),
         name: Joi.string(),
         images: Joi.any(),
         created_at: Joi.string(),

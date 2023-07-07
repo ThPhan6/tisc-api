@@ -8,7 +8,7 @@ import { BrandOfficialWebsite } from ".";
 export interface IProductAttributes {
   id: string;
   brand_id: string;
-  collection_id: string;
+  collection_ids: string[];
   category_ids: string[];
   name: string;
   code: string;
@@ -47,10 +47,11 @@ export interface ProductDownload {
   url: string;
 }
 export interface ProductWithCollectionAndBrand extends IProductAttributes {
-  collection: {
+  collections: {
     id: string;
     name: string;
-  };
+    description: string
+  }[];
   brand: {
     id: string;
     name: string;

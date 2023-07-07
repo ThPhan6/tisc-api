@@ -7,10 +7,11 @@ import {
 import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
-import { ICollectionRequest } from "./collection.type";
+import { ICollectionRequest, UpdateCollectionRequest } from "./collection.type";
 import { CollectionRelationType } from "@/types";
 import { pagination } from "@/helpers/common.helper";
 import { productService } from "../product/product.service";
+import _ from "lodash";
 
 class CollectionService {
   public async create(payload: ICollectionRequest) {
@@ -53,8 +54,8 @@ class CollectionService {
   ) {
     let hasColorCollection: boolean = false;
     if (options?.category_ids) {
-      const isSupportedColorCollection = await
-        productService.checkSupportedColorDetection(options.category_ids);
+      const isSupportedColorCollection =
+        await productService.checkSupportedColorDetection(options.category_ids);
       if (isSupportedColorCollection) hasColorCollection = true;
     }
     const { collections, total } =
@@ -75,8 +76,18 @@ class CollectionService {
     });
   }
 
-  public async update(id: string, name: string) {
-    const collection = await CollectionRepository.findAndUpdate(id, { name });
+  public async update(id: string, payload: UpdateCollectionRequest) {
+    let dataToUpdate = {};
+    if (!_.isEmpty(payload.name)) {
+      dataToUpdate = { ...dataToUpdate, name: payload.name };
+    }
+    if (!_.isEmpty(payload.description)) {
+      dataToUpdate = { ...dataToUpdate, description: payload.description };
+    }
+    const collection = await CollectionRepository.findAndUpdate(
+      id,
+      dataToUpdate
+    );
     if (!collection) {
       return errorMessageResponse(MESSAGES.COLLECTION_NOT_FOUND, 404);
     }

@@ -3,28 +3,25 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
-import {getEnumKeys} from '@/helpers/common.helper';
+import { getEnumKeys } from "@/helpers/common.helper";
 
 import {
   SortOrder,
   UserAttributes,
   UserType,
   RegionKey,
-  CollectionRelationType
+  CollectionRelationType,
 } from "@/types";
 import {
   mappingGroupByCollection,
   mappingMarketAvailibility,
 } from "./market_availability.mapping";
-import {
-  IUpdateMarketAvailabilityRequest,
-} from "./market_availability.type";
+import { IUpdateMarketAvailabilityRequest } from "./market_availability.type";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { collectionRepository } from "@/repositories/collection.repository";
-import { projectRepository } from '@/repositories/project.repository';
+import { projectRepository } from "@/repositories/project.repository";
 
 class MarketAvailabilityService {
-
   public async update(
     user: UserAttributes,
     collectionId: string,
@@ -70,7 +67,11 @@ class MarketAvailabilityService {
         404
       );
     }
-    const market = await marketAvailabilityRepository.findByCollection(collection.relation_id, user.relation_id, collectionId);
+    const market = await marketAvailabilityRepository.findByCollection(
+      collection.relation_id,
+      user.relation_id,
+      collectionId
+    );
     //
     if (!market) {
       return errorMessageResponse(MESSAGES.MARKET_AVAILABILITY_NOT_FOUND, 404);
@@ -78,20 +79,20 @@ class MarketAvailabilityService {
     //
     const result = mappingMarketAvailibility(market, false);
     return successResponse({
-        data: {
-          collection_id: result.collection_id,
-          collection_name: result.name,
-          regions: getEnumKeys(Region).map((region: any) => {
-            const regionName = region as RegionKey;
-            return {
-              count: result[regionName].length,
-              name: Region[regionName],
-              countries: result[regionName]
-            }
-          }),
-          total: result.countries.length,
-          total_available: result.available_countries
-        }
+      data: {
+        collection_id: result.collection_id,
+        collection_name: result.name,
+        regions: getEnumKeys(Region).map((region: any) => {
+          const regionName = region as RegionKey;
+          return {
+            count: result[regionName].length,
+            name: Region[regionName],
+            countries: result[regionName],
+          };
+        }),
+        total: result.countries.length,
+        total_available: result.available_countries,
+      },
     });
   }
 
@@ -108,13 +109,17 @@ class MarketAvailabilityService {
       return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
     //
-    const marketAvailabilities = await marketAvailabilityRepository.getMarketAvailabilityPagination(
-      brandId, limit, offset,
-      sort, order
-    );
+    const marketAvailabilities =
+      await marketAvailabilityRepository.getMarketAvailabilityPagination(
+        brandId,
+        limit,
+        offset,
+        sort,
+        order
+      );
     //
-    const collections = marketAvailabilities.data.map(
-      (market) => mappingMarketAvailibility(market)
+    const collections = marketAvailabilities.data.map((market) =>
+      mappingMarketAvailibility(market)
     );
     return successResponse({
       data: {
@@ -124,40 +129,64 @@ class MarketAvailabilityService {
     });
   }
 
-  public async getMarketAvailabilityGroupByCollection(relationId: string, brandId: string) {
-    const collections = await marketAvailabilityRepository.getAllCollection(relationId, brandId);
+  public async getMarketAvailabilityGroupByCollection(
+    relationId: string,
+    brandId: string
+  ) {
+    const collections = await marketAvailabilityRepository.getAllCollection(
+      relationId,
+      brandId
+    );
     return successResponse({
       data: mappingGroupByCollection(collections),
     });
   }
 
-  public async getAvailableCountryByCollection(collectionId: string, brandId: string, projectId?: string) {
-    const collection = await collectionRepository.find(collectionId);
-    if (!collection || collection.relation_type === CollectionRelationType.CustomProduct) {
-      return [];
-    }
-    const market = await marketAvailabilityRepository.findByCollection(
-      collection.relation_id,
-      brandId,
-      collection.id,
-      
+  public async getAvailableCountryByCollection(
+    collectionIds: string[],
+    brandId: string,
+    projectId?: string
+  ) {
+    let result: any = [];
+    await Promise.all(
+      collectionIds.map(async (collectionId) => {
+        const collection = await collectionRepository.find(collectionId);
+        if (
+          !collection ||
+          collection.relation_type === CollectionRelationType.CustomProduct
+        ) {
+          return [];
+        }
+        const market = await marketAvailabilityRepository.findByCollection(
+          collection.relation_id,
+          brandId,
+          collection.id
+        );
+        const temp = mappingMarketAvailibility(market);
+        if (projectId) {
+          const project = await projectRepository.getProjectWithLocation(
+            projectId
+          );
+          if (!project) {
+            return [];
+          }
+          /// only for project location
+          if (
+            temp.countries.find((country) => {
+              return (
+                country.available && project.location.country_id === country.id
+              );
+            })
+          ) {
+            return [project.location.country_id];
+          }
+          return [];
+        }
+        result = result.concat(temp.countries);
+        return true;
+      })
     );
-    const result = mappingMarketAvailibility(market);
-
-    if (projectId) {
-      const project = await projectRepository.getProjectWithLocation(projectId);
-      if (!project) {
-        return [];
-      }
-      /// only for project location
-      if (result.countries.find((country) => {
-        return country.available && project.location.country_id === country.id
-      })) {
-        return [project.location.country_id];
-      }
-      return [];
-    }
-    return result.countries.reduce((countryIds, country) => {
+    return result.reduce((countryIds: any, country: any) => {
       if (country.available) {
         countryIds.push(country.id);
       }

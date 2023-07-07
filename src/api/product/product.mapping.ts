@@ -41,15 +41,13 @@ export const getUniqueBrands = (products: ProductWithRelationData[]) => {
 };
 
 export const getUniqueCollections = (products: ProductWithRelationData[]) => {
-  return products.reduce(
-    (res: ProductWithRelationData["collection"][], cur) => {
-      if (!res.find((collection) => collection.id === cur.collection.id)) {
-        res = res.concat(cur.collection);
-      }
-      return res;
+  const arr = products.reduce(
+    (res: ProductWithRelationData["collections"], cur) => {
+      return res.concat(cur.collections);
     },
     []
   );
+  return [...new Map(arr.map((item) => [item.id, item])).values()];
 };
 
 export const mappingByCategory = (products: ProductWithRelationData[]) => {
@@ -80,16 +78,25 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
   });
 };
 
-export const mappingByCollections = (products: ProductWithRelationData[]) => {
-  const colletions = getUniqueCollections(products);
-  return colletions.map((collection) => {
-    let categoryProducts = products.filter(
-      (item) => item.collection_id === collection.id
+export const mappingByCollections = (
+  products: ProductWithRelationData[],
+  collectionId?: string
+) => {
+  let collections = getUniqueCollections(products);
+  if (collectionId) {
+    collections = collections.filter(
+      (collection) => collection.id === collectionId
+    );
+  }
+  return collections.map((collection) => {
+    let categoryProducts = products.filter((item) =>
+      item.collection_ids?.includes(collection.id)
     );
     ///
     return {
       id: collection.id,
       name: collection.name,
+      description: collection.description,
       count: categoryProducts.length,
       products: categoryProducts,
     };

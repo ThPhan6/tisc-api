@@ -10,7 +10,7 @@ export const getProductSharedUrl = (
 ) => {
   const signature = stringToBase64(
     encrypt({
-      collection_id: product.collection_id,
+      collection_ids: product.collection_ids,
       user_id: user.id,
     })
   );
