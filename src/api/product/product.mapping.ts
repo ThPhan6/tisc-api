@@ -47,8 +47,7 @@ export const getUniqueCollections = (products: ProductWithRelationData[]) => {
     },
     []
   );
-  return [...new Map(arr.map(item =>
-    [item.id, item])).values()]
+  return [...new Map(arr.map((item) => [item.id, item])).values()];
 };
 
 export const mappingByCategory = (products: ProductWithRelationData[]) => {
@@ -79,9 +78,17 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
   });
 };
 
-export const mappingByCollections = (products: ProductWithRelationData[]) => {
-  const colletions = getUniqueCollections(products);
-  return colletions.map((collection) => {
+export const mappingByCollections = (
+  products: ProductWithRelationData[],
+  collectionId?: string
+) => {
+  let collections = getUniqueCollections(products);
+  if (collectionId) {
+    collections = collections.filter(
+      (collection) => collection.id === collectionId
+    );
+  }
+  return collections.map((collection) => {
     let categoryProducts = products.filter((item) =>
       item.collection_ids?.includes(collection.id)
     );

@@ -395,7 +395,7 @@ class ProductService {
       }
       returnedProducts = mappingByCategory(products);
     } else if (collectionId) {
-      returnedProducts = mappingByCollections(products);
+      returnedProducts = mappingByCollections(products, collectionId === "all" ? undefined : collectionId);
     } else {
       returnedProducts = mappingByBrand(products);
     }

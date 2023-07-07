@@ -65,10 +65,7 @@ export const productResponse = {
   created_by: Joi.any(),
   is_liked: Joi.boolean(),
   brand: Joi.any(),
-  collection: Joi.object({
-    id: Joi.string(),
-    name: Joi.string(),
-  }),
+  collection: Joi.any(),
   collections: Joi.any(),
   categories: Joi.array().items(
     Joi.object({

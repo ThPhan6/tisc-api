@@ -96,10 +96,15 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           filter brand.deleted_at == null
           ${brandId ? `filter brand.id == @brandId` : ""}
 
-      for collection in collections
-          filter collection.id == products.collection_id
+      
+          ${
+            collectionId
+              ? `for collection in collections
+          filter collection.id in products.collection_ids
           filter collection.deleted_at == null
-          ${collectionId ? `filter collection.id == @collectionId` : ""}
+          filter collection.id == @collectionId`
+              : ""
+          }
           
       let favourite = (
           for product_favourite in product_favourites
@@ -123,10 +128,15 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           !options.has_color ? ",'detected_color_images'" : ""
         }]), {
         categories: categories,
-        collection: {
-            id: collection.id,
-            name: collection.name
-        },
+        
+        ${
+          collectionId
+            ? `collection: {
+              id: collection.id,
+              name: collection.name
+          },`
+            : ""
+        }
         collections: collections,
         brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
         favorites: favourite[0],
