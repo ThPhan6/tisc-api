@@ -1,17 +1,24 @@
+export const COLOR_COLLECTION_IDS = {
+  WHITE_OFFWHITE: "ca5a1f78-718c-494f-adff-d67c316e4db4",
+  LIGHT_GREY: "40901fbe-f7e4-4781-b68a-d04315cf467a",
+  MID_GREY: "bb27b0ec-3468-4236-8e0e-2cf51d2f64ae",
+  DARK_GREY: "f93477d1-d330-43e0-a765-db40c5858ed1",
+  BLACK_ALMOST_BLACK: "4d9971c3-0c56-453a-9714-84f6c279dc4d",
+};
 export const COLOR_COLLECTIONS = [
   {
-    id: "ca5a1f78-718c-494f-adff-d67c316e4db4",
+    id: COLOR_COLLECTION_IDS.WHITE_OFFWHITE,
     name: "White / Off-white Collection",
     saturation: {
       from: 0,
-      to: 14,
+      to: 10,
     },
     lightness: {
-      from: 86,
+      from: 94,
       to: 100,
     },
     whiteness: {
-      from: 86,
+      from: 89,
       to: 100,
     },
     blackness: {
@@ -25,19 +32,19 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "40901fbe-f7e4-4781-b68a-d04315cf467a",
+    id: COLOR_COLLECTION_IDS.LIGHT_GREY,
     name: "Light Grey Collection",
     saturation: {
       from: 0,
-      to: 14,
+      to: 10,
     },
     lightness: {
-      from: 70,
-      to: 85,
+      from: 79,
+      to: 93,
     },
     whiteness: {
-      from: 70,
-      to: 85,
+      from: 80,
+      to: 88,
     },
     blackness: {
       from: -1,
@@ -50,15 +57,15 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "bb27b0ec-3468-4236-8e0e-2cf51d2f64ae",
+    id: COLOR_COLLECTION_IDS.MID_GREY,
     name: "Mid Grey Collection",
     saturation: {
       from: 0,
-      to: 14,
+      to: 10,
     },
     lightness: {
-      from: 31,
-      to: 69,
+      from: 69,
+      to: 78,
     },
     whiteness: {
       from: -1,
@@ -75,15 +82,15 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "f93477d1-d330-43e0-a765-db40c5858ed1",
+    id: COLOR_COLLECTION_IDS.DARK_GREY,
     name: "Dark Grey Collection",
     saturation: {
       from: 0,
-      to: 14,
+      to: 10,
     },
     lightness: {
-      from: 15,
-      to: 30,
+      from: 19,
+      to: 68,
     },
     whiteness: {
       from: -1,
@@ -100,15 +107,15 @@ export const COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "4d9971c3-0c56-453a-9714-84f6c279dc4d",
+    id: COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK,
     name: "Black & Almost Balck Collection",
     saturation: {
       from: 0,
-      to: 14,
+      to: 10,
     },
     lightness: {
       from: 0,
-      to: 14,
+      to: 18,
     },
     whiteness: {
       from: -1,
@@ -128,12 +135,12 @@ export const COLOR_COLLECTIONS = [
     id: "8e8a4300-aae6-4810-82dc-2f00fa9f57c2",
     name: "Reddish Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -143,7 +150,7 @@ export const COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    temperature: "warm red",
+    temperature: "N/A",
     hue: {
       from: 0,
       to: 29,
@@ -153,12 +160,12 @@ export const COLOR_COLLECTIONS = [
     id: "af3f7bc1-9449-4b98-970f-1d932b8939ab",
     name: "Tangerine Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -168,7 +175,7 @@ export const COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    temperature: "warm red orange",
+    temperature: "N/A",
     hue: {
       from: 30,
       to: 59,
@@ -178,12 +185,12 @@ export const COLOR_COLLECTIONS = [
     id: "7cefd132-ef0f-4383-b10c-06490d4c1bb6",
     name: "Orangish Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -193,7 +200,7 @@ export const COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    temperature: "warm orange",
+    temperature: "N/A",
     hue: {
       from: 60,
       to: 89,
@@ -203,12 +210,12 @@ export const COLOR_COLLECTIONS = [
     id: "468e674d-be4e-43e9-919f-c0e88a72b4c8",
     name: "Amber Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -218,7 +225,7 @@ export const COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    temperature: "warm yellow orange",
+    temperature: "N/A",
     hue: {
       from: 90,
       to: 119,
@@ -228,12 +235,12 @@ export const COLOR_COLLECTIONS = [
     id: "25f37c28-0e0d-4a74-928b-10124b260e75",
     name: "Yellowish Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -243,7 +250,7 @@ export const COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    temperature: "warm yellow",
+    temperature: "N/A",
     hue: {
       from: 120,
       to: 149,
@@ -253,12 +260,12 @@ export const COLOR_COLLECTIONS = [
     id: "fbc893a9-bf57-4de4-b1cf-3665680b1ee3",
     name: "Moss Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -268,7 +275,7 @@ export const COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    temperature: "warm yellow green",
+    temperature: "N/A",
     hue: {
       from: 150,
       to: 179,
@@ -278,12 +285,12 @@ export const COLOR_COLLECTIONS = [
     id: "c5b32d17-cb5b-4c69-b51c-368f70b42c72",
     name: "Greenish Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -303,12 +310,12 @@ export const COLOR_COLLECTIONS = [
     id: "087a4c10-16d5-49d3-b576-9dc183787e12",
     name: "Aqua Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -328,12 +335,12 @@ export const COLOR_COLLECTIONS = [
     id: "8be35d7b-2ba0-44f4-ba49-d5f8db885db4",
     name: "Bluish Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -353,12 +360,12 @@ export const COLOR_COLLECTIONS = [
     id: "35dde759-d1c1-4b3e-b23b-d778bc2e30ca",
     name: "Indigo Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -378,12 +385,12 @@ export const COLOR_COLLECTIONS = [
     id: "74c5e5ac-9482-4924-8d36-c2a3e5a55f96",
     name: "Purplish Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,
@@ -403,12 +410,12 @@ export const COLOR_COLLECTIONS = [
     id: "2747953c-585b-4999-aa02-869bce082e59",
     name: "Mulberry Collection",
     saturation: {
-      from: 15,
-      to: 100,
+      from: -1,
+      to: -1,
     },
     lightness: {
-      from: 15,
-      to: 85,
+      from: -1,
+      to: -1,
     },
     whiteness: {
       from: -1,

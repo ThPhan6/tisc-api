@@ -13,7 +13,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   protected DEFAULT_ATTRIBUTE: Partial<IProductAttributes> = {
     id: "",
     brand_id: "",
-    collection_id: "",
+    collection_ids: [],
     category_ids: [],
     name: "",
     code: "",
@@ -82,15 +82,29 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
                       ${categoryId ? ` FILTER category.id == @categoryId` : ""}
           return category
       )
+      let collections = (
+        for collections in collections
+        filter collections.id in products.collection_ids
+        return {
+          id: collections.id,
+          name: collections.name,
+          description: collections.description
+        }
+      )
       for brand in brands
           filter brand.id == products.brand_id
           filter brand.deleted_at == null
           ${brandId ? `filter brand.id == @brandId` : ""}
 
-      for collection in collections
-          filter collection.id == products.collection_id
+      
+          ${
+            collectionId
+              ? `for collection in collections
+          filter collection.id in products.collection_ids
           filter collection.deleted_at == null
-          ${collectionId ? `filter collection.id == @collectionId` : ""}
+          filter collection.id == @collectionId`
+              : ""
+          }
           
       let favourite = (
           for product_favourite in product_favourites
@@ -114,10 +128,16 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           !options.has_color ? ",'detected_color_images'" : ""
         }]), {
         categories: categories,
-        collection: {
-            id: collection.id,
-            name: collection.name
-        },
+        
+        ${
+          collectionId
+            ? `collection: {
+              id: collection.id,
+              name: collection.name
+          },`
+            : ""
+        }
+        collections: collections,
         brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
         favorites: favourite[0],
         is_liked: liked[0] > 0
@@ -254,12 +274,20 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
 
   public getRelatedCollection = async (
     productId: string,
-    collectionId: string
+    collectionIds: string[]
   ) => {
-    return (await this.model
-      .where("id", "!=", productId)
-      .where("collection_id", "==", collectionId)
-      .get()) as IProductAttributes[];
+    let result: any[] = [];
+    await Promise.all(
+      collectionIds.map(async (collectionId) => {
+        const products = await this.model
+          .where("id", "!=", productId)
+          .whereIn("collection_ids", collectionId, "inverse")
+          .get();
+        result = result.concat(products);
+        return true;
+      })
+    );
+    return result as IProductAttributes[];
   };
 
   public getAllByCategoryId = async (

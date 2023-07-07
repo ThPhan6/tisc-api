@@ -5,6 +5,10 @@ export interface ICollectionRequest {
   relation_id: string;
   relation_type: CollectionRelationType;
 }
+export interface UpdateCollectionRequest {
+  name?: string;
+  description?: string;
+}
 export interface ICollectionResponse {
   data: ICollection;
   statusCode: number;

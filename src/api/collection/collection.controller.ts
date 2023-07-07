@@ -1,6 +1,6 @@
 import CollectionService from "./collection.service";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { ICollectionRequest } from "./collection.type";
+import { ICollectionRequest, UpdateCollectionRequest } from "./collection.type";
 
 export default class CollectionController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -26,12 +26,12 @@ export default class CollectionController {
   };
 
   public update = async (
-    req: Request & { payload: { name: string } },
+    req: Request & { payload: UpdateCollectionRequest },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
-    const { name } = req.payload;
-    const response = await CollectionService.update(id, name);
+    const payload = req.payload;
+    const response = await CollectionService.update(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
