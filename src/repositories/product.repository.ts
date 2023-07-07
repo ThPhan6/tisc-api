@@ -276,10 +276,18 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     productId: string,
     collectionIds: string[]
   ) => {
-    return (await this.model
-      .where("id", "!=", productId)
-      .where("collection_id", "in", collectionIds)
-      .get()) as IProductAttributes[];
+    let result: any[] = [];
+    await Promise.all(
+      collectionIds.map(async (collectionId) => {
+        const products = await this.model
+          .where("id", "!=", productId)
+          .whereIn("collection_ids", collectionId, "inverse")
+          .get();
+        result = result.concat(products);
+        return true;
+      })
+    );
+    return result as IProductAttributes[];
   };
 
   public getAllByCategoryId = async (
