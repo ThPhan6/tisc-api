@@ -8,7 +8,7 @@ import CollectionRepository from "@/repositories/collection.repository";
 import ProductRepository from "@/repositories/product.repository";
 import { marketAvailabilityRepository } from "@/repositories/market_availability.repository";
 import { ICollectionRequest, UpdateCollectionRequest } from "./collection.type";
-import { CollectionRelationType } from "@/types";
+import { CollectionGroup, CollectionRelationType } from "@/types";
 import { pagination } from "@/helpers/common.helper";
 import { productService } from "../product/product.service";
 import _ from "lodash";
@@ -53,10 +53,17 @@ class CollectionService {
     }
   ) {
     let hasColorCollection: boolean = false;
+    let collectionGroupKey = 0;
     if (options?.category_ids) {
       const isSupportedColorCollection =
         await productService.checkSupportedColorDetection(options.category_ids);
-      if (isSupportedColorCollection) hasColorCollection = true;
+      if (isSupportedColorCollection) {
+        hasColorCollection = true;
+        collectionGroupKey =
+          isSupportedColorCollection === "stone"
+            ? CollectionGroup.Stone
+            : CollectionGroup.Wood;
+      }
     }
     const { collections, total } =
       await CollectionRepository.getListCollectionWithPaginate(
@@ -64,9 +71,12 @@ class CollectionService {
         offset,
         relation_id,
         type,
-        undefined,
-        undefined,
-        { has_color_collection: hasColorCollection }
+        "name",
+        "ASC",
+        {
+          has_color_collection: hasColorCollection,
+          group: collectionGroupKey,
+        }
       );
     return successResponse({
       data: {

@@ -70,13 +70,17 @@ class ProductService {
     if (!categories) {
       return false;
     }
-    const found = categories.find(
-      (item: string) =>
-        item.toLowerCase().search("stone") !== -1 ||
-        item.toLowerCase().search("wood") !== -1
+    const foundStone = categories.find(
+      (item: string) => item.toLowerCase().search("stone") !== -1
     );
-    if (found) {
-      return true;
+    const foundWood = categories.find(
+      (item: string) => item.toLowerCase().search("wood") !== -1
+    );
+    if (foundStone) {
+      return "stone";
+    }
+    if (foundWood) {
+      return "wood";
     }
     return false;
   };
@@ -395,7 +399,10 @@ class ProductService {
       }
       returnedProducts = mappingByCategory(products);
     } else if (collectionId) {
-      returnedProducts = mappingByCollections(products, collectionId === "all" ? undefined : collectionId);
+      returnedProducts = mappingByCollections(
+        products,
+        collectionId === "all" ? undefined : collectionId
+      );
     } else {
       returnedProducts = mappingByBrand(products);
     }
