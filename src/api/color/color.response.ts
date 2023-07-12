@@ -5,10 +5,7 @@ export default {
   detectedData: Joi.object({
     statusCode: Joi.number(),
     data: Joi.object({
-      recommendation_collection: {
-        id: Joi.string(),
-        name: Joi.string(),
-      },
+      recommendation_collection: Joi.any(),
       images: Joi.array().items(
         Joi.object({
           name: Joi.any(),

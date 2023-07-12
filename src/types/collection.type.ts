@@ -3,7 +3,12 @@ import { Pagination } from "@/types";
 export enum CollectionRelationType {
   Brand,
   CustomProduct,
-  Color
+  Color,
+}
+
+export enum CollectionGroup {
+  Stone,
+  Wood,
 }
 export interface ICollectionAttributes {
   id: string;
@@ -12,6 +17,7 @@ export interface ICollectionAttributes {
   relation_type: CollectionRelationType;
   created_at: string;
   updated_at: string | null;
+  group: CollectionGroup;
 }
 
 export interface ListCollectionPaginate {

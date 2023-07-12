@@ -3,6 +3,7 @@ import {
   SortOrder,
   ICollectionAttributes,
   ListCollectionPaginate,
+  CollectionGroup,
 } from "@/types";
 import BaseRepository from "./base.repository";
 import { CollectionRelationType } from "@/types";
@@ -28,6 +29,7 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
     order: SortOrder = "DESC",
     options?: {
       has_color_collection: boolean;
+      group: number;
     }
   ): Promise<{ collections: any; total: number }> {
     const str = `
@@ -36,7 +38,7 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
         FILTER collections.deleted_at == null
         FILTER ${
           options?.has_color_collection === true
-            ? "collections.relation_type == @color_collection_type or"
+            ? " (collections.group == @group and collections.relation_type == @color_collection_type) or"
             : ""
         } (collections.relation_type == @relation_type and collections.relation_id == @relation_id)
         COLLECT WITH COUNT INTO length RETURN length
@@ -46,7 +48,7 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
         FILTER collections.deleted_at == null
         FILTER ${
           options?.has_color_collection === true
-            ? "collections.relation_type == @color_collection_type or"
+            ? " (collections.group == @group and collections.relation_type == @color_collection_type) or"
             : ""
         } (collections.relation_type == @relation_type and collections.relation_id == @relation_id)
         SORT collections.@sort @order LIMIT @offset, @limit
@@ -60,6 +62,7 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
     if (options?.has_color_collection === true) {
       bindingObj = {
         color_collection_type: CollectionRelationType.Color,
+        group: options.group,
         relation_type,
         relation_id,
         sort,
