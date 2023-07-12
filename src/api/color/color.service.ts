@@ -44,6 +44,26 @@ class ColorService {
     return sortObjectArray(colors, "colors_fetched_counts", "DESC")[0]
       ?.color as DetectedColor;
   };
+  private getTheMostColors = (images: DetectedImage[]) => {
+    const colors: any = Object.values(this.imagesToColors(images));
+    const sortedColors = sortObjectArray(
+      colors,
+      "colors_fetched_counts",
+      "DESC"
+    );
+    if (sortedColors.length > 1) {
+      if (
+        Math.round(sortedColors[0].color.density) -
+          Math.round(sortedColors[1].color.density) <=
+        5
+      )
+        return [
+          sortedColors[0].color,
+          sortedColors[1].color,
+        ] as DetectedColor[];
+    }
+    return [sortedColors[0].color] as DetectedColor[];
+  };
 
   private recommendCollection = (params: {
     saturation: number;
@@ -93,14 +113,19 @@ class ColorService {
       await uploadImagesToLocal(images, folder)
     ).filter((item) => item !== undefined);
     const result = await this.extractColors(uploadedToLocal);
-    const mostColor = this.getTheMostColor([result[0]]);
-    const recommendationCollection = this.recommendCollection({
-      saturation: mostColor.conversion.origin.sat,
-      lightness: mostColor.conversion.origin.lightness,
-      hue: mostColor.conversion.origin.hue,
-      unit: "number",
-      colorGroup: isSupported,
+    const mostColors = this.getTheMostColors([result[0]]);
+    let recommendationCollection: any[] = [];
+    mostColors.forEach((mostColor) => {
+      const temp = this.recommendCollection({
+        saturation: mostColor.conversion.origin.sat,
+        lightness: mostColor.conversion.origin.lightness,
+        hue: mostColor.conversion.origin.hue,
+        unit: "number",
+        colorGroup: isSupported,
+      });
+      recommendationCollection = recommendationCollection.concat(temp);
     });
+
     if (fs.existsSync(dir)) {
       fs.rmdirSync(dir, { recursive: true });
     }
