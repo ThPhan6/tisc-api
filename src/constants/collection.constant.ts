@@ -57,7 +57,7 @@ export const STONE_COLOR_COLLECTIONS = [
     temperature: "N/A",
     hue: {
       from: 0,
-      to: 29,
+      to: 10,
     },
   },
   {
@@ -65,17 +65,17 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Tangerine Collection",
     temperature: "N/A",
     hue: {
-      from: 30,
-      to: 59,
+      from: 11,
+      to: 20,
     },
   },
   {
     id: "7cefd132-ef0f-4383-b10c-06490d4c1bb6",
-    name: "Orangish Collection",
+    name: "Orangish & Brown Collection",
     temperature: "N/A",
     hue: {
-      from: 60,
-      to: 89,
+      from: 21,
+      to: 40,
     },
   },
   {
@@ -83,8 +83,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Amber Collection",
     temperature: "N/A",
     hue: {
-      from: 90,
-      to: 119,
+      from: 41,
+      to: 50,
     },
   },
   {
@@ -92,8 +92,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Yellowish Collection",
     temperature: "N/A",
     hue: {
-      from: 120,
-      to: 149,
+      from: 51,
+      to: 60,
     },
   },
   {
@@ -101,8 +101,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Moss Collection",
     temperature: "N/A",
     hue: {
-      from: 150,
-      to: 179,
+      from: 61,
+      to: 80,
     },
   },
   {
@@ -110,8 +110,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Greenish Collection",
     temperature: "cool green",
     hue: {
-      from: 180,
-      to: 209,
+      from: 81,
+      to: 140,
     },
   },
   {
@@ -119,8 +119,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Aqua Collection",
     temperature: "cool blue green",
     hue: {
-      from: 210,
-      to: 239,
+      from: 141,
+      to: 210,
     },
   },
   {
@@ -128,8 +128,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Bluish Collection",
     temperature: "cool blue",
     hue: {
-      from: 240,
-      to: 269,
+      from: 211,
+      to: 240,
     },
   },
   {
@@ -137,8 +137,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Indigo Collection",
     temperature: "cool blue violet",
     hue: {
-      from: 270,
-      to: 299,
+      from: 241,
+      to: 280,
     },
   },
   {
@@ -146,8 +146,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Purplish Collection",
     temperature: "cool violet",
     hue: {
-      from: 300,
-      to: 329,
+      from: 281,
+      to: 320,
     },
   },
   {
@@ -155,8 +155,8 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Mulberry Collection",
     temperature: "cool red violet",
     hue: {
-      from: 330,
-      to: 359,
+      from: 321,
+      to: 355,
     },
   },
 ];

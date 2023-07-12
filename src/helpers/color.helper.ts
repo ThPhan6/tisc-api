@@ -166,9 +166,17 @@ export const recommendStone = (
 
     if (group === 2) {
       //step 3
-      found = STONE_COLOR_COLLECTIONS.find(
-        (item) => hue >= item.hue.from && hue <= item.hue.to
-      );
+      found = STONE_COLOR_COLLECTIONS.concat([
+        {
+          id: "8e8a4300-aae6-4810-82dc-2f00fa9f57c2",
+          name: "Reddish Collection",
+          temperature: "N/A",
+          hue: {
+            from: 356,
+            to: 360,
+          },
+        },
+      ]).find((item) => hue >= item.hue.from && hue <= item.hue.to);
     }
     if (found) return [found];
   } else if (saturation >= 0 && saturation <= 10) {
