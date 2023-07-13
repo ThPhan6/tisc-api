@@ -51,11 +51,14 @@ class ColorService {
       "colors_fetched_counts",
       "DESC"
     );
+    if (Math.round(sortedColors[0].color.density) >= 50) {
+      return [sortedColors[0].color] as DetectedColor[];
+    }
     if (sortedColors.length > 1) {
       if (
         Math.round(sortedColors[0].color.density) -
           Math.round(sortedColors[1].color.density) <=
-        5
+        8
       )
         return [
           sortedColors[0].color,
