@@ -23,11 +23,11 @@ export const recommendStone = (
         if (94 <= lightness && lightness <= 100) group = 3;
         break;
       case 14:
-      case 15:
         if (0 <= lightness && lightness <= 17) group = 1;
         if (18 <= lightness && lightness <= 92) group = 2;
         if (93 <= lightness && lightness <= 100) group = 3;
         break;
+      case 15:
       case 16:
       case 17:
       case 18:
@@ -36,8 +36,8 @@ export const recommendStone = (
       case 21:
       case 22:
       case 23:
-        if (0 <= lightness && lightness <= 16) group = 1;
-        if (17 <= lightness && lightness <= 92) group = 2;
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 92) group = 2;
         if (93 <= lightness && lightness <= 100) group = 3;
         break;
       case 24:
