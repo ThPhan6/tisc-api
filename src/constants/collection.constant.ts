@@ -54,34 +54,34 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "8e8a4300-aae6-4810-82dc-2f00fa9f57c2",
     name: "Reddish Collection",
-    temperature: "N/A",
+    temperature: "Warm Red",
     hue: {
       from: 0,
-      to: 10,
+      to: 13,
     },
   },
   {
     id: "af3f7bc1-9449-4b98-970f-1d932b8939ab",
     name: "Tangerine Collection",
-    temperature: "N/A",
+    temperature: "Warm Reddish Orange",
     hue: {
-      from: 11,
-      to: 20,
+      from: 14,
+      to: 19,
     },
   },
   {
     id: "7cefd132-ef0f-4383-b10c-06490d4c1bb6",
     name: "Orangish & Brown Collection",
-    temperature: "N/A",
+    temperature: "Warm Orange & Browish",
     hue: {
-      from: 21,
+      from: 20,
       to: 40,
     },
   },
   {
     id: "468e674d-be4e-43e9-919f-c0e88a72b4c8",
     name: "Amber Collection",
-    temperature: "N/A",
+    temperature: "Warm Orangish Yellow",
     hue: {
       from: 41,
       to: 50,
@@ -90,43 +90,43 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "25f37c28-0e0d-4a74-928b-10124b260e75",
     name: "Yellowish Collection",
-    temperature: "N/A",
+    temperature: "Warm Yellow",
     hue: {
       from: 51,
-      to: 60,
+      to: 59,
     },
   },
   {
     id: "fbc893a9-bf57-4de4-b1cf-3665680b1ee3",
     name: "Moss Collection",
-    temperature: "N/A",
+    temperature: "Warm Yellowish Green",
     hue: {
-      from: 61,
+      from: 60,
       to: 80,
     },
   },
   {
     id: "c5b32d17-cb5b-4c69-b51c-368f70b42c72",
     name: "Greenish Collection",
-    temperature: "cool green",
+    temperature: "Cool green",
     hue: {
       from: 81,
-      to: 140,
+      to: 149,
     },
   },
   {
     id: "087a4c10-16d5-49d3-b576-9dc183787e12",
-    name: "Aqua Collection",
-    temperature: "cool blue green",
+    name: "Aqua & Turquoise Collection",
+    temperature: "Cool blue green",
     hue: {
-      from: 141,
+      from: 150,
       to: 210,
     },
   },
   {
     id: "8be35d7b-2ba0-44f4-ba49-d5f8db885db4",
     name: "Bluish Collection",
-    temperature: "cool blue",
+    temperature: "Cool blue",
     hue: {
       from: 211,
       to: 240,
@@ -135,7 +135,7 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "35dde759-d1c1-4b3e-b23b-d778bc2e30ca",
     name: "Indigo Collection",
-    temperature: "cool blue violet",
+    temperature: "Cool blue violet",
     hue: {
       from: 241,
       to: 280,
@@ -144,7 +144,7 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "74c5e5ac-9482-4924-8d36-c2a3e5a55f96",
     name: "Purplish Collection",
-    temperature: "cool violet",
+    temperature: "Cool violet",
     hue: {
       from: 281,
       to: 320,
@@ -153,7 +153,7 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "2747953c-585b-4999-aa02-869bce082e59",
     name: "Mulberry Collection",
-    temperature: "cool red violet",
+    temperature: "Cool red violet",
     hue: {
       from: 321,
       to: 355,
