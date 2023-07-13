@@ -36,10 +36,6 @@ export const recommendStone = (
       case 21:
       case 22:
       case 23:
-        if (0 <= lightness && lightness <= 12) group = 1;
-        if (13 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 24:
       case 25:
       case 26:
@@ -49,10 +45,6 @@ export const recommendStone = (
       case 30:
       case 31:
       case 32:
-        if (0 <= lightness && lightness <= 15) group = 1;
-        if (16 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 33:
       case 34:
       case 35:
@@ -62,10 +54,6 @@ export const recommendStone = (
       case 39:
       case 40:
       case 41:
-        if (0 <= lightness && lightness <= 14) group = 1;
-        if (15 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 42:
       case 43:
       case 44:
@@ -77,8 +65,8 @@ export const recommendStone = (
       case 50:
       case 51:
       case 52:
-        if (0 <= lightness && lightness <= 13) group = 1;
-        if (14 <= lightness && lightness <= 92) group = 2;
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 92) group = 2;
         if (93 <= lightness && lightness <= 100) group = 3;
         break;
       case 53:
@@ -316,10 +304,6 @@ export const recommendWood = (
       case 21:
       case 22:
       case 23:
-        if (0 <= lightness && lightness <= 12) group = 1;
-        if (13 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 24:
       case 25:
       case 26:
@@ -329,10 +313,6 @@ export const recommendWood = (
       case 30:
       case 31:
       case 32:
-        if (0 <= lightness && lightness <= 15) group = 1;
-        if (16 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 33:
       case 34:
       case 35:
@@ -342,10 +322,6 @@ export const recommendWood = (
       case 39:
       case 40:
       case 41:
-        if (0 <= lightness && lightness <= 14) group = 1;
-        if (15 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 42:
       case 43:
       case 44:
@@ -357,8 +333,8 @@ export const recommendWood = (
       case 50:
       case 51:
       case 52:
-        if (0 <= lightness && lightness <= 13) group = 1;
-        if (14 <= lightness && lightness <= 92) group = 2;
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 92) group = 2;
         if (93 <= lightness && lightness <= 100) group = 3;
         break;
       case 53:
