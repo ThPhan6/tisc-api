@@ -44,7 +44,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: STONE_COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK,
-    name: "Black & Almost Balck Collection",
+    name: "Black & Almost Black Collection",
     temperature: "N/A",
     hue: {
       from: -1,
@@ -54,25 +54,25 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "8e8a4300-aae6-4810-82dc-2f00fa9f57c2",
     name: "Reddish Collection",
-    temperature: "Warm Red",
+    temperature: "Mid Red & Warm Red",
     hue: {
       from: 0,
-      to: 13,
+      to: 15,
     },
   },
   {
     id: "af3f7bc1-9449-4b98-970f-1d932b8939ab",
-    name: "Tangerine Collection",
-    temperature: "Warm Reddish Orange",
+    name: "Vermilion Collection",
+    temperature: "Warm Red & Orange",
     hue: {
-      from: 14,
+      from: 15,
       to: 19,
     },
   },
   {
     id: "7cefd132-ef0f-4383-b10c-06490d4c1bb6",
     name: "Orangish & Brown Collection",
-    temperature: "Warm Orange & Browish",
+    temperature: "Orange & Browish",
     hue: {
       from: 20,
       to: 40,
@@ -81,7 +81,7 @@ export const STONE_COLOR_COLLECTIONS = [
   {
     id: "468e674d-be4e-43e9-919f-c0e88a72b4c8",
     name: "Amber Collection",
-    temperature: "Warm Orangish Yellow",
+    temperature: "Orange & Warm Yellow",
     hue: {
       from: 41,
       to: 50,
@@ -93,69 +93,96 @@ export const STONE_COLOR_COLLECTIONS = [
     temperature: "Warm Yellow",
     hue: {
       from: 51,
-      to: 59,
+      to: 60,
     },
   },
   {
     id: "fbc893a9-bf57-4de4-b1cf-3665680b1ee3",
-    name: "Moss Collection",
-    temperature: "Warm Yellowish Green",
+    name: "Chartreuse Collection",
+    temperature: "Yellow Green & Warm Green",
     hue: {
-      from: 60,
+      from: 61,
       to: 80,
     },
   },
   {
     id: "c5b32d17-cb5b-4c69-b51c-368f70b42c72",
-    name: "Greenish Collection",
-    temperature: "Cool green",
+    name: "Green - Emerald & Lime Collection",
+    temperature: "Mid Green & Cool Green",
     hue: {
       from: 81,
-      to: 149,
+      to: 120,
     },
   },
   {
     id: "087a4c10-16d5-49d3-b576-9dc183787e12",
     name: "Aqua & Turquoise Collection",
-    temperature: "Cool blue green",
+    temperature: "Cool Green & Green Cyan",
     hue: {
-      from: 150,
-      to: 210,
+      from: 121,
+      to: 155,
+    },
+  },
+  {
+    id: "1ce36edb-3775-4d0b-9097-628ca2deb2f7",
+    name: "Cyan & Virdian Collection",
+    temperature: "Warm Cyan & Mid Cyan",
+    hue: {
+      from: 156,
+      to: 185,
+    },
+  },
+  {
+    id: "5851978a-fb98-4149-8bf0-f8f54b0b7cbf",
+    name: "Sky Collection",
+    temperature: "Cool Cyan",
+    hue: {
+      from: 186,
+      to: 209,
     },
   },
   {
     id: "8be35d7b-2ba0-44f4-ba49-d5f8db885db4",
-    name: "Bluish Collection",
-    temperature: "Cool blue",
+    name: "Cobalt & Ultramarine Collection",
+    temperature: "Blue Cyan & Cool Blue",
     hue: {
-      from: 211,
-      to: 240,
+      from: 210,
+      to: 239,
     },
   },
   {
     id: "35dde759-d1c1-4b3e-b23b-d778bc2e30ca",
-    name: "Indigo Collection",
-    temperature: "Cool blue violet",
+    name: "Bluish & Indigo Collection",
+    temperature: "Mid Blue",
     hue: {
-      from: 241,
-      to: 280,
+      from: 240,
+      to: 269,
+    },
+  },
+  {
+    id: "6038de8b-8468-4558-ab93-cfab292b5c4a",
+    name: "Violet & Purple Collection",
+    temperature: "Warm Blue & Violet",
+    hue: {
+      from: 270,
+      to: 299,
     },
   },
   {
     id: "74c5e5ac-9482-4924-8d36-c2a3e5a55f96",
-    name: "Purplish Collection",
-    temperature: "Cool violet",
+    name: "Magenta & Lavender Collection",
+    temperature: "Cool Magenta & Mid Magenta",
     hue: {
-      from: 281,
-      to: 320,
+      from: 300,
+      to: 325,
     },
   },
   {
     id: "2747953c-585b-4999-aa02-869bce082e59",
-    name: "Mulberry Collection",
-    temperature: "Cool red violet",
+    name: "Crimson & Mulberry Collection",
+    temperature: "Warm Magenta & Red Magenta",
     hue: {
-      from: 321,
+      from: 326,
       to: 355,
     },
   },
@@ -177,10 +204,6 @@ export const WOOD_COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    saturation: {
-      from: -1,
-      to: -1,
-    },
     lightness: {
       from: -1,
       to: -1,
@@ -191,10 +214,6 @@ export const WOOD_COLOR_COLLECTIONS = [
     name: "Light Grey Collection",
     temperature: "N/A",
     hue: {
-      from: -1,
-      to: -1,
-    },
-    saturation: {
       from: -1,
       to: -1,
     },
@@ -211,10 +230,6 @@ export const WOOD_COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    saturation: {
-      from: -1,
-      to: -1,
-    },
     lightness: {
       from: -1,
       to: -1,
@@ -228,10 +243,6 @@ export const WOOD_COLOR_COLLECTIONS = [
       from: -1,
       to: -1,
     },
-    saturation: {
-      from: -1,
-      to: -1,
-    },
     lightness: {
       from: -1,
       to: -1,
@@ -239,13 +250,9 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: WOOD_COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK,
-    name: "Black & Almost Balck Collection",
+    name: "Black & Almost Black Collection",
     temperature: "N/A",
     hue: {
-      from: -1,
-      to: -1,
-    },
-    saturation: {
       from: -1,
       to: -1,
     },
@@ -255,37 +262,42 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
-    name: "Brown",
-    temperature: "N/A",
+    id: "78f86765-2e2a-4181-ac8f-ae882fb31d22",
+    name: "Reddish Collection",
+    temperature: "Warm Red",
     hue: {
-      from: 20,
-      to: 40,
-    },
-    saturation: {
-      from: 20,
-      to: 60,
+      from: 0,
+      to: 13,
     },
     lightness: {
-      from: 20,
-      to: 60,
+      from: 44,
+      to: 92,
     },
   },
   {
     id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
     name: "Reddish Brown Collection",
-    temperature: "N/A",
+    temperature: "Cool Red",
     hue: {
       from: 0,
-      to: 30,
-    },
-    saturation: {
-      from: 30,
-      to: 70,
+      to: 13,
     },
     lightness: {
-      from: 30,
-      to: 60,
+      from: 10,
+      to: 45,
+    },
+  },
+  {
+    id: "bbd277cc-5307-4c2d-82e4-b9b2f210e859",
+    name: "Tangerine Collection",
+    temperature: "Warm Reddish Orange",
+    hue: {
+      from: 14,
+      to: 19,
+    },
+    lightness: {
+      from: 50,
+      to: 92,
     },
   },
   {
@@ -293,186 +305,194 @@ export const WOOD_COLOR_COLLECTIONS = [
     name: "Orangish Brown Collection",
     temperature: "N/A",
     hue: {
-      from: 20,
-      to: 40,
-    },
-    saturation: {
-      from: 40,
-      to: 60,
+      from: 14,
+      to: 19,
     },
     lightness: {
-      from: 40,
-      to: 60,
-    },
-  },
-  {
-    id: "4061f7db-7685-4577-9b82-ce0e50645907",
-    name: "Yellowish Brown Collection",
-    temperature: "N/A",
-    hue: {
-      from: 30,
-      to: 50,
-    },
-    saturation: {
-      from: 30,
-      to: 60,
-    },
-    lightness: {
-      from: 40,
-      to: 60,
-    },
-  },
-  {
-    id: "7d6b7ca5-4398-44a0-9be5-7cf4782f051c",
-    name: "Taupe Collection",
-    temperature: "N/A",
-    hue: {
-      from: 30,
-      to: 60,
-    },
-    saturation: {
       from: 10,
-      to: 30,
-    },
-    lightness: {
-      from: 40,
-      to: 60,
-    },
-  },
-  {
-    id: "ad1b877b-7b8d-4356-8cb3-cb26fad1cbc3",
-    name: "Pinkish Brown Collection",
-    temperature: "N/A",
-    hue: {
-      from: 330,
-      to: 350,
-    },
-    saturation: {
-      from: 30,
-      to: 60,
-    },
-    lightness: {
-      from: 40,
-      to: 60,
-    },
-  },
-  {
-    id: "18200f67-9103-4225-b8b6-93a156722a2e",
-    name: "Purplish Brown Collection",
-    temperature: "N/A",
-    hue: {
-      from: 20,
-      to: 40,
-    },
-    saturation: {
-      from: 30,
-      to: 50,
-    },
-    lightness: {
-      from: 30,
-      to: 50,
-    },
-  },
-  {
-    id: "0e8e9613-5140-441f-8446-badbbf9abccb",
-    name: "Yellow",
-    temperature: "N/A",
-    hue: {
-      from: 40,
-      to: 60,
-    },
-    saturation: {
-      from: 50,
-      to: 100,
-    },
-    lightness: {
-      from: 50,
-      to: 90,
-    },
-  },
-  {
-    id: "b5732600-cbf4-4581-8cf3-478adf6acaee",
-    name: "Begie",
-    temperature: "N/A",
-    hue: {
-      from: 30,
-      to: 60,
-    },
-    saturation: {
-      from: 10,
-      to: 30,
-    },
-    lightness: {
-      from: 80,
-      to: 90,
-    },
-  },
-  {
-    id: "78f86765-2e2a-4181-ac8f-ae882fb31d22",
-    name: "Red",
-    temperature: "N/A",
-    hue: {
-      from: 0,
-      to: 10,
-    },
-    saturation: {
-      from: 80,
-      to: 100,
-    },
-    lightness: {
-      from: 40,
-      to: 60,
+      to: 51,
     },
   },
   {
     id: "ab2188d8-fbad-4a8c-b09e-cfc4c2b06302",
-    name: "Orange",
-    temperature: "N/A",
+    name: "Orange Collection",
+    temperature: "Warm Orange",
     hue: {
-      from: 15,
-      to: 45,
-    },
-    saturation: {
-      from: 80,
-      to: 100,
+      from: 20,
+      to: 40,
     },
     lightness: {
       from: 50,
-      to: 70,
+      to: 92,
+    },
+  },
+  {
+    id: "be07f7a0-78fe-461c-9881-c07a40da26b0",
+    name: "Brown Collection",
+    temperature: "N/A",
+    hue: {
+      from: 20,
+      to: 40,
+    },
+    lightness: {
+      from: 10,
+      to: 92,
+    },
+  },
+  {
+    id: "4061f7db-7685-4577-9b82-ce0e50645907",
+    name: "Amber Collection",
+    temperature: "Warm Orangish Yellow",
+    hue: {
+      from: 41,
+      to: 50,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "7d6b7ca5-4398-44a0-9be5-7cf4782f051c",
+    name: "Yellowish Collection",
+    temperature: "Warm Yellow",
+    hue: {
+      from: 51,
+      to: 59,
+    },
+    lightness: {
+      from: 59,
+      to: 92,
+    },
+  },
+  {
+    id: "0e8e9613-5140-441f-8446-badbbf9abccb",
+    name: "Yellowish Brown Collection",
+    temperature: "N/A",
+    hue: {
+      from: 51,
+      to: 59,
+    },
+    lightness: {
+      from: 10,
+      to: 58,
+    },
+  },
+  {
+    id: "0e8e9613-5140-441f-8446-badbbf9abccb",
+    name: "Moss Collection",
+    temperature: "Warm Yellowish Green",
+    hue: {
+      from: 60,
+      to: 80,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "ad1b877b-7b8d-4356-8cb3-cb26fad1cbc3",
+    name: "Greenish Collection",
+    temperature: "Cool green",
+    hue: {
+      from: 81,
+      to: 149,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "18200f67-9103-4225-b8b6-93a156722a2e",
+    name: "Aqua & Turquoise Collection",
+    temperature: "Cool blue green",
+    hue: {
+      from: 150,
+      to: 210,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "b5732600-cbf4-4581-8cf3-478adf6acaee",
+    name: "Bluish Collection",
+    temperature: "Cool blue",
+    hue: {
+      from: 211,
+      to: 240,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "bec531b5-ad75-4aac-9ab7-b3772b641cd9",
-    name: "Pink",
-    temperature: "N/A",
+    name: "Indigo Collection",
+    temperature: "Cool blue violet",
     hue: {
-      from: 300,
-      to: 350,
-    },
-    saturation: {
-      from: 50,
-      to: 100,
+      from: 241,
+      to: 280,
     },
     lightness: {
-      from: 70,
-      to: 90,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "55183530-5e80-4bf6-8bb9-1bda7d99dc19",
-    name: "Purple",
-    temperature: "N/A",
+    name: "Purple Collection",
+    temperature: "Cool purple",
     hue: {
-      from: 270,
-      to: 300,
-    },
-    saturation: {
-      from: 50,
-      to: 100,
+      from: 281,
+      to: 330,
     },
     lightness: {
-      from: 25,
-      to: 75,
+      from: 33,
+      to: 92,
+    },
+  },
+  {
+    id: "61009df6-85cb-4d29-8e29-aa63bebb2297",
+    name: "Pinkish Collection",
+    temperature: "N/A",
+    hue: {
+      from: 331,
+      to: 345,
+    },
+    lightness: {
+      from: 26,
+      to: 92,
+    },
+  },
+  {
+    id: "781af7a0-f957-4a9e-b7ae-662fbc8d4a42",
+    name: "Pinkish Brown Collection",
+    temperature: "N/A",
+    hue: {
+      from: 331,
+      to: 345,
+    },
+    lightness: {
+      from: 10,
+      to: 25,
+    },
+  },
+  {
+    id: "781af7a0-f957-4a9e-b7ae-662fbc8d4a42",
+    name: "Mulberry Collection",
+    temperature: "Cool pink violet",
+    hue: {
+      from: 321,
+      to: 355,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
     },
   },
 ];
