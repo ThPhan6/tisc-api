@@ -154,11 +154,26 @@ export const recommendStone = (
 
     if (group === 2) {
       //step 3
+      if (hue === 15) {
+        if (lightness >= 10 && lightness <= 45)
+          return [
+            STONE_COLOR_COLLECTIONS.find(
+              (item) => item.name === "8e8a4300-aae6-4810-82dc-2f00fa9f57c2"
+            ),
+          ];
+        // Reddish collection
+        else
+          return [
+            STONE_COLOR_COLLECTIONS.find(
+              (item) => item.name === "af3f7bc1-9449-4b98-970f-1d932b8939ab"
+            ),
+          ]; // Vermilion collection
+      }
       found = STONE_COLOR_COLLECTIONS.concat([
         {
           id: "8e8a4300-aae6-4810-82dc-2f00fa9f57c2",
           name: "Reddish Collection",
-          temperature: "N/A",
+          temperature: "Mid Red & Warm Red",
           hue: {
             from: 356,
             to: 360,
@@ -427,30 +442,45 @@ export const recommendWood = (
       found = WOOD_COLOR_COLLECTIONS.concat([
         {
           id: "78f86765-2e2a-4181-ac8f-ae882fb31d22",
-          name: "Red",
-          temperature: "N/A",
+          name: "Reddish Collection",
+          temperature: "Warm Red",
           hue: {
-            from: 350,
+            from: 356,
             to: 360,
           },
-          saturation: {
-            from: 80,
-            to: 100,
-          },
           lightness: {
-            from: 40,
-            to: 60,
+            from: 44,
+            to: 92,
           },
         },
-      ]).filter(
-        (item) =>
-          hue >= item.hue.from &&
-          hue <= item.hue.to &&
-          saturation >= item.saturation.from &&
-          saturation <= item.saturation.to &&
-          lightness >= item.lightness.from &&
-          lightness <= item.lightness.to
-      );
+        {
+          id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
+          name: "Reddish Brown Collection",
+          temperature: "Cool Red",
+          hue: {
+            from: 356,
+            to: 360,
+          },
+          lightness: {
+            from: 10,
+            to: 45,
+          },
+        },
+      ]).filter((item) => {
+        if (item.lightness.from !== -1 && item.lightness.to !== -1) {
+          if (
+            hue >= item.hue.from &&
+            hue <= item.hue.to &&
+            lightness >= item.lightness.from &&
+            lightness <= item.lightness.to
+          )
+            return true;
+          else return false;
+        } else {
+          if (hue >= item.hue.from && hue <= item.hue.to) return true;
+          else return false;
+        }
+      });
       return found;
     }
   } else if (saturation >= 0 && saturation <= 10) {
