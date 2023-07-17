@@ -125,7 +125,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: "1ce36edb-3775-4d0b-9097-628ca2deb2f7",
-    name: "Cyan & Virdian Collection",
+    name: "Cyan & Viridian Collection",
     temperature: "Warm Cyan & Mid Cyan",
     hue: {
       from: 156,
@@ -270,73 +270,60 @@ export const WOOD_COLOR_COLLECTIONS = [
       to: 13,
     },
     lightness: {
-      from: 44,
-      to: 92,
-    },
-  },
-  {
-    id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
-    name: "Reddish Brown Collection",
-    temperature: "Cool Red",
-    hue: {
-      from: 0,
-      to: 13,
-    },
-    lightness: {
-      from: 10,
-      to: 45,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "bbd277cc-5307-4c2d-82e4-b9b2f210e859",
-    name: "Tangerine Collection",
+    name: "Vermilion Collection",
     temperature: "Warm Reddish Orange",
     hue: {
       from: 14,
       to: 19,
     },
     lightness: {
-      from: 50,
-      to: 92,
+      from: 46,
+      to: 100,
     },
   },
   {
-    id: "18dcb701-252a-4406-8d90-31a994d5757d",
-    name: "Orangish Brown Collection",
-    temperature: "N/A",
+    id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
+    name: "Reddish Brown Collection",
+    temperature: "Warm Reddish Orange",
     hue: {
       from: 14,
       to: 19,
     },
     lightness: {
-      from: 10,
-      to: 51,
+      from: 0,
+      to: 45,
     },
   },
   {
     id: "ab2188d8-fbad-4a8c-b09e-cfc4c2b06302",
-    name: "Orange Collection",
+    name: "Orange & Peach Collection",
     temperature: "Warm Orange",
     hue: {
       from: 20,
       to: 40,
     },
     lightness: {
-      from: 50,
-      to: 92,
+      from: 51,
+      to: 100,
     },
   },
   {
     id: "be07f7a0-78fe-461c-9881-c07a40da26b0",
     name: "Brown Collection",
-    temperature: "N/A",
+    temperature: "Warm Orange",
     hue: {
       from: 20,
       to: 40,
     },
     lightness: {
-      from: 10,
-      to: 92,
+      from: 0,
+      to: 50,
     },
   },
   {
@@ -358,33 +345,33 @@ export const WOOD_COLOR_COLLECTIONS = [
     temperature: "Warm Yellow",
     hue: {
       from: 51,
-      to: 59,
+      to: 60,
     },
     lightness: {
       from: 59,
-      to: 92,
+      to: 100,
     },
   },
   {
     id: "0e8e9613-5140-441f-8446-badbbf9abccb",
-    name: "Yellowish Brown Collection",
-    temperature: "N/A",
+    name: "Tan Collection",
+    temperature: "Warm Yellow",
     hue: {
       from: 51,
-      to: 59,
+      to: 60,
     },
     lightness: {
-      from: 10,
+      from: 0,
       to: 58,
     },
   },
   {
-    id: "0e8e9613-5140-441f-8446-badbbf9abccb",
-    name: "Moss Collection",
+    id: "7d8f4bea-38a4-491b-973a-940fd630f72d",
+    name: "Chartruese Collection",
     temperature: "Warm Yellowish Green",
     hue: {
-      from: 60,
-      to: 80,
+      from: 61,
+      to: 89,
     },
     lightness: {
       from: -1,
@@ -393,11 +380,11 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "ad1b877b-7b8d-4356-8cb3-cb26fad1cbc3",
-    name: "Greenish Collection",
-    temperature: "Cool green",
+    name: "Lime Collection",
+    temperature: "Cool Yellowish Green",
     hue: {
-      from: 81,
-      to: 149,
+      from: 90,
+      to: 90,
     },
     lightness: {
       from: -1,
@@ -406,10 +393,101 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "18200f67-9103-4225-b8b6-93a156722a2e",
-    name: "Aqua & Turquoise Collection",
-    temperature: "Cool blue green",
+    name: "Emerald Collection",
+    temperature: "Warm Green",
+    hue: {
+      from: 91,
+      to: 119,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "e519f351-ccaf-41c9-9a8b-d73c8deb6938",
+    name: "Greenish Collection",
+    temperature: "Mid Green",
+    hue: {
+      from: 120,
+      to: 120,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "d95295d3-b7a2-4422-a6e7-05c25a5d5c10",
+    name: "Aquamarine Collection",
+    temperature: "Cool Green & Cool Cyan Green",
+    hue: {
+      from: 121,
+      to: 149,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "9d3918af-b7fb-42a0-bf49-8c3ff0ef5da4",
+    name: "Turquoise Collection",
+    temperature: "Cool Cyan Green",
     hue: {
       from: 150,
+      to: 150,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "0b9a0554-22e9-4e7e-841a-9f0d6c978e14",
+    name: "Viridian Collection",
+    temperature: "Warm Cyan",
+    hue: {
+      from: 151,
+      to: 175,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "8164dd34-4f95-4f3a-a33c-eae803418cf7",
+    name: "Cyan Collection",
+    temperature: "Mid Cyan",
+    hue: {
+      from: 176,
+      to: 180,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "f0457cd5-02ab-40e1-a26d-7d3c3fe3ad12",
+    name: "Sky Collection",
+    temperature: "Cool Cyan",
+    hue: {
+      from: 181,
+      to: 208,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "58e10aaa-aa62-4109-9a35-1432dae65b33",
+    name: "Cobalt Collection",
+    temperature: "Cool Blue Cyan",
+    hue: {
+      from: 209,
       to: 210,
     },
     lightness: {
@@ -419,10 +497,23 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "b5732600-cbf4-4581-8cf3-478adf6acaee",
-    name: "Bluish Collection",
-    temperature: "Cool blue",
+    name: "Ultramarine Collection",
+    temperature: "Cool Blue",
     hue: {
-      from: 211,
+      from: 210,
+      to: 230,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "f81b326f-6192-4149-8a0a-47bbcdce0280",
+    name: "Bluish Collection",
+    temperature: "Mid Blue",
+    hue: {
+      from: 231,
       to: 240,
     },
     lightness: {
@@ -433,10 +524,23 @@ export const WOOD_COLOR_COLLECTIONS = [
   {
     id: "bec531b5-ad75-4aac-9ab7-b3772b641cd9",
     name: "Indigo Collection",
-    temperature: "Cool blue violet",
+    temperature: "Warm Blue",
     hue: {
       from: 241,
-      to: 280,
+      to: 265,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "b98336b7-7313-4655-a9a6-8aa97b58f287",
+    name: "Violet Collection",
+    temperature: "Cool Blue Maganet",
+    hue: {
+      from: 266,
+      to: 270,
     },
     lightness: {
       from: -1,
@@ -446,36 +550,49 @@ export const WOOD_COLOR_COLLECTIONS = [
   {
     id: "55183530-5e80-4bf6-8bb9-1bda7d99dc19",
     name: "Purple Collection",
-    temperature: "Cool purple",
+    temperature: "Cool Maganet",
     hue: {
-      from: 281,
-      to: 330,
+      from: 271,
+      to: 295,
     },
     lightness: {
-      from: 33,
-      to: 92,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "61009df6-85cb-4d29-8e29-aa63bebb2297",
-    name: "Pinkish Collection",
-    temperature: "N/A",
+    name: "Magenta Collection",
+    temperature: "Mid Maganet",
     hue: {
-      from: 331,
-      to: 345,
+      from: 296,
+      to: 300,
     },
     lightness: {
-      from: 26,
-      to: 92,
+      from: -1,
+      to: -1,
+    },
+  },
+  {
+    id: "94baae32-2f68-4888-a7a5-8447682c87d2",
+    name: "Lavender Collection",
+    temperature: "Warm Maganet",
+    hue: {
+      from: 301,
+      to: 329,
+    },
+    lightness: {
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "781af7a0-f957-4a9e-b7ae-662fbc8d4a42",
-    name: "Pinkish Brown Collection",
-    temperature: "N/A",
+    name: "Crimson Collection",
+    temperature: "Cool Red Maganet",
     hue: {
-      from: 331,
-      to: 345,
+      from: 330,
+      to: 335,
     },
     lightness: {
       from: 10,
@@ -483,11 +600,11 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "781af7a0-f957-4a9e-b7ae-662fbc8d4a42",
+    id: "1e3ac68d-5836-4c07-9cfa-b567040a7388",
     name: "Mulberry Collection",
-    temperature: "Cool pink violet",
+    temperature: "Cool Red",
     hue: {
-      from: 321,
+      from: 335,
       to: 355,
     },
     lightness: {
