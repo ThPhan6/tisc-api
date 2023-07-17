@@ -449,21 +449,8 @@ export const recommendWood = (
             to: 360,
           },
           lightness: {
-            from: 44,
-            to: 92,
-          },
-        },
-        {
-          id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
-          name: "Reddish Brown Collection",
-          temperature: "Cool Red",
-          hue: {
-            from: 356,
-            to: 360,
-          },
-          lightness: {
-            from: 10,
-            to: 45,
+            from: -1,
+            to: -1,
           },
         },
       ]).filter((item) => {
