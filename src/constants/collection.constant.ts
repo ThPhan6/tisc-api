@@ -302,7 +302,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "ab2188d8-fbad-4a8c-b09e-cfc4c2b06302",
-    name: "Orange & Peach Collection",
+    name: "Orange/Orangish Collection",
     temperature: "Warm Orange",
     hue: {
       from: 20,
@@ -315,7 +315,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "be07f7a0-78fe-461c-9881-c07a40da26b0",
-    name: "Brown Collection",
+    name: "Brown/Brownish Collection",
     temperature: "Warm Orange",
     hue: {
       from: 20,
@@ -341,7 +341,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "7d6b7ca5-4398-44a0-9be5-7cf4782f051c",
-    name: "Yellowish Collection",
+    name: "Yellow/Yellowish Collection",
     temperature: "Warm Yellow",
     hue: {
       from: 51,
@@ -406,7 +406,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "e519f351-ccaf-41c9-9a8b-d73c8deb6938",
-    name: "Greenish Collection",
+    name: "Green/Greenish Collection",
     temperature: "Mid Green",
     hue: {
       from: 120,
@@ -510,7 +510,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "f81b326f-6192-4149-8a0a-47bbcdce0280",
-    name: "Bluish Collection",
+    name: "Blue/Bluish Collection",
     temperature: "Mid Blue",
     hue: {
       from: 231,
