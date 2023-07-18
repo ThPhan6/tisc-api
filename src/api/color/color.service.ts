@@ -137,7 +137,7 @@ class ColorService {
         recommendation_collection: toRecommendCollections(
           recommendationCollection
         ),
-        images: this.mappingTemperature(result),
+        images: this.mappingTemperature(result, isSupported),
       },
     });
   };
@@ -155,7 +155,8 @@ class ColorService {
     );
   };
   public mappingTemperature = (
-    detectedImages: DetectedImage[]
+    detectedImages: DetectedImage[],
+    colorGroup?: "stone" | "wood"
   ): DetectedImage[] => {
     return detectedImages.map((detectedImage) => {
       return {
@@ -166,6 +167,7 @@ class ColorService {
             lightness: color.conversion.origin.lightness,
             hue: color.conversion.origin.hue,
             unit: "number",
+            colorGroup,
           });
           return {
             ...color,
