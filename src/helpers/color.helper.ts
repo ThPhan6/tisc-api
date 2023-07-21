@@ -28,6 +28,10 @@ export const recommendStone = (
         if (93 <= lightness && lightness <= 100) group = 3;
         break;
       case 15:
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 83) group = 2;
+        if (84 <= lightness && lightness <= 100) group = 3;
+        break;
       case 16:
       case 17:
       case 18:
@@ -151,37 +155,22 @@ export const recommendStone = (
       found = STONE_COLOR_COLLECTIONS.find(
         (item) => item.id === STONE_COLOR_COLLECTION_IDS.WHITE_OFFWHITE
       );
-
+    if (found) return [found];
     if (group === 2) {
       //step 3
-      if (hue === 15) {
-        if (lightness >= 10 && lightness <= 45)
-          return [
-            STONE_COLOR_COLLECTIONS.find(
-              (item) => item.name === "8e8a4300-aae6-4810-82dc-2f00fa9f57c2"
-            ),
-          ];
-        // Reddish collection
-        else
-          return [
-            STONE_COLOR_COLLECTIONS.find(
-              (item) => item.name === "af3f7bc1-9449-4b98-970f-1d932b8939ab"
-            ),
-          ]; // Vermilion collection
-      }
       found = STONE_COLOR_COLLECTIONS.concat([
         {
-          id: "8e8a4300-aae6-4810-82dc-2f00fa9f57c2",
-          name: "Reddish Collection",
-          temperature: "Mid Red & Warm Red",
+          id: "af3f7bc1-9449-4b98-970f-1d932b8939ab",
+          name: "Vermilion Red",
+          temperature: "Warm Red & Warm Reddish Orange",
           hue: {
-            from: 356,
+            from: 360,
             to: 360,
           },
         },
-      ]).find((item) => hue >= item.hue.from && hue <= item.hue.to);
+      ]).filter((item) => hue >= item.hue.from && hue <= item.hue.to);
     }
-    if (found) return [found];
+    return found || [];
   } else if (saturation >= 0 && saturation <= 10) {
     //step 1
     //1: black, 2: dark grey, 3: medium grey, 4: light grey, 5: white/off-white
