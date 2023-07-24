@@ -270,150 +270,124 @@ export const STONE_COLOR_COLLECTIONS = [
 ];
 
 export const WOOD_COLOR_COLLECTION_IDS = {
-  WHITE_OFFWHITE: "607bb527-a950-41ac-8828-af754666603b",
-  LIGHT_GREY: "5c61d4da-0212-4ff1-a591-c7becd5ceb38",
-  MID_GREY: "83a2fdc2-f894-4cdb-a801-7662661863af",
-  DARK_GREY: "7d9bea7b-fe57-46cd-9eeb-9d7e54c823a6",
-  BLACK_ALMOST_BLACK: "632b3420-9019-4add-b554-368e5cfd6a35",
+  OFFWHITE: "607bb527-a950-41ac-8828-af754666603b",
+  LIGHT_BEIGE: "5c61d4da-0212-4ff1-a591-c7becd5ceb38",
+  MID_TAN: "83a2fdc2-f894-4cdb-a801-7662661863af",
+  DARK_BROWN: "7d9bea7b-fe57-46cd-9eeb-9d7e54c823a6",
+  ALMOST_BLACK: "632b3420-9019-4add-b554-368e5cfd6a35",
 };
 export const WOOD_COLOR_COLLECTIONS = [
   {
-    id: WOOD_COLOR_COLLECTION_IDS.WHITE_OFFWHITE,
-    name: "White / Off-white Collection",
+    id: WOOD_COLOR_COLLECTION_IDS.OFFWHITE,
+    name: "Off-white",
     temperature: "N/A",
     hue: {
       from: -1,
       to: -1,
     },
     lightness: {
-      from: -1,
-      to: -1,
+      from: 95,
+      to: 100,
     },
   },
   {
-    id: WOOD_COLOR_COLLECTION_IDS.LIGHT_GREY,
-    name: "Light Grey Collection",
+    id: WOOD_COLOR_COLLECTION_IDS.LIGHT_BEIGE,
+    name: "Light Beige",
     temperature: "N/A",
     hue: {
       from: -1,
       to: -1,
     },
     lightness: {
-      from: -1,
-      to: -1,
+      from: 71,
+      to: 96,
     },
   },
   {
-    id: WOOD_COLOR_COLLECTION_IDS.MID_GREY,
-    name: "Mid Grey Collection",
+    id: WOOD_COLOR_COLLECTION_IDS.MID_TAN,
+    name: "Mid Tan",
     temperature: "N/A",
     hue: {
       from: -1,
       to: -1,
     },
     lightness: {
-      from: -1,
-      to: -1,
+      from: 41,
+      to: 70,
     },
   },
   {
-    id: WOOD_COLOR_COLLECTION_IDS.DARK_GREY,
-    name: "Dark Grey Collection",
+    id: WOOD_COLOR_COLLECTION_IDS.DARK_BROWN,
+    name: "Dark Brown",
     temperature: "N/A",
     hue: {
       from: -1,
       to: -1,
     },
     lightness: {
-      from: -1,
-      to: -1,
+      from: 13,
+      to: 40,
     },
   },
   {
-    id: WOOD_COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK,
-    name: "Black & Almost Black Collection",
+    id: WOOD_COLOR_COLLECTION_IDS.ALMOST_BLACK,
+    name: "Almost Black",
     temperature: "N/A",
     hue: {
       from: -1,
       to: -1,
     },
     lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "78f86765-2e2a-4181-ac8f-ae882fb31d22",
-    name: "Reddish Collection",
-    temperature: "Warm Red",
-    hue: {
       from: 0,
-      to: 13,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
+      to: 12,
     },
   },
   {
     id: "bbd277cc-5307-4c2d-82e4-b9b2f210e859",
-    name: "Vermilion Collection",
-    temperature: "Warm Reddish Orange",
+    name: "Vermilion Red",
+    temperature: "Warm Red & Warm Reddish Orange",
     hue: {
-      from: 14,
-      to: 19,
+      from: 1,
+      to: 15,
     },
     lightness: {
-      from: 46,
-      to: 100,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "b63b47d9-54f5-468a-a058-f37fccaae2a5",
-    name: "Reddish Brown Collection",
-    temperature: "Warm Reddish Orange",
+    name: "Orange Brown",
+    temperature: "Warm Orange",
     hue: {
-      from: 14,
-      to: 19,
+      from: 16,
+      to: 30,
     },
     lightness: {
-      from: 0,
-      to: 45,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "ab2188d8-fbad-4a8c-b09e-cfc4c2b06302",
-    name: "Orange/Orangish Collection",
+    name: "Tangerine Brown",
     temperature: "Warm Orange",
     hue: {
-      from: 20,
-      to: 40,
+      from: 31,
+      to: 45,
     },
     lightness: {
-      from: 51,
-      to: 100,
-    },
-  },
-  {
-    id: "be07f7a0-78fe-461c-9881-c07a40da26b0",
-    name: "Brown/Brownish Collection",
-    temperature: "Warm Orange",
-    hue: {
-      from: 20,
-      to: 40,
-    },
-    lightness: {
-      from: 0,
-      to: 50,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "4061f7db-7685-4577-9b82-ce0e50645907",
-    name: "Amber Collection",
-    temperature: "Warm Orangish Yellow",
+    name: "Amber Brown",
+    temperature: "Warm Yellow Orange",
     hue: {
-      from: 41,
-      to: 50,
+      from: 46,
+      to: 63,
     },
     lightness: {
       from: -1,
@@ -422,101 +396,23 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "7d6b7ca5-4398-44a0-9be5-7cf4782f051c",
-    name: "Yellow/Yellowish Collection",
-    temperature: "Warm Yellow",
+    name: "Lime Yellow",
+    temperature: "Warm Green Yellow",
     hue: {
-      from: 51,
-      to: 60,
+      from: 64,
+      to: 105,
     },
     lightness: {
-      from: 59,
-      to: 100,
+      from: -1,
+      to: -1,
     },
   },
   {
     id: "0e8e9613-5140-441f-8446-badbbf9abccb",
-    name: "Tan Collection",
-    temperature: "Warm Yellow",
+    name: "Lime Green",
+    temperature: "Cool Green",
     hue: {
-      from: 51,
-      to: 60,
-    },
-    lightness: {
-      from: 0,
-      to: 58,
-    },
-  },
-  {
-    id: "7d8f4bea-38a4-491b-973a-940fd630f72d",
-    name: "Chartruese Collection",
-    temperature: "Warm Yellowish Green",
-    hue: {
-      from: 61,
-      to: 89,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "ad1b877b-7b8d-4356-8cb3-cb26fad1cbc3",
-    name: "Lime Collection",
-    temperature: "Cool Yellowish Green",
-    hue: {
-      from: 90,
-      to: 90,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "18200f67-9103-4225-b8b6-93a156722a2e",
-    name: "Emerald Collection",
-    temperature: "Warm Green",
-    hue: {
-      from: 91,
-      to: 119,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "e519f351-ccaf-41c9-9a8b-d73c8deb6938",
-    name: "Green/Greenish Collection",
-    temperature: "Mid Green",
-    hue: {
-      from: 120,
-      to: 120,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "d95295d3-b7a2-4422-a6e7-05c25a5d5c10",
-    name: "Aquamarine Collection",
-    temperature: "Cool Green & Cool Cyan Green",
-    hue: {
-      from: 121,
-      to: 149,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "9d3918af-b7fb-42a0-bf49-8c3ff0ef5da4",
-    name: "Turquoise Collection",
-    temperature: "Cool Cyan Green",
-    hue: {
-      from: 150,
+      from: 106,
       to: 150,
     },
     lightness: {
@@ -525,12 +421,12 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "0b9a0554-22e9-4e7e-841a-9f0d6c978e14",
-    name: "Viridian Collection",
-    temperature: "Warm Cyan",
+    id: "7d8f4bea-38a4-491b-973a-940fd630f72d",
+    name: "Green Turquoise",
+    temperature: "Cool Green Cyan",
     hue: {
       from: 151,
-      to: 175,
+      to: 209,
     },
     lightness: {
       from: -1,
@@ -538,51 +434,12 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "8164dd34-4f95-4f3a-a33c-eae803418cf7",
-    name: "Cyan Collection",
-    temperature: "Mid Cyan",
-    hue: {
-      from: 176,
-      to: 180,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "f0457cd5-02ab-40e1-a26d-7d3c3fe3ad12",
-    name: "Sky Collection",
-    temperature: "Cool Cyan",
-    hue: {
-      from: 181,
-      to: 208,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "58e10aaa-aa62-4109-9a35-1432dae65b33",
-    name: "Cobalt Collection",
-    temperature: "Cool Blue Cyan",
-    hue: {
-      from: 209,
-      to: 210,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "b5732600-cbf4-4581-8cf3-478adf6acaee",
-    name: "Ultramarine Collection",
+    id: "ad1b877b-7b8d-4356-8cb3-cb26fad1cbc3",
+    name: "Blue Aqua",
     temperature: "Cool Blue",
     hue: {
       from: 210,
-      to: 230,
+      to: 255,
     },
     lightness: {
       from: -1,
@@ -590,12 +447,12 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "f81b326f-6192-4149-8a0a-47bbcdce0280",
-    name: "Blue/Bluish Collection",
-    temperature: "Mid Blue",
+    id: "18200f67-9103-4225-b8b6-93a156722a2e",
+    name: "Purple Blue",
+    temperature: "Cool Green Cyan",
     hue: {
-      from: 231,
-      to: 240,
+      from: 256,
+      to: 285,
     },
     lightness: {
       from: -1,
@@ -603,63 +460,11 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "bec531b5-ad75-4aac-9ab7-b3772b641cd9",
-    name: "Indigo Collection",
-    temperature: "Warm Blue",
+    id: "e519f351-ccaf-41c9-9a8b-d73c8deb6938",
+    name: "Magenta Purple",
+    temperature: "Cool Magenta Purple",
     hue: {
-      from: 241,
-      to: 265,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "b98336b7-7313-4655-a9a6-8aa97b58f287",
-    name: "Violet Collection",
-    temperature: "Cool Blue Maganet",
-    hue: {
-      from: 266,
-      to: 270,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "55183530-5e80-4bf6-8bb9-1bda7d99dc19",
-    name: "Purple Collection",
-    temperature: "Cool Maganet",
-    hue: {
-      from: 271,
-      to: 295,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "61009df6-85cb-4d29-8e29-aa63bebb2297",
-    name: "Magenta Collection",
-    temperature: "Mid Maganet",
-    hue: {
-      from: 296,
-      to: 300,
-    },
-    lightness: {
-      from: -1,
-      to: -1,
-    },
-  },
-  {
-    id: "94baae32-2f68-4888-a7a5-8447682c87d2",
-    name: "Lavender Collection",
-    temperature: "Warm Maganet",
-    hue: {
-      from: 301,
+      from: 286,
       to: 329,
     },
     lightness: {
@@ -668,25 +473,25 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
   },
   {
-    id: "781af7a0-f957-4a9e-b7ae-662fbc8d4a42",
-    name: "Crimson Collection",
-    temperature: "Cool Red Maganet",
+    id: "d95295d3-b7a2-4422-a6e7-05c25a5d5c10",
+    name: "Bordeaux Red",
+    temperature: "Warm Red Crimson",
     hue: {
       from: 330,
-      to: 335,
+      to: 345,
     },
     lightness: {
-      from: 10,
-      to: 25,
+      from: -1,
+      to: -1,
     },
   },
   {
-    id: "1e3ac68d-5836-4c07-9cfa-b567040a7388",
-    name: "Mulberry Collection",
-    temperature: "Cool Red",
+    id: "9d3918af-b7fb-42a0-bf49-8c3ff0ef5da4",
+    name: "Crimson Red",
+    temperature: "Warm Crimson Red",
     hue: {
-      from: 335,
-      to: 355,
+      from: 346,
+      to: 359,
     },
     lightness: {
       from: -1,
