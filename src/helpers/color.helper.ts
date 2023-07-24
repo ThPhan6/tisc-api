@@ -280,14 +280,18 @@ export const recommendStone = (
 export const recommendWood = (
   _saturation: number,
   lightness: number,
-  hue: number
+  hue: number,
+  isMain?: boolean
 ) => {
   let collections = [];
-  const lightToDarkCollection = WOOD_COLOR_COLLECTIONS.find(
-    (item) => lightness >= item.lightness.from && lightness <= item.lightness.to
-  );
-  if (lightToDarkCollection) {
-    collections.push(lightToDarkCollection);
+  if (isMain) {
+    const lightToDarkCollection = WOOD_COLOR_COLLECTIONS.find(
+      (item) =>
+        lightness >= item.lightness.from && lightness <= item.lightness.to
+    );
+    if (lightToDarkCollection) {
+      collections.push(lightToDarkCollection);
+    }
   }
   const colorCollection = WOOD_COLOR_COLLECTIONS.find(
     (item) => hue >= item.hue.from && hue <= item.hue.to
