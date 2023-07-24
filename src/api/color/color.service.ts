@@ -74,6 +74,7 @@ class ColorService {
     hue: number;
     unit: "percent" | "number";
     colorGroup?: "stone" | "wood";
+    isMain?: boolean
   }) => {
     let saturation = params.saturation;
     let lightness = params.lightness;
@@ -83,7 +84,7 @@ class ColorService {
       lightness = Math.round(lightness * 100);
     }
     if (params.colorGroup === "wood")
-      return recommendWood(saturation, lightness, hue);
+      return recommendWood(saturation, lightness, hue, params.isMain);
     return recommendStone(saturation, lightness, hue);
   };
   public getColorCollection = async (
@@ -118,13 +119,14 @@ class ColorService {
     const result = await this.extractColors(uploadedToLocal);
     const mostColors = this.getTheMostColors([result[0]]);
     let recommendationCollection: any[] = [];
-    mostColors.forEach((mostColor) => {
+    mostColors.forEach((mostColor, index) => {
       const temp = this.recommendCollection({
         saturation: mostColor.conversion.origin.sat,
         lightness: mostColor.conversion.origin.lightness,
         hue: mostColor.conversion.origin.hue,
         unit: "number",
         colorGroup: isSupported,
+        isMain: index === 0
       });
       recommendationCollection = recommendationCollection.concat(temp);
     });

@@ -312,7 +312,7 @@ export const WOOD_COLOR_COLLECTIONS = [
       to: -1,
     },
     lightness: {
-      from: 41,
+      from: 38,
       to: 70,
     },
   },
@@ -325,8 +325,8 @@ export const WOOD_COLOR_COLLECTIONS = [
       to: -1,
     },
     lightness: {
-      from: 13,
-      to: 40,
+      from: 10,
+      to: 37,
     },
   },
   {
@@ -339,7 +339,7 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
     lightness: {
       from: 0,
-      to: 12,
+      to: 9,
     },
   },
   {
@@ -347,7 +347,7 @@ export const WOOD_COLOR_COLLECTIONS = [
     name: "Vermilion Red",
     temperature: "Warm Red & Warm Reddish Orange",
     hue: {
-      from: 1,
+      from: 0,
       to: 15,
     },
     lightness: {
