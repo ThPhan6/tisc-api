@@ -299,8 +299,8 @@ export const WOOD_COLOR_COLLECTIONS = [
       to: -1,
     },
     lightness: {
-      from: 71,
-      to: 96,
+      from: 66,
+      to: 94,
     },
   },
   {
@@ -312,8 +312,8 @@ export const WOOD_COLOR_COLLECTIONS = [
       to: -1,
     },
     lightness: {
-      from: 38,
-      to: 70,
+      from: 30,
+      to: 65,
     },
   },
   {
@@ -326,7 +326,7 @@ export const WOOD_COLOR_COLLECTIONS = [
     },
     lightness: {
       from: 10,
-      to: 37,
+      to: 29,
     },
   },
   {
@@ -374,7 +374,7 @@ export const WOOD_COLOR_COLLECTIONS = [
     temperature: "Warm Orange",
     hue: {
       from: 31,
-      to: 45,
+      to: 38,
     },
     lightness: {
       from: -1,
@@ -386,7 +386,7 @@ export const WOOD_COLOR_COLLECTIONS = [
     name: "Amber Brown",
     temperature: "Warm Yellow Orange",
     hue: {
-      from: 46,
+      from: 39,
       to: 63,
     },
     lightness: {
