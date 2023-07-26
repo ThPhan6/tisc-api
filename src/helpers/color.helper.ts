@@ -2,7 +2,6 @@ import {
   STONE_COLOR_COLLECTIONS,
   STONE_COLOR_COLLECTION_IDS,
   WOOD_COLOR_COLLECTIONS,
-  WOOD_COLOR_COLLECTION_IDS,
 } from "@/constants/collection.constant";
 
 export const recommendStone = (
@@ -19,8 +18,8 @@ export const recommendStone = (
       case 12:
       case 13:
         if (0 <= lightness && lightness <= 17) group = 1;
-        if (18 <= lightness && lightness <= 93) group = 2;
-        if (94 <= lightness && lightness <= 100) group = 3;
+        if (18 <= lightness && lightness <= 92) group = 2;
+        if (93 <= lightness && lightness <= 100) group = 3;
         break;
       case 14:
         if (0 <= lightness && lightness <= 17) group = 1;
@@ -29,8 +28,8 @@ export const recommendStone = (
         break;
       case 15:
         if (0 <= lightness && lightness <= 12) group = 1;
-        if (13 <= lightness && lightness <= 83) group = 2;
-        if (84 <= lightness && lightness <= 100) group = 3;
+        if (13 <= lightness && lightness <= 92) group = 2;
+        if (93 <= lightness && lightness <= 100) group = 3;
         break;
       case 16:
       case 17:
@@ -158,17 +157,9 @@ export const recommendStone = (
     if (found) return [found];
     if (group === 2) {
       //step 3
-      found = STONE_COLOR_COLLECTIONS.concat([
-        {
-          id: "af3f7bc1-9449-4b98-970f-1d932b8939ab",
-          name: "Vermilion Red",
-          temperature: "Warm Red & Warm Reddish Orange",
-          hue: {
-            from: 360,
-            to: 360,
-          },
-        },
-      ]).filter((item) => hue >= item.hue.from && hue <= item.hue.to);
+      found = STONE_COLOR_COLLECTIONS.filter(
+        (item) => hue >= item.hue.from && hue <= item.hue.to
+      );
     }
     return found || [];
   } else if (saturation >= 0 && saturation <= 10) {
@@ -180,74 +171,55 @@ export const recommendStone = (
         if (0 <= lightness && lightness <= 19) group = 1;
         if (20 <= lightness && lightness <= 64) group = 2;
         if (65 <= lightness && lightness <= 75) group = 3;
-        if (76 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (76 <= lightness && lightness <= 84) group = 4;
+        if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 1:
         if (0 <= lightness && lightness <= 19) group = 1;
-        if (20 <= lightness && lightness <= 69) group = 2;
-        if (70 <= lightness && lightness <= 84) group = 3;
-        if (85 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (20 <= lightness && lightness <= 64) group = 2;
+        if (65 <= lightness && lightness <= 80) group = 3;
+        if (81 <= lightness && lightness <= 84) group = 4;
+        if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 2:
         if (0 <= lightness && lightness <= 19) group = 1;
-        if (20 <= lightness && lightness <= 68) group = 2;
-        if (69 <= lightness && lightness <= 84) group = 3;
-        if (85 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (20 <= lightness && lightness <= 64) group = 2;
+        if (65 <= lightness && lightness <= 80) group = 3;
+        if (81 <= lightness && lightness <= 84) group = 4;
+        if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 3:
         if (0 <= lightness && lightness <= 19) group = 1;
-        if (20 <= lightness && lightness <= 69) group = 2;
-        if (70 <= lightness && lightness <= 84) group = 3;
-        if (85 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (20 <= lightness && lightness <= 68) group = 2;
+        if (69 <= lightness && lightness <= 80) group = 3;
+        if (81 <= lightness && lightness <= 84) group = 4;
+        if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 4:
         if (0 <= lightness && lightness <= 19) group = 1;
         if (20 <= lightness && lightness <= 68) group = 2;
-        if (69 <= lightness && lightness <= 83) group = 3;
-        if (84 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (69 <= lightness && lightness <= 80) group = 3;
+        if (81 <= lightness && lightness <= 89) group = 4;
+        if (90 <= lightness && lightness <= 100) group = 5;
         break;
       case 5:
         if (0 <= lightness && lightness <= 18) group = 1;
         if (19 <= lightness && lightness <= 68) group = 2;
-        if (69 <= lightness && lightness <= 84) group = 3;
-        if (85 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (69 <= lightness && lightness <= 80) group = 3;
+        if (81 <= lightness && lightness <= 89) group = 4;
+        if (90 <= lightness && lightness <= 100) group = 5;
         break;
       case 6:
-        if (0 <= lightness && lightness <= 18) group = 1;
-        if (19 <= lightness && lightness <= 69) group = 2;
-        if (70 <= lightness && lightness <= 83) group = 3;
-        if (84 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
-        break;
       case 7:
-        if (0 <= lightness && lightness <= 18) group = 1;
-        if (19 <= lightness && lightness <= 68) group = 2;
-        if (69 <= lightness && lightness <= 84) group = 3;
-        if (85 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
-        break;
       case 8:
       case 9:
-        if (0 <= lightness && lightness <= 18) group = 1;
-        if (19 <= lightness && lightness <= 67) group = 2;
-        if (68 <= lightness && lightness <= 83) group = 3;
-        if (84 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
-        break;
       case 10:
         if (0 <= lightness && lightness <= 18) group = 1;
-        if (19 <= lightness && lightness <= 66) group = 2;
-        if (67 <= lightness && lightness <= 83) group = 3;
-        if (84 <= lightness && lightness <= 93) group = 4;
-        if (94 <= lightness && lightness <= 100) group = 5;
+        if (19 <= lightness && lightness <= 69) group = 2;
+        if (70 <= lightness && lightness <= 80) group = 3;
+        if (81 <= lightness && lightness <= 88) group = 4;
+        if (89 <= lightness && lightness <= 100) group = 5;
         break;
-
       default:
         break;
     }
