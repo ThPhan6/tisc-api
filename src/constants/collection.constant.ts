@@ -56,7 +56,7 @@ export const STONE_COLOR_COLLECTIONS = [
     name: "Vermilion Red",
     temperature: "Warm Red & Warm Reddish Orange",
     hue: {
-      from: 1,
+      from: 0,
       to: 15,
     },
   },
