@@ -8,7 +8,7 @@ export const STONE_COLOR_COLLECTION_IDS = {
 export const STONE_COLOR_COLLECTIONS = [
   {
     id: STONE_COLOR_COLLECTION_IDS.WHITE_OFFWHITE,
-    name: "White / Off-white Collection",
+    name: "White / Off-white",
     temperature: "N/A",
     hue: {
       from: -1,
@@ -17,7 +17,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: STONE_COLOR_COLLECTION_IDS.LIGHT_GREY,
-    name: "Light Grey Collection",
+    name: "Light Grey",
     temperature: "N/A",
     hue: {
       from: -1,
@@ -26,7 +26,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: STONE_COLOR_COLLECTION_IDS.MID_GREY,
-    name: "Mid Grey Collection",
+    name: "Mid Grey",
     temperature: "N/A",
     hue: {
       from: -1,
@@ -35,7 +35,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: STONE_COLOR_COLLECTION_IDS.DARK_GREY,
-    name: "Dark Grey Collection",
+    name: "Dark Grey",
     temperature: "N/A",
     hue: {
       from: -1,
@@ -44,7 +44,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: STONE_COLOR_COLLECTION_IDS.BLACK_ALMOST_BLACK,
-    name: "Black & Almost Black Collection",
+    name: "Black & Almost Black",
     temperature: "N/A",
     hue: {
       from: -1,
@@ -75,15 +75,15 @@ export const STONE_COLOR_COLLECTIONS = [
     temperature: "Warm Orange",
     hue: {
       from: 31,
-      to: 45,
+      to: 37,
     },
   },
   {
     id: "25f37c28-0e0d-4a74-928b-10124b260e75",
-    name: "Amber Brown",
+    name: "Amber Yellow",
     temperature: "Warm Yellow Orange",
     hue: {
-      from: 46,
+      from: 38,
       to: 59,
     },
   },
@@ -152,7 +152,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: "35dde759-d1c1-4b3e-b23b-d778bc2e30ca",
-    name: "Turquoise Teal",
+    name: "Aquamarine Teal",
     temperature: "Cool Green Cyan",
     hue: {
       from: 166,
@@ -161,7 +161,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: "6038de8b-8468-4558-ab93-cfab292b5c4a",
-    name: "Aquamarine Teal",
+    name: "Turquoise Teal",
     temperature: "Cool Cyan & Cool Green Cyan",
     hue: {
       from: 180,
@@ -383,7 +383,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "4061f7db-7685-4577-9b82-ce0e50645907",
-    name: "Amber Brown",
+    name: "Amber Yellow",
     temperature: "Warm Yellow Orange",
     hue: {
       from: 39,
@@ -396,7 +396,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "7d6b7ca5-4398-44a0-9be5-7cf4782f051c",
-    name: "Lime Yellow",
+    name: "Lime Green",
     temperature: "Warm Green Yellow",
     hue: {
       from: 64,
@@ -409,7 +409,7 @@ export const WOOD_COLOR_COLLECTIONS = [
   },
   {
     id: "0e8e9613-5140-441f-8446-badbbf9abccb",
-    name: "Lime Green",
+    name: "Forest Green",
     temperature: "Cool Green",
     hue: {
       from: 106,
