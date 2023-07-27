@@ -17,20 +17,12 @@ export const recommendStone = (
       case 11:
       case 12:
       case 13:
-        if (0 <= lightness && lightness <= 17) group = 1;
-        if (18 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 14:
         if (0 <= lightness && lightness <= 17) group = 1;
-        if (18 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
+        if (18 <= lightness && lightness <= 89) group = 2;
+        if (90 <= lightness && lightness <= 100) group = 3;
         break;
       case 15:
-        if (0 <= lightness && lightness <= 12) group = 1;
-        if (13 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 16:
       case 17:
       case 18:
@@ -39,6 +31,10 @@ export const recommendStone = (
       case 21:
       case 22:
       case 23:
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 89) group = 2;
+        if (90 <= lightness && lightness <= 100) group = 3;
+        break;
       case 24:
       case 25:
       case 26:
@@ -68,10 +64,6 @@ export const recommendStone = (
       case 50:
       case 51:
       case 52:
-        if (0 <= lightness && lightness <= 12) group = 1;
-        if (13 <= lightness && lightness <= 92) group = 2;
-        if (93 <= lightness && lightness <= 100) group = 3;
-        break;
       case 53:
       case 54:
       case 55:
