@@ -19,8 +19,8 @@ export const recommendStone = (
       case 13:
       case 14:
         if (0 <= lightness && lightness <= 17) group = 1;
-        if (18 <= lightness && lightness <= 89) group = 2;
-        if (90 <= lightness && lightness <= 100) group = 3;
+        if (18 <= lightness && lightness <= 84) group = 2;
+        if (85 <= lightness && lightness <= 100) group = 3;
         break;
       case 15:
       case 16:
@@ -31,11 +31,11 @@ export const recommendStone = (
       case 21:
       case 22:
       case 23:
-        if (0 <= lightness && lightness <= 12) group = 1;
-        if (13 <= lightness && lightness <= 89) group = 2;
-        if (90 <= lightness && lightness <= 100) group = 3;
-        break;
       case 24:
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 85) group = 2;
+        if (86 <= lightness && lightness <= 100) group = 3;
+        break;
       case 25:
       case 26:
       case 27:
@@ -47,6 +47,10 @@ export const recommendStone = (
       case 33:
       case 34:
       case 35:
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 88) group = 2;
+        if (89 <= lightness && lightness <= 100) group = 3;
+        break;
       case 36:
       case 37:
       case 38:
@@ -160,46 +164,34 @@ export const recommendStone = (
     let group = 1;
     switch (saturation) {
       case 0:
+      case 1:
+      case 2:
         if (0 <= lightness && lightness <= 19) group = 1;
         if (20 <= lightness && lightness <= 64) group = 2;
         if (65 <= lightness && lightness <= 75) group = 3;
         if (76 <= lightness && lightness <= 84) group = 4;
         if (85 <= lightness && lightness <= 100) group = 5;
         break;
-      case 1:
-        if (0 <= lightness && lightness <= 19) group = 1;
-        if (20 <= lightness && lightness <= 64) group = 2;
-        if (65 <= lightness && lightness <= 80) group = 3;
-        if (81 <= lightness && lightness <= 84) group = 4;
-        if (85 <= lightness && lightness <= 100) group = 5;
-        break;
-      case 2:
-        if (0 <= lightness && lightness <= 19) group = 1;
-        if (20 <= lightness && lightness <= 64) group = 2;
-        if (65 <= lightness && lightness <= 80) group = 3;
-        if (81 <= lightness && lightness <= 84) group = 4;
-        if (85 <= lightness && lightness <= 100) group = 5;
-        break;
       case 3:
         if (0 <= lightness && lightness <= 19) group = 1;
         if (20 <= lightness && lightness <= 68) group = 2;
-        if (69 <= lightness && lightness <= 80) group = 3;
-        if (81 <= lightness && lightness <= 84) group = 4;
+        if (69 <= lightness && lightness <= 79) group = 3;
+        if (80 <= lightness && lightness <= 84) group = 4;
         if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 4:
         if (0 <= lightness && lightness <= 19) group = 1;
         if (20 <= lightness && lightness <= 68) group = 2;
         if (69 <= lightness && lightness <= 80) group = 3;
-        if (81 <= lightness && lightness <= 89) group = 4;
-        if (90 <= lightness && lightness <= 100) group = 5;
+        if (81 <= lightness && lightness <= 84) group = 4;
+        if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 5:
         if (0 <= lightness && lightness <= 18) group = 1;
         if (19 <= lightness && lightness <= 68) group = 2;
         if (69 <= lightness && lightness <= 80) group = 3;
-        if (81 <= lightness && lightness <= 89) group = 4;
-        if (90 <= lightness && lightness <= 100) group = 5;
+        if (81 <= lightness && lightness <= 84) group = 4;
+        if (85 <= lightness && lightness <= 100) group = 5;
         break;
       case 6:
       case 7:
@@ -209,8 +201,8 @@ export const recommendStone = (
         if (0 <= lightness && lightness <= 18) group = 1;
         if (19 <= lightness && lightness <= 69) group = 2;
         if (70 <= lightness && lightness <= 80) group = 3;
-        if (81 <= lightness && lightness <= 88) group = 4;
-        if (89 <= lightness && lightness <= 100) group = 5;
+        if (81 <= lightness && lightness <= 83) group = 4;
+        if (84 <= lightness && lightness <= 100) group = 5;
         break;
       default:
         break;
