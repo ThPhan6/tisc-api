@@ -42,6 +42,10 @@ export const recommendStone = (
       case 28:
       case 29:
       case 30:
+        if (0 <= lightness && lightness <= 12) group = 1;
+        if (13 <= lightness && lightness <= 87) group = 2;
+        if (88 <= lightness && lightness <= 100) group = 3;
+        break;
       case 31:
       case 32:
       case 33:
