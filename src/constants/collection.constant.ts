@@ -98,7 +98,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: "c2fa6ebd-a1ba-4477-a063-cd0bc613d846",
-    name: "Lime Yellow",
+    name: "Lime Green",
     temperature: "Warm Green Yellow",
     hue: {
       from: 64,
@@ -107,7 +107,7 @@ export const STONE_COLOR_COLLECTIONS = [
   },
   {
     id: "c5b32d17-cb5b-4c69-b51c-368f70b42c72",
-    name: "Pistachia Green",
+    name: "Pistachio Green",
     temperature: "Cool Yellow Green",
     hue: {
       from: 91,
