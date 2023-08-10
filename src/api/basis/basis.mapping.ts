@@ -351,17 +351,19 @@ export const addBasisOptionMain = (
     });
     // get distinct array
     const returnMains = _.uniqBy(mains, "id").map((main: any) => {
+      const mainSubs = group.subs.filter((item: any) => {
+        if (!item.main_id) item.main_id = DEFAULT_MAIN_OPTION_ID;
+        return item.main_id === main.id;
+      })
       return {
         id: main.id,
         name: main.name,
-        subs: group.subs.filter((item: any) => {
-          if (!item.main_id) item.main_id = DEFAULT_MAIN_OPTION_ID;
-          return item.main_id === main.id;
-        }),
+        count: mainSubs.length,
+        subs: mainSubs,
       };
     });
 
-    return { ...group, subs: returnMains };
+    return { ...group, subs: returnMains, count: returnMains.length };
   });
 };
 
