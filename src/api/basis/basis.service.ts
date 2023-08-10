@@ -218,6 +218,19 @@ class BasisService {
     ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
     }
+    let isDupOptionName = false;
+    payload.subs.forEach((main: any) => {
+      if (
+        isDuplicatedString(
+          main.subs.map((sub: any) => {
+            return toSingleSpaceAndToLowerCase(sub.name);
+          })
+        )
+      )
+        isDupOptionName = true;
+    });
+    if (isDupOptionName)
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
 
     const groupId = uuid();
     const mappingBasisOption = await mappingBasisOptionCreate(payload, groupId);
@@ -331,6 +344,20 @@ class BasisService {
     ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
     }
+    let isDupOptionName = false;
+    payload.subs.forEach((main: any) => {
+      if (
+        isDuplicatedString(
+          main.subs.map((sub: any) => {
+            return toSingleSpaceAndToLowerCase(sub.name);
+          })
+        )
+      )
+        isDupOptionName = true;
+    });
+    if (isDupOptionName)
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
+
     const mappingBasisOption = await mappingBasisOptionUpdate(
       payload,
       basisOptionGroup

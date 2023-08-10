@@ -33,6 +33,7 @@ export const basisConversionGroupResponse = {
 };
 
 export const subsBasisOptionOrPresetResponse = {
+  main_id: Joi.any(),
   id: Joi.string(),
   name: Joi.string(),
   master: Joi.boolean().allow(null),
@@ -49,13 +50,19 @@ export const subsBasisOptionOrPresetResponse = {
     }).allow(null)
   ),
 };
+export const basisOptionMainResponse = {
+  id: Joi.string(),
+  name: Joi.string(),
+  count: Joi.number(),
+  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
+};
 
 export const basisOptionGroupResponse = {
   id: Joi.string(),
   name: Joi.string(),
   master: Joi.boolean().allow(null),
   count: Joi.number(),
-  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
+  subs: Joi.array().items(basisOptionMainResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
 };
@@ -87,20 +94,18 @@ export default {
     statusCode: Joi.number(),
   }) as any,
 
-  basisOption: Joi.any() as any,
-  // basisOption: Joi.object({
-  //   data: basisOptionGroupResponse,
-  //   statusCode: Joi.number(),
-  // }) as any,
-  basesOption: Joi.any() as any,
-  // basesOption: Joi.object({
-  //   data: {
-  //     basis_options: Joi.array().items(Joi.object(basisOptionGroupResponse)),
-  //     summary: Joi.array().items(Joi.object(summaryTableResponse)),
-  //     pagination: Joi.object(paginationResponse),
-  //   },
-  //   statusCode: Joi.number(),
-  // }) as any,
+  basisOption: Joi.object({
+    data: basisOptionGroupResponse,
+    statusCode: Joi.number(),
+  }) as any,
+  basesOption: Joi.object({
+    data: {
+      basis_options: Joi.array().items(Joi.object(basisOptionGroupResponse)),
+      summary: Joi.array().items(Joi.object(summaryTableResponse)),
+      pagination: Joi.object(paginationResponse),
+    },
+    statusCode: Joi.number(),
+  }) as any,
 
   basisPreset: Joi.object({
     data: basisPresetGroupResponse,
