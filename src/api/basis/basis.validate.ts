@@ -8,16 +8,17 @@ import {
 
 const requireUnitValue = (item: any, helpers: any) => {
   if (
-    (item.unit_1 !== '' && item.value_1 === '') ||
-    (item.unit_2 !== '' && item.value_2 === '') ||
-    (
-      item.unit_1 === '' && item.value_1 === '' &&
-      item.unit_2 === '' && item.value_2 === '')
+    (item.unit_1 !== "" && item.value_1 === "") ||
+    (item.unit_2 !== "" && item.value_2 === "") ||
+    (item.unit_1 === "" &&
+      item.value_1 === "" &&
+      item.unit_2 === "" &&
+      item.value_2 === "")
   ) {
     return helpers.error("any.invalid");
   }
   return item;
-}
+};
 
 const basisOptionsValidate = Joi.array()
   .items(
@@ -33,8 +34,7 @@ const basisOptionsValidate = Joi.array()
       unit_2: Joi.string().allow(""),
       product_id: Joi.string().allow(""),
       id: Joi.string().allow(""),
-    })
-    .custom(requireUnitValue)
+    }).custom(requireUnitValue)
   )
   .required()
   .error(errorMessage("Basis option value is required"))
@@ -49,18 +49,15 @@ const basisOptionsValidate = Joi.array()
 
 const basisPresetValidation = Joi.array()
   .items(
-      Joi.object({
+    Joi.object({
       value_1: Joi.string(),
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
       unit_2: Joi.string().allow(""),
-    })
-    .custom(requireUnitValue)
+    }).custom(requireUnitValue)
   )
   .required()
   .error(errorMessage("Basis preset value is required"));
-
-
 
 export default {
   createBasisConversion: {
@@ -107,12 +104,15 @@ export default {
     payload: {
       name: requireStringValidation("Basis option group name"),
       subs: Joi.array().items({
-        name: Joi.string()
-          .trim()
-          .required()
-          .error(errorMessage("Basis option sub-group name is required")),
-        is_have_image: Joi.valid(true, false),
-        subs: basisOptionsValidate,
+        name: requireStringValidation("Basis option main name"),
+        subs: Joi.array().items({
+          name: Joi.string()
+            .trim()
+            .required()
+            .error(errorMessage("Basis option sub name is required")),
+          is_have_image: Joi.valid(true, false),
+          subs: basisOptionsValidate,
+        }),
       }),
     },
   },
@@ -146,7 +146,7 @@ export default {
       name: requireStringValidation("Basis preset group name"),
       subs: Joi.array().items({
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation
+        subs: basisPresetValidation,
       }),
     },
   },
@@ -159,7 +159,7 @@ export default {
       subs: Joi.array().items({
         id: Joi.string(),
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation
+        subs: basisPresetValidation,
       }),
     },
   },

@@ -33,8 +33,8 @@ class DataParser {
     }
     const now = getTimestamps();
     return {
-      ...data,
       id: uuid(),
+      ...data,
       created_at: now,
       updated_at: now,
       deleted_at: null,

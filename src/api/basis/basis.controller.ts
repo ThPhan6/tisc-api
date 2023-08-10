@@ -87,6 +87,7 @@ export default class BasisController {
       offset,
       filter,
       group_order,
+      "ASC",
       option_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);

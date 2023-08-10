@@ -1,14 +1,21 @@
-import { VALID_IMAGE_TYPES, BASIS_OPTION_STORE } from "@/constants";
 import {
+  VALID_IMAGE_TYPES,
+  BASIS_OPTION_STORE,
+  BASIS_TYPES,
+  DEFAULT_MAIN_OPTION_ID,
+} from "@/constants";
+import {
+  getDistinctArray,
   getFileTypeFromBase64,
   isDuplicatedString,
   randomName,
   sortObjectArray,
   toSingleSpaceAndToLowerCase,
 } from "@/helpers/common.helper";
+import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { deleteFile, isExists } from "@/services/aws.service";
-import { IBasisAttributes } from "@/types";
-import { sortBy } from "lodash";
+import { IBasisAttributes, SortOrder } from "@/types";
+import _, { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
   IBasisConversionRequest,
@@ -83,7 +90,8 @@ const toValidImageItem = async (image: any, fileName: string) => {
   };
 };
 export const mappingBasisOptionCreate = async (
-  payload: IBasisOptionRequest
+  payload: IBasisOptionRequest,
+  groupId: string
 ) => {
   let isValidImage = true;
   const validUploadImages: {
@@ -91,62 +99,77 @@ export const mappingBasisOptionCreate = async (
     path: string;
     mime_type: string;
   }[] = [];
-  const options = await Promise.all(
-    payload.subs.map(async (item) => {
-      const values = await Promise.all(
-        item.subs.map(async (value) => {
-          if (!item.is_have_image) {
-            return {
-              id: uuid(),
-              image: null,
-              value_1: value.value_1,
-              value_2: value.value_2,
-              unit_1: value.unit_1,
-              unit_2: value.unit_2,
-              product_id: value.product_id
-            };
-          }
-          if (value.image) {
-            const fileType = await getFileTypeFromBase64(value.image);
-            const fileName = randomName(8);
-            if (
-              !fileType ||
-              !VALID_IMAGE_TYPES.find(
-                (validType) => validType === fileType.mime
-              )
-            ) {
-              isValidImage = false;
-            }
-            const validImageItem = await toValidImageItem(
-              value.image,
-              fileName
-            );
-            validUploadImages.push(validImageItem);
-            return {
-              id: uuid(),
-              image: `/${validImageItem.path}`,
-              value_1: value.value_1,
-              value_2: value.value_2,
-              unit_1: value.unit_1,
-              unit_2: value.unit_2,
-              product_id: value.product_id,
-            };
-          }
+  let options: any[] = [];
+  await Promise.all(
+    payload.subs.map(async (main) => {
+      const createdMain = await basisOptionMainRepository.create({
+        basis_option_group_id: groupId,
+        name: main.name,
+      });
+      const temp = await Promise.all(
+        main.subs.map(async (item) => {
+          const values = await Promise.all(
+            item.subs.map(async (value) => {
+              if (!item.is_have_image) {
+                return {
+                  id: uuid(),
+                  image: null,
+                  value_1: value.value_1,
+                  value_2: value.value_2,
+                  unit_1: value.unit_1,
+                  unit_2: value.unit_2,
+                  product_id: value.product_id,
+                };
+              }
+              if (value.image) {
+                const fileType = await getFileTypeFromBase64(value.image);
+                const fileName = randomName(8);
+                if (
+                  !fileType ||
+                  !VALID_IMAGE_TYPES.find(
+                    (validType) => validType === fileType.mime
+                  )
+                ) {
+                  isValidImage = false;
+                }
+                const validImageItem = await toValidImageItem(
+                  value.image,
+                  fileName
+                );
+                validUploadImages.push(validImageItem);
+                return {
+                  id: uuid(),
+                  image: `/${validImageItem.path}`,
+                  value_1: value.value_1,
+                  value_2: value.value_2,
+                  unit_1: value.unit_1,
+                  unit_2: value.unit_2,
+                  product_id: value.product_id,
+                };
+              }
+              return {
+                id: uuid(),
+                image: null,
+                value_1: value.value_1,
+                value_2: value.value_2,
+                unit_1: value.unit_1,
+                unit_2: value.unit_2,
+                product_id: value.product_id,
+              };
+            })
+          );
           return {
             id: uuid(),
-            image: null,
-            value_1: value.value_1,
-            value_2: value.value_2,
-            unit_1: value.unit_1,
-            unit_2: value.unit_2,
-            product_id: value.product_id,
+            name: toSingleSpaceAndToLowerCase(item.name),
+            subs: values,
+            main_id: createdMain?.id,
           };
         })
       );
+      options = options.concat(temp);
       return {
-        id: uuid(),
-        name: toSingleSpaceAndToLowerCase(item.name),
-        subs: values,
+        ...main,
+        subs: sortBy(temp, "name"),
       };
     })
   );
@@ -185,94 +208,99 @@ export const mappingBasisOptionUpdate = async (
     path: string;
     mime_type: string;
   }[] = [];
-  let options = await Promise.all(
-    payload.subs.map(async (item) => {
-      const { is_have_image, ...rest } = item;
+  let options: any[] = [];
+  await Promise.all(
+    payload.subs.map(async (main: any) => {
+      let temp = await Promise.all(
+        main.subs.map(async (item: any) => {
+          const { is_have_image, ...rest } = item;
 
-      const values = await Promise.all(
-        item.subs.map(async (value) => {
-          let foundValue = false;
-          if (value.id) {
-            const foundItemValue = getAllValueInOneGroup(basisOptionGroup).find(
-              (valueInGroup) => valueInGroup.id === value.id
-            );
-            if (foundItemValue) {
-              foundValue = true;
-            }
-          }
-          let imagePath: string | null = "";
-          if (!item.is_have_image) {
-            imagePath = null;
-            return foundValue
-              ? {
-                  ...value,
-                  image: imagePath,
+          const values = await Promise.all(
+            item.subs.map(async (value: any) => {
+              let foundValue = false;
+              if (value.id) {
+                const foundItemValue = getAllValueInOneGroup(
+                  basisOptionGroup
+                ).find((valueInGroup) => valueInGroup.id === value.id);
+                if (foundItemValue) {
+                  foundValue = true;
                 }
-              : {
-                  ...value,
-                  image: imagePath,
-                  id: uuid(),
-                };
-          }
-          if (value.image) {
-            if (await isExists(value.image.slice(1))) {
-              imagePath = value.image;
-            } else {
-              basisOptionGroup.subs.map((sub: any) => {
-                sub.subs.map(async (element: any) => {
-                  if (
-                    element.id === value.id &&
-                    element.image &&
-                    element.image !== "/default/option_default.webp"
-                  ) {
-                    await deleteFile(element.image.slice(1));
-                  }
-                });
-              });
-
-              const fileType = await getFileTypeFromBase64(value.image);
-              if (
-                fileType &&
-                VALID_IMAGE_TYPES.find(
-                  (validType) => validType === fileType.mime
-                )
-              ) {
-                const fileName = randomName(8);
-                const validImageItem = await toValidImageItem(
-                  value.image,
-                  fileName
-                );
-                validUploadImages.push(validImageItem);
-                imagePath = `/${validImageItem.path}`;
-              } else {
-                const isExistedImage = await isExists(value.image);
-
-                if (!isExistedImage) {
-                  isValidImage = false;
-                }
-                imagePath = value.image;
               }
-            }
-            return foundValue
-              ? {
-                  ...value,
-                  image: imagePath,
+              let imagePath: string | null = "";
+              if (!item.is_have_image) {
+                imagePath = null;
+                return foundValue
+                  ? {
+                      ...value,
+                      image: imagePath,
+                    }
+                  : {
+                      ...value,
+                      image: imagePath,
+                      id: uuid(),
+                    };
+              }
+              if (value.image) {
+                if (await isExists(value.image.slice(1))) {
+                  imagePath = value.image;
+                } else {
+                  basisOptionGroup.subs.map((sub: any) => {
+                    sub.subs.map(async (element: any) => {
+                      if (
+                        element.id === value.id &&
+                        element.image &&
+                        element.image !== "/default/option_default.webp"
+                      ) {
+                        await deleteFile(element.image.slice(1));
+                      }
+                    });
+                  });
+
+                  const fileType = await getFileTypeFromBase64(value.image);
+                  if (
+                    fileType &&
+                    VALID_IMAGE_TYPES.find(
+                      (validType) => validType === fileType.mime
+                    )
+                  ) {
+                    const fileName = randomName(8);
+                    const validImageItem = await toValidImageItem(
+                      value.image,
+                      fileName
+                    );
+                    validUploadImages.push(validImageItem);
+                    imagePath = `/${validImageItem.path}`;
+                  } else {
+                    const isExistedImage = await isExists(value.image);
+
+                    if (!isExistedImage) {
+                      isValidImage = false;
+                    }
+                    imagePath = value.image;
+                  }
                 }
-              : {
-                  ...value,
-                  image: imagePath,
-                  id: uuid(),
-                };
-          }
+                return foundValue
+                  ? {
+                      ...value,
+                      image: imagePath,
+                    }
+                  : {
+                      ...value,
+                      image: imagePath,
+                      id: uuid(),
+                    };
+              }
+            })
+          );
+          options = options.concat(temp);
+          return {
+            ...rest,
+            subs: values,
+            id: rest.id || uuid(),
+            name: toSingleSpaceAndToLowerCase(rest.name),
+          };
         })
       );
-
-      return {
-        ...rest,
-        subs: values,
-        id: rest.id || uuid(),
-        name: toSingleSpaceAndToLowerCase(rest.name),
-      };
     })
   );
   return {
@@ -303,11 +331,79 @@ export const mappingBasisPresetCreate = (payload: IBasisPresetRequest) => {
   return sortBy(presets, "name");
 };
 
+export const addBasisOptionMain = (
+  basisGroups: IBasisAttributes[],
+  basisOptionMains: any[]
+) => {
+  return basisGroups.map((group: any) => {
+    const mains = group.subs.map((sub: any) => {
+      let main = basisOptionMains.find(
+        (item) => item.id === (sub.main_id || "")
+      );
+      if (!main) {
+        main = {
+          id: DEFAULT_MAIN_OPTION_ID,
+          name: "Main option",
+          basis_option_group_id: "",
+        };
+      }
+      return main;
+    });
+    // get distinct array
+    const returnMains = _.uniqBy(mains, "id").map((main: any) => {
+      return {
+        id: main.id,
+        name: main.name,
+        subs: group.subs.filter((item: any) => {
+          if (!item.main_id) item.main_id = DEFAULT_MAIN_OPTION_ID;
+          return item.main_id === main.id;
+        }),
+      };
+    });
+
+    return { ...group, subs: returnMains };
+  });
+};
+
+export const sortBasisOption = (
+  basisGroups: IBasisAttributes[],
+  mainOrder?: SortOrder,
+  subOrder?: SortOrder
+) => {
+  return basisGroups.map((group: IBasisAttributes) => {
+    const basisMain = group.subs.map((main: any) => ({
+      ...main,
+      count: main.subs.length,
+    }));
+    const sortedMain = basisMain.map((main: any) => {
+      const sortedSub = main.subs.map((sub: any) => {
+        return {
+          ...sub,
+          subs: sortObjectArray(sub.subs, "value_1", "ASC"),
+          count: sub.subs.length,
+        };
+      });
+      return {
+        ...main,
+        subs: sortObjectArray(sortedSub, "name", subOrder || "ASC"),
+      };
+    });
+    const { type, ...rest } = {
+      ...group,
+      subs: sortObjectArray(sortedMain, "name", mainOrder || "ASC"),
+    };
+    return {
+      ...rest,
+      count: rest.subs.length,
+    };
+  });
+};
+
 export const sortBasisOptionOrPreset = (
-  basisGroup: IBasisAttributes[],
+  basisGroups: IBasisAttributes[],
   order: "ASC" | "DESC"
 ) => {
-  return basisGroup.map((item: IBasisAttributes) => {
+  return basisGroups.map((item: IBasisAttributes) => {
     const returnedBasis = item.subs.map((preset: any) => ({
       ...preset,
       count: preset.subs.length,

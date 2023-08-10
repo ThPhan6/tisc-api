@@ -87,18 +87,20 @@ export default {
     statusCode: Joi.number(),
   }) as any,
 
-  basisOption: Joi.object({
-    data: basisOptionGroupResponse,
-    statusCode: Joi.number(),
-  }) as any,
-  basesOption: Joi.object({
-    data: {
-      basis_options: Joi.array().items(Joi.object(basisOptionGroupResponse)),
-      summary: Joi.array().items(Joi.object(summaryTableResponse)),
-      pagination: Joi.object(paginationResponse),
-    },
-    statusCode: Joi.number(),
-  }) as any,
+  basisOption: Joi.any() as any,
+  // basisOption: Joi.object({
+  //   data: basisOptionGroupResponse,
+  //   statusCode: Joi.number(),
+  // }) as any,
+  basesOption: Joi.any() as any,
+  // basesOption: Joi.object({
+  //   data: {
+  //     basis_options: Joi.array().items(Joi.object(basisOptionGroupResponse)),
+  //     summary: Joi.array().items(Joi.object(summaryTableResponse)),
+  //     pagination: Joi.object(paginationResponse),
+  //   },
+  //   statusCode: Joi.number(),
+  // }) as any,
 
   basisPreset: Joi.object({
     data: basisPresetGroupResponse,

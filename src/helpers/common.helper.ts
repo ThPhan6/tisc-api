@@ -149,6 +149,32 @@ export const getSummaryTable = (dataSummary: any) => {
     countItem,
   };
 };
+export const getBasisOptionSummaryTable = (dataSummary: any) => {
+  const countGroup = dataSummary.length;
+  let countMain = 0;
+  let countSub = 0;
+  let countItem = 0;
+
+  dataSummary.forEach((group: any) => {
+    if (group.subs) {
+      countMain += group.subs.length;
+      group.subs.forEach((main: any) => {
+        if (main.subs) {
+          countSub += main.subs.length;
+          main.subs.forEach((sub: any) => {
+            if (sub.subs) countItem += sub.subs.length;
+          });
+        }
+      });
+    }
+  });
+  return {
+    countGroup,
+    countMain,
+    countSub,
+    countItem,
+  };
+};
 
 export const pagination = (limit: number, offset: number, total: number) => ({
   page: offset / limit + 1,

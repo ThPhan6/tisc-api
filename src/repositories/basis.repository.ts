@@ -1,4 +1,4 @@
-import { BasisType, BASIS_TYPES } from "@/constants/basis.constant";
+import { BASIS_TYPES } from "@/constants/basis.constant";
 import BasisModel from "@/models/basis.model";
 import { SortOrder, IBasisAttributes, ListBasisWithPagination } from "@/types";
 import BaseRepository from "./base.repository";
@@ -34,7 +34,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
   public async getListBasisWithPagination(
     limit: number,
     offset: number,
-    type: BasisType,
+    type: BASIS_TYPES,
     groupOrder?: SortOrder
   ): Promise<ListBasisWithPagination> {
     return this.model
