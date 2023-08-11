@@ -139,10 +139,12 @@ export default {
     noSorting: true,
     query: {
       group_order: orderValidation,
+      main_order: orderValidation,
       option_order: orderValidation,
     },
     custom: (value) => ({
       group_order: value.group_order || "ASC",
+      main_order: value.main_order || "ASC",
       option_order: value.option_order || "ASC",
     }),
   }),

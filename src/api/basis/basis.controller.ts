@@ -81,13 +81,14 @@ export default class BasisController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { limit, offset, filter, group_order, option_order } = req.query;
+    const { limit, offset, filter, group_order, option_order, main_order } =
+      req.query;
     const response = await BasisService.getListBasisOption(
       limit,
       offset,
       filter,
       group_order,
-      "ASC",
+      main_order,
       option_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
