@@ -124,9 +124,14 @@ export default {
       name: requireStringValidation("Basis option group name"),
       subs: Joi.array().items({
         id: Joi.string(),
-        name: requireStringValidation("Basis option sub-group name"),
-        is_have_image: Joi.valid(true, false),
-        subs: basisOptionsValidate,
+        name: Joi.string(),
+        subs: Joi.array().items({
+          id: Joi.string(),
+          name: requireStringValidation("Basis option sub-group name"),
+          is_have_image: Joi.valid(true, false),
+          main_id: Joi.any(),
+          subs: basisOptionsValidate,
+        }),
       }),
     },
   },

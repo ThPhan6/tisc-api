@@ -292,7 +292,6 @@ export const mappingBasisOptionUpdate = async (
               }
             })
           );
-          options = options.concat(temp);
           return {
             ...rest,
             subs: values,
@@ -301,8 +300,11 @@ export const mappingBasisOptionUpdate = async (
           };
         })
       );
+
+      options = options.concat(temp);
     })
   );
+
   return {
     is_valid_image: isValidImage,
     valid_upload_image: validUploadImages,
@@ -354,7 +356,7 @@ export const addBasisOptionMain = (
       const mainSubs = group.subs.filter((item: any) => {
         if (!item.main_id) item.main_id = DEFAULT_MAIN_OPTION_ID;
         return item.main_id === main.id;
-      })
+      });
       return {
         id: main.id,
         name: main.name,
@@ -365,6 +367,24 @@ export const addBasisOptionMain = (
 
     return { ...group, subs: returnMains, count: returnMains.length };
   });
+};
+export const divideBasisOptionMain = (basisGroup: IBasisAttributes) => {
+  const mains = basisGroup.subs.map((main: any) => ({
+    id: main.id,
+    name: main.name,
+    basis_option_group_id: basisGroup.id,
+  }));
+  const group = {
+    ...basisGroup,
+    subs: basisGroup.subs.reduce((pre: any, cur: any) => {
+      const newSubs = cur.subs.map((sub: any) => ({ ...sub, main_id: cur.id }));
+      return pre.concat([newSubs]);
+    }, []),
+  };
+  return {
+    group,
+    mains,
+  };
 };
 
 export const sortBasisOption = (
