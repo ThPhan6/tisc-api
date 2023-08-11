@@ -110,17 +110,6 @@ export const mappingBasisOptionCreate = async (
         main.subs.map(async (item) => {
           const values = await Promise.all(
             item.subs.map(async (value) => {
-              if (!item.is_have_image) {
-                return {
-                  id: uuid(),
-                  image: null,
-                  value_1: value.value_1,
-                  value_2: value.value_2,
-                  unit_1: value.unit_1,
-                  unit_2: value.unit_2,
-                  product_id: value.product_id,
-                };
-              }
               if (value.image) {
                 const fileType = await getFileTypeFromBase64(value.image);
                 const fileName = randomName(8);
@@ -177,7 +166,7 @@ export const mappingBasisOptionCreate = async (
   return {
     is_valid_image: isValidImage,
     valid_upload_image: validUploadImages,
-    basis_option: sortBy(options, "name"),
+    basis_option: options,
   };
 };
 
@@ -227,19 +216,7 @@ export const mappingBasisOptionUpdate = async (
                 }
               }
               let imagePath: string | null = "";
-              if (!item.is_have_image) {
-                imagePath = null;
-                return foundValue
-                  ? {
-                      ...value,
-                      image: imagePath,
-                    }
-                  : {
-                      ...value,
-                      image: imagePath,
-                      id: uuid(),
-                    };
-              }
+
               if (value.image) {
                 if (await isExists(value.image.slice(1))) {
                   imagePath = value.image;
@@ -308,7 +285,7 @@ export const mappingBasisOptionUpdate = async (
   return {
     is_valid_image: isValidImage,
     valid_upload_image: validUploadImages,
-    basis_option: sortBy(options, "name"),
+    basis_option: options,
   };
 };
 
@@ -407,7 +384,9 @@ export const sortBasisOption = (
       });
       return {
         ...main,
-        subs: sortObjectArray(sortedSub, "name", subOrder || "ASC"),
+        subs: subOrder
+          ? sortObjectArray(sortedSub, "name", subOrder)
+          : sortedSub,
       };
     });
     const { type, ...rest } = {
