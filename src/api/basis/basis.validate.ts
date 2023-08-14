@@ -103,17 +103,21 @@ export default {
   createBasisOption: {
     payload: {
       name: requireStringValidation("Basis option group name"),
-      subs: Joi.array().items({
-        name: requireStringValidation("Basis option main name"),
-        subs: Joi.array().items({
-          name: Joi.string()
-            .trim()
-            .required()
-            .error(errorMessage("Basis option sub name is required")),
-          is_have_image: Joi.valid(true, false),
-          subs: basisOptionsValidate,
-        }),
-      }),
+      subs: Joi.array()
+        .items({
+          name: requireStringValidation("Basis option main name"),
+          subs: Joi.array()
+            .items({
+              name: Joi.string()
+                .trim()
+                .required()
+                .error(errorMessage("Basis option sub name is required")),
+              is_have_image: Joi.valid(true, false),
+              subs: basisOptionsValidate,
+            })
+            .required(),
+        })
+        .required(),
     },
   },
   updateBasisOption: {
@@ -122,17 +126,21 @@ export default {
     },
     payload: {
       name: requireStringValidation("Basis option group name"),
-      subs: Joi.array().items({
-        id: Joi.string(),
-        name: Joi.string(),
-        subs: Joi.array().items({
+      subs: Joi.array()
+        .items({
           id: Joi.string(),
-          name: requireStringValidation("Basis option sub-group name"),
-          is_have_image: Joi.valid(true, false),
-          main_id: Joi.any(),
-          subs: basisOptionsValidate,
-        }),
-      }),
+          name: Joi.string(),
+          subs: Joi.array()
+            .items({
+              id: Joi.string(),
+              name: requireStringValidation("Basis option sub-group name"),
+              is_have_image: Joi.valid(true, false),
+              main_id: Joi.any(),
+              subs: basisOptionsValidate,
+            })
+            .required(),
+        })
+        .required(),
     },
   },
   getListBasisOption: getListValidation({
