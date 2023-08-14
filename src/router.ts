@@ -32,6 +32,7 @@ import CustomProductRoute from "./api/custom_product/custom_product.route";
 import CustomResourceRoute from "./api/custom_resource/custom_resource.route";
 import BookingRoute from "./api/booking/booking.route";
 import ColorRoute from "./api/color/color.route";
+import LinkageRoute from "./api/linkage/linkage.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -68,5 +69,6 @@ export default class Router {
     await new CustomResourceRoute().register(server);
     await new BookingRoute().register(server);
     await new ColorRoute().register(server);
+    await new LinkageRoute().register(server);
   }
 }
