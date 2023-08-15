@@ -189,7 +189,7 @@ export const getAllValueInOneGroup = (group: any) => {
 
 export const mappingBasisOptionUpdate = async (
   payload: IUpdateBasisOptionRequest,
-  basisOptionGroup: IBasisAttributes
+  basisOptionGroup: IBasisAttributes,
 ) => {
   let isValidImage = true;
   const validUploadImages: {
@@ -198,8 +198,14 @@ export const mappingBasisOptionUpdate = async (
     mime_type: string;
   }[] = [];
   let options: any[] = [];
+  let mains: any[] = [];
   await Promise.all(
     payload.subs.map(async (main: any) => {
+      let temp_main_id = main.id;
+      if (!main.id) {
+        temp_main_id = uuid();
+      }
+      mains = mains.concat([{ id: temp_main_id, name: main.name, basis_option_group_id: basisOptionGroup.id }]);
       let temp = await Promise.all(
         main.subs.map(async (item: any) => {
           const { is_have_image, ...rest } = item;
@@ -274,6 +280,7 @@ export const mappingBasisOptionUpdate = async (
             subs: values,
             id: rest.id || uuid(),
             name: toSingleSpaceAndToLowerCase(rest.name),
+            main_id: temp_main_id,
           };
         })
       );
@@ -281,11 +288,11 @@ export const mappingBasisOptionUpdate = async (
       options = options.concat(temp);
     })
   );
-
   return {
     is_valid_image: isValidImage,
     valid_upload_image: validUploadImages,
     basis_option: options,
+    mains: mains.filter((item) => item.id !== DEFAULT_MAIN_OPTION_ID),
   };
 };
 

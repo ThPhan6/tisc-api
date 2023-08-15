@@ -360,7 +360,16 @@ class BasisService {
 
     const mappingBasisOption = await mappingBasisOptionUpdate(
       payload,
-      basisOptionGroup
+      basisOptionGroup,
+    );
+    await Promise.all(
+      mappingBasisOption.mains.map(async (main) => {
+        const find = await basisOptionMainRepository.find(main.id);
+        if (!find) {
+          return basisOptionMainRepository.create(main);
+        }
+        return basisOptionMainRepository.update(main.id, { name: main.name });
+      })
     );
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE.IMAGE_INVALID);
