@@ -37,7 +37,8 @@ const basisOptionsValidate = Joi.array()
     }).custom(requireUnitValue)
   )
   .required()
-  .error(errorMessage("Basis option value is required"))
+  .min(1)
+  .error(errorMessage("Value option is required"))
   .custom((value) => {
     return value.map((item: any) => {
       return {
@@ -102,22 +103,26 @@ export default {
   },
   createBasisOption: {
     payload: {
-      name: requireStringValidation("Basis option group name"),
+      name: requireStringValidation("Group option name"),
       subs: Joi.array()
         .items({
-          name: requireStringValidation("Basis option main name"),
+          name: requireStringValidation("Main option name"),
           subs: Joi.array()
             .items({
               name: Joi.string()
                 .trim()
                 .required()
-                .error(errorMessage("Basis option sub name is required")),
+                .error(errorMessage("Sub option name")),
               is_have_image: Joi.valid(true, false),
               subs: basisOptionsValidate,
             })
-            .required(),
+            .required()
+            .min(1)
+            .error(errorMessage("Sub option is required")),
         })
-        .required(),
+        .required()
+        .min(1)
+        .error(errorMessage("Main option is required")),
     },
   },
   updateBasisOption: {
@@ -125,7 +130,7 @@ export default {
       id: requireStringValidation("Basis option id"),
     },
     payload: {
-      name: requireStringValidation("Basis option group name"),
+      name: requireStringValidation("Group option name"),
       subs: Joi.array()
         .items({
           id: Joi.string(),
@@ -133,14 +138,18 @@ export default {
           subs: Joi.array()
             .items({
               id: Joi.string(),
-              name: requireStringValidation("Basis option sub-group name"),
+              name: requireStringValidation("Sub option name"),
               is_have_image: Joi.valid(true, false),
               main_id: Joi.any(),
               subs: basisOptionsValidate,
             })
-            .required(),
+            .required()
+            .min(1)
+            .error(errorMessage("Sub option is required")),
         })
-        .required(),
+        .required()
+        .min(1)
+        .error(errorMessage("Main option is required")),
     },
   },
   getListBasisOption: getListValidation({
