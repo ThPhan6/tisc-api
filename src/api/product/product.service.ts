@@ -406,12 +406,12 @@ class ProductService {
     } else {
       returnedProducts = mappingByBrand(products);
     }
-    returnedProducts = returnedProducts.map(item => {
+    returnedProducts = returnedProducts.map((item) => {
       return {
         ...item,
-        products: sortObjectArray(item.products, "name", "ASC")
-      }
-    })
+        products: sortObjectArray(item.products, "name", "ASC"),
+      };
+    });
     return successResponse({
       data: {
         data: sortObjectArray(returnedProducts, "name", "ASC"),
