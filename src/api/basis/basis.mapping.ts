@@ -5,13 +5,13 @@ import {
   DEFAULT_MAIN_OPTION_ID,
 } from "@/constants";
 import {
-  getDistinctArray,
   getFileTypeFromBase64,
   isDuplicatedString,
   randomName,
   sortObjectArray,
   toSingleSpaceAndToLowerCase,
 } from "@/helpers/common.helper";
+import basisRepository from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { deleteFile, isExists } from "@/services/aws.service";
 import { IBasisAttributes, SortOrder } from "@/types";
@@ -189,7 +189,7 @@ export const getAllValueInOneGroup = (group: any) => {
 
 export const mappingBasisOptionUpdate = async (
   payload: IUpdateBasisOptionRequest,
-  basisOptionGroup: IBasisAttributes,
+  basisOptionGroup: IBasisAttributes
 ) => {
   let isValidImage = true;
   const validUploadImages: {
@@ -205,7 +205,13 @@ export const mappingBasisOptionUpdate = async (
       if (!main.id) {
         temp_main_id = uuid();
       }
-      mains = mains.concat([{ id: temp_main_id, name: main.name, basis_option_group_id: basisOptionGroup.id }]);
+      mains = mains.concat([
+        {
+          id: temp_main_id,
+          name: main.name,
+          basis_option_group_id: basisOptionGroup.id,
+        },
+      ]);
       let temp = await Promise.all(
         main.subs.map(async (item: any) => {
           const { is_have_image, ...rest } = item;
@@ -479,4 +485,21 @@ export const mappingBasisPresetUpdate = (
     };
   });
   return sortBy(presets, "name");
+};
+export const getAllBasisOptionValues = async (options?: {
+  fields: string[];
+}) => {
+  const basisGroups = await basisRepository.getAllBy({
+    type: BASIS_TYPES.OPTION,
+  });
+  let values: any[] = [];
+  basisGroups.forEach((group) => {
+    group.subs.forEach((sub: any) => {
+      values = values.concat(sub.subs);
+    });
+  });
+  if (options && options.fields) {
+    return _.map(values, _.property(options.fields));
+  }
+  return values;
 };

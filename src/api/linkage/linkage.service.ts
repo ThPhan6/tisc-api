@@ -16,15 +16,9 @@ class LinkageService {
       payload.data.map(async (linkage) => {
         const checkedPair = await this.checkExistKeyPair(linkage.pair);
         if (checkedPair) {
-          return optionLinkageRepository.update(checkedPair.id, {
-            ...linkage,
-            options: linkage.pair,
-          });
+          return optionLinkageRepository.update(checkedPair.id, linkage);
         }
-        return optionLinkageRepository.create({
-          ...linkage,
-          options: linkage.pair,
-        });
+        return optionLinkageRepository.create(linkage);
       })
     );
     return successMessageResponse(MESSAGES.SUCCESS);
@@ -32,7 +26,7 @@ class LinkageService {
   public async getLinkages(option_id: string) {
     const find = await optionLinkageRepository.findPairsByOption(option_id);
     return {
-      data: toConnections(find, option_id),
+      data: await toConnections(find, option_id),
       statusCode: 200,
     };
   }

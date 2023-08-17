@@ -5,7 +5,9 @@ export default {
   linkages: {
     data: Joi.array().items({
       from: Joi.string(),
+      from_product_id: Joi.string(),
       to: Joi.string(),
+      to_product_id: Joi.string(),
       is_pair: Joi.boolean(),
       created_at: Joi.any(),
       updated_at: Joi.any(),

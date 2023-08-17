@@ -13,7 +13,7 @@ class OptionLinkageRepository extends BaseRepository<OptionLinkageAttribute> {
   }
   public async findPair(items: string[]) {
     const filters = items
-      .map((item) => `filter ol.options like "%${item}%"`)
+      .map((item) => `filter ol.pair like "%${item}%"`)
       .join("\n");
     const raw = `for ol in option_linkages
     ${filters}
@@ -26,7 +26,7 @@ class OptionLinkageRepository extends BaseRepository<OptionLinkageAttribute> {
   }
   public async findPairsByOption(option_id: string) {
     const raw = `for ol in option_linkages
-    filter ol.options like "%${option_id}%"
+    filter ol.pair like "%${option_id}%"
     return UNSET(ol, ['_id', '_key', '_rev'])`;
     const res = (await this.model.rawQueryV2(
       raw,

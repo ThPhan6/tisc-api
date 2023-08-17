@@ -2,7 +2,7 @@ import Model from "@/Database/Model";
 
 export interface OptionLinkageAttribute {
   id: string;
-  options: string;
+  pair: string;
   is_pair: boolean;
   created_at: string;
   created_by: string;
