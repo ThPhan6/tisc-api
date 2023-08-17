@@ -1,6 +1,6 @@
 import BaseRepository from "./base.repository";
 import ProductModel from "@/models/product.model";
-import { head, isUndefined } from "lodash";
+import _, { head, isUndefined } from "lodash";
 import {
   SortOrder,
   IProductAttributes,
@@ -287,7 +287,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         return true;
       })
     );
-    return result as IProductAttributes[];
+    return _.uniqBy(result, "id") as IProductAttributes[];
   };
 
   public getAllByCategoryId = async (

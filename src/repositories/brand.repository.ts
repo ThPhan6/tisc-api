@@ -105,7 +105,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       LET totalCollections = (
         FOR product IN cards
         FOR collection IN collections
-        FILTER collection.id == product.collection_id
+        FILTER collection.id in product.collection_ids
         FILTER collection.deleted_at == null
         RETURN DISTINCT collection.id
       )
@@ -197,7 +197,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
       LET collections = (
         FOR product IN cards
         FOR collection IN collections
-        FILTER collection.id == product.collection_id
+        FILTER collection.id in product.collection_ids
         FILTER collection.deleted_at == null
         RETURN DISTINCT collection.id
       )
