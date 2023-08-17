@@ -186,7 +186,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         )
         LET market_availability = FIRST(
             FOR availability IN market_availabilities
-              FILTER availability.collection_id == product.collection_id
+              FILTER availability.collection_id in product.collection_ids
               FILTER availability.deleted_at == null
               LET country = FIRST(
                   FOR authorized_country IN authorized_countries
@@ -476,7 +476,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET brand = ${this.brandQuery}
 
       FOR col IN collections
-      FILTER col.id == product.collection_id
+      FILTER col.id in product.collection_ids
       FILTER col.deleted_at == null
 
       LET basisOptions = ${this.basicOptionQuery}
@@ -535,7 +535,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET brand = ${this.brandQuery}
 
       FOR collections IN collections
-      FILTER collections.id == product.collection_id
+      FILTER collections.id in product.collection_ids
       FILTER collections.deleted_at == null
       FOR users IN users
       FILTER users.id == @userId

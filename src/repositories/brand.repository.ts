@@ -334,7 +334,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FOR p in allProducts
         FOR coll IN collections
         FILTER coll.deleted_at == null
-        FILTER coll.id == p.collection_id
+        FILTER coll.id in p.collection_ids
         RETURN DISTINCT coll.id
       )
 
