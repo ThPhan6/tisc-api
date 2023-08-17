@@ -296,7 +296,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
         LET collection = FIRST(
           FOR collection IN collections
-          FILTER collection.id == product.collection_id
+          FILTER collection.id in product.collection_ids
           FILTER collection.deleted_at == null
           RETURN KEEP(collection, 'id', 'name')
         )
@@ -728,7 +728,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
 
             FOR collection IN collections
-                FILTER collection.id == product.collection_id
+                FILTER collection.id in product.collection_ids
                 FILTER collection.deleted_at == null
 
             RETURN {
@@ -883,7 +883,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             )
 
             FOR collection IN collections
-                FILTER collection.id == product.collection_id
+                FILTER collection.id in product.collection_ids
                 FILTER collection.deleted_at == null
 
             RETURN {

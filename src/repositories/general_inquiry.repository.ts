@@ -181,7 +181,7 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FILTER products.id == general_inquiries.product_id
       FILTER products.deleted_at == null
       FOR collection IN collections
-      FILTER collection.id == products.collection_id
+      FILTER collection.id in products.collection_ids
       FILTER collection.deleted_at == null
       FOR brands IN brands
       FILTER brands.id == products.brand_id
