@@ -18,6 +18,7 @@ import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
   addBasisOptionMain,
+  addBasisOptionPairCount,
   addCountBasis,
   duplicateBasisConversion,
   mappingBasisConversion,
@@ -259,7 +260,8 @@ class BasisService {
     const mains = await basisOptionMainRepository.getAllBy({
       basis_option_group_id: basisOptionGroup.id,
     });
-    const addedMain = addBasisOptionMain([basisOptionGroup], mains);
+    const addPairCount = await addBasisOptionPairCount(basisOptionGroup);
+    const addedMain = addBasisOptionMain([addPairCount], mains);
     const returnedBasisOption = sortBasisOption(addedMain);
 
     return successResponse({
@@ -360,7 +362,7 @@ class BasisService {
 
     const mappingBasisOption = await mappingBasisOptionUpdate(
       payload,
-      basisOptionGroup,
+      basisOptionGroup
     );
     await Promise.all(
       mappingBasisOption.mains.map(async (main) => {

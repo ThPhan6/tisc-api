@@ -13,6 +13,7 @@ import {
 } from "@/helpers/common.helper";
 import basisRepository from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
+import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { deleteFile, isExists } from "@/services/aws.service";
 import { IBasisAttributes, SortOrder } from "@/types";
 import _, { sortBy } from "lodash";
@@ -502,4 +503,26 @@ export const getAllBasisOptionValues = async (options?: {
     return _.map(values, _.property(options.fields));
   }
   return values;
+};
+export const addBasisOptionPairCount = async (group: IBasisAttributes) => {
+  const values = getAllValueInOneGroup(group);
+  const counted = await Promise.all(
+    values.map(async (value: any) => {
+      const count = await optionLinkageRepository.countPair(value.id);
+      return {
+        id: value.id,
+        paired: count,
+      };
+    })
+  );
+  return {
+    ...group,
+    subs: group.subs.map((sub: any) => ({
+      ...sub,
+      subs: sub.subs.map((value: any) => ({
+        ...value,
+        paired: counted.find((item) => item.id === value.id)?.paired,
+      })),
+    })),
+  };
 };

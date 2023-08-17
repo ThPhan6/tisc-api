@@ -47,6 +47,7 @@ export const subsBasisOptionOrPresetResponse = {
       unit_1: Joi.any(),
       unit_2: Joi.any(),
       product_id: Joi.any(),
+      paired: Joi.any(),
     }).allow(null)
   ),
 };

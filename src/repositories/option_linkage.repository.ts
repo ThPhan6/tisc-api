@@ -34,6 +34,17 @@ class OptionLinkageRepository extends BaseRepository<OptionLinkageAttribute> {
     )) as OptionLinkageAttribute[];
     return res;
   }
+  public async countPair(option_id: string) {
+    const raw = `for ol in option_linkages
+    filter ol.pair like "%${option_id}%"
+    collect with count into length
+    return length`;
+    const res = (await this.model.rawQueryV2(
+      raw,
+      {}
+    ))[0] as number;
+    return res;
+  }
 }
 
 export default new OptionLinkageRepository();
