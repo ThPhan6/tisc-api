@@ -437,7 +437,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER p.deleted_at == null
 
       FOR c in collections
-      FILTER c.id == p.collection_id
+      FILTER c.id in p.collection_ids
       FILTER c.deleted_at == null
 
       FOR u IN users

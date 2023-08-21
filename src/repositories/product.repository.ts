@@ -352,7 +352,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       FILTER brand.deleted_at == null
       FOR collection IN collections
       FILTER collection.deleted_at == null
-      FILTER products.collection_id == collection.id
+      FILTER collection.id in products.collection_ids
       SORT products.name ${order}
       RETURN merge(products, {
         brand: {
@@ -406,7 +406,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       FILTER products.brand_id == brand.id
       FOR collection IN collections
       FILTER collection.deleted_at == null
-      FILTER products.collection_id == collection.id
+      FILTER collection.id in products.collection_ids
       RETURN merge(products, {
         brand: {
           id: brand.id,
