@@ -5,3 +5,14 @@ export type Linkage = {
 export type LinkageRequest = {
   data: Linkage[];
 };
+
+export type StepRequest = {
+  product_id: string;
+  specification_id: string;
+  name: string;
+  order: number;
+  options: {
+    id: string;
+    quantity: number;
+  }[];
+};

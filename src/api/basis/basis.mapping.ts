@@ -496,7 +496,14 @@ export const getAllBasisOptionValues = async (options?: {
   let values: any[] = [];
   basisGroups.forEach((group) => {
     group.subs.forEach((sub: any) => {
-      values = values.concat(sub.subs);
+      values = values.concat(
+        sub.subs.map((item: any) => ({
+          ...item,
+          sub_id: sub.id,
+          sub_name: sub.name,
+          main_id: sub.main_id,
+        }))
+      );
     });
   });
   if (options && options.fields) {

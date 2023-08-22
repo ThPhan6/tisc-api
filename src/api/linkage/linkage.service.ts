@@ -1,8 +1,13 @@
 import { MESSAGES } from "@/constants";
-import { successMessageResponse } from "@/helpers/response.helper";
+import { sortObjectArray } from "@/helpers/common.helper";
+import {
+  successMessageResponse,
+  successResponse,
+} from "@/helpers/response.helper";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
-import { toConnections } from "./linkage.mappinng";
-import { LinkageRequest } from "./linkage.type";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { toConnections, toLinkageOptions } from "./linkage.mappinng";
+import { LinkageRequest, StepRequest } from "./linkage.type";
 
 class LinkageService {
   constructor() {}
@@ -41,6 +46,44 @@ class LinkageService {
     const find = await optionLinkageRepository.findPair(items);
     if (find) await optionLinkageRepository.update(find.id, { is_pair: false });
     return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async upsertStep(payload: StepRequest) {
+    const step = await specificationStepRepository.findBy({
+      product_id: payload.product_id,
+      specification_id: payload.specification_id,
+    });
+    if (step) {
+      await specificationStepRepository.update(step.id, {
+        name: payload.name,
+        order: payload.order,
+        options: payload.options,
+      });
+    } else {
+      await specificationStepRepository.create(payload);
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+  public async getSteps(product_id: string, specification_id: string) {
+    const steps = await specificationStepRepository.getAllBy({
+      product_id,
+      specification_id,
+    });
+    const result = sortObjectArray(steps, "order", "ASC");
+    return successResponse({
+      data: result,
+    });
+  }
+
+  public async getLinkageRestOptions(
+    option_ids: string[],
+    except_option_ids?: string[]
+  ) {
+    const find = await optionLinkageRepository.findPairsByOptions(option_ids);
+    return {
+      data: await toLinkageOptions(find, option_ids, except_option_ids),
+      statusCode: 200,
+    };
   }
 }
 

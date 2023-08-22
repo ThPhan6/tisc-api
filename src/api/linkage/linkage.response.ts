@@ -15,4 +15,5 @@ export default {
     }),
     statusCode: Joi.number(),
   } as any,
+  linkage_rest_options: Joi.any() as any,
 };
