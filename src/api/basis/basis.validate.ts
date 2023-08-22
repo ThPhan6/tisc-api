@@ -32,7 +32,9 @@ const basisOptionsValidate = Joi.array()
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
       unit_2: Joi.string().allow(""),
-      product_id: Joi.string().allow(""),
+      product_id: Joi.string()
+        .required()
+        .error(errorMessage("Product ID is required")),
       id: Joi.string().allow(""),
     }).custom(requireUnitValue)
   )
