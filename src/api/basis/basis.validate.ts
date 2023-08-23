@@ -8,16 +8,17 @@ import {
 
 const requireUnitValue = (item: any, helpers: any) => {
   if (
-    (item.unit_1 !== '' && item.value_1 === '') ||
-    (item.unit_2 !== '' && item.value_2 === '') ||
-    (
-      item.unit_1 === '' && item.value_1 === '' &&
-      item.unit_2 === '' && item.value_2 === '')
+    (item.unit_1 !== "" && item.value_1 === "") ||
+    (item.unit_2 !== "" && item.value_2 === "") ||
+    (item.unit_1 === "" &&
+      item.value_1 === "" &&
+      item.unit_2 === "" &&
+      item.value_2 === "")
   ) {
     return helpers.error("any.invalid");
   }
   return item;
-}
+};
 
 const basisOptionsValidate = Joi.array()
   .items(
@@ -31,13 +32,15 @@ const basisOptionsValidate = Joi.array()
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
       unit_2: Joi.string().allow(""),
-      product_id: Joi.string().allow(""),
+      product_id: Joi.string()
+        .required()
+        .error(errorMessage("Product ID is required")),
       id: Joi.string().allow(""),
-    })
-    .custom(requireUnitValue)
+    }).custom(requireUnitValue)
   )
   .required()
-  .error(errorMessage("Basis option value is required"))
+  .min(1)
+  .error(errorMessage("Value option is required"))
   .custom((value) => {
     return value.map((item: any) => {
       return {
@@ -49,18 +52,15 @@ const basisOptionsValidate = Joi.array()
 
 const basisPresetValidation = Joi.array()
   .items(
-      Joi.object({
+    Joi.object({
       value_1: Joi.string(),
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
       unit_2: Joi.string().allow(""),
-    })
-    .custom(requireUnitValue)
+    }).custom(requireUnitValue)
   )
   .required()
   .error(errorMessage("Basis preset value is required"));
-
-
 
 export default {
   createBasisConversion: {
@@ -105,15 +105,26 @@ export default {
   },
   createBasisOption: {
     payload: {
-      name: requireStringValidation("Basis option group name"),
-      subs: Joi.array().items({
-        name: Joi.string()
-          .trim()
-          .required()
-          .error(errorMessage("Basis option sub-group name is required")),
-        is_have_image: Joi.valid(true, false),
-        subs: basisOptionsValidate,
-      }),
+      name: requireStringValidation("Group option name"),
+      subs: Joi.array()
+        .items({
+          name: requireStringValidation("Main option name"),
+          subs: Joi.array()
+            .items({
+              name: Joi.string()
+                .trim()
+                .required()
+                .error(errorMessage("Sub option name")),
+              is_have_image: Joi.valid(true, false),
+              subs: basisOptionsValidate,
+            })
+            .required()
+            .min(1)
+            .error(errorMessage("Sub option is required")),
+        })
+        .required()
+        .min(1)
+        .error(errorMessage("Main option is required")),
     },
   },
   updateBasisOption: {
@@ -121,23 +132,38 @@ export default {
       id: requireStringValidation("Basis option id"),
     },
     payload: {
-      name: requireStringValidation("Basis option group name"),
-      subs: Joi.array().items({
-        id: Joi.string(),
-        name: requireStringValidation("Basis option sub-group name"),
-        is_have_image: Joi.valid(true, false),
-        subs: basisOptionsValidate,
-      }),
+      name: requireStringValidation("Group option name"),
+      subs: Joi.array()
+        .items({
+          id: Joi.string(),
+          name: Joi.string(),
+          subs: Joi.array()
+            .items({
+              id: Joi.string(),
+              name: requireStringValidation("Sub option name"),
+              is_have_image: Joi.valid(true, false),
+              main_id: Joi.any(),
+              subs: basisOptionsValidate,
+            })
+            .required()
+            .min(1)
+            .error(errorMessage("Sub option is required")),
+        })
+        .required()
+        .min(1)
+        .error(errorMessage("Main option is required")),
     },
   },
   getListBasisOption: getListValidation({
     noSorting: true,
     query: {
       group_order: orderValidation,
+      main_order: orderValidation,
       option_order: orderValidation,
     },
     custom: (value) => ({
       group_order: value.group_order || "ASC",
+      main_order: value.main_order || "ASC",
       option_order: value.option_order || "ASC",
     }),
   }),
@@ -146,7 +172,7 @@ export default {
       name: requireStringValidation("Basis preset group name"),
       subs: Joi.array().items({
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation
+        subs: basisPresetValidation,
       }),
     },
   },
@@ -159,7 +185,7 @@ export default {
       subs: Joi.array().items({
         id: Joi.string(),
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation
+        subs: basisPresetValidation,
       }),
     },
   },

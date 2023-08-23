@@ -11,6 +11,7 @@ import {
 } from "@/types";
 import { errorMessageResponse } from "@/helpers/response.helper";
 import { isEmpty } from "lodash";
+import { electricalGeoLocationRepository } from "@/repositories/electrical_geo_location.repository";
 
 class CountryStateCityService {
   public getAllCountry = async () => {
@@ -149,7 +150,7 @@ class CountryStateCityService {
       return errorMessageResponse(MESSAGES.COUNTRY_NOT_FOUND, 404);
     }
     ////////////////////////
-    
+
     if (!isEmpty(stateId)) {
       const states = await this.getStatesByCountry(countryId);
       // if (!stateId || stateId === "") {
@@ -162,7 +163,6 @@ class CountryStateCityService {
 
       /// get city from state and country
       if (stateId) {
-        
         if (!isEmpty(cityId)) {
           // if (!cityId || cityId === "") {
           //   return errorMessageResponse(MESSAGES.CITY_REQUIRED, 400);
@@ -203,6 +203,12 @@ class CountryStateCityService {
       id: country.id,
       name: country.name,
     };
+  };
+
+  public getEclectricalGeoLocation = (countryISO2: string) => {
+    return electricalGeoLocationRepository.findBy({
+      country_code: countryISO2,
+    });
   };
 }
 

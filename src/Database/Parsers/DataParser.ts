@@ -27,18 +27,28 @@ class DataParser {
     return oldData;
   }
 
-  public static combineInsertData(data: any): any {
+  public static combineInsertData(data: any, table?: string): any {
     if (isArray(data)) {
       return data.map((item) => this.combineInsertData(item));
     }
     const now = getTimestamps();
-    return {
+    let dataToCreate = {
       ...data,
       id: uuid(),
       created_at: now,
       updated_at: now,
       deleted_at: null,
     };
+    if (table === "bases") {
+      dataToCreate = {
+        id: uuid(),
+        ...data,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+      };
+    }
+    return dataToCreate;
   }
 }
 export default DataParser;

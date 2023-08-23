@@ -1,4 +1,7 @@
 export const ROUTES = {
+  UPSERT_LINKAGE: "/api/linkage/upsert",
+  GET_LINKAGES: "/api/linkage/option/{option_id}",
+  PAIR_LINKAGE: "/api/linkage/pair",
   GET_TISC_WORKSPACE: "/api/workspace",
   GET_BRAND_WORKSPACE: "/api/brand/workspace",
   GET_DESIGNER_WORKSPACE: "/api/designer/workspace",

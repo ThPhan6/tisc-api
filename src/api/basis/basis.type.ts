@@ -34,13 +34,17 @@ export interface IBasisOptionResponse {
   data: BasisOptionGroup;
   statusCode: number;
 }
-export interface IBasisOptionRequest {
+export interface BasisOptionMainRequest {
   name: string;
   subs: BasisOption[];
 }
+export interface IBasisOptionRequest {
+  name: string;
+  subs: BasisOptionMainRequest[];
+}
 export interface IUpdateBasisOptionRequest {
   name: string;
-  subs: BasisOption[];
+  subs: BasisOptionMainRequest[];
 }
 
 export interface IBasisPresetRequest {
