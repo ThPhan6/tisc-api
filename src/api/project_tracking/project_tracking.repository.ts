@@ -96,7 +96,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       offset,
       limit,
       priority: filter.priority,
-      projectStatus: filter.project_status,
+      projectStatus: filter.project_status as number,
     };
     const rawQuery = `
     FILTER project_trackings.brand_id == @brandId
@@ -178,7 +178,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     const params = {
       brandId,
       priority: filter.priority,
-      projectStatus: filter.project_status,
+      projectStatus: filter.project_status as number,
     };
     const rawQuery = `
     FILTER project_trackings.deleted_at == null
@@ -388,7 +388,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER product.deleted_at == null
 
       FOR collection in collections
-      FILTER collection.id == product.collection_id
+      FILTER collection.id in product.collection_ids
       FILTER collection.deleted_at == null
 
       FOR common_type in common_types
@@ -437,7 +437,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER p.deleted_at == null
 
       FOR c in collections
-      FILTER c.id == p.collection_id
+      FILTER c.id in p.collection_ids
       FILTER c.deleted_at == null
 
       FOR u IN users

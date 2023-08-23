@@ -1,6 +1,6 @@
 import BaseRepository from "./base.repository";
 import ProductModel from "@/models/product.model";
-import { head, isUndefined } from "lodash";
+import _, { head, isUndefined } from "lodash";
 import {
   SortOrder,
   IProductAttributes,
@@ -287,7 +287,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         return true;
       })
     );
-    return result as IProductAttributes[];
+    return _.uniqBy(result, "id") as IProductAttributes[];
   };
 
   public getAllByCategoryId = async (
@@ -352,7 +352,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       FILTER brand.deleted_at == null
       FOR collection IN collections
       FILTER collection.deleted_at == null
-      FILTER products.collection_id == collection.id
+      FILTER collection.id in products.collection_ids
       SORT products.name ${order}
       RETURN merge(products, {
         brand: {
@@ -406,7 +406,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       FILTER products.brand_id == brand.id
       FOR collection IN collections
       FILTER collection.deleted_at == null
-      FILTER products.collection_id == collection.id
+      FILTER collection.id in products.collection_ids
       RETURN merge(products, {
         brand: {
           id: brand.id,

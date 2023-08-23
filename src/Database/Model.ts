@@ -80,7 +80,7 @@ class Model<DataType> {
   ): Promise<DataType | DataType[]> {
     return this.connection.insert(
       this.table,
-      DataParser.combineInsertData(data)
+      DataParser.combineInsertData(data, this.table)
     );
   }
 

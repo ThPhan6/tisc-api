@@ -13,7 +13,12 @@ export const customFilter = (value: any, helpers: any) => {
   }
 };
 
-export const errorMessage = (message: string) => new Error(message);
+export const errorMessage = (message: string) => (error: any) => {
+  if (error && error[0] && error[0] instanceof Error) {
+    return error[0];
+  }
+  return new Error(message);
+};
 
 export const orderValidation = Joi.string().valid("ASC", "DESC");
 

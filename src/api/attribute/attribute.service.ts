@@ -17,7 +17,9 @@ import attributeRepository from "@/repositories/attribute.repository";
 import AttributeRepository from "@/repositories/attribute.repository";
 import basisRepository from "@/repositories/basis.repository";
 import BasisRepository from "@/repositories/basis.repository";
+import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { AttributeType, SortOrder } from "@/types";
+import { addBasisOptionMain } from "../basis/basis.mapping";
 import {
   checkAttributeDuplicateByName,
   getFlatListBasis,
@@ -175,6 +177,8 @@ class AttributeService {
 
   public async getListContentType() {
     const basesGroupByType = await basisRepository.getAllBasesGroupByType();
+    const mains = await basisOptionMainRepository.getAll();
+    const addedMain = addBasisOptionMain(basesGroupByType.options, mains);
 
     return successResponse({
       data: {
@@ -189,6 +193,7 @@ class AttributeService {
           },
         ],
         ...basesGroupByType,
+        options: addedMain,
       },
     });
   }

@@ -1,5 +1,6 @@
 import { MESSAGES, BASIS_TYPES, ImageSize } from "@/constants";
 import {
+  getBasisOptionSummaryTable,
   getSummaryTable,
   isDuplicatedString,
   toSingleSpaceAndToLowerCase,
@@ -10,11 +11,14 @@ import {
   successResponse,
 } from "@/helpers/response.helper";
 import BasisRepository from "@/repositories/basis.repository";
+import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { uploadImages } from "@/services/image.service";
 import { SortOrder } from "@/types";
 import { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
+  addBasisOptionMain,
+  addBasisOptionPairCount,
   addCountBasis,
   duplicateBasisConversion,
   mappingBasisConversion,
@@ -23,6 +27,7 @@ import {
   mappingBasisPresetCreate,
   mappingBasisPresetUpdate,
   sortBasisConversion,
+  sortBasisOption,
   sortBasisOptionOrPreset,
 } from "./basis.mapping";
 import {
@@ -214,30 +219,37 @@ class BasisService {
     ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
     }
-    const mappingBasisOption = await mappingBasisOptionCreate(payload);
+    let isDupOptionName = false;
+    payload.subs.forEach((main: any) => {
+      if (
+        isDuplicatedString(
+          main.subs.map((sub: any) => {
+            return toSingleSpaceAndToLowerCase(sub.name);
+          })
+        )
+      )
+        isDupOptionName = true;
+    });
+    if (isDupOptionName)
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
+
+    const groupId = uuid();
+    const mappingBasisOption = await mappingBasisOptionCreate(payload, groupId);
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE_INVALID);
     }
     await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
-
     const createdBasisOption = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.OPTION,
       subs: mappingBasisOption.basis_option,
+      id: groupId,
     });
     if (!createdBasisOption) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
 
-    const { type, ...rest } = createdBasisOption;
-    const returnedOptions = addCountBasis(rest.subs);
-    return successResponse({
-      data: {
-        ...rest,
-        count: payload.subs.length,
-        subs: returnedOptions,
-      },
-    });
+    return this.getBasisOption(createdBasisOption.id);
   }
 
   public async getBasisOption(id: string) {
@@ -245,14 +257,15 @@ class BasisService {
     if (!basisOptionGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_NOT_FOUND, 404);
     }
-    const option = addCountBasis(basisOptionGroup.subs);
-    const { type, ...rest } = basisOptionGroup;
+    const mains = await basisOptionMainRepository.getAllBy({
+      basis_option_group_id: basisOptionGroup.id,
+    });
+    const addPairCount = await addBasisOptionPairCount(basisOptionGroup);
+    const addedMain = addBasisOptionMain([addPairCount], mains);
+    const returnedBasisOption = sortBasisOption(addedMain, "ASC", "ASC");
+
     return successResponse({
-      data: {
-        ...rest,
-        count: basisOptionGroup.subs.length,
-        subs: option,
-      },
+      data: returnedBasisOption[0],
     });
   }
 
@@ -260,8 +273,9 @@ class BasisService {
     limit: number,
     offset: number,
     _filter: any,
-    groupOrder: SortOrder | undefined,
-    optionOrder: SortOrder
+    groupOrder?: SortOrder,
+    mainOrder?: SortOrder,
+    optionOrder?: SortOrder
   ) {
     const basisOptionGroups = await BasisRepository.getListBasisWithPagination(
       limit,
@@ -269,18 +283,28 @@ class BasisService {
       BASIS_TYPES.OPTION,
       groupOrder
     );
-    const returnedBasisOption = sortBasisOptionOrPreset(
+    const basisOptionMains = await basisOptionMainRepository.getAll();
+    const addedMain = addBasisOptionMain(
       basisOptionGroups.data,
+      basisOptionMains
+    );
+    const returnedBasisOption = sortBasisOption(
+      addedMain,
+      mainOrder,
       optionOrder
     );
-    const summaryTable = getSummaryTable(basisOptionGroups.data);
+    const summaryTable = getBasisOptionSummaryTable(addedMain);
     const summary = [
       {
-        name: "Option Group",
+        name: "Group Options",
         value: summaryTable.countGroup,
       },
       {
-        name: "Option",
+        name: "Main Options",
+        value: summaryTable.countMain,
+      },
+      {
+        name: "Sub Options",
         value: summaryTable.countSub,
       },
       {
@@ -322,9 +346,32 @@ class BasisService {
     ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
     }
+    let isDupOptionName = false;
+    payload.subs.forEach((main: any) => {
+      if (
+        isDuplicatedString(
+          main.subs.map((sub: any) => {
+            return toSingleSpaceAndToLowerCase(sub.name);
+          })
+        )
+      )
+        isDupOptionName = true;
+    });
+    if (isDupOptionName)
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_DUPLICATED);
+
     const mappingBasisOption = await mappingBasisOptionUpdate(
       payload,
       basisOptionGroup
+    );
+    await Promise.all(
+      mappingBasisOption.mains.map(async (main) => {
+        const find = await basisOptionMainRepository.find(main.id);
+        if (!find) {
+          return basisOptionMainRepository.create(main);
+        }
+        return basisOptionMainRepository.update(main.id, { name: main.name });
+      })
     );
     if (!mappingBasisOption.is_valid_image) {
       return errorMessageResponse(MESSAGES.IMAGE.IMAGE_INVALID);
