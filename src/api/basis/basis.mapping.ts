@@ -111,7 +111,10 @@ export const mappingBasisOptionCreate = async (
         main.subs.map(async (item) => {
           const values = await Promise.all(
             item.subs.map(async (value) => {
-              if (value.image) {
+              if (
+                value.image &&
+                value.image !== "/default/option_default.webp"
+              ) {
                 const fileType = await getFileTypeFromBase64(value.image);
                 const fileName = randomName(8);
                 if (

@@ -39,7 +39,7 @@ class DataParser {
       updated_at: now,
       deleted_at: null,
     };
-    if (table === "basis_option_mains") {
+    if (table === "bases") {
       dataToCreate = {
         id: uuid(),
         ...data,
