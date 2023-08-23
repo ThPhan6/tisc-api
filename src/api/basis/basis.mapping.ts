@@ -142,7 +142,7 @@ export const mappingBasisOptionCreate = async (
               }
               return {
                 id: uuid(),
-                image: null,
+                image: "/default/option_default.webp",
                 value_1: value.value_1,
                 value_2: value.value_2,
                 unit_1: value.unit_1,
