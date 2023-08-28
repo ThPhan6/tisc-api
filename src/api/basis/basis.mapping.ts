@@ -190,7 +190,27 @@ export const getAllValueInOneGroup = (group: any) => {
   });
   return result;
 };
-
+export const getBasisOptionGroupImages = (
+  basisOptionGroup: IBasisAttributes
+) => {
+  let temp: string[] = [];
+  basisOptionGroup.subs.forEach((sub: any) => {
+    sub.subs.forEach((value: any) => {
+      if (value.image && value.image !== "/default/option_default.webp") {
+        temp.push(value.image);
+      }
+    });
+  });
+  return temp;
+};
+export const checkCanDeleteBasisOptionImage = (
+  images: string[],
+  image: string
+) => {
+  const count = images.filter((item) => item === image).length;
+  if (count === 1) return true;
+  else return false;
+};
 export const mappingBasisOptionUpdate = async (
   payload: IUpdateBasisOptionRequest,
   basisOptionGroup: IBasisAttributes
@@ -203,6 +223,7 @@ export const mappingBasisOptionUpdate = async (
   }[] = [];
   let options: any[] = [];
   let mains: any[] = [];
+  const currentImages = getBasisOptionGroupImages(basisOptionGroup);
   await Promise.all(
     payload.subs.map(async (main: any) => {
       let temp_main_id = main.id;
@@ -244,7 +265,14 @@ export const mappingBasisOptionUpdate = async (
                         element.image &&
                         element.image !== "/default/option_default.webp"
                       ) {
-                        await deleteFile(element.image.slice(1));
+                        if (
+                          checkCanDeleteBasisOptionImage(
+                            currentImages,
+                            element.image
+                          )
+                        ) {
+                          await deleteFile(element.image.slice(1));
+                        }
                       }
                     });
                   });
