@@ -23,11 +23,7 @@ const requireUnitValue = (item: any, helpers: any) => {
 const basisOptionsValidate = Joi.array()
   .items(
     Joi.object({
-      image: Joi.string().when("....is_have_image", {
-        is: true,
-        then: Joi.optional().allow(""),
-        otherwise: Joi.optional().allow(""),
-      }),
+      image: Joi.string().allow(null),
       value_1: Joi.string(),
       value_2: Joi.string().allow(""),
       unit_1: Joi.string().allow(""),
