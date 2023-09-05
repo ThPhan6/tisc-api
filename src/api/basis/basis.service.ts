@@ -262,7 +262,7 @@ class BasisService {
     });
     const addPairCount = await addBasisOptionPairCount(basisOptionGroup);
     const addedMain = addBasisOptionMain([addPairCount], mains);
-    const returnedBasisOption = sortBasisOption(addedMain);
+    const returnedBasisOption = sortBasisOption(addedMain, "ASC", "ASC");
 
     return successResponse({
       data: returnedBasisOption[0],
