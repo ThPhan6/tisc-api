@@ -15,4 +15,39 @@ export default {
     }),
     statusCode: Joi.number(),
   } as any,
+  steps: {
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        specification_id: Joi.string(),
+        product_id: Joi.string(),
+        name: Joi.string(),
+        order: Joi.number(),
+        options: Joi.array().items({
+          id: Joi.string(),
+          replicate: Joi.number(),
+        }),
+        created_by: Joi.any(),
+        created_at: Joi.any(),
+        updated_at: Joi.any(),
+      })
+    ),
+    statusCode: Joi.number(),
+  } as any,
+  linkage_rest_options: {
+    data: Joi.array().items({
+      id: Joi.string(),
+      name: Joi.string(),
+      subs: Joi.array().items({
+        id: Joi.string(),
+        name: Joi.string(),
+        subs: Joi.array().items({
+          id: Joi.string(),
+          product_id: Joi.string(),
+          image: Joi.any(),
+        }),
+      }),
+    }),
+    statusCode: Joi.number(),
+  } as any,
 };
