@@ -1,8 +1,13 @@
 import { MESSAGES } from "@/constants";
-import { successMessageResponse } from "@/helpers/response.helper";
+import { sortObjectArray } from "@/helpers/common.helper";
+import {
+  successMessageResponse,
+  successResponse,
+} from "@/helpers/response.helper";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
-import { toConnections } from "./linkage.mappinng";
-import { LinkageRequest } from "./linkage.type";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { toConnections, toLinkageOptions } from "./linkage.mappinng";
+import { LinkageRequest, MultiStepRequest, StepRequest } from "./linkage.type";
 
 class LinkageService {
   constructor() {}
@@ -41,6 +46,50 @@ class LinkageService {
     const find = await optionLinkageRepository.findPair(items);
     if (find) await optionLinkageRepository.update(find.id, { is_pair: false });
     return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async upsertStep(payload: MultiStepRequest) {
+    await Promise.all(
+      payload.data.map(async (step) => {
+        const found = await specificationStepRepository.findBy({
+          product_id: step.product_id,
+          specification_id: step.specification_id,
+          order: step.order,
+        });
+        if (found) {
+          await specificationStepRepository.update(found.id, {
+            name: step.name,
+            order: step.order,
+            options: step.options,
+          });
+        } else {
+          await specificationStepRepository.create(step);
+        }
+      })
+    );
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+  public async getSteps(product_id: string, specification_id: string) {
+    const steps = await specificationStepRepository.getAllBy({
+      product_id,
+      specification_id,
+    });
+    const result = sortObjectArray(steps, "order", "ASC");
+    return successResponse({
+      data: result,
+    });
+  }
+
+  public async getLinkageRestOptions(
+    option_ids: string[],
+    except_option_ids?: string[]
+  ) {
+    const find = await optionLinkageRepository.findPairsByOptions(option_ids);
+    return {
+      data: await toLinkageOptions(find, option_ids, except_option_ids),
+      statusCode: 200,
+    };
   }
 }
 

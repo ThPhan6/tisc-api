@@ -26,4 +26,48 @@ export default {
       option_id: Joi.string(),
     },
   },
+  upsertStep: {
+    payload: {
+      data: Joi.array()
+        .items(
+          Joi.object({
+            product_id: Joi.string(),
+            specification_id: Joi.string(),
+            name: Joi.string(),
+            order: Joi.number().min(1),
+            options: Joi.array().items({
+              id: Joi.string(),
+              replicate: Joi.number().min(1),
+            }),
+          })
+        )
+        .required()
+        .error(errorMessage("Step is required")),
+    },
+  },
+  getStep: {
+    query: {
+      product_id: Joi.string()
+        .required()
+        .error(errorMessage("Product is required")),
+      specification_id: Joi.string()
+        .required()
+        .error(errorMessage("Specification is required")),
+    },
+  },
+  getLinkageRestOptions: {
+    query: Joi.object({
+      option_ids: Joi.string()
+        .required()
+        .error(errorMessage("Options is required")),
+      except_option_ids: Joi.string(),
+    }).custom((value, _helper) => {
+      return {
+        option_ids: value.option_ids.split(","),
+        except_option_ids: value.except_option_ids
+          ? value.except_option_ids.split(",")
+          : undefined,
+      };
+    }),
+  },
 };
