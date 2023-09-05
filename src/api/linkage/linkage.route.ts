@@ -87,7 +87,7 @@ export default class LinkageRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.linkage_rest_options,
+                200: response.steps,
               },
             },
           },

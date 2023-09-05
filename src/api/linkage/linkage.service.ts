@@ -7,7 +7,7 @@ import {
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { toConnections, toLinkageOptions } from "./linkage.mappinng";
-import { LinkageRequest, StepRequest } from "./linkage.type";
+import { LinkageRequest, MultiStepRequest, StepRequest } from "./linkage.type";
 
 class LinkageService {
   constructor() {}
@@ -48,20 +48,26 @@ class LinkageService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async upsertStep(payload: StepRequest) {
-    const step = await specificationStepRepository.findBy({
-      product_id: payload.product_id,
-      specification_id: payload.specification_id,
-    });
-    if (step) {
-      await specificationStepRepository.update(step.id, {
-        name: payload.name,
-        order: payload.order,
-        options: payload.options,
-      });
-    } else {
-      await specificationStepRepository.create(payload);
-    }
+  public async upsertStep(payload: MultiStepRequest) {
+    await Promise.all(
+      payload.data.map(async (step) => {
+        const found = await specificationStepRepository.findBy({
+          product_id: step.product_id,
+          specification_id: step.specification_id,
+          order: step.order,
+        });
+        if (found) {
+          await specificationStepRepository.update(found.id, {
+            name: step.name,
+            order: step.order,
+            options: step.options,
+          });
+        } else {
+          await specificationStepRepository.create(step);
+        }
+      })
+    );
+
     return successMessageResponse(MESSAGES.SUCCESS);
   }
   public async getSteps(product_id: string, specification_id: string) {

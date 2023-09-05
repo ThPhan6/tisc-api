@@ -13,6 +13,10 @@ export type StepRequest = {
   order: number;
   options: {
     id: string;
-    quantity: number;
+    replicate: number;
   }[];
+};
+
+export type MultiStepRequest = {
+  data: StepRequest[];
 };

@@ -1,6 +1,11 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { linkageService } from "./linkage.service";
-import { Linkage, LinkageRequest, StepRequest } from "./linkage.type";
+import {
+  Linkage,
+  LinkageRequest,
+  MultiStepRequest,
+  StepRequest,
+} from "./linkage.type";
 
 class LinkageController {
   public upsertLinkages = async (
@@ -27,7 +32,7 @@ class LinkageController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public upsertStep = async (
-    req: Request & { payload: StepRequest },
+    req: Request & { payload: MultiStepRequest },
     toolkit: ResponseToolkit
   ) => {
     const payload = req.payload;
@@ -42,7 +47,10 @@ class LinkageController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getLinkageRestOptions = async (req: Request, toolkit: ResponseToolkit) => {
+  public getLinkageRestOptions = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
     const { option_ids, except_option_ids } = req.query;
     const response = await linkageService.getLinkageRestOptions(
       option_ids,

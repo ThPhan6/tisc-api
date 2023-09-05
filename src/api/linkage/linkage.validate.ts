@@ -34,10 +34,10 @@ export default {
             product_id: Joi.string(),
             specification_id: Joi.string(),
             name: Joi.string(),
-            order: Joi.number(),
+            order: Joi.number().min(1),
             options: Joi.array().items({
               id: Joi.string(),
-              quantity: Joi.number(),
+              replicate: Joi.number().min(1),
             }),
           })
         )
@@ -47,18 +47,26 @@ export default {
   },
   getStep: {
     query: {
-      product_id: Joi.string(),
-      specification_id: Joi.string(),
+      product_id: Joi.string()
+        .required()
+        .error(errorMessage("Product is required")),
+      specification_id: Joi.string()
+        .required()
+        .error(errorMessage("Specification is required")),
     },
   },
   getLinkageRestOptions: {
     query: Joi.object({
-      option_ids: Joi.string(),
+      option_ids: Joi.string()
+        .required()
+        .error(errorMessage("Options is required")),
       except_option_ids: Joi.string(),
     }).custom((value, _helper) => {
       return {
         option_ids: value.option_ids.split(","),
-        except_option_ids: value.except_option_ids.split(","),
+        except_option_ids: value.except_option_ids
+          ? value.except_option_ids.split(",")
+          : undefined,
       };
     }),
   },

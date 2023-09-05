@@ -6,7 +6,7 @@ export type SpecificationStepAttribute = {
   order: number;
   options: {
     id: string;
-    quantity: number;
+    replicate: number;
   }[];
   created_by: string;
   created_at: string;
