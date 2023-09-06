@@ -45,6 +45,10 @@ export const toLinkageOptions = async (
           sub_name: toOption.sub_name,
           main_id: toOption.main_id,
           image: toOption.image,
+          value_1: toOption.value_1,
+          value_2: toOption.value_2,
+          unit_1: toOption.unit_1,
+          unit_2: toOption.unit_2,
         },
       ]);
     }, []);
@@ -75,6 +79,10 @@ export const toLinkageOptions = async (
             id: item.id,
             product_id: item.product_id,
             image: item.image,
+            value_1: item.value_1,
+            value_2: item.value_2,
+            unit_1: item.unit_1,
+            unit_2: item.unit_2,
           })),
         })),
       };

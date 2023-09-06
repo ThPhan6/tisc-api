@@ -85,7 +85,9 @@ class LinkageService {
     option_ids: string[],
     except_option_ids?: string[]
   ) {
-    const find = await optionLinkageRepository.findPairsByOptions(option_ids);
+    const find = await optionLinkageRepository.findPairsByOptions(option_ids, {
+      or: true,
+    });
     return {
       data: await toLinkageOptions(find, option_ids, except_option_ids),
       statusCode: 200,
