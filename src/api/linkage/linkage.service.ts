@@ -4,10 +4,16 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { configurationStepRepository } from "@/repositories/configuration_step.repository";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { toConnections, toLinkageOptions } from "./linkage.mappinng";
-import { LinkageRequest, MultiStepRequest, StepRequest } from "./linkage.type";
+import {
+  LinkageRequest,
+  MultiConfigurationStepRequest,
+  MultiStepRequest,
+  StepRequest,
+} from "./linkage.type";
 
 class LinkageService {
   constructor() {}
@@ -92,6 +98,40 @@ class LinkageService {
       data: await toLinkageOptions(find, option_ids, except_option_ids),
       statusCode: 200,
     };
+  }
+  public async upsertConfigurationStep(payload: MultiConfigurationStepRequest) {
+    await Promise.all(
+      payload.data.map(async (step) => {
+        const found = await configurationStepRepository.findBy({
+          step_id: step.step_id,
+        });
+        if (found) {
+          await configurationStepRepository.update(found.id, {
+            options: step.options,
+          });
+        } else {
+          await configurationStepRepository.create(step);
+        }
+      })
+    );
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+  public async getConfigurationSteps(
+    product_id: string,
+    specification_id: string
+  ) {
+    const steps = await specificationStepRepository.getAllBy({
+      product_id,
+      specification_id,
+    });
+    const stepIds = steps.map((step) => step.id);
+    const configurationSteps = await configurationStepRepository.getMany(
+      stepIds
+    );
+    return successResponse({
+      data: configurationSteps,
+    });
   }
 }
 

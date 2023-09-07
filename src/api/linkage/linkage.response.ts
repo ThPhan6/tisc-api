@@ -34,6 +34,22 @@ export default {
     ),
     statusCode: Joi.number(),
   } as any,
+  configurationSteps: {
+    data: Joi.array().items(
+      Joi.object({
+        id: Joi.string(),
+        step_id: Joi.string(),
+        options: Joi.array().items({
+          id: Joi.string(),
+          quantity: Joi.number(),
+        }),
+        created_by: Joi.any(),
+        created_at: Joi.any(),
+        updated_at: Joi.any(),
+      })
+    ),
+    statusCode: Joi.number(),
+  } as any,
   linkage_rest_options: {
     data: Joi.array().items({
       id: Joi.string(),

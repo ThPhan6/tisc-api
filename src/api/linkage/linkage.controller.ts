@@ -3,6 +3,7 @@ import { linkageService } from "./linkage.service";
 import {
   Linkage,
   LinkageRequest,
+  MultiConfigurationStepRequest,
   MultiStepRequest,
   StepRequest,
 } from "./linkage.type";
@@ -55,6 +56,25 @@ class LinkageController {
     const response = await linkageService.getLinkageRestOptions(
       option_ids,
       except_option_ids
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public upsertConfigurationStep = async (
+    req: Request & { payload: MultiConfigurationStepRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const response = await linkageService.upsertConfigurationStep(payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getConfigurationSteps = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { product_id, specification_id } = req.query;
+    const response = await linkageService.getConfigurationSteps(
+      product_id,
+      specification_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

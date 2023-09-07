@@ -20,3 +20,15 @@ export type StepRequest = {
 export type MultiStepRequest = {
   data: StepRequest[];
 };
+
+export type ConfigurationStepRequest = {
+  step_id: string;
+  options: {
+    id: string;
+    quantity: number;
+  }[];
+};
+
+export type MultiConfigurationStepRequest = {
+  data: ConfigurationStepRequest[];
+};

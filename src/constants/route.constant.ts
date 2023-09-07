@@ -5,6 +5,9 @@ export const ROUTES = {
   UPSERT_STEP: "/api/step/upsert",
   GET_STEPS: "/api/step",
   GET_LINKAGE_REST_OPTIONS: "/api/linkage/rest-options",
+
+  UPSERT_CONFIGURATION_STEP: "/api/step/configuration/upsert",
+  GET_CONFIGURATION_STEPS: "/api/step/configuration",
   GET_TISC_WORKSPACE: "/api/workspace",
   GET_BRAND_WORKSPACE: "/api/brand/workspace",
   GET_DESIGNER_WORKSPACE: "/api/designer/workspace",

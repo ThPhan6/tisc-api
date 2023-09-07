@@ -45,6 +45,22 @@ export default {
         .error(errorMessage("Step is required")),
     },
   },
+  upsertConfigurationStep: {
+    payload: {
+      data: Joi.array()
+        .items(
+          Joi.object({
+            step_id: Joi.string(),
+            options: Joi.array().items({
+              id: Joi.string(),
+              quantity: Joi.number().min(1),
+            }),
+          })
+        )
+        .required()
+        .error(errorMessage("Step is required")),
+    },
+  },
   getStep: {
     query: {
       product_id: Joi.string()
