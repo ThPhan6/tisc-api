@@ -49,7 +49,7 @@ class OptionLinkageRepository extends BaseRepository<OptionLinkageAttribute> {
 
     const raw = `for ol in option_linkages
     ${filters}
-    return UNSET(ol, ['_id', '_key', '_rev'])`;
+    return DISTINCT UNSET(ol, ['_id', '_key', '_rev'])`;
     const res = (await this.model.rawQueryV2(
       raw,
       {}

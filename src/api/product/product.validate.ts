@@ -27,6 +27,16 @@ const attributeGroupsValidate = (
     .items(
       Joi.object({
         id: stringValidation(),
+        steps: Joi.array().items(
+          Joi.object({
+            name: Joi.string(),
+            order: Joi.number().min(1),
+            options: Joi.array().items({
+              id: Joi.string(),
+              replicate: Joi.number().min(1),
+            }),
+          })
+        ),
         name: requireStringValidation(`${type} attribute title`),
         selection: Joi.boolean().allow(null),
         attributes: Joi.array()
@@ -84,9 +94,9 @@ export const dimensionAndWeightValidate = Joi.object({
 export const productPayloadValidate = {
   brand_id: requireStringValidation("Brand id"),
   collection_ids: Joi.array()
-  .items(Joi.string().required())
-  .required()
-  .error(errorMessage("Please select collection")),
+    .items(Joi.string().required())
+    .required()
+    .error(errorMessage("Please select collection")),
   category_ids: Joi.array()
     .items(Joi.string().required())
     .required()
@@ -154,7 +164,7 @@ export default {
       sort: Joi.string(),
       order: Joi.string().valid("ASC", "DESC"),
     },
-    listType: 'designer_brand_products'
+    listType: "designer_brand_products",
   }) as any,
   getBrandProductSummary: {
     params: {

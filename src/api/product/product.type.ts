@@ -4,6 +4,7 @@ import {
   ProductDownload,
   DimensionAndWeight,
 } from "@/types/product.type";
+import { StepRequest } from "../linkage/linkage.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -32,6 +33,7 @@ export interface IProduct {
 }
 export interface IAttributeGroup {
   name: string;
+  steps?: StepRequest[];
   attributes: {
     id: string;
     basis_id: string;
@@ -63,6 +65,7 @@ export interface IAttributeGroupHasId {
   id: string;
   name: string;
   attributes: IProductOptionAttribute[];
+  steps?: StepRequest[];
 }
 export interface IProductRequest {
   brand_id: string;

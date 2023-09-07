@@ -163,6 +163,57 @@ export const mappingAttribute = (
     attributes: newAttributes,
   };
 };
+export const mappingSpecificationAttribute = (
+  attributeGroup: IAttributeGroupWithOptionalId,
+  allBasisConversion: BasisConversion[]
+) => {
+  const newAttributes = isArray(attributeGroup.attributes)
+    ? attributeGroup.attributes.reduce((final, attribute: any) => {
+        if (attribute.type === "Conversions") {
+          const conversion = allBasisConversion.find(
+            (basisConversion: any) => basisConversion.id === attribute.basis_id
+          );
+          if (conversion) {
+            const value1 = parseFloat(attribute.conversion_value_1 || "0");
+            const value2 = value1 / conversion.formula_1;
+            final.push({
+              ...attribute,
+              conversion_value_1: numberToFixed(value1),
+              conversion_value_2: numberToFixed(value2),
+            });
+            return final;
+          }
+        }
+        final.push(attribute);
+        return final;
+      }, [] as any)
+    : [];
+  if (attributeGroup.id && isNaN(toNumber(attributeGroup.id))) {
+    return {
+      data: {
+        id: attributeGroup.id,
+        name: attributeGroup.name,
+        attributes: newAttributes,
+      },
+      steps: attributeGroup.steps?.map((step) => ({
+        ...step,
+        specification_id: attributeGroup.id || "",
+      })),
+    };
+  }
+  const newId = uuid();
+  return {
+    data: {
+      id: newId,
+      name: attributeGroup.name,
+      attributes: newAttributes,
+    },
+    steps: attributeGroup.steps?.map((step) => ({
+      ...step,
+      specification_id: newId,
+    })),
+  };
+};
 
 export const mappingAttributeOrBasis = (
   //change any when update basis
