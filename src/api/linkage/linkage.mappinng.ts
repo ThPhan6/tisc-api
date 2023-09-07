@@ -52,11 +52,12 @@ export const toLinkageOptions = async (
         },
       ]);
     }, []);
-  const groupedByMain = _.groupBy(tos, (item) => item.main_id);
+  const uniqueTos = _.uniqBy(tos, "id");
+  const groupedByMain = _.groupBy(uniqueTos, (item) => item.main_id);
 
   let mainIds = Object.keys(groupedByMain);
   if (except_option_ids) {
-    const exceptMains = tos
+    const exceptMains = uniqueTos
       .filter((item) => except_option_ids.includes(item.id))
       .map((item) => item.main_id);
     mainIds = _.difference(mainIds, exceptMains);
