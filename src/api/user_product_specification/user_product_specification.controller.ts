@@ -2,6 +2,8 @@ import { UserProductSpecificationRequest } from "@/api/user_product_specificatio
 import productRepository from "@/repositories/product.repository";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductRepository } from "../custom_product/custom_product.repository";
+import { linkageService } from "../linkage/linkage.service";
+import { toOriginDataAndConfigurationStep } from "./user_product_specification.mapping";
 import { userProductSpecificationRepository } from "./user_product_specification.repository";
 
 export default class UserProductSpecificationController {
@@ -26,11 +28,14 @@ export default class UserProductSpecificationController {
         })
         .code(400);
     }
-
+    const mapping = toOriginDataAndConfigurationStep(payload);
+    await linkageService.upsertConfigurationStep({
+      data: mapping.configuration_steps,
+    });
     const response = await userProductSpecificationRepository.upsert(
       productId,
       currentUserId,
-      payload
+      mapping.data
     );
 
     if (!response) {

@@ -17,6 +17,15 @@ export default {
         attribute_groups: Joi.array().items(
           Joi.object({
             id: Joi.string(),
+            configuration_steps: Joi.array().items(
+              Joi.object({
+                step_id: Joi.string(),
+                options: Joi.array().items({
+                  id: Joi.string(),
+                  quantity: Joi.number().min(1),
+                }),
+              })
+            ),
             attributes: Joi.array().items(
               Joi.object({
                 id: requireStringValidation("Attribute id"),
