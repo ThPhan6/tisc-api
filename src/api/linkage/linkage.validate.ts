@@ -37,6 +37,7 @@ export default {
             order: Joi.number().min(1),
             options: Joi.array().items({
               id: Joi.string(),
+              pre_option: Joi.any(),
               replicate: Joi.number().min(1),
             }),
           })

@@ -26,6 +26,7 @@ export default {
         options: Joi.array().items({
           id: Joi.string(),
           replicate: Joi.number(),
+          pre_option: Joi.any(),
         }),
         created_by: Joi.any(),
         created_at: Joi.any(),
