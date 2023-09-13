@@ -27,6 +27,7 @@ export default {
           id: Joi.string(),
           replicate: Joi.number(),
           pre_option: Joi.any(),
+          picked: Joi.any(),
         }),
         created_by: Joi.any(),
         created_at: Joi.any(),
