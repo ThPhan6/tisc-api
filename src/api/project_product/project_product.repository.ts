@@ -776,6 +776,15 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               FILTER project_products.specification != null && project_products.specification.attribute_groups != null
               FOR specification IN project_products.specification.attribute_groups
                   FOR productSpecification IN product.specification_attribute_groups
+                      LET configOptions = (FOR specificationSteps IN specification_steps 
+                        FILTER specificationSteps.product_id == product.id 
+                        FILTER specificationSteps.specification_id == productSpecification.id
+                            FOR specificationStepOptions IN specificationSteps.options
+                                FOR configurationSteps IN configuration_steps
+                                FILTER configurationSteps.step_id == specificationSteps.id
+                                    FOR configOptions in configurationSteps.options
+                                    FILTER configOptions.id == specificationStepOptions.id
+                                    return configOptions)
                       FILTER specification.id == productSpecification.id
                       FILTER specification.attributes != null
                       FOR attribute IN specification.attributes
@@ -785,9 +794,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                               FILTER attribute.id == productSpecificationAttribute.id
                               FILTER productSpecificationAttribute.basis_options != null
                                   FOR optionCode IN productSpecificationAttribute.basis_options
+                                      LET configOption = FIRST(FOR cos IN configOptions FILTER cos.id == attribute.basis_option_id return cos)
+                                      LET quantity = configOption.quantity ? configOption.quantity :1
                                       FILTER optionCode.id == attribute.basis_option_id
                                       LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
-                                      RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
+                                      LET code = (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
+                                      LET returnCode = (FOR index in RANGE(1, quantity) RETURN code)
+                                      return CONCAT_SEPARATOR(' - ', returnCode)
             )
 
             FOR brand IN brands

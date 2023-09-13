@@ -7,7 +7,8 @@ export type SpecificationStepAttribute = {
   options: {
     id: string;
     replicate: number;
-    pre_option: string
+    pre_option: string;
+    picked: boolean;
   }[];
   created_by: string;
   created_at: string;

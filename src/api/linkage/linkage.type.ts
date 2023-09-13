@@ -14,7 +14,8 @@ export type StepRequest = {
   options: {
     id: string;
     replicate: number;
-    pre_option: string
+    pre_option: string;
+    picked: boolean;
   }[];
 };
 
