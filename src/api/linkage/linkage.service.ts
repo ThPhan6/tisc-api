@@ -77,10 +77,10 @@ class LinkageService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
   public async getSteps(product_id: string, specification_id: string) {
-    const steps = await specificationStepRepository.getAllBy({
+    const steps = await specificationStepRepository.getStepsBy(
       product_id,
-      specification_id,
-    });
+      specification_id
+    );
     const result = sortObjectArray(steps, "order", "ASC");
     return successResponse({
       data: result,
