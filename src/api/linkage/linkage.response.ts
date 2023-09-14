@@ -34,6 +34,8 @@ export default {
           unit_2: Joi.any(),
           image: Joi.any(),
           product_id: Joi.any(),
+          sub_id: Joi.any(),
+          sub_name: Joi.any(),
         }),
         created_by: Joi.any(),
         created_at: Joi.any(),

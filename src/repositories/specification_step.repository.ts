@@ -17,7 +17,7 @@ class SpecificationStepRepository extends BaseRepository<SpecificationStepAttrib
       FILTER group.type == ${BASIS_TYPES.OPTION}
         FOR sub IN group.subs
           FOR value IN sub.subs
-          RETURN value
+          RETURN MERGE(value, {sub_id: sub.id, sub_name: sub.name})
       )
     FOR ss IN specification_steps
     FILTER ss.product_id == @product_id
