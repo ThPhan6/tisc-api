@@ -7,7 +7,11 @@ import {
 import { configurationStepRepository } from "@/repositories/configuration_step.repository";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
-import { toConnections, toLinkageOptions } from "./linkage.mappinng";
+import {
+  mappingSteps,
+  toConnections,
+  toLinkageOptions,
+} from "./linkage.mappinng";
 import {
   LinkageRequest,
   MultiConfigurationStepRequest,
@@ -81,7 +85,7 @@ class LinkageService {
       product_id,
       specification_id
     );
-    const result = sortObjectArray(steps, "order", "ASC");
+    const result = await mappingSteps(sortObjectArray(steps, "order", "ASC"));
     return successResponse({
       data: result,
     });

@@ -27,6 +27,7 @@ export default {
           id: Joi.string(),
           replicate: Joi.number(),
           pre_option: Joi.any(),
+          pre_option_name: Joi.any(),
           picked: Joi.any(),
           value_1: Joi.any(),
           value_2: Joi.any(),

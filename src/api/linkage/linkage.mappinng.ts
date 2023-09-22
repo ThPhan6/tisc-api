@@ -1,5 +1,6 @@
 import { OptionLinkageAttribute } from "@/models/option_linkage.model";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
+import { SpecificationStepAttribute } from "@/types";
 import _ from "lodash";
 import { getAllBasisOptionValues } from "../basis/basis.mapping";
 
@@ -90,4 +91,37 @@ export const toLinkageOptions = async (
     })
   );
   return result;
+};
+
+export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
+  const allOptions = await getAllBasisOptionValues();
+  return Promise.all(
+    steps.map(async (step) => {
+      const mappedPreOptions = step.options.map((option) => {
+        if (!option.pre_option) return option;
+        const preOptions = option.pre_option.split(",");
+        const preOptionNames = preOptions.map((pre) => {
+          const found = allOptions.find((item) => item.id === pre);
+          let temp = [
+            found.value_1,
+            found.unit_1,
+            "-",
+            found.value_2,
+            found.unit_2,
+          ];
+          temp =  temp.filter((item) => !_.isEmpty(item))
+          if(temp[temp.length-1] === '-') temp.pop()
+          return temp.join(' ')
+        });
+        return {
+          ...option,
+          pre_option_name: preOptionNames.join(","),
+        };
+      });
+      return {
+        ...step,
+        options: mappedPreOptions,
+      };
+    })
+  );
 };
