@@ -14,6 +14,8 @@ import {
   IProductOption,
 } from "./product.type";
 import { isArray, toNumber, isNaN } from "lodash";
+import { SpecificationType } from "@/constants";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -202,12 +204,21 @@ export const mappingSpecificationAttribute = (
     };
   }
   const newId = uuid();
+  const data =
+    attributeGroup.steps && attributeGroup.steps.length > 0
+      ? {
+          id: newId,
+          name: attributeGroup.name,
+          type: SpecificationType.autoStep,
+          attributes: newAttributes,
+        }
+      : {
+          id: newId,
+          name: attributeGroup.name,
+          attributes: newAttributes,
+        };
   return {
-    data: {
-      id: newId,
-      name: attributeGroup.name,
-      attributes: newAttributes,
-    },
+    data,
     steps: attributeGroup.steps?.map((step) => ({
       ...step,
       specification_id: newId,
@@ -345,4 +356,21 @@ export const mappingProductID = (
     });
   });
   return productIDs.filter((item) => item && item !== "").join(", ");
+};
+
+export const mappingSpecificationType = (
+  attributeGroups: IAttributeGroupWithOptionId[]
+) => {
+  return Promise.all(
+    attributeGroups.map(async (group) => {
+      if (group.type) return group;
+      const type = await specificationStepRepository.getSpecificationType(
+        group.id || ""
+      );
+      return {
+        ...group,
+        type,
+      };
+    })
+  );
 };

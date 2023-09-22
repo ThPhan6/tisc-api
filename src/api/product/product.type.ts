@@ -1,3 +1,4 @@
+import { SpecificationType } from "@/constants";
 import {
   ProductWithCollectionAndBrand,
   ProductTip,
@@ -245,5 +246,6 @@ export interface SelectionAttributeGroupWithOptionalId
 export interface IAttributeGroupWithOptionId {
   id?: string;
   name: string;
+  type?: SpecificationType;
   attributes: IProductOptionAttribute[];
 }

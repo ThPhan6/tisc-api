@@ -1,7 +1,7 @@
 import BaseRepository from "./base.repository";
 import SpecificationStepModel from "@/models/specification_step.model";
 import { SpecificationStepAttribute } from "@/types";
-import { BASIS_TYPES } from "@/constants";
+import { BASIS_TYPES, SpecificationType } from "@/constants";
 
 class SpecificationStepRepository extends BaseRepository<SpecificationStepAttribute> {
   protected model: SpecificationStepModel;
@@ -28,8 +28,27 @@ class SpecificationStepRepository extends BaseRepository<SpecificationStepAttrib
         RETURN MERGE(option, foundBasisOption)
       )
     RETURN UNSET(MERGE(ss, {options: newOptions}), ['_id', '_key', '_rev', 'deleted_at'])`;
-    const res = (await this.model.rawQueryV2(raw, {product_id, specification_id})) as any;
+    const res = (await this.model.rawQueryV2(raw, {
+      product_id,
+      specification_id,
+    })) as any;
     return res;
+  }
+
+  public async getSpecificationType(
+    specification_id: string
+  ): Promise<SpecificationType> {
+    const result = await this.model.rawQueryV2(
+      `
+      FOR ss IN specification_steps
+      FILTER ss.specification_id == @specification_id
+      COLLECT WITH COUNT INTO length RETURN length
+    `,
+      { specification_id }
+    );
+    return result[0] > 0
+      ? SpecificationType.autoStep
+      : SpecificationType.attribute;
   }
 }
 
