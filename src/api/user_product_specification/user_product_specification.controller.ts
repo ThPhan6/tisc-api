@@ -1,5 +1,6 @@
 import { UserProductSpecificationRequest } from "@/api/user_product_specification/user_product_specification.model";
 import productRepository from "@/repositories/product.repository";
+import { ConfigurationStepType } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { linkageService } from "../linkage/linkage.service";
@@ -30,6 +31,8 @@ export default class UserProductSpecificationController {
     }
     const mapping = toOriginDataAndConfigurationStep(payload);
     await linkageService.upsertConfigurationStep({
+      product_id: req.params.id,
+      user_id: currentUserId,
       data: mapping.configuration_steps,
     });
     const response = await userProductSpecificationRepository.upsert(

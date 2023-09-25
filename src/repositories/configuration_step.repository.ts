@@ -10,8 +10,15 @@ class ConfigurationStepRepository extends BaseRepository<ConfigurationStepAttrib
     this.model = new ConfigurationStepModel();
   }
 
-  public getMany = (stepIds: string[]) => {
-    return this.model.select().whereIn("step_id", stepIds).get();
+  public getMany = (stepIds: string[], projectId?: string, userId?: string) => {
+    let result = this.model.select().whereIn("step_id", stepIds);
+    if (projectId) {
+      result = result.where("project_id", "==", projectId);
+    }
+    if (userId) {
+      result = result.where("user_id", "==", userId);
+    }
+    return result.get();
   };
 }
 
