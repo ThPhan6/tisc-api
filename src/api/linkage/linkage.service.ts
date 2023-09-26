@@ -1,12 +1,15 @@
 import { MESSAGES } from "@/constants";
 import { sortObjectArray } from "@/helpers/common.helper";
 import {
+  errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { configurationStepRepository } from "@/repositories/configuration_step.repository";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { ConfigurationStepType } from "@/types";
+import { projectProductRepository } from "../project_product/project_product.repository";
 import {
   mappingSteps,
   toConnections,
@@ -16,7 +19,6 @@ import {
   LinkageRequest,
   MultiConfigurationStepRequest,
   MultiStepRequest,
-  StepRequest,
 } from "./linkage.type";
 
 class LinkageService {
@@ -103,19 +105,49 @@ class LinkageService {
       statusCode: 200,
     };
   }
+  private async upsertConfigurationStepWithType(paramsToFind: any, data: any) {
+    const found = await configurationStepRepository.findBy(paramsToFind);
+    if (found) {
+      await configurationStepRepository.update(found.id, {
+        options: data.options,
+      });
+    } else {
+      await configurationStepRepository.create(data);
+    }
+  }
   public async upsertConfigurationStep(payload: MultiConfigurationStepRequest) {
+    if (payload.project_id && payload.product_id) {
+      const projectProduct = await projectProductRepository.findBy({
+        deleted_at: null,
+        project_id: payload.project_id,
+        product_id: payload.product_id,
+      });
+      if (!projectProduct) {
+        return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+      }
+    }
     await Promise.all(
       payload.data.map(async (step) => {
-        const found = await configurationStepRepository.findBy({
-          step_id: step.step_id,
+        let paramsToFind: any = payload.user_id
+          ? {
+              step_id: step.step_id,
+              product_id: payload.product_id,
+              user_id: payload.user_id,
+            }
+          : {
+              step_id: step.step_id,
+              product_id: payload.product_id,
+              project_id: payload.project_id,
+            };
+        this.upsertConfigurationStepWithType(paramsToFind, {
+          ...step,
+          product_id: payload.product_id,
+          project_id: payload.project_id,
+          user_id: payload.user_id,
+          type: payload.user_id
+            ? ConfigurationStepType.PreSelection
+            : ConfigurationStepType.Selection,
         });
-        if (found) {
-          await configurationStepRepository.update(found.id, {
-            options: step.options,
-          });
-        } else {
-          await configurationStepRepository.create(step);
-        }
       })
     );
 
@@ -123,7 +155,9 @@ class LinkageService {
   }
   public async getConfigurationSteps(
     product_id: string,
-    specification_id: string
+    specification_id: string,
+    project_id?: string,
+    user_id?: string
   ) {
     const steps = await specificationStepRepository.getAllBy({
       product_id,
@@ -131,7 +165,9 @@ class LinkageService {
     });
     const stepIds = steps.map((step) => step.id);
     const configurationSteps = await configurationStepRepository.getMany(
-      stepIds
+      stepIds,
+      project_id,
+      user_id
     );
     return successResponse({
       data: configurationSteps,

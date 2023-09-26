@@ -32,5 +32,8 @@ export type ConfigurationStepRequest = {
 };
 
 export type MultiConfigurationStepRequest = {
+  project_id?: string;
+  product_id?: string;
+  user_id?: string;
   data: ConfigurationStepRequest[];
 };

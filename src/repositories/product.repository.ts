@@ -48,7 +48,6 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     limit?: number;
     offset?: number;
     isCount?: boolean;
-    get_one?: boolean;
   }) => {
     const {
       filterLiked = false,
@@ -120,47 +119,15 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         ${withFavourite ? `filter product_favourite.created_by == @userId` : ""}
         COLLECT WITH COUNT INTO length RETURN length
       )
-      ${
-        options.get_one
-          ? `
-        LET newspecificationGroups = (
-        FOR productSpecification IN products.specification_attribute_groups
-            LET configOptions = (FOR specificationSteps IN specification_steps 
-              FILTER specificationSteps.product_id == products.id 
-              FILTER specificationSteps.specification_id == productSpecification.id
-                  FOR specificationStepOptions IN specificationSteps.options
-                      FOR configurationSteps IN configuration_steps
-                      FILTER configurationSteps.step_id == specificationSteps.id
-                          FOR configOptions in configurationSteps.options
-                          FILTER configOptions.id == specificationStepOptions.id
-                          return configOptions)
-            FILTER productSpecification.attributes != null
-            LET newAttributes = (FOR productSpecificationAttribute IN productSpecification.attributes
-                FILTER productSpecificationAttribute.type == 'Options'
-                FILTER productSpecificationAttribute.basis_options != null
-                    LET newOptions = (FOR optionCode IN productSpecificationAttribute.basis_options
-                        LET configOption = FIRST(FOR cos IN configOptions FILTER cos.id == optionCode.id return cos)
-                        LET quantity = configOption.quantity ? configOption.quantity :1
-                      RETURN MERGE(optionCode, {quantity}))
-          RETURN MERGE(productSpecificationAttribute, {basis_options: newOptions}))
-          RETURN MERGE(productSpecification, {attributes: newAttributes})
-                            
-        )
-        `
-          : ""
-      } 
+     
       ${filterLiked ? `filter liked[0] > 0` : ""}
       ${
         options.isCount
           ? "COLLECT WITH COUNT INTO length RETURN length"
           : ` RETURN MERGE(
-        UNSET(${
-          options.get_one
-            ? "MERGE(products, {specification_attribute_groups: newspecificationGroups})"
-            : "products"
-        }, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by' ${
-              !options.has_color ? ",'detected_color_images'" : ""
-            }]), {
+        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by' ${
+          !options.has_color ? ",'detected_color_images'" : ""
+        }]), {
         categories: categories,
         
         ${
@@ -191,7 +158,6 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         productId,
         withFavourite: !isUndefined(userId),
         has_color: true,
-        get_one: true,
       }),
       params
     )) as ProductWithRelationData[];

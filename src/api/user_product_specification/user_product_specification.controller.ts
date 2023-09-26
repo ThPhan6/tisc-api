@@ -30,6 +30,8 @@ export default class UserProductSpecificationController {
     }
     const mapping = toOriginDataAndConfigurationStep(payload);
     await linkageService.upsertConfigurationStep({
+      product_id: req.params.id,
+      user_id: currentUserId,
       data: mapping.configuration_steps,
     });
     const response = await userProductSpecificationRepository.upsert(

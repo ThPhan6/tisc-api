@@ -19,7 +19,7 @@ import {
   SummaryItemPosition,
   UserStatus,
 } from "@/types";
-import { COMMON_TYPES } from "@/constants";
+import { COMMON_TYPES, SpecificationType } from "@/constants";
 import { getDefaultDimensionAndWeightAttribute } from "@/api/attribute/attribute.mapping";
 import { locationRepository } from "@/repositories/location.repository";
 import { DEFAULT_USER_SPEC_SELECTION } from "../user_product_specification/user_product_specification.model";
@@ -619,7 +619,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       ProductSpecifyStatus["Specified"],
       ProductSpecifyStatus["Re-specified"],
     ];
-
     return this.model.rawQueryV2(
       `
       LET defaultOptions = (
@@ -782,25 +781,33 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                             FOR specificationStepOptions IN specificationSteps.options
                                 FOR configurationSteps IN configuration_steps
                                 FILTER configurationSteps.step_id == specificationSteps.id
+                                FILTER configurationSteps.project_id == @projectId
                                     FOR configOptions in configurationSteps.options
                                     FILTER configOptions.id == specificationStepOptions.id
-                                    return configOptions)
+                                      FOR defaultBasisOption in defaultOptions
+                                      FILTER defaultBasisOption.id == configOptions.id
+                                      RETURN MERGE(configOptions, {code: defaultBasisOption.product_id}))
                       FILTER specification.id == productSpecification.id
                       FILTER specification.attributes != null
-                      FOR attribute IN specification.attributes
-                      FILTER productSpecification.attributes != null
-                          FOR productSpecificationAttribute IN productSpecification.attributes
-                              FILTER productSpecificationAttribute.type == 'Options'
-                              FILTER attribute.id == productSpecificationAttribute.id
-                              FILTER productSpecificationAttribute.basis_options != null
-                                  FOR optionCode IN productSpecificationAttribute.basis_options
-                                      LET configOption = FIRST(FOR cos IN configOptions FILTER cos.id == attribute.basis_option_id return cos)
-                                      LET quantity = configOption.quantity ? configOption.quantity :1
-                                      FILTER optionCode.id == attribute.basis_option_id
-                                      LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
-                                      LET code = (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
-                                      LET returnCode = (FOR index in RANGE(1, quantity) RETURN code)
-                                      return CONCAT_SEPARATOR(' - ', returnCode)
+                      LET configurationCodes = (
+                        FOR configOption IN configOptions
+                        FOR index IN RANGE(1, configOption.quantity) 
+                        RETURN configOption.code
+                      )
+                      RETURN specification.type == @specificationType ? 
+                        CONCAT_SEPARATOR(' - ', configurationCodes)
+                       :CONCAT_SEPARATOR(' - ', (
+                        FOR attribute IN specification.attributes
+                        FILTER productSpecification.attributes != null
+                            FOR productSpecificationAttribute IN productSpecification.attributes
+                                FILTER productSpecificationAttribute.type == 'Options'
+                                FILTER attribute.id == productSpecificationAttribute.id
+                                FILTER productSpecificationAttribute.basis_options != null
+                                    FOR optionCode IN productSpecificationAttribute.basis_options
+                                        FILTER optionCode.id == attribute.basis_option_id
+                                        LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
+                                        RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
+                      ) )                     
             )
 
             FOR brand IN brands
@@ -1028,6 +1035,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         departmentType: COMMON_TYPES.DEPARTMENT,
         defaultDimensionWeight:
           getDefaultDimensionAndWeightAttribute().attributes,
+        specificationType: SpecificationType.autoStep,
       }
     );
   };

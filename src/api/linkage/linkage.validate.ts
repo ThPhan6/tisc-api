@@ -49,6 +49,9 @@ export default {
   },
   upsertConfigurationStep: {
     payload: {
+      project_id: Joi.any(),
+      product_id: Joi.any(),
+      user_id: Joi.any(),
       data: Joi.array()
         .items(
           Joi.object({
@@ -68,6 +71,17 @@ export default {
       product_id: Joi.string()
         .required()
         .error(errorMessage("Product is required")),
+      specification_id: Joi.string()
+        .required()
+        .error(errorMessage("Specification is required")),
+    },
+  },
+  getConfigurationStep: {
+    query: {
+      product_id: Joi.string()
+        .required()
+        .error(errorMessage("Product is required")),
+      project_id: Joi.any(),
       specification_id: Joi.string()
         .required()
         .error(errorMessage("Specification is required")),
