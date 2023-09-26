@@ -50,6 +50,12 @@ class SpecificationStepRepository extends BaseRepository<SpecificationStepAttrib
       ? SpecificationType.autoStep
       : SpecificationType.attribute;
   }
+  public getMany = async (stepIds: string[]) => {
+    return (await this.model
+      .select()
+      .whereIn("id", stepIds)
+      .get()) as SpecificationStepAttribute[];
+  };
 }
 
 export default new SpecificationStepRepository();
