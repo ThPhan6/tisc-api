@@ -19,7 +19,6 @@ import {
   LinkageRequest,
   MultiConfigurationStepRequest,
   MultiStepRequest,
-  StepRequest,
 } from "./linkage.type";
 
 class LinkageService {
@@ -129,8 +128,7 @@ class LinkageService {
     }
     await Promise.all(
       payload.data.map(async (step) => {
-        const isPreSelect = payload.user_id;
-        let paramsToFind: any = isPreSelect
+        let paramsToFind: any = payload.user_id
           ? {
               step_id: step.step_id,
               product_id: payload.product_id,
@@ -146,6 +144,9 @@ class LinkageService {
           product_id: payload.product_id,
           project_id: payload.project_id,
           user_id: payload.user_id,
+          type: payload.user_id
+            ? ConfigurationStepType.PreSelection
+            : ConfigurationStepType.Selection,
         });
       })
     );

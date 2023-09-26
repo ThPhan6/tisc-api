@@ -1,6 +1,5 @@
 import { UserProductSpecificationRequest } from "@/api/user_product_specification/user_product_specification.model";
 import productRepository from "@/repositories/product.repository";
-import { ConfigurationStepType } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { linkageService } from "../linkage/linkage.service";

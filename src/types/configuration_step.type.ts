@@ -15,6 +15,6 @@ export type ConfigurationStepAttribute = {
 };
 
 export enum ConfigurationStepType {
-  PreSelect,
-  Select,
+  PreSelection,
+  Selection,
 }

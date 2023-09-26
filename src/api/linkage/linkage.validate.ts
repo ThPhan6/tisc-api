@@ -1,4 +1,3 @@
-import { ConfigurationStepType } from "@/types";
 import { errorMessage } from "@/validates/common.validate";
 import Joi from "joi";
 

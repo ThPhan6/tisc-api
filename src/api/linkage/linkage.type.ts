@@ -1,5 +1,3 @@
-import { ConfigurationStepType } from "@/types";
-
 export type Linkage = {
   pair: string;
   is_pair: boolean;
