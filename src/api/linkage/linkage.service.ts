@@ -115,7 +115,58 @@ class LinkageService {
       await configurationStepRepository.create(data);
     }
   }
+  public async validateQuantities(payload: MultiConfigurationStepRequest) {
+    const stepIds = payload.data.map((item) => item.step_id);
+    const steps = await specificationStepRepository.getMany(stepIds);
+    const sortedSteps = sortObjectArray(steps, "order", "ASC");
+
+    const stepOptions = steps.reduce((pre: any[], cur) => {
+      return pre.concat(cur.options);
+    }, []);
+    const configurationStepOptions = payload.data
+      .filter((item) => item.step_id !== sortedSteps[0].id)
+      .reduce((pre: any[], cur) => {
+        return pre.concat(cur.options);
+      }, [])
+      .map((item) => {
+        const found = stepOptions.find((el) => el.id === item.id);
+        return {
+          ...item,
+          ...found,
+        };
+      });
+    const preOptionQuantity = configurationStepOptions.reduce((pre, cur) => {
+      return {
+        ...pre,
+        [cur.pre_option]: (pre[cur.pre_option]?.quantity || 0) + cur.quantity,
+      };
+    }, {});
+
+    const keysToCheck = Object.keys(preOptionQuantity);
+    let check = true;
+    keysToCheck.forEach((preOptionToCheck) => {
+      const foundReplicate = stepOptions.find((item) => {
+        if (item.pre_option)
+          return preOptionToCheck === `${item.pre_option},${item.id}`;
+        else return preOptionToCheck === item.id;
+      });
+      if (
+        !foundReplicate ||
+        foundReplicate.replicate !== preOptionQuantity[preOptionToCheck]
+      ) {
+        check = false;
+      }
+    });
+
+    return check;
+  }
   public async upsertConfigurationStep(payload: MultiConfigurationStepRequest) {
+    const isValidQuantity = await this.validateQuantities(payload);
+    if (!isValidQuantity) {
+      return errorMessageResponse(
+        MESSAGES.CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE
+      );
+    }
     if (payload.project_id && payload.product_id) {
       const projectProduct = await projectProductRepository.findBy({
         deleted_at: null,
