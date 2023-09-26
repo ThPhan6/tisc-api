@@ -50,6 +50,9 @@ export default {
       Joi.object({
         id: Joi.string(),
         step_id: Joi.string(),
+        product_id: Joi.string(),
+        project_id: Joi.string(),
+        user_id: Joi.string(),
         options: Joi.array().items({
           id: Joi.string(),
           quantity: Joi.number(),
