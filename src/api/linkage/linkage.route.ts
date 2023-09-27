@@ -126,6 +126,23 @@ export default class LinkageRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.VALIDATE_CONFIGURATION_STEP,
+          options: {
+            handler: linkageController.validateConfigurationStep,
+            validate: validate.upsertConfigurationStep,
+            description: "Method that validate Configuration Steps",
+            tags: ["api", "Configuration Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.isValidConfigurationSteps,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_CONFIGURATION_STEPS,
           options: {

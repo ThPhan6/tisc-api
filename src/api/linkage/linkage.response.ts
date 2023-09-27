@@ -64,6 +64,12 @@ export default {
     ),
     statusCode: Joi.number(),
   } as any,
+  isValidConfigurationSteps: {
+    data: {
+      is_valid: Joi.boolean(),
+    },
+    statusCode: Joi.number(),
+  } as any,
   linkage_rest_options: {
     data: Joi.array().items({
       id: Joi.string(),

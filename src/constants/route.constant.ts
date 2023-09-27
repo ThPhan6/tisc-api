@@ -7,6 +7,7 @@ export const ROUTES = {
   GET_LINKAGE_REST_OPTIONS: "/api/linkage/rest-options",
 
   UPSERT_CONFIGURATION_STEP: "/api/step/configuration/upsert",
+  VALIDATE_CONFIGURATION_STEP: "/api/step/configuration/validate",
   GET_CONFIGURATION_STEPS: "/api/step/configuration",
   GET_TISC_WORKSPACE: "/api/workspace",
   GET_BRAND_WORKSPACE: "/api/brand/workspace",

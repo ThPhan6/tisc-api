@@ -1,3 +1,4 @@
+import { MESSAGES } from "@/constants";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { linkageService } from "./linkage.service";
 import {
@@ -66,6 +67,21 @@ class LinkageController {
     const payload = req.payload;
     const response = await linkageService.upsertConfigurationStep(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public validateConfigurationStep = async (
+    req: Request & { payload: MultiConfigurationStepRequest },
+    toolkit: ResponseToolkit
+  ) => {
+    const payload = req.payload;
+    const check = await linkageService.validateQuantities(payload);
+    return toolkit
+      .response({
+        data: {
+          is_valid: check,
+        },
+        statusCode: 200,
+      })
+      .code(200);
   };
   public getConfigurationSteps = async (
     req: Request,
