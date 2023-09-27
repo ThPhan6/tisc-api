@@ -22,6 +22,7 @@ class SpecificationStepRepository extends BaseRepository<SpecificationStepAttrib
     FOR ss IN specification_steps
     FILTER ss.product_id == @product_id
     FILTER ss.specification_id == @specification_id
+    FILTER ss.deleted_at == null
       LET newOptions = (
         FOR option IN ss.options 
         LET foundBasisOption = FIRST(FOR bo IN allBasisOption FILTER bo.id == option.id RETURN bo)
