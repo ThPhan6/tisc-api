@@ -82,6 +82,7 @@ export default {
         .required()
         .error(errorMessage("Product is required")),
       project_id: Joi.any(),
+      user_id: Joi.any(),
       specification_id: Joi.string()
         .required()
         .error(errorMessage("Specification is required")),

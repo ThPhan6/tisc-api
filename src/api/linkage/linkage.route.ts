@@ -147,7 +147,7 @@ export default class LinkageRoute implements IRoute {
           path: ROUTES.GET_CONFIGURATION_STEPS,
           options: {
             handler: linkageController.getConfigurationSteps,
-            validate: validate.getStep,
+            validate: validate.getConfigurationStep,
             description: "Method that get Configuration Steps",
             tags: ["api", "Configuration Step"],
             auth: AUTH_NAMES.PERMISSION,
