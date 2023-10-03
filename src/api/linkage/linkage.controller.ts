@@ -87,10 +87,12 @@ class LinkageController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { product_id, specification_id } = req.query;
+    const { product_id, specification_id, user_id, project_id } = req.query;
     const response = await linkageService.getConfigurationSteps(
       product_id,
-      specification_id
+      specification_id,
+      project_id,
+      user_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
