@@ -28,6 +28,7 @@ export type ConfigurationStepRequest = {
   options: {
     id: string;
     quantity: number;
+    pre_option: any;
   }[];
 };
 

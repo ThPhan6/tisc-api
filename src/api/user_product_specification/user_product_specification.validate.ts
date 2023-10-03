@@ -23,6 +23,7 @@ export default {
                 options: Joi.array().items({
                   id: Joi.string(),
                   quantity: Joi.number().min(1),
+                  pre_option: Joi.any(),
                 }),
               })
             ),
