@@ -60,6 +60,7 @@ export default {
         created_by: Joi.any(),
         created_at: Joi.any(),
         updated_at: Joi.any(),
+        type: Joi.any(),
       })
     ),
     statusCode: Joi.number(),
