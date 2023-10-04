@@ -183,12 +183,12 @@ class LinkageService {
     return check;
   }
   public async upsertConfigurationStep(payload: MultiConfigurationStepRequest) {
-    // const isValidQuantity = await this.validateQuantities(payload);
-    // if (!isValidQuantity) {
-    //   return errorMessageResponse(
-    //     MESSAGES.CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE
-    //   );
-    // }
+    const isValidQuantity = await this.validateQuantities(payload);
+    if (!isValidQuantity) {
+      return errorMessageResponse(
+        MESSAGES.CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE
+      );
+    }
     if (payload.project_id && payload.product_id) {
       const projectProduct = await projectProductRepository.findBy({
         deleted_at: null,

@@ -12,6 +12,7 @@ import {
   IAttributeGroupWithOptionalId,
   IAttributeGroupWithOptionId,
   IProductOption,
+  SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
 import { isArray, toNumber, isNaN } from "lodash";
 import { SpecificationType } from "@/constants";
@@ -166,7 +167,7 @@ export const mappingAttribute = (
   };
 };
 export const mappingSpecificationAttribute = (
-  attributeGroup: IAttributeGroupWithOptionalId,
+  attributeGroup: SelectionAttributeGroupWithOptionalId,
   allBasisConversion: BasisConversion[]
 ) => {
   const newAttributes = isArray(attributeGroup.attributes)
@@ -196,6 +197,7 @@ export const mappingSpecificationAttribute = (
         id: attributeGroup.id,
         name: attributeGroup.name,
         attributes: newAttributes,
+        selection: attributeGroup.selection || false,
       },
       steps: attributeGroup.steps?.map((step) => ({
         ...step,
@@ -210,12 +212,14 @@ export const mappingSpecificationAttribute = (
           id: newId,
           name: attributeGroup.name,
           type: SpecificationType.autoStep,
+          selection: attributeGroup.selection || false,
           attributes: newAttributes,
         }
       : {
           id: newId,
           name: attributeGroup.name,
           attributes: newAttributes,
+          selection: attributeGroup.selection || false,
         };
   return {
     data,
