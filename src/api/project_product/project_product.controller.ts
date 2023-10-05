@@ -90,11 +90,13 @@ export default class ProjectProductController {
     const user = req.auth.credentials.user as UserAttributes;
     const { finish_schedules, ...others } = req.payload as any;
     const mappedData = toOriginDataAndConfigurationStep(others);
-    await linkageService.upsertConfigurationStep({
-      product_id: req.params.id,
-      project_id: req.payload.project_id,
-      data: mappedData.configuration_steps,
-    });
+    if (mappedData.configuration_steps.length > 0) {
+      await linkageService.upsertConfigurationStep({
+        product_id: req.params.id,
+        project_id: req.payload.project_id,
+        data: mappedData.configuration_steps,
+      });
+    }
     const response = await projectProductService.updateConsiderProduct(
       id,
       mappedData.data,
