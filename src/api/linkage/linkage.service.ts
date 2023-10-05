@@ -9,6 +9,7 @@ import { configurationStepRepository } from "@/repositories/configuration_step.r
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { ConfigurationStepType } from "@/types";
+import _ from "lodash";
 import { projectProductRepository } from "../project_product/project_product.repository";
 import {
   mappingSteps,
@@ -160,7 +161,7 @@ class LinkageService {
     const preOptionQuantity = configurationStepOptions.reduce((pre, cur) => {
       return {
         ...pre,
-        [cur.pre_option]: (pre[cur.pre_option]?.quantity || 0) + cur.quantity,
+        [cur.pre_option]: (pre[cur.pre_option] || 0) + cur.quantity,
       };
     }, {});
 
@@ -226,13 +227,23 @@ class LinkageService {
       })
     );
     const payloadStepIds = payload.data.map((item) => item.step_id);
-    const configurationSteps = await configurationStepRepository.getAllBy(
-      paramsToFind
+    const firstSpecificationStep = await specificationStepRepository.find(
+      payload.data[0].step_id
     );
+    if (!firstSpecificationStep) {
+      return successMessageResponse(MESSAGES.SUCCESS);
+    }
+    const specificationSteps = await specificationStepRepository.getAllBy({
+      product_id: firstSpecificationStep.product_id,
+      specification_id: firstSpecificationStep.specification_id,
+    });
     await Promise.all(
-      configurationSteps.map((item) => {
-        if (!payloadStepIds.includes(item.step_id))
-          return configurationStepRepository.delete(item.id);
+      specificationSteps.map((item) => {
+        if (!payloadStepIds.includes(item.id))
+          return configurationStepRepository.deleteBy({
+            ...paramsToFind,
+            step_id: item.id,
+          });
       })
     );
     return successMessageResponse(MESSAGES.SUCCESS);
@@ -253,8 +264,13 @@ class LinkageService {
       project_id,
       user_id
     );
+    const returnConfigurationSteps = sortObjectArray(steps, "order", "ASC")
+      .map((step) => {
+        return configurationSteps.find((item: any) => item.step_id === step.id);
+      })
+      .filter((item) => !_.isEmpty(item));
     return successResponse({
-      data: configurationSteps,
+      data: returnConfigurationSteps,
     });
   }
 }
