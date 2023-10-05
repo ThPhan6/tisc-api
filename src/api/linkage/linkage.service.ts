@@ -199,20 +199,22 @@ class LinkageService {
         return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
       }
     }
+    let paramsToFind: any = payload.user_id
+      ? {
+          product_id: payload.product_id,
+          user_id: payload.user_id,
+        }
+      : {
+          product_id: payload.product_id,
+          project_id: payload.project_id,
+        };
     await Promise.all(
       payload.data.map(async (step) => {
-        let paramsToFind: any = payload.user_id
-          ? {
-              step_id: step.step_id,
-              product_id: payload.product_id,
-              user_id: payload.user_id,
-            }
-          : {
-              step_id: step.step_id,
-              product_id: payload.product_id,
-              project_id: payload.project_id,
-            };
-        this.upsertConfigurationStepWithType(paramsToFind, {
+        const temp = {
+          ...paramsToFind,
+          step_id: step.step_id,
+        };
+        this.upsertConfigurationStepWithType(temp, {
           ...step,
           product_id: payload.product_id,
           project_id: payload.project_id,
@@ -223,7 +225,16 @@ class LinkageService {
         });
       })
     );
-
+    const payloadStepIds = payload.data.map((item) => item.step_id);
+    const configurationSteps = await configurationStepRepository.getAllBy(
+      paramsToFind
+    );
+    await Promise.all(
+      configurationSteps.map((item) => {
+        if (!payloadStepIds.includes(item.step_id))
+          return configurationStepRepository.delete(item.id);
+      })
+    );
     return successMessageResponse(MESSAGES.SUCCESS);
   }
   public async getConfigurationSteps(

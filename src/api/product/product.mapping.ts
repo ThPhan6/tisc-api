@@ -206,21 +206,18 @@ export const mappingSpecificationAttribute = (
     };
   }
   const newId = uuid();
-  const data =
-    attributeGroup.steps && attributeGroup.steps.length > 0
-      ? {
-          id: newId,
-          name: attributeGroup.name,
-          type: SpecificationType.autoStep,
-          selection: attributeGroup.selection || false,
-          attributes: newAttributes,
-        }
-      : {
-          id: newId,
-          name: attributeGroup.name,
-          attributes: newAttributes,
-          selection: attributeGroup.selection || false,
-        };
+  let data: any = {
+    id: newId,
+    name: attributeGroup.name,
+    attributes: newAttributes,
+    selection: attributeGroup.selection || false,
+  };
+
+  if (attributeGroup.steps && attributeGroup.steps.length > 0)
+    data = {
+      ...data,
+      type: SpecificationType.autoStep,
+    };
   return {
     data,
     steps: attributeGroup.steps?.map((step) => ({

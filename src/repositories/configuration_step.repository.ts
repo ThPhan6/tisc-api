@@ -11,7 +11,10 @@ class ConfigurationStepRepository extends BaseRepository<ConfigurationStepAttrib
   }
 
   public getMany = (stepIds: string[], projectId?: string, userId?: string) => {
-    let result = this.model.select().whereIn("step_id", stepIds);
+    let result = this.model
+      .select()
+      .whereIn("step_id", stepIds)
+      .whereNull("deleted_at");
     if (projectId) {
       result = result.where("project_id", "==", projectId);
     }
