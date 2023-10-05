@@ -4,11 +4,11 @@ import { ConfigurationStepRequest } from "../linkage/linkage.type";
 export const toOriginDataAndConfigurationStep = (payload: any) => {
   let configurationSteps: ConfigurationStepRequest[] = [];
 
+  let specification_id = ''
   const originData = payload.specification.attribute_groups.map(
     (group: any) => {
-      configurationSteps = configurationSteps.concat(
-        group.configuration_steps || []
-      );
+      configurationSteps = group.configuration_steps
+      specification_id = group.id
       return {
         id: group.id,
         attributes: group.attributes,
@@ -24,5 +24,6 @@ export const toOriginDataAndConfigurationStep = (payload: any) => {
       },
     },
     configuration_steps: configurationSteps,
+    specification_id
   };
 };

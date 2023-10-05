@@ -29,13 +29,12 @@ export default class UserProductSpecificationController {
         .code(400);
     }
     const mapping = toOriginDataAndConfigurationStep(payload);
-    if (mapping.configuration_steps.length > 0) {
-      await linkageService.upsertConfigurationStep({
-        product_id: req.params.id,
-        user_id: currentUserId,
-        data: mapping.configuration_steps,
-      });
-    }
+    await linkageService.upsertConfigurationStep({
+      product_id: req.params.id,
+      user_id: currentUserId,
+      data: mapping.configuration_steps,
+      specification_id: mapping.specification_id,
+    });
     const response = await userProductSpecificationRepository.upsert(
       productId,
       currentUserId,

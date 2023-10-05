@@ -226,26 +226,23 @@ class LinkageService {
         });
       })
     );
-    const payloadStepIds = payload.data.map((item) => item.step_id);
-    const firstSpecificationStep = await specificationStepRepository.find(
-      payload.data[0].step_id
-    );
-    if (!firstSpecificationStep) {
-      return successMessageResponse(MESSAGES.SUCCESS);
+    if (payload.specification_id) {
+      const payloadStepIds = payload.data.map((item) => item.step_id);
+
+      const specificationSteps = await specificationStepRepository.getAllBy({
+        product_id: payload.product_id || "",
+        specification_id: payload.specification_id,
+      });
+      await Promise.all(
+        specificationSteps.map((item) => {
+          if (!payloadStepIds.includes(item.id))
+            return configurationStepRepository.deleteBy({
+              ...paramsToFind,
+              step_id: item.id,
+            });
+        })
+      );
     }
-    const specificationSteps = await specificationStepRepository.getAllBy({
-      product_id: firstSpecificationStep.product_id,
-      specification_id: firstSpecificationStep.specification_id,
-    });
-    await Promise.all(
-      specificationSteps.map((item) => {
-        if (!payloadStepIds.includes(item.id))
-          return configurationStepRepository.deleteBy({
-            ...paramsToFind,
-            step_id: item.id,
-          });
-      })
-    );
     return successMessageResponse(MESSAGES.SUCCESS);
   }
   public async getConfigurationSteps(
