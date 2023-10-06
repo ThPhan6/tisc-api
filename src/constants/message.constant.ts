@@ -278,4 +278,5 @@ export const MESSAGES = {
     SCHEDULE_NOT_AVAILABLE: "Can't get on Saturday or Sunday",
   },
   JUST_SHARE_IN_DESIGN_FIRM: "Just share to user in the same design firm.",
+  CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE: "The quantity not match with require number, please check it!",
 };

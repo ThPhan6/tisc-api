@@ -1,9 +1,11 @@
+import { SpecificationType } from "@/constants";
 import {
   ProductWithCollectionAndBrand,
   ProductTip,
   ProductDownload,
   DimensionAndWeight,
 } from "@/types/product.type";
+import { StepRequest } from "../linkage/linkage.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -32,6 +34,7 @@ export interface IProduct {
 }
 export interface IAttributeGroup {
   name: string;
+  steps?: StepRequest[];
   attributes: {
     id: string;
     basis_id: string;
@@ -63,6 +66,7 @@ export interface IAttributeGroupHasId {
   id: string;
   name: string;
   attributes: IProductOptionAttribute[];
+  steps?: StepRequest[];
 }
 export interface IProductRequest {
   brand_id: string;
@@ -242,5 +246,6 @@ export interface SelectionAttributeGroupWithOptionalId
 export interface IAttributeGroupWithOptionId {
   id?: string;
   name: string;
+  type?: SpecificationType;
   attributes: IProductOptionAttribute[];
 }

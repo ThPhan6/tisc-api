@@ -1,5 +1,8 @@
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import _ from "lodash";
+import { linkageService } from "../linkage/linkage.service";
+import { toOriginDataAndConfigurationStep } from "../user_product_specification/user_product_specification.mapping";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
 import {
@@ -87,10 +90,18 @@ export default class ProjectProductController {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const { finish_schedules, ...others } = req.payload as any;
-
+    const mappedData = toOriginDataAndConfigurationStep(others);
+    console.log(mappedData);
+    if (!_.isEmpty(mappedData.specification_id))
+      await linkageService.upsertConfigurationStep({
+        product_id: req.params.id,
+        project_id: req.payload.project_id,
+        data: mappedData.configuration_steps,
+        specification_id: mappedData.specification_id,
+      });
     const response = await projectProductService.updateConsiderProduct(
       id,
-      others,
+      mappedData.data,
       user,
       req.path,
       finish_schedules,
