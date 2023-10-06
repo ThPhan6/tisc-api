@@ -152,7 +152,9 @@ class LinkageService {
         return pre.concat(cur.options);
       }, [])
       .map((item) => {
-        const found = stepOptions.find((el) => el.id === item.id);
+        const found = stepOptions.find(
+          (el) => el.id === item.id && el.pre_option === item.pre_option
+        );
         return {
           ...item,
           ...found,
@@ -164,7 +166,6 @@ class LinkageService {
         [cur.pre_option]: (pre[cur.pre_option] || 0) + cur.quantity,
       };
     }, {});
-
     const keysToCheck = Object.keys(preOptionQuantity);
     let check = true;
     keysToCheck.forEach((preOptionToCheck) => {
