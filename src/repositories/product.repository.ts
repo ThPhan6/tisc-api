@@ -119,6 +119,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         ${withFavourite ? `filter product_favourite.created_by == @userId` : ""}
         COLLECT WITH COUNT INTO length RETURN length
       )
+     
       ${filterLiked ? `filter liked[0] > 0` : ""}
       ${
         options.isCount

@@ -1,9 +1,11 @@
 import Model from "@/Database/Model";
+import { ConfigurationStepRequest } from "../linkage/linkage.type";
 
 export interface ProductSpecificationSelection {
   is_refer_document: boolean;
   attribute_groups: {
     id: string;
+    configuration_steps?: ConfigurationStepRequest[];
     attributes: {
       id: string;
       basis_option_id: string;

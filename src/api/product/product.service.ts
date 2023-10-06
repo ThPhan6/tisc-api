@@ -41,6 +41,8 @@ import {
   mappingByCategory,
   mappingByCollections,
   mappingProductID,
+  mappingSpecificationAttribute,
+  mappingSpecificationType,
 } from "./product.mapping";
 import {
   IProductOptionAttribute,
@@ -53,6 +55,8 @@ import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
 import { sortObjectArray, pagination } from "@/helpers/common.helper";
 import { colorDetectionQueue } from "@/queues/color_detection.queue";
 import { categoryRepository } from "@/repositories/category.repository";
+import { linkageService } from "../linkage/linkage.service";
+import { StepRequest } from "../linkage/linkage.type";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -120,10 +124,17 @@ class ProductService {
         mappingAttribute(featureAttributeGroup, allConversion)
       )
     );
+    let steps: StepRequest[] = [];
     const saveSpecificationAttributeGroups = await Promise.all(
       payload.specification_attribute_groups.map(
-        (specificationAttributeGroup) =>
-          mappingAttribute(specificationAttributeGroup, allConversion)
+        (specificationAttributeGroup) => {
+          const mapping = mappingSpecificationAttribute(
+            specificationAttributeGroup,
+            allConversion
+          );
+          steps = steps.concat(mapping.steps || []);
+          return mapping.data;
+        }
       )
     );
 
@@ -170,6 +181,12 @@ class ProductService {
       createdProduct.id,
       uploadedImages
     );
+    await linkageService.upsertStep({
+      data: steps.map((item) => ({
+        ...item,
+        product_id: createdProduct.id,
+      })),
+    });
     return this.get(createdProduct.id, user);
   }
 
@@ -223,12 +240,25 @@ class ProductService {
         mappingAttribute(featureAttributeGroup, allConversion)
       )
     );
+    let steps: StepRequest[] = [];
     const saveSpecificationAttributeGroups = await Promise.all(
       payload.specification_attribute_groups.map(
-        (specificationAttributeGroup) =>
-          mappingAttribute(specificationAttributeGroup, allConversion)
+        async (specificationAttributeGroup) => {
+          const mapping = mappingSpecificationAttribute(
+            specificationAttributeGroup,
+            allConversion
+          );
+          steps = steps.concat(mapping.steps || []);
+          return mapping.data;
+        }
       )
     );
+    await linkageService.upsertStep({
+      data: steps.map((item) => ({
+        ...item,
+        product_id: product.id,
+      })),
+    });
 
     let images = product.images;
     // Upload images if have changes
@@ -308,7 +338,9 @@ class ProductService {
       flatBasisGroups,
       flatBasisGroups
     );
-
+    const addedSpecificationType = await mappingSpecificationType(
+      newSpecificationGroups
+    );
     const productID = mappingProductID(newSpecificationGroups);
     const newGeneralGroups = mappingAttributeGroups(
       product.general_attribute_groups,
@@ -334,7 +366,7 @@ class ProductService {
         },
         general_attribute_groups: newGeneralGroups,
         feature_attribute_groups: newFeatureGroups,
-        specification_attribute_groups: newSpecificationGroups,
+        specification_attribute_groups: addedSpecificationType,
         dimension_and_weight: mappingDimensionAndWeight(
           product.dimension_and_weight
         ),

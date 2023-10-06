@@ -12,8 +12,11 @@ import {
   IAttributeGroupWithOptionalId,
   IAttributeGroupWithOptionId,
   IProductOption,
+  SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
 import { isArray, toNumber, isNaN } from "lodash";
+import { SpecificationType } from "@/constants";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -163,6 +166,66 @@ export const mappingAttribute = (
     attributes: newAttributes,
   };
 };
+export const mappingSpecificationAttribute = (
+  attributeGroup: SelectionAttributeGroupWithOptionalId,
+  allBasisConversion: BasisConversion[]
+) => {
+  const newAttributes = isArray(attributeGroup.attributes)
+    ? attributeGroup.attributes.reduce((final, attribute: any) => {
+        if (attribute.type === "Conversions") {
+          const conversion = allBasisConversion.find(
+            (basisConversion: any) => basisConversion.id === attribute.basis_id
+          );
+          if (conversion) {
+            const value1 = parseFloat(attribute.conversion_value_1 || "0");
+            const value2 = value1 / conversion.formula_1;
+            final.push({
+              ...attribute,
+              conversion_value_1: numberToFixed(value1),
+              conversion_value_2: numberToFixed(value2),
+            });
+            return final;
+          }
+        }
+        final.push(attribute);
+        return final;
+      }, [] as any)
+    : [];
+  if (attributeGroup.id && isNaN(toNumber(attributeGroup.id))) {
+    return {
+      data: {
+        id: attributeGroup.id,
+        name: attributeGroup.name,
+        attributes: newAttributes,
+        selection: attributeGroup.selection || false,
+      },
+      steps: attributeGroup.steps?.map((step) => ({
+        ...step,
+        specification_id: attributeGroup.id || "",
+      })),
+    };
+  }
+  const newId = uuid();
+  let data: any = {
+    id: newId,
+    name: attributeGroup.name,
+    attributes: newAttributes,
+    selection: attributeGroup.selection || false,
+  };
+
+  if (attributeGroup.steps && attributeGroup.steps.length > 0)
+    data = {
+      ...data,
+      type: SpecificationType.autoStep,
+    };
+  return {
+    data,
+    steps: attributeGroup.steps?.map((step) => ({
+      ...step,
+      specification_id: newId,
+    })),
+  };
+};
 
 export const mappingAttributeOrBasis = (
   //change any when update basis
@@ -294,4 +357,21 @@ export const mappingProductID = (
     });
   });
   return productIDs.filter((item) => item && item !== "").join(", ");
+};
+
+export const mappingSpecificationType = (
+  attributeGroups: IAttributeGroupWithOptionId[]
+) => {
+  return Promise.all(
+    attributeGroups.map(async (group) => {
+      if (group.type) return group;
+      const type = await specificationStepRepository.getSpecificationType(
+        group.id || ""
+      );
+      return {
+        ...group,
+        type,
+      };
+    })
+  );
 };

@@ -79,6 +79,16 @@ export default {
           .error(errorMessage("Is refer to document is missing")),
         attribute_groups: Joi.array().items({
           id: Joi.string(),
+          configuration_steps: Joi.array().items(
+            Joi.object({
+              step_id: Joi.string(),
+              options: Joi.array().items({
+                id: Joi.string(),
+                quantity: Joi.number().min(1),
+                pre_option: Joi.any(),
+              }),
+            })
+          ),
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_option_id: Joi.string(),

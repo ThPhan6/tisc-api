@@ -59,6 +59,106 @@ export default class LinkageRoute implements IRoute {
             },
           },
         },
+        {
+          method: "POST",
+          path: ROUTES.UPSERT_STEP,
+          options: {
+            handler: linkageController.upsertStep,
+            validate: validate.upsertStep,
+            description: "Method that upsert Steps",
+            tags: ["api", "Linkage Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_STEPS,
+          options: {
+            handler: linkageController.getSteps,
+            validate: validate.getStep,
+            description: "Method that get Steps",
+            tags: ["api", "Linkage Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.steps,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_LINKAGE_REST_OPTIONS,
+          options: {
+            handler: linkageController.getLinkageRestOptions,
+            validate: validate.getLinkageRestOptions,
+            description: "Method that get linkage rest options",
+            tags: ["api", "Linkage Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.linkage_rest_options,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.UPSERT_CONFIGURATION_STEP,
+          options: {
+            handler: linkageController.upsertConfigurationStep,
+            validate: validate.upsertConfigurationStep,
+            description: "Method that upsert Configuration Steps",
+            tags: ["api", "Configuration Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.VALIDATE_CONFIGURATION_STEP,
+          options: {
+            handler: linkageController.validateConfigurationStep,
+            validate: validate.upsertConfigurationStep,
+            description: "Method that validate Configuration Steps",
+            tags: ["api", "Configuration Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.isValidConfigurationSteps,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.GET_CONFIGURATION_STEPS,
+          options: {
+            handler: linkageController.getConfigurationSteps,
+            validate: validate.getConfigurationStep,
+            description: "Method that get Configuration Steps",
+            tags: ["api", "Configuration Step"],
+            auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.configurationSteps,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

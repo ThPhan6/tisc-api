@@ -1,4 +1,7 @@
 import { OptionLinkageAttribute } from "@/models/option_linkage.model";
+import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
+import { SpecificationStepAttribute } from "@/types";
+import _ from "lodash";
 import { getAllBasisOptionValues } from "../basis/basis.mapping";
 
 export const toConnections = async (
@@ -22,4 +25,103 @@ export const toConnections = async (
       ]);
     }, [])
     .filter((item) => item.is_pair === true);
+};
+export const toLinkageOptions = async (
+  linkages: OptionLinkageAttribute[],
+  froms: string[],
+  except_option_ids?: string[]
+) => {
+  const allOptions = await getAllBasisOptionValues();
+  const tos = linkages
+    .filter((item) => item.is_pair === true)
+    .reduce((pre: any[], cur) => {
+      const to = cur.pair.split(",").filter((item) => !froms.includes(item))[0];
+      const toOption = allOptions.find((item) => item.id === to);
+      return pre.concat([
+        {
+          id: to,
+          product_id: toOption.product_id,
+          name: toOption.name,
+          sub_id: toOption.sub_id,
+          sub_name: toOption.sub_name,
+          main_id: toOption.main_id,
+          image: toOption.image,
+          value_1: toOption.value_1,
+          value_2: toOption.value_2,
+          unit_1: toOption.unit_1,
+          unit_2: toOption.unit_2,
+        },
+      ]);
+    }, []);
+  const uniqueTos = _.uniqBy(tos, "id");
+  const groupedByMain = _.groupBy(uniqueTos, (item) => item.main_id);
+
+  let mainIds = Object.keys(groupedByMain);
+  if (except_option_ids) {
+    const exceptMains = uniqueTos
+      .filter((item) => except_option_ids.includes(item.id))
+      .map((item) => item.main_id);
+    mainIds = _.difference(mainIds, exceptMains);
+  }
+  const result = await Promise.all(
+    mainIds.map(async (mainId) => {
+      const groupedBySub = _.groupBy(
+        groupedByMain[mainId],
+        (item) => item.sub_id
+      );
+      const subIds = Object.keys(groupedBySub);
+      const main = await basisOptionMainRepository.find(mainId);
+      return {
+        id: mainId,
+        name: main?.name,
+        subs: subIds.map((subId) => ({
+          id: subId,
+          name: groupedBySub[subId][0].sub_name,
+          subs: groupedBySub[subId].map((item) => ({
+            id: item.id,
+            product_id: item.product_id,
+            image: item.image,
+            value_1: item.value_1,
+            value_2: item.value_2,
+            unit_1: item.unit_1,
+            unit_2: item.unit_2,
+          })),
+        })),
+      };
+    })
+  );
+  return result;
+};
+
+export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
+  const allOptions = await getAllBasisOptionValues();
+  return Promise.all(
+    steps.map(async (step) => {
+      const mappedPreOptions = step.options.map((option) => {
+        if (!option.pre_option) return option;
+        const preOptions = option.pre_option.split(",");
+        const preOptionNames = preOptions.map((pre) => {
+          const found = allOptions.find((item) => item.id === pre);
+          let temp = [
+            found.value_1,
+            found.unit_1,
+            "-",
+            found.value_2,
+            found.unit_2,
+          ];
+          temp =  temp.filter((item) => !_.isEmpty(item))
+          if(temp[temp.length-1] === '-') temp.pop()
+          return temp.join(' ')
+        });
+        return {
+          ...option,
+          pre_option_name: preOptionNames.join(","),
+        };
+      });
+      return {
+        ...step,
+        options: mappedPreOptions,
+      };
+    })
+  );
 };
