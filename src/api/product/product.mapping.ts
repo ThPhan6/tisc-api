@@ -17,6 +17,7 @@ import {
 import { isArray, toNumber, isNaN } from "lodash";
 import { SpecificationType } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { linkageService } from "../linkage/linkage.service";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -360,7 +361,9 @@ export const mappingProductID = (
 };
 
 export const mappingSpecificationType = (
-  attributeGroups: IAttributeGroupWithOptionId[]
+  attributeGroups: IAttributeGroupWithOptionId[],
+  productId: string,
+  userId: string
 ) => {
   return Promise.all(
     attributeGroups.map(async (group) => {
@@ -368,9 +371,17 @@ export const mappingSpecificationType = (
       const type = await specificationStepRepository.getSpecificationType(
         group.id || ""
       );
+      const configurationSteps: any =
+        await linkageService.getConfigurationSteps(
+          productId,
+          group.id || "",
+          undefined,
+          userId
+        );
       return {
         ...group,
         type,
+        steps: configurationSteps.data,
       };
     })
   );

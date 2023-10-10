@@ -90,8 +90,9 @@ export default class ProjectProductController {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const { finish_schedules, ...others } = req.payload as any;
-    const mappedData = toOriginDataAndConfigurationStep(others);
-    console.log(mappedData);
+    let mappedData: any = others.specification
+      ? toOriginDataAndConfigurationStep(others)
+      : { data: others };
     if (!_.isEmpty(mappedData.specification_id))
       await linkageService.upsertConfigurationStep({
         product_id: req.params.id,

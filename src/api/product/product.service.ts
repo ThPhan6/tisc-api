@@ -339,7 +339,9 @@ class ProductService {
       flatBasisGroups
     );
     const addedSpecificationType = await mappingSpecificationType(
-      newSpecificationGroups
+      newSpecificationGroups,
+      product.id,
+      user.id
     );
     const productID = mappingProductID(newSpecificationGroups);
     const newGeneralGroups = mappingAttributeGroups(
