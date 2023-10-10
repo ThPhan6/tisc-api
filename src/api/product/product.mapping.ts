@@ -360,7 +360,7 @@ export const mappingProductID = (
   return productIDs.filter((item) => item && item !== "").join(", ");
 };
 
-export const mappingSpecificationType = (
+export const mappingSpecificationStep = (
   attributeGroups: IAttributeGroupWithOptionId[],
   productId: string,
   userId: string
@@ -378,10 +378,15 @@ export const mappingSpecificationType = (
           undefined,
           userId
         );
+      const specificationSteps: any = await linkageService.getSteps(
+        productId,
+        group.id || ""
+      );
       return {
         ...group,
         type,
-        steps: configurationSteps.data,
+        specification_steps: specificationSteps.data,
+        configuration_steps: configurationSteps.data,
       };
     })
   );
