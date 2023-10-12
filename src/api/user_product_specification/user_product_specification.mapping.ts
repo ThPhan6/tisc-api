@@ -46,11 +46,11 @@ export const toOriginDataAndUpsertConfigurationSteps = async (
           data: group.configuration_steps,
           specification_id: group.id,
         });
-        return {
-          id: group.id,
-          attributes: group.attributes,
-        };
       }
+      return {
+        id: group.id,
+        attributes: group.attributes,
+      };
     })
   );
   return {
