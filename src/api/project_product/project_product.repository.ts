@@ -325,9 +325,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER code.id == pp.material_code_id
             RETURN code.code
         ) : ''
-
+        let attributeGroups = pp.specification.attribute_groups ? pp.specification.attribute_groups: []
         LET newAttributeGroups = (
-          FOR attributeGroup IN pp.specification.attribute_groups
+          FOR attributeGroup IN attributeGroups
           LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
           LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
           RETURN MERGE(
