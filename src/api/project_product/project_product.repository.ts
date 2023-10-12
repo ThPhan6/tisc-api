@@ -326,20 +326,40 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             RETURN code.code
         ) : ''
 
+        LET newAttributeGroups = (
+          FOR attributeGroup IN pp.specification.attribute_groups
+          LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+          LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+          RETURN MERGE(
+            attributeGroup,
+            {
+              configuration_steps: configurationSteps
+            }
+          )
+        )
+        LET tempSpecifiedDetail = MERGE(
+          UNSET(pp, ['_id', '_rev', 'deleted_at']),
+          productSpecification ? productSpecification : {
+            specification: @defaultSpec,
+            brand_location_id: '',
+            distributor_location_id: '',
+          },
+          {material_code}
+        )
         RETURN MERGE(
           KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups', 'availability'),
           {
             brand,
             collection,
             specifiedDetail: MERGE(
-              UNSET(pp, ['_id', '_rev', 'deleted_at']),
-              productSpecification ? productSpecification : {
-                specification: @defaultSpec,
-                brand_location_id: '',
-                distributor_location_id: '',
-              },
-              {material_code}
-            ),
+              tempSpecifiedDetail,
+              {
+                specification: MERGE(
+                  tempSpecifiedDetail.specification,
+                  {attribute_groups: newAttributeGroups}
+                )
+              }
+            ) ,
             assigned_name: user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname,
           }
         )
@@ -581,9 +601,27 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             }`
           : "SORT pp._key ASC"
       }
-
+      LET newAttributeGroups = (
+        FOR attributeGroup IN pp.specification.attribute_groups
+        LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+        LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+        RETURN MERGE(
+          attributeGroup,
+          {
+            configuration_steps: configurationSteps
+          }
+        )
+      )
       RETURN {
-        project_products: UNSET(pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+        project_products: UNSET(MERGE(
+          pp, 
+          {
+            specification: MERGE(
+              pp.specification,
+              {attribute_groups: newAttributeGroups}
+            )
+          }
+        ), ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         product: KEEP(product, 'id', 'name', 'images', 'description', 'availability'),
         brand: KEEP(brand, 'id', 'name', 'logo'),
         collection: KEEP(collections, 'id', 'name'),
