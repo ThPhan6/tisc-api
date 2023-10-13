@@ -325,21 +325,41 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER code.id == pp.material_code_id
             RETURN code.code
         ) : ''
-
+        let attributeGroups = pp.specification.attribute_groups ? pp.specification.attribute_groups: []
+        LET newAttributeGroups = (
+          FOR attributeGroup IN attributeGroups
+          LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+          LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+          RETURN MERGE(
+            attributeGroup,
+            {
+              configuration_steps: configurationSteps
+            }
+          )
+        )
+        LET tempSpecifiedDetail = MERGE(
+          UNSET(pp, ['_id', '_rev', 'deleted_at']),
+          productSpecification ? productSpecification : {
+            specification: @defaultSpec,
+            brand_location_id: '',
+            distributor_location_id: '',
+          },
+          {material_code}
+        )
         RETURN MERGE(
           KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups', 'availability'),
           {
             brand,
             collection,
             specifiedDetail: MERGE(
-              UNSET(pp, ['_id', '_rev', 'deleted_at']),
-              productSpecification ? productSpecification : {
-                specification: @defaultSpec,
-                brand_location_id: '',
-                distributor_location_id: '',
-              },
-              {material_code}
-            ),
+              tempSpecifiedDetail,
+              {
+                specification: MERGE(
+                  tempSpecifiedDetail.specification,
+                  {attribute_groups: newAttributeGroups}
+                )
+              }
+            ) ,
             assigned_name: user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname,
           }
         )
@@ -494,13 +514,32 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
       LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
       SORT pro.product._key ASC
+      LET newAttributeGroups = (
+        FOR attributeGroup IN pro.pp.specification.attribute_groups
+        LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+        LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+        RETURN MERGE(
+          attributeGroup,
+          {
+            configuration_steps: configurationSteps
+          }
+        )
+      )
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         {
           brand: UNSET(pro.brand, ['_id', '_key', '_rev', 'deleted_at']),
           collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
           collection_name: pro.collection.name,
-          specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+          specifiedDetail: MERGE(
+            UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+            {
+              specification: MERGE(
+                pro.pp.specification,
+                {attribute_groups: newAttributeGroups}
+              )
+            }
+          ),
           product_id: CONCAT_SEPARATOR(' - ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(' - ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
@@ -562,9 +601,27 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             }`
           : "SORT pp._key ASC"
       }
-
+      LET newAttributeGroups = (
+        FOR attributeGroup IN pp.specification.attribute_groups
+        LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+        LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+        RETURN MERGE(
+          attributeGroup,
+          {
+            configuration_steps: configurationSteps
+          }
+        )
+      )
       RETURN {
-        project_products: UNSET(pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+        project_products: UNSET(MERGE(
+          pp, 
+          {
+            specification: MERGE(
+              pp.specification,
+              {attribute_groups: newAttributeGroups}
+            )
+          }
+        ), ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         product: KEEP(product, 'id', 'name', 'images', 'description', 'availability'),
         brand: KEEP(brand, 'id', 'name', 'logo'),
         collection: KEEP(collections, 'id', 'name'),
