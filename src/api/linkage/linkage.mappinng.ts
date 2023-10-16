@@ -1,3 +1,4 @@
+import { sortObjectArray } from "@/helpers/common.helper";
 import { OptionLinkageAttribute } from "@/models/option_linkage.model";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { SpecificationStepAttribute } from "@/types";
@@ -74,11 +75,11 @@ export const toLinkageOptions = async (
       return {
         id: mainId,
         name: main?.name,
-        subs: _.sortBy(
+        subs: sortObjectArray(
           subIds.map((subId) => ({
             id: subId,
             name: groupedBySub[subId][0].sub_name,
-            subs: _.sortBy(
+            subs: sortObjectArray(
               groupedBySub[subId].map((item) => ({
                 id: item.id,
                 product_id: item.product_id,
@@ -88,15 +89,17 @@ export const toLinkageOptions = async (
                 unit_1: item.unit_1,
                 unit_2: item.unit_2,
               })),
-              "value_1"
+              "value_1",
+              "ASC"
             ),
           })),
-          "name"
+          "name",
+          "ASC"
         ),
       };
     })
   );
-  return _.sortBy(result, 'name');
+  return sortObjectArray(result, "name", "ASC");
 };
 
 export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
