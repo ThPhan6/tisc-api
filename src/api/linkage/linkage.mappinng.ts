@@ -74,23 +74,29 @@ export const toLinkageOptions = async (
       return {
         id: mainId,
         name: main?.name,
-        subs: subIds.map((subId) => ({
-          id: subId,
-          name: groupedBySub[subId][0].sub_name,
-          subs: groupedBySub[subId].map((item) => ({
-            id: item.id,
-            product_id: item.product_id,
-            image: item.image,
-            value_1: item.value_1,
-            value_2: item.value_2,
-            unit_1: item.unit_1,
-            unit_2: item.unit_2,
+        subs: _.sortBy(
+          subIds.map((subId) => ({
+            id: subId,
+            name: groupedBySub[subId][0].sub_name,
+            subs: _.sortBy(
+              groupedBySub[subId].map((item) => ({
+                id: item.id,
+                product_id: item.product_id,
+                image: item.image,
+                value_1: item.value_1,
+                value_2: item.value_2,
+                unit_1: item.unit_1,
+                unit_2: item.unit_2,
+              })),
+              "value_1"
+            ),
           })),
-        })),
+          "name"
+        ),
       };
     })
   );
-  return result;
+  return _.sortBy(result, 'name');
 };
 
 export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
@@ -109,9 +115,9 @@ export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
             found.value_2,
             found.unit_2,
           ];
-          temp =  temp.filter((item) => !_.isEmpty(item))
-          if(temp[temp.length-1] === '-') temp.pop()
-          return temp.join(' ')
+          temp = temp.filter((item) => !_.isEmpty(item));
+          if (temp[temp.length - 1] === "-") temp.pop();
+          return temp.join(" ");
         });
         return {
           ...option,
