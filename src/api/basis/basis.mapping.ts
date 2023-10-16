@@ -423,7 +423,17 @@ export const sortBasisOption = (
       const sortedSub = main.subs.map((sub: any) => {
         return {
           ...sub,
-          subs: sortObjectArray(sub.subs, "value_1", "ASC"),
+          subs: sortObjectArray(
+            sub.subs.map((item: any) => ({
+              ...item,
+              sortField: `${item.value_1}${item.unit_1}${item.value_2}${item.unit_2}`,
+            })),
+            "sortField",
+            "ASC"
+          ).map((item: any) => {
+            const { sortField, ...temp } = item;
+            return temp;
+          }),
           count: sub.subs.length,
         };
       });
