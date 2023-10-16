@@ -28,13 +28,17 @@ export default class UserProductSpecificationController {
         })
         .code(400);
     }
-    const mapping = toOriginDataAndConfigurationStep(payload);
-    await linkageService.upsertConfigurationStep({
-      product_id: req.params.id,
-      user_id: currentUserId,
-      data: mapping.configuration_steps,
-      specification_id: mapping.specification_id,
-    });
+    let mapping: any = payload.specification
+      ? toOriginDataAndConfigurationStep(payload)
+      : { data: payload };
+    if (payload.specification) {
+      await linkageService.upsertConfigurationStep({
+        product_id: req.params.id,
+        user_id: currentUserId,
+        data: mapping.configuration_steps,
+        specification_id: mapping.specification_id,
+      });
+    }
     const response = await userProductSpecificationRepository.upsert(
       productId,
       currentUserId,

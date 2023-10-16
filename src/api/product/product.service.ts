@@ -42,7 +42,7 @@ import {
   mappingByCollections,
   mappingProductID,
   mappingSpecificationAttribute,
-  mappingSpecificationType,
+  mappingSpecificationStep,
 } from "./product.mapping";
 import {
   IProductOptionAttribute,
@@ -338,8 +338,10 @@ class ProductService {
       flatBasisGroups,
       flatBasisGroups
     );
-    const addedSpecificationType = await mappingSpecificationType(
-      newSpecificationGroups
+    const addedSpecificationType = await mappingSpecificationStep(
+      newSpecificationGroups,
+      product.id,
+      user.id
     );
     const productID = mappingProductID(newSpecificationGroups);
     const newGeneralGroups = mappingAttributeGroups(

@@ -95,28 +95,50 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             RETURN option.value_2 == ''? CONCAT(option.value_1, ' ', option.unit_1) : CONCAT(option.value_1, ' ', option.unit_1,
             ' - ', option.value_2, ' ', option.unit_2)
     )
-    LET productCode = (
-      FILTER pp.specification != null
-      FILTER pp.specification.attribute_groups != null
+    LET skus = (
+      FILTER pp.specification != null && pp.specification.attribute_groups != null
       FOR specification IN pp.specification.attribute_groups
-      FILTER product.specification_attribute_groups != null
           FOR productSpecification IN product.specification_attribute_groups
+              LET configOptions = (FOR specificationSteps IN specification_steps 
+                FILTER specificationSteps.product_id == product.id 
+                FILTER specificationSteps.specification_id == productSpecification.id
+                FILTER specificationSteps.deleted_at == NULL
+                    FOR specificationStepOptions IN specificationSteps.options
+                        FOR configurationSteps IN configuration_steps
+                        FILTER configurationSteps.step_id == specificationSteps.id
+                        FILTER configurationSteps.project_id == @projectId
+                        FILTER configurationSteps.deleted_at == NULL
+                            FOR configOptions in configurationSteps.options
+                            FILTER configOptions.id == specificationStepOptions.id
+                              FOR defaultBasisOption in defaultOptions
+                              FILTER defaultBasisOption.id == configOptions.id
+                              RETURN DISTINCT(MERGE(configOptions, {code: defaultBasisOption.product_id})))
               FILTER specification.id == productSpecification.id
               FILTER specification.attributes != null
-              FOR attribute IN specification.attributes
-              FILTER productSpecification.attributes != null
-                  FOR productSpecificationAttribute IN productSpecification.attributes
-                      FILTER productSpecificationAttribute.type == 'Options'
-                      FILTER attribute.id == productSpecificationAttribute.id
-                      FILTER productSpecificationAttribute.basis_options != null
-                          FOR optionCode IN productSpecificationAttribute.basis_options
-                              FILTER optionCode.id == attribute.basis_option_id
-                              LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
-                              RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
+              LET configurationCodes = (
+                FOR configOption IN configOptions
+                FOR index IN RANGE(1, configOption.quantity) 
+                RETURN configOption.code
+              )
+              LET stepCode = CONCAT_SEPARATOR(' - ', configurationCodes)
+              RETURN stepCode != "" ? 
+                stepCode
+               :CONCAT_SEPARATOR(' - ', (
+                FOR attribute IN specification.attributes
+                FILTER productSpecification.attributes != null
+                    FOR productSpecificationAttribute IN productSpecification.attributes
+                        FILTER productSpecificationAttribute.type == 'Options'
+                        FILTER attribute.id == productSpecificationAttribute.id
+                        FILTER productSpecificationAttribute.basis_options != null
+                            FOR optionCode IN productSpecificationAttribute.basis_options
+                                FILTER optionCode.id == attribute.basis_option_id
+                                LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
+                                RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
+              ) )                     
     )
     RETURN {
       variant: CONCAT_SEPARATOR('; ', options),
-      productCode: CONCAT_SEPARATOR(' - ', UNIQUE(productCode)),
+      productCode: CONCAT_SEPARATOR(' - ', UNIQUE(skus)),
     }
   )`;
   private brandQuery = `pp.custom_product == true ? FIRST(
@@ -325,21 +347,41 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER code.id == pp.material_code_id
             RETURN code.code
         ) : ''
-
+        let attributeGroups = pp.specification.attribute_groups ? pp.specification.attribute_groups: []
+        LET newAttributeGroups = (
+          FOR attributeGroup IN attributeGroups
+          LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+          LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+          RETURN MERGE(
+            attributeGroup,
+            {
+              configuration_steps: configurationSteps
+            }
+          )
+        )
+        LET tempSpecifiedDetail = MERGE(
+          UNSET(pp, ['_id', '_rev', 'deleted_at']),
+          productSpecification ? productSpecification : {
+            specification: @defaultSpec,
+            brand_location_id: '',
+            distributor_location_id: '',
+          },
+          {material_code}
+        )
         RETURN MERGE(
           KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups', 'availability'),
           {
             brand,
             collection,
             specifiedDetail: MERGE(
-              UNSET(pp, ['_id', '_rev', 'deleted_at']),
-              productSpecification ? productSpecification : {
-                specification: @defaultSpec,
-                brand_location_id: '',
-                distributor_location_id: '',
-              },
-              {material_code}
-            ),
+              tempSpecifiedDetail,
+              {
+                specification: MERGE(
+                  tempSpecifiedDetail.specification,
+                  {attribute_groups: newAttributeGroups}
+                )
+              }
+            ) ,
             assigned_name: user.lastname ? CONCAT(user.firstname, ' ', user.lastname) : user.firstname,
           }
         )
@@ -475,10 +517,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
       LET brand = ${this.brandQuery}
 
-      FOR col IN collections
-      FILTER col.id in product.collection_ids
-      FILTER col.deleted_at == null
-
       LET basisOptions = ${this.basicOptionQuery}
 
       COLLECT id = brand.id, name = brand.name INTO products
@@ -494,13 +532,38 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
       LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
       SORT pro.product._key ASC
+      LET newAttributeGroups = (
+        FOR attributeGroup IN pro.pp.specification.attribute_groups
+        LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+        LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+        RETURN MERGE(
+          attributeGroup,
+          {
+            configuration_steps: configurationSteps
+          }
+        )
+      )
+      LET colNames = (
+        FOR col IN collections
+        FILTER col.id in pro.product.collection_ids
+        FILTER col.deleted_at == null
+        RETURN col.name
+      )
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         {
           brand: UNSET(pro.brand, ['_id', '_key', '_rev', 'deleted_at']),
-          collection: UNSET(pro.col, ['_id', '_key', '_rev', 'deleted_at']),
-          collection_name: pro.collection.name,
-          specifiedDetail: UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+          collection: {},
+          collection_name: CONCAT_SEPARATOR(' - ', colNames),
+          specifiedDetail: MERGE(
+            UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+            {
+              specification: MERGE(
+                pro.pp.specification,
+                {attribute_groups: newAttributeGroups}
+              )
+            }
+          ),
           product_id: CONCAT_SEPARATOR(' - ', productCode) == '' ? 'N/A' : CONCAT_SEPARATOR(' - ', productCode),
           variant: LENGTH(variant) > 0 ? CONCAT_SEPARATOR('; ', variant) : "Refer to Design Document"
         }
@@ -562,9 +625,27 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             }`
           : "SORT pp._key ASC"
       }
-
+      LET newAttributeGroups = (
+        FOR attributeGroup IN pp.specification.attribute_groups
+        LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+        LET configurationSteps = (FOR cs IN configuration_steps FILTER cs.step_id IN specificationStepIds FILTER cs.project_id == @projectId FILTER cs.deleted_at == null RETURN UNSET(cs, ['_id', '_key', '_rev', 'deleted_at']))
+        RETURN MERGE(
+          attributeGroup,
+          {
+            configuration_steps: configurationSteps
+          }
+        )
+      )
       RETURN {
-        project_products: UNSET(pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
+        project_products: UNSET(MERGE(
+          pp, 
+          {
+            specification: MERGE(
+              pp.specification,
+              {attribute_groups: newAttributeGroups}
+            )
+          }
+        ), ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         product: KEEP(product, 'id', 'name', 'images', 'description', 'availability'),
         brand: KEEP(brand, 'id', 'name', 'logo'),
         collection: KEEP(collections, 'id', 'name'),
@@ -778,15 +859,17 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                       LET configOptions = (FOR specificationSteps IN specification_steps 
                         FILTER specificationSteps.product_id == product.id 
                         FILTER specificationSteps.specification_id == productSpecification.id
+                        FILTER specificationSteps.deleted_at == NULL
                             FOR specificationStepOptions IN specificationSteps.options
                                 FOR configurationSteps IN configuration_steps
                                 FILTER configurationSteps.step_id == specificationSteps.id
                                 FILTER configurationSteps.project_id == @projectId
+                                FILTER configurationSteps.deleted_at == NULL
                                     FOR configOptions in configurationSteps.options
                                     FILTER configOptions.id == specificationStepOptions.id
                                       FOR defaultBasisOption in defaultOptions
                                       FILTER defaultBasisOption.id == configOptions.id
-                                      RETURN MERGE(configOptions, {code: defaultBasisOption.product_id}))
+                                      RETURN DISTINCT(MERGE(configOptions, {code: defaultBasisOption.product_id})))
                       FILTER specification.id == productSpecification.id
                       FILTER specification.attributes != null
                       LET configurationCodes = (
@@ -794,8 +877,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                         FOR index IN RANGE(1, configOption.quantity) 
                         RETURN configOption.code
                       )
-                      RETURN specification.type == @specificationType ? 
-                        CONCAT_SEPARATOR(' - ', configurationCodes)
+                      LET stepCode = CONCAT_SEPARATOR(' - ', configurationCodes)
+                      RETURN stepCode != "" ? 
+                        stepCode
                        :CONCAT_SEPARATOR(' - ', (
                         FOR attribute IN specification.attributes
                         FILTER productSpecification.attributes != null
@@ -1035,7 +1119,6 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         departmentType: COMMON_TYPES.DEPARTMENT,
         defaultDimensionWeight:
           getDefaultDimensionAndWeightAttribute().attributes,
-        specificationType: SpecificationType.autoStep,
       }
     );
   };
