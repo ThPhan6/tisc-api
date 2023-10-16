@@ -121,7 +121,7 @@ export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
         });
         return {
           ...option,
-          pre_option_name: preOptionNames.join(","),
+          pre_option_name: preOptionNames.join(", "),
         };
       });
       return {
