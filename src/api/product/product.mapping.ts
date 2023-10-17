@@ -367,10 +367,10 @@ export const mappingSpecificationStep = (
 ) => {
   return Promise.all(
     attributeGroups.map(async (group) => {
-      if (group.type) return group;
       const type = await specificationStepRepository.getSpecificationType(
         group.id || ""
       );
+      if (!type) return group;
       const configurationSteps: any =
         await linkageService.getConfigurationSteps(
           productId,
