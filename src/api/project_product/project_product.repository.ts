@@ -98,16 +98,19 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     LET skus = (
       FILTER pp.specification != null && pp.specification.attribute_groups != null
       FOR specification IN pp.specification.attribute_groups
+      FILTER product.specification_attribute_groups != NULL
           FOR productSpecification IN product.specification_attribute_groups
               LET configOptions = (FOR specificationSteps IN specification_steps 
                 FILTER specificationSteps.product_id == product.id 
                 FILTER specificationSteps.specification_id == productSpecification.id
                 FILTER specificationSteps.deleted_at == NULL
+                FILTER specificationSteps.options != NUll
                     FOR specificationStepOptions IN specificationSteps.options
                         FOR configurationSteps IN configuration_steps
                         FILTER configurationSteps.step_id == specificationSteps.id
                         FILTER configurationSteps.project_id == @projectId
                         FILTER configurationSteps.deleted_at == NULL
+                        FILTER configurationSteps.options != NUll
                             FOR configOptions in configurationSteps.options
                             FILTER configOptions.id == specificationStepOptions.id
                               FOR defaultBasisOption in defaultOptions
@@ -116,6 +119,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               FILTER specification.id == productSpecification.id
               FILTER specification.attributes != null
               LET configurationCodes = (
+                FILTER configOptions != NULL
                 FOR configOption IN configOptions
                 FOR index IN RANGE(1, configOption.quantity) 
                 RETURN configOption.code
