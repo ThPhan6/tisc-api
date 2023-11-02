@@ -39,7 +39,6 @@ export default {
               id: Joi.string(),
               pre_option: Joi.any(),
               replicate: Joi.number().min(1),
-              picked: Joi.boolean().default(false),
             }),
           })
         )

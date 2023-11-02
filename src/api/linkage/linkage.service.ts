@@ -8,6 +8,7 @@ import {
 import { configurationStepRepository } from "@/repositories/configuration_step.repository";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 import { ConfigurationStepType } from "@/types";
 import _ from "lodash";
 import { projectProductRepository } from "../project_product/project_product.repository";
@@ -20,6 +21,7 @@ import {
   LinkageRequest,
   MultiConfigurationStepRequest,
   MultiStepRequest,
+  StepSelectionRequest,
 } from "./linkage.type";
 
 class LinkageService {
@@ -243,6 +245,39 @@ class LinkageService {
             });
         })
       );
+    }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async upsertStepSelection(payload: StepSelectionRequest) {
+    if (payload.project_id && payload.product_id) {
+      const projectProduct = await projectProductRepository.findBy({
+        deleted_at: null,
+        project_id: payload.project_id,
+        product_id: payload.product_id,
+      });
+      if (!projectProduct) {
+        return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+      }
+    }
+    let paramsToFind: any = payload.user_id
+      ? {
+          product_id: payload.product_id,
+          user_id: payload.user_id,
+          specification_id: payload.specification_id,
+        }
+      : {
+          product_id: payload.product_id,
+          project_id: payload.project_id,
+          specification_id: payload.specification_id,
+        };
+    const stepSelection = await stepSelectionRepository.findBy(paramsToFind);
+    if (!stepSelection) {
+      await stepSelectionRepository.create(payload);
+    } else {
+      await stepSelectionRepository.update(stepSelection.id, {
+        quantities: payload.quantities,
+      });
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }

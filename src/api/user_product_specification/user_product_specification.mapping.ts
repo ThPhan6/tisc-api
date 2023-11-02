@@ -5,13 +5,16 @@ import { projectProductRepository } from "../project_product/project_product.rep
 
 export const toOriginDataAndConfigurationStep = (payload: any) => {
   let configurationSteps: ConfigurationStepRequest[] = [];
-
+  let stepSelections: any = {};
   let specification_id = "";
   const originData = payload.specification.attribute_groups.map(
     (group: any) => {
       if (group.configuration_steps) {
         configurationSteps = group.configuration_steps;
         specification_id = group.id;
+      }
+      if (group.step_selections) {
+        (stepSelections = group.step_selections), (specification_id = group.id);
       }
       return {
         id: group.id,
@@ -28,6 +31,7 @@ export const toOriginDataAndConfigurationStep = (payload: any) => {
       },
     },
     configuration_steps: configurationSteps,
+    step_selections: stepSelections,
     specification_id,
   };
 };
