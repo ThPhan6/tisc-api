@@ -381,6 +381,7 @@ export const mappingSpecificationStep = (
         user_id: userId,
         specification_id: group.id || "",
       });
+      const quantities = stepSelection?.quantities;
       const viewSteps = specificationSteps.data.map(
         (specificationStep: any) => {
           const combinedOptions = specificationStep.options.map(
@@ -392,10 +393,19 @@ export const mappingSpecificationStep = (
                     .concat(option.id)
                     .map((selectId: string) => `${selectId}_1`)
                     .join(",");
+              let picked = false;
+              if (
+                quantities &&
+                quantities[tempSelectId] &&
+                quantities[tempSelectId] > 0
+              ) {
+                picked = true;
+              }
               return {
                 ...option,
                 index: 1,
                 select_id: tempSelectId,
+                picked,
                 yours: option.replicate,
               };
             }
