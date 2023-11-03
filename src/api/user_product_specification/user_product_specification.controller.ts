@@ -35,7 +35,7 @@ export default class UserProductSpecificationController {
       await linkageService.upsertStepSelection({
         product_id: req.params.id,
         user_id: currentUserId,
-        quantities: mapping.step_selections,
+        step_selections: mapping.step_selections,
         specification_id: mapping.specification_id,
       });
     }

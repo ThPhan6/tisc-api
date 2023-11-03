@@ -14,7 +14,8 @@ export const toOriginDataAndConfigurationStep = (payload: any) => {
         specification_id = group.id;
       }
       if (group.step_selections) {
-        (stepSelections = group.step_selections), (specification_id = group.id);
+        stepSelections = group.step_selections;
+        specification_id = group.id;
       }
       return {
         id: group.id,
@@ -43,11 +44,11 @@ export const toOriginDataAndUpsertConfigurationSteps = async (
   const projectProduct = await projectProductRepository.find(id);
   const originData = await Promise.all(
     payload.specification.attribute_groups.map(async (group: any) => {
-      if (group.configuration_steps && projectProduct) {
-        await linkageService.upsertConfigurationStep({
+      if (group.step_selections && projectProduct) {
+        await linkageService.upsertStepSelection({
           product_id: projectProduct.product_id,
           project_id: projectProduct.project_id,
-          data: group.configuration_steps,
+          step_selections: group.step_selections,
           specification_id: group.id,
         });
       }

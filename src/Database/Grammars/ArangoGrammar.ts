@@ -216,7 +216,7 @@ class ArangoGrammar {
   protected compileUpdate(alias: string, table: string, newData: Object) {
     this.query += ` UPDATE ${alias} with ${JSON.stringify(
       newData
-    )} IN ${table} RETURN NEW`;
+    )} IN ${table} OPTIONS { mergeObjects: false } RETURN NEW`;
     return this;
   }
 

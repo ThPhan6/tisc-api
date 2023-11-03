@@ -35,7 +35,7 @@ export type StepSelectionRequest = {
   product_id?: string;
   specification_id?: string;
   user_id?: string;
-  quantities: any;
+  step_selections: any;
 };
 
 export type MultiConfigurationStepRequest = {

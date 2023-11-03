@@ -249,6 +249,32 @@ class LinkageService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
+  public combineQuantityForStepSelection = (data: any) => {
+    const selectIds = Object.keys(data);
+    const combinedOptionQuantity = selectIds.reduce(
+      (pre: any, selectId: string) => {
+        const parts = selectId.split(",");
+        const last = parts[parts.length - 1];
+        const lastParts = last.split("_");
+        const optionId = lastParts[0];
+        const quantity = data[selectId];
+        return quantity > 0
+          ? {
+              ...pre,
+              [optionId]: pre[optionId] ? pre[optionId] + quantity : quantity,
+            }
+          : pre;
+      },
+      {}
+    );
+    const optionIds = Object.keys(combinedOptionQuantity);
+    return optionIds.map((optionId: string) => {
+      return {
+        id: optionId,
+        quantity: combinedOptionQuantity[optionId],
+      };
+    });
+  };
   public async upsertStepSelection(payload: StepSelectionRequest) {
     if (payload.project_id && payload.product_id) {
       const projectProduct = await projectProductRepository.findBy({
@@ -273,10 +299,18 @@ class LinkageService {
         };
     const stepSelection = await stepSelectionRepository.findBy(paramsToFind);
     if (!stepSelection) {
-      await stepSelectionRepository.create(payload);
+      await stepSelectionRepository.create({
+        ...payload,
+        combined_quantities: this.combineQuantityForStepSelection(
+          payload.step_selections
+        ),
+      });
     } else {
       await stepSelectionRepository.update(stepSelection.id, {
-        quantities: payload.quantities,
+        quantities: payload.step_selections,
+        combined_quantities: this.combineQuantityForStepSelection(
+          payload.step_selections
+        ),
       });
     }
     return successMessageResponse(MESSAGES.SUCCESS);
