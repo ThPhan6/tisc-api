@@ -360,7 +360,6 @@ export const mappingProductID = (
   });
   return productIDs.filter((item) => item && item !== "").join(", ");
 };
-
 export const mappingSpecificationStep = (
   attributeGroups: IAttributeGroupWithOptionId[],
   productId: string,
@@ -383,7 +382,7 @@ export const mappingSpecificationStep = (
       });
       const quantities = stepSelection?.quantities;
       const viewSteps = specificationSteps.data.map(
-        (specificationStep: any) => {
+        (specificationStep: any, index: number) => {
           const combinedOptions = specificationStep.options.map(
             (option: any) => {
               const tempSelectId: string = !option.pre_option
@@ -401,11 +400,21 @@ export const mappingSpecificationStep = (
               ) {
                 picked = true;
               }
+              const nextOptions = specificationSteps.data[
+                index + 1
+              ]?.options.filter(
+                (item: any) =>
+                  item.pre_option ===
+                  (option.pre_option
+                    ? `${option.pre_option},${option.id}`
+                    : option.id)
+              );
               return {
                 ...option,
                 index: 1,
                 select_id: tempSelectId,
                 picked,
+                has_next_options: nextOptions?.length > 0,
                 yours: option.replicate,
               };
             }
