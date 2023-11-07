@@ -45,12 +45,15 @@ export const toOriginDataAndUpsertConfigurationSteps = async (
   const originData = await Promise.all(
     payload.specification.attribute_groups.map(async (group: any) => {
       if (group.step_selections && projectProduct) {
-        await linkageService.upsertStepSelection({
+        const updatedStepSelection = await linkageService.upsertStepSelection({
           product_id: projectProduct.product_id,
           project_id: projectProduct.project_id,
           step_selections: group.step_selections,
           specification_id: group.id,
         });
+        if (updatedStepSelection.statusCode !== 200) {
+          return updatedStepSelection;
+        }
       }
       return {
         id: group.id,

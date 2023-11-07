@@ -140,52 +140,6 @@ class LinkageService {
       await configurationStepRepository.create(data);
     }
   }
-  public async validateQuantities(payload: MultiConfigurationStepRequest) {
-    const stepIds = payload.data.map((item) => item.step_id);
-    const steps = await specificationStepRepository.getMany(stepIds);
-    const sortedSteps = sortObjectArray(steps, "order", "ASC");
-
-    const stepOptions = steps.reduce((pre: any[], cur) => {
-      return pre.concat(cur.options);
-    }, []);
-    const configurationStepOptions = payload.data
-      .filter((item) => item.step_id !== sortedSteps[0].id)
-      .reduce((pre: any[], cur) => {
-        return pre.concat(cur.options);
-      }, [])
-      .map((item) => {
-        const found = stepOptions.find(
-          (el) => el.id === item.id && el.pre_option === item.pre_option
-        );
-        return {
-          ...item,
-          ...found,
-        };
-      });
-    const preOptionQuantity = configurationStepOptions.reduce((pre, cur) => {
-      return {
-        ...pre,
-        [cur.pre_option]: (pre[cur.pre_option] || 0) + cur.quantity,
-      };
-    }, {});
-    const keysToCheck = Object.keys(preOptionQuantity);
-    let check = true;
-    keysToCheck.forEach((preOptionToCheck) => {
-      const foundReplicate = stepOptions.find((item) => {
-        if (item.pre_option)
-          return preOptionToCheck === `${item.pre_option},${item.id}`;
-        else return preOptionToCheck === item.id;
-      });
-      if (
-        !foundReplicate ||
-        foundReplicate.replicate !== preOptionQuantity[preOptionToCheck]
-      ) {
-        check = false;
-      }
-    });
-
-    return check;
-  }
   public async upsertConfigurationStep(payload: MultiConfigurationStepRequest) {
     // const isValidQuantity = await this.validateQuantities(payload);
     // if (!isValidQuantity) {
@@ -275,7 +229,108 @@ class LinkageService {
       };
     });
   };
+  public async validateQuantities(payload: MultiConfigurationStepRequest) {
+    const stepIds = payload.data.map((item) => item.step_id);
+    const steps = await specificationStepRepository.getMany(stepIds);
+    const sortedSteps = sortObjectArray(steps, "order", "ASC");
+
+    const stepOptions = steps.reduce((pre: any[], cur) => {
+      return pre.concat(cur.options);
+    }, []);
+    const configurationStepOptions = payload.data
+      .filter((item) => item.step_id !== sortedSteps[0].id)
+      .reduce((pre: any[], cur) => {
+        return pre.concat(cur.options);
+      }, [])
+      .map((item) => {
+        const found = stepOptions.find(
+          (el) => el.id === item.id && el.pre_option === item.pre_option
+        );
+        return {
+          ...item,
+          ...found,
+        };
+      });
+    const preOptionQuantity = configurationStepOptions.reduce((pre, cur) => {
+      return {
+        ...pre,
+        [cur.pre_option]: (pre[cur.pre_option] || 0) + cur.quantity,
+      };
+    }, {});
+    const keysToCheck = Object.keys(preOptionQuantity);
+    let check = true;
+    keysToCheck.forEach((preOptionToCheck) => {
+      const foundReplicate = stepOptions.find((item) => {
+        if (item.pre_option)
+          return preOptionToCheck === `${item.pre_option},${item.id}`;
+        else return preOptionToCheck === item.id;
+      });
+      if (
+        !foundReplicate ||
+        foundReplicate.replicate !== preOptionQuantity[preOptionToCheck]
+      ) {
+        check = false;
+      }
+    });
+
+    return check;
+  }
+  public validateQuantitiesV2 = (data: any, specificationSteps: any[]) => {
+    const selectIds = Object.keys(data);
+    const combinedOptionQuantity = selectIds.reduce(
+      (pre: any, selectId: string) => {
+        const parts = selectId.split(",");
+        if (parts.length === 1) return pre;
+        const destination = parts[parts.length - 2];
+        const optionId = destination;
+        const quantity = data[selectId];
+        return quantity > 0
+          ? {
+              ...pre,
+              [optionId]: pre[optionId] ? pre[optionId] + quantity : quantity,
+            }
+          : pre;
+      },
+      {}
+    );
+    const optionIds = Object.keys(combinedOptionQuantity);
+    const mappedQuantities = optionIds.map((optionId) => {
+      return {
+        id: optionId,
+        quantity: combinedOptionQuantity[optionId],
+      };
+    });
+    let check = true;
+    const flatSpecificationOptions = specificationSteps.reduce(
+      (pre: any, cur: any) => {
+        return pre.concat(cur.options);
+      },
+      []
+    );
+    mappedQuantities.forEach((mappedQuantity) => {
+      const optionId = mappedQuantity.id.split("_")[0];
+      const found = flatSpecificationOptions.find(
+        (item: any) => item.id === optionId
+      );
+      if (!found) check = false;
+      if (found && found.replicate !== mappedQuantity.quantity) check = false;
+    });
+    return check;
+  };
   public async upsertStepSelection(payload: StepSelectionRequest) {
+    const specificationSteps: any = await linkageService.getSteps(
+      payload.product_id || "",
+      payload.specification_id || ""
+    );
+    const isValidQuantity = this.validateQuantitiesV2(
+      payload.step_selections,
+      specificationSteps.data
+    );
+    if (!isValidQuantity) {
+      return errorMessageResponse(
+        MESSAGES.CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE
+      );
+    }
     if (payload.project_id && payload.product_id) {
       const projectProduct = await projectProductRepository.findBy({
         deleted_at: null,
