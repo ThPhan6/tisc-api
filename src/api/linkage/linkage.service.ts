@@ -223,7 +223,7 @@ class LinkageService {
       };
     });
   };
-  
+
   public validateQuantities = (data: any, specificationSteps: any[]) => {
     const selectIds = Object.keys(data);
     const combinedOptionQuantity = selectIds.reduce(
@@ -231,7 +231,7 @@ class LinkageService {
         const parts = selectId.split(",");
         // if (parts.length === 1) return pre;
         const destination = parts[parts.length - 1];
-        const optionId = destination;
+        const optionId = destination.split("_")[0];
         const quantity = data[selectId];
         return quantity > 0
           ? {
@@ -290,11 +290,10 @@ class LinkageService {
       );
       let yours = mappedQuantities.reduce((pre: number, cur: any) => {
         if (
-          cur.select_id.includes(mappedQuantity.select_id) &&
+          cur.select_id.includes(mappedQuantity.id) &&
           cur.select_id.split(",").length -
             mappedQuantity.select_id.split(",").length ===
-            1 &&
-          cur.select_id !== mappedQuantity.select_id
+            1
         )
           return pre + cur.quantity;
         return pre;
@@ -304,7 +303,8 @@ class LinkageService {
 
       if (
         currentOption &&
-        currentOption.replicate !== yours &&
+        yours !== 0 &&
+        yours % currentOption.replicate !== 0 &&
         nextOptions.length !== 0
       )
         check = false;
