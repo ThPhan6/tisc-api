@@ -39,7 +39,7 @@ export default class UserProductSpecificationController {
         specification_id: mapping.specification_id,
       });
       if (updatedStepSelection.statusCode !== 200) {
-        return updatedStepSelection;
+        return toolkit.response(updatedStepSelection).code(400);
       }
     }
     const response = await userProductSpecificationRepository.upsert(

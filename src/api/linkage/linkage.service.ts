@@ -141,12 +141,6 @@ class LinkageService {
     }
   }
   public async upsertConfigurationStep(payload: MultiConfigurationStepRequest) {
-    // const isValidQuantity = await this.validateQuantities(payload);
-    // if (!isValidQuantity) {
-    //   return errorMessageResponse(
-    //     MESSAGES.CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE
-    //   );
-    // }
     if (payload.project_id && payload.product_id) {
       const projectProduct = await projectProductRepository.findBy({
         deleted_at: null,
@@ -229,75 +223,42 @@ class LinkageService {
       };
     });
   };
-  public async validateQuantities(payload: MultiConfigurationStepRequest) {
-    const stepIds = payload.data.map((item) => item.step_id);
-    const steps = await specificationStepRepository.getMany(stepIds);
-    const sortedSteps = sortObjectArray(steps, "order", "ASC");
-
-    const stepOptions = steps.reduce((pre: any[], cur) => {
-      return pre.concat(cur.options);
-    }, []);
-    const configurationStepOptions = payload.data
-      .filter((item) => item.step_id !== sortedSteps[0].id)
-      .reduce((pre: any[], cur) => {
-        return pre.concat(cur.options);
-      }, [])
-      .map((item) => {
-        const found = stepOptions.find(
-          (el) => el.id === item.id && el.pre_option === item.pre_option
-        );
-        return {
-          ...item,
-          ...found,
-        };
-      });
-    const preOptionQuantity = configurationStepOptions.reduce((pre, cur) => {
-      return {
-        ...pre,
-        [cur.pre_option]: (pre[cur.pre_option] || 0) + cur.quantity,
-      };
-    }, {});
-    const keysToCheck = Object.keys(preOptionQuantity);
-    let check = true;
-    keysToCheck.forEach((preOptionToCheck) => {
-      const foundReplicate = stepOptions.find((item) => {
-        if (item.pre_option)
-          return preOptionToCheck === `${item.pre_option},${item.id}`;
-        else return preOptionToCheck === item.id;
-      });
-      if (
-        !foundReplicate ||
-        foundReplicate.replicate !== preOptionQuantity[preOptionToCheck]
-      ) {
-        check = false;
-      }
-    });
-
-    return check;
-  }
-  public validateQuantitiesV2 = (data: any, specificationSteps: any[]) => {
+  
+  public validateQuantities = (data: any, specificationSteps: any[]) => {
     const selectIds = Object.keys(data);
     const combinedOptionQuantity = selectIds.reduce(
       (pre: any, selectId: string) => {
         const parts = selectId.split(",");
-        if (parts.length === 1) return pre;
-        const destination = parts[parts.length - 2];
+        // if (parts.length === 1) return pre;
+        const destination = parts[parts.length - 1];
         const optionId = destination;
         const quantity = data[selectId];
         return quantity > 0
           ? {
               ...pre,
-              [optionId]: pre[optionId] ? pre[optionId] + quantity : quantity,
+              [optionId]: {
+                quantity: pre[optionId]
+                  ? pre[optionId].quantity + quantity
+                  : quantity,
+                pre_option: parts
+                  .slice(0, parts.length - 1)
+                  .map((item: string) => item.split("_")[0])
+                  .join(","),
+                select_id: selectId,
+              },
             }
           : pre;
       },
       {}
     );
+
     const optionIds = Object.keys(combinedOptionQuantity);
     const mappedQuantities = optionIds.map((optionId) => {
       return {
         id: optionId,
-        quantity: combinedOptionQuantity[optionId],
+        quantity: combinedOptionQuantity[optionId].quantity,
+        pre_option: combinedOptionQuantity[optionId].pre_option,
+        select_id: combinedOptionQuantity[optionId].select_id,
       };
     });
     let check = true;
@@ -307,13 +268,46 @@ class LinkageService {
       },
       []
     );
+
     mappedQuantities.forEach((mappedQuantity) => {
       const optionId = mappedQuantity.id.split("_")[0];
-      const found = flatSpecificationOptions.find(
-        (item: any) => item.id === optionId
+
+      const currentOption = flatSpecificationOptions.find(
+        (item: any) =>
+          item.id === optionId &&
+          _.isEmpty(
+            mappedQuantity.pre_option
+              ? item.pre_option === mappedQuantity.pre_option
+              : true
+          )
       );
-      if (!found) check = false;
-      if (found && found.replicate !== mappedQuantity.quantity) check = false;
+      const nextOptions = flatSpecificationOptions.filter(
+        (item: any) =>
+          item.pre_option ===
+          (mappedQuantity.pre_option
+            ? `${mappedQuantity.pre_option},${optionId}`
+            : optionId)
+      );
+      let yours = mappedQuantities.reduce((pre: number, cur: any) => {
+        if (
+          cur.select_id.includes(mappedQuantity.select_id) &&
+          cur.select_id.split(",").length -
+            mappedQuantity.select_id.split(",").length ===
+            1 &&
+          cur.select_id !== mappedQuantity.select_id
+        )
+          return pre + cur.quantity;
+        return pre;
+      }, 0);
+
+      if (!currentOption) check = false;
+
+      if (
+        currentOption &&
+        currentOption.replicate !== yours &&
+        nextOptions.length !== 0
+      )
+        check = false;
     });
     return check;
   };
@@ -322,7 +316,7 @@ class LinkageService {
       payload.product_id || "",
       payload.specification_id || ""
     );
-    const isValidQuantity = this.validateQuantitiesV2(
+    const isValidQuantity = this.validateQuantities(
       payload.step_selections,
       specificationSteps.data
     );
