@@ -27,6 +27,7 @@ export default {
                 }),
               })
             ),
+            step_selections: Joi.any(),
             attributes: Joi.array().items(
               Joi.object({
                 id: requireStringValidation("Attribute id"),

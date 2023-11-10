@@ -18,6 +18,7 @@ import { isArray, toNumber, isNaN } from "lodash";
 import { SpecificationType } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { linkageService } from "../linkage/linkage.service";
+import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -359,7 +360,6 @@ export const mappingProductID = (
   });
   return productIDs.filter((item) => item && item !== "").join(", ");
 };
-
 export const mappingSpecificationStep = (
   attributeGroups: IAttributeGroupWithOptionId[],
   productId: string,
@@ -371,22 +371,67 @@ export const mappingSpecificationStep = (
         group.id || ""
       );
       if (!type) return group;
-      const configurationSteps: any =
-        await linkageService.getConfigurationSteps(
-          productId,
-          group.id || "",
-          undefined,
-          userId
-        );
       const specificationSteps: any = await linkageService.getSteps(
         productId,
         group.id || ""
+      );
+      const stepSelection = await stepSelectionRepository.findBy({
+        product_id: productId,
+        user_id: userId,
+        specification_id: group.id || "",
+      });
+      const quantities = stepSelection?.quantities;
+      const viewSteps = specificationSteps.data.map(
+        (specificationStep: any, index: number) => {
+          const combinedOptions = specificationStep.options.map(
+            (option: any) => {
+              const tempSelectId: string = !option.pre_option
+                ? `${option.id}_1`
+                : option.pre_option
+                    .split(",")
+                    .concat(option.id)
+                    .map((selectId: string) => `${selectId}_1`)
+                    .join(",");
+              let picked = false;
+              if (
+                quantities &&
+                quantities[tempSelectId] &&
+                quantities[tempSelectId] > 0
+              ) {
+                picked = true;
+              }
+              const nextOptions = specificationSteps.data[
+                index + 1
+              ]?.options.filter(
+                (item: any) =>
+                  item.pre_option ===
+                  (option.pre_option
+                    ? `${option.pre_option},${option.id}`
+                    : option.id)
+              );
+              return {
+                ...option,
+                index: 1,
+                select_id: tempSelectId,
+                picked,
+                has_next_options: nextOptions?.length > 0,
+                yours: option.replicate,
+              };
+            }
+          );
+          return {
+            ...specificationStep,
+            options: combinedOptions,
+          };
+        }
       );
       return {
         ...group,
         type,
         specification_steps: specificationSteps.data,
-        configuration_steps: configurationSteps.data,
+        configuration_steps: [],
+        viewSteps,
+        stepSelection: stepSelection,
       };
     })
   );

@@ -32,12 +32,15 @@ export default class UserProductSpecificationController {
       ? toOriginDataAndConfigurationStep(payload)
       : { data: payload };
     if (payload.specification) {
-      await linkageService.upsertConfigurationStep({
+      const updatedStepSelection = await linkageService.upsertStepSelection({
         product_id: req.params.id,
         user_id: currentUserId,
-        data: mapping.configuration_steps,
+        step_selections: mapping.step_selections,
         specification_id: mapping.specification_id,
       });
+      if (updatedStepSelection.statusCode !== 200) {
+        return toolkit.response(updatedStepSelection).code(400);
+      }
     }
     const response = await userProductSpecificationRepository.upsert(
       productId,

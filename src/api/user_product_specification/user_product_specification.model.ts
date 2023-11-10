@@ -6,6 +6,7 @@ export interface ProductSpecificationSelection {
   attribute_groups: {
     id: string;
     configuration_steps?: ConfigurationStepRequest[];
+    step_selections?: any;
     attributes: {
       id: string;
       basis_option_id: string;

@@ -39,7 +39,8 @@ import { permissionService } from "@/api/permission/permission.service";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
-import { startCase } from 'lodash';
+import { startCase } from "lodash";
+import { ENVIRONMENT } from "@/config";
 
 const errorMessage = {
   [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
@@ -250,10 +251,7 @@ class AuthService {
     return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
-  public register = async (
-    payload: IRegisterRequest,
-    ipAddress: string
-  ) => {
+  public register = async (payload: IRegisterRequest, ipAddress: string) => {
     const user = await userRepository.findBy({
       email: payload.email,
     });
@@ -261,7 +259,9 @@ class AuthService {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
 
-    const createdDesign = await designerRepository.create({ name: startCase(`${payload.firstname} company`) });
+    const createdDesign = await designerRepository.create({
+      name: startCase(`${payload.firstname} company`),
+    });
 
     if (!createdDesign) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -277,14 +277,15 @@ class AuthService {
     const token = await userRepository.generateToken("verification_token");
     const saltHash = createHashWithSalt(payload.password);
     const password = saltHash.hash;
-    const [firstname, ...rest] = payload.firstname.split(' ');
+    const [firstname, ...rest] = payload.firstname.split(" ");
     const createdUser = await userRepository.create({
       firstname: firstname || "",
-      lastname: rest?.join(' ') || "",
+      lastname: rest?.join(" ") || "",
       password,
       email: payload.email,
       role_id: DesignFirmRoles.Admin,
-      verification_token: token,
+      verification_token:
+        ENVIRONMENT.DISABLE_VERIFY_FOR_LOAD_TEST !== "1" ? token : null,
       type: UserType.Designer,
       relation_id: createdDesign.id ?? null,
       location_id: defaultLocation?.id,
