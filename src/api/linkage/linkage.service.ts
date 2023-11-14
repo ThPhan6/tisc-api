@@ -275,11 +275,9 @@ class LinkageService {
       const currentOption = flatSpecificationOptions.find(
         (item: any) =>
           item.id === optionId &&
-          _.isEmpty(
-            mappedQuantity.pre_option
-              ? item.pre_option === mappedQuantity.pre_option
-              : true
-          )
+          (mappedQuantity.pre_option
+            ? item.pre_option === mappedQuantity.pre_option
+            : true)
       );
       const nextOptions = flatSpecificationOptions.filter(
         (item: any) =>
@@ -298,7 +296,6 @@ class LinkageService {
           return pre + cur.quantity;
         return pre;
       }, 0);
-
       if (!currentOption) check = false;
 
       if (
