@@ -362,7 +362,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             attributeGroup,
             {
               configuration_steps: [],
-              stepSelection
+              step_selections: stepSelection
             }
           )
         )
@@ -542,6 +542,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET newAttributeGroups = (
         FOR attributeGroup IN pro.pp.specification.attribute_groups
         LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
+        LET viewSteps = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null 
+          LET newOptions = (FOR option IN ss.options
+            LET foundBasisOption = FIRST(FOR basisOption IN defaultOptions FILTER basisOption.id == option.id return basisOption)
+            RETURN MERGE(option, {product_id :foundBasisOption.product_id}))
+          RETURN MERGE(ss, {options: newOptions})
+        )
         LET stepSelection = UNSET(FIRST(
           FOR stepSelection IN step_selections
                 FILTER stepSelection.specification_id == attributeGroup.id
@@ -553,7 +559,8 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           attributeGroup,
           {
             configuration_steps: [],
-            stepSelection
+            step_selections: stepSelection,
+            viewSteps
           }
         )
       )
@@ -653,7 +660,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           attributeGroup,
           {
             configuration_steps: [],
-            stepSelection
+            step_selections: stepSelection
           }
         )
       )
