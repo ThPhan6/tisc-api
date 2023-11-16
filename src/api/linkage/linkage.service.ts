@@ -346,7 +346,7 @@ class LinkageService {
     const stepSelection = await stepSelectionRepository.findBy(paramsToFind);
     if (!stepSelection) {
       await stepSelectionRepository.create({
-        ...payload,
+        ...paramsToFind,
         quantities: payload.step_selections,
         combined_quantities: this.combineQuantityForStepSelection(
           payload.step_selections

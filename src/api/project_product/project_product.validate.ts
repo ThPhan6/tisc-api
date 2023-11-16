@@ -89,6 +89,7 @@ export default {
               }),
             })
           ),
+          step_selections: Joi.any(),
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_option_id: Joi.string(),
