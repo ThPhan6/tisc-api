@@ -34,14 +34,12 @@ class OptionLinkageRepository extends BaseRepository<OptionLinkageAttribute> {
     }
     const filterItems = temp
       .map(
-        (cur) =>
-          ` (ol.pair like "%${cur.from}%" and ol.pair like "%${cur.to}%") `
+        (cur) => `(ol.pair like "%${cur.from}%" and ol.pair like "%${cur.to}%")`
       )
       .join(" or ");
-    const filters = `filter "%${filterItems}%" and ol.is_pair == false`;
+    const filters = `filter ${filterItems} and ol.is_pair == false`;
     const raw = `for ol in option_linkages
     ${filters}
-    filter ol.is_pair == true
     return ol`;
     const res = (await this.model.rawQueryV2(
       raw,
