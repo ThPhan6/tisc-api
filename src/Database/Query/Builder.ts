@@ -198,6 +198,8 @@ class Builder {
       query,
       bindVars,
     });
+    console.log(query);
+    console.log(bindVars);
     return response.all();
   }
 
