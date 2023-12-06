@@ -26,7 +26,7 @@ import {
 
 class LinkageService {
   constructor() {}
-  private async checkExistKeyPair(pair: string) {
+  public async checkExistKeyPair(pair: string) {
     const items = pair.split(",");
     const check = await optionLinkageRepository.findPair(items);
     return check;
@@ -45,6 +45,7 @@ class LinkageService {
   }
   public async getLinkages(option_id: string) {
     const find = await optionLinkageRepository.findPairsByOption(option_id);
+    console.log(find)
     return {
       data: await toConnections(find, option_id),
       statusCode: 200,
@@ -275,11 +276,9 @@ class LinkageService {
       const currentOption = flatSpecificationOptions.find(
         (item: any) =>
           item.id === optionId &&
-          _.isEmpty(
-            mappedQuantity.pre_option
-              ? item.pre_option === mappedQuantity.pre_option
-              : true
-          )
+          (mappedQuantity.pre_option
+            ? item.pre_option === mappedQuantity.pre_option
+            : true)
       );
       const nextOptions = flatSpecificationOptions.filter(
         (item: any) =>
@@ -298,7 +297,6 @@ class LinkageService {
           return pre + cur.quantity;
         return pre;
       }, 0);
-
       if (!currentOption) check = false;
 
       if (
@@ -349,7 +347,7 @@ class LinkageService {
     const stepSelection = await stepSelectionRepository.findBy(paramsToFind);
     if (!stepSelection) {
       await stepSelectionRepository.create({
-        ...payload,
+        ...paramsToFind,
         quantities: payload.step_selections,
         combined_quantities: this.combineQuantityForStepSelection(
           payload.step_selections

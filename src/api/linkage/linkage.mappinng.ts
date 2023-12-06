@@ -1,9 +1,11 @@
 import { sortObjectArray } from "@/helpers/common.helper";
 import { OptionLinkageAttribute } from "@/models/option_linkage.model";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
+import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
 import { SpecificationStepAttribute } from "@/types";
 import _ from "lodash";
 import { getAllBasisOptionValues } from "../basis/basis.mapping";
+import { linkageService } from "./linkage.service";
 
 export const toConnections = async (
   linkages: OptionLinkageAttribute[],
@@ -14,7 +16,7 @@ export const toConnections = async (
   return linkages
     .reduce((pre: any[], cur) => {
       const to = cur.pair.split(",").filter((item) => item !== from)[0];
-      const toProductId = allOptions.find((item) => item.id === to).product_id;
+      const toProductId = allOptions.find((item) => item.id === to)?.product_id;
       return pre.concat([
         {
           from,
@@ -103,34 +105,58 @@ export const toLinkageOptions = async (
 };
 
 export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
+  const allPairs = await optionLinkageRepository.getAllBy({ is_pair: true });
   const allOptions = await getAllBasisOptionValues();
   return Promise.all(
     steps.map(async (step) => {
-      const mappedPreOptions = step.options.map((option) => {
-        if (!option.pre_option) return option;
-        const preOptions = option.pre_option.split(",");
-        const preOptionNames = preOptions.map((pre) => {
-          const found = allOptions.find((item) => item.id === pre);
-          let temp = [
-            found.value_1,
-            found.unit_1,
-            "-",
-            found.value_2,
-            found.unit_2,
-          ];
-          temp = temp.filter((item) => !_.isEmpty(item));
-          if (temp[temp.length - 1] === "-") temp.pop();
-          return temp.join(" ");
-        });
-        return {
-          ...option,
-          pre_option_name: preOptionNames.join(", "),
-        };
-      });
+      const mappedPreOptions = await Promise.all(
+        step.options.map(async (option) => {
+          if (!option.pre_option) return option;
+          const preOptions = option.pre_option.split(",");
+          const preOptionNames = preOptions.map((pre) => {
+            const found = allOptions.find((item) => item.id === pre);
+            let temp = [
+              found.value_1,
+              found.unit_1,
+              "-",
+              found.value_2,
+              found.unit_2,
+            ];
+            temp = temp.filter((item) => !_.isEmpty(item));
+            if (temp[temp.length - 1] === "-") temp.pop();
+            return temp.join(" ");
+          });
+          const optionIds = preOptions.concat([option.id]);
+
+          if (optionIds.length >= 2) {
+            for (let index = 0; index < optionIds.length - 1; index++) {
+              const check = allPairs.find(
+                (item) =>
+                  item.pair.includes(optionIds[index]) &&
+                  item.pair.includes(optionIds[index + 1])
+              );
+              if (!check) {
+                return {
+                  ...option,
+                  is_deleted: true,
+                  pre_option_name: preOptionNames.join(", "),
+                };
+              }
+            }
+          }
+          return {
+            ...option,
+            pre_option_name: preOptionNames.join(", "),
+          };
+        })
+      );
+
       return {
         ...step,
-        options: mappedPreOptions,
+        options: mappedPreOptions.filter((item: any) => !item.is_deleted),
       };
     })
+    // .filter((item: any) => item.options?.length > 0)
   );
 };
+export const filterUnpairLinkage = () => {};
