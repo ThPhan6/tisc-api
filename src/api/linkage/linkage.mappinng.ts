@@ -105,6 +105,7 @@ export const toLinkageOptions = async (
 };
 
 export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
+  const allPairs = await optionLinkageRepository.getAllBy({ is_pair: true });
   const allOptions = await getAllBasisOptionValues();
   return Promise.all(
     steps.map(async (step) => {
@@ -128,7 +129,12 @@ export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
           const optionIds = preOptions.concat([option.id]);
 
           if (optionIds.length >= 2) {
-            const check = await optionLinkageRepository.checkIsPair(optionIds);
+            for (let index = 0; index < optionIds.length - 1; index++) {
+              const check = allPairs.find(
+                (item) =>
+                  item.pair.includes(optionIds[index]) &&
+                  item.pair.includes(optionIds[index + 1])
+              );
               if (!check) {
                 return {
                   ...option,
@@ -136,6 +142,7 @@ export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
                   pre_option_name: preOptionNames.join(", "),
                 };
               }
+            }
           }
           return {
             ...option,
