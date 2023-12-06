@@ -50,13 +50,20 @@ import {
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { SortOrder, UserAttributes, BasisConversion } from "@/types";
+import {
+  SortOrder,
+  UserAttributes,
+  BasisConversion,
+  IProductAttributes,
+  SpecificationStepAttribute,
+} from "@/types";
 import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
 import { sortObjectArray, pagination } from "@/helpers/common.helper";
 import { colorDetectionQueue } from "@/queues/color_detection.queue";
 import { categoryRepository } from "@/repositories/category.repository";
 import { linkageService } from "../linkage/linkage.service";
 import { StepRequest } from "../linkage/linkage.type";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -190,6 +197,30 @@ class ProductService {
     return this.get(createdProduct.id, user);
   }
 
+  private async duplicateAutoSteps(
+    product: IProductAttributes,
+    newProductId: string
+  ) {
+    const autoStepSpecifications =
+      product.specification_attribute_groups.filter(
+        (item) => item.selection === true
+      );
+
+    let dataToDuplicate: SpecificationStepAttribute[] = [];
+    await Promise.all(
+      autoStepSpecifications.map(async (autoStepSpecification) => {
+        const steps: SpecificationStepAttribute[] =
+          await specificationStepRepository.getStepsBy(
+            product.id,
+            autoStepSpecification.id || ""
+          );
+        dataToDuplicate = dataToDuplicate.concat(
+          steps.map((item) => ({ ...item, product_id: newProductId }))
+        );
+      })
+    );
+    await specificationStepRepository.createMany(dataToDuplicate);
+  }
   public async duplicate(id: string, user: UserAttributes) {
     const product = await productRepository.find(id);
     if (!product) {
@@ -202,6 +233,7 @@ class ProductService {
     if (!created) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+    await this.duplicateAutoSteps(product, created.id);
     return successResponse(await this.get(created.id, user));
   }
 
