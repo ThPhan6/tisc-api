@@ -25,7 +25,7 @@ export interface IProductAttributes {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
-  detected_color_images?: DetectedImage[]
+  detected_color_images?: DetectedImage[];
 }
 
 export interface DimensionAndWeight {
@@ -34,9 +34,8 @@ export interface DimensionAndWeight {
     id: string;
     conversion_value_1: number | string;
     conversion_value_2: number | string;
-  }[]
+  }[];
 }
-
 
 export interface ProductTip {
   title: string;
@@ -50,7 +49,8 @@ export interface ProductWithCollectionAndBrand extends IProductAttributes {
   collections: {
     id: string;
     name: string;
-    description: string
+    description: string;
+    type: number;
   }[];
   brand: {
     id: string;

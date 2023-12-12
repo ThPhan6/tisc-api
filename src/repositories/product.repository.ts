@@ -85,9 +85,11 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       let collections = (
         for collections in collections
         filter collections.id in products.collection_ids
+        filter collections.deleted_at == null
         return {
           id: collections.id,
           name: collections.name,
+          type: collections.relation_type,
           description: collections.description
         }
       )

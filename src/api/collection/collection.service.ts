@@ -115,14 +115,14 @@ class CollectionService {
     if (collection.relation_type === CollectionRelationType.Color) {
       return errorMessageResponse(MESSAGES.CANNOT_CHANGE_COLOR_COLLECTION, 400);
     }
-    const product = await ProductRepository.findBy({
-      collection_id: id,
-    });
-    if (product) {
-      return errorMessageResponse(
-        MESSAGES.CANNOT_DELETE_COLLECTION_HAS_PRODUCT
-      );
-    }
+    // const product = await ProductRepository.findBy({
+    //   collection_id: id,
+    // });
+    // if (product) {
+    //   return errorMessageResponse(
+    //     MESSAGES.CANNOT_DELETE_COLLECTION_HAS_PRODUCT
+    //   );
+    // }
     const deletedCollection = await CollectionRepository.delete(id);
     if (!deletedCollection) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);

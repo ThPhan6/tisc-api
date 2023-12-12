@@ -34,7 +34,7 @@ const attributeGroupsValidate = (
             options: Joi.array().items({
               id: Joi.string(),
               pre_option: Joi.any(),
-              replicate: Joi.number().min(1),
+              replicate: Joi.number().min(0),
             }),
           })
         ),
