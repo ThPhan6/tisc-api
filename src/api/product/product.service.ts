@@ -201,23 +201,22 @@ class ProductService {
     product: IProductAttributes,
     newProductId: string
   ) {
-    const autoStepSpecifications =
-      product.specification_attribute_groups.filter(
-        (item) => item.selection === true
-      );
-
     let dataToDuplicate: SpecificationStepAttribute[] = [];
     await Promise.all(
-      autoStepSpecifications.map(async (autoStepSpecification) => {
-        const steps: SpecificationStepAttribute[] =
-          await specificationStepRepository.getStepsBy(
-            product.id,
-            autoStepSpecification.id || ""
-          );
-        dataToDuplicate = dataToDuplicate.concat(
-          steps.map((item) => ({ ...item, product_id: newProductId }))
-        );
-      })
+      product.specification_attribute_groups.map(
+        async (autoStepSpecification) => {
+          const steps: SpecificationStepAttribute[] =
+            await specificationStepRepository.getStepsBy(
+              product.id,
+              autoStepSpecification.id || ""
+            );
+          if (steps.length > 0) {
+            dataToDuplicate = dataToDuplicate.concat(
+              steps.map((item) => ({ ...item, product_id: newProductId }))
+            );
+          }
+        }
+      )
     );
     await specificationStepRepository.createMany(dataToDuplicate);
   }
