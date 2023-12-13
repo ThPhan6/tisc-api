@@ -5,7 +5,6 @@ import { optionLinkageRepository } from "@/repositories/option_linkage.repositor
 import { SpecificationStepAttribute } from "@/types";
 import _ from "lodash";
 import { getAllBasisOptionValues } from "../basis/basis.mapping";
-import { linkageService } from "./linkage.service";
 
 export const toConnections = async (
   linkages: OptionLinkageAttribute[],
@@ -40,6 +39,7 @@ export const toLinkageOptions = async (
     .reduce((pre: any[], cur) => {
       const to = cur.pair.split(",").filter((item) => !froms.includes(item))[0];
       const toOption = allOptions.find((item) => item.id === to);
+      if (!toOption) return pre;
       return pre.concat([
         {
           id: to,
