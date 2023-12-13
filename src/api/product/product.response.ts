@@ -89,6 +89,7 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           description: Joi.any(),
+          type: Joi.any(),
           count: Joi.number(),
           products: Joi.array().items(Joi.object(productResponse)),
         })
@@ -132,6 +133,7 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           description: Joi.any(),
+          type: Joi.any(),
         })
       ),
       category_count: Joi.number(),

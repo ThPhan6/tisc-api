@@ -26,7 +26,7 @@ import {
 
 class LinkageService {
   constructor() {}
-  private async checkExistKeyPair(pair: string) {
+  public async checkExistKeyPair(pair: string) {
     const items = pair.split(",");
     const check = await optionLinkageRepository.findPair(items);
     return check;
@@ -45,6 +45,7 @@ class LinkageService {
   }
   public async getLinkages(option_id: string) {
     const find = await optionLinkageRepository.findPairsByOption(option_id);
+    console.log(find)
     return {
       data: await toConnections(find, option_id),
       statusCode: 200,

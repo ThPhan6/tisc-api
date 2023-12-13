@@ -71,6 +71,24 @@ class BaseRepository<DataType> {
     }
     return newData as DataType;
   }
+  /**
+   * Create
+   * @param attributes Partial<DataType>
+   * @return DataType | DataType[]
+   */
+  public async createMany(data: Partial<DataType[]>) {
+    const dataToCreate = data.map((item) => {
+      return {
+        ...this.DEFAULT_ATTRIBUTE,
+        ...item,
+      };
+    });
+    const newData = await this.model.insert(dataToCreate);
+    if (isEmpty(newData)) {
+      return undefined;
+    }
+    return newData as DataType;
+  }
 
   /**
    * Update

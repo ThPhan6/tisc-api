@@ -100,6 +100,7 @@ export const mappingByCollections = (
     ///
     return {
       id: collection.id,
+      type: collection.type,
       name: collection.name,
       description: collection.description,
       count: categoryProducts.length,
