@@ -49,7 +49,6 @@ class LarkOpenAPIService {
     );
     ///
     if (appAccessToken.data.code !== 0) {
-      console.log(1)
       console.error(appAccessToken.data);
       throw Boom.badRequest(MESSAGES.GENERAL.SERVER_BUSY);
     }
@@ -70,7 +69,6 @@ class LarkOpenAPIService {
     );
     //
     if (refreshAccessToken.data.code !== 0) {
-      console.log(2)
       console.error(refreshAccessToken.data);
       throw Boom.badRequest(MESSAGES.GENERAL.SERVER_BUSY);
     }
