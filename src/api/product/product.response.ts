@@ -107,6 +107,7 @@ export default {
         count: Joi.number(),
         brand_logo: Joi.string().allow(null),
         products: Joi.array().items(Joi.object(productResponse)),
+        type: Joi.any(),
       })
     ),
     allProducts: Joi.array().items(Joi.object(productResponse)),
