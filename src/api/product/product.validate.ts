@@ -138,6 +138,10 @@ export const productPayloadValidate = {
     })
   ),
   dimension_and_weight: dimensionAndWeightValidate,
+  product_information: Joi.object({
+    product_name: Joi.string(),
+    product_id: Joi.string(),
+  }),
 };
 
 export default {

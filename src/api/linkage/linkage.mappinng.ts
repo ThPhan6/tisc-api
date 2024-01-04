@@ -2,6 +2,7 @@ import { sortObjectArray } from "@/helpers/common.helper";
 import { OptionLinkageAttribute } from "@/models/option_linkage.model";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
+import productRepository from "@/repositories/product.repository";
 import { SpecificationStepAttribute } from "@/types";
 import _ from "lodash";
 import { getAllBasisOptionValues } from "../basis/basis.mapping";
@@ -33,6 +34,7 @@ export const toLinkageOptions = async (
   froms: string[],
   except_option_ids?: string[]
 ) => {
+  const allProductInformation = await productRepository.getProductInformation();
   const allOptions = await getAllBasisOptionValues();
   const tos = linkages
     .filter((item) => item.is_pair === true)
@@ -82,15 +84,23 @@ export const toLinkageOptions = async (
             id: subId,
             name: groupedBySub[subId][0].sub_name,
             subs: sortObjectArray(
-              groupedBySub[subId].map((item) => ({
-                id: item.id,
-                product_id: item.product_id,
-                image: item.image,
-                value_1: item.value_1,
-                value_2: item.value_2,
-                unit_1: item.unit_1,
-                unit_2: item.unit_2,
-              })),
+              groupedBySub[subId].map((item) => {
+                const productInformation = allProductInformation.find(
+                  (pi) => pi.product_id === item.product_id
+                );
+                return {
+                  id: item.id,
+                  product_id: item.product_id,
+                  product_information_description:
+                    productInformation?.decription,
+                  product_information_id: productInformation?.id,
+                  image: item.image,
+                  value_1: item.value_1,
+                  value_2: item.value_2,
+                  unit_1: item.unit_1,
+                  unit_2: item.unit_2,
+                };
+              }),
               "value_1",
               "ASC"
             ),

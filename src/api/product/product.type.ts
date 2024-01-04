@@ -4,6 +4,7 @@ import {
   ProductTip,
   ProductDownload,
   DimensionAndWeight,
+  ProductInformation,
 } from "@/types/product.type";
 import { StepRequest } from "../linkage/linkage.type";
 export interface IProduct {
@@ -103,6 +104,7 @@ export interface IUpdateProductRequest {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
+  product_information: ProductInformation;
 }
 export interface IProductResponse {
   data: IProduct;

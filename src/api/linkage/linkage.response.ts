@@ -82,6 +82,8 @@ export default {
         subs: Joi.array().items({
           id: Joi.string(),
           product_id: Joi.string(),
+          product_information_id: Joi.any(),
+          product_information_description: Joi.any(),
           image: Joi.any(),
           value_1: Joi.any(),
           value_2: Joi.any(),

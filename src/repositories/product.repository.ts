@@ -429,6 +429,30 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     return result._result as ProductWithCollectionAndBrand[];
   };
 
+  public getProductInformation = async (): Promise<
+    {
+      decription: string;
+      id: string;
+      product_name: string;
+      product_id: string;
+    }[]
+  > => {
+    const rawQuery = ` FOR product IN products
+      FILTER product.deleted_at == null
+      RETURN {
+        decription: product.description,
+        id: product.id,
+        product_name: product.product_information.product_name,
+        product_id: product.product_information.product_id,
+      }
+    `;
+    let result = await this.model.rawQueryV2(rawQuery, {});
+    if (!result) {
+      return [];
+    }
+    return result;
+  };
+
   public async getProductByBrand(brandId: string) {
     const result: IProductAttributes[] = await this.model
       .select()
