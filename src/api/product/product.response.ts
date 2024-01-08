@@ -78,6 +78,7 @@ export const productResponse = {
   downloads: Joi.any(),
   catelogue_downloads: Joi.any(),
   dimension_and_weight: dimensionWeightResponse,
+  product_information: Joi.any(),
   detected_color_images: Joi.any(),
 };
 
@@ -176,6 +177,12 @@ export default {
     data: Joi.array().items({
       id: Joi.string(),
       name: Joi.string(),
+    }),
+    statusCode: Joi.number(),
+  }),
+  getProductId: Joi.object({
+    data: Joi.object({
+      product_id: Joi.any(),
     }),
     statusCode: Joi.number(),
   }),

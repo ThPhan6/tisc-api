@@ -19,6 +19,7 @@ import { SpecificationType } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { linkageService } from "../linkage/linkage.service";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
+import productRepository from "@/repositories/product.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -376,6 +377,8 @@ export const mappingSpecificationStep = (
         productId,
         group.id || ""
       );
+      const allProductInformation =
+        await productRepository.getProductInformation();
       const stepSelection = await stepSelectionRepository.findBy({
         product_id: productId,
         user_id: userId,
@@ -410,8 +413,13 @@ export const mappingSpecificationStep = (
                     ? `${option.pre_option},${option.id}`
                     : option.id)
               );
+              const productInformation = allProductInformation.find(
+                (pi) => pi.product_id === option.product_id
+              );
               return {
                 ...option,
+                product_information_id: productInformation?.id,
+                product_information_description: productInformation?.decription,
                 index: 1,
                 select_id: tempSelectId,
                 picked,

@@ -37,6 +37,11 @@ export interface DimensionAndWeight {
   }[];
 }
 
+export type ProductInformation = {
+  product_name: string,
+  product_id: string
+}
+
 export interface ProductTip {
   title: string;
   content: string;

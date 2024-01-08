@@ -7,6 +7,7 @@ import {
 } from "./product.type";
 import { UserAttributes } from "@/types";
 import { customProductService } from "../custom_product/custom_product.service";
+import productRepository from "@/repositories/product.repository";
 
 export default class ProductController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {

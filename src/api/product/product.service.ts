@@ -335,9 +335,9 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const countryIds = product.brand.official_websites.map(
-      (ow) => ow.country_id
-    );
+    const countryIds = product.brand.official_websites
+      .map((ow) => ow.country_id)
+      .filter((item) => item !== "-1");
     const countries = await countryStateCityService.getCountries(countryIds);
     const officialWebsites = product.brand.official_websites.map(
       (officialWebsite) => {
