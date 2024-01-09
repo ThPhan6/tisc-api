@@ -253,7 +253,16 @@ class ProductService {
     if (duplicatedProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
-
+    if (payload.product_information) {
+      const duplicatedProductInformation =
+        await productRepository.getDuplicatedProductInfomationProductId(
+          id,
+          payload.product_information.product_id
+        );
+      if (duplicatedProductInformation) {
+        return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED_INFORMATION);
+      }
+    }
     const brand = await brandRepository.find(payload.brand_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
