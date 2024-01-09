@@ -274,6 +274,28 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       return false;
     }
   };
+  public getDuplicatedProductInfomationProductId = async (
+    id: string,
+    productId: string
+  ) => {
+    try {
+      const raw = `for products in products
+      filter products.id != @id
+      filter products.product_information.product_id == @productId
+      return products.product_information`;
+      let result = await this.model.rawQueryV2(raw, {
+        id,
+        productId,
+      });
+
+      if (result === false) {
+        return false;
+      }
+      return result[0];
+    } catch (error) {
+      return false;
+    }
+  };
 
   public getRelatedCollection = async (
     productId: string,
