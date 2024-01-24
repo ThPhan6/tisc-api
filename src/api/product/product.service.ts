@@ -28,7 +28,7 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import { mailService } from "@/services/mail.service";
-import { isEqual, sortBy } from "lodash";
+import { isEqual, orderBy, sortBy, trim } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -254,6 +254,9 @@ class ProductService {
       return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
     if (payload.product_information) {
+      payload.product_information.product_id = trim(
+        payload.product_information.product_id
+      );
       const duplicatedProductInformation =
         await productRepository.getDuplicatedProductInfomationProductId(
           id,
@@ -685,7 +688,7 @@ class ProductService {
     );
     const mappingFunction = categoryId ? mappingByCategory : mappingByBrand;
     return successResponse({
-      data: sortBy(mappingFunction(products), "name"),
+      data: orderBy(mappingFunction(products), "name", order?.toLocaleLowerCase() || 'asc' as any),
     });
   };
 
