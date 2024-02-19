@@ -33,6 +33,7 @@ import {
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { validateBrandProductSpecification } from "./project_product.mapping";
 import { ActivityTypes, logService } from "@/services/log.service";
+import { projectTrackingService } from "../project_tracking/project_tracking.service";
 
 class ProjectProductService {
   public assignProductToProduct = async (
@@ -251,7 +252,8 @@ class ProjectProductService {
     user: UserAttributes,
     path: string,
     finishSchedulePayload: UpdateFinishChedulePayload[] = [],
-    isSpecifying: boolean = false // specifying,
+    isSpecifying: boolean = false, // specifying,
+    isHasXSelection: boolean = false
   ) => {
     //// validate permission
     const projectProduct = await projectProductRepository.findWithRelation(
@@ -260,6 +262,14 @@ class ProjectProductService {
     );
     if (!projectProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+    if (isHasXSelection) {
+      //Create assistance request
+      projectTrackingService.createAssistanceRequest(
+        user.id,
+        projectProduct.product_id,
+        projectProduct.project_id
+      );
     }
 
     // validate specify specification attribute
