@@ -20,6 +20,7 @@ import { specificationStepRepository } from "@/repositories/specification_step.r
 import { linkageService } from "../linkage/linkage.service";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 import productRepository from "@/repositories/product.repository";
+import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -207,6 +208,13 @@ export const mappingSpecificationAttribute = (
         ...step,
         specification_id: attributeGroup.id || "",
       })),
+      defaultPreSelect:
+        attributeGroup.defaultPreSelect && attributeGroup.defaultPreSelect[0]
+          ? {
+              specification_id: attributeGroup.id || "",
+              data: attributeGroup.defaultPreSelect,
+            }
+          : undefined,
     };
   }
   const newId = uuid();
@@ -228,6 +236,12 @@ export const mappingSpecificationAttribute = (
       ...step,
       specification_id: newId,
     })),
+    defaultPreSelect: attributeGroup.defaultPreSelect
+      ? {
+          specification_id: newId,
+          data: attributeGroup.defaultPreSelect,
+        }
+      : undefined,
   };
 };
 
@@ -434,6 +448,10 @@ export const mappingSpecificationStep = (
           };
         }
       );
+      const defaultPreSelection = await defaultPreSelectionRepository.findBy({
+        product_id: productId,
+        specification_id: group.id || "",
+      });
       return {
         ...group,
         type,
@@ -441,6 +459,7 @@ export const mappingSpecificationStep = (
         configuration_steps: [],
         viewSteps,
         stepSelection: stepSelection,
+        defaultPreSelect: defaultPreSelection?.data || [],
       };
     })
   );
