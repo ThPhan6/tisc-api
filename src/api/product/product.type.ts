@@ -36,6 +36,7 @@ export interface IProduct {
 export interface IAttributeGroup {
   name: string;
   steps?: StepRequest[];
+  defaultPreSelect?: string[];
   attributes: {
     id: string;
     basis_id: string;
@@ -68,6 +69,7 @@ export interface IAttributeGroupHasId {
   name: string;
   attributes: IProductOptionAttribute[];
   steps?: StepRequest[];
+  defaultPreSelect?: string[];
 }
 export interface IProductRequest {
   brand_id: string;
