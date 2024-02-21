@@ -142,10 +142,11 @@ export default class ProjectProductController {
     toolkit: ResponseToolkit
   ) => {
     const { project_id } = req.params;
-    const { brand_order } = req.query;
+    const { brand_order, brand_id } = req.query;
 
     const response = await projectProductService.getSpecifiedProductsByBrand(
       project_id,
+      brand_id,
       brand_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);

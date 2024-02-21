@@ -522,12 +522,15 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public getSpecifiedProductsForBrandGroup = async (
     projectId: string,
+    brandId?: string,
     brand_order?: SortOrder
   ) => {
     const params = {
       projectId,
+      brandId,
       specifiedStatus: ProjectProductStatus.specify,
     };
+
     const rawQuery = `
     LET defaultOptions = (
       FOR basisOptionGroup IN bases
@@ -553,6 +556,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     )
 
     FOR brand IN productsByBrand
+    ${brandId ? `FILTER brand.id == @brandId` : ""}
     ${brand_order ? `SORT brand.name ${brand_order}` : ""}
 
     LET products = (

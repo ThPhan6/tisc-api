@@ -539,6 +539,7 @@ class ProjectProductService {
 
   public getSpecifiedProductsByBrand = async (
     project_id: string,
+    brand_id?: string,
     brand_order?: SortOrder
   ) => {
     const project = await projectRepository.find(project_id);
@@ -549,6 +550,7 @@ class ProjectProductService {
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForBrandGroup(
         project_id,
+        brand_id,
         brand_order
       );
 
