@@ -45,7 +45,7 @@ export default {
             id: Joi.string(),
             firstname: Joi.string(),
             lastname: Joi.string(),
-            avatar: Joi.string().allow(null, ''),
+            avatar: Joi.string().allow(null, ""),
           })
         ),
         requestCount: Joi.number(),
@@ -62,6 +62,7 @@ export default {
     statusCode: Joi.number(),
     data: Joi.object({
       projects: Joi.object({
+        id: Joi.string(),
         created_at: Joi.string(),
         name: Joi.string(),
         location: Joi.string(),
@@ -79,6 +80,7 @@ export default {
           message: Joi.string(),
           status: Joi.number(),
           created_by: Joi.string(),
+          projectProductId: Joi.any(),
           product: productValidate,
           newRequest: Joi.bool(),
           requestFor: Joi.string(),

@@ -111,17 +111,17 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                       FILTER defaultBasisOption.id == combinedQuantity.id
                       RETURN DISTINCT(MERGE(combinedQuantity, {code: defaultBasisOption.product_id}))
               )
-    
+
               FILTER specification.id == productSpecification.id
               FILTER specification.attributes != null
               LET selectedCodes = (
                 FILTER selectedOptions != NULL
                 FOR selectedOption IN selectedOptions
-                FOR index IN RANGE(1, selectedOption.quantity) 
+                FOR index IN RANGE(1, selectedOption.quantity)
                 RETURN selectedOption.code
               )
               LET stepCode = CONCAT_SEPARATOR(' - ', selectedCodes)
-              RETURN stepCode != "" ? 
+              RETURN stepCode != "" ?
                 stepCode
                :CONCAT_SEPARATOR(' - ', (
                 FOR attribute IN specification.attributes
@@ -134,7 +134,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                                 FILTER optionCode.id == attribute.basis_option_id
                                 LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
                                 RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
-              ) )                     
+              ) )
     )
     RETURN {
       variant: CONCAT_SEPARATOR('; ', options),
@@ -243,11 +243,33 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     relationId: string
   ) => {
     return (await this.model
-      .select("project_products.*")
+      .select("project_products.*", "projects.design_id")
       .join("projects", "projects.id", "==", "project_products.project_id")
       .where("project_products.id", "==", projectProductId)
       .where("projects.design_id", "==", relationId)
-      .first()) as ProjectProductAttributes | undefined;
+      .first()) as
+      | (ProjectProductAttributes & { design_id: string })
+      | undefined;
+  };
+
+  public findWithBrandRelation = async (
+    projectProductId: string,
+    relationId: string
+  ) => {
+    return (await this.model
+      .select("project_products.*", "projects.design_id")
+      .join("projects", "projects.id", "==", "project_products.project_id")
+      .join(
+        "project_trackings",
+        "project_trackings.project_id",
+        "==",
+        "project_products.project_id"
+      )
+      .where("project_products.id", "==", projectProductId)
+      .where("project_trackings.brand_id", "==", relationId)
+      .first()) as
+      | (ProjectProductAttributes & { design_id: string })
+      | undefined;
   };
 
   public async upsert(
@@ -500,12 +522,15 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
   public getSpecifiedProductsForBrandGroup = async (
     projectId: string,
+    brandId?: string,
     brand_order?: SortOrder
   ) => {
     const params = {
       projectId,
+      brandId,
       specifiedStatus: ProjectProductStatus.specify,
     };
+
     const rawQuery = `
     LET defaultOptions = (
       FOR basisOptionGroup IN bases
@@ -531,6 +556,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     )
 
     FOR brand IN productsByBrand
+    ${brandId ? `FILTER brand.id == @brandId` : ""}
     ${brand_order ? `SORT brand.name ${brand_order}` : ""}
 
     LET products = (
@@ -542,7 +568,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET newAttributeGroups = (
         FOR attributeGroup IN pro.pp.specification.attribute_groups
         LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
-        LET viewSteps = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null 
+        LET viewSteps = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null
           LET newOptions = (FOR option IN ss.options
             LET foundBasisOption = FIRST(FOR basisOption IN defaultOptions FILTER basisOption.id == option.id return basisOption)
             RETURN MERGE(option, {product_id :foundBasisOption.product_id}))
@@ -666,7 +692,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       )
       RETURN {
         project_products: UNSET(MERGE(
-          pp, 
+          pp,
           {
             specification: MERGE(
               pp.specification,
@@ -895,17 +921,17 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                             FILTER defaultBasisOption.id == combinedQuantity.id
                             RETURN DISTINCT(MERGE(combinedQuantity, {code: defaultBasisOption.product_id}))
                     )
-                      
+
                       FILTER specification.id == productSpecification.id
                       FILTER specification.attributes != null
                       LET selectedCodes = (
                         FILTER selectedOptions != NULL
                         FOR selectedOption IN selectedOptions
-                        FOR index IN RANGE(1, selectedOption.quantity) 
+                        FOR index IN RANGE(1, selectedOption.quantity)
                         RETURN selectedOption.code
                       )
                       LET stepCode = CONCAT_SEPARATOR(' - ', selectedCodes)
-                      RETURN stepCode != "" ? 
+                      RETURN stepCode != "" ?
                         stepCode
                        :CONCAT_SEPARATOR(' - ', (
                         FOR attribute IN specification.attributes
@@ -918,7 +944,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                                         FILTER optionCode.id == attribute.basis_option_id
                                         LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
                                         RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
-                      ) )                     
+                      ) )
             )
 
             FOR brand IN brands

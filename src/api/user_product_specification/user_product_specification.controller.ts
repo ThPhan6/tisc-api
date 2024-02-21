@@ -1,10 +1,14 @@
-import { UserProductSpecificationRequest } from "@/api/user_product_specification/user_product_specification.model";
+import {
+  UserProductSpecificationAttributes,
+  UserProductSpecificationRequest,
+} from "@/api/user_product_specification/user_product_specification.model";
 import productRepository from "@/repositories/product.repository";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { linkageService } from "../linkage/linkage.service";
 import { toOriginDataAndConfigurationStep } from "./user_product_specification.mapping";
 import { userProductSpecificationRepository } from "./user_product_specification.repository";
+import { projectProductRepository } from "@/api/project_product/project_product.repository";
 
 export default class UserProductSpecificationController {
   public selectSpecification = async (
@@ -61,11 +65,34 @@ export default class UserProductSpecificationController {
   ) => {
     const currentUserId = req.auth.credentials.user_id as string;
     const productId = req.params.id;
+    const project_product_id = req.query.project_product_id;
 
-    const response = await userProductSpecificationRepository.findBy({
+    let response = await userProductSpecificationRepository.findBy({
       product_id: productId,
       user_id: currentUserId,
     });
+
+    if (project_product_id) {
+      // temp code need to refactor
+      response = (await projectProductRepository.findBy({
+        product_id: productId,
+        id: project_product_id,
+      })) as any;
+
+      response = {
+        brand_location_id: response?.brand_location_id ?? "",
+        distributor_location_id: response?.distributor_location_id ?? "",
+        created_at: response?.created_at ?? "",
+        id: response?.id ?? "",
+        product_id: response?.product_id ?? "",
+        specification: response?.specification ?? {
+          attribute_groups: [],
+          is_refer_document: true,
+        },
+        updated_at: response?.updated_at ?? "",
+        user_id: response?.user_id ?? "",
+      } as UserProductSpecificationAttributes;
+    }
 
     if (!response) {
       return toolkit.response({ data: null }).code(201);
