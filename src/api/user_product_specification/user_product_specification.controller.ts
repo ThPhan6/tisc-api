@@ -11,6 +11,7 @@ import { userProductSpecificationRepository } from "./user_product_specification
 import { projectProductRepository } from "@/api/project_product/project_product.repository";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
+import { mappingSpecificationStep } from "../product/product.mapping";
 
 export default class UserProductSpecificationController {
   public selectSpecification = async (
@@ -67,15 +68,61 @@ export default class UserProductSpecificationController {
     const newGroups = await Promise.all(
       data.specification.attribute_groups.map(async (attributeGroup) => {
         if (!attributeGroup.attributes[0]) {
-          const viewSteps = await specificationStepRepository.getStepsBy(
-            data.product_id,
-            attributeGroup.id
-          );
           const stepSelection = await stepSelectionRepository.findBy({
             specification_id: attributeGroup.id,
             project_id: (data as any).project_id,
             deleted_at: null,
           });
+          const specificationSteps: any = await linkageService.getSteps(
+            data.product_id,
+            attributeGroup.id || ""
+          );
+          const quantities = stepSelection?.quantities;
+          const viewSteps = specificationSteps.data.map(
+            (specificationStep: any, index: number) => {
+              const combinedOptions = specificationStep.options.map(
+                (option: any) => {
+                  const tempSelectId: string = !option.pre_option
+                    ? `${option.id}_1`
+                    : option.pre_option
+                        .split(",")
+                        .concat(option.id)
+                        .map((selectId: string) => `${selectId}_1`)
+                        .join(",");
+                  let picked = false;
+                  if (
+                    quantities &&
+                    quantities[tempSelectId] &&
+                    quantities[tempSelectId] > 0
+                  ) {
+                    picked = true;
+                  }
+                  const nextOptions = specificationSteps.data[
+                    index + 1
+                  ]?.options.filter(
+                    (item: any) =>
+                      item.pre_option ===
+                      (option.pre_option
+                        ? `${option.pre_option},${option.id}`
+                        : option.id)
+                  );
+                  return {
+                    ...option,
+                    index: 1,
+                    select_id: tempSelectId,
+                    picked,
+                    has_next_options: nextOptions?.length > 0,
+                    yours: option.replicate,
+                  };
+                }
+              );
+              return {
+                ...specificationStep,
+                options: combinedOptions,
+              };
+            }
+          );
+
           return {
             ...attributeGroup,
             viewSteps,
@@ -85,6 +132,7 @@ export default class UserProductSpecificationController {
         return attributeGroup;
       })
     );
+
     return {
       ...data,
       specification: {
