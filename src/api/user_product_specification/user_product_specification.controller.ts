@@ -9,6 +9,8 @@ import { linkageService } from "../linkage/linkage.service";
 import { toOriginDataAndConfigurationStep } from "./user_product_specification.mapping";
 import { userProductSpecificationRepository } from "./user_product_specification.repository";
 import { projectProductRepository } from "@/api/project_product/project_product.repository";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 
 export default class UserProductSpecificationController {
   public selectSpecification = async (
@@ -59,6 +61,38 @@ export default class UserProductSpecificationController {
     return toolkit.response("success").code(200);
   };
 
+  private addStepDataToSpecification = async (
+    data: UserProductSpecificationAttributes
+  ) => {
+    const newGroups = await Promise.all(
+      data.specification.attribute_groups.map(async (attributeGroup) => {
+        if (!attributeGroup.attributes[0]) {
+          const viewSteps = await specificationStepRepository.getStepsBy(
+            data.product_id,
+            attributeGroup.id
+          );
+          const stepSelection = await stepSelectionRepository.findBy({
+            specification_id: attributeGroup.id,
+            project_id: (data as any).project_id,
+            deleted_at: null,
+          });
+          return {
+            ...attributeGroup,
+            viewSteps,
+            step_selections: stepSelection,
+          };
+        }
+        return attributeGroup;
+      })
+    );
+    return {
+      ...data,
+      specification: {
+        ...data.specification,
+        attribute_groups: newGroups,
+      },
+    };
+  };
   public getSelectedSpecification = async (
     req: Request,
     toolkit: ResponseToolkit
@@ -78,7 +112,9 @@ export default class UserProductSpecificationController {
         product_id: productId,
         id: project_product_id,
       })) as any;
-
+      if (response) {
+        response = (await this.addStepDataToSpecification(response)) as any;
+      }
       response = {
         brand_location_id: response?.brand_location_id ?? "",
         distributor_location_id: response?.distributor_location_id ?? "",
