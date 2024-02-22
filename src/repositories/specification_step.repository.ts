@@ -35,6 +35,28 @@ class SpecificationStepRepository extends BaseRepository<SpecificationStepAttrib
     })) as any;
     return res;
   }
+  public async checkXSelection(optionIds: string[]) {
+    const raw = `
+    LET allBasisOption = (
+      FOR group IN bases
+      FILTER group.type == ${BASIS_TYPES.OPTION}
+        FOR sub IN group.subs
+          FOR value IN sub.subs
+          RETURN MERGE(value, {sub_id: sub.id, sub_name: sub.name})
+      )
+    
+    FOR option IN allBasisOption
+    FILTER option.id IN @optionIds
+    FILTER LOWER(option.product_id) == @xSelection
+    
+    RETURN UNSET(option, ['_id', '_key', '_rev', 'deleted_at'])
+    `;
+    const res = (await this.model.rawQueryV2(raw, {
+      optionIds,
+      xSelection: "x",
+    })) as any;
+    return res.length !== 0;
+  }
 
   public async getSpecificationType(
     specification_id: string

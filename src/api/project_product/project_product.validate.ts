@@ -142,8 +142,10 @@ export default {
     params: { project_id: requiredProjectId },
     query: Joi.object({
       brand_order: Joi.string().valid("ASC", "DESC"),
+      brand_id: Joi.string().allow(""),
     }).custom((value) => {
       return {
+        ...value,
         brand_order: value.brand_order || "ASC",
       };
     }),

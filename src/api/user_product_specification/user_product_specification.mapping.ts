@@ -1,3 +1,4 @@
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import _ from "lodash";
 import { linkageService } from "../linkage/linkage.service";
 import { ConfigurationStepRequest } from "../linkage/linkage.type";
@@ -37,14 +38,29 @@ export const toOriginDataAndConfigurationStep = (payload: any) => {
   };
 };
 
+export const checkXSelection = (stepSelections: any) => {
+  const stepSelectionIds = Object.keys(stepSelections);
+  const stepSelectIds = stepSelectionIds.map((selectId) => {
+    const parts = selectId.split(",");
+    const lastId = parts[parts.length - 1];
+    return lastId.split("_")[0];
+  });
+  // check has X selection and return true false
+  return specificationStepRepository.checkXSelection(stepSelectIds);
+};
 export const toOriginDataAndUpsertConfigurationSteps = async (
   id: string,
   payload: any
 ) => {
   const projectProduct = await projectProductRepository.find(id);
+  let stepSelections: any = {};
   const originData = await Promise.all(
     payload.specification.attribute_groups.map(async (group: any) => {
       if (group.step_selections && projectProduct) {
+        stepSelections = {
+          ...stepSelections,
+          ...group.step_selections,
+        };
         await linkageService.upsertStepSelection({
           product_id: projectProduct.product_id,
           project_id: projectProduct.project_id,
@@ -66,5 +82,6 @@ export const toOriginDataAndUpsertConfigurationSteps = async (
         attribute_groups: originData,
       },
     },
+    isHasXSelection: await checkXSelection(stepSelections),
   };
 };

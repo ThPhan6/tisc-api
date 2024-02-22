@@ -436,6 +436,14 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       FILTER p.id == pr.product_id
       FILTER p.deleted_at == null
 
+      LET projectProduct = FIRST((
+        FOR pp IN project_products
+        FILTER pp.product_id == p.id
+        FILTER pp.project_id == projects.id
+        FILTER pp.deleted_at == null
+        RETURN pp
+      ))
+
       FOR c in collections
       FILTER c.id in p.collection_ids
       FILTER c.deleted_at == null
@@ -455,6 +463,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
       RETURN MERGE(
         KEEP(notifications, 'id','created_at','type', 'status', 'created_by'),
         {
+          projectProductId: projectProduct.id,
           product: MERGE(
             KEEP(p, 'id', 'name', 'images', 'description'),
             {collection_name: c.name}
@@ -514,7 +523,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
 
     RETURN {
       projects: MERGE(
-        KEEP(projects, 'created_at','name','project_type','building_type','measurement_unit','design_due','construction_start'),
+        KEEP(projects, 'created_at','name','project_type','building_type','measurement_unit','design_due','construction_start','id'),
         { location: ${locationRepository.getShortLocationQuery("l")}}
       ),
       projectRequests,
