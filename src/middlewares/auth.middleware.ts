@@ -24,6 +24,14 @@ const customScheme = (_server: Server) => {
     },
   };
 };
+const checkWhiteListBrandAccessProject = (route: string) => {
+  const WHITE_LIST = [
+    ROUTES.PROJECT_PRODUCT.GET_SPECIFYING_PRODUCTS_BY_BRAND,
+    ROUTES.GET_ONE_PROJECT,
+    ROUTES.PROJECT_PRODUCT.GET_PROJECT_ASSIGN_ZONE_BY_PRODUCT
+  ];
+  return WHITE_LIST.includes(route);
+};
 const customPermissionScheme = (_server: Server) => {
   return {
     authenticate: async (request: Request, h: ResponseToolkit) => {
@@ -40,7 +48,11 @@ const customPermissionScheme = (_server: Server) => {
         return h.authenticated(credential);
       }
       const check = ENVIRONMENT.CHECK_PERMISSION;
-      if (check === "true") {
+
+      if (
+        check === "true" &&
+        !checkWhiteListBrandAccessProject(request.route.path)
+      ) {
         const companyPermission =
           await companyPermissionRepository.findByRouteRoleIdAndRelationId(
             request.route.path,

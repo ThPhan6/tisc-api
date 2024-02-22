@@ -1,9 +1,7 @@
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import _ from "lodash";
-import {
-  toOriginDataAndUpsertConfigurationSteps,
-} from "../user_product_specification/user_product_specification.mapping";
+import { toOriginDataAndUpsertConfigurationSteps } from "../user_product_specification/user_product_specification.mapping";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
 import {
@@ -100,9 +98,9 @@ export default class ProjectProductController {
       user,
       req.path,
       finish_schedules,
-      true
+      true,
+      mappedData.isHasXSelection
     );
-
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -144,10 +142,11 @@ export default class ProjectProductController {
     toolkit: ResponseToolkit
   ) => {
     const { project_id } = req.params;
-    const { brand_order } = req.query;
+    const { brand_order, brand_id } = req.query;
 
     const response = await projectProductService.getSpecifiedProductsByBrand(
       project_id,
+      brand_id,
       brand_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);

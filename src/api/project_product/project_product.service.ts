@@ -15,6 +15,7 @@ import {
   SortOrder,
   Availability,
   SummaryItemPosition,
+  UserType,
 } from "@/types";
 import { isEmpty, sumBy, countBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
@@ -33,6 +34,7 @@ import {
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { validateBrandProductSpecification } from "./project_product.mapping";
 import { ActivityTypes, logService } from "@/services/log.service";
+import { projectTrackingService } from "../project_tracking/project_tracking.service";
 
 class ProjectProductService {
   public assignProductToProduct = async (
@@ -251,15 +253,38 @@ class ProjectProductService {
     user: UserAttributes,
     path: string,
     finishSchedulePayload: UpdateFinishChedulePayload[] = [],
-    isSpecifying: boolean = false // specifying,
+    isSpecifying: boolean = false, // specifying,
+    isHasXSelection: boolean = false
   ) => {
-    //// validate permission
-    const projectProduct = await projectProductRepository.findWithRelation(
+    let relation = user.relation_id;
+
+    let projectProduct = await projectProductRepository.findWithRelation(
       projectProductId,
       user.relation_id
     );
+
+    if (user.type === UserType.Brand) {
+      projectProduct = await projectProductRepository.findWithBrandRelation(
+        projectProductId,
+        relation
+      );
+
+      if (projectProduct) {
+        relation = projectProduct.design_id;
+      }
+    }
+
+    //// validate permission
     if (!projectProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+    if (isHasXSelection) {
+      //Create assistance request
+      projectTrackingService.createAssistanceRequest(
+        user.id,
+        projectProduct.product_id,
+        projectProduct.project_id
+      );
     }
 
     // validate specify specification attribute
@@ -290,7 +315,7 @@ class ProjectProductService {
     if (payload.unit_type_id) {
       const unitTypes = await commonTypeRepository.findOrCreate(
         payload.unit_type_id,
-        user.relation_id,
+        relation,
         COMMON_TYPES.PROJECT_UNIT
       );
       payload.unit_type_id = unitTypes.id;
@@ -302,7 +327,7 @@ class ProjectProductService {
         payload.requirement_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
             id,
-            user.relation_id,
+            relation,
             COMMON_TYPES.PROJECT_REQUIREMENT
           );
         })
@@ -310,7 +335,7 @@ class ProjectProductService {
       payload.requirement_type_ids = requirements.map((el) => el.id);
     }
 
-    if (isSpecifying) {
+    if (isSpecifying && user.type === UserType.Designer) {
       const errorSavedFinishSchedule = await this.updateFinishScheduleByRoom(
         user,
         projectProductId,
@@ -514,6 +539,7 @@ class ProjectProductService {
 
   public getSpecifiedProductsByBrand = async (
     project_id: string,
+    brand_id?: string,
     brand_order?: SortOrder
   ) => {
     const project = await projectRepository.find(project_id);
@@ -524,6 +550,7 @@ class ProjectProductService {
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForBrandGroup(
         project_id,
+        brand_id,
         brand_order
       );
 

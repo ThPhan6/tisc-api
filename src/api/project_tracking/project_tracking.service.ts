@@ -21,6 +21,7 @@ import {
   GetProjectListSort,
 } from "./project_tracking.types";
 import { ActivityTypes, logService } from "@/services/log.service";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 
 class ProjectTrackingService {
   public createProjectRequest = async (
@@ -63,6 +64,42 @@ class ProjectTrackingService {
     return successResponse({
       data: response,
     });
+  };
+  public createAssistanceRequest = async (
+    userId: string,
+    productId: string,
+    projectId: string
+  ) => {
+    const product = await productRepository.find(productId);
+
+    if (!product) {
+      console.log("product not found");
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
+    const projectTracking =
+      await projectTrackingRepository.findOrCreateIfNotExists(
+        projectId,
+        product.brand_id
+      );
+
+    const commonType = await commonTypeRepository.findBy({
+      name: "Assistance request",
+      relation_id: null,
+    });
+    if (commonType) {
+      await projectRequestRepository.create({
+        request_for_ids: [commonType.id],
+        project_id: projectId,
+        product_id: productId,
+        title: "Assistance request",
+        message: "This product need you to continue specify.",
+        created_by: userId,
+        status: RespondedOrPendingStatus.Pending,
+        project_tracking_id: projectTracking.id,
+      });
+    }
+    return true;
   };
 
   public async getListProjectTracking(
