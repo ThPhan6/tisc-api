@@ -6,6 +6,9 @@ export default {
     params: {
       id: requireStringValidation("Product Id"),
     },
+    query: {
+      project_product_id: Joi.any(),
+    },
   },
   selectSpecification: {
     params: {

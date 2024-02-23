@@ -64,6 +64,7 @@ import { categoryRepository } from "@/repositories/category.repository";
 import { linkageService } from "../linkage/linkage.service";
 import { StepRequest } from "../linkage/linkage.type";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -284,6 +285,7 @@ class ProductService {
       )
     );
     let steps: StepRequest[] = [];
+    let defaultPreSelectData: any = [];
     const saveSpecificationAttributeGroups = await Promise.all(
       payload.specification_attribute_groups.map(
         async (specificationAttributeGroup) => {
@@ -292,6 +294,9 @@ class ProductService {
             allConversion
           );
           steps = steps.concat(mapping.steps || []);
+          defaultPreSelectData = defaultPreSelectData.concat(
+            mapping.defaultPreSelect || []
+          );
           return mapping.data;
         }
       )
@@ -303,6 +308,23 @@ class ProductService {
       })),
     });
 
+    //Upsert default pre selections
+    defaultPreSelectData.map(async (item: any) => {
+      const defaultPreSelection = await defaultPreSelectionRepository.findBy({
+        specification_id: item.specification_id,
+        product_id: product.id,
+      });
+      if (!defaultPreSelection) {
+        await defaultPreSelectionRepository.create({
+          ...item,
+          product_id: product.id,
+        });
+      } else {
+        await defaultPreSelectionRepository.update(defaultPreSelection.id, {
+          data: item.data,
+        });
+      }
+    });
     let images = product.images;
     // Upload images if have changes
     if (isEqual(product.images, payload.images) === false) {
@@ -688,7 +710,11 @@ class ProductService {
     );
     const mappingFunction = categoryId ? mappingByCategory : mappingByBrand;
     return successResponse({
-      data: orderBy(mappingFunction(products), "name", order?.toLocaleLowerCase() || 'asc' as any),
+      data: orderBy(
+        mappingFunction(products),
+        "name",
+        order?.toLocaleLowerCase() || ("asc" as any)
+      ),
     });
   };
 

@@ -324,6 +324,7 @@ const records = [
   { "type": COMMON_TYPES.REQUEST_FOR, "name": "Showroom Visit" },
   { "type": COMMON_TYPES.REQUEST_FOR, "name": "Technical Documentation" },
   { "type": COMMON_TYPES.REQUEST_FOR, "name": "Update Material Library & Resource Room" },
+  { "type": COMMON_TYPES.REQUEST_FOR, "name": "Assistance Request" },
 
   { "type": COMMON_TYPES.ACTION_TASK, "name": "Call follow up" },
   { "type": COMMON_TYPES.ACTION_TASK, "name": "Design office visit" },

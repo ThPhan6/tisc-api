@@ -38,6 +38,7 @@ const attributeGroupsValidate = (
             }),
           })
         ),
+        defaultPreSelect: Joi.any(),
         name: requireStringValidation(`${type} attribute title`),
         selection: Joi.boolean().allow(null),
         attributes: Joi.array()
