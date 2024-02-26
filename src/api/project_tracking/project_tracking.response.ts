@@ -93,7 +93,7 @@ export default {
           type: Joi.number(),
           status: Joi.number(),
           created_by: Joi.string(),
-          projectProductId: Joi.string(),
+          projectProductId: Joi.any(),
           product: productValidate,
           newNotification: Joi.bool(),
           designer: designerValidate,
