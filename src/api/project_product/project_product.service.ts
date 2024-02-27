@@ -353,6 +353,11 @@ class ProjectProductService {
       {
         ...payload,
         status: isSpecifying ? ProjectProductStatus.specify : payload.status,
+        is_done_assistance_request: payload.is_done_assistance_request
+          ? payload.is_done_assistance_request
+          : isHasXSelection
+          ? false
+          : undefined,
         specified_status:
           payload.specified_status ??
           (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
