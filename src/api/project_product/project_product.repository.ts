@@ -543,7 +543,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     LET productsByBrand = (
       FOR pp IN project_products
       FILTER pp.project_id == @projectId
-      ${brandId ? "FILTER pp.is_done_assistance_request != true" : ""}
+      ${brandId ? "FILTER pp.is_done_assistance_request == false" : ""}
       FILTER pp.status == @specifiedStatus
       FILTER pp.deleted_at == null
 
