@@ -17,7 +17,7 @@ import {
   SummaryItemPosition,
   UserType,
 } from "@/types";
-import { isEmpty, sumBy, countBy } from "lodash";
+import { isEmpty, sumBy, countBy, sortBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -171,10 +171,15 @@ class ProjectProductService {
 
     const returnZones = zones.map((zone) => {
       const areas = zone.areas.map((area) => {
-        const rooms = area.rooms.map((room) => ({
-          ...room,
-          is_assigned: assignItem?.allocation?.some((item) => item === room.id),
-        }));
+        const rooms = sortBy(
+          area.rooms.map((room) => ({
+            ...room,
+            is_assigned: assignItem?.allocation?.some(
+              (item) => item === room.id
+            ),
+          })),
+          "room_id"
+        );
         return {
           ...area,
           rooms,
