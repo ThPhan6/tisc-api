@@ -83,10 +83,18 @@ class ProjectTrackingService {
         product.brand_id
       );
 
-    const commonType = await commonTypeRepository.findBy({
+    let commonType = await commonTypeRepository.findBy({
+      type: COMMON_TYPES.REQUEST_FOR,
       name: "Assistance request",
-      relation_id: null,
+      relation_id: "",
     });
+    if (!commonType) {
+      commonType = await commonTypeRepository.findBy({
+        type: COMMON_TYPES.REQUEST_FOR,
+        name: "Assistance request",
+        relation_id: null,
+      });
+    }
     if (commonType) {
       await projectRequestRepository.create({
         request_for_ids: [commonType.id],

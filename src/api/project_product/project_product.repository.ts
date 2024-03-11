@@ -377,6 +377,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FOR stepSelection IN step_selections
                   FILTER stepSelection.specification_id == attributeGroup.id
                   FILTER stepSelection.project_id == @projectId
+                  FILTER stepSelection.product_id == product.id
                   FILTER stepSelection.deleted_at == NULL
                   RETURN stepSelection
           ), ['_key', '_id', '_rev', 'deleted_at'])
@@ -542,6 +543,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     LET productsByBrand = (
       FOR pp IN project_products
       FILTER pp.project_id == @projectId
+      ${brandId ? "FILTER pp.is_done_assistance_request == false" : ""}
       FILTER pp.status == @specifiedStatus
       FILTER pp.deleted_at == null
 
@@ -578,6 +580,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FOR stepSelection IN step_selections
                 FILTER stepSelection.specification_id == attributeGroup.id
                 FILTER stepSelection.project_id == @projectId
+                FILTER stepSelection.product_id == pro.product.id
                 FILTER stepSelection.deleted_at == NULL
                 RETURN stepSelection
         ), ['_key', '_id', '_rev', 'deleted_at'])
@@ -679,6 +682,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           FOR stepSelection IN step_selections
                 FILTER stepSelection.specification_id == attributeGroup.id
                 FILTER stepSelection.project_id == @projectId
+                FILTER stepSelection.product_id == product.id
                 FILTER stepSelection.deleted_at == NULL
                 RETURN stepSelection
         ), ['_key', '_id', '_rev', 'deleted_at'])

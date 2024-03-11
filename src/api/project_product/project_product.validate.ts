@@ -136,6 +136,7 @@ export default {
         )
         .error(errorMessage("Please update Finish Schedule!")),
       custom_product: Joi.boolean().allow(null),
+      is_done_assistance_request: Joi.boolean().allow(null),
     },
   },
   getListByBrand: {
