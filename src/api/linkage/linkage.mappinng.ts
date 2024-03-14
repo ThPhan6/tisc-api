@@ -121,10 +121,12 @@ export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
     steps.map(async (step) => {
       const mappedPreOptions = await Promise.all(
         step.options.map(async (option) => {
-          if (!option.pre_option) return option;
+	  if (!option) return {is_deleted: true};
+	  if (!option.pre_option) return option;
           const preOptions = option.pre_option.split(",");
           const preOptionNames = preOptions.map((pre) => {
             const found = allOptions.find((item) => item.id === pre);
+	    if (!found) return "N/A";
             let temp = [
               found.value_1,
               found.unit_1,
