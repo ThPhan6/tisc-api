@@ -176,4 +176,9 @@ export default {
       };
     }),
   },
+  getUsedMaterialCodes: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId,
+    }),
+  },
 };

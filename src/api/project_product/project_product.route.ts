@@ -195,6 +195,23 @@ export default class ProjectProductRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.PROJECT_PRODUCT.GET_USED_MATERIAL_CODE,
+          options: {
+            handler: controller.getUsedMaterialCodes,
+            validate: validate.getUsedMaterialCodes,
+            description: "Method that get list used material code",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListUsedMaterialCode,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

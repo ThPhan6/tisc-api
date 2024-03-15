@@ -21,6 +21,10 @@ export default {
     data: Joi.any(),
     statusCode: Joi.number(),
   }),
+  getListUsedMaterialCode: Joi.object({
+    data: Joi.any(),
+    statusCode: Joi.number(),
+  }),
   getFinishScheduleByRoom: Joi.object({
     statusCode: Joi.number(),
     data: Joi.array().items(
