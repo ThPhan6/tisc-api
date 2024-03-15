@@ -203,4 +203,12 @@ export default class ProjectProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public getUsedMaterialCodes = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_product_id } = req.params;
+    const response = await projectProductService.getUsedMaterialCodes(project_product_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

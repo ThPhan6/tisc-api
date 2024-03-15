@@ -26,6 +26,8 @@ export const distributorResponse = {
   coverage_beyond: Joi.boolean(),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  website: Joi.string().allow(null),
+  position: Joi.string().allow(null),
 };
 export default {
   getOne: Joi.object({
