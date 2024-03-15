@@ -31,6 +31,8 @@ const distributorValidate = {
     .required()
     .valid(true, false)
     .error(errorMessage("Coverage beyond is required")),
+  website: Joi.string().trim().allow(""),
+  position: Joi.string().trim().allow(""),
 };
 
 export default {

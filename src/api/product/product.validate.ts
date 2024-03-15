@@ -140,8 +140,8 @@ export const productPayloadValidate = {
   ),
   dimension_and_weight: dimensionAndWeightValidate,
   product_information: Joi.object({
-    product_name: Joi.string(),
-    product_id: Joi.string(),
+    product_name: Joi.string().allow(""),
+    product_id: Joi.string().allow(""),
   }),
 };
 

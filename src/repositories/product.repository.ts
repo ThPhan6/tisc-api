@@ -281,6 +281,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     try {
       const raw = `for products in products
       filter products.id != @id
+      filter products.deleted_at == null
       filter products.product_information.product_id == @productId
       return products.product_information`;
       let result = await this.model.rawQueryV2(raw, {
