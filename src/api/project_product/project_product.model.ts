@@ -41,7 +41,8 @@ export interface ProjectProductAttributes {
   created_at: string; // datetime
   created_by: string; // user_id
   updated_at: string;
-  is_done_assistance_request?: boolean
+  is_done_assistance_request?: boolean;
+  is_considering?: boolean;
 }
 
 export default class ProjectProductModel extends Model<ProjectProductAttributes> {

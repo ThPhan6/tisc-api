@@ -35,8 +35,53 @@ import { customProductRepository } from "../custom_product/custom_product.reposi
 import { validateBrandProductSpecification } from "./project_product.mapping";
 import { ActivityTypes, logService } from "@/services/log.service";
 import { projectTrackingService } from "../project_tracking/project_tracking.service";
+import { userProductSpecificationRepository } from "../user_product_specification/user_product_specification.repository";
+import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 
 class ProjectProductService {
+  private duplicateStepSelection = (
+    product_id: string,
+    user_id: string,
+    project_id: string,
+    specification_ids: string[]
+  ) =>
+    Promise.all(
+      specification_ids.map(async (specification_id) => {
+        const paramsToFind = {
+          product_id: product_id,
+
+          specification_id: specification_id,
+        };
+        const stepSelection = await stepSelectionRepository.findBy({
+          ...paramsToFind,
+          user_id: user_id,
+        });
+        if (stepSelection) {
+          //duplicate
+          const projectProductStepSelection =
+            await stepSelectionRepository.findBy({
+              ...paramsToFind,
+              project_id: project_id,
+            });
+          const data = {
+            product_id: stepSelection.product_id,
+            project_id: project_id,
+            specification_id: stepSelection.specification_id,
+            quantities: stepSelection.quantities,
+            combined_quantities: stepSelection.combined_quantities,
+          };
+          if (!projectProductStepSelection) {
+            await stepSelectionRepository.create(data);
+          } else {
+            await stepSelectionRepository.update(
+              projectProductStepSelection.id,
+              data
+            );
+          }
+        }
+        return true;
+      })
+    );
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
     user: UserAttributes,
@@ -95,12 +140,24 @@ class ProjectProductService {
         },
       });
     }
-
+    const designerPreSelection =
+      await userProductSpecificationRepository.findBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
     const newProjectProductRecord = await projectProductRepository.create({
       ...payload,
+      specification: designerPreSelection?.specification,
       created_by: user.id,
     });
-
+    await this.duplicateStepSelection(
+      payload.product_id,
+      user.id,
+      payload.project_id,
+      designerPreSelection?.specification?.attribute_groups.map(
+        (item) => item.id
+      ) || []
+    );
     if (!newProjectProductRecord) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG, 400);
     }
@@ -129,6 +186,27 @@ class ProjectProductService {
       relation_id: user.relation_id,
       data: { product_id: product.id, project_id: project.id },
     });
+    // refresh user specification
+    const userProductSpecification =
+      await userProductSpecificationRepository.findBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
+    if (userProductSpecification) {
+      await stepSelectionRepository.deleteBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
+      await userProductSpecificationRepository.update(
+        userProductSpecification.id,
+        {
+          specification: {
+            ...userProductSpecification.specification,
+            attribute_groups: [],
+          },
+        }
+      );
+    }
     return successResponse({
       data: {
         ...newProjectProductRecord,
