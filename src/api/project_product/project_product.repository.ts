@@ -221,7 +221,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   LET c = FIRST(availability.countries[* FILTER CURRENT.id == authorized_country.id])
                   RETURN {
                       id: authorized_country.id,
-                      available: c ? c.available : true
+                      available: c ? c.available : false
                   }
               )
             RETURN country
@@ -648,7 +648,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET brand = ${this.brandQuery}
 
       FOR collections IN collections
-      FILTER collections.id in product.collection_ids
+      FILTER pp.custom_product == true? collections.id == product.collection_id : collections.id in product.collection_ids
       FILTER collections.deleted_at == null
       FOR users IN users
       FILTER users.id == @userId
