@@ -663,12 +663,11 @@ class ProjectProductService {
         brand_order,
         material_order || "ASC"
       );
-
     const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
-
+    const uniqueList = uniqBy(mappedProducts, "full_material_code");
     const cancelledCount =
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
-    const availabilityRemarkCount = specifiedProducts.reduce(
+    const availabilityRemarkCount = uniqueList.reduce(
       (total: number, prod: any) => {
         const markedAvailabilityCount =
           prod.product?.availability !== Availability.Available ? 1 : 0;
@@ -679,11 +678,11 @@ class ProjectProductService {
 
     return successResponse({
       data: {
-        data: uniqBy(mappedProducts, 'full_material_code'),
+        data: uniqBy(mappedProducts, "full_material_code"),
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - cancelledCount,
+            value: uniqueList.length - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
           {

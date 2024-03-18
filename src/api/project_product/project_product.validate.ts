@@ -96,7 +96,7 @@ export default {
           }),
         }),
       }),
-      brand_location_id: requireStringValidation("Brand location"),
+      brand_location_id: stringValidation(),
       distributor_location_id: stringValidation(),
       entire_allocation: Joi.boolean(),
       allocation: Joi.array().items(Joi.string().allow("")),
