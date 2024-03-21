@@ -284,6 +284,8 @@ export const ROUTES = {
       "/api/project-product/get-list-by-zone/{project_id}",
     GET_LIST_FINISH_SCHEDULE_FOR:
       "/api/project-product/{project_product_id}/finish-schedules",
+    GET_USED_MATERIAL_CODE:
+      "/api/project-product/{project_product_id}/used-material-code",
   },
   PROJECT_TRACKING: {
     CREATE: "/api/project-tracking/request/create",

@@ -221,7 +221,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   LET c = FIRST(availability.countries[* FILTER CURRENT.id == authorized_country.id])
                   RETURN {
                       id: authorized_country.id,
-                      available: c ? c.available : true
+                      available: c ? c.available : false
                   }
               )
             RETURN country
@@ -648,7 +648,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET brand = ${this.brandQuery}
 
       FOR collections IN collections
-      FILTER collections.id in product.collection_ids
+      FILTER pp.custom_product == true? collections.id == product.collection_id : collections.id in product.collection_ids
       FILTER collections.deleted_at == null
       FOR users IN users
       FILTER users.id == @userId
@@ -866,7 +866,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
 
             FOR collection IN collections
-                FILTER collection.id in product.collection_ids
+                FILTER project_products.custom_product == true? collection.id == product.collection_id : collection.id in product.collection_ids
                 FILTER collection.deleted_at == null
 
             RETURN {
@@ -1178,6 +1178,12 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           getDefaultDimensionAndWeightAttribute().attributes,
       }
     );
+  };
+  public getUsedMaterialCodes = async (project_product_id: string) => {
+    const result = await this.model
+      .select("material_code_id", "suffix_code")
+      .whereNotLike("id", project_product_id);
+    return result.get();
   };
 }
 export const projectProductRepository = new ProjectProductRepository();

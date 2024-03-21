@@ -17,7 +17,7 @@ import {
   SummaryItemPosition,
   UserType,
 } from "@/types";
-import { isEmpty, sumBy, countBy, sortBy } from "lodash";
+import { isEmpty, sumBy, countBy, sortBy, uniqBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -115,6 +115,11 @@ class ProjectProductService {
       product_id: payload.product_id,
     });
     if (projectProduct) {
+      if (projectProduct.status === ProjectProductStatus.specify) {
+        return successResponse({
+          data: projectProduct,
+        });
+      }
       const updatedProjectProduct = await projectProductRepository.update(
         projectProduct.id,
         payload
@@ -240,7 +245,10 @@ class ProjectProductService {
       }
     }
 
-    const zones = await projectZoneRepository.getAllBy({ project_id });
+    const zones = sortBy(
+      await projectZoneRepository.getAllBy({ project_id }),
+      "name"
+    );
 
     const entireSection = {
       name: "ENTIRE PROJECT",
@@ -694,10 +702,12 @@ class ProjectProductService {
       ...el.product,
       brand: el.brand,
       collection: el.collection,
+      full_material_code: `${el.material_code?.code} ${el.project_products.suffix_code}`,
       specifiedDetail: {
         ...el.project_products,
         unit_type: el.unit_type?.name,
         material_code: el.material_code?.code,
+
         order_method_name: OrderMethod[el.project_products.order_method],
       },
     }));
@@ -729,14 +739,13 @@ class ProjectProductService {
         user.id,
         project_id,
         brand_order,
-        material_order
+        material_order || "ASC"
       );
-
     const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
-
+    const uniqueList = uniqBy(mappedProducts, "full_material_code");
     const cancelledCount =
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
-    const availabilityRemarkCount = specifiedProducts.reduce(
+    const availabilityRemarkCount = uniqueList.reduce(
       (total: number, prod: any) => {
         const markedAvailabilityCount =
           prod.product?.availability !== Availability.Available ? 1 : 0;
@@ -747,11 +756,11 @@ class ProjectProductService {
 
     return successResponse({
       data: {
-        data: mappedProducts,
+        data: uniqBy(mappedProducts, "full_material_code"),
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - cancelledCount,
+            value: uniqueList.length - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
           {
@@ -781,10 +790,10 @@ class ProjectProductService {
       await projectProductRepository.getConsideredProductsByProject(
         project_id,
         user.id,
-        zone_order,
-        area_order,
-        room_order,
-        brand_order,
+        zone_order || "ASC",
+        area_order || "ASC",
+        room_order || "ASC",
+        brand_order || "ASC",
         true
       );
 
@@ -901,6 +910,15 @@ class ProjectProductService {
         MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN
       );
     }
+  };
+
+  public getUsedMaterialCodes = async (project_product_id: string) => {
+    const allUseMaterialCodes = (
+      await projectProductRepository.getUsedMaterialCodes(project_product_id)
+    ).filter((item: any) => !isEmpty(item.material_code_id));
+    return successResponse({
+      data: allUseMaterialCodes,
+    });
   };
 }
 
