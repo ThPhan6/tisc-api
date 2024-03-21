@@ -866,7 +866,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
 
 
             FOR collection IN collections
-                FILTER collection.id in product.collection_ids
+                FILTER project_products.custom_product == true? collection.id == product.collection_id : collection.id in product.collection_ids
                 FILTER collection.deleted_at == null
 
             RETURN {

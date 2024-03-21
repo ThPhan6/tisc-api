@@ -109,13 +109,17 @@ class MarketAvailabilityService {
       return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
     //
+    const collectionIds = await collectionRepository.getCollectionsByBrand(
+      brandId
+    );
     const marketAvailabilities =
       await marketAvailabilityRepository.getMarketAvailabilityPagination(
         brandId,
         limit,
         offset,
         sort,
-        order
+        order,
+        collectionIds
       );
     //
     const collections = marketAvailabilities.data.map((market) =>
