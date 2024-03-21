@@ -7,6 +7,7 @@ import {
   ListMarketAvailability,
 } from "@/types";
 import { head, isFinite } from "lodash";
+import { brandRepository } from "./brand.repository";
 
 class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAttributes> {
   protected model: MarketAvailabilityModel;
@@ -61,7 +62,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     offset?: number,
     sort?: string,
     order?: SortOrder,
-    isQueryGlobal?: boolean
+    collectionIds?: string[]
   ) => {
     if (!sort) {
       sort = "name";
@@ -69,17 +70,21 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     if (!order) {
       order = "ASC";
     }
-    const params: any = {
-      relationId,
-      relationType: CollectionRelationType.CustomProduct,
-    };
+    const params: any = collectionIds
+      ? { collectionIds }
+      : {
+          relationId,
+          relationType: CollectionRelationType.CustomProduct,
+        };
     let query = `FOR collection IN collections
-        FILTER collection.deleted_at == null
-        FILTER collection.relation_id == @relationId ${
-          isQueryGlobal ? ` OR collection.relation_id == ""` : ""
-        }
         
-        FILTER collection.relation_type != @relationType
+        ${
+          collectionIds
+            ? "filter collection.id in @collectionIds"
+            : `FILTER collection.deleted_at == null
+        FILTER collection.relation_id == @relationId 
+        FILTER collection.relation_type != @relationType`
+        }
     `;
     if (count) {
       query += `COLLECT WITH COUNT INTO length RETURN length`;
@@ -181,7 +186,8 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
     limit: number = 10,
     offset: number = 0,
     sort: string = "created_at",
-    order: SortOrder = "DESC"
+    order: SortOrder = "DESC",
+    collectionIds?: string[]
   ) {
     ///
     const queryTotal = this.getBuilderQuery(
@@ -193,7 +199,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
       undefined,
       undefined,
       undefined,
-      true
+      collectionIds
     );
     const totalResponse = await this.model.rawQueryV2(
       queryTotal.query,
@@ -210,7 +216,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
       offset,
       sort,
       order,
-      true
+      collectionIds
     );
     const data = (await this.model.rawQueryV2(
       query.query,
