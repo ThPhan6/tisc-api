@@ -96,7 +96,7 @@ export default {
           }),
         }),
       }),
-      brand_location_id: requireStringValidation("Brand location"),
+      brand_location_id: stringValidation(),
       distributor_location_id: stringValidation(),
       entire_allocation: Joi.boolean(),
       allocation: Joi.array().items(Joi.string().allow("")),
@@ -174,6 +174,11 @@ export default {
         roomIds:
           value.roomIds && value.roomIds.split ? value.roomIds.split(",") : [],
       };
+    }),
+  },
+  getUsedMaterialCodes: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId,
     }),
   },
 };

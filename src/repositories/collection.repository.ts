@@ -7,6 +7,7 @@ import {
 } from "@/types";
 import BaseRepository from "./base.repository";
 import { CollectionRelationType } from "@/types";
+import { flatMap, uniq } from "lodash";
 
 class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   protected model: CollectionModel;
@@ -94,6 +95,22 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
       .where("relation_id", "==", relation_id)
       .where("relation_type", "==", relation_type)
       .get()) as ICollectionAttributes[];
+  }
+  public async getCollectionsByBrand(brandId: string) {
+    let query = `
+    LET collectionIds = FLATTEN(
+      FOR products IN products
+      FILTER products.brand_id == @brandId
+      RETURN products.collection_ids
+    )
+    FOR collections IN collections
+    FILTER collections.id IN collectionIds
+    FILTER collections.deleted_at == NULL
+    RETURN collections.id
+    `;
+    const result = await this.model.rawQueryV2(query, { brandId });
+    // return uniq(flatMap(result)) as string[];
+    return uniq(result) as string[];
   }
 }
 
