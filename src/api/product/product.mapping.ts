@@ -397,6 +397,7 @@ export const mappingSpecificationStep = (
         product_id: productId,
         user_id: userId,
         specification_id: group.id || "",
+        deleted_at: null,
       });
       const quantities = stepSelection?.quantities;
       const viewSteps = specificationSteps.data.map(

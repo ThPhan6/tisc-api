@@ -80,7 +80,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     LET options = (
       FILTER pp.specification != null && pp.specification.attribute_groups != null
       FOR specification IN pp.specification.attribute_groups
-      FOR specAttribute IN specification.attributes
+      FILTER product.specification_attribute_groups != NULL
+      LET attributeVariants = FIRST(specification.attributes) != NULL ? (
+        FOR specAttribute IN specification.attributes
         FOR attributes IN attributes
         FILTER attributes.subs != null
         FOR attr IN attributes.subs
@@ -94,6 +96,31 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER option.id == specAttribute.basis_option_id
             RETURN option.value_2 == ''? CONCAT(option.value_1, ' ', option.unit_1) : CONCAT(option.value_1, ' ', option.unit_1,
             ' - ', option.value_2, ' ', option.unit_2)
+      ) : (
+        FOR productSpecification IN product.specification_attribute_groups
+        LET selectedOptions = (
+          FOR stepSelection IN step_selections
+            FILTER stepSelection.product_id == product.id
+            FILTER stepSelection.specification_id == productSpecification.id
+            FILTER stepSelection.project_id == @projectId
+            FILTER stepSelection.deleted_at == NULL
+            FOR combinedQuantity IN stepSelection.combined_quantities
+              FOR defaultBasisOption in defaultOptions
+                FILTER defaultBasisOption.id == combinedQuantity.id
+                RETURN DISTINCT(defaultBasisOption)
+        )
+
+        FILTER specification.id == productSpecification.id
+        FILTER specification.attributes != null
+        LET selectedVariants = (
+          FILTER selectedOptions != NULL
+          FOR selectedOption IN selectedOptions
+          RETURN selectedOption.value_2 == ''? CONCAT(selectedOption.value_1, ' ', selectedOption.unit_1) : CONCAT(selectedOption.value_1, ' ', selectedOption.unit_1,
+            ' - ', selectedOption.value_2, ' ', selectedOption.unit_2)
+        )
+        RETURN CONCAT_SEPARATOR(' - ', selectedVariants)
+      )
+      RETURN CONCAT_SEPARATOR(' - ', attributeVariants)
     )
     LET skus = (
       FILTER pp.specification != null && pp.specification.attribute_groups != null
