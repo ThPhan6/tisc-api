@@ -79,6 +79,22 @@ export default class ProjectProductRoute implements IRoute {
           },
         },
         {
+          method: "PUT",
+          path: ROUTES.PROJECT_PRODUCT.REVERT_SPECIFICATION_VERSION,
+          options: {
+            handler: controller.revertSpecificationVersion,
+            validate: validate.revertSpecificationVersion,
+            description: "Method that revert specification version",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "DELETE",
           path: ROUTES.PROJECT_PRODUCT.DELETE_CONSIDERED_PRODUCT,
           options: {

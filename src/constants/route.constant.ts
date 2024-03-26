@@ -286,6 +286,8 @@ export const ROUTES = {
       "/api/project-product/{project_product_id}/finish-schedules",
     GET_USED_MATERIAL_CODE:
       "/api/project-product/{project_product_id}/used-material-code",
+    REVERT_SPECIFICATION_VERSION:
+      "/api/project-product/{project_product_id}/revert/{version_id}",
   },
   PROJECT_TRACKING: {
     CREATE: "/api/project-tracking/request/create",

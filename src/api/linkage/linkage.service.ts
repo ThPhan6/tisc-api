@@ -45,7 +45,6 @@ class LinkageService {
   }
   public async getLinkages(option_id: string) {
     const find = await optionLinkageRepository.findPairsByOption(option_id);
-    console.log(find)
     return {
       data: await toConnections(find, option_id),
       statusCode: 200,
@@ -345,24 +344,29 @@ class LinkageService {
           specification_id: payload.specification_id,
         };
     const stepSelection = await stepSelectionRepository.findBy(paramsToFind);
+    const data = {
+      quantities: payload.step_selections,
+      combined_quantities: this.combineQuantityForStepSelection(
+        payload.step_selections
+      ),
+    };
     if (!stepSelection) {
       await stepSelectionRepository.create({
         ...paramsToFind,
-        quantities: payload.step_selections,
-        combined_quantities: this.combineQuantityForStepSelection(
-          payload.step_selections
-        ),
+        ...data,
       });
     } else {
       await stepSelectionRepository.update(stepSelection.id, {
-        quantities: payload.step_selections,
-        combined_quantities: this.combineQuantityForStepSelection(
-          payload.step_selections
-        ),
+        ...data,
       });
     }
-    return successMessageResponse(MESSAGES.SUCCESS);
+    return {
+      message: MESSAGES.SUCCESS,
+      statusCode: 200,
+      data,
+    };
   }
+
   public async getConfigurationSteps(
     product_id: string,
     specification_id: string,
