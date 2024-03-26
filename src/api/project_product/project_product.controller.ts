@@ -103,6 +103,20 @@ export default class ProjectProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public revertSpecificationVersion = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_product_id, version_id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+
+    const response = await projectProductService.revertSpecificationVersion(
+      project_product_id,
+      version_id,
+      user
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 
   public updateSpecifyProductStatus = async (
     req: Request & {
@@ -208,7 +222,9 @@ export default class ProjectProductController {
     toolkit: ResponseToolkit
   ) => {
     const { project_product_id } = req.params;
-    const response = await projectProductService.getUsedMaterialCodes(project_product_id);
+    const response = await projectProductService.getUsedMaterialCodes(
+      project_product_id
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

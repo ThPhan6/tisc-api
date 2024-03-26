@@ -181,4 +181,10 @@ export default {
       project_product_id: requiredConsideredId,
     }),
   },
+  revertSpecificationVersion: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId,
+      version_id: Joi.string().required(),
+    }),
+  },
 };
