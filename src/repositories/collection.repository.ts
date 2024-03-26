@@ -97,12 +97,20 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
       .get()) as ICollectionAttributes[];
   }
   public async getCollectionsByBrand(brandId: string) {
-    let query = `FOR products IN products
-    FILTER products.brand_id == @brandId
-    RETURN products.collection_ids
+    let query = `
+    LET collectionIds = FLATTEN(
+      FOR products IN products
+      FILTER products.brand_id == @brandId
+      RETURN products.collection_ids
+    )
+    FOR collections IN collections
+    FILTER collections.id IN collectionIds
+    FILTER collections.deleted_at == NULL
+    RETURN collections.id
     `;
     const result = await this.model.rawQueryV2(query, { brandId });
-    return uniq(flatMap(result)) as string[];
+    // return uniq(flatMap(result)) as string[];
+    return uniq(result) as string[];
   }
 }
 
