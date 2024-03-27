@@ -1209,6 +1209,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
   public getUsedMaterialCodes = async (project_product_id: string) => {
     const result = await this.model
       .select("material_code_id", "suffix_code")
+      .whereNull('deleted_at')
       .whereNotLike("id", project_product_id);
     return result.get();
   };

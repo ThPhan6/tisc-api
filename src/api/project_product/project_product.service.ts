@@ -170,7 +170,7 @@ class ProjectProductService {
       ) || []
     );
     const mappedGroup =
-      designerPreSelection?.specification.attribute_groups.map((group) => {
+      designerPreSelection?.specification?.attribute_groups.map((group) => {
         const matched = stepSelections.find(
           (item) => item.specification_id === group.id
         );
