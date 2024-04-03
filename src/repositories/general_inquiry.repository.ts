@@ -180,15 +180,13 @@ class GeneralInquiryRepository extends BaseRepository<GeneralInquiryAttribute> {
       FOR products IN products
       FILTER products.id == general_inquiries.product_id
       FILTER products.deleted_at == null
-      FOR collection IN collections
-      FILTER collection.id in products.collection_ids
-      FILTER collection.deleted_at == null
+      
       FOR brands IN brands
       FILTER brands.id == products.brand_id
       FILTER brands.deleted_at == null
       RETURN MERGE(
         KEEP(products, 'id', 'name', 'description'),
-        {collection: collection.name, image: FIRST(products.images)}
+        { image: FIRST(products.images)}
       )
     )
 
