@@ -28,7 +28,7 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import { mailService } from "@/services/mail.service";
-import { isEqual, orderBy, sortBy, trim } from "lodash";
+import { isEmpty, isEqual, orderBy, sortBy, trim } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -258,13 +258,15 @@ class ProductService {
       payload.product_information.product_id = trim(
         payload.product_information.product_id
       );
-      const duplicatedProductInformation =
-        await productRepository.getDuplicatedProductInfomationProductId(
-          id,
-          payload.product_information.product_id
-        );
-      if (duplicatedProductInformation) {
-        return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED_INFORMATION);
+      if (!isEmpty(payload.product_information.product_id)) {
+        const duplicatedProductInformation =
+          await productRepository.getDuplicatedProductInfomationProductId(
+            id,
+            payload.product_information.product_id
+          );
+        if (duplicatedProductInformation) {
+          return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED_INFORMATION);
+        }
       }
     }
     const brand = await brandRepository.find(payload.brand_id);

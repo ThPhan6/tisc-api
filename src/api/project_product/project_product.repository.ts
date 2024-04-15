@@ -164,7 +164,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               ) )
     )
     RETURN {
-      variant: CONCAT_SEPARATOR('; ', options),
+      variant: CONCAT_SEPARATOR('; ', (for option in options filter option != '' return option)),
       productCode: CONCAT_SEPARATOR(' - ', UNIQUE(skus)),
     }
   )`;
@@ -594,8 +594,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       LET variant = (FOR bo IN pro.basisOptions RETURN bo.variant)
       LET productCode = (FOR bo IN pro.basisOptions RETURN DISTINCT bo.productCode==''?'N/A':bo.productCode)
       SORT pro.product._key ASC
+      LET mapAtrGroups = pro.pp.specification.attribute_groups? pro.pp.specification.attribute_groups: []
       LET newAttributeGroups = (
-        FOR attributeGroup IN pro.pp.specification.attribute_groups
+        FOR attributeGroup IN mapAtrGroups
         LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
         LET viewSteps = (FOR ss IN specification_steps FILTER ss.product_id == pro.product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null
           LET newOptions = (FOR option IN ss.options
@@ -702,8 +703,9 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             }`
           : "SORT pp._key ASC"
       }
+      LET mapAtrGroups = pp.specification.attribute_groups ? pp.specification.attribute_groups : []
       LET newAttributeGroups = (
-        FOR attributeGroup IN pp.specification.attribute_groups
+        FOR attributeGroup IN mapAtrGroups
         LET specificationStepIds = (FOR ss IN specification_steps FILTER ss.product_id == product.id FILTER ss.specification_id == attributeGroup.id FILTER ss.deleted_at == null RETURN ss.id)
         LET stepSelection = UNSET(FIRST(
           FOR stepSelection IN step_selections
@@ -1206,12 +1208,27 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
       }
     );
   };
-  public getUsedMaterialCodes = async (project_product_id: string) => {
-    const result = await this.model
+  public getUsedMaterialCodes = async (
+    projectProductId: string,
+    projectId?: string
+  ) => {
+    let query = this.model
       .select("material_code_id", "suffix_code")
-      .whereNotLike("id", project_product_id);
+      .whereNull("deleted_at")
+      .whereNotLike("id", projectProductId);
+    if (projectId) {
+      query = query.where("project_id", "==", projectId);
+    }
+    const result = await query;
     return result.get();
   };
+  // public getUsedMaterialCodes = async (project_product_id: string) => {
+  //   const result = await this.model
+  //     .select("material_code_id", "suffix_code")
+  //     .whereNull('deleted_at')
+  //     .whereNotLike("id", project_product_id);
+  //   return result.get();
+  // };
 }
 export const projectProductRepository = new ProjectProductRepository();
 

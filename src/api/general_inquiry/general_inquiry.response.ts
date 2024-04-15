@@ -40,7 +40,7 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           description: Joi.string().allow(""),
-          collection: Joi.string(),
+          // collection: Joi.string(),
           image: Joi.string(),
         }),
         designer: Joi.object({

@@ -170,7 +170,7 @@ class ProjectProductService {
       ) || []
     );
     const mappedGroup =
-      designerPreSelection?.specification.attribute_groups.map((group) => {
+      designerPreSelection?.specification?.attribute_groups.map((group) => {
         const matched = stepSelections.find(
           (item) => item.specification_id === group.id
         );
@@ -521,12 +521,11 @@ class ProjectProductService {
           (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
         specification: {
           is_refer_document: payload.specification?.is_refer_document || false,
-          attribute_groups: payload.specification?.attribute_groups.map(
-            (item) => ({
+          attribute_groups:
+            (payload.specification?.attribute_groups.map((item) => ({
               id: item.id,
               attributes: item.attributes,
-            })
-          ) as any,
+            })) as any) || [],
         },
         specification_versions: (
           projectProduct.specification_versions || []
@@ -992,8 +991,14 @@ class ProjectProductService {
   };
 
   public getUsedMaterialCodes = async (project_product_id: string) => {
+    const projectProduct = await projectProductRepository.find(
+      project_product_id
+    );
     const allUseMaterialCodes = (
-      await projectProductRepository.getUsedMaterialCodes(project_product_id)
+      await projectProductRepository.getUsedMaterialCodes(
+        project_product_id,
+        projectProduct?.project_id
+      )
     ).filter((item: any) => !isEmpty(item.material_code_id));
     return successResponse({
       data: allUseMaterialCodes,
