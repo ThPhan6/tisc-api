@@ -49,6 +49,7 @@ export interface IUpdateBasisOptionRequest {
 }
 
 export interface IBasisPresetRequest {
+  additional_type: BasisPresetType;
   name: string;
   subs: {
     name: string;
@@ -61,4 +62,9 @@ export interface IBasisPresetRequest {
 export interface IUpdateBasisPresetRequest {
   name: string;
   subs: Omit<BasisPresetSubGroup, "count">[];
+}
+
+export enum BasisPresetType {
+  general,
+  feature,
 }
