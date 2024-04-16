@@ -116,6 +116,11 @@ export default class BasisController {
     const response = await BasisService.getBasisPreset(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public copyBasisPreset = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await BasisService.copyBasisPreset(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getListBasisPreset = async (
     req: Request,
     toolkit: ResponseToolkit

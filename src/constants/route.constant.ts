@@ -50,6 +50,7 @@ export const ROUTES = {
   GET_LIST_BASIS_PRESET: "/api/basis-preset/get-list",
   EDIT_BASIS_PRESET: "/api/basis-preset/update/{id}",
   GET_ONE_BASIS_PRESET: "/api/basis-preset/get-one/{id}",
+  COPY_BASIS_PRESET: "/api/basis-preset/copy/{id}",
   DELETE_BASIS_PRESET: "/api/basis-preset/delete/{id}",
   CREATE_BASIS_PRESET: "/api/basis-preset/create",
   GET_LIST_ATTRIBUTE: "/api/attribute/get-list",
