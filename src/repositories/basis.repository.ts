@@ -40,7 +40,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     isGeneral?: boolean
   ): Promise<ListBasisWithPagination> {
     let result = this.model.where("type", "==", type);
-    if ((type === BASIS_TYPES.PRESET)) {
+    if (type === BASIS_TYPES.PRESET) {
       if (!isGeneral) {
         result.where("additional_type", "==", BasisPresetType.feature);
       } else {
