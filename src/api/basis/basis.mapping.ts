@@ -454,6 +454,19 @@ export const addBasisPresetSubGroup = (
     };
   });
 };
+export const mappedCopyDataPreset = (basisGroup: IBasisAttributes) => {
+  return {
+    name: basisGroup.name,
+    additional_type: basisGroup.additional_type === 1 ? 0 : 1,
+    subs: basisGroup.subs.map((subGroup: any) => ({
+      name: subGroup.name,
+      subs: subGroup.subs.map((item: any) => ({
+        name: item.name,
+        subs: item.subs,
+      })),
+    })),
+  };
+};
 export const divideBasisOptionMain = (basisGroup: IBasisAttributes) => {
   const mains = basisGroup.subs.map((main: any) => ({
     id: main.id,

@@ -24,6 +24,7 @@ import {
   addBasisPresetSubGroup,
   addCountBasis,
   duplicateBasisConversion,
+  mappedCopyDataPreset,
   mappingBasisConversion,
   mappingBasisOptionCreate,
   mappingBasisOptionUpdate,
@@ -398,7 +399,10 @@ class BasisService {
       type: BASIS_TYPES.PRESET,
       name: toSingleSpaceAndToLowerCase(payload.name),
     });
-    if (basisOptionGroup) {
+    if (
+      basisOptionGroup &&
+      basisOptionGroup.additional_type === payload.additional_type
+    ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);
     }
     if (
@@ -444,6 +448,11 @@ class BasisService {
       data: presets[0],
     });
   }
+  public async copyBasisPreset(id: string) {
+    const basisPresetGroup: any = await this.getBasisPreset(id);
+    const dataToCopy = mappedCopyDataPreset(basisPresetGroup.data);
+    return this.createBasisPreset(dataToCopy);
+  }
 
   public async getListBasisPreset(
     limit: number,
@@ -468,7 +477,11 @@ class BasisService {
       basisPresetGroups.data,
       basisPresetSubGroups
     );
-    const returnedGroups = sortBasisPreset(addedSub, presetOrder, subGroupOrder);
+    const returnedGroups = sortBasisPreset(
+      addedSub,
+      presetOrder,
+      subGroupOrder
+    );
     const summaryTable = getSummaryTable(addedSub);
     const summary = [
       {
