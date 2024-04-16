@@ -10,6 +10,8 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { uploadImages } from "@/services/image.service";
@@ -19,6 +21,7 @@ import { v4 as uuid } from "uuid";
 import {
   addBasisOptionMain,
   addBasisOptionPairCount,
+  addBasisPresetSubGroup,
   addCountBasis,
   duplicateBasisConversion,
   mappingBasisConversion,
@@ -406,24 +409,19 @@ class BasisService {
     ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_DUPLICATED);
     }
-    const presets = mappingBasisPresetCreate(payload);
+    const groupId = uuid();
+    const presets = await mappingBasisPresetCreate(payload, groupId);
+
     const createdBasisPreset = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.PRESET,
       subs: presets,
+      id: groupId,
     });
     if (!createdBasisPreset) {
       return successMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
     }
-    const { type, ...rest } = createdBasisPreset;
-    const returnedPresets = addCountBasis(rest.subs);
-    return successResponse({
-      data: {
-        ...rest,
-        count: payload.subs.length,
-        subs: returnedPresets,
-      },
-    });
+    return this.getBasisPreset(createdBasisPreset.id);
   }
 
   public async getBasisPreset(id: string) {
@@ -431,14 +429,17 @@ class BasisService {
     if (!basisPresetGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND);
     }
-    const { type, ...rest } = basisPresetGroup;
-    const preset = addCountBasis(rest.subs);
+    const subGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Preset,
+      relation_id: basisPresetGroup.id,
+    });
+    const addedSubGroups = addBasisPresetSubGroup(
+      [basisPresetGroup],
+      subGroups
+    );
+    const preset = addCountBasis(addedSubGroups);
     return successResponse({
-      data: {
-        ...rest,
-        count: rest.subs.length,
-        subs: preset,
-      },
+      data: preset,
     });
   }
 
@@ -455,10 +456,12 @@ class BasisService {
       BASIS_TYPES.PRESET,
       groupOrder
     );
-    const returnedGroups = sortBasisOptionOrPreset(
+    const basisPresetSubGroups = await additionalSubGroupRepository.getAll();
+    const addedSub = addBasisPresetSubGroup(
       basisPresetGroups.data,
-      presetOrder
+      basisPresetSubGroups
     );
+    const returnedGroups = sortBasisOptionOrPreset(addedSub, presetOrder);
     const summaryTable = getSummaryTable(basisPresetGroups.data);
     const summary = [
       {
@@ -509,10 +512,21 @@ class BasisService {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_DUPLICATED);
     }
 
-    const presets = mappingBasisPresetUpdate(payload, basisPresetGroup);
+    const mappedPreset = mappingBasisPresetUpdate(payload, basisPresetGroup);
+    await Promise.all(
+      mappedPreset.subGroups.map(async (subGroup) => {
+        const find = await additionalSubGroupRepository.find(subGroup.id);
+        if (!find) {
+          return additionalSubGroupRepository.create(subGroup);
+        }
+        return additionalSubGroupRepository.update(subGroup.id, {
+          name: subGroup.name,
+        });
+      })
+    );
     const updatedAttribute = await BasisRepository.update(id, {
       ...payload,
-      subs: presets,
+      subs: mappedPreset.presets,
       name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (!updatedAttribute) {

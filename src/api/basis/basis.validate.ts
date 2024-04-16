@@ -168,7 +168,11 @@ export default {
       name: requireStringValidation("Basis preset group name"),
       subs: Joi.array().items({
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation,
+        subs: Joi.array().items({
+          id: Joi.string(),
+          name: requireStringValidation("Basis preset name"),
+          subs: basisPresetValidation,
+        }),
       }),
     },
   },
@@ -181,7 +185,11 @@ export default {
       subs: Joi.array().items({
         id: Joi.string(),
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation,
+        subs: Joi.array().items({
+          id: Joi.string(),
+          name: requireStringValidation("Basis preset name"),
+          subs: basisPresetValidation,
+        }),
       }),
     },
   },
