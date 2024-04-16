@@ -34,6 +34,7 @@ export const basisConversionGroupResponse = {
 
 export const subsBasisOptionOrPresetResponse = {
   main_id: Joi.any(),
+  sub_group_id: Joi.any(),
   id: Joi.string(),
   name: Joi.string(),
   master: Joi.boolean().allow(null),
@@ -57,6 +58,12 @@ export const basisOptionMainResponse = {
   count: Joi.number(),
   subs: Joi.array().items(subsBasisOptionOrPresetResponse),
 };
+export const basisPresetSubGroupResponse = {
+  id: Joi.string(),
+  name: Joi.string(),
+  count: Joi.number(),
+  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
+};
 
 export const basisOptionGroupResponse = {
   id: Joi.string(),
@@ -73,7 +80,7 @@ export const basisPresetGroupResponse = {
   name: Joi.string(),
   count: Joi.number(),
   master: Joi.boolean().allow(null),
-  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
+  subs: Joi.array().items(basisPresetSubGroupResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
 };
@@ -108,21 +115,23 @@ export default {
     statusCode: Joi.number(),
   }) as any,
 
-  basisPreset: Joi.object({
-    data: basisPresetGroupResponse,
-    statusCode: Joi.number(),
-  }) as any,
-  basisPresets: Joi.object({
-    data: {
-      basis_presets: Joi.array().items(basisPresetGroupResponse),
-      count: {
-        group_count: Joi.number(),
-        preset_count: Joi.number(),
-        value_count: Joi.number(),
-      },
-      summary: Joi.array().items(Joi.object(summaryTableResponse)),
-      pagination: Joi.object(paginationResponse),
-    },
-    statusCode: Joi.number(),
-  }) as any,
+  // basisPreset: Joi.object({
+  //   data: basisPresetGroupResponse,
+  //   statusCode: Joi.number(),
+  // }) as any,
+  // basisPresets: Joi.object({
+  //   data: {
+  //     basis_presets: Joi.array().items(basisPresetGroupResponse),
+  //     count: {
+  //       group_count: Joi.number(),
+  //       preset_count: Joi.number(),
+  //       value_count: Joi.number(),
+  //     },
+  //     summary: Joi.array().items(Joi.object(summaryTableResponse)),
+  //     pagination: Joi.object(paginationResponse),
+  //   },
+  //   statusCode: Joi.number(),
+  // }) as any,
+  basisPresets: Joi.any(),
+  basisPreset: Joi.any(),
 };

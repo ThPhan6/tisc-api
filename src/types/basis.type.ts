@@ -58,6 +58,12 @@ export interface BasisPreset {
   count: number;
   subs: BasisPresetValue[];
 }
+export interface BasisPresetSubGroup {
+  id: string;
+  name: string;
+  count: number;
+  subs: BasisPreset[];
+}
 
 export interface BasisPresetValue {
   id?: string;

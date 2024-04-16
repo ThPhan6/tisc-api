@@ -3,6 +3,7 @@ import {
   BASIS_OPTION_STORE,
   BASIS_TYPES,
   DEFAULT_MAIN_OPTION_ID,
+  DEFAULT_SUB_PRESET_ID,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
@@ -11,6 +12,8 @@ import {
   sortObjectArray,
   toSingleSpaceAndToLowerCase,
 } from "@/helpers/common.helper";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import basisRepository from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { optionLinkageRepository } from "@/repositories/option_linkage.repository";
@@ -18,6 +21,7 @@ import { deleteFile, isExists } from "@/services/aws.service";
 import { IBasisAttributes, SortOrder } from "@/types";
 import _, { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
+import { subsAttribute } from "../attribute/attribute.response";
 import {
   IBasisConversionRequest,
   IBasisOptionRequest,
@@ -174,13 +178,19 @@ export const mappingBasisOptionCreate = async (
   };
 };
 
-export const addCountBasis = (subBasis: any) => {
-  return subBasis.map((basis: any) => {
-    return {
-      ...basis,
-      count: basis.subs.length,
-    };
-  });
+export const addCountBasis = (groups: any) => {
+  return groups.map((group: any) => ({
+    ...group,
+    count: group.subs.length,
+    subs: group.subs.map((subGroup: any) => ({
+      ...subGroup,
+      count: subGroup.subs.length,
+      subs: subGroup.subs.map((item: any) => ({
+        ...item,
+        count: item.subs.length,
+      })),
+    })),
+  }));
 };
 
 export const getAllValueInOneGroup = (group: any) => {
@@ -334,23 +344,38 @@ export const mappingBasisOptionUpdate = async (
   };
 };
 
-export const mappingBasisPresetCreate = (payload: IBasisPresetRequest) => {
-  const presets = payload.subs.map((item) => {
-    const values = item.subs.map((value) => {
-      return {
-        id: uuid(),
-        value_1: value.value_1,
-        value_2: value.value_2,
-        unit_1: value.unit_1,
-        unit_2: value.unit_2,
-      };
-    });
-    return {
-      id: uuid(),
-      name: toSingleSpaceAndToLowerCase(item.name),
-      subs: values,
-    };
-  });
+export const mappingBasisPresetCreate = async (
+  payload: IBasisPresetRequest,
+  groupId: string
+) => {
+  let presets: any[] = [];
+  await Promise.all(
+    payload.subs.map(async (subGroup) => {
+      const createdSubGroup = await additionalSubGroupRepository.create({
+        name: subGroup.name,
+        relation_id: groupId,
+        type: AdditionalSubGroupType.Preset,
+      });
+      const temp = subGroup.subs.map((item) => {
+        const values = item.subs.map((value) => {
+          return {
+            id: uuid(),
+            value_1: value.value_1,
+            value_2: value.value_2,
+            unit_1: value.unit_1,
+            unit_2: value.unit_2,
+          };
+        });
+        return {
+          id: uuid(),
+          name: toSingleSpaceAndToLowerCase(item.name),
+          subs: values,
+          sub_group_id: createdSubGroup?.id,
+        };
+      });
+      presets = presets.concat(temp);
+    })
+  );
 
   return sortBy(presets, "name");
 };
@@ -388,6 +413,45 @@ export const addBasisOptionMain = (
     });
 
     return { ...group, subs: returnMains, count: returnMains.length };
+  });
+};
+export const addBasisPresetSubGroup = (
+  basisGroups: IBasisAttributes[],
+  basisPresetSubGroups: any[]
+) => {
+  return basisGroups.map((group: any) => {
+    const subGroups = group.subs.map((sub: any) => {
+      let subGroup = basisPresetSubGroups.find(
+        (item) => item.id === (sub.sub_group_id || "")
+      );
+      if (!subGroup) {
+        subGroup = {
+          id: DEFAULT_SUB_PRESET_ID,
+          name: "Sub group",
+          basis_option_group_id: "",
+        };
+      }
+      return subGroup;
+    });
+    // get distinct array
+    const returnedSubGroups = _.uniqBy(subGroups, "id").map((subGroup: any) => {
+      const subGroupSubs = group.subs.filter((item: any) => {
+        if (!item.sub_group_id) item.sub_group_id = DEFAULT_SUB_PRESET_ID;
+        return item.sub_group_id === subGroup.id;
+      });
+      return {
+        id: subGroup.id,
+        name: subGroup.name,
+        count: subGroupSubs.length,
+        subs: subGroupSubs,
+      };
+    });
+
+    return {
+      ...group,
+      subs: returnedSubGroups,
+      count: returnedSubGroups.length,
+    };
   });
 };
 export const divideBasisOptionMain = (basisGroup: IBasisAttributes) => {
@@ -485,48 +549,55 @@ export const mappingBasisPresetUpdate = (
   payload: IUpdateBasisPresetRequest,
   basisPresetGroup: IBasisAttributes
 ) => {
-  const presets = payload.subs.map((item) => {
-    let foundPreset = false;
-    if (item.id) {
-      const foundItem = basisPresetGroup.subs.find(
-        (sub: any) => sub.id === item.id
-      );
-      if (foundItem) {
-        foundPreset = true;
-      }
+  let subGroups: any[] = [];
+  let presets: any[] = [];
+  payload.subs.map((subGroup) => {
+    let temp_sub_group_id = subGroup.id;
+    if (!subGroup.id) {
+      temp_sub_group_id = uuid();
     }
-    const values = item.subs.map((value) => {
-      let foundValue = false;
-      if (value.id) {
-        const foundItem = getAllValueInOneGroup(basisPresetGroup).find(
-          (valueInGroup) => valueInGroup.id === value.id
-        );
-        if (foundItem) {
-          foundValue = true;
+    subGroups = subGroups.concat([
+      {
+        id: temp_sub_group_id,
+        name: subGroup.name,
+        relation_id: basisPresetGroup.id,
+        type: AdditionalSubGroupType.Preset,
+      },
+    ]);
+    const temp = subGroup.subs.map((item) => {
+      const values = item.subs.map((value) => {
+        let foundValue = false;
+        if (value.id) {
+          const foundItem = getAllValueInOneGroup(basisPresetGroup).find(
+            (valueInGroup) => valueInGroup.id === value.id
+          );
+          if (foundItem) {
+            foundValue = true;
+          }
         }
-      }
-      if (foundValue) {
-        return value;
-      }
-      return {
-        ...value,
-        id: uuid(),
-      };
-    });
-    if (foundPreset) {
+        if (foundValue) {
+          return value;
+        }
+        return {
+          ...value,
+          id: uuid(),
+        };
+      });
       return {
         ...item,
         subs: values,
+        id: item.id || uuid(),
+        name: toSingleSpaceAndToLowerCase(item.name),
+        sub_group_id: temp_sub_group_id,
       };
-    }
-    return {
-      ...item,
-      subs: values,
-      id: uuid(),
-      name: toSingleSpaceAndToLowerCase(item.name),
-    };
+    });
+    presets = presets.concat(temp);
   });
-  return sortBy(presets, "name");
+
+  return {
+    presets: sortBy(presets, "name"),
+    subGroups,
+  };
 };
 export const getAllBasisOptionValues = async (options?: {
   fields: string[];

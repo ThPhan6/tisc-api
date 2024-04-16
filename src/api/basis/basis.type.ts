@@ -4,6 +4,7 @@ import {
   BasisOption,
   BasisPreset,
   BasisPresetValue,
+  BasisPresetSubGroup,
 } from "@/types/basis.type";
 export interface IBasisConversionRequest {
   name: string;
@@ -51,10 +52,13 @@ export interface IBasisPresetRequest {
   name: string;
   subs: {
     name: string;
-    subs: BasisPresetValue[];
+    subs: {
+      name: string;
+      subs: BasisPresetValue[];
+    }[];
   }[];
 }
 export interface IUpdateBasisPresetRequest {
   name: string;
-  subs: Omit<BasisPreset, "count">[];
+  subs: Omit<BasisPresetSubGroup, "count">[];
 }
