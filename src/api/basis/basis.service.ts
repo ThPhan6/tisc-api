@@ -437,9 +437,9 @@ class BasisService {
       [basisPresetGroup],
       subGroups
     );
-    const preset = addCountBasis(addedSubGroups);
+    const presets = addCountBasis(addedSubGroups);
     return successResponse({
-      data: preset,
+      data: presets[0],
     });
   }
 
@@ -456,25 +456,31 @@ class BasisService {
       BASIS_TYPES.PRESET,
       groupOrder
     );
-    const basisPresetSubGroups = await additionalSubGroupRepository.getAll();
+    const basisPresetSubGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Preset,
+    });
     const addedSub = addBasisPresetSubGroup(
       basisPresetGroups.data,
       basisPresetSubGroups
     );
     const returnedGroups = sortBasisOptionOrPreset(addedSub, presetOrder);
-    const summaryTable = getSummaryTable(basisPresetGroups.data);
+    const summaryTable = getSummaryTable(addedSub);
     const summary = [
       {
-        name: "Preset Group",
+        name: "Group",
         value: summaryTable.countGroup,
       },
       {
-        name: "Preset",
+        name: "Sub-group",
         value: summaryTable.countSub,
       },
       {
-        name: "Value",
+        name: "Preset",
         value: summaryTable.countItem,
+      },
+      {
+        name: "Value",
+        value: summaryTable.countValue,
       },
     ];
     return successResponse({

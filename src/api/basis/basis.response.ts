@@ -83,6 +83,7 @@ export const basisPresetGroupResponse = {
   subs: Joi.array().items(basisPresetSubGroupResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  type: Joi.any(),
 };
 
 export default {
@@ -115,23 +116,21 @@ export default {
     statusCode: Joi.number(),
   }) as any,
 
-  // basisPreset: Joi.object({
-  //   data: basisPresetGroupResponse,
-  //   statusCode: Joi.number(),
-  // }) as any,
-  // basisPresets: Joi.object({
-  //   data: {
-  //     basis_presets: Joi.array().items(basisPresetGroupResponse),
-  //     count: {
-  //       group_count: Joi.number(),
-  //       preset_count: Joi.number(),
-  //       value_count: Joi.number(),
-  //     },
-  //     summary: Joi.array().items(Joi.object(summaryTableResponse)),
-  //     pagination: Joi.object(paginationResponse),
-  //   },
-  //   statusCode: Joi.number(),
-  // }) as any,
-  basisPresets: Joi.any(),
-  basisPreset: Joi.any(),
+  basisPreset: Joi.object({
+    data: basisPresetGroupResponse,
+    statusCode: Joi.number(),
+  }) as any,
+  basisPresets: Joi.object({
+    data: {
+      basis_presets: Joi.array().items(basisPresetGroupResponse),
+      count: {
+        group_count: Joi.number(),
+        preset_count: Joi.number(),
+        value_count: Joi.number(),
+      },
+      summary: Joi.array().items(Joi.object(summaryTableResponse)),
+      pagination: Joi.object(paginationResponse),
+    },
+    statusCode: Joi.number(),
+  }) as any,
 };
