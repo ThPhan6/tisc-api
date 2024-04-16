@@ -1,3 +1,5 @@
+import { BasisPresetType } from "@/api/basis/basis.type";
+
 export interface IBasisAttributes {
   id: string;
   type: number;
@@ -6,6 +8,7 @@ export interface IBasisAttributes {
   master?: boolean;
   created_at: string;
   updated_at: boolean;
+  additional_type?: BasisPresetType;
 }
 
 export interface BasisConversion {

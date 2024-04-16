@@ -80,6 +80,7 @@ export const basisPresetGroupResponse = {
   name: Joi.string(),
   count: Joi.number(),
   master: Joi.boolean().allow(null),
+  additional_type: Joi.any(),
   subs: Joi.array().items(basisPresetSubGroupResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),

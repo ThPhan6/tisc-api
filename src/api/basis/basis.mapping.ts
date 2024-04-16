@@ -519,24 +519,20 @@ export const sortBasisOption = (
   });
 };
 
-export const sortBasisOptionOrPreset = (
+export const sortBasisPreset = (
   basisGroups: IBasisAttributes[],
-  order: "ASC" | "DESC"
+  order: "ASC" | "DESC",
+  subGroupOrder: "ASC" | "DESC"
 ) => {
-  return basisGroups.map((item: IBasisAttributes) => {
-    const returnedBasis = item.subs.map((preset: any) => ({
-      ...preset,
-      count: preset.subs.length,
+  return basisGroups.map((group: IBasisAttributes) => {
+    const returnedSubGroups = group.subs.map((subGroup: any) => ({
+      ...subGroup,
+      count: subGroup.subs.length,
+      subs: sortObjectArray(subGroup.subs, "name", order),
     }));
-    const sorted1Value = returnedBasis.map((item: any) => {
-      return {
-        ...item,
-        subs: sortObjectArray(item.subs, "value_1", "ASC"),
-      };
-    });
     const { type, ...rest } = {
-      ...item,
-      subs: sortObjectArray(sorted1Value, "name", order),
+      ...group,
+      subs: sortObjectArray(returnedSubGroups, "name", subGroupOrder),
     };
     return {
       ...rest,

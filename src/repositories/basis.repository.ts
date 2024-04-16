@@ -1,3 +1,4 @@
+import { BasisPresetType } from "@/api/basis/basis.type";
 import { BASIS_TYPES } from "@/constants/basis.constant";
 import BasisModel from "@/models/basis.model";
 import { SortOrder, IBasisAttributes, ListBasisWithPagination } from "@/types";
@@ -35,10 +36,18 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     limit: number,
     offset: number,
     type: BASIS_TYPES,
-    groupOrder?: SortOrder
+    groupOrder?: SortOrder,
+    isGeneral?: boolean
   ): Promise<ListBasisWithPagination> {
-    return this.model
-      .where("type", "==", type)
+    let result = this.model.where("type", "==", type);
+    if ((type === BASIS_TYPES.PRESET)) {
+      if (!isGeneral) {
+        result.where("additional_type", "==", BasisPresetType.feature);
+      } else {
+        result.where("additional_type", "!=", BasisPresetType.feature);
+      }
+    }
+    return result
       .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")
       .paginate(limit, offset);
   }

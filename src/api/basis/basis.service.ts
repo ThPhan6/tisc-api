@@ -31,9 +31,10 @@ import {
   mappingBasisPresetUpdate,
   sortBasisConversion,
   sortBasisOption,
-  sortBasisOptionOrPreset,
+  sortBasisPreset,
 } from "./basis.mapping";
 import {
+  BasisPresetType,
   IBasisConversionRequest,
   IBasisConversionUpdateRequest,
   IBasisOptionRequest,
@@ -415,6 +416,7 @@ class BasisService {
     const createdBasisPreset = await BasisRepository.create({
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.PRESET,
+      additional_type: payload.additional_type || BasisPresetType.general,
       subs: presets,
       id: groupId,
     });
@@ -448,13 +450,16 @@ class BasisService {
     offset: number,
     _filter: any,
     groupOrder: SortOrder | undefined,
-    presetOrder: SortOrder
+    presetOrder: SortOrder,
+    subGroupOrder: SortOrder,
+    isGeneral: boolean
   ) {
     const basisPresetGroups = await BasisRepository.getListBasisWithPagination(
       limit,
       offset,
       BASIS_TYPES.PRESET,
-      groupOrder
+      groupOrder,
+      isGeneral
     );
     const basisPresetSubGroups = await additionalSubGroupRepository.getAllBy({
       type: AdditionalSubGroupType.Preset,
@@ -463,7 +468,7 @@ class BasisService {
       basisPresetGroups.data,
       basisPresetSubGroups
     );
-    const returnedGroups = sortBasisOptionOrPreset(addedSub, presetOrder);
+    const returnedGroups = sortBasisPreset(addedSub, presetOrder, subGroupOrder);
     const summaryTable = getSummaryTable(addedSub);
     const summary = [
       {
