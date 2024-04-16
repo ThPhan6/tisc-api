@@ -167,7 +167,9 @@ export default {
   createBasisPreset: {
     payload: {
       name: requireStringValidation("Basis preset group name"),
-      additional_type: Joi.number().valid(BasisPresetType.general, BasisPresetType.feature).allow(null),
+      additional_type: Joi.number()
+        .valid(BasisPresetType.general, BasisPresetType.feature)
+        .allow(null),
       subs: Joi.array().items({
         name: requireStringValidation("Basis preset sub-group name"),
         subs: Joi.array().items({
@@ -207,7 +209,7 @@ export default {
       group_order: value.group_order || "ASC",
       preset_order: value.preset_order || "ASC",
       sub_group_order: value.sub_group_order || "ASC",
-      is_general: value.is_general || true,
+      is_general: value.is_general === undefined ? true : value.is_general,
     }),
   }),
   getListBasisConversion: getListValidation({
