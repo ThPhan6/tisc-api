@@ -1,9 +1,9 @@
 import {
-  VALID_IMAGE_TYPES,
   BASIS_OPTION_STORE,
   BASIS_TYPES,
   DEFAULT_MAIN_OPTION_ID,
   DEFAULT_SUB_PRESET_ID,
+  VALID_IMAGE_TYPES,
 } from "@/constants";
 import {
   getFileTypeFromBase64,
@@ -21,7 +21,6 @@ import { deleteFile, isExists } from "@/services/aws.service";
 import { IBasisAttributes, SortOrder } from "@/types";
 import _, { sortBy } from "lodash";
 import { v4 as uuid } from "uuid";
-import { subsAttribute } from "../attribute/attribute.response";
 import {
   IBasisConversionRequest,
   IBasisOptionRequest,

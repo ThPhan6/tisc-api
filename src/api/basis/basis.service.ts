@@ -1,4 +1,4 @@
-import { MESSAGES, BASIS_TYPES, ImageSize } from "@/constants";
+import { BASIS_TYPES, ImageSize, MESSAGES } from "@/constants";
 import {
   getBasisOptionSummaryTable,
   getSummaryTable,
@@ -398,11 +398,10 @@ class BasisService {
     const basisOptionGroup = await BasisRepository.findBy({
       type: BASIS_TYPES.PRESET,
       name: toSingleSpaceAndToLowerCase(payload.name),
+      additional_type: payload.additional_type,
     });
-    if (
-      basisOptionGroup &&
-      basisOptionGroup.additional_type === payload.additional_type
-    ) {
+
+    if (basisOptionGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);
     }
     if (
@@ -450,7 +449,13 @@ class BasisService {
   }
   public async copyBasisPreset(id: string) {
     const basisPresetGroup: any = await this.getBasisPreset(id);
+
+    if (basisPresetGroup.statusCode >= 400) {
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND);
+    }
+
     const dataToCopy = mappedCopyDataPreset(basisPresetGroup.data);
+
     return this.createBasisPreset(dataToCopy);
   }
 
