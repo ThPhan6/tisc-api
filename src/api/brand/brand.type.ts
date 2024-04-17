@@ -133,6 +133,7 @@ export interface ListBrandCustom {
   };
   cards: IProductAttributes[];
   distributors: DistributorWithLocation[];
+  main_categories: string[];
 }
 
 export interface BrandOfficialWebsite {
