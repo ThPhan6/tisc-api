@@ -1,10 +1,10 @@
-import { locationService } from "./../location/location.service";
+import { permissionService } from "@/api/permission/permission.service";
 import {
-  BRAND_STATUSES,
-  MESSAGES,
-  BrandRoles,
   ALL_REGIONS,
+  BRAND_STATUSES,
+  BrandRoles,
   ImageSize,
+  MESSAGES,
 } from "@/constants";
 import {
   pagination,
@@ -23,21 +23,21 @@ import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
 import { uploadLogo } from "@/services/image.service";
 import { mailService } from "@/services/mail.service";
-import { permissionService } from "@/api/permission/permission.service";
 import {
   ActiveStatus,
   BrandAttributes,
+  GetUserGroupBrandSort,
   SortOrder,
   SummaryInfo,
-  UserStatus,
   UserAttributes,
-  GetUserGroupBrandSort,
+  UserStatus,
   UserType,
 } from "@/types";
+import { sum, sumBy } from "lodash";
+import { v4 } from "uuid";
+import { locationService } from "./../location/location.service";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
-import { v4 } from "uuid";
-import { sumBy } from "lodash";
 
 class BrandService {
   private async getOfficialWebsites(brand: BrandAttributes) {
@@ -75,10 +75,26 @@ class BrandService {
 
     const result = mappingBrands(dataBrandCustom);
 
+    const summary = [
+      {
+        name: "Brand",
+        value: result.length,
+      },
+      {
+        name: "Origin",
+        value: result.filter((el) => el.origin).length,
+      },
+      {
+        name: "Category",
+        value: sum(result.map((el: any) => el.main_categories?.length ?? 0)),
+      },
+    ];
+
     return successResponse({
       data: {
         brands: result,
         pagination: pagination(limit, offset, totalBrand),
+        summary,
       },
     });
   }
