@@ -102,6 +102,7 @@ export default {
   },
   createBasisOption: {
     payload: {
+      brand_id: requireStringValidation("Brand"),
       name: requireStringValidation("Group option name"),
       subs: Joi.array()
         .items({

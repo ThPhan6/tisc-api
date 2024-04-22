@@ -40,6 +40,7 @@ export interface BasisOptionMainRequest {
   subs: BasisOption[];
 }
 export interface IBasisOptionRequest {
+  brand_id: string;
   name: string;
   subs: BasisOptionMainRequest[];
 }

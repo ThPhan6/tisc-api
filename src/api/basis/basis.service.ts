@@ -245,6 +245,7 @@ class BasisService {
     }
     await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
     const createdBasisOption = await BasisRepository.create({
+      brand_id: payload.brand_id,
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.OPTION,
       subs: mappingBasisOption.basis_option,
@@ -277,7 +278,7 @@ class BasisService {
   public async getListBasisOption(
     limit: number,
     offset: number,
-    _filter: any,
+    filter: any,
     groupOrder?: SortOrder,
     mainOrder?: SortOrder,
     optionOrder?: SortOrder
@@ -286,7 +287,9 @@ class BasisService {
       limit,
       offset,
       BASIS_TYPES.OPTION,
-      groupOrder
+      groupOrder,
+      undefined,
+      filter
     );
     const basisOptionMains = await basisOptionMainRepository.getAll();
     const addedMain = addBasisOptionMain(
@@ -520,13 +523,15 @@ class BasisService {
     payload: IUpdateBasisPresetRequest
   ) {
     const basisPresetGroup = await BasisRepository.find(id);
+    console.log(basisPresetGroup);
     if (!basisPresetGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND, 404);
     }
     const existedGroup = await BasisRepository.getExistedBasis(
       id,
       toSingleSpaceAndToLowerCase(payload.name),
-      BASIS_TYPES.PRESET
+      BASIS_TYPES.PRESET,
+      basisPresetGroup.additional_type
     );
     if (existedGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);

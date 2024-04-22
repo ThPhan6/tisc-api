@@ -16,6 +16,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     name: "",
     subs: [],
     created_at: "",
+    brand_id: "",
   };
   constructor() {
     super();
@@ -43,10 +44,14 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     limit: number,
     offset: number,
     type: number,
-    groupOrder?: SortOrder
+    groupOrder?: SortOrder,
+    filter?: any
   ): Promise<ListAttributeWithPagination> {
-    return this.model
-      .where("type", "==", type)
+    let result = this.model.where("type", "==", type);
+    if (filter && filter.brand_id) {
+      result = result.where("brand_id", "==", filter.brand_id);
+    }
+    return result
       .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")
       .paginate(limit, offset);
   }

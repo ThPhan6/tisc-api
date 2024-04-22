@@ -2,6 +2,7 @@ import { BasisPresetType } from "@/api/basis/basis.type";
 
 export interface IBasisAttributes {
   id: string;
+  brand_id?: string;
   type: number;
   name: string;
   subs: any;

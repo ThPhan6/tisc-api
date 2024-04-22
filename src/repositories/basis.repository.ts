@@ -11,18 +11,27 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     name: "",
     subs: [],
     created_at: "",
+    brand_id: ""
   };
   constructor() {
     super();
     this.model = new BasisModel();
   }
 
-  public async getExistedBasis(id: string, name: string, type: number) {
-    return (await this.model
+  public async getExistedBasis(
+    id: string,
+    name: string,
+    type: number,
+    additional_type?: number
+  ) {
+    let result = this.model
       .where("id", "!=", id)
       .where("type", "==", type)
-      .where("name", "==", name)
-      .first()) as IBasisAttributes;
+      .where("name", "==", name);
+    if (additional_type === 0 || additional_type === 1) {
+      result = result.where("additional_type", "==", additional_type);
+    }
+    return (await result.first()) as IBasisAttributes;
   }
 
   public async getAllBasisByType(type: number) {
@@ -37,7 +46,8 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     offset: number,
     type: BASIS_TYPES,
     groupOrder?: SortOrder,
-    isGeneral?: boolean
+    isGeneral?: boolean,
+    filter?: any
   ): Promise<ListBasisWithPagination> {
     let result = this.model.where("type", "==", type);
     if (type === BASIS_TYPES.PRESET) {
@@ -46,6 +56,9 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       } else {
         result.where("additional_type", "!=", BasisPresetType.feature);
       }
+    }
+    if (filter && filter.brand_id) {
+      result = result.where("brand_id", "==", filter.brand_id);
     }
     return result
       .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")

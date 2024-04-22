@@ -97,6 +97,7 @@ class AttributeService {
 
     const createdAttribute = await AttributeRepository.create({
       id,
+      brand_id: payload.brand_id,
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
       subs: data,
@@ -114,9 +115,8 @@ class AttributeService {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
     }
     const subResponses = mappingSubAttribute(attribute, contentTypes);
-    const { type, ...rest } = attribute;
     const data = {
-      ...rest,
+      ...attribute,
       count: attribute.subs.length,
       subs: subResponses,
     };
@@ -151,7 +151,7 @@ class AttributeService {
     attribute_type: number,
     limit: number,
     offset: number,
-    _filter: any,
+    filter: any,
     group_order: SortOrder | undefined,
     attribute_order?: SortOrder,
     content_type_order?: SortOrder,
@@ -163,7 +163,8 @@ class AttributeService {
         limit,
         offset,
         attribute_type,
-        group_order
+        group_order,
+        filter
       );
 
     const rawAttributes = getListAttributeWithSort(
@@ -303,6 +304,22 @@ class AttributeService {
     return successResponse({
       data: { general, feature, specification },
     });
+  }
+  public async copyToBrand(attributeId: string, brandId: string) {
+    const attribute: any = await this.get(attributeId);
+    const dataToCreate = {
+      brand_id: brandId,
+      name: attribute.data.name,
+      type: attribute.data.type,
+      subs: attribute.data.subs.map((subGroup: any) => ({
+        name: subGroup.name,
+        subs: subGroup.subs.map((item: any) => ({
+          name: item.name,
+          basis_id: "",
+        })),
+      })),
+    };
+    return this.create(dataToCreate);
   }
 }
 

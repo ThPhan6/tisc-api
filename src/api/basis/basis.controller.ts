@@ -125,7 +125,15 @@ export default class BasisController {
     req: Request,
     toolkit: ResponseToolkit
   ) => {
-    const { limit, offset, filter, group_order, preset_order, sub_group_order, is_general } = req.query;
+    const {
+      limit,
+      offset,
+      filter,
+      group_order,
+      preset_order,
+      sub_group_order,
+      is_general,
+    } = req.query;
     const response = await BasisService.getListBasisPreset(
       limit,
       offset,
