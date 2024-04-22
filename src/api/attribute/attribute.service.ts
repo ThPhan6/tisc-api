@@ -13,6 +13,8 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import attributeRepository from "@/repositories/attribute.repository";
 import AttributeRepository from "@/repositories/attribute.repository";
 import basisRepository from "@/repositories/basis.repository";
@@ -21,13 +23,17 @@ import { basisOptionMainRepository } from "@/repositories/basis_option_main.repo
 import { AttributeType, SortOrder } from "@/types";
 import { addBasisOptionMain } from "../basis/basis.mapping";
 import {
+  addAttributeSubGroup,
   checkAttributeDuplicateByName,
   getFlatListBasis,
   getListAttributeWithSort,
+  mappingAttributeCreate,
   mappingAttributes,
+  mappingAttributeUpdate,
   mappingSubAttribute,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
+import { v4 as uuid } from "uuid";
 
 class AttributeService {
   private async getFlatListContentType() {
@@ -49,12 +55,15 @@ class AttributeService {
       return errorMessageResponse(duplicatedAttribute);
     }
 
-    const subData = mappingAttributes(payload);
+    // const subData = mappingAttributes(payload);
+    const id = uuid();
+    const data = await mappingAttributeCreate(payload, id);
 
     const createdAttribute = await AttributeRepository.create({
+      id,
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
-      subs: subData,
+      subs: data,
     });
     if (!createdAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
@@ -70,13 +79,18 @@ class AttributeService {
     }
     const subResponses = mappingSubAttribute(attribute, contentTypes);
     const { type, ...rest } = attribute;
-
+    const data = {
+      ...rest,
+      count: attribute.subs.length,
+      subs: subResponses,
+    };
+    const subGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+      relation_id: attribute.id,
+    });
+    const addedSubGroups = addAttributeSubGroup([data], subGroups);
     return successResponse({
-      data: {
-        ...rest,
-        count: attribute.subs.length,
-        subs: subResponses,
-      },
+      data: addedSubGroups[0],
     });
   }
 
@@ -87,7 +101,8 @@ class AttributeService {
     _filter: any,
     group_order: SortOrder | undefined,
     attribute_order?: SortOrder,
-    content_type_order?: SortOrder
+    content_type_order?: SortOrder,
+    sub_group_order?: SortOrder
   ) {
     const contentTypes = await this.getFlatListContentType();
     const attributeWithPagination =
@@ -98,36 +113,38 @@ class AttributeService {
         group_order
       );
 
-    const returnedAttributes = getListAttributeWithSort(
+    const rawAttributes = getListAttributeWithSort(
       attributeWithPagination.data,
       contentTypes,
       attribute_order,
       content_type_order
     );
-
-    const allAttributeByType = await AttributeRepository.getByType(
-      attribute_type
+    const attributeSubGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+    });
+    const addedSubGroups = addAttributeSubGroup(
+      rawAttributes,
+      attributeSubGroups,
+      sub_group_order || "ASC"
     );
-    const summaryTable = getSummaryTable(allAttributeByType);
+    const summaryTable = getSummaryTable(addedSubGroups);
     const summary = [
       {
-        name:
-          attribute_type === AttributeType.Specification
-            ? "Specification Group"
-            : "Attribute Group",
+        name: "Main",
         value: summaryTable.countGroup,
       },
       {
-        name:
-          attribute_type === AttributeType.Specification
-            ? "Specification"
-            : "Attribute",
+        name: "Sub",
         value: summaryTable.countSub,
+      },
+      {
+        name: "Attribute",
+        value: summaryTable.countItem,
       },
     ];
     return successResponse({
       data: {
-        attributes: returnedAttributes,
+        attributes: addedSubGroups,
         summary,
         pagination: attributeWithPagination.pagination,
       },
@@ -149,12 +166,24 @@ class AttributeService {
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
     }
+    const mappedAttribute = mappingAttributeUpdate(payload, attribute);
 
-    const subData = mappingAttributes(payload);
+    // const subData = mappingAttributes(payload);
 
+    await Promise.all(
+      mappedAttribute.subGroups.map(async (subGroup) => {
+        const find = await additionalSubGroupRepository.find(subGroup.id);
+        if (!find) {
+          return additionalSubGroupRepository.create(subGroup);
+        }
+        return additionalSubGroupRepository.update(subGroup.id, {
+          name: subGroup.name,
+        });
+      })
+    );
     const updatedAttribute = await AttributeRepository.update(id, {
       ...payload,
-      subs: subData,
+      subs: mappedAttribute.data,
       name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (!updatedAttribute) {

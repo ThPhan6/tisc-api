@@ -18,6 +18,7 @@ export const subsAttribute = {
   description_2: Joi.any(),
   content_type: Joi.string().allow(""),
   basis: Joi.any(),
+  sub_group_id: Joi.any(),
 };
 
 export const AttributeGroupResponse = {
@@ -27,7 +28,12 @@ export const AttributeGroupResponse = {
   type: Joi.number().allow(null),
   master: Joi.boolean().allow(null),
   selectable: Joi.boolean().allow(null),
-  subs: Joi.array().items(Joi.object(subsAttribute)),
+  subs: Joi.array().items({
+    id: Joi.string(),
+    name: Joi.string(),
+    count: Joi.any(),
+    subs: Joi.array().items(Joi.object(subsAttribute)),
+  }),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
 };

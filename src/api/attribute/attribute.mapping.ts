@@ -6,6 +6,7 @@ import {
   DimensionAndWeightAttribute,
   DimensionAndWeightConversion,
   DimensionAndWeightCategory,
+  DEFAULT_SUB_GROUP_ATTRIBUTE_ID,
 } from "@/constants";
 import {
   getLodashOrder,
@@ -13,6 +14,8 @@ import {
   numberToFixed,
   toSingleSpaceAndToLowerCase,
 } from "@/helpers/common.helper";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import {
   AttributeProps,
   IBasisAttributes,
@@ -22,8 +25,9 @@ import {
   DimensionAndWeight,
   DimensionAndWeightInterface,
 } from "@/types";
-import { orderBy, isFinite, isString, sortBy } from "lodash";
+import { orderBy, isFinite, isString, sortBy, uniqBy } from "lodash";
 import { v4 as uuid } from "uuid";
+import { getAllValueInOneGroup } from "../basis/basis.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 
 export const getBasisType = (type: number) => {
@@ -221,4 +225,123 @@ export const mappingDimensionAndWeight = (
       };
     }),
   };
+};
+
+export const addAttributeSubGroup = (
+  attributes: any[],
+  attributeSubGroups: any[],
+  subGroupOrder?: SortOrder
+) => {
+  return attributes.map((group: any) => {
+    const subGroups = group.subs.map((sub: any) => {
+      let subGroup = attributeSubGroups.find(
+        (item) => item.id === (sub.sub_group_id || "")
+      );
+      if (!subGroup) {
+        subGroup = {
+          id: DEFAULT_SUB_GROUP_ATTRIBUTE_ID,
+          name: "Sub group",
+          basis_option_group_id: "",
+        };
+      }
+      return subGroup;
+    });
+    const returnedSubGroups = uniqBy(subGroups, "id").map((subGroup: any) => {
+      const subGroupSubs = group.subs.filter((item: any) => {
+        if (!item.sub_group_id)
+          item.sub_group_id = DEFAULT_SUB_GROUP_ATTRIBUTE_ID;
+        return item.sub_group_id === subGroup.id;
+      });
+      return {
+        id: subGroup.id,
+        name: subGroup.name,
+        count: subGroupSubs.length,
+        subs: subGroupSubs,
+      };
+    });
+
+    return {
+      ...group,
+      subs: sortBy(returnedSubGroups, "name", subGroupOrder || "ASC"),
+      count: returnedSubGroups.length,
+    };
+  });
+};
+export const mappingAttributeUpdate = (
+  payload: IUpdateAttributeRequest,
+  attributeGroup: AttributeProps
+) => {
+  let subGroups: any[] = [];
+  let data: any[] = [];
+  payload.subs.map((subGroup) => {
+    let temp_sub_group_id = subGroup.id;
+    if (!subGroup.id) {
+      temp_sub_group_id = uuid();
+    }
+    subGroups = subGroups.concat([
+      {
+        id: temp_sub_group_id,
+        name: subGroup.name,
+        relation_id: attributeGroup.id,
+        type: AdditionalSubGroupType.Attribute,
+      },
+    ]);
+    const temp = subGroup.subs.map((item) => {
+      let foundValue = false;
+      if (item.id) {
+        const foundItem = attributeGroup.subs.find(
+          (valueInGroup) => valueInGroup.id === item.id
+        );
+        if (foundItem) {
+          foundValue = true;
+        }
+      }
+      if (foundValue) {
+        return {
+          ...item,
+          name: toSingleSpaceAndToLowerCase(item.name),
+          sub_group_id: temp_sub_group_id,
+        };
+      }
+      return {
+        ...item,
+        id: uuid(),
+        name: toSingleSpaceAndToLowerCase(item.name),
+        sub_group_id: temp_sub_group_id,
+      };
+    });
+    data = data.concat(temp);
+  });
+
+  return {
+    data: sortBy(data, "name"),
+    subGroups,
+  };
+};
+
+export const mappingAttributeCreate = async (
+  payload: IAttributeRequest,
+  groupId: string
+) => {
+  let data: any[] = [];
+  await Promise.all(
+    payload.subs.map(async (subGroup) => {
+      const createdSubGroup = await additionalSubGroupRepository.create({
+        name: subGroup.name,
+        relation_id: groupId,
+        type: AdditionalSubGroupType.Attribute,
+      });
+      const temp = subGroup.subs.map((item) => {
+        return {
+          ...item,
+          id: uuid(),
+          name: toSingleSpaceAndToLowerCase(item.name),
+          sub_group_id: createdSubGroup?.id,
+        };
+      });
+      data = data.concat(temp);
+    })
+  );
+
+  return sortBy(data, "name");
 };

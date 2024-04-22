@@ -25,6 +25,7 @@ export default class AttributeController {
       group_order,
       attribute_order,
       content_type_order,
+      sub_group_order,
     } = req.query;
     const response = await AttributeServices.getList(
       type,
@@ -33,7 +34,8 @@ export default class AttributeController {
       filter,
       group_order,
       attribute_order,
-      content_type_order
+      content_type_order,
+      sub_group_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

@@ -40,9 +40,12 @@ class DataParser {
       deleted_at: null,
     };
     if (
-      ["bases", "basis_option_mains", "additional_sub_groups"].includes(
-        table || ""
-      )
+      [
+        "bases",
+        "basis_option_mains",
+        "additional_sub_groups",
+        "attributes",
+      ].includes(table || "")
     ) {
       dataToCreate = {
         id: uuid(),
