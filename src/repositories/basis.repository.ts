@@ -93,7 +93,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
           subs: (
             FOR s IN b.subs
             SORT s.name ASC
-            RETURN {id: s.id, name: s.name, count: LENGTH(s.subs)}
+            RETURN {id: s.id, name: s.name, count: LENGTH(s.subs), sub_group_id: s.sub_group_id}
           )
         })
       )
