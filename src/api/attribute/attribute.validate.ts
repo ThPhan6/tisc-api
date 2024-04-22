@@ -16,21 +16,24 @@ export default {
         .required()
         .error(errorMessage("Attribute type is required")),
       name: requireStringValidation("Attribute group name"),
-      subs: Joi.array()
-        .items(
-          Joi.object({
-            name: Joi.string(),
-            basis_id: Joi.string(),
-          })
-            .required()
-            .error(errorMessage("Attribute group item is required"))
-        )
-        .required()
-        .error(
-          errorMessage(
-            "Attribute group items is required at least 1 valid data"
+      subs: Joi.array().items({
+        name: requireStringValidation("Attribute sub group name"),
+        subs: Joi.array()
+          .items(
+            Joi.object({
+              name: Joi.string(),
+              basis_id: Joi.string(),
+            })
+              .required()
+              .error(errorMessage("Attribute group item is required"))
           )
-        ),
+          .required()
+          .error(
+            errorMessage(
+              "Attribute group items is required at least 1 valid data"
+            )
+          ),
+      }),
     },
   },
   update: {
@@ -39,22 +42,26 @@ export default {
     },
     payload: {
       name: requireStringValidation("Attribute group name"),
-      subs: Joi.array()
-        .items(
-          Joi.object({
-            id: Joi.any(),
-            name: Joi.string(),
-            basis_id: Joi.string(),
-          })
-            .required()
-            .error(errorMessage("Attribute group item is required"))
-        )
-        .required()
-        .error(
-          errorMessage(
-            "Attribute group items is required at least 1 valid data"
+      subs: Joi.array().items({
+        id: Joi.any(),
+        name: requireStringValidation("Attribute sub group name"),
+        subs: Joi.array()
+          .items(
+            Joi.object({
+              id: Joi.any(),
+              name: Joi.string(),
+              basis_id: Joi.string(),
+            })
+              .required()
+              .error(errorMessage("Attribute group item is required"))
           )
-        ),
+          .required()
+          .error(
+            errorMessage(
+              "Attribute group items is required at least 1 valid data"
+            )
+          ),
+      }),
     },
   },
   getListWithMultipleSort: getListValidation({
@@ -68,10 +75,12 @@ export default {
       // just sort one at a time
       attribute_order: orderValidation,
       content_type_order: orderValidation,
+      sub_group_order: orderValidation,
     },
     custom: (value) => ({
       group_order: value.group_order || "ASC",
       attribute_order: value.attribute_order || "ASC",
+      sub_group_order: value.sub_group_order || "ASC",
     }),
   }),
 };

@@ -8,9 +8,7 @@ export interface AdditionalSubGroupAttribute {
 }
 export enum AdditionalSubGroupType {
   Preset,
-  GeneralAttribute,
-  FeatureAttribute,
-  Specification,
+  Attribute
 }
 export default class AdditionalSubGroupModel extends Model<AdditionalSubGroupAttribute> {
   protected table = "additional_sub_groups";
