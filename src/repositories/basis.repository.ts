@@ -74,6 +74,20 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       LET presets = (
         FOR b in allBases
         FILTER b.type == @preset
+        FILTER b.additional_type == ${BasisPresetType.general}
+        RETURN MERGE(KEEP(b, 'id', 'name'), {
+          count: LENGTH(b.subs),
+          subs: (
+            FOR s IN b.subs
+            SORT s.name ASC
+            RETURN {id: s.id, name: s.name, count: LENGTH(s.subs)}
+          )
+        })
+      )
+      LET feature_presets = (
+        FOR b in allBases
+        FILTER b.type == @preset
+        FILTER b.additional_type == ${BasisPresetType.feature}
         RETURN MERGE(KEEP(b, 'id', 'name'), {
           count: LENGTH(b.subs),
           subs: (
@@ -95,7 +109,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
           )
         })
       )
-      RETURN { conversions, presets, options }
+      RETURN { conversions, presets, feature_presets, options }
     `;
 
     const results = await this.model.rawQueryV2(query, {

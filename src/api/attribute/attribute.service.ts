@@ -15,25 +15,31 @@ import {
 } from "@/helpers/response.helper";
 import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
 import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
-import attributeRepository from "@/repositories/attribute.repository";
-import AttributeRepository from "@/repositories/attribute.repository";
-import basisRepository from "@/repositories/basis.repository";
-import BasisRepository from "@/repositories/basis.repository";
+import {
+  default as AttributeRepository,
+  default as attributeRepository,
+} from "@/repositories/attribute.repository";
+import {
+  default as BasisRepository,
+  default as basisRepository,
+} from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
-import { AttributeType, SortOrder } from "@/types";
-import { addBasisOptionMain } from "../basis/basis.mapping";
+import { SortOrder } from "@/types";
+import { v4 as uuid } from "uuid";
+import {
+  addBasisOptionMain,
+  addBasisPresetSubGroup,
+} from "../basis/basis.mapping";
 import {
   addAttributeSubGroup,
   checkAttributeDuplicateByName,
   getFlatListBasis,
   getListAttributeWithSort,
   mappingAttributeCreate,
-  mappingAttributes,
   mappingAttributeUpdate,
   mappingSubAttribute,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-import { v4 as uuid } from "uuid";
 
 class AttributeService {
   private async getFlatListContentType() {
@@ -209,6 +215,20 @@ class AttributeService {
     const mains = await basisOptionMainRepository.getAll();
     const addedMain = addBasisOptionMain(basesGroupByType.options, mains);
 
+    const basisPresetSubGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Preset,
+    });
+
+    const presetsAddedSub = addBasisPresetSubGroup(
+      basesGroupByType.presets,
+      basisPresetSubGroups
+    );
+
+    const featurePresetsAddedSub = addBasisPresetSubGroup(
+      basesGroupByType.feature_presets,
+      basisPresetSubGroups
+    );
+
     return successResponse({
       data: {
         texts: [
@@ -222,6 +242,8 @@ class AttributeService {
           },
         ],
         ...basesGroupByType,
+        presets: presetsAddedSub,
+        feature_presets: featurePresetsAddedSub,
         options: addedMain,
       },
     });
