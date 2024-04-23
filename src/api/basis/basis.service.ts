@@ -520,13 +520,15 @@ class BasisService {
     payload: IUpdateBasisPresetRequest
   ) {
     const basisPresetGroup = await BasisRepository.find(id);
+    console.log(basisPresetGroup);
     if (!basisPresetGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND, 404);
     }
     const existedGroup = await BasisRepository.getExistedBasis(
       id,
       toSingleSpaceAndToLowerCase(payload.name),
-      BASIS_TYPES.PRESET
+      BASIS_TYPES.PRESET,
+      basisPresetGroup.additional_type
     );
     if (existedGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);

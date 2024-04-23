@@ -17,12 +17,20 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     this.model = new BasisModel();
   }
 
-  public async getExistedBasis(id: string, name: string, type: number) {
-    return (await this.model
+  public async getExistedBasis(
+    id: string,
+    name: string,
+    type: number,
+    additional_type?: number
+  ) {
+    let result = this.model
       .where("id", "!=", id)
       .where("type", "==", type)
-      .where("name", "==", name)
-      .first()) as IBasisAttributes;
+      .where("name", "==", name);
+    if (additional_type === 0 || additional_type === 1) {
+      result = result.where("additional_type", "==", additional_type);
+    }
+    return (await result.first()) as IBasisAttributes;
   }
 
   public async getAllBasisByType(type: number) {

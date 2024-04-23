@@ -23,6 +23,7 @@ export const subsAttribute = {
 
 export const AttributeGroupResponse = {
   id: Joi.string(),
+  brand_id: Joi.any(),
   name: Joi.string(),
   count: Joi.number().allow(null),
   type: Joi.number().allow(null),
