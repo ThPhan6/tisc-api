@@ -1,10 +1,10 @@
 import { BASIS_TYPES, SHORT_TEXT_ID } from "@/constants";
 import AttributeModel from "@/models/attribute.model";
 import {
-  SortOrder,
-  AttributeType,
   AttributeProps,
+  AttributeType,
   ListAttributeWithPagination,
+  SortOrder,
 } from "@/types";
 import BaseRepository from "./base.repository";
 
@@ -56,7 +56,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       FOR s IN a.subs
       SORT s.name ASC
       RETURN MERGE(s, {
-        basis: FIRST( 
+        basis: FIRST(
             FOR b IN bases
             FOR bs IN b.subs
             FILTER bs.id == s.basis_id && b.deleted_at == null

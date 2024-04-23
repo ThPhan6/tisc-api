@@ -15,14 +15,8 @@ import {
 } from "@/helpers/response.helper";
 import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
 import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
-import {
-  default as AttributeRepository,
-  default as attributeRepository,
-} from "@/repositories/attribute.repository";
-import {
-  default as BasisRepository,
-  default as basisRepository,
-} from "@/repositories/basis.repository";
+import { default as AttributeRepository } from "@/repositories/attribute.repository";
+import { default as BasisRepository } from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { SortOrder } from "@/types";
 import { v4 as uuid } from "uuid";
@@ -195,6 +189,22 @@ class AttributeService {
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
+
+    const group = (await this.get(id)) as any;
+    let result = group;
+
+    await Promise.all(
+      group.data.subs.map(async (s: any) => {
+        if (s.content_type !== "Presets") {
+          return;
+        }
+
+        const sub = await BasisRepository.getSubBasisPresetById(s.basis_id);
+
+        result = { ...result, sub: sub };
+      })
+    );
+
     return this.get(id);
   }
 
@@ -211,7 +221,7 @@ class AttributeService {
   }
 
   public async getListContentType() {
-    const basesGroupByType = await basisRepository.getAllBasesGroupByType();
+    const basesGroupByType = await BasisRepository.getAllBasesGroupByType();
     const mains = await basisOptionMainRepository.getAll();
     const addedMain = addBasisOptionMain(basesGroupByType.options, mains);
 
@@ -251,7 +261,7 @@ class AttributeService {
 
   public async getAllAttribute() {
     const { general, feature, specification } =
-      await attributeRepository.getAllAttributesGroupByType();
+      await AttributeRepository.getAllAttributesGroupByType();
     return successResponse({
       data: { general, feature, specification },
     });
