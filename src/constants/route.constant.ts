@@ -56,7 +56,7 @@ export const ROUTES = {
   GET_LIST_ATTRIBUTE: "/api/attribute/get-list",
   GET_LIST_CONTENT_TYPE: "/api/attribute/content-type/get-list",
   EDIT_ATTRIBUTE: "/api/attribute/update/{id}",
-  COPY_ATTRIBUTE: "/api/attribute/copy/{id}/brand-id/{brand_id}",
+  COPY_ATTRIBUTE: "/api/attribute/copy/{id}/brand/{brand_id}",
   DELETE_ATTRIBUTE: "/api/attribute/delete/{id}",
   CREATE_ATTRIBUTE: "/api/attribute/create",
   GET_ONE_ATTRIBUTE: "/api/attribute/get-one/{id}",
