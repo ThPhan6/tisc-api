@@ -19,6 +19,7 @@ export const subsAttribute = {
   content_type: Joi.string().allow(""),
   basis: Joi.any(),
   sub_group_id: Joi.any(),
+  additional_type: Joi.string().allow(""),
 };
 
 export const AttributeGroupResponse = {

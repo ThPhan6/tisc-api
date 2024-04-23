@@ -1,9 +1,8 @@
 import { BasisPresetType } from "@/api/basis/basis.type";
 import { BASIS_TYPES } from "@/constants/basis.constant";
 import BasisModel from "@/models/basis.model";
-import { SortOrder, IBasisAttributes, ListBasisWithPagination } from "@/types";
+import { IBasisAttributes, ListBasisWithPagination, SortOrder } from "@/types";
 import BaseRepository from "./base.repository";
-import { log } from "console";
 
 class BasisRepository extends BaseRepository<IBasisAttributes> {
   protected model: BasisModel;
@@ -53,15 +52,15 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       .paginate(limit, offset);
   }
 
-  public async getSubBasisPresetById(id: string) {
+  public async getBasisPresetBySubId(id: string): Promise<IBasisAttributes[]> {
     const query = `
       LET preset = (
         FOR basis IN bases
         FILTER basis.deleted_at == null
         FILTER basis.type == ${BASIS_TYPES.PRESET}
         FOR subBasis IN basis.subs
-        FILTER subBasis.id == ${id}
-        RETURN subBasis
+        FILTER subBasis.id == @id
+        RETURN basis
       )
 
       RETURN preset

@@ -13,8 +13,6 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
-import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
-import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import { default as AttributeRepository } from "@/repositories/attribute.repository";
 import { default as BasisRepository } from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
@@ -34,8 +32,45 @@ import {
   mappingSubAttribute,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { BasisPresetType } from "../basis/basis.type";
 
 class AttributeService {
+  private async addAdditionalTypeToAttribute(subs: any) {
+    const newSubs: any[] = [];
+    let failedToGetAdditionalType = false;
+
+    await Promise.all(
+      subs.map(async (sub: any) => {
+        if (sub.content_type !== "Presets") {
+          newSubs.push(sub);
+          return;
+        }
+
+        const basis = await BasisRepository.getBasisPresetBySubId(sub.basis_id);
+
+        if (!basis.length) {
+          failedToGetAdditionalType = true;
+          return;
+        }
+
+        newSubs.push({
+          ...sub,
+          additional_type:
+            basis[0].additional_type === BasisPresetType.general
+              ? "General Presets"
+              : "Feature Presets",
+        });
+      })
+    );
+
+    return {
+      data: newSubs,
+      statusCode: failedToGetAdditionalType ? 400 : 200,
+    };
+  }
+
   private async getFlatListContentType() {
     const conversionGroups = await BasisRepository.getAllBasisByType(
       BASIS_TYPES.CONVERSION
@@ -89,8 +124,15 @@ class AttributeService {
       relation_id: attribute.id,
     });
     const addedSubGroups = addAttributeSubGroup([data], subGroups);
+
+    const newSubs = await this.addAdditionalTypeToAttribute(addedSubGroups[0]);
+
+    if (newSubs.statusCode !== 200) {
+      return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND);
+    }
+
     return successResponse({
-      data: addedSubGroups[0],
+      data: newSubs,
     });
   }
 
@@ -189,21 +231,6 @@ class AttributeService {
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
-
-    const group = (await this.get(id)) as any;
-    let result = group;
-
-    await Promise.all(
-      group.data.subs.map(async (s: any) => {
-        if (s.content_type !== "Presets") {
-          return;
-        }
-
-        const sub = await BasisRepository.getSubBasisPresetById(s.basis_id);
-
-        result = { ...result, sub: sub };
-      })
-    );
 
     return this.get(id);
   }
