@@ -35,6 +35,7 @@ import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
 import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
 import { BasisPresetType } from "../basis/basis.type";
+import { flatMap } from "lodash";
 
 class AttributeService {
   private async addAdditionalTypeToAttribute(subs: any) {
@@ -123,16 +124,26 @@ class AttributeService {
       type: AdditionalSubGroupType.Attribute,
       relation_id: attribute.id,
     });
+
     const addedSubGroups = addAttributeSubGroup([data], subGroups);
 
-    const newSubs = await this.addAdditionalTypeToAttribute(addedSubGroups[0]);
+    const subs = flatMap(addedSubGroups[0].subs.map((sub: any) => sub.subs));
+
+    const newSubs = await this.addAdditionalTypeToAttribute(subs);
 
     if (newSubs.statusCode !== 200) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND);
     }
 
     return successResponse({
-      data: newSubs,
+      data: {
+        ...addedSubGroups[0],
+        subs: addedSubGroups[0].subs.map((el: any) => ({
+          ...el,
+          subs: newSubs.data,
+        })),
+      },
+      statusCode: newSubs.statusCode,
     });
   }
 

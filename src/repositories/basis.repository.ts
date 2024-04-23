@@ -57,7 +57,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       LET preset = (
         FOR basis IN bases
         FILTER basis.deleted_at == null
-        FILTER basis.type == ${BASIS_TYPES.PRESET}
+        FILTER basis.type == @preset
         FOR subBasis IN basis.subs
         FILTER subBasis.id == @id
         RETURN basis
@@ -68,6 +68,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
 
     const results = await this.model.rawQueryV2(query, {
       preset: BASIS_TYPES.PRESET,
+      id,
     });
 
     return results[0];
