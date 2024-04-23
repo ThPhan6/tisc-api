@@ -37,7 +37,8 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     offset: number,
     type: BASIS_TYPES,
     groupOrder?: SortOrder,
-    isGeneral?: boolean
+    isGeneral?: boolean,
+    filter?: any
   ): Promise<ListBasisWithPagination> {
     let result = this.model.where("type", "==", type);
     if (type === BASIS_TYPES.PRESET) {
@@ -46,6 +47,9 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       } else {
         result.where("additional_type", "!=", BasisPresetType.feature);
       }
+    }
+    if (filter && filter.brand_id) {
+      result = result.where("brand_id", "==", filter.brand_id);
     }
     return result
       .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")

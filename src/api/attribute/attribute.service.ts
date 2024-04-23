@@ -98,7 +98,7 @@ class AttributeService {
     attribute_type: number,
     limit: number,
     offset: number,
-    _filter: any,
+    filter: any,
     group_order: SortOrder | undefined,
     attribute_order?: SortOrder,
     content_type_order?: SortOrder,
@@ -110,7 +110,8 @@ class AttributeService {
         limit,
         offset,
         attribute_type,
-        group_order
+        group_order,
+        filter
       );
 
     const rawAttributes = getListAttributeWithSort(

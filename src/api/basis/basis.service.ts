@@ -277,7 +277,7 @@ class BasisService {
   public async getListBasisOption(
     limit: number,
     offset: number,
-    _filter: any,
+    filter: any,
     groupOrder?: SortOrder,
     mainOrder?: SortOrder,
     optionOrder?: SortOrder
@@ -286,7 +286,9 @@ class BasisService {
       limit,
       offset,
       BASIS_TYPES.OPTION,
-      groupOrder
+      groupOrder,
+      undefined,
+      filter
     );
     const basisOptionMains = await basisOptionMainRepository.getAll();
     const addedMain = addBasisOptionMain(
