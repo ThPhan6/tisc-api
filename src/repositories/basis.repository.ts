@@ -11,7 +11,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     name: "",
     subs: [],
     created_at: "",
-    brand_id: ""
+    brand_id: "",
   };
   constructor() {
     super();
