@@ -16,6 +16,7 @@ export default {
         .required()
         .error(errorMessage("Attribute type is required")),
       name: requireStringValidation("Attribute group name"),
+      brand_id: requireStringValidation("Brand"),
       subs: Joi.array().items({
         name: requireStringValidation("Attribute sub group name"),
         subs: Joi.array()
@@ -83,4 +84,10 @@ export default {
       sub_group_order: value.sub_group_order || "ASC",
     }),
   }),
+  copyToBrand: {
+    params: {
+      id: requireStringValidation("Attribute"),
+      brand_id: requireStringValidation("Brand"),
+    },
+  },
 };

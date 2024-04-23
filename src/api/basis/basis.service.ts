@@ -245,6 +245,7 @@ class BasisService {
     }
     await uploadImages(mappingBasisOption.valid_upload_image, ImageSize.small);
     const createdBasisOption = await BasisRepository.create({
+      brand_id: payload.brand_id,
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: BASIS_TYPES.OPTION,
       subs: mappingBasisOption.basis_option,

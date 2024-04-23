@@ -114,6 +114,23 @@ export default class AttributeRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.COPY_ATTRIBUTE,
+          options: {
+            handler: controller.copyToBrand,
+            validate: validate.copyToBrand,
+            description: "Method that copy attribute to brand",
+            tags: ["api", "Attribute"],
+            // auth: AUTH_NAMES.PERMISSION,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                // 200: response.getOne,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_ALL_ATTRIBUTE,
           options: {

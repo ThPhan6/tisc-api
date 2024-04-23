@@ -16,6 +16,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     name: "",
     subs: [],
     created_at: "",
+    brand_id: "",
   };
   constructor() {
     super();

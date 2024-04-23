@@ -12,7 +12,7 @@ const Joi = HapiJoi.defaults((schema) =>
 export const subsAttribute = {
   id: Joi.string(),
   name: Joi.string(),
-  basis_id: Joi.string(),
+  basis_id: Joi.any(),
   description: Joi.any(),
   description_1: Joi.any(),
   description_2: Joi.any(),

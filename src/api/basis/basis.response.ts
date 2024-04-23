@@ -67,6 +67,7 @@ export const basisPresetSubGroupResponse = {
 
 export const basisOptionGroupResponse = {
   id: Joi.string(),
+  brand_id: Joi.any(),
   name: Joi.string(),
   master: Joi.boolean().allow(null),
   count: Joi.number(),

@@ -20,7 +20,7 @@ import AttributeRepository from "@/repositories/attribute.repository";
 import basisRepository from "@/repositories/basis.repository";
 import BasisRepository from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
-import { AttributeType, SortOrder } from "@/types";
+import { SortOrder } from "@/types";
 import { addBasisOptionMain } from "../basis/basis.mapping";
 import {
   addAttributeSubGroup,
@@ -28,7 +28,6 @@ import {
   getFlatListBasis,
   getListAttributeWithSort,
   mappingAttributeCreate,
-  mappingAttributes,
   mappingAttributeUpdate,
   mappingSubAttribute,
 } from "./attribute.mapping";
@@ -61,6 +60,7 @@ class AttributeService {
 
     const createdAttribute = await AttributeRepository.create({
       id,
+      brand_id: payload.brand_id,
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
       subs: data,
@@ -78,9 +78,8 @@ class AttributeService {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
     }
     const subResponses = mappingSubAttribute(attribute, contentTypes);
-    const { type, ...rest } = attribute;
     const data = {
-      ...rest,
+      ...attribute,
       count: attribute.subs.length,
       subs: subResponses,
     };
@@ -234,6 +233,22 @@ class AttributeService {
     return successResponse({
       data: { general, feature, specification },
     });
+  }
+  public async copyToBrand(attributeId: string, brandId: string) {
+    const attribute: any = await this.get(attributeId);
+    const dataToCreate = {
+      brand_id: brandId,
+      name: attribute.data.name,
+      type: attribute.data.type,
+      subs: attribute.data.subs.map((subGroup: any) => ({
+        name: subGroup.name,
+        subs: subGroup.subs.map((item: any) => ({
+          name: item.name,
+          basis_id: "",
+        })),
+      })),
+    };
+    return this.create(dataToCreate);
   }
 }
 

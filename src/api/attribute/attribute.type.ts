@@ -16,6 +16,7 @@ export interface IAttributesResponse {
 }
 
 export interface IAttributeRequest {
+  brand_id: string;
   name: string;
   type: number;
   subs: {
