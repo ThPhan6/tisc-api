@@ -337,14 +337,14 @@ class BasisService {
     if (!basisOptionGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_NOT_FOUND, 404);
     }
-    const existedGroup = await BasisRepository.getExistedBasis(
-      id,
-      toSingleSpaceAndToLowerCase(payload.name),
-      BASIS_TYPES.OPTION
-    );
-    if (existedGroup) {
-      return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_EXISTED);
-    }
+    // const existedGroup = await BasisRepository.getExistedBasis(
+    //   id,
+    //   toSingleSpaceAndToLowerCase(payload.name),
+    //   BASIS_TYPES.OPTION
+    // );
+    // if (existedGroup) {
+    //   return errorMessageResponse(MESSAGES.BASIS.BASIS_OPTION_EXISTED);
+    // }
     if (
       isDuplicatedString(
         payload.subs.map((item) => {
