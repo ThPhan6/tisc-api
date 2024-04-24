@@ -40,9 +40,12 @@ export const AttributeGroupResponse = {
   updated_at: Joi.string().allow(null),
 };
 export const dataResponseAllAttribute = {
-  general: Joi.array().items(Joi.object(AttributeGroupResponse)),
-  feature: Joi.array().items(Joi.object(AttributeGroupResponse)),
-  specification: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  // general: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  general: Joi.array().items(Joi.any()),
+  // feature: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  feature: Joi.array().items(Joi.any()),
+  // specification: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  specification: Joi.array().items(Joi.any()),
 };
 
 export default {

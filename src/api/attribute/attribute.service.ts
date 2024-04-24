@@ -13,15 +13,19 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
 import { default as AttributeRepository } from "@/repositories/attribute.repository";
 import { default as BasisRepository } from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { SortOrder } from "@/types";
+import { flatMap } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
   addBasisOptionMain,
   addBasisPresetSubGroup,
 } from "../basis/basis.mapping";
+import { BasisPresetType } from "../basis/basis.type";
 import {
   addAttributeSubGroup,
   checkAttributeDuplicateByName,
@@ -32,10 +36,6 @@ import {
   mappingSubAttribute,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
-import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
-import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
-import { BasisPresetType } from "../basis/basis.type";
-import { flatMap } from "lodash";
 
 class AttributeService {
   private async addAdditionalTypeToAttribute(subs: any) {
@@ -301,8 +301,41 @@ class AttributeService {
   public async getAllAttribute() {
     const { general, feature, specification } =
       await AttributeRepository.getAllAttributesGroupByType();
+
+    const addGeneralSubAttribute = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+    });
+    const newGeneral = addAttributeSubGroup(
+      general,
+      addGeneralSubAttribute,
+      "ASC"
+    );
+
+    const addFeatureSubAttribute = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+    });
+    const newFeature = addAttributeSubGroup(
+      feature,
+      addFeatureSubAttribute,
+      "ASC"
+    );
+
+    const addSpecificationSubAttribute =
+      await additionalSubGroupRepository.getAllBy({
+        type: AdditionalSubGroupType.Attribute,
+      });
+    const newSpecification = addAttributeSubGroup(
+      specification,
+      addSpecificationSubAttribute,
+      "ASC"
+    );
+
     return successResponse({
-      data: { general, feature, specification },
+      data: {
+        general: newGeneral,
+        feature: newFeature,
+        specification: newSpecification,
+      },
     });
   }
   public async copyToBrand(attributeId: string, brandId: string) {
