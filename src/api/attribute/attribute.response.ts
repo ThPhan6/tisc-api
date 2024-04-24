@@ -19,6 +19,7 @@ export const subsAttribute = {
   content_type: Joi.string().allow(""),
   basis: Joi.any(),
   sub_group_id: Joi.any(),
+  additional_type: Joi.string().allow(""),
 };
 
 export const AttributeGroupResponse = {
@@ -52,7 +53,8 @@ export default {
 
   getList: Joi.object({
     data: Joi.object({
-      attributes: Joi.array().items(Joi.object(AttributeGroupResponse)),
+      // attributes: Joi.array().items(Joi.object(AttributeGroupResponse)),
+      attributes: Joi.array().items(Joi.any()),
       summary: Joi.array().items(Joi.object(summaryTableResponse)),
       pagination: Joi.object(paginationResponse),
     }),
@@ -65,6 +67,7 @@ export default {
       conversions: Joi.any(),
       presets: Joi.any(),
       options: Joi.any(),
+      feature_presets: Joi.any(),
     }),
     statusCode: Joi.number(),
   }) as any,

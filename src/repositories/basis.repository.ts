@@ -1,7 +1,7 @@
 import { BasisPresetType } from "@/api/basis/basis.type";
 import { BASIS_TYPES } from "@/constants/basis.constant";
 import BasisModel from "@/models/basis.model";
-import { SortOrder, IBasisAttributes, ListBasisWithPagination } from "@/types";
+import { IBasisAttributes, ListBasisWithPagination, SortOrder } from "@/types";
 import BaseRepository from "./base.repository";
 
 class BasisRepository extends BaseRepository<IBasisAttributes> {
@@ -11,7 +11,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
     name: "",
     subs: [],
     created_at: "",
-    brand_id: ""
+    brand_id: "",
   };
   constructor() {
     super();
@@ -65,6 +65,28 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       .paginate(limit, offset);
   }
 
+  public async getBasisPresetBySubId(id: string): Promise<IBasisAttributes[]> {
+    const query = `
+      LET preset = (
+        FOR basis IN bases
+        FILTER basis.deleted_at == null
+        FILTER basis.type == @preset
+        FOR subBasis IN basis.subs
+        FILTER subBasis.id == @id
+        RETURN basis
+      )
+
+      RETURN preset
+    `;
+
+    const results = await this.model.rawQueryV2(query, {
+      preset: BASIS_TYPES.PRESET,
+      id,
+    });
+
+    return results[0];
+  }
+
   public async getAllBasesGroupByType() {
     const query = `
       LET allBases = (
@@ -87,12 +109,26 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       LET presets = (
         FOR b in allBases
         FILTER b.type == @preset
+        FILTER b.additional_type == ${BasisPresetType.general}
         RETURN MERGE(KEEP(b, 'id', 'name'), {
           count: LENGTH(b.subs),
           subs: (
             FOR s IN b.subs
             SORT s.name ASC
-            RETURN {id: s.id, name: s.name, count: LENGTH(s.subs)}
+            RETURN {id: s.id, name: s.name, count: LENGTH(s.subs), sub_group_id: s.sub_group_id}
+          )
+        })
+      )
+      LET feature_presets = (
+        FOR b in allBases
+        FILTER b.type == @preset
+        FILTER b.additional_type == ${BasisPresetType.feature}
+        RETURN MERGE(KEEP(b, 'id', 'name'), {
+          count: LENGTH(b.subs),
+          subs: (
+            FOR s IN b.subs
+            SORT s.name ASC
+            RETURN {id: s.id, name: s.name, count: LENGTH(s.subs), sub_group_id: s.sub_group_id}
           )
         })
       )
@@ -108,7 +144,7 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
           )
         })
       )
-      RETURN { conversions, presets, options }
+      RETURN { conversions, presets, feature_presets, options }
     `;
 
     const results = await this.model.rawQueryV2(query, {
