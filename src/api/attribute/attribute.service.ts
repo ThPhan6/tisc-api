@@ -298,9 +298,9 @@ class AttributeService {
     });
   }
 
-  public async getAllAttribute(filter: any) {
+  public async getAllAttribute(brandId?: string) {
     const { general, feature, specification } =
-      await AttributeRepository.getAllAttributesGroupByType(filter);
+      await AttributeRepository.getAllAttributesGroupByType(brandId);
 
     const addGeneralSubAttribute = await additionalSubGroupRepository.getAllBy({
       type: AdditionalSubGroupType.Attribute,

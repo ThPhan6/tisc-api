@@ -131,24 +131,25 @@ export default {
     },
     payload: {
       name: requireStringValidation("Group option name"),
-      subs: Joi.array().items({
-        id: Joi.string(),
-        name: Joi.string(),
-        subs: Joi.array()
-          .items({
-            id: Joi.string(),
-            name: requireStringValidation("Sub option name"),
-            is_have_image: Joi.valid(true, false),
-            main_id: Joi.any(),
-            subs: basisOptionsValidate,
-          })
-          .required()
-          .min(1)
-          .error(errorMessage("Sub option is required")),
-      }),
-      // .required(),
-      // .min(1)
-      // .error(errorMessage("Main option is required")),
+      subs: Joi.array()
+        .items({
+          id: Joi.string(),
+          name: Joi.string(),
+          subs: Joi.array()
+            .items({
+              id: Joi.string(),
+              name: requireStringValidation("Sub option name"),
+              is_have_image: Joi.valid(true, false),
+              main_id: Joi.any(),
+              subs: basisOptionsValidate,
+            })
+            .required()
+            .min(1)
+            .error(errorMessage("Sub option is required")),
+        })
+        .required()
+        .min(1)
+        .error(errorMessage("Main option is required")),
     },
   },
   getListBasisOption: getListValidation({
