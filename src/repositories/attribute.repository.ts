@@ -84,7 +84,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       LET allAttributes = (
         FOR a in attributes
         FILTER a.deleted_at == null
-        FILTER a.brand_id == @brandId
+        ${filter && filter.brand_id ? `FILTER a.brand_id == @brandId` : ""}
         SORT a.name ASC RETURN a
       )
       LET general = (
@@ -104,15 +104,18 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       )
       RETURN { general, feature, specification }
     `;
-
-    const results = await this.model.rawQueryV2(query, {
+    let bindData: any = {
       general: AttributeType.General,
       feature: AttributeType.Feature,
       specification: AttributeType.Specification,
-      conversion: BASIS_TYPES.CONVERSION,
-      preset: BASIS_TYPES.PRESET,
-      brandId: filter?.brand_id,
-    });
+    };
+    if (filter && filter.brand_id) {
+      bindData = {
+        ...bindData,
+        brandId: filter?.brand_id,
+      };
+    }
+    const results = await this.model.rawQueryV2(query, bindData);
     return results[0];
   }
 }
