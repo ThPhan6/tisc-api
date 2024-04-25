@@ -79,11 +79,12 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     RETURN MERGE(KEEP(a, 'id', 'name'), {subs})
   `;
 
-  public async getAllAttributesGroupByType() {
+  public async getAllAttributesGroupByType(filter?: any) {
     const query = `
       LET allAttributes = (
         FOR a in attributes
         FILTER a.deleted_at == null
+        FILTER a.brand_id == @brandId
         SORT a.name ASC RETURN a
       )
       LET general = (
@@ -110,6 +111,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       specification: AttributeType.Specification,
       conversion: BASIS_TYPES.CONVERSION,
       preset: BASIS_TYPES.PRESET,
+      brandId: filter?.brand_id,
     });
     return results[0];
   }
