@@ -222,6 +222,23 @@ export default class BasisRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.COPY_BASIS_PRESET,
+          options: {
+            handler: controller.copyBasisPreset,
+            validate: getOneValidation,
+            description: "Method that copy basis preset",
+            tags: ["api", "Basis preset"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.basisPreset,
+              },
+            },
+          },
+        },
+        {
           method: "GET",
           path: ROUTES.GET_LIST_BASIS_PRESET,
           options: {

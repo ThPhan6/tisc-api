@@ -9,11 +9,12 @@ export interface SubAttribute {
 
 export interface AttributeProps {
   id: string;
+  brand_id: string;
   type: AttributeType;
   name: string;
   subs: SubAttribute[];
-  master?: boolean,
-  selectable?: boolean,
+  master?: boolean;
+  selectable?: boolean;
   created_at: string;
   updated_at: string | null;
 }
@@ -74,6 +75,6 @@ export interface DimensionAndWeightInterface {
       formula_2: number;
       unit_1: string;
       unit_2: string;
-    }
+    };
   }[];
 }

@@ -58,3 +58,6 @@ export enum SpecificationType {
   attribute,
   autoStep,
 }
+
+export const DEFAULT_SUB_GROUP_ATTRIBUTE_ID =
+  "36b0bffc-0115-4412-b038-23d6c7886c5f";

@@ -134,12 +134,18 @@ export const getSummaryTable = (dataSummary: any) => {
   const countGroup = dataSummary.length;
   let countSub = 0;
   let countItem = 0;
+  let countValue = 0;
 
-  dataSummary.forEach((item: any) => {
-    if (item.subs) {
-      countSub += item.subs.length;
-      item.subs.forEach((subCategory: any) => {
-        if (subCategory.subs) countItem += subCategory.subs.length;
+  dataSummary.forEach((group: any) => {
+    if (group.subs) {
+      countSub += group.subs.length;
+      group.subs.forEach((item: any) => {
+        if (item.subs) {
+          countItem += item.subs.length;
+          item.subs.forEach((value: any) => {
+            if (value.subs) countValue += value.subs.length;
+          });
+        }
       });
     }
   });
@@ -147,6 +153,7 @@ export const getSummaryTable = (dataSummary: any) => {
     countGroup,
     countSub,
     countItem,
+    countValue,
   };
 };
 export const getBasisOptionSummaryTable = (dataSummary: any) => {
