@@ -60,8 +60,9 @@ export default class AttributeController {
     const response = await AttributeServices.getListContentType();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllAttribute = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await AttributeServices.getAllAttribute();
+  public getAllAttribute = async (req: Request, toolkit: ResponseToolkit) => {
+    const { brand_id } = req.query;
+    const response = await AttributeServices.getAllAttribute(brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public copyToBrand = async (req: Request, toolkit: ResponseToolkit) => {

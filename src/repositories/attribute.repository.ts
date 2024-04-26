@@ -79,11 +79,12 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     RETURN MERGE(KEEP(a, 'id', 'name'), {subs})
   `;
 
-  public async getAllAttributesGroupByType() {
+  public async getAllAttributesGroupByType(brandId?: string) {
     const query = `
       LET allAttributes = (
         FOR a in attributes
         FILTER a.deleted_at == null
+        ${brandId ? `FILTER a.brand_id == @brandId` : ""}
         SORT a.name ASC RETURN a
       )
       LET general = (
@@ -104,13 +105,22 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       RETURN { general, feature, specification }
     `;
 
-    const results = await this.model.rawQueryV2(query, {
+    let bindData: any = {
       general: AttributeType.General,
       feature: AttributeType.Feature,
       specification: AttributeType.Specification,
       conversion: BASIS_TYPES.CONVERSION,
       preset: BASIS_TYPES.PRESET,
-    });
+    };
+
+    if (brandId) {
+      bindData = {
+        ...bindData,
+        brandId: brandId,
+      };
+    }
+
+    const results = await this.model.rawQueryV2(query, bindData);
     return results[0];
   }
 }
