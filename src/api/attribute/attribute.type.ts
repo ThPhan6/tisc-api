@@ -16,12 +16,16 @@ export interface IAttributesResponse {
 }
 
 export interface IAttributeRequest {
+  brand_id: string;
   name: string;
   type: number;
   subs: {
     name: string;
-    basis_id: string;
-    description: string;
+    subs: {
+      name: string;
+      basis_id: string;
+      description: string;
+    }[];
   }[];
 }
 export interface IUpdateAttributeRequest {
@@ -29,8 +33,12 @@ export interface IUpdateAttributeRequest {
   subs: {
     id?: string;
     name: string;
-    basis_id: string;
-    description: string;
+    subs: {
+      id?: string;
+      name: string;
+      basis_id: string;
+      description: string;
+    }[];
   }[];
 }
 

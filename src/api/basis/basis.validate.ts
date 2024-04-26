@@ -5,6 +5,7 @@ import {
   orderValidation,
   requireStringValidation,
 } from "@/validates/common.validate";
+import { BasisPresetType } from "./basis.type";
 
 const requireUnitValue = (item: any, helpers: any) => {
   if (
@@ -101,6 +102,7 @@ export default {
   },
   createBasisOption: {
     payload: {
+      brand_id: requireStringValidation("Brand"),
       name: requireStringValidation("Group option name"),
       subs: Joi.array()
         .items({
@@ -166,9 +168,16 @@ export default {
   createBasisPreset: {
     payload: {
       name: requireStringValidation("Basis preset group name"),
+      additional_type: Joi.number()
+        .valid(BasisPresetType.general, BasisPresetType.feature)
+        .allow(null),
       subs: Joi.array().items({
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation,
+        subs: Joi.array().items({
+          id: Joi.string(),
+          name: requireStringValidation("Basis preset name"),
+          subs: basisPresetValidation,
+        }),
       }),
     },
   },
@@ -181,7 +190,11 @@ export default {
       subs: Joi.array().items({
         id: Joi.string(),
         name: requireStringValidation("Basis preset sub-group name"),
-        subs: basisPresetValidation,
+        subs: Joi.array().items({
+          id: Joi.string(),
+          name: requireStringValidation("Basis preset name"),
+          subs: basisPresetValidation,
+        }),
       }),
     },
   },
@@ -190,10 +203,14 @@ export default {
     query: {
       group_order: orderValidation,
       preset_order: orderValidation,
+      sub_group_order: orderValidation,
+      is_general: Joi.boolean(),
     },
     custom: (value) => ({
       group_order: value.group_order || "ASC",
       preset_order: value.preset_order || "ASC",
+      sub_group_order: value.sub_group_order || "ASC",
+      is_general: value.is_general === undefined ? true : value.is_general,
     }),
   }),
   getListBasisConversion: getListValidation({

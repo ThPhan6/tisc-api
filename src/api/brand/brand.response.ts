@@ -1,4 +1,7 @@
-import { paginationResponse } from "@/helpers/response.helper";
+import {
+  paginationResponse,
+  summaryTableResponse,
+} from "@/helpers/response.helper";
 import { getSummaryResponseValidate } from "@/validates/common.response";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
@@ -21,6 +24,7 @@ export default {
           distributors: Joi.number(),
           coverages: Joi.number(),
           categories: Joi.number(),
+          main_categories: Joi.array(),
           collections: Joi.number(),
           cards: Joi.number(),
           products: Joi.number(),
@@ -32,6 +36,7 @@ export default {
         })
       ),
       pagination: Joi.object(paginationResponse),
+      summary: Joi.array().items(Joi.object(summaryTableResponse)),
     }),
     statusCode: Joi.number(),
   }) as any,

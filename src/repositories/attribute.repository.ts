@@ -1,10 +1,10 @@
 import { BASIS_TYPES, SHORT_TEXT_ID } from "@/constants";
 import AttributeModel from "@/models/attribute.model";
 import {
-  SortOrder,
-  AttributeType,
   AttributeProps,
+  AttributeType,
   ListAttributeWithPagination,
+  SortOrder,
 } from "@/types";
 import BaseRepository from "./base.repository";
 
@@ -16,6 +16,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     name: "",
     subs: [],
     created_at: "",
+    brand_id: "",
   };
   constructor() {
     super();
@@ -43,10 +44,14 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     limit: number,
     offset: number,
     type: number,
-    groupOrder?: SortOrder
+    groupOrder?: SortOrder,
+    filter?: any
   ): Promise<ListAttributeWithPagination> {
-    return this.model
-      .where("type", "==", type)
+    let result = this.model.where("type", "==", type);
+    if (filter && filter.brand_id) {
+      result = result.where("brand_id", "==", filter.brand_id);
+    }
+    return result
       .order(groupOrder ? "name" : "created_at", groupOrder || "DESC")
       .paginate(limit, offset);
   }
@@ -56,7 +61,7 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       FOR s IN a.subs
       SORT s.name ASC
       RETURN MERGE(s, {
-        basis: FIRST( 
+        basis: FIRST(
             FOR b IN bases
             FOR bs IN b.subs
             FILTER bs.id == s.basis_id && b.deleted_at == null
@@ -74,11 +79,12 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
     RETURN MERGE(KEEP(a, 'id', 'name'), {subs})
   `;
 
-  public async getAllAttributesGroupByType() {
+  public async getAllAttributesGroupByType(brandId?: string) {
     const query = `
       LET allAttributes = (
         FOR a in attributes
         FILTER a.deleted_at == null
+        ${brandId ? `FILTER a.brand_id == @brandId` : ""}
         SORT a.name ASC RETURN a
       )
       LET general = (
@@ -99,13 +105,22 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
       RETURN { general, feature, specification }
     `;
 
-    const results = await this.model.rawQueryV2(query, {
+    let bindData: any = {
       general: AttributeType.General,
       feature: AttributeType.Feature,
       specification: AttributeType.Specification,
       conversion: BASIS_TYPES.CONVERSION,
       preset: BASIS_TYPES.PRESET,
-    });
+    };
+
+    if (brandId) {
+      bindData = {
+        ...bindData,
+        brandId: brandId,
+      };
+    }
+
+    const results = await this.model.rawQueryV2(query, bindData);
     return results[0];
   }
 }

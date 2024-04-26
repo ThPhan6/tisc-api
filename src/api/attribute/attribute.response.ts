@@ -12,29 +12,40 @@ const Joi = HapiJoi.defaults((schema) =>
 export const subsAttribute = {
   id: Joi.string(),
   name: Joi.string(),
-  basis_id: Joi.string(),
+  basis_id: Joi.any(),
   description: Joi.any(),
   description_1: Joi.any(),
   description_2: Joi.any(),
   content_type: Joi.string().allow(""),
   basis: Joi.any(),
+  sub_group_id: Joi.any(),
+  additional_type: Joi.string().allow(""),
 };
 
 export const AttributeGroupResponse = {
   id: Joi.string(),
+  brand_id: Joi.any(),
   name: Joi.string(),
   count: Joi.number().allow(null),
   type: Joi.number().allow(null),
   master: Joi.boolean().allow(null),
   selectable: Joi.boolean().allow(null),
-  subs: Joi.array().items(Joi.object(subsAttribute)),
+  subs: Joi.array().items({
+    id: Joi.string(),
+    name: Joi.string(),
+    count: Joi.any(),
+    subs: Joi.array().items(Joi.object(subsAttribute)),
+  }),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
 };
 export const dataResponseAllAttribute = {
-  general: Joi.array().items(Joi.object(AttributeGroupResponse)),
-  feature: Joi.array().items(Joi.object(AttributeGroupResponse)),
-  specification: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  // general: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  general: Joi.array().items(Joi.any()),
+  // feature: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  feature: Joi.array().items(Joi.any()),
+  // specification: Joi.array().items(Joi.object(AttributeGroupResponse)),
+  specification: Joi.array().items(Joi.any()),
 };
 
 export default {
@@ -45,7 +56,8 @@ export default {
 
   getList: Joi.object({
     data: Joi.object({
-      attributes: Joi.array().items(Joi.object(AttributeGroupResponse)),
+      // attributes: Joi.array().items(Joi.object(AttributeGroupResponse)),
+      attributes: Joi.array().items(Joi.any()),
       summary: Joi.array().items(Joi.object(summaryTableResponse)),
       pagination: Joi.object(paginationResponse),
     }),
@@ -58,6 +70,7 @@ export default {
       conversions: Joi.any(),
       presets: Joi.any(),
       options: Joi.any(),
+      feature_presets: Joi.any(),
     }),
     statusCode: Joi.number(),
   }) as any,

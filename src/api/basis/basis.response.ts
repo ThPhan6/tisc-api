@@ -34,6 +34,7 @@ export const basisConversionGroupResponse = {
 
 export const subsBasisOptionOrPresetResponse = {
   main_id: Joi.any(),
+  sub_group_id: Joi.any(),
   id: Joi.string(),
   name: Joi.string(),
   master: Joi.boolean().allow(null),
@@ -57,9 +58,16 @@ export const basisOptionMainResponse = {
   count: Joi.number(),
   subs: Joi.array().items(subsBasisOptionOrPresetResponse),
 };
+export const basisPresetSubGroupResponse = {
+  id: Joi.string(),
+  name: Joi.string(),
+  count: Joi.number(),
+  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
+};
 
 export const basisOptionGroupResponse = {
   id: Joi.string(),
+  brand_id: Joi.any(),
   name: Joi.string(),
   master: Joi.boolean().allow(null),
   count: Joi.number(),
@@ -73,9 +81,11 @@ export const basisPresetGroupResponse = {
   name: Joi.string(),
   count: Joi.number(),
   master: Joi.boolean().allow(null),
-  subs: Joi.array().items(subsBasisOptionOrPresetResponse),
+  additional_type: Joi.any(),
+  subs: Joi.array().items(basisPresetSubGroupResponse),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  type: Joi.any(),
 };
 
 export default {
