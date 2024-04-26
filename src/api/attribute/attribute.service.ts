@@ -298,37 +298,40 @@ class AttributeService {
     });
   }
 
-  public async getAllAttribute(brandId?: string) {
+  /// get attributes with sub addition if has brand id, otherwise get without sub addition
+  public async getAllAttribute(addSub: boolean | string, brandId?: string) {
     const { general, feature, specification } =
       await AttributeRepository.getAllAttributesGroupByType(brandId);
 
     const addGeneralSubAttribute = await additionalSubGroupRepository.getAllBy({
       type: AdditionalSubGroupType.Attribute,
     });
-    const newGeneral = addAttributeSubGroup(
-      general,
-      addGeneralSubAttribute,
-      "ASC"
-    );
+    const newGeneral =
+      !addSub || addSub === "false"
+        ? general
+        : addAttributeSubGroup(general, addGeneralSubAttribute, "ASC");
 
     const addFeatureSubAttribute = await additionalSubGroupRepository.getAllBy({
       type: AdditionalSubGroupType.Attribute,
     });
-    const newFeature = addAttributeSubGroup(
-      feature,
-      addFeatureSubAttribute,
-      "ASC"
-    );
+    const newFeature =
+      !addSub || addSub === "false"
+        ? feature
+        : addAttributeSubGroup(feature, addFeatureSubAttribute, "ASC");
 
     const addSpecificationSubAttribute =
       await additionalSubGroupRepository.getAllBy({
         type: AdditionalSubGroupType.Attribute,
       });
-    const newSpecification = addAttributeSubGroup(
-      specification,
-      addSpecificationSubAttribute,
-      "ASC"
-    );
+
+    const newSpecification =
+      !addSub || addSub === "false"
+        ? specification
+        : addAttributeSubGroup(
+            specification,
+            addSpecificationSubAttribute,
+            "ASC"
+          );
 
     return successResponse({
       data: {
