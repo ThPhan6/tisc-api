@@ -5,6 +5,7 @@ import {
   BrandRoles,
   ImageSize,
   MESSAGES,
+  BASIS_TYPES,
 } from "@/constants";
 import {
   pagination,
@@ -18,6 +19,8 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import attributeRepository from "@/repositories/attribute.repository";
+import basisRepository from "@/repositories/basis.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
@@ -275,6 +278,13 @@ class BrandService {
 
     const officialWebsites = this.getOfficialWebsites(createdBrand);
 
+    //Create default brand component
+    await basisRepository.create({
+      brand_id: createdBrand.id,
+      name: createdBrand.name,
+      subs: [],
+      type: BASIS_TYPES.OPTION,
+    });
     return successResponse({
       data: { ...createdBrand, official_websites: officialWebsites },
     });
