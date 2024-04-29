@@ -398,11 +398,10 @@ class BasisService {
   }
 
   public async createBasisPreset(payload: IBasisPresetRequest) {
-    const basisOptionGroup = await BasisRepository.findBy({
-      type: BASIS_TYPES.PRESET,
-      name: toSingleSpaceAndToLowerCase(payload.name),
-      additional_type: payload.additional_type,
-    });
+    const basisOptionGroup = await BasisRepository.findPreset(
+      toSingleSpaceAndToLowerCase(payload.name),
+      payload.additional_type
+    );
 
     if (basisOptionGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);

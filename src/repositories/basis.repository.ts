@@ -1,5 +1,6 @@
 import { BasisPresetType } from "@/api/basis/basis.type";
 import { BASIS_TYPES } from "@/constants/basis.constant";
+import { toSingleSpaceAndToLowerCase } from "@/helpers/common.helper";
 import BasisModel from "@/models/basis.model";
 import { IBasisAttributes, ListBasisWithPagination, SortOrder } from "@/types";
 import BaseRepository from "./base.repository";
@@ -39,6 +40,20 @@ class BasisRepository extends BaseRepository<IBasisAttributes> {
       .select()
       .where("type", "==", type)
       .get()) as IBasisAttributes[];
+  }
+  public async findPreset(name: string, additional_type: number) {
+    let result = this.model
+    .select()
+    .where("type", "==", BASIS_TYPES.PRESET)
+    .where("name", "==", toSingleSpaceAndToLowerCase(name))
+    if(additional_type === 1) {
+      result = result.where('additional_type', '==', 1)
+    }
+    else {
+      result = result.where('additional_type', '!=', 1)
+    }
+    return (await result
+      .get())[0] as IBasisAttributes;
   }
 
   public async getListBasisWithPagination(
