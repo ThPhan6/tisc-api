@@ -86,6 +86,7 @@ export const basisPresetGroupResponse = {
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
   type: Joi.any(),
+  brand_id: Joi.any(),
 };
 
 export default {
