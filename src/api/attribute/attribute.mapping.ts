@@ -12,6 +12,7 @@ import {
   getLodashOrder,
   isDuplicatedString,
   numberToFixed,
+  sortObjectArray,
   toSingleSpaceAndToLowerCase,
 } from "@/helpers/common.helper";
 import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
@@ -259,10 +260,10 @@ export const addAttributeSubGroup = (
         subs: subGroupSubs,
       };
     });
-
+    const sorted = sortObjectArray(returnedSubGroups, "name", subGroupOrder || "ASC")
     return {
       ...group,
-      subs: sortBy(returnedSubGroups, "name", subGroupOrder || "ASC"),
+      subs: sorted,
       count: returnedSubGroups.length,
     };
   });
