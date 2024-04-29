@@ -164,6 +164,7 @@ const permissionData = [
           ROUTES.DELETE_ATTRIBUTE,
           ROUTES.CREATE_ATTRIBUTE,
           ROUTES.GET_ONE_ATTRIBUTE,
+          ROUTES.GET_LIST_BRAND,
         ],
         index: 9,
         id: "permission_3_2",
