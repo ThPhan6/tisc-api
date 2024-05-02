@@ -401,7 +401,9 @@ class BasisService {
     payload: IBasisPresetRequest,
     isCopy?: boolean
   ) {
-    const name = toSingleSpaceAndToLowerCase(payload.name);
+    const name = isCopy
+      ? toSingleSpaceAndToLowerCase(`${payload.name} - copy`)
+      : toSingleSpaceAndToLowerCase(payload.name);
 
     const basisOptionGroup = await BasisRepository.findPreset(
       name,
@@ -439,16 +441,14 @@ class BasisService {
     const groupId = uuid();
     const presets = await mappingBasisPresetCreate(payload, groupId);
 
-    const isDupName = !!basisOptionGroupUpdated.length && isCopy;
-
     const newCopyVersion =
       basisOptionGroupUpdated?.[0]?.copyVer === undefined
         ? 0
         : basisOptionGroupUpdated[0].copyVer;
 
     const createdBasisPreset = await BasisRepository.create({
-      name: isDupName
-        ? trimEnd(`${name} ${newCopyVersion ? `(${newCopyVersion})` : ""}`)
+      name: isCopy
+        ? trimEnd(`${name} ${`${newCopyVersion ? newCopyVersion : ""}`}`)
         : name,
       type: BASIS_TYPES.PRESET,
       additional_type: payload.additional_type || BasisPresetType.general,
