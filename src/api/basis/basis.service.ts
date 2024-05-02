@@ -15,8 +15,8 @@ import { additionalSubGroupRepository } from "@/repositories/additional_sub_grou
 import BasisRepository from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { uploadImages } from "@/services/image.service";
-import { SortOrder } from "@/types";
-import { sortBy } from "lodash";
+import { IBasisAttributes, SortOrder } from "@/types";
+import { isUndefined, sortBy, trimEnd } from "lodash";
 import { v4 as uuid } from "uuid";
 import {
   addBasisOptionMain,
@@ -303,16 +303,16 @@ class BasisService {
     );
     const summaryTable = getBasisOptionSummaryTable(addedMain);
     const summary = [
+      // {
+      //   name: "Group Options",
+      //   value: summaryTable.countGroup,
+      // },
       {
-        name: "Group Options",
-        value: summaryTable.countGroup,
-      },
-      {
-        name: "Main Options",
+        name: "Main",
         value: summaryTable.countMain,
       },
       {
-        name: "Sub Options",
+        name: "Sub",
         value: summaryTable.countSub,
       },
       {
@@ -397,33 +397,64 @@ class BasisService {
     return this.getBasisOption(id);
   }
 
-  public async createBasisPreset(payload: IBasisPresetRequest) {
+  public async createBasisPreset(
+    payload: IBasisPresetRequest,
+    isCopy?: boolean
+  ) {
+    const name = isCopy
+      ? toSingleSpaceAndToLowerCase(`${payload.name} - copy`)
+      : toSingleSpaceAndToLowerCase(payload.name);
+
     const basisOptionGroup = await BasisRepository.findPreset(
-      toSingleSpaceAndToLowerCase(payload.name),
+      name,
       payload.additional_type
     );
 
-    if (basisOptionGroup) {
+    let basisOptionGroupUpdated: IBasisAttributes[] = [];
+    /// update copy version
+    if (basisOptionGroup?.id) {
+      const copyVersion =
+        basisOptionGroup?.copyVer === undefined
+          ? 0
+          : ++basisOptionGroup.copyVer;
+
+      basisOptionGroupUpdated = await BasisRepository.findAndUpdate(
+        basisOptionGroup?.id,
+        { ...basisOptionGroup, copyVer: copyVersion }
+      );
+    }
+
+    if (basisOptionGroup && !isCopy) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_EXISTED);
     }
+
     if (
       isDuplicatedString(
         payload.subs.map((item) => {
           return item.name;
         })
-      )
+      ) &&
+      !isCopy
     ) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_DUPLICATED);
     }
     const groupId = uuid();
     const presets = await mappingBasisPresetCreate(payload, groupId);
 
+    const newCopyVersion =
+      basisOptionGroupUpdated?.[0]?.copyVer === undefined
+        ? 0
+        : basisOptionGroupUpdated[0].copyVer;
+
     const createdBasisPreset = await BasisRepository.create({
-      name: toSingleSpaceAndToLowerCase(payload.name),
+      name: isCopy
+        ? trimEnd(`${name} ${`${newCopyVersion ? newCopyVersion : ""}`}`)
+        : name,
       type: BASIS_TYPES.PRESET,
       additional_type: payload.additional_type || BasisPresetType.general,
       subs: presets,
       id: groupId,
+      copyVer: 0,
     });
     if (!createdBasisPreset) {
       return successMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
@@ -458,7 +489,7 @@ class BasisService {
 
     const dataToCopy = mappedCopyDataPreset(basisPresetGroup.data);
 
-    return this.createBasisPreset(dataToCopy);
+    return this.createBasisPreset(dataToCopy, true);
   }
 
   public async getListBasisPreset(
