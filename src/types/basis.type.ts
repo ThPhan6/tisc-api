@@ -10,6 +10,7 @@ export interface IBasisAttributes {
   created_at: string;
   updated_at: boolean;
   additional_type?: BasisPresetType;
+  copyVer?: number;
 }
 
 export interface BasisConversion {
