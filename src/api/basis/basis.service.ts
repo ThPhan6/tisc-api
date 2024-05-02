@@ -553,7 +553,6 @@ class BasisService {
     payload: IUpdateBasisPresetRequest
   ) {
     const basisPresetGroup = await BasisRepository.find(id);
-    console.log(basisPresetGroup);
     if (!basisPresetGroup) {
       return errorMessageResponse(MESSAGES.BASIS.BASIS_PRESET_NOT_FOUND, 404);
     }
