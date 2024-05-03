@@ -225,26 +225,15 @@ class ProjectProductService {
       data: { product_id: product.id, project_id: project.id },
     });
     // refresh user specification
-    const userProductSpecification =
-      await userProductSpecificationRepository.findBy({
-        product_id: payload.product_id,
-        user_id: user.id,
-      });
-    if (userProductSpecification) {
-      await stepSelectionRepository.deleteBy({
-        product_id: payload.product_id,
-        user_id: user.id,
-      });
-      await userProductSpecificationRepository.update(
-        userProductSpecification.id,
-        {
-          specification: {
-            ...userProductSpecification.specification,
-            attribute_groups: [],
-          },
-        }
-      );
-    }
+    await userProductSpecificationRepository.deleteBy({
+      product_id: payload.product_id,
+      user_id: user.id,
+    });
+    await stepSelectionRepository.deleteBy({
+      product_id: payload.product_id,
+      user_id: user.id,
+    });
+    //
     return successResponse({
       data: {
         ...newProjectProductRecord,
