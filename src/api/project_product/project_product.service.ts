@@ -148,6 +148,15 @@ class ProjectProductService {
         project_product_id: updatedProjectProduct.id,
         created_by: user.id,
       });
+      // refresh user specification
+      await userProductSpecificationRepository.deleteBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
+      await stepSelectionRepository.deleteBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
       return successResponse({
         data: {
           ...updatedProjectProduct,
