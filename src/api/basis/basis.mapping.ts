@@ -287,26 +287,30 @@ export const mappingBasisOptionUpdate = async (
                   });
 
                   const fileType = await getFileTypeFromBase64(value.image);
-                  if (
-                    fileType &&
-                    VALID_IMAGE_TYPES.find(
-                      (validType) => validType === fileType.mime
-                    )
-                  ) {
-                    const fileName = randomName(8);
-                    const validImageItem = await toValidImageItem(
-                      value.image,
-                      fileName
-                    );
-                    validUploadImages.push(validImageItem);
-                    imagePath = `/${validImageItem.path}`;
+                  if (!fileType) {
+                    imagePath = null;
                   } else {
-                    const isExistedImage = await isExists(value.image);
+                    if (
+                      fileType &&
+                      VALID_IMAGE_TYPES.find(
+                        (validType) => validType === fileType.mime
+                      )
+                    ) {
+                      const fileName = randomName(8);
+                      const validImageItem = await toValidImageItem(
+                        value.image,
+                        fileName
+                      );
+                      validUploadImages.push(validImageItem);
+                      imagePath = `/${validImageItem.path}`;
+                    } else {
+                      const isExistedImage = await isExists(value.image);
 
-                    if (!isExistedImage) {
-                      isValidImage = false;
+                      if (!isExistedImage) {
+                        isValidImage = false;
+                      }
+                      imagePath = value.image;
                     }
-                    imagePath = value.image;
                   }
                 }
                 return foundValue
