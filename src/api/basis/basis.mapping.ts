@@ -434,10 +434,15 @@ export const addBasisPresetSubGroup = (
     });
     // get distinct array
     const returnedSubGroups = _.uniqBy(subGroups, "id").map((subGroup: any) => {
-      const subGroupSubs = group.subs.filter((item: any) => {
-        if (!item.sub_group_id) item.sub_group_id = DEFAULT_SUB_PRESET_ID;
-        return item.sub_group_id === subGroup.id;
-      });
+      const subGroupSubs = group.subs
+        .filter((item: any) => {
+          if (!item.sub_group_id) item.sub_group_id = DEFAULT_SUB_PRESET_ID;
+          return item.sub_group_id === subGroup.id;
+        })
+        .map((item: any) => ({
+          ...item,
+          count: item.subs?.length,
+        }));
       return {
         id: subGroup.id,
         name: subGroup.name,
