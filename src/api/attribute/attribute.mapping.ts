@@ -276,7 +276,7 @@ export const mappingAttributeUpdate = (
   let data: any[] = [];
   payload.subs.map((subGroup) => {
     let temp_sub_group_id = subGroup.id;
-    if (!subGroup.id) {
+    if (!subGroup.id || subGroup.id === DEFAULT_SUB_GROUP_ATTRIBUTE_ID) {
       temp_sub_group_id = uuid();
     }
     subGroups = subGroups.concat([
