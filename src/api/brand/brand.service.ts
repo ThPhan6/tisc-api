@@ -77,7 +77,20 @@ class BrandService {
     const totalBrand = await brandRepository.getModel().count();
 
     const result = mappingBrands(dataBrandCustom);
-
+    result.map(async (brand) => {
+      const brandComponent = await basisRepository.findBy({
+        brand_id: brand.id,
+        type: BASIS_TYPES.OPTION,
+      });
+      if (!brandComponent) {
+        await basisRepository.create({
+          brand_id: brand.id,
+          name: brand.name,
+          subs: [],
+          type: BASIS_TYPES.OPTION,
+        });
+      }
+    });
     const summary = [
       {
         name: "Brand",

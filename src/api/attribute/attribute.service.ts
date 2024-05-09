@@ -15,7 +15,9 @@ import {
 } from "@/helpers/response.helper";
 import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
 import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
-import { default as AttributeRepository } from "@/repositories/attribute.repository";
+import attributeRepository, {
+  default as AttributeRepository,
+} from "@/repositories/attribute.repository";
 import { default as BasisRepository } from "@/repositories/basis.repository";
 import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
 import { SortOrder } from "@/types";
@@ -294,9 +296,24 @@ class AttributeService {
   }
   public async copyToBrand(attributeId: string, brandId: string) {
     const attribute: any = await this.get(attributeId);
+    let copiedName = attribute.data.name + " - copy";
+    const brandAttributes = await attributeRepository.getAllBy({
+      brand_id: brandId,
+    });
+    let temp = copiedName
+    let found: any;
+    let index = 1;
+    do {
+      
+      found = brandAttributes.find((item) => item.name === copiedName);
+      if (found) {
+        copiedName = temp + " " + index;
+        index++;
+      }
+    } while (found);
     const dataToCreate = {
       brand_id: brandId,
-      name: attribute.data.name,
+      name: copiedName,
       type: attribute.data.type,
       subs: attribute.data.subs.map((subGroup: any) => ({
         name: subGroup.name,
