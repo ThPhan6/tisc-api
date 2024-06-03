@@ -30,6 +30,7 @@ export const basisConversionGroupResponse = {
   subs: Joi.array().items(Joi.object(basisConversionResponse)),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  brand_id: Joi.any(),
 };
 
 export const subsBasisOptionOrPresetResponse = {
