@@ -9,6 +9,7 @@ export interface IProductAttributes {
   id: string;
   brand_id: string;
   collection_ids: string[];
+  label_ids: string[];
   category_ids: string[];
   name: string;
   code: string;
