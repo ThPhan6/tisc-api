@@ -21,6 +21,7 @@ import { linkageService } from "../linkage/linkage.service";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 import productRepository from "@/repositories/product.repository";
 import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
+import galleryRepository from "@/repositories/gallery.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -95,20 +96,28 @@ export const mappingByCollections = (
       (collection) => collection.id === collectionId
     );
   }
-  return collections.map((collection) => {
-    let categoryProducts = products.filter((item) =>
-      item.collection_ids?.includes(collection.id)
-    );
-    ///
-    return {
-      id: collection.id,
-      type: collection.type,
-      name: collection.name,
-      description: collection.description,
-      count: categoryProducts.length,
-      products: categoryProducts,
-    };
-  });
+  return Promise.all(
+    collections.map(async (collection) => {
+      let categoryProducts = products.filter((item) =>
+        item.collection_ids?.includes(collection.id)
+      );
+      ///
+      const brandId = products[0].brand_id;
+      const gallery = await galleryRepository.findBy({
+        collection_id: collection.id,
+        brand_id: brandId,
+      });
+      return {
+        id: collection.id,
+        type: collection.type,
+        name: collection.name,
+        images: gallery?.images || [],
+        description: collection.description,
+        count: categoryProducts.length,
+        products: categoryProducts,
+      };
+    })
+  );
 };
 
 export const getTotalVariantOfProducts = (

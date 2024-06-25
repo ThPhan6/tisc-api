@@ -28,6 +28,7 @@ export * from "./specification_step.type";
 export * from "./configuration_step.type";
 export * from "./step_selection.type";
 export * from "./label.type";
+export * from "./gallery.type";
 export * from "./default_pre_selection.type";
 
 export * from "@/api/brand/brand.type";

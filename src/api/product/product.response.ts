@@ -92,6 +92,7 @@ export default {
           id: Joi.string(),
           name: Joi.string(),
           description: Joi.any(),
+          images: Joi.any(),
           type: Joi.any(),
           count: Joi.number(),
           products: Joi.array().items(Joi.object(productResponse)),
@@ -111,6 +112,7 @@ export default {
         brand_logo: Joi.string().allow(null),
         products: Joi.array().items(Joi.object(productResponse)),
         type: Joi.any(),
+        images: Joi.any(),
       })
     ),
     allProducts: Joi.array().items(Joi.object(productResponse)),
@@ -138,6 +140,7 @@ export default {
           name: Joi.string(),
           description: Joi.any(),
           type: Joi.any(),
+          images: Joi.any(),
         })
       ),
       category_count: Joi.number(),

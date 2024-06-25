@@ -24,6 +24,8 @@ export default {
     payload: {
       name: Joi.string(),
       description: Joi.string(),
+      images: Joi.array().items(Joi.any()),
+      brand_id: Joi.any(),
     },
   },
   getList: getListValidation({

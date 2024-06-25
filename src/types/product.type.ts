@@ -39,9 +39,9 @@ export interface DimensionAndWeight {
 }
 
 export type ProductInformation = {
-  product_name: string,
-  product_id: string
-}
+  product_name: string;
+  product_id: string;
+};
 
 export interface ProductTip {
   title: string;
@@ -57,6 +57,7 @@ export interface ProductWithCollectionAndBrand extends IProductAttributes {
     name: string;
     description: string;
     type: number;
+    images: string[];
   }[];
   brand: {
     id: string;

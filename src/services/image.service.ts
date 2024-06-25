@@ -121,6 +121,51 @@ export const uploadImagesProduct = (
     })
   );
 };
+export const uploadGalleryImages = (
+  images: string[],
+  collectionId: string,
+  options?: {
+    brandName: string;
+    collectionName: string;
+  }
+) => {
+  const brandName = simplizeString(options?.brandName || "");
+  const collectionName = simplizeString(options?.collectionName || "");
+  return Promise.all(
+    images.map(async (image) => {
+      const fileType = await getFileTypeFromBase64(image);
+      if (!fileType) {
+        return image;
+      }
+      const largeName = [brandName, collectionName, moment.now(), "l"].join(
+        "-"
+      );
+      const smallName = [brandName, collectionName, moment.now(), "s"].join(
+        "-"
+      );
+      const largeImage = await toWebp(
+        Buffer.from(image, "base64"),
+        ImageSize.large
+      );
+      await upload(
+        largeImage,
+        `collection/${collectionId}/${largeName}.webp`,
+        "image/webp"
+      );
+      const smallImage = await toWebp(
+        Buffer.from(image, "base64"),
+        ImageSize.small
+      );
+      await upload(
+        smallImage,
+        `collection/${collectionId}/${smallName}.webp`,
+        "image/webp"
+      );
+
+      return `/collection/${collectionId}/${smallName}.webp`;
+    })
+  );
+};
 export const getFileNameInPath = (path?: string): string => {
   if (!path || path === "") return "";
   const parts = path.split("/");
