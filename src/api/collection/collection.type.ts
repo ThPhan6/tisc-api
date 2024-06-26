@@ -8,6 +8,8 @@ export interface ICollectionRequest {
 export interface UpdateCollectionRequest {
   name?: string;
   description?: string;
+  images?: string[];
+  brand_id?: string
 }
 export interface ICollectionResponse {
   data: ICollection;
