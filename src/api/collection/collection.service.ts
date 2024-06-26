@@ -11,7 +11,14 @@ import { ICollectionRequest, UpdateCollectionRequest } from "./collection.type";
 import { CollectionGroup, CollectionRelationType } from "@/types";
 import { pagination } from "@/helpers/common.helper";
 import { productService } from "../product/product.service";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
+import {
+  splitImageByType,
+  uploadGalleryImages,
+  validateImageType,
+} from "@/services/image.service";
+import galleryRepository from "@/repositories/gallery.repository";
+import { brandRepository } from "@/repositories/brand.repository";
 
 class CollectionService {
   public async create(payload: ICollectionRequest) {
@@ -103,6 +110,36 @@ class CollectionService {
     }
     if (collection.relation_type === CollectionRelationType.Color) {
       return errorMessageResponse(MESSAGES.CANNOT_CHANGE_COLOR_COLLECTION, 400);
+    }
+
+    //Update gallery images
+    if (payload.images && payload.brand_id) {
+      let gallery = await galleryRepository.findBy({
+        collection_id: id,
+        brand_id: payload.brand_id,
+      });
+      const brand = await brandRepository.find(payload.brand_id);
+      // Upload images if have changes
+      if (!gallery) {
+        gallery = await galleryRepository.create({
+          collection_id: id,
+          brand_id: payload.brand_id,
+          images: [],
+        });
+      }
+      if (gallery && isEqual(gallery.images, payload.images) === false) {
+        const { imageBase64 } = await splitImageByType(payload.images);
+        if (imageBase64.length && !(await validateImageType(imageBase64))) {
+          return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+        }
+        const newImages = await uploadGalleryImages(payload.images, id, {
+          collectionName: payload.name || collection.name,
+          brandName: brand?.name || "",
+        });
+        await galleryRepository.update(gallery.id, {
+          images: newImages,
+        });
+      }
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }

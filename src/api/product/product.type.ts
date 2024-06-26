@@ -92,6 +92,7 @@ export interface IProductRequest {
 export interface IUpdateProductRequest {
   brand_id: string;
   collection_ids: string[];
+  label_ids: string[];
   category_ids: string[];
   name: string;
   description: string;

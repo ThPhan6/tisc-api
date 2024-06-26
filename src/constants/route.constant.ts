@@ -344,6 +344,12 @@ export const ROUTES = {
     UPDATE: "/api/collection/update/{id}",
     DELETE: "/api/collection/delete/{id}",
   },
+  LABEL: {
+    GET_LIST: "/api/label/get-list",
+    CREATE: "/api/label/create",
+    UPDATE: "/api/label/update/{id}",
+    DELETE: "/api/label/delete/{id}",
+  },
   BOOKING: {
     AVAILABLE_SCHEDULE: "/api/booking/available-schedule",
     CREATE: "/api/booking/create",

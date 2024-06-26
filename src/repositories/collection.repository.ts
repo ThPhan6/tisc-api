@@ -1,13 +1,8 @@
 import CollectionModel from "@/models/collection.model";
-import {
-  SortOrder,
-  ICollectionAttributes,
-  ListCollectionPaginate,
-  CollectionGroup,
-} from "@/types";
+import { SortOrder, ICollectionAttributes } from "@/types";
 import BaseRepository from "./base.repository";
 import { CollectionRelationType } from "@/types";
-import { flatMap, uniq } from "lodash";
+import { uniq } from "lodash";
 
 class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   protected model: CollectionModel;
