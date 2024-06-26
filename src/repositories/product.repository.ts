@@ -14,6 +14,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     id: "",
     brand_id: "",
     collection_ids: [],
+    label_ids: [],
     category_ids: [],
     name: "",
     code: "",
@@ -93,6 +94,15 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           description: collections.description
         }
       )
+      let labels = (
+        for labels in labels
+        filter labels.id in products.label_ids
+        filter labels.deleted_at == null
+        return {
+          id: labels.id,
+          name: labels.name,
+        }
+      )
       for brand in brands
           filter brand.id == products.brand_id
           filter brand.deleted_at == null
@@ -141,6 +151,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
             : ""
         }
         collections: collections,
+        labels,
         brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
         favorites: favourite[0],
         is_liked: liked[0] > 0

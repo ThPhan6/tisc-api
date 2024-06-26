@@ -500,7 +500,7 @@ class ProductService {
       }
       returnedProducts = mappingByCategory(products);
     } else if (collectionId) {
-      returnedProducts = mappingByCollections(
+      returnedProducts = await mappingByCollections(
         products,
         collectionId === "all" ? undefined : collectionId
       );
@@ -548,7 +548,7 @@ class ProductService {
       const brand = await brandRepository.find(brandId);
       const collections = getUniqueCollections(products);
       return successResponse({
-        data: sortBy(mappingByCollections(products), "name"),
+        data: sortBy(await mappingByCollections(products), "name"),
         brand_summary: {
           brand_name: brand?.name ?? "",
           brand_logo: brand?.logo ?? "",

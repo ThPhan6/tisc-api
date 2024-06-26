@@ -99,6 +99,7 @@ export const productPayloadValidate = {
     .items(Joi.string().required())
     .required()
     .error(errorMessage("Please select collection")),
+  label_ids: Joi.array().items(Joi.string()),
   category_ids: Joi.array()
     .items(Joi.string().required())
     .required()
