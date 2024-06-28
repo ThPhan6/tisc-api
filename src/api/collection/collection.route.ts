@@ -56,9 +56,20 @@ export default class CollectionRoute implements IRoute {
           options: {
             handler: controller.update,
             validate: validate.update,
-            description: "Method that update name of collection",
+            description: "Method that update collection",
             tags: ["api", "Collection"],
             auth: AUTH_NAMES.GENERAL,
+            payload: {
+              maxBytes: 15 * 1048576,
+              failAction: (_request, _h, err: any) => {
+                if (err.output) {
+                  if (err.output.statusCode === 413) {
+                    err.output.payload.message = `The content size larger than 15MB is not allowed`;
+                  }
+                }
+                throw err;
+              },
+            },
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
