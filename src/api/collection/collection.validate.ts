@@ -23,7 +23,7 @@ export default {
     ...getOneValidation,
     payload: {
       name: Joi.string(),
-      description: Joi.string(),
+      description: Joi.any(),
       images: Joi.array().items(Joi.any()),
       brand_id: Joi.any(),
     },
