@@ -1,5 +1,6 @@
 export interface ILabelRequest {
   name: string;
+  brand_id: string
 }
 export interface UpdateLabelRequest {
   name: string;

@@ -4,7 +4,8 @@ import { ILabelRequest, UpdateLabelRequest } from "./label.type";
 
 export default class LabelController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
-    const response = await LabelService.getList();
+    const brandId = req.params.brand_id;
+    const response = await LabelService.getList(brandId);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

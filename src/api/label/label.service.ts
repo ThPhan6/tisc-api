@@ -15,12 +15,13 @@ class LabelService {
     }
     const createdLabel = await labelRepository.create({
       name: payload.name,
+      brand_id: payload.brand_id
     });
     return successResponse({ data: createdLabel });
   }
 
-  public async getList() {
-    const labels = await labelRepository.getAll();
+  public async getList(brand_id: string) {
+    const labels = await labelRepository.getAllBy({brand_id})
     return successResponse({
       data: labels,
     });
