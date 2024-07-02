@@ -154,7 +154,7 @@ export const uploadGalleryImages = (
       );
       const smallImage = await toWebp(
         Buffer.from(image, "base64"),
-        ImageSize.small
+        ImageSize.medium
       );
       await upload(
         smallImage,

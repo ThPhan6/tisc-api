@@ -345,7 +345,7 @@ export const ROUTES = {
     DELETE: "/api/collection/delete/{id}",
   },
   LABEL: {
-    GET_LIST: "/api/label/get-list",
+    GET_LIST: "/api/label/get-list/{brand_id}",
     CREATE: "/api/label/create",
     UPDATE: "/api/label/update/{id}",
     DELETE: "/api/label/delete/{id}",
