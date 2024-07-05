@@ -29,6 +29,24 @@ class BaseRepository<DataType> {
     }
     return (await this.model.all()) as DataType[];
   }
+  /**
+   * Get many
+   * @return DataType[]
+   */
+  public async getMany(
+    ids: string[],
+    orderBy?: Extract<keyof DataType, string>,
+    sequence?: "ASC" | "DESC"
+  ) {
+    if (!isUndefined(orderBy) && !isUndefined(sequence)) {
+      return (await this.model
+        .select()
+        .whereIn("id", ids)
+        .order(orderBy, sequence)
+        .get()) as DataType[];
+    }
+    return (await this.model.select().whereIn("id", ids).get()) as DataType[];
+  }
 
   /**
    * Get one
