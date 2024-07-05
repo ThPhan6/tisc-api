@@ -138,7 +138,6 @@ class CustomProductService {
 
     const uploadedImages = await uploadImagesProduct(
       payload.images,
-      [],
       brand.business_name,
       brand.id
     );
@@ -223,7 +222,6 @@ class CustomProductService {
       }
       images = await uploadImagesProduct(
         payload.images,
-        [],
         brand.business_name,
         brand.id
       );

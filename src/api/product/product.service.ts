@@ -65,6 +65,7 @@ import { linkageService } from "../linkage/linkage.service";
 import { StepRequest } from "../linkage/linkage.type";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
+import collectionRepository from "@/repositories/collection.repository";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -154,12 +155,13 @@ class ProductService {
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
-
+    const collections = await collectionRepository.getMany(payload.collection_ids)
     const uploadedImages = await uploadImagesProduct(
       payload.images,
-      payload.keywords,
       brand.name,
-      brand.id
+      brand.id,
+      collections,
+      payload.name
     );
 
     const createdProduct = await productRepository.create({
@@ -334,11 +336,13 @@ class ProductService {
       if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
+      const collections = await collectionRepository.getMany(payload.collection_ids)
       const newImages = await uploadImagesProduct(
         payload.images,
-        payload.keywords,
         brand.name,
-        brand.id
+        brand.id,
+        collections,
+        payload.name
       );
 
       images = newImages;
