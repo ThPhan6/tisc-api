@@ -5,6 +5,7 @@ import {
   successResponse,
 } from "@/helpers/response.helper";
 import labelRepository from "@/repositories/label.repository";
+import { toNestLabels } from "./label.mapping";
 import { ILabelRequest, UpdateLabelRequest } from "./label.type";
 
 class LabelService {
@@ -15,15 +16,16 @@ class LabelService {
     }
     const createdLabel = await labelRepository.create({
       name: payload.name,
-      brand_id: payload.brand_id
+      brand_id: payload.brand_id,
+      parent_id: payload.parent_id,
     });
     return successResponse({ data: createdLabel });
   }
 
   public async getList(brand_id: string) {
-    const labels = await labelRepository.getAllBy({brand_id})
+    const labels = await labelRepository.getAllBy({ brand_id });
     return successResponse({
-      data: labels,
+      data: toNestLabels(labels),
     });
   }
 
@@ -41,7 +43,11 @@ class LabelService {
     if (!label) {
       return errorMessageResponse(MESSAGES.LABEL_NOTFOUND);
     }
-    await labelRepository.delete(id);
+    if (label.parent_id) {
+      await labelRepository.delete(id);
+    } else {
+      await labelRepository.deleteBy({ parent_id: id });
+    }
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }

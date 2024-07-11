@@ -11,6 +11,7 @@ export default {
         value.toLowerCase()
       ),
       brand_id: requireStringValidation("Brand"),
+      parent_id: Joi.any(),
     },
   },
   update: {
