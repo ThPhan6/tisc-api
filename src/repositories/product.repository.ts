@@ -105,9 +105,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         return {
           id: labels.id,
           name: labels.name,
-          parent: {
-
-          }
+          parent: parentLabel
         }
       )
       for brand in brands
