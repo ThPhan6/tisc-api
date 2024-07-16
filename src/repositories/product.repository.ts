@@ -98,9 +98,16 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         for labels in labels
         filter labels.id in products.label_ids
         filter labels.deleted_at == null
+        let parentLabel = FIRST(for parentLabels in labels filter parentLabels.id == labels.parent_id return {
+          id: parentLabels.id,
+          name: parentLabels.name
+        })
         return {
           id: labels.id,
           name: labels.name,
+          parent: {
+
+          }
         }
       )
       for brand in brands
