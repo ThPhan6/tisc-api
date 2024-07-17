@@ -718,9 +718,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           RETURN code
       )
       ${
-        brand_order || material_code_order
-          ? ` ${brand_order ? "SORT brand.name " + brand_order : ""} ${
-              material_code_order ? "SORT material_code " + material_code_order : ""
+        brand_order
+          ? `${brand_order ? "SORT brand.name " + brand_order : ""}`
+          : material_code_order
+          ? ` ${
+              material_code_order
+                ? "SORT material_code " + material_code_order
+                : ""
             }`
           : "SORT pp._key ASC"
       }
