@@ -18,7 +18,7 @@ import {
   SummaryItemPosition,
   UserType,
 } from "@/types";
-import { isEmpty, sumBy, countBy, sortBy, uniqBy } from "lodash";
+import { isEmpty, sumBy, countBy, sortBy, uniqBy, orderBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -829,10 +829,17 @@ class ProjectProductService {
       },
       0
     );
-
+    let returnData = uniqBy(mappedProducts, "full_material_code");
+    if (material_order) {
+      returnData = orderBy(
+        returnData,
+        ["full_material_code"],
+        [material_order.toLowerCase() as any]
+      );
+    }
     return successResponse({
       data: {
-        data: uniqBy(mappedProducts, "full_material_code"),
+        data: returnData,
         summary: [
           {
             name: "Specified",
