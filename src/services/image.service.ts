@@ -89,11 +89,18 @@ export const updateProductImageNames = (
 };
 export const uploadImagesProduct = (
   images: string[],
-  keywords: string[],
   brandName: string,
-  brandId: string
+  brandId: string,
+  collections?: any[],
+  productName?: string
 ) => {
   const formatedBrandName = simplizeString(brandName);
+  const formatedCollectionName = collections
+    ?.map((collection) => {
+      return simplizeString(collection.name || "");
+    })
+    .join("-");
+  const formatedProductName = simplizeString(productName || "");
   return Promise.all(
     images.map(async (image) => {
       const fileType = await getFileTypeFromBase64(image);
@@ -101,7 +108,14 @@ export const uploadImagesProduct = (
         return image;
       }
 
-      const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      // const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      const fileKeywords = [
+        formatedBrandName,
+        formatedCollectionName,
+        formatedProductName,
+        moment.now(),
+      ];
+      const newFileName = fileKeywords.join("-");
       const webpBuffer = await toWebp(
         Buffer.from(image, "base64"),
         ImageSize.large
@@ -109,15 +123,15 @@ export const uploadImagesProduct = (
       const pngBuffer = await toPng(webpBuffer);
       await upload(
         webpBuffer,
-        `product/${brandId}/${fileName}.webp`,
+        `product/${brandId}/${newFileName}.webp`,
         "image/webp"
       );
       await upload(
         pngBuffer,
-        `product/${brandId}/${fileName}.png`,
+        `product/${brandId}/${newFileName}.png`,
         "image/png"
       );
-      return `/product/${brandId}/${fileName}.webp`;
+      return `/product/${brandId}/${newFileName}.webp`;
     })
   );
 };

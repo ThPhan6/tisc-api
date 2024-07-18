@@ -104,8 +104,8 @@ export const removeSpecialChars = (str: string, replaceStr: string = "") => {
 
 export const simplizeString = (str: string) => {
   return removeSpecialChars(
-    str.trim().toLowerCase().split(" ").join("-").replace(/ /g, "-")
-  );
+    str.trim().toLowerCase().replace(/ /g, "-")
+  ).replace(/\-+/g, "-");
 };
 export const formatNumberDisplay = (
   num: number | string,

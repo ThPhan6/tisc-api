@@ -419,17 +419,28 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         LET tempSpecifiedDetail = MERGE(
           UNSET(pp, ['_id', '_rev', 'deleted_at']),
           productSpecification ? productSpecification : {
-            specification: @defaultSpec,
+            specification: MERGE(@defaultSpec, {is_refer_document: pp.specification.is_refer_document}),
             brand_location_id: '',
             distributor_location_id: '',
           },
           {material_code}
         )
+
+      LET collections = (
+        FOR col IN collections
+        FILTER col.id in product.collection_ids
+        FILTER col.deleted_at == null
+        RETURN {
+          id: col.id,
+          name: col.name
+        }
+      )
         RETURN MERGE(
           KEEP(product, 'id', 'name', 'description', 'brand_id', 'collection_id', 'images', 'dimension_and_weight', 'feature_attribute_groups', 'availability'),
           {
             brand,
             collection,
+            collections,
             specifiedDetail: MERGE(
               tempSpecifiedDetail,
               {
@@ -491,7 +502,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             { rooms, count: COUNT(
               FOR room IN rooms
               FOR p IN room.products
-              RETURN DISTINCT p.id) }
+              RETURN p.id) }
           )
         )
 
@@ -502,7 +513,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
               FOR area IN areas
               FOR room IN area.rooms
               FOR p IN room.products
-              RETURN DISTINCT p.id) }
+              RETURN p.id) }
         )
       )
 
@@ -627,12 +638,22 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
         FILTER col.deleted_at == null
         RETURN col.name
       )
+      LET collections = (
+        FOR col IN collections
+        FILTER col.id in pro.product.collection_ids
+        FILTER col.deleted_at == null
+        RETURN {
+          id: col.id,
+          name: col.name
+        }
+      )
       RETURN MERGE(
         UNSET(pro.product, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
         {
           brand: UNSET(pro.brand, ['_id', '_key', '_rev', 'deleted_at']),
           collection: {},
           collection_name: CONCAT_SEPARATOR(' - ', colNames),
+          collections,
           specifiedDetail: MERGE(
             UNSET(pro.pp, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']),
             {
@@ -697,9 +718,13 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
           RETURN code
       )
       ${
-        brand_order || material_code_order
-          ? `SORT ${brand_order ? "brand.name " + brand_order : ""} ${
-              material_code_order ? "material_code " + material_code_order : ""
+        brand_order
+          ? `${brand_order ? "SORT brand.name " + brand_order : ""}`
+          : material_code_order
+          ? ` ${
+              material_code_order
+                ? "SORT material_code " + material_code_order
+                : ""
             }`
           : "SORT pp._key ASC"
       }
