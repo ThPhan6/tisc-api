@@ -54,6 +54,7 @@ class LabelService {
       await labelRepository.delete(id);
     } else {
       await labelRepository.deleteBy({ parent_id: id });
+      await labelRepository.delete(id);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }
