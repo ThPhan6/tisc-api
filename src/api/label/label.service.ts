@@ -50,11 +50,9 @@ class LabelService {
     if (!label) {
       return errorMessageResponse(MESSAGES.LABEL_NOTFOUND);
     }
-    if (label.parent_id) {
-      await labelRepository.delete(id);
-    } else {
+    await labelRepository.delete(id);
+    if (!label.parent_id) {
       await labelRepository.deleteBy({ parent_id: id });
-      await labelRepository.delete(id);
     }
     return successMessageResponse(MESSAGES.SUCCESS);
   }
