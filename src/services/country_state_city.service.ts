@@ -2,7 +2,7 @@ import countryRepository from "@/repositories/country.repository";
 import stateRepository from "@/repositories/state.repository";
 import cityRepository from "@/repositories/city.repository";
 import { GLOBAL_COUNTRY_ID, GlobalCountry, MESSAGES } from "@/constants";
-import { ipLookupService } from '@/services/iplookup.service';
+import { ipLookupService } from "@/services/iplookup.service";
 import {
   ICountryAttributes,
   IStateAttributes,
@@ -11,6 +11,7 @@ import {
 } from "@/types";
 import { errorMessageResponse } from "@/helpers/response.helper";
 import { isEmpty } from "lodash";
+import { electricalGeoLocationRepository } from "@/repositories/electrical_geo_location.repository";
 
 class CountryStateCityService {
   public getAllCountry = async () => {
@@ -149,37 +150,42 @@ class CountryStateCityService {
       return errorMessageResponse(MESSAGES.COUNTRY_NOT_FOUND, 404);
     }
     ////////////////////////
-    const states = await this.getStatesByCountry(countryId);
 
-    if (!isEmpty(states)) {
-      if (!stateId || stateId === "") {
-        return errorMessageResponse(MESSAGES.STATE_REQUIRED, 400);
-      }
+    if (!isEmpty(stateId)) {
+      const states = await this.getStatesByCountry(countryId);
+      // if (!stateId || stateId === "") {
+      //   return errorMessageResponse(MESSAGES.STATE_REQUIRED, 400);
+      // }
       /// state not in country
       if (!states.find((item) => item.id === stateId)) {
         return errorMessageResponse(MESSAGES.STATE_NOT_IN_COUNTRY, 400);
       }
 
       /// get city from state and country
-      const cities = await this.getCitiesByStateAndCountry(countryId, stateId);
-      if (!isEmpty(cities)) {
-        if (!cityId || cityId === "") {
-          return errorMessageResponse(MESSAGES.CITY_REQUIRED, 400);
-        }
-        /// city not in state
-        if (!cities.find((item) => item.id === cityId)) {
-          return errorMessageResponse(MESSAGES.CITY_NOT_IN_STATE, 400);
+      if (stateId) {
+        if (!isEmpty(cityId)) {
+          // if (!cityId || cityId === "") {
+          //   return errorMessageResponse(MESSAGES.CITY_REQUIRED, 400);
+          // }
+          const cities = await this.getCitiesByStateAndCountry(
+            countryId,
+            stateId
+          );
+          /// city not in state
+          if (!cities.find((item) => item.id === cityId)) {
+            return errorMessageResponse(MESSAGES.CITY_NOT_IN_STATE, 400);
+          }
         }
       }
     }
     return true;
-  }
+  };
 
   public findCountryByIpAddress = async (ipAddress?: string) => {
     const defaultCountry = {
       id: GlobalCountry.country_id,
       name: GlobalCountry.country_name,
-    }
+    };
     if (!ipAddress) {
       return defaultCountry;
     }
@@ -195,9 +201,15 @@ class CountryStateCityService {
     }
     return {
       id: country.id,
-      name: country.name
+      name: country.name,
     };
-  }
+  };
+
+  public getEclectricalGeoLocation = (countryISO2: string) => {
+    return electricalGeoLocationRepository.findBy({
+      country_code: countryISO2,
+    });
+  };
 }
 
 export const countryStateCityService = new CountryStateCityService();

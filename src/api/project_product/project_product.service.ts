@@ -1,6 +1,7 @@
 import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
+  successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { fillObject, objectDiff } from "@/helpers/common.helper";
@@ -15,8 +16,9 @@ import {
   SortOrder,
   Availability,
   SummaryItemPosition,
+  UserType,
 } from "@/types";
-import { isEmpty, sumBy, countBy } from "lodash";
+import { isEmpty, sumBy, countBy, sortBy, uniqBy, orderBy } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -33,8 +35,64 @@ import {
 import { customProductRepository } from "../custom_product/custom_product.repository";
 import { validateBrandProductSpecification } from "./project_product.mapping";
 import { ActivityTypes, logService } from "@/services/log.service";
+import { projectTrackingService } from "../project_tracking/project_tracking.service";
+import { userProductSpecificationRepository } from "../user_product_specification/user_product_specification.repository";
+import { stepSelectionRepository } from "@/repositories/step_selection.repository";
+import { randomUUID } from "crypto";
+import moment from "moment";
 
 class ProjectProductService {
+  private duplicateStepSelection = (
+    product_id: string,
+    user_id: string,
+    project_id: string,
+    specification_ids: string[]
+  ) =>
+    Promise.all(
+      specification_ids.map(async (specification_id) => {
+        const paramsToFind = {
+          product_id: product_id,
+
+          specification_id: specification_id,
+        };
+        const stepSelection = await stepSelectionRepository.findBy({
+          ...paramsToFind,
+          user_id: user_id,
+          deleted_at: null,
+        });
+        if (stepSelection) {
+          //duplicate
+          const projectProductStepSelection =
+            await stepSelectionRepository.findBy({
+              ...paramsToFind,
+              project_id: project_id,
+            });
+          const data = {
+            product_id: stepSelection.product_id,
+            project_id: project_id,
+            specification_id: stepSelection.specification_id,
+            quantities: stepSelection.quantities,
+            combined_quantities: stepSelection.combined_quantities,
+          };
+          if (!projectProductStepSelection) {
+            await stepSelectionRepository.create(data);
+          } else {
+            await stepSelectionRepository.update(
+              projectProductStepSelection.id,
+              data
+            );
+          }
+          return {
+            specification_id,
+            step_selections: {
+              quantities: stepSelection.quantities,
+              combined_quantities: stepSelection.combined_quantities,
+            },
+          };
+        }
+        return { specification_id };
+      })
+    );
   public assignProductToProduct = async (
     payload: AssignProductToProjectRequest,
     user: UserAttributes,
@@ -68,6 +126,11 @@ class ProjectProductService {
       product_id: payload.product_id,
     });
     if (projectProduct) {
+      if (projectProduct.status === ProjectProductStatus.specify) {
+        return successResponse({
+          data: projectProduct,
+        });
+      }
       const updatedProjectProduct = await projectProductRepository.update(
         projectProduct.id,
         payload
@@ -85,6 +148,15 @@ class ProjectProductService {
         project_product_id: updatedProjectProduct.id,
         created_by: user.id,
       });
+      // refresh user specification
+      await userProductSpecificationRepository.deleteBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
+      await stepSelectionRepository.deleteBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
       return successResponse({
         data: {
           ...updatedProjectProduct,
@@ -93,10 +165,44 @@ class ProjectProductService {
         },
       });
     }
-
+    const designerPreSelection =
+      await userProductSpecificationRepository.findBy({
+        product_id: payload.product_id,
+        user_id: user.id,
+      });
+    const stepSelections = await this.duplicateStepSelection(
+      payload.product_id,
+      user.id,
+      payload.project_id,
+      designerPreSelection?.specification?.attribute_groups.map(
+        (item) => item.id
+      ) || []
+    );
+    const mappedGroup =
+      designerPreSelection?.specification?.attribute_groups.map((group) => {
+        const matched = stepSelections.find(
+          (item) => item.specification_id === group.id
+        );
+        return {
+          ...group,
+          step_selections: matched?.step_selections,
+        };
+      });
+    const newSpecification = {
+      ...designerPreSelection?.specification,
+      attribute_groups: mappedGroup || [],
+    };
+    const specificationVersion = {
+      ...newSpecification,
+      version_id: randomUUID(),
+      created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+      created_by: user.id,
+    };
     const newProjectProductRecord = await projectProductRepository.create({
       ...payload,
+      specification: designerPreSelection?.specification as any,
       created_by: user.id,
+      specification_versions: [specificationVersion],
     });
 
     if (!newProjectProductRecord) {
@@ -127,6 +233,16 @@ class ProjectProductService {
       relation_id: user.relation_id,
       data: { product_id: product.id, project_id: project.id },
     });
+    // refresh user specification
+    await userProductSpecificationRepository.deleteBy({
+      product_id: payload.product_id,
+      user_id: user.id,
+    });
+    await stepSelectionRepository.deleteBy({
+      product_id: payload.product_id,
+      user_id: user.id,
+    });
+    //
     return successResponse({
       data: {
         ...newProjectProductRecord,
@@ -160,7 +276,10 @@ class ProjectProductService {
       }
     }
 
-    const zones = await projectZoneRepository.getAllBy({ project_id });
+    const zones = sortBy(
+      await projectZoneRepository.getAllBy({ project_id }),
+      "name"
+    );
 
     const entireSection = {
       name: "ENTIRE PROJECT",
@@ -169,10 +288,15 @@ class ProjectProductService {
 
     const returnZones = zones.map((zone) => {
       const areas = zone.areas.map((area) => {
-        const rooms = area.rooms.map((room) => ({
-          ...room,
-          is_assigned: assignItem?.allocation?.some((item) => item === room.id),
-        }));
+        const rooms = sortBy(
+          area.rooms.map((room) => ({
+            ...room,
+            is_assigned: assignItem?.allocation?.some(
+              (item) => item === room.id
+            ),
+          })),
+          "room_id"
+        );
         return {
           ...area,
           rooms,
@@ -245,21 +369,72 @@ class ProjectProductService {
     }
   };
 
+  public revertSpecificationVersion = async (
+    projectProductId: string,
+    versionId: string,
+    user: UserAttributes
+  ) => {
+    let projectProduct = await projectProductRepository.findWithRelation(
+      projectProductId,
+      user.relation_id
+    );
+    const versions = sortBy(
+      projectProduct?.specification_versions,
+      "created_at"
+    );
+    if (!versions || versions.length === 1) {
+      return errorMessageResponse("Cannot revert the last version!");
+    }
+    const version = versions.find((item) => item.version_id === versionId);
+    if (version.version_id === versions[versions.length - 1].version_id) {
+      return errorMessageResponse("Cannot revert the last version!");
+    }
+    this.updateConsiderProduct(
+      projectProductId,
+      { specification: version },
+      user,
+      ""
+    );
+    return successMessageResponse(MESSAGES.SUCCESS);
+  };
   public updateConsiderProduct = async (
     projectProductId: string,
     payload: Partial<ProjectProductAttributes>,
     user: UserAttributes,
     path: string,
     finishSchedulePayload: UpdateFinishChedulePayload[] = [],
-    isSpecifying: boolean = false // specifying,
+    isSpecifying: boolean = false, // specifying,
+    isHasXSelection: boolean = false
   ) => {
-    //// validate permission
-    const projectProduct = await projectProductRepository.findWithRelation(
+    let relation = user.relation_id;
+
+    let projectProduct = await projectProductRepository.findWithRelation(
       projectProductId,
       user.relation_id
     );
+
+    if (user.type === UserType.Brand) {
+      projectProduct = await projectProductRepository.findWithBrandRelation(
+        projectProductId,
+        relation
+      );
+
+      if (projectProduct) {
+        relation = projectProduct.design_id;
+      }
+    }
+
+    //// validate permission
     if (!projectProduct) {
       return errorMessageResponse(MESSAGES.CONSIDER_PRODUCT_NOT_FOUND);
+    }
+    if (isHasXSelection) {
+      //Create assistance request
+      projectTrackingService.createAssistanceRequest(
+        user.id,
+        projectProduct.product_id,
+        projectProduct.project_id
+      );
     }
 
     // validate specify specification attribute
@@ -290,7 +465,7 @@ class ProjectProductService {
     if (payload.unit_type_id) {
       const unitTypes = await commonTypeRepository.findOrCreate(
         payload.unit_type_id,
-        user.relation_id,
+        relation,
         COMMON_TYPES.PROJECT_UNIT
       );
       payload.unit_type_id = unitTypes.id;
@@ -302,7 +477,7 @@ class ProjectProductService {
         payload.requirement_type_ids.map((id) => {
           return commonTypeRepository.findOrCreate(
             id,
-            user.relation_id,
+            relation,
             COMMON_TYPES.PROJECT_REQUIREMENT
           );
         })
@@ -310,7 +485,7 @@ class ProjectProductService {
       payload.requirement_type_ids = requirements.map((el) => el.id);
     }
 
-    if (isSpecifying) {
+    if (isSpecifying && user.type === UserType.Designer) {
       const errorSavedFinishSchedule = await this.updateFinishScheduleByRoom(
         user,
         projectProductId,
@@ -323,14 +498,36 @@ class ProjectProductService {
       }
     }
 
+    const specificationVersion = {
+      ...payload.specification,
+      version_id: randomUUID(),
+      created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+      created_by: user.id,
+    };
     const considerProduct = await projectProductRepository.findAndUpdate(
       projectProductId,
       {
         ...payload,
         status: isSpecifying ? ProjectProductStatus.specify : payload.status,
+        is_done_assistance_request: payload.is_done_assistance_request
+          ? payload.is_done_assistance_request
+          : isHasXSelection
+          ? false
+          : undefined,
         specified_status:
           payload.specified_status ??
           (isSpecifying ? ProductSpecifyStatus.Specified : undefined),
+        specification: {
+          is_refer_document: payload.specification?.is_refer_document || false,
+          attribute_groups:
+            (payload.specification?.attribute_groups.map((item) => ({
+              id: item.id,
+              attributes: item.attributes,
+            })) as any) || [],
+        },
+        specification_versions: (
+          projectProduct.specification_versions || []
+        ).concat([specificationVersion]),
       }
     );
     if (!considerProduct[0]) {
@@ -514,6 +711,7 @@ class ProjectProductService {
 
   public getSpecifiedProductsByBrand = async (
     project_id: string,
+    brand_id?: string,
     brand_order?: SortOrder
   ) => {
     const project = await projectRepository.find(project_id);
@@ -524,6 +722,7 @@ class ProjectProductService {
     const specifiedProducts =
       await projectProductRepository.getSpecifiedProductsForBrandGroup(
         project_id,
+        brand_id,
         brand_order
       );
 
@@ -579,10 +778,12 @@ class ProjectProductService {
       ...el.product,
       brand: el.brand,
       collection: el.collection,
+      full_material_code: `${el.material_code?.code} ${el.project_products.suffix_code}`,
       specifiedDetail: {
         ...el.project_products,
         unit_type: el.unit_type?.name,
         material_code: el.material_code?.code,
+
         order_method_name: OrderMethod[el.project_products.order_method],
       },
     }));
@@ -614,14 +815,13 @@ class ProjectProductService {
         user.id,
         project_id,
         brand_order,
-        material_order
+        material_order || "ASC"
       );
-
     const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
-
+    const uniqueList = uniqBy(mappedProducts, "full_material_code");
     const cancelledCount =
       this.countCancelledSpecifiedProductTotal(specifiedProducts);
-    const availabilityRemarkCount = specifiedProducts.reduce(
+    const availabilityRemarkCount = uniqueList.reduce(
       (total: number, prod: any) => {
         const markedAvailabilityCount =
           prod.product?.availability !== Availability.Available ? 1 : 0;
@@ -629,14 +829,21 @@ class ProjectProductService {
       },
       0
     );
-
+    let returnData = uniqBy(mappedProducts, "full_material_code");
+    if (material_order) {
+      returnData = orderBy(
+        returnData,
+        ["full_material_code"],
+        [material_order.toLowerCase() as any]
+      );
+    }
     return successResponse({
       data: {
-        data: mappedProducts,
+        data: returnData,
         summary: [
           {
             name: "Specified",
-            value: specifiedProducts.length - cancelledCount,
+            value: uniqueList.length - cancelledCount,
           },
           { name: "Cancelled", value: cancelledCount },
           {
@@ -666,10 +873,10 @@ class ProjectProductService {
       await projectProductRepository.getConsideredProductsByProject(
         project_id,
         user.id,
-        zone_order,
-        area_order,
-        room_order,
-        brand_order,
+        zone_order || "ASC",
+        area_order || "ASC",
+        room_order || "ASC",
+        brand_order || "ASC",
         true
       );
 
@@ -786,6 +993,21 @@ class ProjectProductService {
         MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN
       );
     }
+  };
+
+  public getUsedMaterialCodes = async (project_product_id: string) => {
+    const projectProduct = await projectProductRepository.find(
+      project_product_id
+    );
+    const allUseMaterialCodes = (
+      await projectProductRepository.getUsedMaterialCodes(
+        project_product_id,
+        projectProduct?.project_id
+      )
+    ).filter((item: any) => !isEmpty(item.material_code_id));
+    return successResponse({
+      data: allUseMaterialCodes,
+    });
   };
 }
 

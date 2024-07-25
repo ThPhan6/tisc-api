@@ -16,23 +16,41 @@ export const sortObjectArray = (
   order: "ASC" | "DESC"
 ) => {
   const compare = (a: any, b: any) => {
+    let item1 =
+      typeof a[field] === "string" ? a[field].toLowerCase() : a[field];
+    let item2 =
+      typeof b[field] === "string" ? b[field].toLowerCase() : b[field];
     if (order === "ASC") {
-      if (a[field] < b[field]) {
-        return -1;
+      if (typeof item1 === "string") {
+        return item1.localeCompare(item2, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      } else {
+        if (item1 < item2) {
+          return -1;
+        }
+        if (item1 > item2) {
+          return 1;
+        }
+
+        return 0;
       }
-      if (a[field] > b[field]) {
+    }
+    if (typeof item1 === "string") {
+      return item2.localeCompare(item1, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    } else {
+      if (item1 < item2) {
         return 1;
       }
-
+      if (item1 > item2) {
+        return -1;
+      }
       return 0;
     }
-    if (a[field] < b[field]) {
-      return 1;
-    }
-    if (a[field] > b[field]) {
-      return -1;
-    }
-    return 0;
   };
   return values.sort(compare);
 };
@@ -86,8 +104,8 @@ export const removeSpecialChars = (str: string, replaceStr: string = "") => {
 
 export const simplizeString = (str: string) => {
   return removeSpecialChars(
-    str.trim().toLowerCase().split(" ").join("-").replace(/ /g, "-")
-  );
+    str.trim().toLowerCase().replace(/ /g, "-")
+  ).replace(/\-+/g, "-");
 };
 export const formatNumberDisplay = (
   num: number | string,
@@ -116,17 +134,50 @@ export const getSummaryTable = (dataSummary: any) => {
   const countGroup = dataSummary.length;
   let countSub = 0;
   let countItem = 0;
+  let countValue = 0;
 
-  dataSummary.forEach((item: any) => {
-    if (item.subs) {
-      countSub += item.subs.length;
-      item.subs.forEach((subCategory: any) => {
-        if (subCategory.subs) countItem += subCategory.subs.length;
+  dataSummary.forEach((group: any) => {
+    if (group.subs) {
+      countSub += group.subs.length;
+      group.subs.forEach((item: any) => {
+        if (item.subs) {
+          countItem += item.subs.length;
+          item.subs.forEach((value: any) => {
+            if (value.subs) countValue += value.subs.length;
+          });
+        }
       });
     }
   });
   return {
     countGroup,
+    countSub,
+    countItem,
+    countValue,
+  };
+};
+export const getBasisOptionSummaryTable = (dataSummary: any) => {
+  const countGroup = dataSummary.length;
+  let countMain = 0;
+  let countSub = 0;
+  let countItem = 0;
+
+  dataSummary.forEach((group: any) => {
+    if (group.subs) {
+      countMain += group.subs.length;
+      group.subs.forEach((main: any) => {
+        if (main.subs) {
+          countSub += main.subs.length;
+          main.subs.forEach((sub: any) => {
+            if (sub.subs) countItem += sub.subs.length;
+          });
+        }
+      });
+    }
+  });
+  return {
+    countGroup,
+    countMain,
     countSub,
     countItem,
   };
@@ -222,4 +273,9 @@ export const objectDiff = (oldObj: any, newObj: any) => {
     changed_data: changedData,
   };
 };
-export const getLodashOrder = (order: SortOrder) => order.toLowerCase() as "asc" | "desc";
+export const getLodashOrder = (order: SortOrder) =>
+  order.toLowerCase() as "asc" | "desc";
+
+export const toFixedNumber = (amount: number, n: number) => {
+  return parseFloat(amount.toFixed(n));
+};

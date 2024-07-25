@@ -29,6 +29,24 @@ class BaseRepository<DataType> {
     }
     return (await this.model.all()) as DataType[];
   }
+  /**
+   * Get many
+   * @return DataType[]
+   */
+  public async getMany(
+    ids: string[],
+    orderBy?: Extract<keyof DataType, string>,
+    sequence?: "ASC" | "DESC"
+  ) {
+    if (!isUndefined(orderBy) && !isUndefined(sequence)) {
+      return (await this.model
+        .select()
+        .whereIn("id", ids)
+        .order(orderBy, sequence)
+        .get()) as DataType[];
+    }
+    return (await this.model.select().whereIn("id", ids).get()) as DataType[];
+  }
 
   /**
    * Get one
@@ -66,6 +84,24 @@ class BaseRepository<DataType> {
       ...this.DEFAULT_ATTRIBUTE,
       ...attributes,
     });
+    if (isEmpty(newData)) {
+      return undefined;
+    }
+    return newData as DataType;
+  }
+  /**
+   * Create
+   * @param attributes Partial<DataType>
+   * @return DataType | DataType[]
+   */
+  public async createMany(data: Partial<DataType[]>) {
+    const dataToCreate = data.map((item) => {
+      return {
+        ...this.DEFAULT_ATTRIBUTE,
+        ...item,
+      };
+    });
+    const newData = await this.model.insert(dataToCreate);
     if (isEmpty(newData)) {
       return undefined;
     }

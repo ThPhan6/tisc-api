@@ -25,6 +25,7 @@ export default class AttributeController {
       group_order,
       attribute_order,
       content_type_order,
+      sub_group_order,
     } = req.query;
     const response = await AttributeServices.getList(
       type,
@@ -33,7 +34,8 @@ export default class AttributeController {
       filter,
       group_order,
       attribute_order,
-      content_type_order
+      content_type_order,
+      sub_group_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
@@ -58,8 +60,14 @@ export default class AttributeController {
     const response = await AttributeServices.getListContentType();
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getAllAttribute = async (_req: Request, toolkit: ResponseToolkit) => {
-    const response = await AttributeServices.getAllAttribute();
+  public getAllAttribute = async (req: Request, toolkit: ResponseToolkit) => {
+    const { brand_id, add_sub } = req.query;
+    const response = await AttributeServices.getAllAttribute(add_sub, brand_id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public copyToBrand = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id, brand_id } = req.params;
+    const response = await AttributeServices.copyToBrand(id, brand_id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }

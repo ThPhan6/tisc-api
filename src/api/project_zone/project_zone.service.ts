@@ -162,10 +162,9 @@ class ProjectZoneService {
     ) {
       return errorMessageResponse(MESSAGES.GENERAL.NOT_AUTHORIZED_TO_ACCESS);
     }
-
     const projectZones = await projectZoneRepository.getListProjectZone(
       projectId,
-      zoneOrder
+      zoneOrder || "ASC"
     );
 
     const roomSizeUnit =

@@ -79,6 +79,22 @@ export default class ProjectProductRoute implements IRoute {
           },
         },
         {
+          method: "PUT",
+          path: ROUTES.PROJECT_PRODUCT.REVERT_SPECIFICATION_VERSION,
+          options: {
+            handler: controller.revertSpecificationVersion,
+            validate: validate.revertSpecificationVersion,
+            description: "Method that revert specification version",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "DELETE",
           path: ROUTES.PROJECT_PRODUCT.DELETE_CONSIDERED_PRODUCT,
           options: {
@@ -191,6 +207,23 @@ export default class ProjectProductRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getFinishScheduleByRoom,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.PROJECT_PRODUCT.GET_USED_MATERIAL_CODE,
+          options: {
+            handler: controller.getUsedMaterialCodes,
+            validate: validate.getUsedMaterialCodes,
+            description: "Method that get list used material code",
+            tags: ["api", "Project"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListUsedMaterialCode,
               },
             },
           },

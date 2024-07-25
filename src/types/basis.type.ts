@@ -1,11 +1,16 @@
+import { BasisPresetType } from "@/api/basis/basis.type";
+
 export interface IBasisAttributes {
   id: string;
+  brand_id?: string;
   type: number;
   name: string;
   subs: any;
   master?: boolean;
   created_at: string;
   updated_at: boolean;
+  additional_type?: BasisPresetType;
+  copyVer?: number;
 }
 
 export interface BasisConversion {
@@ -57,6 +62,12 @@ export interface BasisPreset {
   name: string;
   count: number;
   subs: BasisPresetValue[];
+}
+export interface BasisPresetSubGroup {
+  id: string;
+  name: string;
+  count: number;
+  subs: BasisPreset[];
 }
 
 export interface BasisPresetValue {

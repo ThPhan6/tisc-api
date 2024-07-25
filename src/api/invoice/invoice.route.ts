@@ -174,6 +174,38 @@ export default class InvoiceRoute implements IRoute {
             },
           },
         },
+        {
+          method: "POST",
+          path: "/api/invoice/{id}/intent",
+          options: {
+            handler: controller.createPaymentIntent,
+            validate: validate.get,
+            description: "Method that create payment intent",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.GENERAL,
+          },
+        },
+        {
+          method: "POST",
+          path: "/api/invoice/payment-webhook",
+          options: {
+            handler: controller.receivePaymentInfo,
+            description: "Method that receive payment info",
+            tags: ["api", "Invoice"],
+            auth: false,
+          },
+        },
+        {
+          method: "PUT",
+          path: "/api/invoice/{id}/paid-temporarily",
+          options: {
+            handler: controller.paidTemporarily,
+            validate: validate.get,
+            description: "Method that paid temporarily",
+            tags: ["api", "Invoice"],
+            auth: AUTH_NAMES.GENERAL,
+          },
+        },
       ]);
       resolve(true);
     });

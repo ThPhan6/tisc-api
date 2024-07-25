@@ -14,3 +14,6 @@ mochawesome-report
 .DS_Store
 data/lark.json
 dump/
+logs/
+public/temp
+test.js

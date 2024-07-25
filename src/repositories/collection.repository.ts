@@ -1,11 +1,8 @@
 import CollectionModel from "@/models/collection.model";
-import {
-  SortOrder,
-  ICollectionAttributes,
-  ListCollectionPaginate,
-} from "@/types";
+import { SortOrder, ICollectionAttributes } from "@/types";
 import BaseRepository from "./base.repository";
 import { CollectionRelationType } from "@/types";
+import { uniq } from "lodash";
 
 class CollectionRepository extends BaseRepository<ICollectionAttributes> {
   protected model: CollectionModel;
@@ -25,14 +22,63 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
     relation_id: string,
     relation_type: CollectionRelationType,
     sort: string = "created_at",
-    order: SortOrder = "DESC"
-  ): Promise<ListCollectionPaginate> {
-    return this.model
-      .select()
-      .where("relation_id", "==", relation_id)
-      .where("relation_type", "==", relation_type)
-      .order(sort === "collection_name" ? "name" : sort, order)
-      .paginate(limit, offset);
+    order: SortOrder = "DESC",
+    options?: {
+      has_color_collection: boolean;
+      group: number;
+    }
+  ): Promise<{ collections: any; total: number }> {
+    const str = `
+      LET total = FIRST(
+        FOR collections IN collections
+        FILTER collections.deleted_at == null
+        FILTER ${
+          options?.has_color_collection === true
+            ? " (collections.group == @group and collections.relation_type == @color_collection_type) or"
+            : ""
+        } (collections.relation_type == @relation_type and collections.relation_id == @relation_id)
+        COLLECT WITH COUNT INTO length RETURN length
+      )
+      LET collections = (
+        FOR collections IN collections
+        FILTER collections.deleted_at == null
+        FILTER ${
+          options?.has_color_collection === true
+            ? " (collections.group == @group and collections.relation_type == @color_collection_type) or"
+            : ""
+        } (collections.relation_type == @relation_type and collections.relation_id == @relation_id)
+        SORT collections.@sort @order LIMIT @offset, @limit
+        RETURN UNSET(collections, ["_id","_key","_rev","deleted_at","deleted_by","is_deleted"])
+      )
+      RETURN {
+        collections,
+        total
+      }`;
+    let bindingObj: any = {};
+    if (options?.has_color_collection === true) {
+      bindingObj = {
+        color_collection_type: CollectionRelationType.Color,
+        group: options.group,
+        relation_type,
+        relation_id,
+        sort,
+        order,
+        offset,
+        limit,
+      };
+    } else {
+      bindingObj = {
+        relation_type,
+        relation_id,
+        sort,
+        order,
+        offset,
+        limit,
+      };
+    }
+
+    const result = await this.model.rawQueryV2(str, bindingObj);
+    return result[0];
   }
 
   public async getByRelation(
@@ -44,6 +90,22 @@ class CollectionRepository extends BaseRepository<ICollectionAttributes> {
       .where("relation_id", "==", relation_id)
       .where("relation_type", "==", relation_type)
       .get()) as ICollectionAttributes[];
+  }
+  public async getCollectionsByBrand(brandId: string) {
+    let query = `
+    LET collectionIds = FLATTEN(
+      FOR products IN products
+      FILTER products.brand_id == @brandId
+      RETURN products.collection_ids
+    )
+    FOR collections IN collections
+    FILTER collections.id IN collectionIds
+    FILTER collections.deleted_at == NULL
+    RETURN collections.id
+    `;
+    const result = await this.model.rawQueryV2(query, { brandId });
+    // return uniq(flatMap(result)) as string[];
+    return uniq(result) as string[];
   }
 }
 

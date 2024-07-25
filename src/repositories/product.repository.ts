@@ -1,6 +1,6 @@
 import BaseRepository from "./base.repository";
 import ProductModel from "@/models/product.model";
-import { head, isUndefined } from "lodash";
+import _, { head, isUndefined } from "lodash";
 import {
   SortOrder,
   IProductAttributes,
@@ -13,7 +13,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
   protected DEFAULT_ATTRIBUTE: Partial<IProductAttributes> = {
     id: "",
     brand_id: "",
-    collection_id: "",
+    collection_ids: [],
+    label_ids: [],
     category_ids: [],
     name: "",
     code: "",
@@ -27,6 +28,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     tips: [],
     downloads: [],
     catelogue_downloads: [],
+    detected_color_images: [],
   };
   constructor() {
     super();
@@ -43,6 +45,10 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string;
     sortName?: string;
     sortOrder?: SortOrder;
+    has_color?: boolean;
+    limit?: number;
+    offset?: number;
+    isCount?: boolean;
   }) => {
     const {
       filterLiked = false,
@@ -54,6 +60,8 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       keyword,
       sortName,
       sortOrder,
+      limit,
+      offset,
     } = options;
     return `
       ${categoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
@@ -65,6 +73,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           : ""
       }
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
+      ${limit ? `LIMIT ${offset}, ${limit}` : ""}
       let categories = (
           for mainCategory in categories
           FILTER mainCategory.deleted_at == null
@@ -74,15 +83,40 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
                       ${categoryId ? ` FILTER category.id == @categoryId` : ""}
           return category
       )
+      let collections = (
+        for collections in collections
+        filter collections.id in products.collection_ids
+        filter collections.deleted_at == null
+        return {
+          id: collections.id,
+          name: collections.name,
+          type: collections.relation_type,
+          description: collections.description
+        }
+      )
+      let labels = (
+        for labels in labels
+        filter labels.id in products.label_ids
+        filter labels.deleted_at == null
+        return {
+          id: labels.id,
+          name: labels.name,
+        }
+      )
       for brand in brands
           filter brand.id == products.brand_id
           filter brand.deleted_at == null
           ${brandId ? `filter brand.id == @brandId` : ""}
 
-      for collection in collections
-          filter collection.id == products.collection_id
+      
+          ${
+            collectionId
+              ? `for collection in collections
+          filter collection.id in products.collection_ids
           filter collection.deleted_at == null
-          ${collectionId ? `filter collection.id == @collectionId` : ""}
+          filter collection.id == @collectionId`
+              : ""
+          }
           
       let favourite = (
           for product_favourite in product_favourites
@@ -97,19 +131,34 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         ${withFavourite ? `filter product_favourite.created_by == @userId` : ""}
         COLLECT WITH COUNT INTO length RETURN length
       )
+     
       ${filterLiked ? `filter liked[0] > 0` : ""}
-      RETURN MERGE(
-        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+      ${
+        options.isCount
+          ? "COLLECT WITH COUNT INTO length RETURN length"
+          : ` RETURN MERGE(
+        UNSET(products, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by' ${
+          !options.has_color ? ",'detected_color_images'" : ""
+        }]), {
         categories: categories,
-        collection: {
-            id: collection.id,
-            name: collection.name
-        },
+        
+        ${
+          collectionId
+            ? `collection: {
+              id: collection.id,
+              name: collection.name
+          },`
+            : ""
+        }
+        collections: collections,
+        labels,
         brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
         favorites: favourite[0],
         is_liked: liked[0] > 0
       }
-    )`;
+    )`
+      }
+     `;
   };
 
   public async findWithRelationData(productId: string, userId?: string) {
@@ -121,6 +170,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       this.getProductQuery({
         productId,
         withFavourite: !isUndefined(userId),
+        has_color: true,
       }),
       params
     )) as ProductWithRelationData[];
@@ -135,7 +185,9 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     keyword?: string,
     sort?: string,
     order: SortOrder = "DESC",
-    likedOnly: boolean = false
+    likedOnly: boolean = false,
+    limit?: number,
+    offset?: number
   ): Promise<ProductWithRelationData[]> {
     const params = {
       userId,
@@ -155,6 +207,45 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         keyword,
         sortName: sort || "created_at",
         sortOrder: order,
+        limit,
+        offset,
+      }),
+      params
+    );
+  }
+  public async countProductBy(
+    userId?: string,
+    brandId?: string,
+    categoryId?: string,
+    collectionId?: string,
+    keyword?: string,
+    sort?: string,
+    order: SortOrder = "DESC",
+    likedOnly: boolean = false,
+    limit?: number,
+    offset?: number
+  ): Promise<number[]> {
+    const params = {
+      userId,
+      brandId,
+      categoryId,
+      collectionId,
+      keyword,
+    };
+
+    return this.model.rawQuery(
+      this.getProductQuery({
+        brandId,
+        collectionId,
+        categoryId,
+        withFavourite: !isUndefined(userId),
+        filterLiked: likedOnly,
+        keyword,
+        sortName: sort || "created_at",
+        sortOrder: order,
+        limit,
+        offset,
+        isCount: true,
       }),
       params
     );
@@ -194,15 +285,46 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       return false;
     }
   };
+  public getDuplicatedProductInfomationProductId = async (
+    id: string,
+    productId: string
+  ) => {
+    try {
+      const raw = `for products in products
+      filter products.id != @id
+      filter products.deleted_at == null
+      filter products.product_information.product_id == @productId
+      return products.product_information`;
+      let result = await this.model.rawQueryV2(raw, {
+        id,
+        productId,
+      });
+
+      if (result === false) {
+        return false;
+      }
+      return result[0];
+    } catch (error) {
+      return false;
+    }
+  };
 
   public getRelatedCollection = async (
     productId: string,
-    collectionId: string
+    collectionIds: string[]
   ) => {
-    return (await this.model
-      .where("id", "!=", productId)
-      .where("collection_id", "==", collectionId)
-      .get()) as IProductAttributes[];
+    let result: any[] = [];
+    await Promise.all(
+      collectionIds.map(async (collectionId) => {
+        const products = await this.model
+          .where("id", "!=", productId)
+          .whereIn("collection_ids", collectionId, "inverse")
+          .get();
+        result = result.concat(products);
+        return true;
+      })
+    );
+    return _.uniqBy(result, "id") as IProductAttributes[];
   };
 
   public getAllByCategoryId = async (
@@ -267,7 +389,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       FILTER brand.deleted_at == null
       FOR collection IN collections
       FILTER collection.deleted_at == null
-      FILTER products.collection_id == collection.id
+      FILTER collection.id in products.collection_ids
       SORT products.name ${order}
       RETURN merge(products, {
         brand: {
@@ -321,7 +443,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       FILTER products.brand_id == brand.id
       FOR collection IN collections
       FILTER collection.deleted_at == null
-      FILTER products.collection_id == collection.id
+      FILTER collection.id in products.collection_ids
       RETURN merge(products, {
         brand: {
           id: brand.id,
@@ -339,6 +461,30 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       return [];
     }
     return result._result as ProductWithCollectionAndBrand[];
+  };
+
+  public getProductInformation = async (): Promise<
+    {
+      decription: string;
+      id: string;
+      product_name: string;
+      product_id: string;
+    }[]
+  > => {
+    const rawQuery = ` FOR product IN products
+      FILTER product.deleted_at == null
+      RETURN {
+        decription: product.description,
+        id: product.id,
+        product_name: product.product_information.product_name,
+        product_id: product.product_information.product_id,
+      }
+    `;
+    let result = await this.model.rawQueryV2(rawQuery, {});
+    if (!result) {
+      return [];
+    }
+    return result;
   };
 
   public async getProductByBrand(brandId: string) {

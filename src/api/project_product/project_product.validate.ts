@@ -79,13 +79,24 @@ export default {
           .error(errorMessage("Is refer to document is missing")),
         attribute_groups: Joi.array().items({
           id: Joi.string(),
+          configuration_steps: Joi.array().items(
+            Joi.object({
+              step_id: Joi.string(),
+              options: Joi.array().items({
+                id: Joi.string(),
+                quantity: Joi.number().min(1),
+                pre_option: Joi.any(),
+              }),
+            })
+          ),
+          step_selections: Joi.any(),
           attributes: Joi.array().items({
             id: Joi.string(),
             basis_option_id: Joi.string(),
           }),
         }),
       }),
-      brand_location_id: requireStringValidation("Brand location"),
+      brand_location_id: stringValidation(),
       distributor_location_id: stringValidation(),
       entire_allocation: Joi.boolean(),
       allocation: Joi.array().items(Joi.string().allow("")),
@@ -125,14 +136,17 @@ export default {
         )
         .error(errorMessage("Please update Finish Schedule!")),
       custom_product: Joi.boolean().allow(null),
+      is_done_assistance_request: Joi.boolean().allow(null),
     },
   },
   getListByBrand: {
     params: { project_id: requiredProjectId },
     query: Joi.object({
       brand_order: Joi.string().valid("ASC", "DESC"),
+      brand_id: Joi.string().allow(""),
     }).custom((value) => {
       return {
+        ...value,
         brand_order: value.brand_order || "ASC",
       };
     }),
@@ -160,6 +174,17 @@ export default {
         roomIds:
           value.roomIds && value.roomIds.split ? value.roomIds.split(",") : [],
       };
+    }),
+  },
+  getUsedMaterialCodes: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId,
+    }),
+  },
+  revertSpecificationVersion: {
+    params: Joi.object({
+      project_product_id: requiredConsideredId,
+      version_id: Joi.string().required(),
     }),
   },
 };

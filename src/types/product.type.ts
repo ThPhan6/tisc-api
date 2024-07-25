@@ -1,3 +1,4 @@
+import { DetectedImage } from "@/api/color/color.type";
 import {
   IAttributeGroupWithOptionalId,
   SelectionAttributeGroupWithOptionalId,
@@ -7,7 +8,8 @@ import { BrandOfficialWebsite } from ".";
 export interface IProductAttributes {
   id: string;
   brand_id: string;
-  collection_id: string;
+  collection_ids: string[];
+  label_ids: string[];
   category_ids: string[];
   name: string;
   code: string;
@@ -24,6 +26,7 @@ export interface IProductAttributes {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
+  detected_color_images?: DetectedImage[];
 }
 
 export interface DimensionAndWeight {
@@ -32,9 +35,13 @@ export interface DimensionAndWeight {
     id: string;
     conversion_value_1: number | string;
     conversion_value_2: number | string;
-  }[]
+  }[];
 }
 
+export type ProductInformation = {
+  product_name: string;
+  product_id: string;
+};
 
 export interface ProductTip {
   title: string;
@@ -45,10 +52,13 @@ export interface ProductDownload {
   url: string;
 }
 export interface ProductWithCollectionAndBrand extends IProductAttributes {
-  collection: {
+  collections: {
     id: string;
     name: string;
-  };
+    description: string;
+    type: number;
+    images: string[];
+  }[];
   brand: {
     id: string;
     name: string;

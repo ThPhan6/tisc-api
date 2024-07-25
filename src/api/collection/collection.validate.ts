@@ -22,7 +22,10 @@ export default {
   update: {
     ...getOneValidation,
     payload: {
-      name: requireStringValidation("Collection name"),
+      name: Joi.string(),
+      description: Joi.any(),
+      images: Joi.array().items(Joi.any()),
+      brand_id: Joi.any(),
     },
   },
   getList: getListValidation({
@@ -32,6 +35,7 @@ export default {
         .required()
         .valid(...getEnumValues(CollectionRelationType))
         .error(errorMessage("Relation Type is required")),
+      category_ids: Joi.string(),
     },
   }),
 };

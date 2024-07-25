@@ -4,11 +4,15 @@ import { getBlockPeriod, getBlockedType } from "@/helpers/blocked_ip.helper";
 import moment from "moment";
 import { blockedIpRepository } from "@/repositories/blocked_ip.repository";
 import { convertMsToTime } from "@/helpers/common.helper";
+import { ENVIRONMENT } from "@/config";
 
 export const preventAttempt = async (
   request: Request,
   response: ResponseToolkit
 ) => {
+  if (ENVIRONMENT.DISABLE_VERIFY_FOR_LOAD_TEST === "1") {
+    return response;
+  }
   const user_ip =
     request.headers["x-forwarded-for"] || request.info.remoteAddress;
   const blocked_type = getBlockedType(request.route.path);

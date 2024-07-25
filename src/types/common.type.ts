@@ -63,7 +63,7 @@ export type TopicTypeKey =
   | "Messages"
   | "Onboard"
   | "Operation"
-  | "Other";
+  | "Payment";
 
 export enum MeasurementUnit {
   Imperial = 1,

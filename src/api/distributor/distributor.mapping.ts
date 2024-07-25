@@ -1,3 +1,4 @@
+import { sortObjectArray } from "@/helpers/common.helper";
 import { ICountryAttributes, DistributorWithLocation } from "@/types";
 import { MarketDistributorGroupByCountry } from "./distributor.type";
 
@@ -46,33 +47,41 @@ export const mappingDistributorByCountry = (
   countries: ICountryAttributes[],
   distributors: DistributorWithLocation[]
 ) => {
-  return countries
-    .map((country) => {
-      const groupDistributors = distributors.filter(
-        (item) => item.country_id === country.id
-      );
-      const removedFieldsOfDistributor = groupDistributors.map(
-        (distributor) => {
-          return {
-            name: distributor.name,
-            address: distributor.address,
-            person: distributor.first_name + " " + distributor.last_name,
-            gender: distributor.gender,
-            email: distributor.email,
-            phone: distributor.phone,
-            mobile: distributor.mobile,
-            authorized_country_name: distributor.authorized_country_name,
-            coverage_beyond: distributor.coverage_beyond,
-          };
-        }
-      );
-      return {
-        country_name: country.name,
-        count: groupDistributors.length,
-        distributors: removedFieldsOfDistributor,
-      };
-    })
-    .flat();
+  return sortObjectArray(
+    countries
+      .map((country) => {
+        const groupDistributors = distributors.filter(
+          (item) => item.country_id === country.id
+        );
+        const removedFieldsOfDistributor = groupDistributors.map(
+          (distributor) => {
+            return {
+              name: distributor.name,
+              address: distributor.address,
+              person: distributor.first_name + " " + distributor.last_name,
+              gender: distributor.gender,
+              email: distributor.email,
+              phone: distributor.phone,
+              mobile: distributor.mobile,
+              authorized_country_name: distributor.authorized_country_name,
+              coverage_beyond: distributor.coverage_beyond,
+            };
+          }
+        );
+        return {
+          country_name: country.name,
+          count: groupDistributors.length,
+          distributors: sortObjectArray(
+            removedFieldsOfDistributor,
+            "name",
+            "ASC"
+          ),
+        };
+      })
+      .flat(),
+    "country_name",
+    "ASC"
+  );
 };
 
 export const mappingMarketDistributorGroupByCountry = (

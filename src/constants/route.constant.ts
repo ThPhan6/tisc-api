@@ -1,4 +1,14 @@
 export const ROUTES = {
+  UPSERT_LINKAGE: "/api/linkage/upsert",
+  GET_LINKAGES: "/api/linkage/option/{option_id}",
+  PAIR_LINKAGE: "/api/linkage/pair",
+  UPSERT_STEP: "/api/step/upsert",
+  GET_STEPS: "/api/step",
+  GET_LINKAGE_REST_OPTIONS: "/api/linkage/rest-options",
+
+  UPSERT_CONFIGURATION_STEP: "/api/step/configuration/upsert",
+  VALIDATE_CONFIGURATION_STEP: "/api/step/configuration/validate",
+  GET_CONFIGURATION_STEPS: "/api/step/configuration",
   GET_TISC_WORKSPACE: "/api/workspace",
   GET_BRAND_WORKSPACE: "/api/brand/workspace",
   GET_DESIGNER_WORKSPACE: "/api/designer/workspace",
@@ -40,11 +50,13 @@ export const ROUTES = {
   GET_LIST_BASIS_PRESET: "/api/basis-preset/get-list",
   EDIT_BASIS_PRESET: "/api/basis-preset/update/{id}",
   GET_ONE_BASIS_PRESET: "/api/basis-preset/get-one/{id}",
+  COPY_BASIS_PRESET: "/api/basis-preset/copy/{id}",
   DELETE_BASIS_PRESET: "/api/basis-preset/delete/{id}",
   CREATE_BASIS_PRESET: "/api/basis-preset/create",
   GET_LIST_ATTRIBUTE: "/api/attribute/get-list",
   GET_LIST_CONTENT_TYPE: "/api/attribute/content-type/get-list",
   EDIT_ATTRIBUTE: "/api/attribute/update/{id}",
+  COPY_ATTRIBUTE: "/api/attribute/copy/{id}/brand/{brand_id}",
   DELETE_ATTRIBUTE: "/api/attribute/delete/{id}",
   CREATE_ATTRIBUTE: "/api/attribute/create",
   GET_ONE_ATTRIBUTE: "/api/attribute/get-one/{id}",
@@ -153,6 +165,8 @@ export const ROUTES = {
   SHARE_PRODUCT_BY_EMAIL: "/api/product/share-via-email",
   GET_SHARING_GROUPS: "/api/product/sharing-groups",
   GET_SHARING_PURPOSES: "/api/product/sharing-purposes",
+  DETECT_COLOR: "/api/color/detect-color",
+  GET_COLOR_COLLECTION: "/api/color/collection",
 
   GET_PROJECT_SUMMARY: "/api/project/get-summary",
   GET_PROJECT_SUMMARY_OVERALL: "/api/project/get-summary-overall",
@@ -272,6 +286,10 @@ export const ROUTES = {
       "/api/project-product/get-list-by-zone/{project_id}",
     GET_LIST_FINISH_SCHEDULE_FOR:
       "/api/project-product/{project_product_id}/finish-schedules",
+    GET_USED_MATERIAL_CODE:
+      "/api/project-product/{project_product_id}/used-material-code",
+    REVERT_SPECIFICATION_VERSION:
+      "/api/project-product/{project_product_id}/revert/{version_id}",
   },
   PROJECT_TRACKING: {
     CREATE: "/api/project-tracking/request/create",
@@ -325,6 +343,12 @@ export const ROUTES = {
     CREATE: "/api/collection/create",
     UPDATE: "/api/collection/update/{id}",
     DELETE: "/api/collection/delete/{id}",
+  },
+  LABEL: {
+    GET_LIST: "/api/label/get-list/{brand_id}",
+    CREATE: "/api/label/create",
+    UPDATE: "/api/label/update/{id}",
+    DELETE: "/api/label/delete/{id}",
   },
   BOOKING: {
     AVAILABLE_SCHEDULE: "/api/booking/available-schedule",

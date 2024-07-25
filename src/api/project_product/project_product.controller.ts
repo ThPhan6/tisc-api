@@ -1,5 +1,7 @@
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import _ from "lodash";
+import { toOriginDataAndUpsertConfigurationSteps } from "../user_product_specification/user_product_specification.mapping";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductService } from "./project_product.service";
 import {
@@ -87,16 +89,32 @@ export default class ProjectProductController {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const { finish_schedules, ...others } = req.payload as any;
-
+    let mappedData: any = others.specification
+      ? await toOriginDataAndUpsertConfigurationSteps(id, others)
+      : { data: others };
     const response = await projectProductService.updateConsiderProduct(
       id,
-      others,
+      mappedData.data,
       user,
       req.path,
       finish_schedules,
-      true
+      true,
+      mappedData.isHasXSelection
     );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public revertSpecificationVersion = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_product_id, version_id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
 
+    const response = await projectProductService.revertSpecificationVersion(
+      project_product_id,
+      version_id,
+      user
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -138,10 +156,11 @@ export default class ProjectProductController {
     toolkit: ResponseToolkit
   ) => {
     const { project_id } = req.params;
-    const { brand_order } = req.query;
+    const { brand_order, brand_id } = req.query;
 
     const response = await projectProductService.getSpecifiedProductsByBrand(
       project_id,
+      brand_id,
       brand_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -195,6 +214,16 @@ export default class ProjectProductController {
       project_product_id,
       roomIds,
       user
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+  public getUsedMaterialCodes = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { project_product_id } = req.params;
+    const response = await projectProductService.getUsedMaterialCodes(
+      project_product_id
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

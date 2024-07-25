@@ -8,7 +8,7 @@ import {
   DesignLocationFunctionTypeOption,
   UserStatus,
 } from "@/types";
-import { isFinite, head } from "lodash";
+import _, { isFinite, head } from "lodash";
 import { COMMON_TYPES } from "@/constants";
 import { pagination } from "@/helpers/common.helper";
 
@@ -156,8 +156,8 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     relationId: string,
     limit?: number,
     offset?: number,
-    sort: string = "created_at",
-    order: SortOrder = "DESC"
+    sort: string = "country_name",
+    order: SortOrder = "ASC"
   ) => {
     const query = this.getQueryWithMemberAndFunctionType({
       relationId,
@@ -248,6 +248,21 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     const result = await this.model.rawQueryV2(rawQuery, {});
     return result;
   }
+
+  public getCurrencyByLocationId = async (locationId: string | null) => {
+    if (_.isEmpty(locationId)) {
+      return "SGD";
+    }
+    const rawQuery = `for location in locations
+    filter location.id == @locationId
+    
+    for country in countries
+    filter country.id == location.country_id
+    return country.currency
+    `;
+    const result = await this.model.rawQueryV2(rawQuery, { locationId });
+    return result[0] as string;
+  };
 }
 
 export const locationRepository = new LocationRepository();

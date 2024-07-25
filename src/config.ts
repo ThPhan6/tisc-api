@@ -46,6 +46,7 @@ export const ENVIRONMENT = {
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
   TISC_WEBSITE: process.env.TISC_WEBSITE || "www.tisc.global",
   ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || "1",
+  DISABLE_VERIFY_FOR_LOAD_TEST: process.env.DISABLE_VERIFY_FOR_LOAD_TEST || "0",
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "vuongd36@gmail.com",
   TISC_CATPCHA_SECRET_KEY: process.env.TISC_CATPCHA_SECRET_KEY || "",
   CHECK_CAPTCHA: process.env.CHECK_CAPTCHA || "false",
@@ -53,6 +54,19 @@ export const ENVIRONMENT = {
   REDIS_PORT: process.env.REDIS_PORT || "6379",
   CONTACT_RECEIVER: process.env.CONTACT_RECEIVER || "hello@tisc.global",
   MAXIMUM_BACKUP_FILE: process.env.MAXIMUM_BACKUP_FILE || "7",
+  SENTRY_DNS:
+    process.env.SENTRY_DNS ||
+    "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
+  AIRWALLEX_API_ENPOINT: process.env.AIRWALLEX_API_ENPOINT || "",
+  AIRWALLEX_API_KEY: process.env.AIRWALLEX_API_KEY || "",
+  AIRWALLEX_CLIENT_KEY: process.env.AIRWALLEX_CLIENT_KEY || "",
+  INVOICE_EMAIL_CRON_EXPRESSION:
+    process.env.INVOICE_EMAIL_CRON_EXPRESSION || "",
+  SURCHARGE_RATE: parseFloat(process.env.SURCHARGE_RATE || "0.035"),
+  FREE_CURRENCY_API_KEY: process.env.FREE_CURRENCY_API_KEY || "",
+  AUTO_BILLING_SYSTEM_PERIOD: parseInt(
+    process.env.AUTO_BILLING_SYSTEM_PERIOD || "7"
+  ),
 };
 
 export const jwtConfig = {
@@ -79,23 +93,40 @@ const swaggerOptions = {
   },
 };
 
-export const plugins: any = [
-  {
-    plugin: Inert,
-  },
-  {
-    plugin: require("hapi-sentry"),
-    options: {
-      client: {
-        dsn: "https://dd82616b4a39480ea33d3a52f015722a@o1373745.ingest.sentry.io/4504330716053504",
+const initPlugins: any[] = ["staging", "production"].includes(
+  ENVIRONMENT.NODE_ENV
+)
+  ? [
+      {
+        plugin: Inert,
       },
-    },
-  },
-  {
-    plugin: Vision,
-  },
-  {
-    plugin: HapiSwagger,
-    options: swaggerOptions,
-  },
-];
+      {
+        plugin: Vision,
+      },
+      {
+        plugin: HapiSwagger,
+        options: swaggerOptions,
+      },
+      {
+        plugin: require("hapi-sentry"),
+        options: {
+          client: {
+            dsn: ENVIRONMENT.SENTRY_DNS,
+          },
+        },
+      },
+    ]
+  : [
+      {
+        plugin: Inert,
+      },
+      {
+        plugin: Vision,
+      },
+      {
+        plugin: HapiSwagger,
+        options: swaggerOptions,
+      },
+    ];
+
+export const plugins = initPlugins;

@@ -296,7 +296,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
 
   public async getLibrary(
     designId: string
-  ): Promise<{ products: CustomProductAttributes[] }> {
+  ): Promise<{ products: CustomProductAttributes[], collections: any }> {
     const result = await this.model.rawQueryV2(
       `
       LET brands = (
@@ -307,6 +307,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FOR loc IN locations
         FILTER loc.id == b.location_id
         FILTER loc.deleted_at == null
+        SORT loc.business_name ASC
         RETURN MERGE(
           ${getUnsetAttributes("b")},
           KEEP(loc, ${locationRepository.basicAttributesQuery})
@@ -321,6 +322,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FOR loc IN locations
         FILTER loc.id == b.location_id
         FILTER loc.deleted_at == null
+        SORT loc.business_name ASC
         RETURN MERGE(
           ${getUnsetAttributes("b")},
           KEEP(loc, ${locationRepository.basicAttributesQuery})
@@ -335,6 +337,7 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
         FILTER b.id == p.company_id
         FOR col IN collections
         FILTER col.id == p.collection_id
+        SORT p.name ASC
         RETURN MERGE(${getUnsetAttributes(
           "p",
           "'images'"
@@ -344,10 +347,15 @@ class DesignerRepository extends BaseRepository<DesignerAttributes> {
       LET collections = (
         FOR p IN products
         COLLECT collection_id = p.collection_id, collection_name = p.collection_name  INTO group
+        SORT collection_name ASC
         RETURN {
           id: collection_id,
           name: collection_name,
-          products: (FOR g IN group RETURN KEEP(g.p, 'id', 'name', 'image') )
+          products: (
+            FOR g IN group 
+            SORT g.name ASC 
+            RETURN KEEP(g.p, 'id', 'name', 'image') 
+            )
         }
       )
 

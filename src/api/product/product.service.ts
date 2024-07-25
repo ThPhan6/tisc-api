@@ -28,7 +28,7 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import { mailService } from "@/services/mail.service";
-import { isEqual, sortBy } from "lodash";
+import { isEmpty, isEqual, orderBy, sortBy, trim } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -41,6 +41,8 @@ import {
   mappingByCategory,
   mappingByCollections,
   mappingProductID,
+  mappingSpecificationAttribute,
+  mappingSpecificationStep,
 } from "./product.mapping";
 import {
   IProductOptionAttribute,
@@ -52,8 +54,18 @@ import {
   SortOrder,
   UserAttributes,
   BasisConversion,
+  IProductAttributes,
+  SpecificationStepAttribute,
 } from "@/types";
 import { mappingDimensionAndWeight } from "@/api/attribute/attribute.mapping";
+import { sortObjectArray, pagination } from "@/helpers/common.helper";
+import { colorDetectionQueue } from "@/queues/color_detection.queue";
+import { categoryRepository } from "@/repositories/category.repository";
+import { linkageService } from "../linkage/linkage.service";
+import { StepRequest } from "../linkage/linkage.type";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
+import collectionRepository from "@/repositories/collection.repository";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -63,6 +75,42 @@ class ProductService {
     return allBasisConversion.reduce((pre, cur) => {
       return pre.concat(cur.subs);
     }, []);
+  };
+  public checkSupportedColorDetection = async (categoryIds: string[]) => {
+    const categories: any = await categoryRepository.getManyConcatName(
+      categoryIds
+    );
+    if (!categories) {
+      return false;
+    }
+    const foundStone = categories.find(
+      (item: string) => item.toLowerCase().search("stone") !== -1
+    );
+    const foundWood = categories.find(
+      (item: string) => item.toLowerCase().search("wood") !== -1
+    );
+    if (foundStone) {
+      return "stone";
+    }
+    if (foundWood) {
+      return "wood";
+    }
+    return false;
+  };
+  private addQueueToDetectColor = async (
+    categoryIds: string[],
+    productId: string,
+    images: string[]
+  ) => {
+    const isSupportedColorDetection = await this.checkSupportedColorDetection(
+      categoryIds
+    );
+    if (isSupportedColorDetection) {
+      colorDetectionQueue.add({
+        product_id: productId,
+        images,
+      });
+    }
   };
   public async create(user: UserAttributes, payload: IProductRequest) {
     const product = await productRepository.findBy({
@@ -85,10 +133,17 @@ class ProductService {
         mappingAttribute(featureAttributeGroup, allConversion)
       )
     );
+    let steps: StepRequest[] = [];
     const saveSpecificationAttributeGroups = await Promise.all(
       payload.specification_attribute_groups.map(
-        (specificationAttributeGroup) =>
-          mappingAttribute(specificationAttributeGroup, allConversion)
+        (specificationAttributeGroup) => {
+          const mapping = mappingSpecificationAttribute(
+            specificationAttributeGroup,
+            allConversion
+          );
+          steps = steps.concat(mapping.steps || []);
+          return mapping.data;
+        }
       )
     );
 
@@ -100,17 +155,18 @@ class ProductService {
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
-
+    const collections = await collectionRepository.getMany(payload.collection_ids)
     const uploadedImages = await uploadImagesProduct(
       payload.images,
-      payload.keywords,
       brand.name,
-      brand.id
+      brand.id,
+      collections,
+      payload.name
     );
 
     const createdProduct = await productRepository.create({
       brand_id: payload.brand_id,
-      collection_id: payload.collection_id,
+      collection_ids: payload.collection_ids,
       category_ids: payload.category_ids,
       name: payload.name,
       code: "random",
@@ -129,9 +185,44 @@ class ProductService {
     if (!createdProduct) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+    // Detect color if product has supported category
+    this.addQueueToDetectColor(
+      payload.category_ids,
+      createdProduct.id,
+      uploadedImages
+    );
+    await linkageService.upsertStep({
+      data: steps.map((item) => ({
+        ...item,
+        product_id: createdProduct.id,
+      })),
+    });
     return this.get(createdProduct.id, user);
   }
 
+  private async duplicateAutoSteps(
+    product: IProductAttributes,
+    newProductId: string
+  ) {
+    let dataToDuplicate: SpecificationStepAttribute[] = [];
+    await Promise.all(
+      product.specification_attribute_groups.map(
+        async (autoStepSpecification) => {
+          const steps: SpecificationStepAttribute[] =
+            await specificationStepRepository.getStepsBy(
+              product.id,
+              autoStepSpecification.id || ""
+            );
+          if (steps.length > 0) {
+            dataToDuplicate = dataToDuplicate.concat(
+              steps.map((item) => ({ ...item, product_id: newProductId }))
+            );
+          }
+        }
+      )
+    );
+    await specificationStepRepository.createMany(dataToDuplicate);
+  }
   public async duplicate(id: string, user: UserAttributes) {
     const product = await productRepository.find(id);
     if (!product) {
@@ -144,6 +235,7 @@ class ProductService {
     if (!created) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+    await this.duplicateAutoSteps(product, created.id);
     return successResponse(await this.get(created.id, user));
   }
 
@@ -164,7 +256,21 @@ class ProductService {
     if (duplicatedProduct) {
       return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED);
     }
-
+    if (payload.product_information) {
+      payload.product_information.product_id = trim(
+        payload.product_information.product_id
+      );
+      if (!isEmpty(payload.product_information.product_id)) {
+        const duplicatedProductInformation =
+          await productRepository.getDuplicatedProductInfomationProductId(
+            id,
+            payload.product_information.product_id
+          );
+        if (duplicatedProductInformation) {
+          return errorMessageResponse(MESSAGES.PRODUCT_DUPLICATED_INFORMATION);
+        }
+      }
+    }
     const brand = await brandRepository.find(payload.brand_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
@@ -182,13 +288,47 @@ class ProductService {
         mappingAttribute(featureAttributeGroup, allConversion)
       )
     );
+    let steps: StepRequest[] = [];
+    let defaultPreSelectData: any = [];
     const saveSpecificationAttributeGroups = await Promise.all(
       payload.specification_attribute_groups.map(
-        (specificationAttributeGroup) =>
-          mappingAttribute(specificationAttributeGroup, allConversion)
+        async (specificationAttributeGroup) => {
+          const mapping = mappingSpecificationAttribute(
+            specificationAttributeGroup,
+            allConversion
+          );
+          steps = steps.concat(mapping.steps || []);
+          defaultPreSelectData = defaultPreSelectData.concat(
+            mapping.defaultPreSelect || []
+          );
+          return mapping.data;
+        }
       )
     );
+    await linkageService.upsertStep({
+      data: steps.map((item) => ({
+        ...item,
+        product_id: product.id,
+      })),
+    });
 
+    //Upsert default pre selections
+    defaultPreSelectData.map(async (item: any) => {
+      const defaultPreSelection = await defaultPreSelectionRepository.findBy({
+        specification_id: item.specification_id,
+        product_id: product.id,
+      });
+      if (!defaultPreSelection) {
+        await defaultPreSelectionRepository.create({
+          ...item,
+          product_id: product.id,
+        });
+      } else {
+        await defaultPreSelectionRepository.update(defaultPreSelection.id, {
+          data: item.data,
+        });
+      }
+    });
     let images = product.images;
     // Upload images if have changes
     if (isEqual(product.images, payload.images) === false) {
@@ -196,14 +336,18 @@ class ProductService {
       if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
+      const collections = await collectionRepository.getMany(payload.collection_ids)
       const newImages = await uploadImagesProduct(
         payload.images,
-        payload.keywords,
         brand.name,
-        brand.id
+        brand.id,
+        collections,
+        payload.name
       );
 
       images = newImages;
+      // Detect color if product has supported category
+      this.addQueueToDetectColor(payload.category_ids, product.id, images);
     }
     if (!isEqual(payload.keywords, product.keywords)) {
       images = await updateProductImageNames(
@@ -231,9 +375,9 @@ class ProductService {
     if (!product) {
       return errorMessageResponse(MESSAGES.PRODUCT_NOT_FOUND, 404);
     }
-    const countryIds = product.brand.official_websites.map(
-      (ow) => ow.country_id
-    );
+    const countryIds = product.brand.official_websites
+      .map((ow) => ow.country_id)
+      .filter((item) => item !== "-1");
     const countries = await countryStateCityService.getCountries(countryIds);
     const officialWebsites = product.brand.official_websites.map(
       (officialWebsite) => {
@@ -265,7 +409,11 @@ class ProductService {
       flatBasisGroups,
       flatBasisGroups
     );
-
+    const addedSpecificationType = await mappingSpecificationStep(
+      newSpecificationGroups,
+      product.id,
+      user.id
+    );
     const productID = mappingProductID(newSpecificationGroups);
     const newGeneralGroups = mappingAttributeGroups(
       product.general_attribute_groups,
@@ -291,7 +439,7 @@ class ProductService {
         },
         general_attribute_groups: newGeneralGroups,
         feature_attribute_groups: newFeatureGroups,
-        specification_attribute_groups: newSpecificationGroups,
+        specification_attribute_groups: addedSpecificationType,
         dimension_and_weight: mappingDimensionAndWeight(
           product.dimension_and_weight
         ),
@@ -301,8 +449,16 @@ class ProductService {
 
   public getBrandProductSummary = async (brandId: string) => {
     const products = await productRepository.getProductBy(undefined, brandId);
-    const collections = getUniqueCollections(products);
-    const categories = getUniqueProductCategories(products);
+    const collections = sortObjectArray(
+      getUniqueCollections(products),
+      "name",
+      "ASC"
+    );
+    const categories = sortObjectArray(
+      getUniqueProductCategories(products),
+      "name",
+      "ASC"
+    );
     const variants = getTotalVariantOfProducts(products);
     return successResponse({
       data: {
@@ -348,13 +504,22 @@ class ProductService {
       }
       returnedProducts = mappingByCategory(products);
     } else if (collectionId) {
-      returnedProducts = mappingByCollections(products);
+      returnedProducts = await mappingByCollections(
+        products,
+        collectionId === "all" ? undefined : collectionId
+      );
     } else {
       returnedProducts = mappingByBrand(products);
     }
+    returnedProducts = returnedProducts.map((item) => {
+      return {
+        ...item,
+        products: sortObjectArray(item.products, "name", "ASC"),
+      };
+    });
     return successResponse({
       data: {
-        data: sortBy(returnedProducts, "name"),
+        data: sortObjectArray(returnedProducts, "name", "ASC"),
         brand: await brandRepository.find(brandId),
       },
     });
@@ -366,7 +531,9 @@ class ProductService {
     categoryId?: string,
     keyword?: string,
     sortName?: string,
-    orderBy?: "ASC" | "DESC"
+    orderBy?: "ASC" | "DESC",
+    limit?: number,
+    offset?: number
   ) => {
     const products = await productRepository.getProductBy(
       user.id,
@@ -375,14 +542,17 @@ class ProductService {
       undefined,
       keyword,
       sortName,
-      orderBy
+      orderBy,
+      false,
+      limit,
+      offset
     );
     if (brandId) {
       const variants = getTotalVariantOfProducts(products);
       const brand = await brandRepository.find(brandId);
       const collections = getUniqueCollections(products);
       return successResponse({
-        data: sortBy(mappingByCollections(products), "name"),
+        data: sortBy(await mappingByCollections(products), "name"),
         brand_summary: {
           brand_name: brand?.name ?? "",
           brand_logo: brand?.logo ?? "",
@@ -398,9 +568,19 @@ class ProductService {
         data: sortBy(mappingByBrand(products), "name"),
       });
     }
-
+    const total = await productRepository.countProductBy(
+      user.id,
+      brandId,
+      categoryId,
+      undefined,
+      keyword,
+      sortName,
+      orderBy,
+      false
+    );
     return successResponse({
       allProducts: products,
+      pagination: pagination(limit || 0, offset || 0, total[0]),
     });
   };
 
@@ -431,13 +611,13 @@ class ProductService {
     }
     const products = await productRepository.getRelatedCollection(
       product.id,
-      product.collection_id
+      product.collection_ids
     );
     return successResponse({
       data: products.map((item) => {
         return {
           id: item.id,
-          collection_id: item.collection_id,
+          collection_ids: item.collection_ids,
           name: item.name,
           images: item.images,
           created_at: item.created_at,
@@ -505,8 +685,12 @@ class ProductService {
 
   public getFavoriteProductSummary = async (user: UserAttributes) => {
     const products = await productRepository.getFavouriteProducts(user.id);
-    const categories = getUniqueProductCategories(products);
-    const brands = getUniqueBrands(products);
+    const categories = sortObjectArray(
+      getUniqueProductCategories(products),
+      "name",
+      "ASC"
+    );
+    const brands = sortObjectArray(getUniqueBrands(products), "name", "ASC");
     return successResponse({
       data: {
         categories,
@@ -532,7 +716,11 @@ class ProductService {
     );
     const mappingFunction = categoryId ? mappingByCategory : mappingByBrand;
     return successResponse({
-      data: sortBy(mappingFunction(products), "name"),
+      data: orderBy(
+        mappingFunction(products),
+        "name",
+        order?.toLocaleLowerCase() || ("asc" as any)
+      ),
     });
   };
 
@@ -567,7 +755,7 @@ class ProductService {
       getFileURI(product.images[0] || DefaultProductImage),
       product.brand.name,
       getFileURI(product.brand.logo || DefaultLogo),
-      product.collection.name || "N/A",
+      product.collections.map((item) => item.name).join(", ") || "N/A",
       product.name || "N/A",
       `${user.firstname || ""} ${user.lastname || ""}`,
       sharedUrl

@@ -4,6 +4,7 @@ import {
   BasisOption,
   BasisPreset,
   BasisPresetValue,
+  BasisPresetSubGroup,
 } from "@/types/basis.type";
 export interface IBasisConversionRequest {
   name: string;
@@ -34,23 +35,37 @@ export interface IBasisOptionResponse {
   data: BasisOptionGroup;
   statusCode: number;
 }
-export interface IBasisOptionRequest {
+export interface BasisOptionMainRequest {
   name: string;
   subs: BasisOption[];
+}
+export interface IBasisOptionRequest {
+  brand_id: string;
+  name: string;
+  subs: BasisOptionMainRequest[];
 }
 export interface IUpdateBasisOptionRequest {
   name: string;
-  subs: BasisOption[];
+  subs: BasisOptionMainRequest[];
 }
 
 export interface IBasisPresetRequest {
+  additional_type: BasisPresetType;
   name: string;
   subs: {
     name: string;
-    subs: BasisPresetValue[];
+    subs: {
+      name: string;
+      subs: BasisPresetValue[];
+    }[];
   }[];
 }
 export interface IUpdateBasisPresetRequest {
   name: string;
-  subs: Omit<BasisPreset, "count">[];
+  subs: Omit<BasisPresetSubGroup, "count">[];
+}
+
+export enum BasisPresetType {
+  general,
+  feature,
 }

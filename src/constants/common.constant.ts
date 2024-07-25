@@ -89,7 +89,7 @@ export const TOPIC_OPTIONS: {
     value: TOPIC_TYPES.OPERATION,
   },
   {
-    key: "Other",
+    key: "Payment",
     value: TOPIC_TYPES.OTHER,
   },
 ];
@@ -223,4 +223,5 @@ export const CollectionsToBackup = [
   "templates",
   "user_product_specifications",
   "users",
+  "logs"
 ];

@@ -23,17 +23,24 @@ import {
   GetListInvoiceSorting,
   InvoiceRequestCreate,
   InvoiceRequestUpdate,
+  PaymentIntentAttributes,
 } from "./invoice.type";
 import {
   calculateInterestInvoice,
   pagination,
+  toFixedNumber,
   toNonAccentUnicode,
   toUSMoney,
 } from "@/helpers/common.helper";
 import moment from "moment";
 import { mailService } from "@/services/mail.service";
 import { pdfService } from "@/api/pdf/pdf.service";
+import { airwallexService } from "@/services/airwallex.service";
+import { paymentRepository } from "@/repositories/payment.repository";
+import { userRepository } from "@/repositories/user.repository";
 import { ENVIRONMENT } from "@/config";
+import { locationRepository } from "@/repositories/location.repository";
+import { freeCurrencyService } from "@/services/free_currency.service";
 
 class InvoiceService {
   private calculateBillingAmount = (
@@ -70,6 +77,15 @@ class InvoiceService {
     return {
       ...invoice,
       billing_amount: billingAmount,
+      billing_overdue_amount: billingAmount + overdueAmount,
+      surcharge: toFixedNumber(
+        (billingAmount + overdueAmount) * ENVIRONMENT.SURCHARGE_RATE,
+        2
+      ),
+      grand_total: toFixedNumber(
+        (billingAmount + overdueAmount) * (ENVIRONMENT.SURCHARGE_RATE + 1),
+        2
+      ),
       overdue_days: overdueDays,
       overdue_amount: overdueAmount,
       total_gross: totalGross,
@@ -150,7 +166,9 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.ONLY_BILL_PENDING_INVOICE);
     }
     await invoiceRepository.update(invoiceId, {
-      due_date: moment().add(7, "days").format("YYYY-MM-DD"),
+      due_date: moment()
+        .add(ENVIRONMENT.AUTO_BILLING_SYSTEM_PERIOD, "days")
+        .format("YYYY-MM-DD"),
       billed_date: moment().format("YYYY-MM-DD"),
       status: InvoiceStatus.Outstanding,
     });
@@ -321,10 +339,12 @@ class InvoiceService {
       return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
     }
     const calculatedInvoice = this.calculateInvoice(invoice);
+    const totalAmount =
+      calculatedInvoice.total_gross + calculatedInvoice.sale_tax_amount;
+    const newBillingAmount =
+      calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount;
     const result = await pdfService.generateInvoicePdf(
-      !invoice.payment_date || invoice.payment_date === ""
-        ? "Invoice"
-        : "Receipt",
+      invoice.status !== InvoiceStatus.Paid ? "Invoice" : "Receipt",
       {
         ...calculatedInvoice,
         bill_number: invoice.name.slice(-10),
@@ -338,17 +358,214 @@ class InvoiceService {
         overdue_amount: toUSMoney(calculatedInvoice.overdue_amount),
         total_gross: toUSMoney(calculatedInvoice.total_gross),
         sale_tax_amount: toUSMoney(calculatedInvoice.sale_tax_amount),
-        total_amount: toUSMoney(
-          calculatedInvoice.total_gross + calculatedInvoice.sale_tax_amount
-        ),
-        billing_amount: toUSMoney(
-          calculatedInvoice.billing_amount + calculatedInvoice.overdue_amount
-        ),
+        total_amount: toUSMoney(totalAmount),
+        billing_amount: toUSMoney(newBillingAmount),
         quantity: toUSMoney(calculatedInvoice.quantity).slice(1, -3),
+        surcharge: toUSMoney(newBillingAmount * ENVIRONMENT.SURCHARGE_RATE),
+        grand_total: toUSMoney(
+          newBillingAmount * (1 + ENVIRONMENT.SURCHARGE_RATE)
+        ),
+        remark: invoice.remark
       }
     );
     return successResponse({ data: result, fileName: invoice.name });
   }
+  public createPaymentIntent = async (
+    invoiceId: string,
+    user: UserAttributes
+  ) => {
+    const invoice: any = await this.get(user, invoiceId);
+    if (!invoice) {
+      return errorMessageResponse(MESSAGES.INVOICE.NOT_FOUND, 404);
+    }
+    if (invoice.data.status === InvoiceStatus.Paid) {
+      return errorMessageResponse(MESSAGES.INVOICE.PAID);
+    }
+    const paymentIntent = await paymentRepository.findLastIntent(
+      invoiceId,
+      user.id
+    );
+    if (paymentIntent) {
+      const result: any = await airwallexService.retrievePaymentIntent(
+        paymentIntent.intent_id
+      );
+      if (
+        !(
+          (result.status === "SUCCEEDED" &&
+            result.latest_payment_attempt &&
+            ["CANCELLED", "EXPIRED", "FAILED"].includes(
+              result.latest_payment_attempt.status as string
+            )) ||
+          result.status === "CANCELLED"
+        )
+      ) {
+        return successResponse({ data: result });
+      }
+    }
+
+    const exchanges = await freeCurrencyService.exchange();
+    const exchange = exchanges.data["SGD"];
+    const grandTotalSGD = toFixedNumber(
+      invoice.data.billing_overdue_amount *
+        exchange *
+        (1 + ENVIRONMENT.SURCHARGE_RATE),
+      2
+    );
+    const exchangedMoney = {
+      [`amount_sgd`]: invoice.data.billing_overdue_amount * exchange,
+      [`surcharge_sgd`]:
+        invoice.data.billing_overdue_amount *
+        exchange *
+        ENVIRONMENT.SURCHARGE_RATE,
+      [`grand_total_sgd`]: grandTotalSGD,
+      [`amount_usd`]: invoice.data.billing_overdue_amount,
+      [`surcharge_usd`]: invoice.data.surcharge,
+      [`grand_total_usd`]: toFixedNumber(invoice.data.grand_total, 2),
+    };
+    const result = (await airwallexService.createPaymentIntent({
+      amount: grandTotalSGD,
+      currency: "SGD",
+      metadata: {
+        invoice_id: invoice.data.id,
+        created_by: user.id,
+        ...exchangedMoney,
+      },
+    })) as PaymentIntentAttributes;
+    await paymentRepository.create({
+      intent_id: result.id,
+      invoice_id: invoiceId,
+      created_by: user.id,
+      status: result.status,
+    });
+    return successResponse({ data: result });
+  };
+  private sendPaymentReceivedEmailToAdmin = async (options: {
+    invoice_id: string;
+    billing_number: string;
+    amount: number;
+    payment_user_id: string;
+  }) => {
+    const invoice = await invoiceRepository.findInvoiceWithRelations(
+      options.invoice_id
+    );
+    if (!invoice) {
+      return;
+    }
+    const paymentUser = await userRepository.find(options.payment_user_id);
+    if (!paymentUser) {
+      return;
+    }
+    await mailService.sendInvoicePaymentReceived(
+      invoice.created_user.email,
+      paymentUser.firstname,
+      paymentUser.lastname,
+      invoice.brand_name,
+      options.billing_number,
+      options.amount
+    );
+  };
+
+  private sendPaymentSuccessEmailToPaymentUser = async (options: {
+    payment_user_id: string;
+    invoice_id: string;
+  }) => {
+    const paymentUser = await userRepository.find(options.payment_user_id);
+    if (!paymentUser) {
+      return;
+    }
+    await mailService.sendInvoicePaymentSuccess(
+      paymentUser.email,
+      paymentUser.firstname,
+      `${ENVIRONMENT.FE_URL}/brand/adminstration/billed-services/${options.invoice_id}`
+    );
+  };
+
+  public receivePaymentInfo = async (payload: any) => {
+    // console.log(payload.name, payload.sourceId);
+    try {
+      const payment = await paymentRepository.findBy({
+        intent_id: payload.sourceId,
+      });
+      if (!payment) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+      const invoice = await invoiceRepository.find(payment.invoice_id);
+      if (!invoice) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+      const statusesToReset = [
+        "payment_intent.cancelled",
+        "payment_attempt.authentication_failed",
+        "payment_attempt.authorization_failed",
+        "payment_attempt.cancelled",
+        "payment_attempt.capture_failed",
+        "payment_attempt.failed_to_process",
+      ];
+      if (payload && statusesToReset.includes(payload.name)) {
+        await invoiceRepository.update(invoice.id, {
+          temp_paid: false,
+        });
+      }
+      if (payload && payload.name === "payment_intent.succeeded") {
+        await invoiceRepository.update(invoice.id, {
+          status: InvoiceStatus.Processing,
+        });
+      }
+
+      if (payload && payload.name === "payment_attempt.capture_failed") {
+        const diff = moment().diff(moment(invoice.due_date), "days");
+        await invoiceRepository.update(invoice.id, {
+          status: diff > 0 ? InvoiceStatus.Overdue : InvoiceStatus.Outstanding,
+        });
+      }
+      if (
+        payload &&
+        (payload.name === "payment_attempt.paid" ||
+          payload.name === "payment_attempt.settled")
+      ) {
+        const paymentAttempts = await airwallexService.listPaymentAttempts(
+          payload.sourceId
+        );
+        if (paymentAttempts !== false) {
+          const paymentAttempt = await paymentAttempts.items.find(
+            (item) =>
+              item.payment_intent_id === payload.sourceId &&
+              (item.status === "PAID" || item.status === "SETTLED")
+          );
+          if (paymentAttempt) {
+            await invoiceRepository.update(invoice.id, {
+              status: InvoiceStatus.Paid,
+              payment_date: moment().format("YYYY-MM-DD"),
+            });
+            //send email to TISC
+            await this.sendPaymentReceivedEmailToAdmin({
+              invoice_id: invoice.id,
+              billing_number: invoice.name,
+              payment_user_id: payload.data.object.metadata.created_by,
+              amount: payload.data.object.amount,
+            });
+            //send receipt to created_by
+            await this.sendPaymentSuccessEmailToPaymentUser({
+              payment_user_id: payload.data.object.metadata.created_by,
+              invoice_id: invoice.id,
+            });
+          }
+        }
+      }
+      if (payload && payload.name === "refund.succeeded") {
+        await invoiceRepository.update(invoice.id, {
+          status: InvoiceStatus.Refunded,
+        });
+      }
+      return successMessageResponse(MESSAGES.SUCCESS);
+    } catch (error) {
+      return successMessageResponse(MESSAGES.SUCCESS);
+    }
+  };
+  public paidTemporarily = async (invoice_id: string) => {
+    await invoiceRepository.update(invoice_id, { temp_paid: true });
+    return successMessageResponse(MESSAGES.SUCCESS);
+  };
 }
 export const invoiceService = new InvoiceService();
 export default InvoiceService;

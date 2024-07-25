@@ -119,7 +119,8 @@ export const MESSAGES = {
     NOT_FOUND: "Action task not found",
   },
   INVOICE: {
-    NOT_FOUND: "Revenue service not found",
+    PAID: "This invoice is paid.",
+    NOT_FOUND: "Revenue service not found.",
     ONLY_UPDATE_PENDING_INVOICE: "Only pending invoice is valid to update.",
     ONLY_BILL_PENDING_INVOICE: "Only pending invoice is valid to bill.",
     ONLY_PAID_OUTSTANDING_OR_OVERDUE:
@@ -183,11 +184,14 @@ export const MESSAGES = {
   LOCATION_NOT_FOUND: "Location not found",
   PRODUCT_NOT_FOUND: "Product not found",
   PRODUCT_DUPLICATED: "Product duplicated",
+  PRODUCT_DUPLICATED_INFORMATION:
+    "Duplicated the product information. Please try with another product ID.",
   PRODUCT_TIP_NOT_FOUND: "Product tip not found",
   PRODUCT_TIP_EXISTED: "Product tip existed",
   CONTENT_TIP_MAX_WORDS: "Content max 100 words",
   BASIS_PRESET_NOT_FOUND: "Basis preset not found",
   COLLECTION_NOT_FOUND: "Collection not found",
+  CANNOT_CHANGE_COLOR_COLLECTION: "Cannot change color collection",
   CANNOT_DELETE_COLLECTION_HAS_PRODUCT:
     "Cannot delete collection has products.",
   PRODUCT_DOWNLOAD_EXISTED: "Product download existed",
@@ -276,4 +280,8 @@ export const MESSAGES = {
     SCHEDULE_NOT_AVAILABLE: "Can't get on Saturday or Sunday",
   },
   JUST_SHARE_IN_DESIGN_FIRM: "Just share to user in the same design firm.",
+  CONFIGURATION_STEP_QUANTITIES_NOT_EQUAL_TO_AUTO_STEP_REPLICATE:
+    "The quantity not match with require number, please check it!",
+    LABEL_EXISTED: "Label existed.",
+    LABEL_NOTFOUND: "Label not found.",
 };

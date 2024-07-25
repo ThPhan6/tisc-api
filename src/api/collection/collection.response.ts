@@ -7,11 +7,13 @@ const Joi = HapiJoi.defaults((schema) =>
 
 export const collectionResponse = Joi.object({
   id: Joi.string(),
-  relation_id: Joi.string(),
+  relation_id: Joi.any(),
+  description: Joi.any(),
   relation_type: Joi.number(),
   name: Joi.string(),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
+  group: Joi.any(),
 });
 
 export default {

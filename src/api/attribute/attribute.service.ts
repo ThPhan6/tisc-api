@@ -13,16 +13,28 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
-import attributeRepository from "@/repositories/attribute.repository";
-import AttributeRepository from "@/repositories/attribute.repository";
-import basisRepository from "@/repositories/basis.repository";
-import BasisRepository from "@/repositories/basis.repository";
-import { AttributeType, SortOrder } from "@/types";
+import { AdditionalSubGroupType } from "@/models/additional_sub_group.model";
+import { additionalSubGroupRepository } from "@/repositories/additional_sub_group.repository";
+import attributeRepository, {
+  default as AttributeRepository,
+} from "@/repositories/attribute.repository";
+import { default as BasisRepository } from "@/repositories/basis.repository";
+import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
+import { SortOrder } from "@/types";
+import { flatMap } from "lodash";
+import { v4 as uuid } from "uuid";
 import {
+  addBasisOptionMain,
+  addBasisPresetSubGroup,
+} from "../basis/basis.mapping";
+import { BasisPresetType } from "../basis/basis.type";
+import {
+  addAttributeSubGroup,
   checkAttributeDuplicateByName,
   getFlatListBasis,
   getListAttributeWithSort,
-  mappingAttributes,
+  mappingAttributeCreate,
+  mappingAttributeUpdate,
   mappingSubAttribute,
 } from "./attribute.mapping";
 import { IAttributeRequest, IUpdateAttributeRequest } from "./attribute.type";
@@ -47,12 +59,16 @@ class AttributeService {
       return errorMessageResponse(duplicatedAttribute);
     }
 
-    const subData = mappingAttributes(payload);
+    // const subData = mappingAttributes(payload);
+    const id = uuid();
+    const data = await mappingAttributeCreate(payload, id);
 
     const createdAttribute = await AttributeRepository.create({
+      id,
+      brand_id: payload.brand_id,
       name: toSingleSpaceAndToLowerCase(payload.name),
       type: payload.type,
-      subs: subData,
+      subs: data,
     });
     if (!createdAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
@@ -67,14 +83,20 @@ class AttributeService {
       return errorMessageResponse(MESSAGES.ATTRIBUTE.ATTRIBUTE_NOT_FOUND, 404);
     }
     const subResponses = mappingSubAttribute(attribute, contentTypes);
-    const { type, ...rest } = attribute;
+    const data = {
+      ...attribute,
+      count: attribute.subs.length,
+      subs: subResponses,
+    };
+    const subGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+      relation_id: attribute.id,
+    });
+
+    const addedSubGroups = addAttributeSubGroup([data], subGroups);
 
     return successResponse({
-      data: {
-        ...rest,
-        count: attribute.subs.length,
-        subs: subResponses,
-      },
+      data: addedSubGroups[0],
     });
   }
 
@@ -82,10 +104,11 @@ class AttributeService {
     attribute_type: number,
     limit: number,
     offset: number,
-    _filter: any,
+    filter: any,
     group_order: SortOrder | undefined,
     attribute_order?: SortOrder,
-    content_type_order?: SortOrder
+    content_type_order?: SortOrder,
+    sub_group_order?: SortOrder
   ) {
     const contentTypes = await this.getFlatListContentType();
     const attributeWithPagination =
@@ -93,39 +116,42 @@ class AttributeService {
         limit,
         offset,
         attribute_type,
-        group_order
+        group_order,
+        filter
       );
 
-    const returnedAttributes = getListAttributeWithSort(
+    const rawAttributes = getListAttributeWithSort(
       attributeWithPagination.data,
       contentTypes,
       attribute_order,
       content_type_order
     );
-
-    const allAttributeByType = await AttributeRepository.getByType(
-      attribute_type
+    const attributeSubGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+    });
+    const addedSubGroups = addAttributeSubGroup(
+      rawAttributes,
+      attributeSubGroups,
+      sub_group_order || "ASC"
     );
-    const summaryTable = getSummaryTable(allAttributeByType);
+    const summaryTable = getSummaryTable(addedSubGroups);
     const summary = [
       {
-        name:
-          attribute_type === AttributeType.Specification
-            ? "Specification Group"
-            : "Attribute Group",
+        name: "Main",
         value: summaryTable.countGroup,
       },
       {
-        name:
-          attribute_type === AttributeType.Specification
-            ? "Specification"
-            : "Attribute",
+        name: "Sub",
         value: summaryTable.countSub,
+      },
+      {
+        name: "Attribute",
+        value: summaryTable.countItem,
       },
     ];
     return successResponse({
       data: {
-        attributes: returnedAttributes,
+        attributes: addedSubGroups,
         summary,
         pagination: attributeWithPagination.pagination,
       },
@@ -147,17 +173,30 @@ class AttributeService {
     if (duplicatedAttribute) {
       return errorMessageResponse(duplicatedAttribute);
     }
+    const mappedAttribute = mappingAttributeUpdate(payload, attribute);
 
-    const subData = mappingAttributes(payload);
+    // const subData = mappingAttributes(payload);
 
+    await Promise.all(
+      mappedAttribute.subGroups.map(async (subGroup) => {
+        const find = await additionalSubGroupRepository.find(subGroup.id);
+        if (!find) {
+          return additionalSubGroupRepository.create(subGroup);
+        }
+        return additionalSubGroupRepository.update(subGroup.id, {
+          name: subGroup.name,
+        });
+      })
+    );
     const updatedAttribute = await AttributeRepository.update(id, {
       ...payload,
-      subs: subData,
+      subs: mappedAttribute.data,
       name: toSingleSpaceAndToLowerCase(payload.name),
     });
     if (!updatedAttribute) {
       return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
     }
+
     return this.get(id);
   }
 
@@ -174,7 +213,23 @@ class AttributeService {
   }
 
   public async getListContentType() {
-    const basesGroupByType = await basisRepository.getAllBasesGroupByType();
+    const basesGroupByType = await BasisRepository.getAllBasesGroupByType();
+    const mains = await basisOptionMainRepository.getAll();
+    const addedMain = addBasisOptionMain(basesGroupByType.options, mains);
+
+    const basisPresetSubGroups = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Preset,
+    });
+
+    const presetsAddedSub = addBasisPresetSubGroup(
+      basesGroupByType.presets,
+      basisPresetSubGroups
+    );
+
+    const featurePresetsAddedSub = addBasisPresetSubGroup(
+      basesGroupByType.feature_presets,
+      basisPresetSubGroups
+    );
 
     return successResponse({
       data: {
@@ -189,16 +244,86 @@ class AttributeService {
           },
         ],
         ...basesGroupByType,
+        presets: presetsAddedSub,
+        feature_presets: featurePresetsAddedSub,
+        options: addedMain,
       },
     });
   }
 
-  public async getAllAttribute() {
+  /// get attributes with sub addition if has brand id, otherwise get without sub addition
+  public async getAllAttribute(addSub: boolean | string, brandId?: string) {
     const { general, feature, specification } =
-      await attributeRepository.getAllAttributesGroupByType();
-    return successResponse({
-      data: { general, feature, specification },
+      await AttributeRepository.getAllAttributesGroupByType(brandId);
+
+    const addGeneralSubAttribute = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
     });
+    const newGeneral =
+      !addSub || addSub === "false"
+        ? general
+        : addAttributeSubGroup(general, addGeneralSubAttribute, "ASC");
+
+    const addFeatureSubAttribute = await additionalSubGroupRepository.getAllBy({
+      type: AdditionalSubGroupType.Attribute,
+    });
+    const newFeature =
+      !addSub || addSub === "false"
+        ? feature
+        : addAttributeSubGroup(feature, addFeatureSubAttribute, "ASC");
+
+    const addSpecificationSubAttribute =
+      await additionalSubGroupRepository.getAllBy({
+        type: AdditionalSubGroupType.Attribute,
+      });
+
+    const newSpecification =
+      !addSub || addSub === "false"
+        ? specification
+        : addAttributeSubGroup(
+            specification,
+            addSpecificationSubAttribute,
+            "ASC"
+          );
+
+    return successResponse({
+      data: {
+        general: newGeneral,
+        feature: newFeature,
+        specification: newSpecification,
+      },
+    });
+  }
+  public async copyToBrand(attributeId: string, brandId: string) {
+    const attribute: any = await this.get(attributeId);
+    let copiedName = attribute.data.name + " - copy";
+    const brandAttributes = await attributeRepository.getAllBy({
+      brand_id: brandId,
+    });
+    let temp = copiedName
+    let found: any;
+    let index = 1;
+    do {
+      
+      found = brandAttributes.find((item) => item.name === copiedName);
+      if (found) {
+        copiedName = temp + " " + index;
+        index++;
+      }
+    } while (found);
+    const dataToCreate = {
+      brand_id: brandId,
+      name: copiedName,
+      type: attribute.data.type,
+      subs: attribute.data.subs.map((subGroup: any) => ({
+        name: subGroup.name,
+        subs: subGroup.subs.map((item: any) => ({
+          name: item.name,
+          basis_id: "",
+        })),
+      })),
+    };
+    return this.create(dataToCreate);
   }
 }
 

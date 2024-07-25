@@ -18,6 +18,9 @@ import { MEASUREMENT_UNIT, SQUARE_METER_TO_SQUARE_FOOT } from "@/constants";
 import { locationRepository } from "./location.repository";
 import { v4 } from "uuid";
 
+export type ProjectWithLocation = ProjectAttributes & {
+  location: ILocationAttributes;
+};
 class ProjectRepository extends BaseRepository<ProjectAttributes> {
   protected model: ProjectModel;
 
@@ -149,13 +152,14 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
     selects: string[] = [],
     userId?: string
   ) {
-    let query = this.model.where('design_id', '==', designId)
-      .where('status', '==', status);
+    let query = this.model
+      .where("design_id", "==", designId)
+      .where("status", "==", status);
     if (userId) {
-      query = query.whereIn('team_profile_ids', userId, 'inverse');
+      query = query.whereIn("team_profile_ids", userId, "inverse");
     }
 
-    return query.select(selects).order('created_at', 'DESC').get();
+    return query.select(selects).order("created_at", "DESC").get();
   }
 
   public async getAllProjectByWithSelect(
@@ -201,6 +205,24 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
       { id }
     );
     return project[0];
+  }
+  public async getProjectsWithLocation(
+    designId: string
+  ): Promise<ProjectWithLocation[]> {
+    const projects = await this.model.rawQuery(
+      `
+        FILTER projects.deleted_at == null
+        FILTER projects.design_id == @designId
+        FOR loc IN locations
+        FILTER loc.id == projects.location_id
+        RETURN MERGE(
+          UNSET(projects, ['_id', '_key', '_rev', 'deleted_at']),
+          {location: KEEP(loc, ${locationRepository.basicAttributesQuery})}
+        )
+      `,
+      { designId }
+    );
+    return projects;
   }
 
   public async findProjectWithDesignData(id: string) {
@@ -572,7 +594,16 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FOR z IN project_zones
         FILTER z.deleted_at == null
         FILTER z.project_id == @projectId
-        RETURN KEEP(z, 'id', 'name', 'areas')
+        SORT z.name ASC
+        RETURN {
+          id: z.id,
+          name: z.name,
+          areas: (FOR areas in z.areas SORT areas.name ASC return {
+            id: areas.id,
+            name: areas.name,
+            rooms: (FOR rooms in areas.rooms SORT rooms.room_id ASC return rooms)
+          })
+        }
       )
 
       LET area = SUM(
@@ -607,7 +638,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER pp.deleted_at == null
         RETURN pp
       )
-      LET considerProductBrands = (
+      LET tempConsiderProductBrands = (
         FOR pp IN considerPrjProducts
         FOR product IN products
         FILTER product.id == pp.product_id
@@ -618,17 +649,23 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN {
           name: FIRST(brandGroup[*].b.name),
           logo: FIRST(brandGroup[*].b.logo),
-          products: (FOR group IN brandGroup RETURN MERGE(
+          products: (FOR group IN brandGroup SORT group.product.name ASC RETURN MERGE(
             KEEP(group.product, 'id', 'brand_id', 'name'),
             { image: FIRST(group.product.images), status: group.pp.consider_status } )
           )
         }
+      )
+      LET considerProductBrands = (
+        FOR temp in tempConsiderProductBrands
+        SORT temp.name ASC
+        return temp
       )
       LET considerCustomProducts = (
         FOR pp IN considerPrjProducts
         FOR p IN custom_products
         FILTER p.id == pp.product_id
         FILTER p.deleted_at == null
+        SORT p.name ASC
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
           { image: FIRST(p.images),
@@ -643,8 +680,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FILTER pp.deleted_at == null
         RETURN pp
       )
-
-      LET specifiedProductBrands = (
+      LET tempSpecifiedProductBrands = (
         FOR pp IN specifiedPrjProducts
         FOR product IN products
         FILTER product.id == pp.product_id
@@ -655,17 +691,23 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         RETURN {
           name: FIRST(brandGroup[*].b.name),
           logo: FIRST(brandGroup[*].b.logo),
-          products: (FOR group IN brandGroup RETURN MERGE(
+          products: (FOR group IN brandGroup SORT group.product.name ASC RETURN MERGE(
             KEEP(group.product, 'id', 'brand_id', 'name'),
             { image: FIRST(group.product.images), status: group.pp.specified_status } )
           )
         }
+      )
+      LET specifiedProductBrands = (
+       FOR temp IN tempSpecifiedProductBrands
+       SORT temp.name ASC
+       RETURN temp
       )
       LET specifiedCustomProducts = (
         FOR pp IN specifiedPrjProducts
         FOR p IN custom_products
         FILTER p.id == pp.product_id
         FILTER p.deleted_at == null
+        SORT p.name ASC
         RETURN MERGE(
           KEEP(p, 'id', 'company_id', 'name'),
           { image: FIRST(p.images),
@@ -701,6 +743,7 @@ class ProjectRepository extends BaseRepository<ProjectAttributes> {
         FOR role in roles
         FILTER role.deleted_at == null
         FILTER role.id == u.role_id
+        SORT u.firstname ASC
         RETURN MERGE(
           KEEP(u, 'id', 'firstname', 'lastname', 'gender', 'avatar', 'position', 'email', 'phone', 'mobile', 'status'),
           {

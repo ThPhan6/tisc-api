@@ -1,9 +1,12 @@
+import { SpecificationType } from "@/constants";
 import {
   ProductWithCollectionAndBrand,
   ProductTip,
   ProductDownload,
   DimensionAndWeight,
+  ProductInformation,
 } from "@/types/product.type";
+import { StepRequest } from "../linkage/linkage.type";
 export interface IProduct {
   id: string;
   brand: any;
@@ -32,6 +35,8 @@ export interface IProduct {
 }
 export interface IAttributeGroup {
   name: string;
+  steps?: StepRequest[];
+  defaultPreSelect?: string[];
   attributes: {
     id: string;
     basis_id: string;
@@ -63,10 +68,12 @@ export interface IAttributeGroupHasId {
   id: string;
   name: string;
   attributes: IProductOptionAttribute[];
+  steps?: StepRequest[];
+  defaultPreSelect?: string[];
 }
 export interface IProductRequest {
   brand_id: string;
-  collection_id: string;
+  collection_ids: string[];
   category_ids: string[];
   name: string;
   description: string;
@@ -84,7 +91,8 @@ export interface IProductRequest {
 }
 export interface IUpdateProductRequest {
   brand_id: string;
-  collection_id: string;
+  collection_ids: string[];
+  label_ids: string[];
   category_ids: string[];
   name: string;
   description: string;
@@ -99,6 +107,7 @@ export interface IUpdateProductRequest {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
+  product_information: ProductInformation;
 }
 export interface IProductResponse {
   data: IProduct;
@@ -242,5 +251,6 @@ export interface SelectionAttributeGroupWithOptionalId
 export interface IAttributeGroupWithOptionId {
   id?: string;
   name: string;
+  type?: SpecificationType;
   attributes: IProductOptionAttribute[];
 }

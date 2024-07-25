@@ -42,5 +42,6 @@ export default {
         "ordered_by"
       ),
     },
+    listType: 'bill_services'
   }),
 };

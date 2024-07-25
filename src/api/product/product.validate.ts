@@ -1,6 +1,7 @@
 import Joi from "joi";
 import {
   errorMessage,
+  getListValidation,
   requireStringValidation,
   stringValidation,
 } from "@/validates/common.validate";
@@ -26,6 +27,18 @@ const attributeGroupsValidate = (
     .items(
       Joi.object({
         id: stringValidation(),
+        steps: Joi.array().items(
+          Joi.object({
+            name: Joi.string(),
+            order: Joi.number().min(1),
+            options: Joi.array().items({
+              id: Joi.string(),
+              pre_option: Joi.any(),
+              replicate: Joi.number().min(0),
+            }),
+          })
+        ),
+        defaultPreSelect: Joi.any(),
         name: requireStringValidation(`${type} attribute title`),
         selection: Joi.boolean().allow(null),
         attributes: Joi.array()
@@ -82,7 +95,11 @@ export const dimensionAndWeightValidate = Joi.object({
 
 export const productPayloadValidate = {
   brand_id: requireStringValidation("Brand id"),
-  collection_id: requireStringValidation("Collection"),
+  collection_ids: Joi.array()
+    .items(Joi.string().required())
+    .required()
+    .error(errorMessage("Please select collection")),
+  label_ids: Joi.array().items(Joi.string()),
   category_ids: Joi.array()
     .items(Joi.string().required())
     .required()
@@ -123,6 +140,10 @@ export const productPayloadValidate = {
     })
   ),
   dimension_and_weight: dimensionAndWeightValidate,
+  product_information: Joi.object({
+    product_name: Joi.string().allow(""),
+    product_id: Joi.string().allow(""),
+  }),
 };
 
 export default {
@@ -142,15 +163,16 @@ export default {
       collection_id: Joi.string(),
     }),
   } as any,
-  getListDesignerBrandProducts: {
-    query: Joi.object({
+  getListDesignerBrandProducts: getListValidation({
+    query: {
       category_id: Joi.string(),
       brand_id: Joi.string(),
       name: Joi.string(),
       sort: Joi.string(),
       order: Joi.string().valid("ASC", "DESC"),
-    }),
-  } as any,
+    },
+    listType: "designer_brand_products",
+  }) as any,
   getBrandProductSummary: {
     params: {
       brand_id: requireStringValidation("Brand id"),

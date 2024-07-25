@@ -12,8 +12,16 @@ import {
   IAttributeGroupWithOptionalId,
   IAttributeGroupWithOptionId,
   IProductOption,
+  SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
 import { isArray, toNumber, isNaN } from "lodash";
+import { SpecificationType } from "@/constants";
+import { specificationStepRepository } from "@/repositories/specification_step.repository";
+import { linkageService } from "../linkage/linkage.service";
+import { stepSelectionRepository } from "@/repositories/step_selection.repository";
+import productRepository from "@/repositories/product.repository";
+import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
+import galleryRepository from "@/repositories/gallery.repository";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -41,15 +49,13 @@ export const getUniqueBrands = (products: ProductWithRelationData[]) => {
 };
 
 export const getUniqueCollections = (products: ProductWithRelationData[]) => {
-  return products.reduce(
-    (res: ProductWithRelationData["collection"][], cur) => {
-      if (!res.find((collection) => collection.id === cur.collection.id)) {
-        res = res.concat(cur.collection);
-      }
-      return res;
+  const arr = products.reduce(
+    (res: ProductWithRelationData["collections"], cur) => {
+      return res.concat(cur.collections);
     },
     []
   );
+  return [...new Map(arr.map((item) => [item.id, item])).values()];
 };
 
 export const mappingByCategory = (products: ProductWithRelationData[]) => {
@@ -80,20 +86,38 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
   });
 };
 
-export const mappingByCollections = (products: ProductWithRelationData[]) => {
-  const colletions = getUniqueCollections(products);
-  return colletions.map((collection) => {
-    let categoryProducts = products.filter(
-      (item) => item.collection_id === collection.id
+export const mappingByCollections = (
+  products: ProductWithRelationData[],
+  collectionId?: string
+) => {
+  let collections = getUniqueCollections(products);
+  if (collectionId) {
+    collections = collections.filter(
+      (collection) => collection.id === collectionId
     );
-    ///
-    return {
-      id: collection.id,
-      name: collection.name,
-      count: categoryProducts.length,
-      products: categoryProducts,
-    };
-  });
+  }
+  return Promise.all(
+    collections.map(async (collection) => {
+      let categoryProducts = products.filter((item) =>
+        item.collection_ids?.includes(collection.id)
+      );
+      ///
+      const brandId = products[0].brand_id;
+      const gallery = await galleryRepository.findBy({
+        collection_id: collection.id,
+        brand_id: brandId,
+      });
+      return {
+        id: collection.id,
+        type: collection.type,
+        name: collection.name,
+        images: gallery?.images || [],
+        description: collection.description,
+        count: categoryProducts.length,
+        products: categoryProducts,
+      };
+    })
+  );
 };
 
 export const getTotalVariantOfProducts = (
@@ -154,6 +178,79 @@ export const mappingAttribute = (
     ...attributeGroup,
     id: uuid(),
     attributes: newAttributes,
+  };
+};
+export const mappingSpecificationAttribute = (
+  attributeGroup: SelectionAttributeGroupWithOptionalId,
+  allBasisConversion: BasisConversion[]
+) => {
+  const newAttributes = isArray(attributeGroup.attributes)
+    ? attributeGroup.attributes.reduce((final, attribute: any) => {
+        if (attribute.type === "Conversions") {
+          const conversion = allBasisConversion.find(
+            (basisConversion: any) => basisConversion.id === attribute.basis_id
+          );
+          if (conversion) {
+            const value1 = parseFloat(attribute.conversion_value_1 || "0");
+            const value2 = value1 / conversion.formula_1;
+            final.push({
+              ...attribute,
+              conversion_value_1: numberToFixed(value1),
+              conversion_value_2: numberToFixed(value2),
+            });
+            return final;
+          }
+        }
+        final.push(attribute);
+        return final;
+      }, [] as any)
+    : [];
+  if (attributeGroup.id && isNaN(toNumber(attributeGroup.id))) {
+    return {
+      data: {
+        id: attributeGroup.id,
+        name: attributeGroup.name,
+        attributes: newAttributes,
+        selection: attributeGroup.selection || false,
+      },
+      steps: attributeGroup.steps?.map((step) => ({
+        ...step,
+        specification_id: attributeGroup.id || "",
+      })),
+      defaultPreSelect:
+        attributeGroup.defaultPreSelect && attributeGroup.defaultPreSelect[0]
+          ? {
+              specification_id: attributeGroup.id || "",
+              data: attributeGroup.defaultPreSelect,
+            }
+          : undefined,
+    };
+  }
+  const newId = uuid();
+  let data: any = {
+    id: newId,
+    name: attributeGroup.name,
+    attributes: newAttributes,
+    selection: attributeGroup.selection || false,
+  };
+
+  if (attributeGroup.steps && attributeGroup.steps.length > 0)
+    data = {
+      ...data,
+      type: SpecificationType.autoStep,
+    };
+  return {
+    data,
+    steps: attributeGroup.steps?.map((step) => ({
+      ...step,
+      specification_id: newId,
+    })),
+    defaultPreSelect: attributeGroup.defaultPreSelect
+      ? {
+          specification_id: newId,
+          data: attributeGroup.defaultPreSelect,
+        }
+      : undefined,
   };
 };
 
@@ -287,4 +384,93 @@ export const mappingProductID = (
     });
   });
   return productIDs.filter((item) => item && item !== "").join(", ");
+};
+export const mappingSpecificationStep = (
+  attributeGroups: IAttributeGroupWithOptionId[],
+  productId: string,
+  userId: string
+) => {
+  return Promise.all(
+    attributeGroups.map(async (group) => {
+      const type = await specificationStepRepository.getSpecificationType(
+        group.id || ""
+      );
+      if (!type) return group;
+      const specificationSteps: any = await linkageService.getSteps(
+        productId,
+        group.id || ""
+      );
+      const allProductInformation =
+        await productRepository.getProductInformation();
+      const stepSelection = await stepSelectionRepository.findBy({
+        product_id: productId,
+        user_id: userId,
+        specification_id: group.id || "",
+        deleted_at: null,
+      });
+      const quantities = stepSelection?.quantities;
+      const viewSteps = specificationSteps.data.map(
+        (specificationStep: any, index: number) => {
+          const combinedOptions = specificationStep.options.map(
+            (option: any) => {
+              const tempSelectId: string = !option.pre_option
+                ? `${option.id}_1`
+                : option.pre_option
+                    .split(",")
+                    .concat(option.id)
+                    .map((selectId: string) => `${selectId}_1`)
+                    .join(",");
+              let picked = false;
+              if (
+                quantities &&
+                quantities[tempSelectId] &&
+                quantities[tempSelectId] > 0
+              ) {
+                picked = true;
+              }
+              const nextOptions = specificationSteps.data[
+                index + 1
+              ]?.options.filter(
+                (item: any) =>
+                  item.pre_option ===
+                  (option.pre_option
+                    ? `${option.pre_option},${option.id}`
+                    : option.id)
+              );
+              const productInformation = allProductInformation.find(
+                (pi) => pi.product_id === option.product_id
+              );
+              return {
+                ...option,
+                product_information_id: productInformation?.id,
+                product_information_description: productInformation?.decription,
+                index: 1,
+                select_id: tempSelectId,
+                picked,
+                has_next_options: nextOptions?.length > 0,
+                yours: option.replicate,
+              };
+            }
+          );
+          return {
+            ...specificationStep,
+            options: combinedOptions,
+          };
+        }
+      );
+      const defaultPreSelection = await defaultPreSelectionRepository.findBy({
+        product_id: productId,
+        specification_id: group.id || "",
+      });
+      return {
+        ...group,
+        type,
+        specification_steps: specificationSteps.data,
+        configuration_steps: [],
+        viewSteps,
+        stepSelection: stepSelection,
+        defaultPreSelect: defaultPreSelection?.data || [],
+      };
+    })
+  );
 };

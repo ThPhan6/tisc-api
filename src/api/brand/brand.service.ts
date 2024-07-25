@@ -1,38 +1,46 @@
-import { locationService } from "./../location/location.service";
+import { permissionService } from "@/api/permission/permission.service";
 import {
-  BRAND_STATUSES,
-  MESSAGES,
-  BrandRoles,
   ALL_REGIONS,
+  BRAND_STATUSES,
+  BrandRoles,
   ImageSize,
+  MESSAGES,
+  BASIS_TYPES,
 } from "@/constants";
-import { pagination, randomName, simplizeString } from "@/helpers/common.helper";
+import {
+  pagination,
+  randomName,
+  simplizeString,
+  sortObjectArray,
+} from "@/helpers/common.helper";
 import { createResetPasswordToken } from "@/helpers/password.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import attributeRepository from "@/repositories/attribute.repository";
+import basisRepository from "@/repositories/basis.repository";
 import { brandRepository } from "@/repositories/brand.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
 import { uploadLogo } from "@/services/image.service";
 import { mailService } from "@/services/mail.service";
-import { permissionService } from "@/api/permission/permission.service";
 import {
   ActiveStatus,
   BrandAttributes,
+  GetUserGroupBrandSort,
   SortOrder,
   SummaryInfo,
-  UserStatus,
   UserAttributes,
-  GetUserGroupBrandSort,
+  UserStatus,
   UserType,
 } from "@/types";
+import { sum, sumBy } from "lodash";
+import { v4 } from "uuid";
+import { locationService } from "./../location/location.service";
 import { mappingBrands, mappingBrandsAlphabet } from "./brand.mapping";
 import { IBrandRequest, IUpdateBrandProfileRequest } from "./brand.type";
-import { v4 } from "uuid";
-import { sumBy } from "lodash";
 
 class BrandService {
   private async getOfficialWebsites(brand: BrandAttributes) {
@@ -69,11 +77,40 @@ class BrandService {
     const totalBrand = await brandRepository.getModel().count();
 
     const result = mappingBrands(dataBrandCustom);
+    result.map(async (brand) => {
+      const brandComponent = await basisRepository.findBy({
+        brand_id: brand.id,
+        type: BASIS_TYPES.OPTION,
+      });
+      if (!brandComponent) {
+        await basisRepository.create({
+          brand_id: brand.id,
+          name: brand.name,
+          subs: [],
+          type: BASIS_TYPES.OPTION,
+        });
+      }
+    });
+    const summary = [
+      {
+        name: "Brand",
+        value: result.length,
+      },
+      {
+        name: "Origin",
+        value: result.filter((el) => el.origin).length,
+      },
+      {
+        name: "Category",
+        value: sum(result.map((el: any) => el.main_categories?.length ?? 0)),
+      },
+    ];
 
     return successResponse({
       data: {
         brands: result,
         pagination: pagination(limit, offset, totalBrand),
+        summary,
       },
     });
   }
@@ -98,7 +135,14 @@ class BrandService {
     const officialWebsites = await this.getOfficialWebsites(brand);
 
     return successResponse({
-      data: { ...brand, official_websites: officialWebsites },
+      data: {
+        ...brand,
+        official_websites: sortObjectArray(
+          officialWebsites,
+          "country_name",
+          "ASC"
+        ),
+      },
     });
   }
 
@@ -247,6 +291,13 @@ class BrandService {
 
     const officialWebsites = this.getOfficialWebsites(createdBrand);
 
+    //Create default brand component
+    await basisRepository.create({
+      brand_id: createdBrand.id,
+      name: createdBrand.name,
+      subs: [],
+      type: BASIS_TYPES.OPTION,
+    });
     return successResponse({
       data: { ...createdBrand, official_websites: officialWebsites },
     });

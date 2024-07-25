@@ -34,6 +34,7 @@ export interface ProjectProductAttributes {
   special_instructions: string;
   /// specification
   specification: ProductSpecificationSelection;
+  specification_versions: any[];
   /// allocation
   allocation: string[]; // room_id
   entire_allocation: boolean;
@@ -41,6 +42,8 @@ export interface ProjectProductAttributes {
   created_at: string; // datetime
   created_by: string; // user_id
   updated_at: string;
+  is_done_assistance_request?: boolean;
+  is_considering?: boolean;
 }
 
 export default class ProjectProductModel extends Model<ProjectProductAttributes> {

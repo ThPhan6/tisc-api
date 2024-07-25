@@ -356,7 +356,7 @@ export default class PDFService {
       title,
     };
     const colWidth =
-      data.billing_amount?.length > 10 ? data.billing_amount.length * 1.5 : 15;
+      data.grand_total?.length > 10 ? data.grand_total.length * 1.5 : 15;
     const headerOption = await this.getInvoiceHeader(params, "2.5cm");
     const footerOption = await this.getInvoiceFooter();
     const templateHtml = (await ejs.renderFile(
