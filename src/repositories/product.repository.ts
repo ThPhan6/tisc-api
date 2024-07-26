@@ -102,6 +102,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           id: parentLabels.id,
           name: parentLabels.name
         })
+        filter parentLabel != null
         return {
           id: normalLabels.id,
           name: normalLabels.name,
