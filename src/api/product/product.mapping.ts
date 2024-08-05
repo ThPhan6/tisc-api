@@ -454,7 +454,12 @@ export const mappingSpecificationStep = (
           );
           return {
             ...specificationStep,
-            options: combinedOptions,
+            options:
+              index !== 0
+                ? combinedOptions
+                : combinedOptions.filter(
+                    (step1Item: any) => step1Item.replicate !== 0
+                  ),
           };
         }
       );
