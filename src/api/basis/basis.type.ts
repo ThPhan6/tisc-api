@@ -69,3 +69,8 @@ export enum BasisPresetType {
   general,
   feature,
 }
+
+export enum ProductIDType {
+  Full,
+  Partial,
+}

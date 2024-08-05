@@ -188,6 +188,22 @@ export default class BasisRoute implements IRoute {
           },
         },
         {
+          method: "PUT",
+          path: ROUTES.CHANGE_ID_TYPE,
+          options: {
+            handler: controller.changeIdtype,
+            validate: validate.changeIdType,
+            description: "Method that change ID type",
+            tags: ["api", "Basis option"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "POST",
           path: ROUTES.CREATE_BASIS_PRESET,
           options: {
