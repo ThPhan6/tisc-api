@@ -65,9 +65,11 @@ class AttributeRepository extends BaseRepository<AttributeProps> {
             FOR b IN bases
             FOR bs IN b.subs
             FILTER bs.id == s.basis_id && b.deleted_at == null
+            LET mainGroupIdFormatType = FIRST(FOR main IN basis_option_mains FILTER main.id == bs.main_id RETURN main.id_format_type)
             RETURN MERGE(bs, {
               type: b.type == @conversion ? 'Conversions' :
-                b.type == @preset ? 'Presets' : 'Options'
+                b.type == @preset ? 'Presets' : 'Options',
+              id_format_type: mainGroupIdFormatType || 0
             })
         ) || {
           id: s.basis_id,

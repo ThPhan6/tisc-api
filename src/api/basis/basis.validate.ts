@@ -3,6 +3,7 @@ import {
   errorMessage,
   getListValidation,
   orderValidation,
+  requireNumberValidation,
   requireStringValidation,
 } from "@/validates/common.validate";
 import { BasisPresetType } from "./basis.type";
@@ -196,6 +197,15 @@ export default {
           subs: basisPresetValidation,
         }),
       }),
+    },
+  },
+  changeIdType: {
+    params: {
+      mainId: requireStringValidation("Main group"),
+    },
+    payload: {
+      id_format_type: requireNumberValidation("ID type"),
+      
     },
   },
   getListBasisPreset: getListValidation({

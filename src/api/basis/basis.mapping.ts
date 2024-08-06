@@ -27,6 +27,7 @@ import {
   IBasisPresetRequest,
   IUpdateBasisOptionRequest,
   IUpdateBasisPresetRequest,
+  ProductIDType,
 } from "./basis.type";
 
 export const duplicateBasisConversion = (payload: IBasisConversionRequest) => {
@@ -397,9 +398,13 @@ export const addBasisOptionMain = (
           id: DEFAULT_MAIN_OPTION_ID,
           name: "Main option",
           basis_option_group_id: "",
+          id_format_type: ProductIDType.Full,
         };
       }
-      return main;
+      return {
+        ...main,
+        id_format_type: main.id_format_type || ProductIDType.Full,
+      };
     });
     // get distinct array
     const returnMains = _.uniqBy(mains, "id").map((main: any) => {
@@ -410,6 +415,7 @@ export const addBasisOptionMain = (
       return {
         id: main.id,
         name: main.name,
+        id_format_type: main.id_format_type,
         count: mainSubs.length,
         subs: mainSubs,
       };
