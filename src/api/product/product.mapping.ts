@@ -14,7 +14,7 @@ import {
   IProductOption,
   SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
-import { isArray, toNumber, isNaN } from "lodash";
+import { isArray, toNumber, isNaN, isEmpty } from "lodash";
 import { SpecificationType } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { linkageService } from "../linkage/linkage.service";
@@ -486,17 +486,22 @@ export const mappingProductIdType = (
   allMainGroups: BasisOptionMainAttribute[],
   allBasis: any[]
 ) => {
-  
-  return attributeGroups.map((attributeGroup) => {
-    if (!attributeGroup.attributes[0]) return attributeGroup;
-    const basisId = attributeGroup.attributes[0]?.basis_id;
-    const foundBasis = allBasis.find((basis) => basis.id === basisId);
-    const main = allMainGroups.find(
-      (mainGroup) => mainGroup.id === foundBasis.main_id
-    );
+  return attributeGroups.map((attributeGroup: any) => {
+    const allBasisOptionItems = allBasis.reduce((pre: any, cur: any) => {
+      return pre.concat(cur.subs?.map((item: any) =>({...item, main_id: cur.main_id})))
+    }, []).filter((item: any) => !isEmpty(item))
+    let basisOptionId = ''
+    try {
+      if(attributeGroup.attributes[0]) basisOptionId = attributeGroup.attributes[0]?.basis_options[0]?.id 
+      else basisOptionId = attributeGroup.specification_steps[0]?.options[0]?.id
+    } catch (error) {
+      console.log(error)
+    }
+    const foundBasisOption = allBasisOptionItems.find((item: any) => item.id === basisOptionId)
+    const main = allMainGroups.find(main=> main.id === foundBasisOption.main_id)
     return {
       ...attributeGroup,
       id_format_type: main?.id_format_type || ProductIDType.Full,
     };
-  });
+  })
 };
