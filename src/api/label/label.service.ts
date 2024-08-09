@@ -62,8 +62,6 @@ class LabelService {
     main_label_id: string,
     sub_label_id: string
   ) {
-    console.log(main_label_id);
-    console.log(sub_label_id);
     const subLabel = await labelRepository.find(sub_label_id);
 
     if (!subLabel) return errorMessageResponse(MESSAGES.SUB_LABEL_NOTFOUND);
