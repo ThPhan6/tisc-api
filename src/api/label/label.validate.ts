@@ -11,6 +11,7 @@ export default {
         value.toLowerCase()
       ),
       brand_id: requireStringValidation("Brand"),
+      parent_id: Joi.any(),
     },
   },
   update: {
@@ -19,6 +20,12 @@ export default {
       name: requireStringValidation("Label").custom((value: string) =>
         value.toLowerCase()
       ),
+    },
+  },
+  moveTo: {
+    params: {
+      sub_label_id: requireStringValidation("Sub Label"),
+      main_label_id: requireStringValidation("Main Label"),
     },
   },
 };

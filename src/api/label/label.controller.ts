@@ -33,4 +33,18 @@ export default class LabelController {
     const response = await LabelService.delete(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public moveSubLabelToLabel = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { main_label_id, sub_label_id } = req.params;
+
+    const response = await LabelService.moveSubLabelToLabel(
+      main_label_id,
+      sub_label_id
+    );
+
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

@@ -76,6 +76,7 @@ export default {
     data: Joi.array().items({
       id: Joi.string(),
       name: Joi.string(),
+      id_format_type: Joi.number(),
       subs: Joi.array().items({
         id: Joi.string(),
         name: Joi.string(),

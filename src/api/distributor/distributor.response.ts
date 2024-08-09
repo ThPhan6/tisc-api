@@ -27,7 +27,7 @@ export const distributorResponse = {
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
   website: Joi.string().allow(null),
-  position: Joi.string().allow(null),
+  position: Joi.any(),
 };
 export default {
   getOne: Joi.object({
