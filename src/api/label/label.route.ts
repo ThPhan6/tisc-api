@@ -50,6 +50,23 @@ export default class LabelRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.LABEL.MOVE_TO,
+          options: {
+            handler: controller.moveSubLabelToLabel,
+            validate: validate.moveTo,
+            description: "Method that move sub label to another label",
+            tags: ["api", "Label"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
           method: "PATCH",
           path: ROUTES.LABEL.UPDATE,
           options: {

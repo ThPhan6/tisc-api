@@ -22,4 +22,10 @@ export default {
       ),
     },
   },
+  moveTo: {
+    params: {
+      sub_label_id: requireStringValidation("Sub Label"),
+      main_label_id: requireStringValidation("Main Label"),
+    },
+  },
 };

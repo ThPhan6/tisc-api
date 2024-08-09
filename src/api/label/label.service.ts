@@ -31,8 +31,9 @@ class LabelService {
 
   public async getList(brand_id: string) {
     const labels = await labelRepository.getAllBy({ brand_id });
+    const sortedLabels = labels.sort((a, b) => a.name.localeCompare(b.name));
     return successResponse({
-      data: toNestLabels(labels),
+      data: toNestLabels(sortedLabels),
     });
   }
 
@@ -54,6 +55,27 @@ class LabelService {
     if (!label.parent_id) {
       await labelRepository.deleteBy({ parent_id: id });
     }
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async moveSubLabelToLabel(
+    main_label_id: string,
+    sub_label_id: string
+  ) {
+    console.log(main_label_id);
+    console.log(sub_label_id);
+    const subLabel = await labelRepository.find(sub_label_id);
+
+    if (!subLabel) return errorMessageResponse(MESSAGES.SUB_LABEL_NOTFOUND);
+
+    if (subLabel.parent_id === main_label_id)
+      return errorMessageResponse(MESSAGES.CANNOT_MOVE_TO_PARENT);
+
+    const targetLabel = await labelRepository.find(main_label_id);
+    if (!targetLabel) return errorMessageResponse(MESSAGES.LABEL_NOTFOUND);
+
+    await labelRepository.update(sub_label_id, { parent_id: main_label_id });
+
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
