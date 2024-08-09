@@ -22,6 +22,8 @@ import { stepSelectionRepository } from "@/repositories/step_selection.repositor
 import productRepository from "@/repositories/product.repository";
 import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
 import galleryRepository from "@/repositories/gallery.repository";
+import { BasisOptionMainAttribute } from "@/models/basis_option_main.model";
+import { ProductIDType } from "../basis/basis.type";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -478,4 +480,23 @@ export const mappingSpecificationStep = (
       };
     })
   );
+};
+export const mappingProductIdType = (
+  attributeGroups: IAttributeGroupWithOptionId[],
+  allMainGroups: BasisOptionMainAttribute[],
+  allBasis: any[]
+) => {
+  
+  return attributeGroups.map((attributeGroup) => {
+    if (!attributeGroup.attributes[0]) return attributeGroup;
+    const basisId = attributeGroup.attributes[0]?.basis_id;
+    const foundBasis = allBasis.find((basis) => basis.id === basisId);
+    const main = allMainGroups.find(
+      (mainGroup) => mainGroup.id === foundBasis.main_id
+    );
+    return {
+      ...attributeGroup,
+      id_format_type: main?.id_format_type || ProductIDType.Full,
+    };
+  });
 };

@@ -41,6 +41,7 @@ import {
   mappingByCategory,
   mappingByCollections,
   mappingProductID,
+  mappingProductIdType,
   mappingSpecificationAttribute,
   mappingSpecificationStep,
 } from "./product.mapping";
@@ -66,6 +67,8 @@ import { StepRequest } from "../linkage/linkage.type";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
 import collectionRepository from "@/repositories/collection.repository";
+import { basisOptionMainRepository } from "@/repositories/basis_option_main.repository";
+import { ProductIDType } from "../basis/basis.type";
 
 class ProductService {
   private getAllBasisConversion = async () => {
@@ -155,7 +158,9 @@ class ProductService {
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
-    const collections = await collectionRepository.getMany(payload.collection_ids)
+    const collections = await collectionRepository.getMany(
+      payload.collection_ids
+    );
     const uploadedImages = await uploadImagesProduct(
       payload.images,
       brand.name,
@@ -336,7 +341,9 @@ class ProductService {
       if (imageBase64.length && !(await validateImageType(imageBase64))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-      const collections = await collectionRepository.getMany(payload.collection_ids)
+      const collections = await collectionRepository.getMany(
+        payload.collection_ids
+      );
       const newImages = await uploadImagesProduct(
         payload.images,
         brand.name,
@@ -401,6 +408,7 @@ class ProductService {
     const flatAttributeGroups = mappingAttributeOrBasis(attributeGroups);
     //
     const basisGroups = await BasisRepository.getAll();
+    const basisOptionMains = await basisOptionMainRepository.getAll();
     const flatBasisGroups = mappingAttributeOrBasis(basisGroups);
     //
     const newSpecificationGroups = mappingAttributeGroups(
@@ -409,12 +417,18 @@ class ProductService {
       flatBasisGroups,
       flatBasisGroups
     );
-    const addedSpecificationType = await mappingSpecificationStep(
+
+    const mappedProductIdType = mappingProductIdType(
       newSpecificationGroups,
+      basisOptionMains,
+      flatBasisGroups
+    );
+    const addedSpecificationType = await mappingSpecificationStep(
+      mappedProductIdType,
       product.id,
       user.id
     );
-    const productID = mappingProductID(newSpecificationGroups);
+    const productID = mappingProductID(mappedProductIdType);
     const newGeneralGroups = mappingAttributeGroups(
       product.general_attribute_groups,
       flatAttributeGroups,
