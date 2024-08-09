@@ -348,6 +348,7 @@ export const ROUTES = {
   LABEL: {
     GET_LIST: "/api/label/get-list/{brand_id}",
     CREATE: "/api/label/create",
+    MOVE_TO: "/api/label/{sub_label_id}/move-to/{main_label_id}",
     UPDATE: "/api/label/update/{id}",
     DELETE: "/api/label/delete/{id}",
   },
