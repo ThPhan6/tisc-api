@@ -154,4 +154,13 @@ export default class BasisController {
     const response = await BasisService.updateBasisPreset(id, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+  public changeIdtype = async (
+    req: Request & { payload: { id_format_type: number } },
+    toolkit: ResponseToolkit
+  ) => {
+    const { mainId } = req.params;
+    const payload = req.payload;
+    const response = await BasisService.changeIdtype(mainId, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

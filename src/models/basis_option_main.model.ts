@@ -1,9 +1,10 @@
 import Model from "@/Database/Model";
 
 export interface BasisOptionMainAttribute {
-  id: string,
-  name: string,
-  basis_option_group_id: string
+  id: string;
+  name: string;
+  basis_option_group_id: string;
+  id_format_type?: number;
 }
 export default class BasisOptionMainModel extends Model<BasisOptionMainAttribute> {
   protected table = "basis_option_mains";

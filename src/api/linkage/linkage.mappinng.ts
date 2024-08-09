@@ -29,6 +29,14 @@ export const toConnections = async (
     }, [])
     .filter((item) => item.is_pair === true);
 };
+const getStepProductIdFormat = async (
+  basisOptionId: string,
+  allOptions: any[]
+) => {
+  const option = allOptions.find((item) => item.id === basisOptionId);
+  const main = await basisOptionMainRepository.find(option.main_id);
+  return main?.id_format_type || 0;
+};
 export const toLinkageOptions = async (
   linkages: OptionLinkageAttribute[],
   froms: string[],
@@ -68,6 +76,7 @@ export const toLinkageOptions = async (
       .map((item) => item.main_id);
     mainIds = _.difference(mainIds, exceptMains);
   }
+  const productIdType = await getStepProductIdFormat(froms[0], allOptions);
   const result = await Promise.all(
     mainIds.map(async (mainId) => {
       const groupedBySub = _.groupBy(
@@ -79,6 +88,7 @@ export const toLinkageOptions = async (
       return {
         id: mainId,
         name: main?.name,
+        id_format_type: main?.id_format_type || 0,
         subs: sortObjectArray(
           subIds.map((subId) => ({
             id: subId,
@@ -111,7 +121,11 @@ export const toLinkageOptions = async (
       };
     })
   );
-  return sortObjectArray(result, "name", "ASC");
+  return sortObjectArray(
+    result.filter((item) => item.id_format_type === productIdType),
+    "name",
+    "ASC"
+  );
 };
 
 export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
@@ -121,12 +135,12 @@ export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
     steps.map(async (step) => {
       const mappedPreOptions = await Promise.all(
         step.options.map(async (option) => {
-	  if (!option) return {is_deleted: true};
-	  if (!option.pre_option) return option;
+          if (!option) return { is_deleted: true };
+          if (!option.pre_option) return option;
           const preOptions = option.pre_option.split(",");
           const preOptionNames = preOptions.map((pre) => {
             const found = allOptions.find((item) => item.id === pre);
-	    if (!found) return "N/A";
+            if (!found) return "N/A";
             let temp = [
               found.value_1,
               found.unit_1,
