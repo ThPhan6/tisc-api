@@ -56,6 +56,7 @@ export const subsBasisOptionOrPresetResponse = {
 export const basisOptionMainResponse = {
   id: Joi.string(),
   name: Joi.string(),
+  id_format_type: Joi.number(),
   count: Joi.number(),
   subs: Joi.array().items(subsBasisOptionOrPresetResponse),
 };

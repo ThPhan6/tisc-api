@@ -597,6 +597,16 @@ class BasisService {
     }
     return this.getBasisPreset(id);
   }
+
+  public changeIdtype = async (
+    mainId: string,
+    payload: { id_format_type: number }
+  ) => {
+    await basisOptionMainRepository.update(mainId, {
+      id_format_type: payload.id_format_type,
+    });
+    return successMessageResponse(MESSAGES.SUCCESS);
+  };
 }
 
 export default new BasisService();

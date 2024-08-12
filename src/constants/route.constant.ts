@@ -47,6 +47,7 @@ export const ROUTES = {
   GET_ONE_BASIS_OPTION: "/api/basis-option/get-one/{id}",
   DELETE_BASIS_OPTION: "/api/basis-option/delete/{id}",
   CREATE_BASIS_OPTION: "/api/basis-option/create",
+  CHANGE_ID_TYPE: "/api/basis-option/change-id-type/{mainId}",
   GET_LIST_BASIS_PRESET: "/api/basis-preset/get-list",
   EDIT_BASIS_PRESET: "/api/basis-preset/update/{id}",
   GET_ONE_BASIS_PRESET: "/api/basis-preset/get-one/{id}",
@@ -347,6 +348,7 @@ export const ROUTES = {
   LABEL: {
     GET_LIST: "/api/label/get-list/{brand_id}",
     CREATE: "/api/label/create",
+    MOVE_TO: "/api/label/{sub_label_id}/move-to/{main_label_id}",
     UPDATE: "/api/label/update/{id}",
     DELETE: "/api/label/delete/{id}",
   },
