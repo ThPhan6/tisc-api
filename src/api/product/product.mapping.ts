@@ -14,7 +14,7 @@ import {
   IProductOption,
   SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
-import { isArray, toNumber, isNaN } from "lodash";
+import { isArray, toNumber, isNaN, isEmpty } from "lodash";
 import { SpecificationType } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { linkageService } from "../linkage/linkage.service";
@@ -22,6 +22,8 @@ import { stepSelectionRepository } from "@/repositories/step_selection.repositor
 import productRepository from "@/repositories/product.repository";
 import { defaultPreSelectionRepository } from "@/repositories/default_pre_selection.repository";
 import galleryRepository from "@/repositories/gallery.repository";
+import { BasisOptionMainAttribute } from "@/models/basis_option_main.model";
+import { ProductIDType } from "../basis/basis.type";
 
 export const getUniqueProductCategories = (
   products: ProductWithRelationData[]
@@ -478,4 +480,28 @@ export const mappingSpecificationStep = (
       };
     })
   );
+};
+export const mappingProductIdType = (
+  attributeGroups: IAttributeGroupWithOptionId[],
+  allMainGroups: BasisOptionMainAttribute[],
+  allBasis: any[]
+) => {
+  return attributeGroups.map((attributeGroup: any) => {
+    const allBasisOptionItems = allBasis.reduce((pre: any, cur: any) => {
+      return pre.concat(cur.subs?.map((item: any) =>({...item, main_id: cur.main_id})))
+    }, []).filter((item: any) => !isEmpty(item))
+    let basisOptionId = ''
+    try {
+      if(attributeGroup.attributes[0]) basisOptionId = attributeGroup.attributes[0]?.basis_options[0]?.id 
+      else basisOptionId = attributeGroup.specification_steps[0]?.options[0]?.id
+    } catch (error) {
+      console.log(error)
+    }
+    const foundBasisOption = allBasisOptionItems.find((item: any) => item.id === basisOptionId)
+    const main = allMainGroups.find(main=> main.id === foundBasisOption.main_id)
+    return {
+      ...attributeGroup,
+      id_format_type: main?.id_format_type || ProductIDType.Full,
+    };
+  })
 };
