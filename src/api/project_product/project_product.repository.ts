@@ -136,18 +136,25 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   FOR combinedQuantity IN stepSelection.combined_quantities
                     FOR defaultBasisOption in defaultOptions
                       FILTER defaultBasisOption.id == combinedQuantity.id
-                      RETURN DISTINCT(MERGE(combinedQuantity, {code: defaultBasisOption.product_id}))
+                      RETURN DISTINCT(MERGE(combinedQuantity, {code: defaultBasisOption.product_id, id_format_type: defaultBasisOption.id_format_type}))
               )
 
               FILTER specification.id == productSpecification.id
               FILTER specification.attributes != null
-              LET selectedCodes = (
+              LET arrSelectedCodes = (
                 FILTER selectedOptions != NULL
                 FOR selectedOption IN selectedOptions
                 FOR index IN RANGE(1, selectedOption.quantity)
                 RETURN selectedOption.code
               )
-              LET stepCode = CONCAT_SEPARATOR(' - ', selectedCodes)
+              LET selectedCodes = REVERSE(arrSelectedCodes)
+              LET seperator = (
+                FILTER selectedOptions != NULL
+                LET firstStep = LAST(selectedOptions)
+                LET id_format_type = FIRST(firstStep.id_format_type)
+                RETURN id_format_type == 0 ? ", " : " - "
+              )
+              LET stepCode = CONCAT_SEPARATOR(FIRST(seperator), selectedCodes)
               RETURN stepCode != "" ?
                 stepCode
                :CONCAT_SEPARATOR(' - ', (
@@ -160,7 +167,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                             FOR optionCode IN productSpecificationAttribute.basis_options
                                 FILTER optionCode.id == attribute.basis_option_id
                                 LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
-                                RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? 'N/A': optionCode.option_code) : (defaultOptionCode.product_id == ''? 'N/A': defaultOptionCode.product_id)
+                                RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? '???': optionCode.option_code) : (defaultOptionCode.product_id == ''? '???': defaultOptionCode.product_id)
               ) )
     )
     RETURN {
@@ -571,12 +578,21 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     };
 
     const rawQuery = `
+    LET idFormatTypes = (
+      FOR basisOptionMain IN basis_option_mains
+      RETURN {main_id: basisOptionMain.id, id_format_type: basisOptionMain.id_format_type}
+    )
     LET defaultOptions = (
       FOR basisOptionGroup IN bases
       FOR basisOption IN basisOptionGroup.subs
       FOR basisOptionDetail IN basisOption.subs
       FILTER basisOptionGroup.type == 3
-      RETURN basisOptionDetail
+      LET id_format_type = (
+        FOR idFormatType IN idFormatTypes
+        FILTER idFormatType.main_id == basisOption.main_id
+        RETURN idFormatType.id_format_type
+      )
+      RETURN MERGE(basisOptionDetail, {id_format_type})
       )
     LET productsByBrand = (
       FOR pp IN project_products
