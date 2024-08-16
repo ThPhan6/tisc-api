@@ -134,7 +134,12 @@ export default {
       name: requireStringValidation("Group option name"),
       subs: Joi.array()
         .items({
-          id: Joi.string(),
+          id: Joi.string().custom((value) => {
+            if (value.indexOf("new") !== -1) {
+              return undefined;
+            }
+            return value;
+          }),
           name: Joi.string(),
           subs: Joi.array()
             .items({
@@ -205,7 +210,6 @@ export default {
     },
     payload: {
       id_format_type: requireNumberValidation("ID type"),
-      
     },
   },
   getListBasisPreset: getListValidation({
