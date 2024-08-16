@@ -487,21 +487,37 @@ export const mappingProductIdType = (
   allBasis: any[]
 ) => {
   return attributeGroups.map((attributeGroup: any) => {
-    const allBasisOptionItems = allBasis.reduce((pre: any, cur: any) => {
-      return pre.concat(cur.subs?.map((item: any) =>({...item, main_id: cur.main_id})))
-    }, []).filter((item: any) => !isEmpty(item))
-    let basisOptionId = ''
+    const allBasisOptionItems = allBasis
+      .reduce((pre: any, cur: any) => {
+        return pre.concat(
+          cur.subs?.map((item: any) => ({ ...item, main_id: cur.main_id }))
+        );
+      }, [])
+      .filter((item: any) => !isEmpty(item));
+    let basisOptionId = "";
     try {
-      if(attributeGroup.attributes[0]) basisOptionId = attributeGroup.attributes[0]?.basis_options[0]?.id 
-      else basisOptionId = attributeGroup.specification_steps[0]?.options[0]?.id
+      if (attributeGroup.attributes[0])
+        basisOptionId = attributeGroup.attributes[0]?.basis_options[0]?.id;
+      else
+        basisOptionId = attributeGroup.specification_steps[0]?.options[0]?.id;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-    const foundBasisOption = allBasisOptionItems.find((item: any) => item.id === basisOptionId)
-    const main = allMainGroups.find(main=> main.id === foundBasisOption.main_id)
+    const foundBasisOption = allBasisOptionItems.find(
+      (item: any) => item.id === basisOptionId
+    );
+    if (!foundBasisOption) {
+      return {
+        ...attributeGroup,
+        id_format_type: ProductIDType.Full,
+      };
+    }
+    const main = allMainGroups.find(
+      (main) => main.id === foundBasisOption.main_id
+    );
     return {
       ...attributeGroup,
       id_format_type: main?.id_format_type || ProductIDType.Full,
     };
-  })
+  });
 };
