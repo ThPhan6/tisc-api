@@ -1,0 +1,37 @@
+import Joi from "joi";
+
+const partnerResponse = Joi.object({
+  id: Joi.string(),
+  name: Joi.string(),
+  website: Joi.string().allow(null),
+  country_id: Joi.string(),
+  country_name: Joi.string(),
+  state_name: Joi.string(),
+  state_id: Joi.string(),
+  city_name: Joi.string(),
+  city_id: Joi.string(),
+  contact: Joi.string().allow(""),
+  address: Joi.string(),
+  postal_code: Joi.string(),
+  phone: Joi.string(),
+  email: Joi.string(),
+  affiliation: Joi.any(),
+  relation: Joi.boolean(),
+  acquisition: Joi.number(),
+  price_rate: Joi.number(),
+  authorized_country_name: Joi.string(),
+  authorized_country_ids: Joi.array().items(Joi.string()),
+  coverage_beyond: Joi.boolean(),
+  remark: Joi.string().allow(""),
+  location_id: Joi.string(),
+  phone_code: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string().allow(null),
+});
+
+export default {
+  getOne: Joi.object({
+    statusCode: Joi.number(),
+    data: partnerResponse,
+  }),
+};

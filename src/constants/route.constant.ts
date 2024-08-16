@@ -359,4 +359,7 @@ export const ROUTES = {
     RE_SCHEDULE: "/api/booking/{id}/re-schedule",
     CANCEL: "/api/booking/{id}/cancel",
   },
+  PARTNER: {
+    CREATE_PARTNER: "/api/partner/create-company",
+  },
 };
