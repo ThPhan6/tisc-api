@@ -360,6 +360,7 @@ export const ROUTES = {
     CANCEL: "/api/booking/{id}/cancel",
   },
   PARTNER: {
-    CREATE_PARTNER: "/api/partner/create-company",
+    CREATE_PARTNER: "/api/partner/create-partner",
+    GET_LIST_PARTNER: "/api/partner/get-list-partner",
   },
 };

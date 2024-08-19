@@ -17,14 +17,31 @@ export default class PartnerRoute implements IRoute {
           path: ROUTES.PARTNER.CREATE_PARTNER,
           options: {
             handler: controller.create,
-            validate: validate.create,
-            description: "Method that create a partner",
+            validate: validate.getList,
+            description: "Method that get list partner",
             tags: ["api", "Partner"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.PARTNER.GET_LIST_PARTNER,
+          options: {
+            handler: controller.getList,
+            validate: validate.getList,
+            description: "Method that get list distributor",
+            tags: ["api", "Distributor"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getList,
               },
             },
           },

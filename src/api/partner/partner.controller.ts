@@ -8,4 +8,16 @@ export default class PartnerController {
     const response = await partnerService.create(payload as PartnerAttributes);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getList = async (req: Request, toolkit: ResponseToolkit) => {
+    const { limit, offset, sort, order, filter } = req.query;
+    const response = await partnerService.getList(
+      limit,
+      offset,
+      filter,
+      sort,
+      order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

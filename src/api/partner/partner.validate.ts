@@ -1,5 +1,6 @@
 import {
   errorMessage,
+  getListValidation,
   requireEmailValidation,
   requireNumberValidation,
   requireStringValidation,
@@ -38,4 +39,9 @@ export default {
   create: {
     payload: partnerCompanyValidate,
   },
+  getList: getListValidation({
+    query: {
+      sort: Joi.string().valid("name", "country_name", "city_name"),
+    },
+  }),
 };

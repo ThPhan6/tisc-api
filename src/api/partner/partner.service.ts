@@ -4,9 +4,11 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { distributorRepository } from "@/repositories/distributor.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
+import { SortOrder } from "@/types";
 import { PartnerAttributes } from "@/types/partner.type";
 
 class PartnerService {
@@ -82,6 +84,29 @@ class PartnerService {
       },
     });
   };
+
+  public async getList(
+    limit: number,
+    offset: number,
+    _filter: any,
+    sort: "name" | "country_name" | "city_name",
+    order: SortOrder
+  ) {
+    const { partners, pagination } =
+      await partnerRepository.getListPartnerCompanyWithPagination(
+        limit,
+        offset,
+        sort,
+        order
+      );
+
+    return successResponse({
+      data: {
+        partners,
+        pagination,
+      },
+    });
+  }
 }
 
 export default new PartnerService();

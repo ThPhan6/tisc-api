@@ -34,4 +34,26 @@ export default {
     statusCode: Joi.number(),
     data: partnerResponse,
   }),
+  getList: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.object({
+      pagination: Joi.any(),
+      partners: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          country_name: Joi.string(),
+          city_name: Joi.string(),
+          affiliation: Joi.string(),
+          relation: Joi.boolean(),
+          acquisition: Joi.number(),
+          price_rate: Joi.number(),
+          authorized_country_name: Joi.string(),
+          coverage_beyond: Joi.boolean(),
+          created_at: Joi.string(),
+          updated_at: Joi.string().allow(null),
+        })
+      ),
+    }),
+  }),
 };
