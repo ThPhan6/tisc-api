@@ -110,11 +110,11 @@ export const productPayloadValidate = {
   feature_attribute_groups: attributeGroupsValidate("Feature"),
   specification_attribute_groups: attributeGroupsValidate("Specification"),
   images: Joi.array()
-    .min(3)
-    .max(9)
+    .min(1)
+    .max(4)
     .items(Joi.string())
     .required()
-    .error(errorMessage("Images is required at least 3 valid data")),
+    .error(errorMessage("Images is required at least 1 valid data")),
   keywords: Joi.array()
     .items(Joi.string().allow(""))
     .required()
