@@ -17,12 +17,12 @@ const partnerCompanyValidate = {
   postal_code: requireStringValidation("Postal code"),
   phone: requireStringValidation("General phone"),
   email: requireEmailValidation("General email"),
-  affiliation: requireStringValidation("Affiliation"),
-  relation: Joi.boolean()
-    .required()
-    .valid(true, false)
-    .error(errorMessage("Relation is required")),
-  acquisition: requireNumberValidation("Acquisition"),
+  affiliation_id: Joi.string(),
+  affiliation_name: Joi.string(),
+  relation_id: Joi.string(),
+  relation_name: Joi.string(),
+  acquisition_id: Joi.string(),
+  acquisition_name: Joi.string(),
   price_rate: requireNumberValidation("Price Rate"),
   authorized_country_ids: Joi.array()
     .items(Joi.string().trim().required())

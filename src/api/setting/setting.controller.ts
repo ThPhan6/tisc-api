@@ -1,14 +1,10 @@
 import { MEASUREMENT_UNIT_OPTIONS } from "@/constants";
-import {
-  UserAttributes,
-  DesignLocationFunctionTypeOption
-} from "@/types";
+import { UserAttributes, DesignLocationFunctionTypeOption } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { settingService } from "./setting.service";
-import {getDefaultDimensionAndWeightAttribute} from '@/api/attribute/attribute.mapping';
+import { getDefaultDimensionAndWeightAttribute } from "@/api/attribute/attribute.mapping";
 
 export default class SettingController {
-
   public getCountries = async (_req: Request, toolkit: ResponseToolkit) => {
     const response = await settingService.getCountries();
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -62,7 +58,18 @@ export default class SettingController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-
+  public getCommonPartnerTypes = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { sort_order } = req.query;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await settingService.getCommonPartnerTypes(
+      user.relation_id,
+      sort_order
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
   public getMeasurementUnits = async (
     _req: Request,
     toolkit: ResponseToolkit

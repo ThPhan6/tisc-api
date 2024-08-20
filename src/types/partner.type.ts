@@ -4,9 +4,12 @@ export interface PartnerAttributes {
   country_id: string;
   city_id: string;
   contact: string | null;
-  affiliation: string;
-  relation: boolean;
-  acquisition: PartnerAcquisition;
+  affiliation_name: string;
+  affiliation_id: string;
+  relation_name: string;
+  relation_id: string;
+  acquisition_name: string;
+  acquisition_id: string;
   price_rate: number;
   authorized_country_name: string;
   authorized_country_ids: string[];
@@ -19,12 +22,4 @@ export interface PartnerAttributes {
   phone: string;
   email: string;
   remark: string;
-}
-
-export enum PartnerAcquisition {
-  Active = 1,
-  Leads = 2,
-  Inactive = 3,
-  Freeze = 4,
-  Interested = 5,
 }

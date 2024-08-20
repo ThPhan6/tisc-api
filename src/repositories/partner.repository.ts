@@ -10,9 +10,12 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     country_id: "",
     city_id: "",
     contact: "",
-    affiliation: "",
-    relation: false,
-    acquisition: 1,
+    affiliation_id: "",
+    affiliation_name: "",
+    relation_id: "",
+    relation_name: "",
+    acquisition_id: "",
+    acquisition_name: "",
     price_rate: 0,
     authorized_country_ids: [],
     coverage_beyond: false,
@@ -24,17 +27,21 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     limit: number,
     offset: number,
     sort: "name" | "country_name" | "city_name",
-    order: SortOrder
+    order: SortOrder,
+    relationId: string | null
   ) => {
-    const query = this.model
+    if (relationId) this.model.where("relation_id", "==", relationId);
+
+    let query = this.model
       .getQuery()
       .select([
         "name",
         "country_name",
         "city_name",
-        "affiliation",
-        "relation",
-        "acquisition",
+        "contact",
+        "affiliation_name",
+        "relation_name",
+        "acquisition_name",
         "price_rate",
         "authorized_country_name",
         "coverage_beyond",

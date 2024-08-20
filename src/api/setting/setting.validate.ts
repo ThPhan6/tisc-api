@@ -27,4 +27,9 @@ export default {
       sort_order: Joi.string().valid("ASC", "DESC").allow(""),
     },
   },
+  getCommonPartnerTypes: {
+    query: {
+      sort_order: Joi.string().valid("ASC", "DESC").allow(""),
+    },
+  },
 };

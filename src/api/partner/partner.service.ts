@@ -1,18 +1,21 @@
 import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
-import { MESSAGES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
-import { distributorRepository } from "@/repositories/distributor.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
-import { SortOrder } from "@/types";
+import { SortOrder, UserAttributes } from "@/types";
 import { PartnerAttributes } from "@/types/partner.type";
 
 class PartnerService {
-  public create = async (payload: PartnerAttributes) => {
+  public create = async (
+    authenticatedUser: UserAttributes,
+    payload: PartnerAttributes
+  ) => {
     const isValidGeoLocation =
       await countryStateCityService.validateLocationData(
         payload.country_id,
@@ -56,6 +59,24 @@ class PartnerService {
     const authorizedCountriesName =
       mappingAuthorizedCountriesName(authorizedCountries);
 
+    const affiliation = await commonTypeRepository.findOrCreate(
+      payload.affiliation_id,
+      authenticatedUser.relation_id,
+      COMMON_TYPES.PARTNER_AFFILIATION
+    );
+
+    const relation = await commonTypeRepository.findOrCreate(
+      payload.relation_id,
+      authenticatedUser.relation_id,
+      COMMON_TYPES.PARTNER_RELATION
+    );
+
+    const acquisition = await commonTypeRepository.findOrCreate(
+      payload.acquisition_id,
+      authenticatedUser.relation_id,
+      COMMON_TYPES.PARTNER_ACQUISITION
+    );
+
     const createPartnerCompany = await partnerRepository.create({
       name: payload.name,
       location_id: location.id,
@@ -63,14 +84,17 @@ class PartnerService {
       website: payload.website,
       phone: payload.phone,
       email: payload.email,
-      affiliation: payload.affiliation,
-      relation: payload.relation,
-      acquisition: payload.acquisition,
       price_rate: payload.price_rate,
       authorized_country_ids: payload.authorized_country_ids,
       authorized_country_name: authorizedCountriesName,
       coverage_beyond: payload.coverage_beyond,
       remark: payload.remark,
+      affiliation_id: affiliation.id,
+      relation_id: relation.id,
+      acquisition_id: acquisition.id,
+      affiliation_name: affiliation.name,
+      relation_name: relation.name,
+      acquisition_name: acquisition.name,
     });
 
     if (!createPartnerCompany)
@@ -86,6 +110,7 @@ class PartnerService {
   };
 
   public async getList(
+    authenticatedUser: UserAttributes,
     limit: number,
     offset: number,
     _filter: any,
@@ -97,7 +122,8 @@ class PartnerService {
         limit,
         offset,
         sort,
-        order
+        order,
+        authenticatedUser.relation_id
       );
 
     return successResponse({
