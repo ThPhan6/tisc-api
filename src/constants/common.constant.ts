@@ -26,6 +26,9 @@ export const COMMON_TYPES: CommonTypes = {
   ISSUE_FOR: 13,
   CAPABILITIES: 14,
   INVOICE: 15,
+  PARTNER_AFFILIATION: 16,
+  PARTNER_RELATION: 17,
+  PARTNER_ACQUISITION: 18,
 };
 
 export const MEASUREMENT_UNIT: {
@@ -223,5 +226,5 @@ export const CollectionsToBackup = [
   "templates",
   "user_product_specifications",
   "users",
-  "logs"
+  "logs",
 ];
