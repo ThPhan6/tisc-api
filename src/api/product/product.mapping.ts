@@ -92,11 +92,26 @@ export const mappingByCollections = (
   products: ProductWithRelationData[],
   collectionId?: string
 ) => {
-  let collections = getUniqueCollections(products);
+  let allCollections = getUniqueCollections(products);
+  let collections = [...allCollections,
+    // Other Collection
+    {
+    id: '-1',
+    name: 'Other',
+    type: 2,
+    description: null
+  }];
   if (collectionId) {
     collections = collections.filter(
       (collection) => collection.id === collectionId
     );
+  } else {
+    products.forEach(product => {
+      // Products have no collection ID
+      // Set Other Collection ID -1
+      if(product.collection_ids.length == 0)
+        product.collection_ids.push('-1');
+    });
   }
   return Promise.all(
     collections.map(async (collection) => {
