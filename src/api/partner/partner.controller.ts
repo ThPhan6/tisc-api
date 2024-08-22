@@ -1,16 +1,13 @@
 import partnerService from "@/api/partner/partner.service";
+import { PartnerRequest } from "@/api/partner/partner.type";
 import { UserAttributes } from "@/types";
-import { PartnerAttributes } from "@/types/partner.type";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 
 export default class PartnerController {
   public create = async (req: Request, toolkit: ResponseToolkit) => {
-    const payload = req.payload;
+    const payload = req.payload as PartnerRequest;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await partnerService.create(
-      user,
-      payload as PartnerAttributes
-    );
+    const response = await partnerService.create(user, payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 

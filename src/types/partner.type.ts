@@ -1,6 +1,7 @@
 export interface PartnerAttributes {
   id: string;
   name: string;
+  brand_id: string;
   country_id: string;
   city_id: string;
   contact: string | null;

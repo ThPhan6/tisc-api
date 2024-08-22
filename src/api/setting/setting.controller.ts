@@ -58,13 +58,13 @@ export default class SettingController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
-  public getCommonPartnerTypes = async (
+  public getPartnerCommonTypes = async (
     req: Request,
     toolkit: ResponseToolkit
   ) => {
     const { sort_order } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await settingService.getCommonPartnerTypes(
+    const response = await settingService.getPartnerCommonTypes(
       user.relation_id,
       sort_order
     );

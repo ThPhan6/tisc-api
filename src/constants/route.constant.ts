@@ -211,7 +211,7 @@ export const ROUTES = {
   SETTING: {
     COUNTRY_REGION_GROUP: "/api/setting/regions",
     COMMON_TYPES_LIST: "/api/setting/common-type/{type}",
-    COMMON_PARTNER_TYPES_LIST: "/api/setting/common-partner-type",
+    COMMON_PARTNER_TYPES_LIST: "/api/setting/partner-common-type",
     GET_COUNTRIES: "/api/setting/countries",
     GET_STATES: "/api/setting/states",
     GET_CITIES: "/api/setting/cities",

@@ -18,7 +18,7 @@ export default class SettingService {
     );
     return successResponse({ data: commonTypes });
   };
-  public getCommonPartnerTypes = async (
+  public getPartnerCommonTypes = async (
     relationId: string,
     sort_order?: SortOrder
   ) => {

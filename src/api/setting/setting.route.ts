@@ -49,9 +49,9 @@ export default class SettingRoute implements IRoute {
           method: "GET",
           path: ROUTES.SETTING.COMMON_PARTNER_TYPES_LIST,
           options: {
-            handler: controller.getCommonPartnerTypes,
-            validate: validate.getCommonPartnerTypes,
-            description: "Method that get common partner types",
+            handler: controller.getPartnerCommonTypes,
+            validate: validate.getPartnerCommonTypes,
+            description: "Method that get partner common types",
             tags: ["api", "Setting"],
             auth: AUTH_NAMES.GENERAL,
             response: {
@@ -185,22 +185,6 @@ export default class SettingRoute implements IRoute {
           options: {
             handler: controller.getFunctionalType,
             description: "Method that get functional type",
-            tags: ["api", "Setting"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.responseIdIsNumber,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.SETTING.GET_ASSOCIATION_TYPE,
-          options: {
-            handler: controller.getPartnerAssociationType,
-            description: "Method that get partner association type",
             tags: ["api", "Setting"],
             auth: AUTH_NAMES.GENERAL,
             response: {

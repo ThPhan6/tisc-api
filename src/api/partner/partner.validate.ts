@@ -1,7 +1,6 @@
 import {
   errorMessage,
   getListValidation,
-  requireEmailValidation,
   requireNumberValidation,
   requireStringValidation,
 } from "@/validates/common.validate";
@@ -13,10 +12,10 @@ const partnerCompanyValidate = {
   country_id: requireStringValidation("Country"),
   state_id: requireStringValidation("State"),
   city_id: requireStringValidation("City"),
-  address: requireStringValidation("Address"),
-  postal_code: requireStringValidation("Postal code"),
-  phone: requireStringValidation("General phone"),
-  email: requireEmailValidation("General email"),
+  address: Joi.string().allow(),
+  postal_code: Joi.string().allow(),
+  phone: Joi.string().allow(),
+  email: Joi.string().allow(),
   affiliation_id: Joi.string(),
   affiliation_name: Joi.string(),
   relation_id: Joi.string(),
@@ -42,6 +41,15 @@ export default {
   getList: getListValidation({
     query: {
       sort: Joi.string().valid("name", "country_name", "city_name"),
+      order: Joi.string().valid("DESC", "ASC"),
+      page: Joi.string(),
+      pageSize: Joi.string(),
+      filter: Joi.any(),
     },
+    custom: (value) => ({
+      sort: value.sort || "name",
+      order: value.order || "ASC",
+      filter: JSON.parse(value.filter || "{}"),
+    }),
   }),
 };

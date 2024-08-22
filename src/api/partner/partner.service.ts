@@ -1,64 +1,71 @@
-import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
+import { locationService } from "@/api/location/location.service";
+import { PartnerRequest, PartnerResponse } from "@/api/partner/partner.type";
 import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
-import { countryStateCityService } from "@/services/country_state_city.service";
-import { SortOrder, UserAttributes } from "@/types";
-import { PartnerAttributes } from "@/types/partner.type";
+import {
+  CommonTypeAttributes,
+  LocationInfo,
+  SortOrder,
+  UserAttributes,
+} from "@/types";
 
 class PartnerService {
   public create = async (
     authenticatedUser: UserAttributes,
-    payload: PartnerAttributes
+    payload: PartnerRequest
   ) => {
-    const isValidGeoLocation =
-      await countryStateCityService.validateLocationData(
-        payload.country_id,
-        payload.city_id,
-        payload.state_id
-      );
+    const isValidGeoLocation = await locationService.validateGeoLocation(
+      payload
+    );
 
     if (isValidGeoLocation !== true) return isValidGeoLocation;
 
-    const countryStateCity = await countryStateCityService.getCountryStateCity(
-      payload.country_id,
-      payload.city_id,
-      payload.state_id
+    const locationInfo = await locationService.createLocationGeneralInfo(
+      payload
     );
 
-    if (!countryStateCity)
-      return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
-
-    const locationInfo = {
-      country_id: countryStateCity.country_id,
-      state_id: countryStateCity.state_id,
-      city_id: countryStateCity.city_id,
-      country_name: countryStateCity.country_name,
-      state_name: countryStateCity.state_name,
-      city_name: countryStateCity.city_name,
-      phone_code: countryStateCity.phone_code,
-      address: payload.address,
-      postal_code: payload.postal_code,
-    };
-
-    const location = await locationRepository.create(locationInfo);
-    if (!location) return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
-
-    const authorizedCountries = await countryStateCityService.getCountries(
-      payload.authorized_country_ids
-    );
-
-    if (!authorizedCountries)
-      return errorMessageResponse("Not authorized countries, please check ids");
+    if (!locationInfo)
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
 
     const authorizedCountriesName =
-      mappingAuthorizedCountriesName(authorizedCountries);
+      await locationService.getAuthorizedCountriesName(payload);
 
+    if (!authorizedCountriesName)
+      return errorMessageResponse("Not authorized countries, please check ids");
+
+    const { affiliation, relation, acquisition } =
+      await this.createPartnerRelations(payload, authenticatedUser);
+
+    const createPartnerCompany = await this.createPartnerCompany(
+      payload,
+      locationInfo as LocationInfo,
+      authorizedCountriesName,
+      affiliation,
+      relation,
+      acquisition,
+      authenticatedUser
+    );
+
+    if (!createPartnerCompany)
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
+
+    return successResponse({
+      data: {
+        ...createPartnerCompany,
+        authorizedCountries: authorizedCountriesName,
+      },
+    });
+  };
+
+  public createPartnerRelations = async (
+    payload: PartnerRequest,
+    authenticatedUser: UserAttributes
+  ) => {
     const affiliation = await commonTypeRepository.findOrCreate(
       payload.affiliation_id,
       authenticatedUser.relation_id,
@@ -77,9 +84,21 @@ class PartnerService {
       COMMON_TYPES.PARTNER_ACQUISITION
     );
 
-    const createPartnerCompany = await partnerRepository.create({
+    return { affiliation, relation, acquisition };
+  };
+
+  public createPartnerCompany = async (
+    payload: PartnerRequest,
+    locationInfo: LocationInfo,
+    authorizedCountriesName: string,
+    affiliation: CommonTypeAttributes,
+    relation: CommonTypeAttributes,
+    acquisition: CommonTypeAttributes,
+    authenticatedUser: UserAttributes
+  ) => {
+    return await partnerRepository.create({
       name: payload.name,
-      location_id: location.id,
+      location_id: locationInfo.id,
       ...locationInfo,
       website: payload.website,
       phone: payload.phone,
@@ -95,17 +114,7 @@ class PartnerService {
       affiliation_name: affiliation.name,
       relation_name: relation.name,
       acquisition_name: acquisition.name,
-    });
-
-    if (!createPartnerCompany)
-      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_CREATE);
-
-    return successResponse({
-      data: {
-        ...createPartnerCompany,
-        authorizedCountries:
-          mappingAuthorizedCountriesName(authorizedCountries),
-      },
+      brand_id: authenticatedUser.relation_id,
     });
   };
 
@@ -113,25 +122,31 @@ class PartnerService {
     authenticatedUser: UserAttributes,
     limit: number,
     offset: number,
-    _filter: any,
+    filter: {
+      affiliation_id?: string;
+      relation_id?: string;
+      acquisition_id?: string;
+    } = {},
     sort: "name" | "country_name" | "city_name",
     order: SortOrder
-  ) {
+  ): Promise<PartnerResponse> {
     const { partners, pagination } =
       await partnerRepository.getListPartnerCompanyWithPagination(
         limit,
         offset,
         sort,
         order,
-        authenticatedUser.relation_id
+        authenticatedUser.relation_id,
+        filter
       );
 
-    return successResponse({
+    return {
       data: {
         partners,
         pagination,
       },
-    });
+      statusCode: 200,
+    };
   }
 }
 

@@ -7,6 +7,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
   protected model: PartnerModel;
   protected DEFAULT_ATTRIBUTE: Partial<PartnerAttributes> = {
     name: "",
+    brand_id: "",
     country_id: "",
     city_id: "",
     contact: "",
@@ -28,10 +29,13 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     offset: number,
     sort: "name" | "country_name" | "city_name",
     order: SortOrder,
-    relationId: string | null
+    brandId: string | null,
+    filter: {
+      affiliation_id?: string;
+      relation_id?: string;
+      acquisition_id?: string;
+    } = {}
   ) => {
-    if (relationId) this.model.where("relation_id", "==", relationId);
-
     let query = this.model
       .getQuery()
       .select([
@@ -45,11 +49,27 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
         "price_rate",
         "authorized_country_name",
         "coverage_beyond",
-      ])
-      .order(sort, order)
-      .paginate(limit, offset);
+      ]);
 
-    const result = await query;
+    if (brandId) {
+      query = query.where("brand_id", "==", brandId);
+    }
+
+    if (filter.affiliation_id) {
+      query = query.where("affiliation_id", "==", filter.affiliation_id);
+    }
+
+    if (filter.relation_id) {
+      query = query.where("relation_id", "==", filter.relation_id);
+    }
+
+    if (filter.acquisition_id) {
+      query = query.where("acquisition_id", "==", filter.acquisition_id);
+    }
+
+    query = query.order(sort, order);
+
+    const result = await query.paginate(limit, offset);
 
     return {
       partners: result.data,

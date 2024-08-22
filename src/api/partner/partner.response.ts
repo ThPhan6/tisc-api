@@ -28,6 +28,7 @@ const partnerResponse = Joi.object({
   coverage_beyond: Joi.boolean(),
   remark: Joi.string().allow(""),
   location_id: Joi.string(),
+  brand_id: Joi.string(),
   phone_code: Joi.string(),
   created_at: Joi.string(),
   updated_at: Joi.string().allow(null),
