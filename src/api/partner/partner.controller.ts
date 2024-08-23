@@ -24,4 +24,25 @@ export default class PartnerController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  public getOne = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await partnerService.getOne(id, user);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public update = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const payload = req.payload as PartnerRequest;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await partnerService.update(id, payload, user);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await partnerService.delete(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

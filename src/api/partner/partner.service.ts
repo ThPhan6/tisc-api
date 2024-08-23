@@ -1,18 +1,27 @@
+import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
 import { locationService } from "@/api/location/location.service";
 import { PartnerRequest, PartnerResponse } from "@/api/partner/partner.type";
 import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
+  successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { distributorRepository } from "@/repositories/distributor.repository";
+import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
+import { countryStateCityService } from "@/services/country_state_city.service";
 import {
   CommonTypeAttributes,
+  ICountryStateCity,
   LocationInfo,
   SortOrder,
   UserAttributes,
 } from "@/types";
+import { PartnerAttributes } from "@/types/partner.type";
+import { isEqual, pick } from "lodash";
 
 class PartnerService {
   public create = async (
@@ -57,7 +66,7 @@ class PartnerService {
     return successResponse({
       data: {
         ...createPartnerCompany,
-        authorizedCountries: authorizedCountriesName,
+        authorized_countries: authorizedCountriesName,
       },
     });
   };
@@ -147,6 +156,182 @@ class PartnerService {
       },
       statusCode: 200,
     };
+  }
+
+  public async getOne(id: string, authenticatedUser: UserAttributes) {
+    const { partner } = await partnerRepository.getOnePartnerCompany(
+      id,
+      authenticatedUser.relation_id
+    );
+
+    if (!partner)
+      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
+
+    return successResponse({
+      data: {
+        ...partner,
+      },
+    });
+  }
+
+  public async update(
+    id: string,
+    payload: PartnerRequest,
+    user: UserAttributes
+  ) {
+    const partner = await this.getPartner(id, user);
+
+    await this.checkBrand(user.relation_id);
+
+    await this.checkPartnerExisted(id, user.relation_id, payload.name);
+
+    const locationInfo = await this.updateLocation(
+      payload,
+      partner as PartnerAttributes
+    );
+
+    const authorizedCountriesName = await this.updateAuthorizedCountries(
+      payload,
+      partner as PartnerAttributes
+    );
+
+    if (typeof authorizedCountriesName !== "string")
+      return authorizedCountriesName;
+
+    const { acquisition, affiliation, relation } =
+      await this.createPartnerRelations(payload, user);
+
+    const updatedPartner = await this.updatePartner(
+      id,
+      payload,
+      locationInfo,
+      authorizedCountriesName,
+      affiliation,
+      relation,
+      acquisition
+    );
+
+    if (!updatedPartner)
+      return errorMessageResponse(MESSAGES.GENERAL.SOMETHING_WRONG_UPDATE);
+
+    return successResponse({
+      data: {
+        ...updatedPartner,
+        authorized_countries: authorizedCountriesName,
+      },
+    });
+  }
+
+  private async getPartner(id: string, user: UserAttributes) {
+    const { partner } = await partnerRepository.getOnePartnerCompany(
+      id,
+      user.relation_id
+    );
+    if (!partner)
+      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
+    return partner;
+  }
+
+  private async checkBrand(brandId: string) {
+    const brand = await brandRepository.find(brandId);
+    if (!brand) throw errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
+  }
+
+  private async checkPartnerExisted(id: string, brandId: string, name: string) {
+    const existedPartner =
+      await distributorRepository.getExistedBrandDistributor(id, brandId, name);
+    if (existedPartner)
+      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
+  }
+
+  private async updateLocation(
+    payload: PartnerRequest,
+    partner: PartnerAttributes
+  ) {
+    const locationHaveUpdated = !isEqual(
+      pick(payload, ["country_id", "state_id", "city_id"]),
+      pick(partner, ["country_id", "state_id", "city_id"])
+    );
+
+    if (!locationHaveUpdated) return {};
+
+    const isValidGeoLocation = await locationService.validateGeoLocation(
+      payload
+    );
+    if (isValidGeoLocation !== true) return isValidGeoLocation;
+
+    const projectLocation = await countryStateCityService.getCountryStateCity(
+      payload.country_id,
+      payload.city_id,
+      payload.state_id
+    );
+
+    const locationInfo = {
+      ...projectLocation,
+      address: payload.address,
+      postal_code: payload.postal_code,
+    };
+
+    const updatedLocation = await locationRepository.findAndUpdate(
+      partner.location_id,
+      locationInfo
+    );
+    if (!updatedLocation)
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+
+    return locationInfo;
+  }
+
+  private async updateAuthorizedCountries(
+    payload: PartnerRequest,
+    partner: PartnerAttributes
+  ) {
+    if (
+      isEqual(payload.authorized_country_ids, partner.authorized_country_ids)
+    ) {
+      return partner.authorized_country_name;
+    }
+
+    const authorizedCountries = await countryStateCityService.getCountries(
+      payload.authorized_country_ids
+    );
+    if (!authorizedCountries)
+      return errorMessageResponse("Not authorized countries, please check ids");
+
+    return mappingAuthorizedCountriesName(authorizedCountries);
+  }
+
+  private async updatePartner(
+    id: string,
+    payload: PartnerRequest,
+    locationInfo: Partial<
+      ICountryStateCity & { address: string; postal_code: string }
+    >,
+    authorizedCountriesName: string,
+    affiliation: CommonTypeAttributes,
+    relation: CommonTypeAttributes,
+    acquisition: CommonTypeAttributes
+  ) {
+    return await partnerRepository.update(id, {
+      ...payload,
+      ...locationInfo,
+      authorized_country_name: authorizedCountriesName,
+      affiliation_id: affiliation.id,
+      relation_id: relation.id,
+      acquisition_id: acquisition.id,
+      affiliation_name: affiliation.name,
+      relation_name: relation.name,
+      acquisition_name: acquisition.name,
+    });
+  }
+
+  public async delete(id: string) {
+    const foundPartner = await partnerRepository.findAndDelete(id);
+
+    if (!foundPartner)
+      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND, 404);
+
+    return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
 }
 
