@@ -39,6 +39,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     let query = this.model
       .getQuery()
       .select([
+        "id",
         "name",
         "country_name",
         "city_name",
@@ -74,6 +75,46 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     return {
       partners: result.data,
       pagination: result.pagination,
+    };
+  };
+
+  public getOnePartnerCompany = async (id: string, brandId: string) => {
+    let query = this.model
+      .getQuery()
+      .select([
+        "name",
+        "website",
+        "country_id",
+        "country_name",
+        "state_id",
+        "state_name",
+        "city_id",
+        "city_name",
+        "address",
+        "postal_code",
+        "phone",
+        "phone_code",
+        "email",
+        "affiliation_id",
+        "affiliation_name",
+        "relation_id",
+        "relation_name",
+        "acquisition_id",
+        "acquisition_name",
+        "price_rate",
+        "authorized_country_ids",
+        "authorized_country_name",
+        "coverage_beyond",
+        "remark",
+        "location_id",
+      ])
+      .where("brand_id", "==", brandId)
+      .where("id", "==", id);
+
+    const result = await query.first();
+
+    return {
+      partner: result as PartnerAttributes,
     };
   };
 

@@ -3,8 +3,12 @@ import IRoute from "@/helpers/route.helper";
 import PartnerController from "@/api/partner/partner.controller";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import validate from "@/api/partner/partner.validate";
-import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
+import {
+  defaultRouteOptionResponseStatus,
+  generalMessageResponse,
+} from "@/helpers/response.helper";
 import response from "@/api/partner/partner.response";
+import { getOneValidation } from "@/validates/common.validate";
 
 export default class PartnerRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
@@ -42,6 +46,57 @@ export default class PartnerRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.PARTNER.GET_ONE_PARTNER,
+          options: {
+            handler: controller.getOne,
+            validate: getOneValidation,
+            description: "Method that get one partner",
+            tags: ["api", "Partner"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "PUT",
+          path: ROUTES.PARTNER.UPDATE_PARTNER,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update partner",
+            tags: ["api", "Partner"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.PARTNER.DELETE_PARTNER,
+          options: {
+            handler: controller.delete,
+            validate: getOneValidation,
+            description: "Method that delete partner",
+            tags: ["api", "Partner"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
               },
             },
           },

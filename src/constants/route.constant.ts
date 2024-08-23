@@ -364,5 +364,8 @@ export const ROUTES = {
   PARTNER: {
     CREATE_PARTNER: "/api/partner/create-partner",
     GET_LIST_PARTNER: "/api/partner/get-list-partner",
+    GET_ONE_PARTNER: "/api/partner/get-one/{id}",
+    UPDATE_PARTNER: "/api/partner/update/{id}",
+    DELETE_PARTNER: "/api/partner/delete/{id}",
   },
 };

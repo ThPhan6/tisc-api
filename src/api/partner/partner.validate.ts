@@ -52,4 +52,10 @@ export default {
       filter: JSON.parse(value.filter || "{}"),
     }),
   }),
+  update: {
+    params: {
+      id: requireStringValidation("Id"),
+    },
+    payload: partnerCompanyValidate,
+  },
 };

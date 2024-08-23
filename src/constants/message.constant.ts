@@ -80,6 +80,11 @@ export const MESSAGES = {
     DISTRIBUTOR_NOT_FOUND: "Distributor not found",
   },
 
+  PARTNER: {
+    PARTNER_NOT_FOUND: "Partner not found",
+    PARTNER_EXISTED: "Partner is already exists",
+  },
+
   BRAND: {
     BRAND_NOT_FOUND: "Brand not found",
     NOT_IN_BRAND: "You are not in this brand",
