@@ -92,11 +92,26 @@ export const mappingByCollections = (
   products: ProductWithRelationData[],
   collectionId?: string
 ) => {
-  let collections = getUniqueCollections(products);
+  let allCollections = getUniqueCollections(products);
+  let collections = [...allCollections,
+    // Other Collection
+    {
+    id: '-1',
+    name: 'Other',
+    type: 2,
+    description: null
+  }];
   if (collectionId) {
     collections = collections.filter(
       (collection) => collection.id === collectionId
     );
+  } else {
+    products.forEach(product => {
+      // Products have no collection ID
+      // Set Other Collection ID -1
+      if(product.collection_ids.length == 0)
+        product.collection_ids.push('-1');
+    });
   }
   return Promise.all(
     collections.map(async (collection) => {
@@ -507,17 +522,56 @@ export const mappingProductIdType = (
       (item: any) => item.id === basisOptionId
     );
     if (!foundBasisOption) {
+      return attributeGroup;
+    }
+    
+    // Adding the product id format type for each option/step
+    if (attributeGroup.attributes[0]){
+      let newAttributes = attributeGroup.attributes.map((attribute: any) => {
+        let newBasisOptions = attribute.basis_options.map((basis_option: any) =>{
+          const foundBasisOption = allBasisOptionItems.find(
+            (item: any) => item.id === basis_option.id
+          );
+          const main = allMainGroups.find(
+            (main) => main.id === foundBasisOption.main_id
+          );
+          return {
+            ...basis_option,
+            id_format_type: main?.id_format_type || ProductIDType.Full
+          }
+        });
+        return {
+          ...attribute,
+          basis_options: newBasisOptions
+        };
+      });
       return {
         ...attributeGroup,
-        id_format_type: ProductIDType.Full,
-      };
+        attributes: newAttributes,
+      }
+    } else {
+      let newSpecStep = attributeGroup.specification_steps.map((specStep: any) => {
+        let newOptions = specStep.options.map((option: any) =>{
+          const foundBasisOption = allBasisOptionItems.find(
+            (item: any) => item.id === option.id
+          );
+          const main = allMainGroups.find(
+            (main) => main.id === foundBasisOption.main_id
+          );
+          return {
+            ...option,
+            id_format_type: main?.id_format_type || ProductIDType.Full
+          }
+        });
+        return {
+          ...specStep,
+          options: newOptions
+        };
+      });
+      return {
+        ...attributeGroup,
+        specification_steps: newSpecStep,
+      }
     }
-    const main = allMainGroups.find(
-      (main) => main.id === foundBasisOption.main_id
-    );
-    return {
-      ...attributeGroup,
-      id_format_type: main?.id_format_type || ProductIDType.Full,
-    };
   });
 };
