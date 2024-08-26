@@ -24,6 +24,7 @@ import {
   mappingByCountries,
   sortMainOfficeFirst,
 } from "./location.mapping";
+import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
 
 export default class LocationService {
   private async getFunctionalType(
@@ -46,16 +47,9 @@ export default class LocationService {
   }
 
   public create = async (user: UserAttributes, payload: LocationRequest) => {
-    const isValidGeoLocation =
-      await countryStateCityService.validateLocationData(
-        payload.country_id,
-        payload.city_id,
-        payload.state_id
-      );
+    const isValidGeoLocation = await this.validateGeoLocation(payload);
 
-    if (isValidGeoLocation !== true) {
-      return isValidGeoLocation;
-    }
+    if (isValidGeoLocation !== true) return isValidGeoLocation;
 
     const countryStateCity = await countryStateCityService.getCountryStateCity(
       payload.country_id,
@@ -95,16 +89,9 @@ export default class LocationService {
     id: string,
     payload: LocationRequest
   ) => {
-    const isValidGeoLocation =
-      await countryStateCityService.validateLocationData(
-        payload.country_id,
-        payload.city_id,
-        payload.state_id
-      );
+    const isValidGeoLocation = await this.validateGeoLocation(payload);
 
-    if (isValidGeoLocation !== true) {
-      return isValidGeoLocation;
-    }
+    if (isValidGeoLocation !== true) return isValidGeoLocation;
 
     const countryStateCity = await countryStateCityService.getCountryStateCity(
       payload.country_id,
@@ -242,20 +229,26 @@ export default class LocationService {
     relationId: string,
     type: UserType,
     email: string,
-    ipAddress?: string,
+    ipAddress?: string
   ) => {
-    const country = await countryStateCityService.findCountryByIpAddress(ipAddress);
+    const country = await countryStateCityService.findCountryByIpAddress(
+      ipAddress
+    );
     const functionTypes = await this.getFunctionalType(
       type,
       null,
-      type === UserType.Brand ? ['Headquarter'] : [DesignFirmFunctionalType.MainOffice]
+      type === UserType.Brand
+        ? ["Headquarter"]
+        : [DesignFirmFunctionalType.MainOffice]
     );
 
     return locationRepository.create({
       business_name: "Company Name",
-      functional_type_ids: functionTypes ? functionTypes.map((item) => item.id) : [""],
+      functional_type_ids: functionTypes
+        ? functionTypes.map((item) => item.id)
+        : [""],
       business_number: "",
-      functional_type: functionTypes?.map((item) => item.name).join(', ') || '',
+      functional_type: functionTypes?.map((item) => item.name).join(", ") || "",
       country_id: country.id,
       country_name: country.name,
       state_id: "",
@@ -320,6 +313,44 @@ export default class LocationService {
     }
 
     return { location: upsertLocation };
+  };
+
+  public validateGeoLocation = async (payload: {
+    country_id: string;
+    city_id?: string;
+    state_id?: string;
+  }) => {
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.city_id,
+        payload.state_id
+      );
+
+    if (isValidGeoLocation !== true) return isValidGeoLocation;
+
+    const countryStateCity = await countryStateCityService.getCountryStateCity(
+      payload.country_id,
+      payload.city_id,
+      payload.state_id
+    );
+
+    if (!countryStateCity)
+      return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
+
+    return true;
+  };
+
+  public getAuthorizedCountriesName = async (payload: {
+    authorized_country_ids: string[];
+  }) => {
+    const authorizedCountries = await countryStateCityService.getCountries(
+      payload.authorized_country_ids
+    );
+
+    if (!authorizedCountries) return null;
+
+    return mappingAuthorizedCountriesName(authorizedCountries);
   };
 }
 export const locationService = new LocationService();

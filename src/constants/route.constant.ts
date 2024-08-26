@@ -211,6 +211,7 @@ export const ROUTES = {
   SETTING: {
     COUNTRY_REGION_GROUP: "/api/setting/regions",
     COMMON_TYPES_LIST: "/api/setting/common-type/{type}",
+    COMMON_PARTNER_TYPES_LIST: "/api/setting/partner-common-type",
     GET_COUNTRIES: "/api/setting/countries",
     GET_STATES: "/api/setting/states",
     GET_CITIES: "/api/setting/cities",
@@ -220,6 +221,7 @@ export const ROUTES = {
     GET_MEASUREMENT_UNIT: "/api/setting/measurement-units",
     GET_FUNCTIONAL_TYPE: "/api/setting/functional-type",
     GET_DEFAULT_DIMENSION_AND_WEIGHT: "/api/setting/dimension-and-weight",
+    GET_ASSOCIATION_TYPE: "/api/setting/association-type",
   },
   MATERIAL_CODE: {
     GET_MATERIAL_CODES: "/api/material-code/get-list",
@@ -358,5 +360,12 @@ export const ROUTES = {
     GET_ONE: "/api/booking/{id}",
     RE_SCHEDULE: "/api/booking/{id}/re-schedule",
     CANCEL: "/api/booking/{id}/cancel",
+  },
+  PARTNER: {
+    CREATE_PARTNER: "/api/partner/create-partner",
+    GET_LIST_PARTNER: "/api/partner/get-list-partner",
+    GET_ONE_PARTNER: "/api/partner/get-one/{id}",
+    UPDATE_PARTNER: "/api/partner/update/{id}",
+    DELETE_PARTNER: "/api/partner/delete/{id}",
   },
 };

@@ -145,30 +145,50 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                 FILTER selectedOptions != NULL
                 FOR selectedOption IN selectedOptions
                 FOR index IN RANGE(1, selectedOption.quantity)
-                RETURN selectedOption.code
+                RETURN selectedOption
               )
-              LET selectedCodes = REVERSE(arrSelectedCodes)
-              LET seperator = (
-                FILTER selectedOptions != NULL
-                LET firstStep = LAST(selectedOptions)
-                LET id_format_type = FIRST(firstStep.id_format_type)
-                RETURN id_format_type == 0 ? ", " : " - "
+              LET selectedCodes = UNSHIFT(POP(arrSelectedCodes), LAST(arrSelectedCodes))
+              LET stepCode = (
+                FOR index IN RANGE(0, LENGTH(selectedCodes)-1)
+                LET seperator = (
+                  FILTER index != 0
+                  LET curFormat = FIRST(NTH(selectedCodes, index).id_format_type)
+                  LET prevFormat = FIRST(NTH(selectedCodes, index-1).id_format_type)
+                  RETURN prevFormat == 0? ", " : curFormat == 0? ", " : " - "
+                )
+                RETURN index == 0?
+                       NTH(selectedCodes,index).code : 
+                       CONCAT(FIRST(seperator), NTH(selectedCodes,index).code)
               )
-              LET stepCode = CONCAT_SEPARATOR(FIRST(seperator), selectedCodes)
-              RETURN stepCode != "" ?
-                stepCode
-               :CONCAT_SEPARATOR(' - ', (
-                FOR attribute IN specification.attributes
-                FILTER productSpecification.attributes != null
-                    FOR productSpecificationAttribute IN productSpecification.attributes
-                        FILTER productSpecificationAttribute.type == 'Options'
-                        FILTER attribute.id == productSpecificationAttribute.id
-                        FILTER productSpecificationAttribute.basis_options != null
-                            FOR optionCode IN productSpecificationAttribute.basis_options
-                                FILTER optionCode.id == attribute.basis_option_id
-                                LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
-                                RETURN (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? '???': optionCode.option_code) : (defaultOptionCode.product_id == ''? '???': defaultOptionCode.product_id)
-              ) )
+              RETURN CONCAT(stepCode) != "" ?
+               CONCAT(stepCode)
+               :CONCAT(FIRST(
+                LET optionCodes = (
+                  FOR attribute IN specification.attributes
+                  FILTER productSpecification.attributes != null
+                      FOR productSpecificationAttribute IN productSpecification.attributes
+                          FILTER productSpecificationAttribute.type == 'Options'
+                          FILTER attribute.id == productSpecificationAttribute.id
+                          FILTER productSpecificationAttribute.basis_options != null
+                              FOR optionCode IN productSpecificationAttribute.basis_options
+                                  FILTER optionCode.id == attribute.basis_option_id
+                                  LET defaultOptionCode = FIRST(FOR defaultOption IN defaultOptions FILTER defaultOption.id == optionCode.id RETURN defaultOption)
+                                  LET optCode = (optionCode.option_code && optionCode.option_code != '')? (optionCode.option_code == ''? '???': optionCode.option_code) : (defaultOptionCode.product_id == ''? '???': defaultOptionCode.product_id)
+                                  RETURN {code: optCode, id_format_type: defaultOptionCode.id_format_type}
+                )
+                RETURN (
+                  FOR index IN RANGE(0, LENGTH(optionCodes)-1)
+                  LET seperator = (
+                    FILTER index != 0
+                    LET curFormat = FIRST(NTH(optionCodes, index).id_format_type)
+                    LET prevFormat = FIRST(NTH(optionCodes, index-1).id_format_type)
+                    RETURN prevFormat == 0? ", " : curFormat == 0? ", " : " - "
+                  )
+                  RETURN index == 0?
+                        NTH(optionCodes,index).code : 
+                        CONCAT(FIRST(seperator), NTH(optionCodes,index).code)
+                )
+              ))
     )
     RETURN {
       variant: CONCAT_SEPARATOR('; ', (for option in options filter option != '' return option)),
@@ -580,7 +600,11 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
     const rawQuery = `
     LET idFormatTypes = (
       FOR basisOptionMain IN basis_option_mains
-      RETURN {main_id: basisOptionMain.id, id_format_type: basisOptionMain.id_format_type}
+      RETURN {
+        main_id: basisOptionMain.id,
+        id_format_type: basisOptionMain.id_format_type?
+                        basisOptionMain.id_format_type : 0
+      }
     )
     LET defaultOptions = (
       FOR basisOptionGroup IN bases
