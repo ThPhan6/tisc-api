@@ -67,6 +67,21 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
       .where("id", "in", ids)
       .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
   };
+
+  public async getByMultipleTypes(
+    relationId: string | null,
+    types: CommonTypeValue[],
+    sort_order: SortOrder = "ASC"
+  ) {
+    return (await this.model
+      .select("id", "name", "type")
+      .whereIn("type", types)
+      .where("relation_id", "==", relationId)
+      .orWhere("relation_id", "==", null)
+      .orWhere("relation_id", "==", "")
+      .order("name", sort_order)
+      .get()) as Pick<CommonTypeAttributes, "id" | "name" | "type">[];
+  }
 }
 
 export const commonTypeRepository = new CommonTypeRepository();
