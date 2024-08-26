@@ -1,4 +1,4 @@
-import {UserType} from '@/types';
+import { UserType } from "@/types";
 
 export interface ILocationAttributes {
   id: string;
@@ -23,7 +23,8 @@ export interface ILocationAttributes {
   relation_id: string | null;
 }
 
-export interface LocationWithTeamCountAndFunctionType extends ILocationAttributes {
+export interface LocationWithTeamCountAndFunctionType
+  extends ILocationAttributes {
   functional_types: {
     id: string;
     name: string;
@@ -103,12 +104,18 @@ export interface IRegionCountry {
   region: string;
 }
 
-export type RegionKey = 'asia' | 'europe' | 'africa' | 'n_americas' | 's_americas' | 'oceania';
+export type RegionKey =
+  | "asia"
+  | "europe"
+  | "africa"
+  | "n_americas"
+  | "s_americas"
+  | "oceania";
 
 export enum DesignFirmFunctionalType {
-  MainOffice = '1',
-  SatelliteOffice = '2',
-  Other = '3'
+  MainOffice = "1",
+  SatelliteOffice = "2",
+  Other = "3",
 }
 
 export const DesignLocationFunctionTypeOption = [
@@ -126,7 +133,6 @@ export const DesignLocationFunctionTypeOption = [
   },
 ];
 
-
 export interface LocationRequest {
   business_name: string;
   business_number?: string;
@@ -138,6 +144,19 @@ export interface LocationRequest {
   postal_code: string;
   general_phone: string;
   general_email: string;
+}
+
+export interface LocationInfo {
+  id: string;
+  country_id: string;
+  state_id: any;
+  city_id: string;
+  country_name: string;
+  state_name: string;
+  city_name: string;
+  phone_code: string;
+  address: string;
+  postal_code: string;
 }
 
 export interface BasicLocationAttributes
