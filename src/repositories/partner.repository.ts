@@ -4,6 +4,10 @@ import { SortOrder } from "@/types";
 import { PartnerAttributes } from "@/types/partner.type";
 
 class PartnerRepository extends BaseRepository<PartnerAttributes> {
+  constructor() {
+    super();
+    this.model = new PartnerModel();
+  }
   protected model: PartnerModel;
   protected DEFAULT_ATTRIBUTE: Partial<PartnerAttributes> = {
     name: "",
@@ -117,11 +121,6 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
       partner: result as PartnerAttributes,
     };
   };
-
-  constructor() {
-    super();
-    this.model = new PartnerModel();
-  }
 }
 
 export default new PartnerRepository();
