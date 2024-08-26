@@ -341,37 +341,6 @@ export default class LocationService {
     return true;
   };
 
-  public createLocationGeneralInfo = async (payload: {
-    country_id: string;
-    city_id: string;
-    state_id: string;
-    address: string;
-    postal_code: string;
-  }) => {
-    const countryStateCity = await countryStateCityService.getCountryStateCity(
-      payload.country_id,
-      payload.city_id,
-      payload.state_id
-    );
-
-    const locationInfo = {
-      country_id: countryStateCity.country_id,
-      state_id: countryStateCity.state_id,
-      city_id: countryStateCity.city_id,
-      country_name: countryStateCity.country_name,
-      state_name: countryStateCity.state_name,
-      city_name: countryStateCity.city_name,
-      phone_code: countryStateCity.phone_code,
-      address: payload.address,
-      postal_code: payload.postal_code,
-    };
-
-    const location = await locationRepository.create(locationInfo);
-    if (!location) return null;
-
-    return locationInfo;
-  };
-
   public getAuthorizedCountriesName = async (payload: {
     authorized_country_ids: string[];
   }) => {

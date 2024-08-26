@@ -10,18 +10,18 @@ const partnerCompanyValidate = {
   name: requireStringValidation("Company name"),
   website: Joi.string().trim().allow(),
   country_id: requireStringValidation("Country"),
-  state_id: requireStringValidation("State"),
-  city_id: requireStringValidation("City"),
+  state_id: Joi.any(),
+  city_id: Joi.any(),
   address: Joi.string().allow(),
   postal_code: Joi.string().allow(),
   phone: Joi.string().allow(),
   email: Joi.string().allow(),
-  affiliation_id: Joi.string(),
-  affiliation_name: Joi.string(),
-  relation_id: Joi.string(),
-  relation_name: Joi.string(),
-  acquisition_id: Joi.string(),
-  acquisition_name: Joi.string(),
+  affiliation_id: Joi.any(),
+  affiliation_name: Joi.any(),
+  relation_id: Joi.any(),
+  relation_name: Joi.any(),
+  acquisition_id: Joi.any(),
+  acquisition_name: Joi.any(),
   price_rate: requireNumberValidation("Price Rate"),
   authorized_country_ids: Joi.array()
     .items(Joi.string().trim().required())
@@ -31,7 +31,7 @@ const partnerCompanyValidate = {
     .required()
     .valid(true, false)
     .error(errorMessage("Coverage beyond is required")),
-  remark: Joi.string().trim().allow(),
+  remark: Joi.any(),
 };
 
 export default {

@@ -16,7 +16,6 @@ import { countryStateCityService } from "@/services/country_state_city.service";
 import {
   CommonTypeAttributes,
   ICountryStateCity,
-  LocationInfo,
   SortOrder,
   UserAttributes,
 } from "@/types";
@@ -34,13 +33,6 @@ class PartnerService {
 
     if (isValidGeoLocation !== true) return isValidGeoLocation;
 
-    const locationInfo = await locationService.createLocationGeneralInfo(
-      payload
-    );
-
-    if (!locationInfo)
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
-
     const authorizedCountriesName =
       await locationService.getAuthorizedCountriesName(payload);
 
@@ -52,7 +44,6 @@ class PartnerService {
 
     const createPartnerCompany = await this.createPartnerCompany(
       payload,
-      locationInfo as LocationInfo,
       authorizedCountriesName,
       affiliation,
       relation,
@@ -92,23 +83,43 @@ class PartnerService {
       authenticatedUser.relation_id,
       COMMON_TYPES.PARTNER_ACQUISITION
     );
-
     return { affiliation, relation, acquisition };
   };
 
   public createPartnerCompany = async (
     payload: PartnerRequest,
-    locationInfo: LocationInfo,
     authorizedCountriesName: string,
     affiliation: CommonTypeAttributes,
     relation: CommonTypeAttributes,
     acquisition: CommonTypeAttributes,
     authenticatedUser: UserAttributes
   ) => {
+    const countryStateCity = await countryStateCityService.getCountryStateCity(
+      payload.country_id,
+      payload.city_id,
+      payload.state_id
+    );
+
+    const locationInfo = {
+      country_id: countryStateCity.country_id,
+      state_id: countryStateCity.state_id,
+      city_id: countryStateCity.city_id,
+      country_name: countryStateCity.country_name,
+      state_name: countryStateCity.state_name,
+      city_name: countryStateCity.city_name,
+      phone_code: countryStateCity.phone_code,
+      address: payload.address,
+      postal_code: payload.postal_code,
+    };
+
+    const location = await locationRepository.create(locationInfo);
+
+    if (!location) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
     return await partnerRepository.create({
       name: payload.name,
-      location_id: locationInfo.id,
-      ...locationInfo,
       website: payload.website,
       phone: payload.phone,
       email: payload.email,
@@ -124,6 +135,8 @@ class PartnerService {
       relation_name: relation.name,
       acquisition_name: acquisition.name,
       brand_id: authenticatedUser.relation_id,
+      location_id: location?.id,
+      ...locationInfo,
     });
   };
 
@@ -168,9 +181,7 @@ class PartnerService {
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
 
     return successResponse({
-      data: {
-        ...partner,
-      },
+      data: partner,
     });
   }
 
@@ -181,14 +192,26 @@ class PartnerService {
   ) {
     const partner = await this.getPartner(id, user);
 
-    await this.checkBrand(user.relation_id);
+    const brand = await brandRepository.find(user.relation_id);
+    if (!brand)
+      return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
 
-    await this.checkPartnerExisted(id, user.relation_id, payload.name);
+    const existedPartner =
+      await distributorRepository.getExistedBrandDistributor(
+        id,
+        user.relation_id,
+        payload.name
+      );
+    if (existedPartner)
+      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
 
-    const locationInfo = await this.updateLocation(
+    const locationInfo: any = await this.updateLocation(
       payload,
       partner as PartnerAttributes
     );
+    if (locationInfo.statusCode) {
+      return locationInfo;
+    }
 
     const authorizedCountriesName = await this.updateAuthorizedCountries(
       payload,
@@ -230,18 +253,6 @@ class PartnerService {
     if (!partner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
     return partner;
-  }
-
-  private async checkBrand(brandId: string) {
-    const brand = await brandRepository.find(brandId);
-    if (!brand) throw errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
-  }
-
-  private async checkPartnerExisted(id: string, brandId: string, name: string) {
-    const existedPartner =
-      await distributorRepository.getExistedBrandDistributor(id, brandId, name);
-    if (existedPartner)
-      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
   }
 
   private async updateLocation(
@@ -312,7 +323,7 @@ class PartnerService {
     relation: CommonTypeAttributes,
     acquisition: CommonTypeAttributes
   ) {
-    return await partnerRepository.update(id, {
+    const data = {
       ...payload,
       ...locationInfo,
       authorized_country_name: authorizedCountriesName,
@@ -322,7 +333,9 @@ class PartnerService {
       affiliation_name: affiliation.name,
       relation_name: relation.name,
       acquisition_name: acquisition.name,
-    });
+    };
+
+    return await partnerRepository.update(id, data);
   }
 
   public async delete(id: string) {
