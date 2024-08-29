@@ -531,7 +531,7 @@ export const mappingProductIdType = (
     // Adding the product id format type for each option/step
     if (attributeGroup.attributes[0]){
       let newAttributes = attributeGroup.attributes.map((attribute: any) => {
-        let newBasisOptions = attribute.basis_options.map((basis_option: any) =>{
+        let newBasisOptions = attribute.basis_options?.map((basis_option: any) =>{
           const foundBasisOption = allBasisOptionItems.find(
             (item: any) => item.id === basis_option.id
           );
