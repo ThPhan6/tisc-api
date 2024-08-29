@@ -92,26 +92,29 @@ export const mappingByCollections = (
   products: ProductWithRelationData[],
   collectionId?: string
 ) => {
-  let allCollections = getUniqueCollections(products);
-  let collections = [...allCollections,
-    // Other Collection
-    {
-    id: '-1',
-    name: 'Other',
-    type: 2,
-    description: null
-  }];
+  let collections = getUniqueCollections(products);
   if (collectionId) {
     collections = collections.filter(
       (collection) => collection.id === collectionId
     );
   } else {
-    products.forEach(product => {
-      // Products have no collection ID
-      // Set Other Collection ID -1
-      if(product.collection_ids.length == 0)
-        product.collection_ids.push('-1');
-    });
+    if(products.find((product)=> product.collection_ids.length == 0)){
+      collections = [...collections,
+        // Other Collection
+        {
+        id: '-1',
+        name: 'Other',
+        type: 2,
+        description: '',
+        images: [],
+      }];
+      products.forEach(product => {
+        // Products have no collection ID
+        // Set Other Collection ID -1
+        if(product.collection_ids.length == 0)
+          product.collection_ids.push('-1');
+      });
+    }
   }
   return Promise.all(
     collections.map(async (collection) => {
@@ -528,7 +531,7 @@ export const mappingProductIdType = (
     // Adding the product id format type for each option/step
     if (attributeGroup.attributes[0]){
       let newAttributes = attributeGroup.attributes.map((attribute: any) => {
-        let newBasisOptions = attribute.basis_options.map((basis_option: any) =>{
+        let newBasisOptions = attribute.basis_options?.map((basis_option: any) =>{
           const foundBasisOption = allBasisOptionItems.find(
             (item: any) => item.id === basis_option.id
           );
