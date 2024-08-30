@@ -50,23 +50,23 @@ export default class PartnerContactRoute implements IRoute {
             },
           },
         },
-        // {
-        //   method: "GET",
-        //   path: ROUTES.PARTNER.GET_ONE_PARTNER,
-        //   options: {
-        //     handler: controller.getOne,
-        //     validate: getOneValidation,
-        //     description: "Method that get one partner",
-        //     tags: ["api", "Partner"],
-        //     auth: AUTH_NAMES.GENERAL,
-        //     response: {
-        //       status: {
-        //         ...defaultRouteOptionResponseStatus,
-        //         200: response.getOne,
-        //       },
-        //     },
-        //   },
-        // },
+        {
+          method: "GET",
+          path: ROUTES.PARTNER_CONTACT.GET_ONE_PARTNER_CONTACT,
+          options: {
+            handler: controller.getOne,
+            validate: getOneValidation,
+            description: "Method that get one partner contact",
+            tags: ["api", "Partner Contact"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
         // {
         //   method: "PUT",
         //   path: ROUTES.PARTNER.UPDATE_PARTNER,

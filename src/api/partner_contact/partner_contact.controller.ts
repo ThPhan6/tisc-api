@@ -6,7 +6,7 @@ import { PartnerContactRequest } from "./partner_contact.type";
 export default class PartnerContactController {
   public create = async (req: Request, toolkit: ResponseToolkit) => {
     const payload = req.payload as PartnerContactRequest;
-    const response = await partnerContactService.create( payload);
+    const response = await partnerContactService.create(payload);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
@@ -24,12 +24,11 @@ export default class PartnerContactController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  // public getOne = async (req: Request, toolkit: ResponseToolkit) => {
-  //   const { id } = req.params;
-  //   const user = req.auth.credentials.user as UserAttributes;
-  //   const response = await partnerService.getOne(id, user);
-  //   return toolkit.response(response).code(response.statusCode ?? 200);
-  // };
+  public getOne = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await partnerContactService.getOne(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 
   // public update = async (req: Request, toolkit: ResponseToolkit) => {
   //   const { id } = req.params;

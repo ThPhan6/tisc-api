@@ -56,8 +56,8 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       FILTER contacts.deleted_at == null
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company: company.name,
-        country: company.country_name
+        company_name: company.name,
+        country_name: company.country_name
       })
     )
     FOR data IN tempList
@@ -88,45 +88,31 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     };
   };
 
-  // public getOnePartnerCompany = async (id: string, brandId: string) => {
-  //   let query = this.model
-  //     .getQuery()
-  //     .select([
-  //       "name",
-  //       "website",
-  //       "country_id",
-  //       "country_name",
-  //       "state_id",
-  //       "state_name",
-  //       "city_id",
-  //       "city_name",
-  //       "address",
-  //       "postal_code",
-  //       "phone",
-  //       "phone_code",
-  //       "email",
-  //       "affiliation_id",
-  //       "affiliation_name",
-  //       "relation_id",
-  //       "relation_name",
-  //       "acquisition_id",
-  //       "acquisition_name",
-  //       "price_rate",
-  //       "authorized_country_ids",
-  //       "authorized_country_name",
-  //       "coverage_beyond",
-  //       "remark",
-  //       "location_id",
-  //     ])
-  //     .where("brand_id", "==", brandId)
-  //     .where("id", "==", id);
+  public getOne = async (id: string) => {
+    let raw = `
+    LET temp = FIRST(FOR contacts IN partner_contacts
+      
+      LET company = FIRST(
+        FOR partners IN partners 
+        FILTER partners.id == contacts.partner_company_id
+        RETURN partners
+      )
+      FILTER contacts.id == @id
+      FILTER contacts.deleted_at == null
+      RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+        fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
+        company_name: company.name,
+        country_name: company.country_name,
+        phone_code: company.phone_code
+      }))
+    RETURN temp  
+      `;
 
-  //   const result = await query.first();
-
-  //   return {
-  //     partner: result as PartnerContactAttributes,
-  //   };
-  // };
+    let result = await this.model.rawQueryV2(raw, { id });
+    return {
+      data: result as PartnerContactAttributes,
+    };
+  };
 }
 
 export default new PartnerContactRepository();

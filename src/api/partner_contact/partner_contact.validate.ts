@@ -9,7 +9,7 @@ import Joi from "joi";
 export default {
   getList: getListValidation({
     query: {
-      sort: Joi.string().valid("fullname", "company", "country"),
+      sort: Joi.string().valid("fullname", "company_name", "country_name"),
       order: Joi.string().valid("DESC", "ASC"),
       page: Joi.string(),
       pageSize: Joi.string(),

@@ -6,7 +6,7 @@ export enum PartnerContactStatus {
   Pending,
   Activated,
 }
-export type PartnerContactSort = "fullname" | "company" | "country";
+export type PartnerContactSort = "fullname" | "company_name" | "country_name";
 export type PartnerContactFilter = {
   status?: PartnerContactStatus;
 };

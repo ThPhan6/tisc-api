@@ -22,9 +22,7 @@ import {
 } from "./partner_contact.type";
 
 class PartnerContactService {
-  public create = async (
-    payload: PartnerRequest
-  ) => {
+  public create = async (payload: PartnerRequest) => {
     const createdContact = await partnerContactRepository.create(payload);
 
     if (!createdContact)
@@ -142,19 +140,15 @@ class PartnerContactService {
     };
   }
 
-  // public async getOne(id: string, authenticatedUser: UserAttributes) {
-  //   const { partner } = await partnerRepository.getOnePartnerCompany(
-  //     id,
-  //     authenticatedUser.relation_id
-  //   );
+  public async getOne(id: string) {
+    const { data } = await partnerContactRepository.getOne(id);
 
-  //   if (!partner)
-  //     return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
+    if (!data) return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
 
-  //   return successResponse({
-  //     data: partner,
-  //   });
-  // }
+    return successResponse({
+      data,
+    });
+  }
 
   // public async update(
   //   id: string,
