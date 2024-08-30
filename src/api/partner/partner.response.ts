@@ -62,4 +62,8 @@ export default {
       ),
     }),
   }),
+  getListSummary: Joi.object({
+    statusCode: Joi.number(),
+    data: Joi.any(),
+  }),
 };

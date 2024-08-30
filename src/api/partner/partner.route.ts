@@ -52,6 +52,22 @@ export default class PartnerRoute implements IRoute {
         },
         {
           method: "GET",
+          path: ROUTES.PARTNER.GET_LIST_PARTNER_SUMMARY,
+          options: {
+            handler: controller.getCompanySummary,
+            description: "Method that get list partner company summary",
+            tags: ["api", "Partner"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getListSummary,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
           path: ROUTES.PARTNER.GET_ONE_PARTNER,
           options: {
             handler: controller.getOne,
