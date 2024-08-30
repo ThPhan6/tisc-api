@@ -8,6 +8,18 @@ import PartnerContactModel from "@/models/partner_contact.model";
 import BaseRepository from "@/repositories/base.repository";
 import { SortOrder } from "@/types";
 
+const isValidPartnerContactStatus = (status: any) => {
+  switch (status) {
+    case PartnerContactStatus.Uninitiate:
+      return true;
+    case PartnerContactStatus.Activated:
+      return true;
+    case PartnerContactStatus.Pending:
+      return true;
+    default:
+      return false;
+  }
+};
 class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> {
   constructor() {
     super();
@@ -41,7 +53,11 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     let totalRaw = `
     FOR contacts IN partner_contacts
     FILTER contacts.deleted_at == null
-    ${filter.status ? `FILTER tempList.status == @status` : ""}
+    ${
+      isValidPartnerContactStatus(filter.status)
+        ? `FILTER contacts.status == @status`
+        : ""
+    }
     COLLECT WITH COUNT INTO length RETURN length
     `;
     let raw = `
@@ -61,14 +77,18 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       })
     )
     FOR data IN tempList
-    ${filter.status ? `FILTER data.status == @status` : ""}
+    ${
+      isValidPartnerContactStatus(filter.status)
+        ? `FILTER data.status == @status`
+        : ""
+    }
     ${sort && order ? ` SORT data.${sort} ${order} ` : ""}
     ${limit ? `LIMIT ${offset}, ${limit}` : ""}
     RETURN data
     `;
 
     let bindData: any = { brandId };
-    if (filter.status) {
+    if (isValidPartnerContactStatus(filter.status)) {
       bindData = {
         ...bindData,
         status: filter.status,
@@ -77,7 +97,9 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     let result = await this.model.rawQueryV2(raw, bindData);
     let total = await this.model.rawQueryV2(
       totalRaw,
-      filter.status ? { status: filter.status } : {}
+      isValidPartnerContactStatus(filter.status)
+        ? { status: filter.status }
+        : {}
     );
     if (!result) {
       result = [];

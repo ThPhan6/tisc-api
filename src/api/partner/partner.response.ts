@@ -3,7 +3,7 @@ import Joi from "joi";
 const partnerResponse = Joi.object({
   id: Joi.string(),
   name: Joi.string(),
-  website: Joi.string().allow(""),
+  website: Joi.any(),
   country_id: Joi.any(),
   country_name: Joi.any(),
   state_name: Joi.any(),
