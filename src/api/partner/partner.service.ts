@@ -346,6 +346,13 @@ class PartnerService {
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
+  public async getCompanySummary(brandId: string) {
+    const data = await partnerRepository.getCompanySummary(brandId);
+
+    return successResponse({
+      data,
+    });
+  }
 }
 
 export default new PartnerService();
