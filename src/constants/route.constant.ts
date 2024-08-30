@@ -364,8 +364,16 @@ export const ROUTES = {
   PARTNER: {
     CREATE_PARTNER: "/api/partner/create-partner",
     GET_LIST_PARTNER: "/api/partner/get-list-partner",
+    GET_LIST_PARTNER_SUMMARY: "/api/partner/company-summary",
     GET_ONE_PARTNER: "/api/partner/get-one/{id}",
     UPDATE_PARTNER: "/api/partner/update/{id}",
     DELETE_PARTNER: "/api/partner/delete/{id}",
+  },
+  PARTNER_CONTACT: {
+    CREATE_PARTNER_CONTACT: "/api/partner-contact/create",
+    GET_LIST_PARTNER_CONTACT: "/api/partner-contact/get-list",
+    GET_ONE_PARTNER_CONTACT: "/api/partner-contact/get-one/{id}",
+    UPDATE_PARTNER_CONTACT: "/api/partner-contact/update/{id}",
+    DELETE_PARTNER_CONTACT: "/api/partner-contact/delete/{id}",
   },
 };

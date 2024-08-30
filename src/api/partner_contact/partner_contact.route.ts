@@ -1,29 +1,29 @@
 import * as Hapi from "@hapi/hapi";
 import IRoute from "@/helpers/route.helper";
-import PartnerController from "@/api/partner/partner.controller";
 import { AUTH_NAMES, ROUTES } from "@/constants";
-import validate from "@/api/partner/partner.validate";
+import validate from "@/api/partner_contact/partner_contact.validate";
 import {
   defaultRouteOptionResponseStatus,
   generalMessageResponse,
 } from "@/helpers/response.helper";
-import response from "@/api/partner/partner.response";
+import response from "@/api/partner_contact/partner_contact.response";
 import { getOneValidation } from "@/validates/common.validate";
+import PartnerContactController from "./partner_contact.controller";
 
-export default class PartnerRoute implements IRoute {
+export default class PartnerContactRoute implements IRoute {
   public async register(server: Hapi.Server): Promise<any> {
     return new Promise<any>((resolve) => {
-      const controller = new PartnerController();
+      const controller = new PartnerContactController();
 
       server.route([
         {
           method: "POST",
-          path: ROUTES.PARTNER.CREATE_PARTNER,
+          path: ROUTES.PARTNER_CONTACT.CREATE_PARTNER_CONTACT,
           options: {
             handler: controller.create,
             validate: validate.create,
-            description: "Method that create partner",
-            tags: ["api", "Partner"],
+            description: "Method that create partner contact",
+            tags: ["api", "Partner Contact"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -35,12 +35,12 @@ export default class PartnerRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.PARTNER.GET_LIST_PARTNER,
+          path: ROUTES.PARTNER_CONTACT.GET_LIST_PARTNER_CONTACT,
           options: {
             handler: controller.getList,
             validate: validate.getList,
-            description: "Method that get list partner",
-            tags: ["api", "Partner"],
+            description: "Method that get list partner contact",
+            tags: ["api", "Partner Contact"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -52,28 +52,12 @@ export default class PartnerRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.PARTNER.GET_LIST_PARTNER_SUMMARY,
-          options: {
-            handler: controller.getCompanySummary,
-            description: "Method that get list partner company summary",
-            tags: ["api", "Partner"],
-            auth: AUTH_NAMES.GENERAL,
-            response: {
-              status: {
-                ...defaultRouteOptionResponseStatus,
-                200: response.getListSummary,
-              },
-            },
-          },
-        },
-        {
-          method: "GET",
-          path: ROUTES.PARTNER.GET_ONE_PARTNER,
+          path: ROUTES.PARTNER_CONTACT.GET_ONE_PARTNER_CONTACT,
           options: {
             handler: controller.getOne,
             validate: getOneValidation,
-            description: "Method that get one partner",
-            tags: ["api", "Partner"],
+            description: "Method that get one partner contact",
+            tags: ["api", "Partner Contact"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -85,12 +69,12 @@ export default class PartnerRoute implements IRoute {
         },
         {
           method: "PUT",
-          path: ROUTES.PARTNER.UPDATE_PARTNER,
+          path: ROUTES.PARTNER_CONTACT.UPDATE_PARTNER_CONTACT,
           options: {
             handler: controller.update,
             validate: validate.update,
-            description: "Method that update partner",
-            tags: ["api", "Partner"],
+            description: "Method that update partner contact",
+            tags: ["api", "Partner Contact"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
@@ -102,12 +86,12 @@ export default class PartnerRoute implements IRoute {
         },
         {
           method: "DELETE",
-          path: ROUTES.PARTNER.DELETE_PARTNER,
+          path: ROUTES.PARTNER_CONTACT.DELETE_PARTNER_CONTACT,
           options: {
             handler: controller.delete,
             validate: getOneValidation,
-            description: "Method that delete partner",
-            tags: ["api", "Partner"],
+            description: "Method that delete partner contact",
+            tags: ["api", "Partner Contact"],
             auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
