@@ -124,7 +124,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
   public getCompanySummary = async (brandId: string) => {
     let result = await this.model
       .getQuery()
-      .select(["name", "country_name", 'id'])
+      .select(["name", "country_name", 'id', 'phone_code'])
       .where("brand_id", "==", brandId)
       .where("deleted_at", "==", null)
       .get();
