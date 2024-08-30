@@ -8,7 +8,7 @@ import Joi from "joi";
 
 const partnerCompanyValidate = {
   name: requireStringValidation("Company name"),
-  website: Joi.string().trim().allow(),
+  website: Joi.any(),
   country_id: requireStringValidation("Country"),
   state_id: Joi.any(),
   city_id: Joi.any(),
