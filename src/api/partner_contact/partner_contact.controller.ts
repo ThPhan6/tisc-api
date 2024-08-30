@@ -30,17 +30,16 @@ export default class PartnerContactController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  // public update = async (req: Request, toolkit: ResponseToolkit) => {
-  //   const { id } = req.params;
-  //   const payload = req.payload as PartnerRequest;
-  //   const user = req.auth.credentials.user as UserAttributes;
-  //   const response = await partnerService.update(id, payload, user);
-  //   return toolkit.response(response).code(response.statusCode ?? 200);
-  // };
+  public update = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const payload = req.payload as PartnerContactRequest;
+    const response = await partnerContactService.update(id, payload);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 
-  // public delete = async (req: Request, toolkit: ResponseToolkit) => {
-  //   const { id } = req.params;
-  //   const response = await partnerService.delete(id);
-  //   return toolkit.response(response).code(response.statusCode ?? 200);
-  // };
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const { id } = req.params;
+    const response = await partnerContactService.delete(id);
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
 }

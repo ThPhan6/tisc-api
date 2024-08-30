@@ -67,40 +67,40 @@ export default class PartnerContactRoute implements IRoute {
             },
           },
         },
-        // {
-        //   method: "PUT",
-        //   path: ROUTES.PARTNER.UPDATE_PARTNER,
-        //   options: {
-        //     handler: controller.update,
-        //     validate: validate.update,
-        //     description: "Method that update partner",
-        //     tags: ["api", "Partner"],
-        //     auth: AUTH_NAMES.GENERAL,
-        //     response: {
-        //       status: {
-        //         ...defaultRouteOptionResponseStatus,
-        //         200: response.getOne,
-        //       },
-        //     },
-        //   },
-        // },
-        // {
-        //   method: "DELETE",
-        //   path: ROUTES.PARTNER.DELETE_PARTNER,
-        //   options: {
-        //     handler: controller.delete,
-        //     validate: getOneValidation,
-        //     description: "Method that delete partner",
-        //     tags: ["api", "Partner"],
-        //     auth: AUTH_NAMES.GENERAL,
-        //     response: {
-        //       status: {
-        //         ...defaultRouteOptionResponseStatus,
-        //         200: generalMessageResponse,
-        //       },
-        //     },
-        //   },
-        // },
+        {
+          method: "PUT",
+          path: ROUTES.PARTNER_CONTACT.UPDATE_PARTNER_CONTACT,
+          options: {
+            handler: controller.update,
+            validate: validate.update,
+            description: "Method that update partner contact",
+            tags: ["api", "Partner Contact"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.PARTNER_CONTACT.DELETE_PARTNER_CONTACT,
+          options: {
+            handler: controller.delete,
+            validate: getOneValidation,
+            description: "Method that delete partner contact",
+            tags: ["api", "Partner Contact"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: generalMessageResponse,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);

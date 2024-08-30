@@ -1,11 +1,22 @@
 import {
-  errorMessage,
   getListValidation,
-  requireNumberValidation,
+  getOneValidation,
   requireStringValidation,
 } from "@/validates/common.validate";
 import Joi from "joi";
 
+const partnerContactPayload = {
+  firstname: requireStringValidation("First name"),
+  lastname: requireStringValidation("Last name"),
+  gender: Joi.boolean(),
+  linkedin: Joi.string(),
+  partner_company_id: requireStringValidation("Company"),
+  position: requireStringValidation("Position"),
+  email: requireStringValidation("Email"),
+  phone: requireStringValidation("Phone"),
+  mobile: requireStringValidation("Mobile"),
+  remark: Joi.string(),
+};
 export default {
   getList: getListValidation({
     query: {
@@ -22,17 +33,10 @@ export default {
     }),
   }),
   create: {
-    payload: {
-      firstname: requireStringValidation('First name'),
-      lastname: requireStringValidation('Last name'),
-      gender: Joi.boolean(),
-      linkedin: Joi.string(),
-      partner_company_id: requireStringValidation('Company'),
-      position: requireStringValidation('Position'),
-      email: requireStringValidation('Email'),
-      phone: requireStringValidation('Phone'),
-      mobile: requireStringValidation('Mobile'),
-      remark: Joi.string(),
-    }
-  }
+    payload: partnerContactPayload,
+  },
+  update: {
+   ...getOneValidation, 
+    payload: partnerContactPayload,
+  },
 };
