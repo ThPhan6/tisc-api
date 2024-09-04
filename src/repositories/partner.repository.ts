@@ -75,9 +75,22 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     query = query.order(sort, order);
 
     const result = await query.paginate(limit, offset);
+    const raw = `
+    FOR company IN @companies
+    LET cts = (
+      FOR contact IN partner_contacts
+      FILTER contact.partner_company_id == company.id
+      SORT CONCAT(contact.firstname, " ", contact.lastname) ASC
+      RETURN CONCAT(UPPER(SUBSTRING(contact.firstname, 0, 1)), SUBSTRING(contact.firstname, 1), " ", UPPER(SUBSTRING(contact.lastname, 0, 1)), SUBSTRING(contact.lastname, 1))
+    )
+    RETURN MERGE(company, {contact: CONCAT_SEPARATOR(", ", cts)})
+    `;
+    const mappedContacts = await query.rawQueryV2(raw, {
+      companies: result.data,
+    });
 
     return {
-      partners: result.data,
+      partners: mappedContacts,
       pagination: result.pagination,
     };
   };
@@ -124,7 +137,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
   public getCompanySummary = async (brandId: string) => {
     let result = await this.model
       .getQuery()
-      .select(["name", "country_name", 'id', 'phone_code'])
+      .select(["name", "country_name", "id", "phone_code"])
       .where("brand_id", "==", brandId)
       .where("deleted_at", "==", null)
       .get();
