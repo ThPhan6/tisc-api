@@ -70,6 +70,8 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
         RETURN partners
       )
       FILTER contacts.deleted_at == null
+      FILTER company.brand_id == @brandId
+
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
         company_name: company.name,
