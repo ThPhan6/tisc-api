@@ -9,13 +9,13 @@ const partnerContactPayload = {
   firstname: requireStringValidation("First name"),
   lastname: requireStringValidation("Last name"),
   gender: Joi.boolean(),
-  linkedin: Joi.string(),
+  linkedin: Joi.any(),
   partner_company_id: requireStringValidation("Company"),
   position: requireStringValidation("Position"),
   email: requireStringValidation("Email"),
   phone: requireStringValidation("Phone"),
   mobile: requireStringValidation("Mobile"),
-  remark: Joi.string(),
+  remark: Joi.any(),
 };
 export default {
   getList: getListValidation({
@@ -36,7 +36,7 @@ export default {
     payload: partnerContactPayload,
   },
   update: {
-   ...getOneValidation, 
+    ...getOneValidation,
     payload: partnerContactPayload,
   },
 };
