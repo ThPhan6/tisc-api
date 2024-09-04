@@ -131,8 +131,9 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       `;
 
     let result = await this.model.rawQueryV2(raw, { id });
+
     return {
-      data: result as PartnerContactAttributes,
+      data: result[0] as PartnerContactAttributes,
     };
   };
 }
