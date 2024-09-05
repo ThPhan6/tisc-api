@@ -9,7 +9,6 @@ import {
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
-import { distributorRepository } from "@/repositories/distributor.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
@@ -196,12 +195,12 @@ class PartnerService {
     if (!brand)
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
 
-    const existedPartner =
-      await distributorRepository.getExistedBrandDistributor(
-        id,
-        user.relation_id,
-        payload.name
-      );
+    const existedPartner = await partnerRepository.findDuplicatePartnerByName(
+      id,
+      user.relation_id,
+      payload.name
+    );
+
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
 
@@ -346,6 +345,7 @@ class PartnerService {
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
+
   public async getCompanySummary(brandId: string) {
     const data = await partnerRepository.getCompanySummary(brandId);
 
