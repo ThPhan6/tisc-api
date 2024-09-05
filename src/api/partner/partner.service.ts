@@ -195,7 +195,11 @@ class PartnerService {
     if (!brand)
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
 
-    const existedPartner = await partnerRepository.find(id);
+    const existedPartner = await partnerRepository.findDuplicatePartnerByName(
+      id,
+      user.relation_id,
+      payload.name
+    );
 
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
