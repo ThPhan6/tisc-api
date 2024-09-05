@@ -196,11 +196,12 @@ class PartnerService {
     if (!brand)
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
 
-    const existedPartner = await partnerRepository.getExistedBrandDistributor(
-      id,
-      user.relation_id,
-      payload.name
-    );
+    const existedPartner =
+      await partnerRepository.findDuplicatePartnerCompanyByName(
+        id,
+        user.relation_id,
+        payload.name
+      );
 
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);

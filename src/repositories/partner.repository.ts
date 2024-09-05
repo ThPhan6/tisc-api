@@ -147,7 +147,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     };
   };
 
-  public async getExistedBrandDistributor(
+  public async findDuplicatePartnerCompanyByName(
     id: string,
     brandId: string,
     name: string
