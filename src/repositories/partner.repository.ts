@@ -146,6 +146,23 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
       company: result,
     };
   };
+
+  public async getExistedBrandDistributor(
+    id: string,
+    brandId: string,
+    name: string
+  ) {
+    const query = this.model
+      .getQuery()
+      .select(["id", "name"])
+      .where("brand_id", "==", brandId)
+      .where("name", "==", name)
+      .where("id", "!=", id)
+      .where("deleted_at", "==", null);
+
+    const result = await query.first();
+    return result;
+  }
 }
 
 export default new PartnerRepository();
