@@ -82,7 +82,7 @@ export const MESSAGES = {
 
   PARTNER: {
     PARTNER_NOT_FOUND: "Partner not found",
-    PARTNER_EXISTED: "Partner is already exists",
+    PARTNER_EXISTED: "Partner is existed.",
   },
 
   BRAND: {

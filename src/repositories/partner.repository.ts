@@ -134,6 +134,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
       partner: result as PartnerAttributes,
     };
   };
+
   public getCompanySummary = async (brandId: string) => {
     let result = await this.model
       .getQuery()
@@ -146,6 +147,37 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
       company: result,
     };
   };
+
+  public async findDuplicatePartnerByName(
+    brandId: string,
+    name: string,
+    id?: string
+  ) {
+    let raw = `
+    FOR partners IN partners
+    FILTER partners.brand_id == @brandId
+    FILTER LOWER(partners.name) == LOWER(@name)
+    ${id ? "FILTER partners.id == @id" : ""}
+    FILTER partners.deleted_at == null
+    RETURN {
+      id: partners.id,
+      name: partners.name
+    }
+    `;
+
+    let bindData: any = {
+      brandId,
+      name,
+    };
+    if (id) {
+      bindData = {
+        ...bindData,
+        id,
+      };
+    }
+    const result = await this.model.rawQueryV2(raw, bindData);
+    return result[0];
+  }
 }
 
 export default new PartnerRepository();
