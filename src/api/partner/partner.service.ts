@@ -32,6 +32,14 @@ class PartnerService {
 
     if (isValidGeoLocation !== true) return isValidGeoLocation;
 
+    const existedPartner = await partnerRepository.findDuplicatePartnerByName(
+      authenticatedUser.relation_id,
+      payload.name
+    );
+
+    if (existedPartner)
+      return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
+
     const authorizedCountriesName =
       await locationService.getAuthorizedCountriesName(payload);
 
@@ -196,9 +204,9 @@ class PartnerService {
       return errorMessageResponse(MESSAGES.BRAND.BRAND_NOT_FOUND, 404);
 
     const existedPartner = await partnerRepository.findDuplicatePartnerByName(
-      id,
       user.relation_id,
-      payload.name
+      payload.name,
+      id
     );
 
     if (existedPartner)

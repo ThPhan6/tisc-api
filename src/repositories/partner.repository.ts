@@ -149,20 +149,22 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
   };
 
   public async findDuplicatePartnerByName(
-    id: string,
     brandId: string,
-    name: string
+    name: string,
+    id?: string
   ) {
     const query = this.model
       .getQuery()
       .select(["id", "name"])
       .where("brand_id", "==", brandId)
-      .where("name", "==", name)
-      .where("id", "!=", id)
+      .where("id", "!=", id ?? "")
       .where("deleted_at", "==", null);
 
-    const result = await query.first();
-    return result;
+    const result = await query.get();
+    return result.find(
+      (partner: PartnerAttributes) =>
+        partner.name.toLowerCase() === name.toLowerCase()
+    );
   }
 }
 
