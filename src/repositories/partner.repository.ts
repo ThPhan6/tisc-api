@@ -153,18 +153,30 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     name: string,
     id?: string
   ) {
-    const query = this.model
-      .getQuery()
-      .select(["id", "name"])
-      .where("brand_id", "==", brandId)
-      .where("id", "!=", id ?? "")
-      .where("deleted_at", "==", null);
+    let raw = `
+    FOR partners IN partners
+    FILTER partners.brand_id == @brandId
+    FILTER LOWER(partners.name) == LOWER(@name)
+    ${id ? "FILTER partners.id == @id" : ""}
+    FILTER partners.deleted_at == null
+    RETURN {
+      id: partners.id,
+      name: partners.name
+    }
+    `;
 
-    const result = await query.get();
-    return result.find(
-      (partner: PartnerAttributes) =>
-        partner.name.toLowerCase() === name.toLowerCase()
-    );
+    let bindData: any = {
+      brandId,
+      name,
+    };
+    if (id) {
+      bindData = {
+        ...bindData,
+        id,
+      };
+    }
+    const result = await this.model.rawQueryV2(raw, bindData);
+    return result[0];
   }
 }
 
