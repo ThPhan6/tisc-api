@@ -52,7 +52,14 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
   ) => {
     let totalRaw = `
     FOR contacts IN partner_contacts
+    LET company = FIRST(
+        FOR partners IN partners 
+        FILTER partners.brand_id == @brandId
+        FILTER partners.id == contacts.partner_company_id
+        RETURN partners
+      )
     FILTER contacts.deleted_at == null
+    FILTER company.brand_id == @brandId
     ${
       isValidPartnerContactStatus(filter.status)
         ? `FILTER contacts.status == @status`
@@ -100,8 +107,8 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     let total = await this.model.rawQueryV2(
       totalRaw,
       isValidPartnerContactStatus(filter.status)
-        ? { status: filter.status }
-        : {}
+        ? { status: filter.status, brandId }
+        : { brandId }
     );
     if (!result) {
       result = [];
