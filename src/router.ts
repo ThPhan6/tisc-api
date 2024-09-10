@@ -34,6 +34,8 @@ import BookingRoute from "./api/booking/booking.route";
 import ColorRoute from "./api/color/color.route";
 import LinkageRoute from "./api/linkage/linkage.route";
 import LabelRoute from "./api/label/label.route";
+import PartnerRoute from "@/api/partner/partner.route";
+import PartnerContactRoute from "@/api/partner_contact/partner_contact.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -72,5 +74,7 @@ export default class Router {
     await new ColorRoute().register(server);
     await new LinkageRoute().register(server);
     await new LabelRoute().register(server);
+    await new PartnerRoute().register(server);
+    await new PartnerContactRoute().register(server);
   }
 }

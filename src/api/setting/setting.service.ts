@@ -3,6 +3,7 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
 import { countryRepository } from "@/repositories/country.repository";
 import { successResponse } from "@/helpers/response.helper";
+import { COMMON_TYPES } from "@/constants";
 
 export default class SettingService {
   public getCommonTypes = async (
@@ -16,6 +17,36 @@ export default class SettingService {
       sort_order
     );
     return successResponse({ data: commonTypes });
+  };
+  public getPartnerCommonTypes = async (
+    relationId: string,
+    sort_order?: SortOrder
+  ) => {
+    const types: CommonTypeValue[] = [
+      COMMON_TYPES.PARTNER_AFFILIATION,
+      COMMON_TYPES.PARTNER_RELATION,
+      COMMON_TYPES.PARTNER_ACQUISITION,
+    ];
+
+    const data = await commonTypeRepository.getByMultipleTypes(
+      relationId,
+      types,
+      sort_order
+    );
+
+    const groupData = {
+      affiliation: data
+        .filter((item) => item.type === COMMON_TYPES.PARTNER_AFFILIATION)
+        .map(({ id, name }) => ({ id, name })),
+      relation: data
+        .filter((item) => item.type === COMMON_TYPES.PARTNER_RELATION)
+        .map(({ id, name }) => ({ id, name })),
+      acquisition: data
+        .filter((item) => item.type === COMMON_TYPES.PARTNER_ACQUISITION)
+        .map(({ id, name }) => ({ id, name })),
+    };
+
+    return successResponse({ data: groupData });
   };
   public getManyNames = async (ids: string[]) => {
     const documents = await commonTypeRepository.getByListIds(ids);
