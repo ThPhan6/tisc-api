@@ -121,11 +121,7 @@ export const toLinkageOptions = async (
       };
     })
   );
-  return sortObjectArray(
-    result.filter((item) => item.id_format_type === productIdType),
-    "name",
-    "ASC"
-  );
+  return sortObjectArray(result, "name", "ASC");
 };
 
 export const mappingSteps = async (steps: SpecificationStepAttribute[]) => {
