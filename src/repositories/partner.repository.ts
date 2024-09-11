@@ -157,7 +157,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     FOR partners IN partners
     FILTER partners.brand_id == @brandId
     FILTER LOWER(partners.name) == LOWER(@name)
-    ${id ? "FILTER partners.id == @id" : ""}
+    ${id ? "FILTER partners.id != @id" : ""}
     FILTER partners.deleted_at == null
     RETURN {
       id: partners.id,
