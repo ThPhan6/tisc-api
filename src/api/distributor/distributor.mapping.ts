@@ -89,22 +89,40 @@ export const mappingMarketDistributorGroupByCountry = (
 ) => {
   const result: MarketDistributorGroupByCountry[] = [];
   distributors.forEach((distributor: any) => {
+    const {
+      acquisition_id,
+      acquisition_name,
+      affiliation_id,
+      affiliation_name,
+      contact,
+      price_rate,
+      relation_id,
+      relation_name,
+      remark,
+      website,
+      ...filteredDistributor
+    } = distributor;
+
+    if (acquisition_name !== "Active") return;
+
     const groupIndex = result.findIndex(
-      (country) => country.country_name === distributor.country_name
+      (country) => country.country_name === filteredDistributor.country_name
     );
+
     if (groupIndex === -1) {
       result.push({
-        country_name: distributor.country_name,
+        country_name: filteredDistributor.country_name,
         count: 1,
-        distributors: [distributor],
+        distributors: [filteredDistributor],
       });
-    } else {
-      result[groupIndex] = {
-        ...result[groupIndex],
-        count: result[groupIndex].count + 1,
-        distributors: [...result[groupIndex].distributors, distributor],
-      };
+      return;
     }
+
+    result[groupIndex] = {
+      ...result[groupIndex],
+      count: result[groupIndex].count + 1,
+      distributors: [...result[groupIndex].distributors, filteredDistributor],
+    };
   });
   return result;
 };
