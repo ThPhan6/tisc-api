@@ -29,6 +29,7 @@ import {
   IDistributorRequest,
 } from "./distributor.type";
 import { isEqual, pick } from "lodash";
+import { partnerContactRepository } from "@/repositories/partner_contact.repository";
 
 class DistributorService {
   public async create(payload: IDistributorRequest) {
@@ -326,8 +327,8 @@ class DistributorService {
 
     const distributors =
       await locationRepository.getListWithLocation<IDistributorAttributes>(
-        "distributors",
-        `FILTER distributors.brand_id == '${brand.id}'`
+        "partners",
+        `FILTER partners.brand_id == '${brand.id}'`
       );
 
     const countryIds = getDistinctArray(
@@ -340,7 +341,13 @@ class DistributorService {
       })
     );
 
-    const result = mappingDistributorByCountry(countries, distributors);
+    const partnerContacts = await partnerContactRepository.getAll();
+
+    const result = mappingDistributorByCountry(
+      countries,
+      distributors,
+      partnerContacts
+    );
 
     return successResponse({
       data: result,
@@ -359,7 +366,7 @@ class DistributorService {
       await marketAvailabilityService.getAvailableCountryByCollection(
         product.collection_ids,
         product.brand_id,
-        projectId,
+        projectId
       );
     const distributors = await distributorRepository.getMarketDistributor(
       product.brand_id,
