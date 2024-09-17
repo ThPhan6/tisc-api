@@ -79,17 +79,6 @@ export default {
             phone: Joi.string(),
             mobile: Joi.any(),
             authorized_country_name: Joi.string(),
-            coverage_beyond: Joi.boolean(),
-            acquisition_id: Joi.forbidden(),
-            website: Joi.forbidden(),
-            acquisition_name: Joi.forbidden(),
-            affiliation_id: Joi.forbidden(),
-            affiliation_name: Joi.forbidden(),
-            contact: Joi.forbidden(),
-            price_rate: Joi.forbidden(),
-            relation_id: Joi.forbidden(),
-            relation_name: Joi.forbidden(),
-            remark: Joi.forbidden(),
           })
         ),
       })
