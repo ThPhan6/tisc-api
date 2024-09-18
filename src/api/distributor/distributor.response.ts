@@ -79,6 +79,7 @@ export default {
             phone: Joi.string(),
             mobile: Joi.any(),
             authorized_country_name: Joi.string(),
+            coverage_beyond: Joi.boolean(),
           })
         ),
       })
