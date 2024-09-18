@@ -250,7 +250,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER project_location.id == project.location_id
         ///
         LET authorized_countries = (
-            FOR distributor IN distributors
+            FOR distributor IN partners
                 FILTER distributor.deleted_at == null
                 FILTER distributor.brand_id == product.brand_id
                 FOR country IN countries
