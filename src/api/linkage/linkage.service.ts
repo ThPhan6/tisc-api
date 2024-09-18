@@ -66,22 +66,40 @@ class LinkageService {
   public async upsertStep(payload: MultiStepRequest) {
     if (payload.data[0]) {
       const product_id = payload.data[0].product_id;
-      const specification_id = payload.data[0].specification_id;
-      const steps = await specificationStepRepository.getStepsBy(
-        product_id,
-        specification_id
-      );
-      const payloadStepOrders = payload.data.map((item) => item.order);
-      const stepsToDelete = steps.filter(
-        (step: any) => !payloadStepOrders.includes(step.order)
-      );
+      const specificationStepsOrder = payload.data.reduce((pre:any[], cur)=> {
+        if(!pre.find((item)=>item.specification_id === cur.specification_id))
+        return [
+          ...pre,
+          {
+            specification_id: cur.specification_id,
+            stepOrders: [cur.order]
+          }
+        ];
+        else return pre.map((item)=>({
+          ...item,
+          stepOrders: cur.specification_id === item.specification_id?
+            [...item.stepOrders, cur.order] : item.stepOrders
+        }));
+      }, []);
+      
       await Promise.all(
-        stepsToDelete.map((step: any) => {
-          return specificationStepRepository.deleteBy({
+        specificationStepsOrder.map(async(item)=>{
+          const steps = await specificationStepRepository.getStepsBy(
             product_id,
-            specification_id,
-            order: step.order,
-          });
+            item.specification_id
+          );
+          const stepsToDelete = steps.filter(
+            (step: any) => !item.stepOrders.includes(step.order)
+          );
+          await Promise.all(
+            stepsToDelete.map((step: any) => {
+              return specificationStepRepository.deleteBy({
+                product_id,
+                specification_id: item.specification_id,
+                order: step.order,
+              });
+            })
+          );
         })
       );
     }
