@@ -68,7 +68,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER member.id IN brands.team_profile_ids
         RETURN KEEP(member, 'id', 'email', 'avatar', 'firstname', 'lastname')
       )
-
+  
       LET totalUsers = (
         FOR users IN users
         FILTER users.relation_id == brands.id
@@ -77,7 +77,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         COLLECT WITH COUNT INTO length
         return length
       )
-
+  
       LET brandLocations = (
         FOR loc IN locations
         FILTER loc.relation_id == brands.id
@@ -85,23 +85,23 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER loc.deleted_at == null
         RETURN loc
       )
-
+  
       LET distributors = (
-        FOR d IN distributors
-        FILTER d.brand_id == brands.id
-        FILTER d.deleted_at == null
+        FOR p IN partners
+        FILTER p.brand_id == brands.id
+        FILTER p.deleted_at == null
         FOR loc IN locations
-        FILTER loc.id == d.location_id
-        RETURN MERGE(d, loc)
+        FILTER loc.id == p.location_id
+        RETURN MERGE(p, loc)
       )
-
+  
       LET cards = (
         FOR products in products
         FILTER products.brand_id == brands.id
         FILTER products.deleted_at == null
         RETURN products
       )
-
+  
       let mainCategories = (
         FOR card in cards
           FOR main in categories
@@ -111,7 +111,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
                   FILTER productCatId == cat.id
                   RETURN DISTINCT(main.name)
       )
-
+  
       LET totalCollections = (
         FOR product IN cards
         FOR collection IN collections
@@ -119,13 +119,13 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
         FILTER collection.deleted_at == null
         RETURN DISTINCT collection.id
       )
-
+  
       ${
         sort === "origin"
           ? `SORT brandLocations[0].country_name ${order}`
           : `SORT brands.${sort} ${order}`
       }
-
+  
       ${limit || offset ? `LIMIT ${offset}, ${limit}` : ""}
       RETURN {
         brand: MERGE(
@@ -141,7 +141,7 @@ class BrandRepository extends BaseRepository<BrandAttributes> {
             main_categories: mainCategories
           }
         ),
-
+  
         cards,
         distributors,
       }

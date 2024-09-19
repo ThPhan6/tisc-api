@@ -109,7 +109,7 @@ class MarketAvailabilityRepository extends BaseRepository<IMarketAvailabilityAtt
         ${isFinite(limit) && isFinite(offset) ? "LIMIT @offset, @limit" : ""}
         ${sort && order ? "SORT collection.@sort @order" : ""}
     LET authorized_countries = (
-        FOR distributor IN distributors
+        FOR distributor IN partners
             FILTER distributor.deleted_at == null
             FILTER distributor.brand_id == @brandId
             FOR country IN countries

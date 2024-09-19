@@ -158,7 +158,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         }
         collections: collections,
         labels,
-        brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision'),
+        brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision', 'catelogue_downloads'),
         favorites: favourite[0],
         is_liked: liked[0] > 0
       }

@@ -141,6 +141,10 @@ export interface BrandOfficialWebsite {
   url: string;
 }
 
+export interface CatalogueDownload {
+  title: string;
+  url: string;
+}
 export interface BrandAttributes {
   id: string;
   name: string;
@@ -149,6 +153,7 @@ export interface BrandAttributes {
   slogan: string;
   mission_n_vision: string;
   official_websites: BrandOfficialWebsite[];
+  catelogue_downloads: CatalogueDownload[];
   team_profile_ids: string[];
   status: ActiveStatus;
   created_at: string;

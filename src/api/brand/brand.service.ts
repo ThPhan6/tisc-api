@@ -222,6 +222,7 @@ class BrandService {
         slogan: updatedBrand.slogan || "",
         mission_n_vision: updatedBrand.mission_n_vision || "",
         official_websites: updatedBrand.official_websites,
+        catelogue_downloads: updatedBrand.catelogue_downloads,
       },
     });
   }
