@@ -20,13 +20,19 @@ export default {
         Joi.object({
           id: Joi.string(),
           name: Joi.string(),
-          logo: Joi.string().allow(null, ''),
-          mission_n_vision: Joi.string().allow(null, ''),
-          slogan: Joi.string().allow(null, ''),
+          logo: Joi.string().allow(null, ""),
+          mission_n_vision: Joi.string().allow(null, ""),
+          slogan: Joi.string().allow(null, ""),
           official_websites: Joi.array().items(
             Joi.object({
               url: Joi.string(),
               country_id: Joi.string(),
+            })
+          ),
+          catelogue_downloads: Joi.array().items(
+            Joi.object({
+              title: Joi.string(),
+              url: Joi.string(),
             })
           ),
         })
