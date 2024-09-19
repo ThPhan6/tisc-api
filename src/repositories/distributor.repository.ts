@@ -40,23 +40,30 @@ class DistributorRepository extends BaseRepository<IDistributorAttributes> {
   }
 
   public async getMarketDistributor(brandId: string, countries: string[]) {
-    const activeDistributor = await locationRepository.getListWithLocation<IDistributorAttributes>(
-      "distributors",
-      `
-        FILTER distributors.brand_id == '${brandId}'
-        LET authorized = distributors.authorized_country_ids[* FILTER CURRENT IN [${countries.map((c) => `'${c}'`)}] RETURN CURRENT]
+    const activeDistributor =
+      await locationRepository.getListWithLocation<IDistributorAttributes>(
+        "partners",
+        `
+        FILTER partners.brand_id == '${brandId}'
+        LET authorized = partners.authorized_country_ids[* FILTER CURRENT IN [${countries.map(
+          (c) => `'${c}'`
+        )}] RETURN CURRENT]
         FILTER count(authorized) > 0
         `
-    );
-    if (!isEmpty(activeDistributor)) {
-      const beyondDistributor = await locationRepository.getListWithLocation<IDistributorAttributes>(
-        "distributors",
-        `
-          FILTER distributors.brand_id == '${brandId}'
-          FILTER distributors.coverage_beyond == true
-          FILTER distributors.id NOT IN [${activeDistributor.map((d) => `'${d.id}'`)}]
-          `
       );
+
+    if (!isEmpty(activeDistributor)) {
+      const beyondDistributor =
+        await locationRepository.getListWithLocation<IDistributorAttributes>(
+          "partners",
+          `
+          FILTER partners.brand_id == '${brandId}'
+          FILTER partners.coverage_beyond == true
+          FILTER partners.id NOT IN [${activeDistributor.map(
+            (d) => `'${d.id}'`
+          )}]
+          `
+        );
       return activeDistributor.concat(beyondDistributor);
     }
     return activeDistributor;

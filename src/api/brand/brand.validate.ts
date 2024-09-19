@@ -33,6 +33,10 @@ export default {
         })
         .required()
         .error(errorMessage("Official website is required")),
+      catelogue_downloads: Joi.array().items({
+        title: Joi.string(),
+        url: Joi.string(),
+      }),
     },
   },
   invite: {

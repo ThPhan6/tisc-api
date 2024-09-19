@@ -83,6 +83,9 @@ export const MESSAGES = {
   PARTNER: {
     PARTNER_NOT_FOUND: "Partner not found",
     PARTNER_EXISTED: "Partner is existed.",
+    AFFILIATION_EXISTS: "Afiliation already exists.",
+    RELATION_EXISTS: "Relation already exists.",
+    ACQUISITION_EXISTS: "Acquisition already exists.",
   },
 
   BRAND: {

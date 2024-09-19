@@ -70,6 +70,10 @@ export default {
         country_id: Joi.string(),
         url: Joi.string(),
       }),
+      catelogue_downloads: Joi.array().items({
+        title: Joi.string(),
+        url: Joi.string(),
+      }),
     }),
     statusCode: Joi.number(),
   }) as any,
