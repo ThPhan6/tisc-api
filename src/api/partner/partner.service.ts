@@ -1,7 +1,12 @@
 import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
 import { locationService } from "@/api/location/location.service";
 import { PartnerRequest, PartnerResponse } from "@/api/partner/partner.type";
-import { ASSOCIATION, COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  ASSOCIATION,
+  COMMON_TYPES,
+  DEFAULT_UNEMPLOYED_COMPANY_NAME,
+  MESSAGES,
+} from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -382,7 +387,13 @@ class PartnerService {
     const data = await partnerRepository.getCompanySummary(brandId);
 
     return successResponse({
-      data,
+      data: {
+        ...data,
+        unemployed_company: {
+          id: brandId,
+          name: DEFAULT_UNEMPLOYED_COMPANY_NAME,
+        },
+      },
     });
   }
 }

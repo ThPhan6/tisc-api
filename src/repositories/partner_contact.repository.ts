@@ -55,7 +55,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     LET company = FIRST(
         FOR partners IN partners 
         FILTER partners.brand_id == @brandId
-        FILTER partners.id == contacts.partner_company_id
+        FILTER partners.id == contacts.partner_company_id OR partners.brand_id == contacts.partner_company_id
         RETURN partners
       )
     FILTER contacts.deleted_at == null
@@ -73,7 +73,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       LET company = FIRST(
         FOR partners IN partners 
         FILTER partners.brand_id == @brandId
-        FILTER partners.id == contacts.partner_company_id
+        FILTER partners.id == contacts.partner_company_id OR partners.brand_id == contacts.partner_company_id
         RETURN partners
       )
       FILTER contacts.deleted_at == null
@@ -81,7 +81,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
 
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company_name: company.name,
+        company_name: company.brand_id == contacts.partner_company_id ? '' : company.name,
         country_name: company.country_name
       })
     )
@@ -125,14 +125,14 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       
       LET company = FIRST(
         FOR partners IN partners 
-        FILTER partners.id == contacts.partner_company_id
+        FILTER partners.id == contacts.partner_company_id OR partners.brand_id == contacts.partner_company_id
         RETURN partners
       )
       FILTER contacts.id == @id
       FILTER contacts.deleted_at == null
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company_name: company.name,
+        company_name: company.brand_id == contacts.partner_company_id ? 'Unemployed' : company.name,
         country_name: company.country_name,
         phone_code: company.phone_code
       }))
