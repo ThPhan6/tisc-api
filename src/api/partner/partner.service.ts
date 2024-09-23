@@ -1,7 +1,12 @@
 import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
 import { locationService } from "@/api/location/location.service";
 import { PartnerRequest, PartnerResponse } from "@/api/partner/partner.type";
-import { ASSOCIATION, COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  ASSOCIATION,
+  COMMON_TYPES,
+  DEFAULT_UNEMPLOYED_COMPANY_NAME,
+  MESSAGES,
+} from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -56,6 +61,14 @@ class PartnerService {
 
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
+
+    if (
+      DEFAULT_UNEMPLOYED_COMPANY_NAME.toLowerCase() ===
+      payload.name.toLowerCase()
+    )
+      return errorMessageResponse(
+        "The unemployed name is not valid; please choose another company name."
+      );
 
     const authorizedCountriesName =
       await locationService.getAuthorizedCountriesName(payload);
@@ -233,6 +246,14 @@ class PartnerService {
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
 
+    if (
+      DEFAULT_UNEMPLOYED_COMPANY_NAME.toLowerCase() ===
+      payload.name.toLowerCase()
+    )
+      return errorMessageResponse(
+        "The unemployed name is not valid; please choose another company name."
+      );
+
     const locationInfo: any = await this.updateLocation(
       payload,
       partner as PartnerAttributes
@@ -382,7 +403,13 @@ class PartnerService {
     const data = await partnerRepository.getCompanySummary(brandId);
 
     return successResponse({
-      data,
+      data: {
+        ...data,
+        unemployed_company: {
+          id: brandId,
+          name: DEFAULT_UNEMPLOYED_COMPANY_NAME,
+        },
+      },
     });
   }
 }
