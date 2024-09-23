@@ -55,11 +55,12 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     LET company = FIRST(
         FOR partners IN partners 
         FILTER partners.brand_id == @brandId
-        FILTER partners.id == contacts.partner_company_id OR partners.brand_id == contacts.partner_company_id
+        FILTER partners.id == contacts.partner_company_id
         RETURN partners
       )
     FILTER contacts.deleted_at == null
     FILTER company.brand_id == @brandId
+    OR contacts.partner_company_id == @brandId
     ${
       isValidPartnerContactStatus(filter.status)
         ? `FILTER contacts.status == @status`
@@ -73,15 +74,16 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       LET company = FIRST(
         FOR partners IN partners 
         FILTER partners.brand_id == @brandId
-        FILTER partners.id == contacts.partner_company_id OR partners.brand_id == contacts.partner_company_id
+        FILTER partners.id == contacts.partner_company_id
         RETURN partners
       )
       FILTER contacts.deleted_at == null
       FILTER company.brand_id == @brandId
+      OR contacts.partner_company_id == @brandId
 
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company_name: company.brand_id == contacts.partner_company_id ? '' : company.name,
+        company_name: company.name != null ? company.name : 'Unemployed',
         country_name: company.country_name
       })
     )
@@ -119,27 +121,28 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     };
   };
 
-  public getOne = async (id: string) => {
+  public getOne = async (id: string, brandId: string | null) => {
     let raw = `
     LET temp = FIRST(FOR contacts IN partner_contacts
       
       LET company = FIRST(
         FOR partners IN partners 
-        FILTER partners.id == contacts.partner_company_id OR partners.brand_id == contacts.partner_company_id
+        FILTER partners.id == contacts.partner_company_id
         RETURN partners
       )
       FILTER contacts.id == @id
       FILTER contacts.deleted_at == null
+      OR contacts.partner_company_id == @brandId
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company_name: company.brand_id == contacts.partner_company_id ? 'Unemployed' : company.name,
+        company_name: company.name != null ? company.name : 'Unemployed',
         country_name: company.country_name,
-        phone_code: company.phone_code
+        phone_code: company.phone_code != null ?  company.phone_code : '00'
       }))
     RETURN temp  
       `;
 
-    let result = await this.model.rawQueryV2(raw, { id });
+    let result = await this.model.rawQueryV2(raw, { id, brandId });
 
     return {
       data: result[0] as PartnerContactAttributes,

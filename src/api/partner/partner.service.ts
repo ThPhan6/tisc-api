@@ -62,6 +62,14 @@ class PartnerService {
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
 
+    if (
+      DEFAULT_UNEMPLOYED_COMPANY_NAME.toLowerCase() ===
+      payload.name.toLowerCase()
+    )
+      return errorMessageResponse(
+        "The unemployed name is not valid; please choose another company name."
+      );
+
     const authorizedCountriesName =
       await locationService.getAuthorizedCountriesName(payload);
 
@@ -237,6 +245,14 @@ class PartnerService {
 
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
+
+    if (
+      DEFAULT_UNEMPLOYED_COMPANY_NAME.toLowerCase() ===
+      payload.name.toLowerCase()
+    )
+      return errorMessageResponse(
+        "The unemployed name is not valid; please choose another company name."
+      );
 
     const locationInfo: any = await this.updateLocation(
       payload,
