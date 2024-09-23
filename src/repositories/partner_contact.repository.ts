@@ -132,7 +132,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       )
       FILTER contacts.id == @id
       FILTER contacts.deleted_at == null
-      OR contacts.partner_company_id == @brandId
+      ${brandId ? `OR contacts.partner_company_id == @brandId` : ""}
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
         company_name: company.name != null ? company.name : 'Unemployed',
@@ -142,7 +142,10 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     RETURN temp  
       `;
 
-    let result = await this.model.rawQueryV2(raw, { id, brandId });
+    let bindData: any = { id };
+    if (brandId) bindData.brandId = brandId;
+
+    let result = await this.model.rawQueryV2(raw, bindData);
 
     return {
       data: result[0] as PartnerContactAttributes,
