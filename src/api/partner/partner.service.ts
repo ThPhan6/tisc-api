@@ -1,7 +1,12 @@
 import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
 import { locationService } from "@/api/location/location.service";
 import { PartnerRequest, PartnerResponse } from "@/api/partner/partner.type";
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import {
+  ASSOCIATION,
+  COMMON_TYPES,
+  DEFAULT_UNEMPLOYED_COMPANY_NAME,
+  MESSAGES,
+} from "@/constants";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -21,7 +26,24 @@ import {
 import { PartnerAttributes } from "@/types/partner.type";
 import { isEqual, pick } from "lodash";
 
+const AFFILIATION = ASSOCIATION.AFFILIATION.map((item) => item.toLowerCase());
+const RELATION = ASSOCIATION.RELATION.map((item) => item.toLowerCase());
+const ACQUISITION = ASSOCIATION.ACQUISITION.map((item) => item.toLowerCase());
+
 class PartnerService {
+  private validateAssociation(payload: PartnerRequest) {
+    if (AFFILIATION.includes(payload.affiliation_id?.toLowerCase()))
+      return MESSAGES.PARTNER.AFFILIATION_EXISTS;
+
+    if (RELATION.includes(payload.relation_id?.toLowerCase()))
+      return MESSAGES.PARTNER.RELATION_EXISTS;
+
+    if (ACQUISITION.includes(payload.acquisition_id?.toLowerCase()))
+      return MESSAGES.PARTNER.ACQUISITION_EXISTS;
+
+    return undefined;
+  }
+
   public create = async (
     authenticatedUser: UserAttributes,
     payload: PartnerRequest
@@ -40,11 +62,22 @@ class PartnerService {
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
 
+    if (
+      DEFAULT_UNEMPLOYED_COMPANY_NAME.toLowerCase() ===
+      payload.name.toLowerCase()
+    )
+      return errorMessageResponse(
+        "The unemployed name is not valid; please choose another company name."
+      );
+
     const authorizedCountriesName =
       await locationService.getAuthorizedCountriesName(payload);
 
     if (!authorizedCountriesName)
       return errorMessageResponse("Not authorized countries, please check ids");
+
+    const validationError = this.validateAssociation(payload);
+    if (validationError) return errorMessageResponse(validationError);
 
     const { affiliation, relation, acquisition } =
       await this.createPartnerRelations(payload, authenticatedUser);
@@ -90,6 +123,7 @@ class PartnerService {
       authenticatedUser.relation_id,
       COMMON_TYPES.PARTNER_ACQUISITION
     );
+
     return { affiliation, relation, acquisition };
   };
 
@@ -135,12 +169,12 @@ class PartnerService {
       authorized_country_name: authorizedCountriesName,
       coverage_beyond: payload.coverage_beyond,
       remark: payload.remark,
-      affiliation_id: affiliation.id,
-      relation_id: relation.id,
-      acquisition_id: acquisition.id,
-      affiliation_name: affiliation.name,
-      relation_name: relation.name,
-      acquisition_name: acquisition.name,
+      affiliation_id: affiliation?.id,
+      relation_id: relation?.id,
+      acquisition_id: acquisition?.id,
+      affiliation_name: affiliation?.name,
+      relation_name: relation?.name,
+      acquisition_name: acquisition?.name,
       brand_id: authenticatedUser.relation_id,
       location_id: location?.id,
       ...locationInfo,
@@ -212,6 +246,14 @@ class PartnerService {
     if (existedPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_EXISTED);
 
+    if (
+      DEFAULT_UNEMPLOYED_COMPANY_NAME.toLowerCase() ===
+      payload.name.toLowerCase()
+    )
+      return errorMessageResponse(
+        "The unemployed name is not valid; please choose another company name."
+      );
+
     const locationInfo: any = await this.updateLocation(
       payload,
       partner as PartnerAttributes
@@ -228,7 +270,10 @@ class PartnerService {
     if (typeof authorizedCountriesName !== "string")
       return authorizedCountriesName;
 
-    const { acquisition, affiliation, relation } =
+    const validationError = this.validateAssociation(payload);
+    if (validationError) return errorMessageResponse(validationError);
+
+    const { affiliation, relation, acquisition } =
       await this.createPartnerRelations(payload, user);
 
     const updatedPartner = await this.updatePartner(
@@ -358,7 +403,13 @@ class PartnerService {
     const data = await partnerRepository.getCompanySummary(brandId);
 
     return successResponse({
-      data,
+      data: {
+        ...data,
+        unemployed_company: {
+          id: brandId,
+          name: DEFAULT_UNEMPLOYED_COMPANY_NAME,
+        },
+      },
     });
   }
 }

@@ -250,7 +250,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             FILTER project_location.id == project.location_id
         ///
         LET authorized_countries = (
-            FOR distributor IN distributors
+            FOR distributor IN partners
                 FILTER distributor.deleted_at == null
                 FILTER distributor.brand_id == product.brand_id
                 FOR country IN countries
@@ -1089,19 +1089,24 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
             )
 
             LET distributor = project_products.distributor_location_id? FIRST(
-                FOR distributor IN distributors
+                FOR distributor IN partners
                     FILTER distributor.deleted_at == null
                     FILTER distributor.id == project_products.distributor_location_id
                     FOR distributorLocation IN locations
                       FILTER distributorLocation.id == distributor.location_id
                       FILTER distributorLocation.deleted_at == null
+                LET firstContact = FIRST(FOR partnerContact IN partner_contacts
+                                    FILTER partnerContact.deleted_at == null
+                                    FILTER partnerContact.partner_company_id == distributor.id
+                                    SORT partnerContact.created_at ASC
+                                    RETURN partnerContact)
                 RETURN MERGE(
                     distributor,
                     UNSET(distributorLocation, 'id'),
                     {
                         contact: {
-                            first_name: distributor.first_name,
-                            last_name: distributor.last_name,
+                            first_name: firstContact.firstname,
+                            last_name: firstContact.lastname,
                             position: 'Contact',
                             work_email: distributor.email,
                             work_phone: distributor.phone,

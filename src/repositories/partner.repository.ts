@@ -80,6 +80,7 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     LET cts = (
       FOR contact IN partner_contacts
       FILTER contact.partner_company_id == company.id
+      FILTER contact.deleted_at == null
       SORT CONCAT(contact.firstname, " ", contact.lastname) ASC
       RETURN CONCAT(UPPER(SUBSTRING(contact.firstname, 0, 1)), SUBSTRING(contact.firstname, 1), " ", UPPER(SUBSTRING(contact.lastname, 0, 1)), SUBSTRING(contact.lastname, 1))
     )

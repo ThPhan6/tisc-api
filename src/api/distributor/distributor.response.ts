@@ -73,11 +73,11 @@ export default {
           Joi.object({
             name: Joi.string(),
             address: Joi.string(),
-            person: Joi.string(),
-            gender: Joi.boolean(),
+            person: Joi.any(),
+            gender: Joi.any(),
             email: Joi.string(),
             phone: Joi.string(),
-            mobile: Joi.string(),
+            mobile: Joi.any(),
             authorized_country_name: Joi.string(),
             coverage_beyond: Joi.boolean(),
           })

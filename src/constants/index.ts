@@ -13,3 +13,5 @@ export * from "./project.constant";
 export * from "./documentation.constant";
 export * from "./common.constant";
 export * from "./storage.constant";
+export * from "./association.constant";
+export * from "./partner.constant";

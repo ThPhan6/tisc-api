@@ -1,6 +1,7 @@
 import { sortObjectArray } from "@/helpers/common.helper";
 import { ICountryAttributes, DistributorWithLocation } from "@/types";
 import { MarketDistributorGroupByCountry } from "./distributor.type";
+import { PartnerContactAttributes } from "@/api/partner_contact/partner_contact.type";
 
 export const mappingAuthorizedCountriesName = (
   authorizedCountries: ICountryAttributes[]
@@ -45,7 +46,8 @@ export const mappingResultGetList = (
 
 export const mappingDistributorByCountry = (
   countries: ICountryAttributes[],
-  distributors: DistributorWithLocation[]
+  distributors: DistributorWithLocation[],
+  partnerContacts: PartnerContactAttributes[]
 ) => {
   return sortObjectArray(
     countries
@@ -53,16 +55,27 @@ export const mappingDistributorByCountry = (
         const groupDistributors = distributors.filter(
           (item) => item.country_id === country.id
         );
+
         const removedFieldsOfDistributor = groupDistributors.map(
           (distributor) => {
+            const partnerContact = partnerContacts.find(
+              (item) => item.partner_company_id === distributor.id
+            );
+
+            const person = partnerContact
+              ? `${partnerContact.firstname || ""} ${
+                  partnerContact.lastname || ""
+                }`.trim()
+              : "";
+
             return {
               name: distributor.name,
               address: distributor.address,
-              person: distributor.first_name + " " + distributor.last_name,
-              gender: distributor.gender,
+              person,
+              gender: partnerContact ? partnerContact?.gender : false,
               email: distributor.email,
               phone: distributor.phone,
-              mobile: distributor.mobile,
+              mobile: partnerContacts ? partnerContact?.mobile : "",
               authorized_country_name: distributor.authorized_country_name,
               coverage_beyond: distributor.coverage_beyond,
             };
@@ -89,22 +102,40 @@ export const mappingMarketDistributorGroupByCountry = (
 ) => {
   const result: MarketDistributorGroupByCountry[] = [];
   distributors.forEach((distributor: any) => {
+    const {
+      acquisition_id,
+      acquisition_name,
+      affiliation_id,
+      affiliation_name,
+      contact,
+      price_rate,
+      relation_id,
+      relation_name,
+      remark,
+      website,
+      ...filteredDistributor
+    } = distributor;
+
+    if (acquisition_name !== "Active") return;
+
     const groupIndex = result.findIndex(
-      (country) => country.country_name === distributor.country_name
+      (country) => country.country_name === filteredDistributor.country_name
     );
+
     if (groupIndex === -1) {
       result.push({
-        country_name: distributor.country_name,
+        country_name: filteredDistributor.country_name,
         count: 1,
-        distributors: [distributor],
+        distributors: [filteredDistributor],
       });
-    } else {
-      result[groupIndex] = {
-        ...result[groupIndex],
-        count: result[groupIndex].count + 1,
-        distributors: [...result[groupIndex].distributors, distributor],
-      };
+      return;
     }
+
+    result[groupIndex] = {
+      ...result[groupIndex],
+      count: result[groupIndex].count + 1,
+      distributors: [...result[groupIndex].distributors, filteredDistributor],
+    };
   });
   return result;
 };
