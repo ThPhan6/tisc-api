@@ -3,6 +3,7 @@ import {
   PartnerContactSort,
   PartnerContactStatus,
 } from "@/api/partner_contact/partner_contact.type";
+import { DEFAULT_UNEMPLOYED_COMPANY_NAME } from "@/constants";
 import { pagination } from "@/helpers/common.helper";
 import PartnerContactModel from "@/models/partner_contact.model";
 import BaseRepository from "@/repositories/base.repository";
@@ -121,7 +122,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     };
   };
 
-  public getOne = async (id: string, brandId: string | null) => {
+  public getOne = async (id: string) => {
     let raw = `
     LET temp = FIRST(FOR contacts IN partner_contacts
       
@@ -132,7 +133,6 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       )
       FILTER contacts.id == @id
       FILTER contacts.deleted_at == null
-      ${brandId ? `OR contacts.partner_company_id == @brandId` : ""}
       RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
         company_name: company.name != null ? company.name : 'Unemployed',
@@ -142,15 +142,23 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     RETURN temp  
       `;
 
-    let bindData: any = { id };
-    if (brandId) bindData.brandId = brandId;
-
-    let result = await this.model.rawQueryV2(raw, bindData);
+    const result = await this.model.rawQueryV2(raw, { id });
 
     return {
       data: result[0] as PartnerContactAttributes,
     };
   };
+
+  public async updateContactToUnemployed(partnerId: string, brandId: string) {
+    await this.model
+      .getQuery()
+      .where("partner_company_id", "==", partnerId)
+      .whereNull("deleted_at")
+      .update({
+        partner_company_id: brandId,
+        company_name: DEFAULT_UNEMPLOYED_COMPANY_NAME,
+      });
+  }
 }
 
 export default new PartnerContactRepository();

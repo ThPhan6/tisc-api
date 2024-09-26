@@ -16,6 +16,7 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
+import { partnerContactRepository } from "@/repositories/partner_contact.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
 import {
   CommonTypeAttributes,
@@ -395,6 +396,11 @@ class PartnerService {
 
     if (!foundPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND, 404);
+
+    await partnerContactRepository.updateContactToUnemployed(
+      id,
+      foundPartner[0].brand_id
+    );
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
   }
