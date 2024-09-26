@@ -179,6 +179,17 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     const result = await this.model.rawQueryV2(raw, bindData);
     return result[0];
   }
+
+  public async updateContactToUnemployed(partnerId: string, brandId: string) {
+    const raw = `
+    FOR contact IN partner_contacts
+    FILTER contact.partner_company_id == @partnerId
+    FILTER contact.delete_at == null
+    UPDATE contact WITH { partner_company_id: @brandId, company_name: 'Unemployed'} IN partner_contacts
+    `;
+    const bindData = { partnerId, brandId };
+    await this.model.rawQueryV2(raw, bindData);
+  }
 }
 
 export default new PartnerRepository();

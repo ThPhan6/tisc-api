@@ -391,15 +391,15 @@ class PartnerService {
     return await partnerRepository.update(id, data);
   }
 
-  public async delete(id: string) {
+  public async delete(id: string, authenticatedUser: UserAttributes) {
     const foundPartner = await partnerRepository.findAndDelete(id);
 
     if (!foundPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND, 404);
 
-    await partnerContactRepository.updateContactToUnemployed(
+    await partnerRepository.updateContactToUnemployed(
       id,
-      foundPartner[0].brand_id
+      authenticatedUser.relation_id
     );
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
