@@ -26,8 +26,7 @@ export default class PartnerContactController {
 
   public getOne = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await partnerContactService.getOne(id, user);
+    const response = await partnerContactService.getOne(id);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
