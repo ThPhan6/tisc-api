@@ -3,6 +3,7 @@ import {
   PartnerContactSort,
   PartnerContactStatus,
 } from "@/api/partner_contact/partner_contact.type";
+import { DEFAULT_UNEMPLOYED_COMPANY_NAME } from "@/constants";
 import { pagination } from "@/helpers/common.helper";
 import PartnerContactModel from "@/models/partner_contact.model";
 import BaseRepository from "@/repositories/base.repository";
@@ -147,6 +148,17 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       data: result[0] as PartnerContactAttributes,
     };
   };
+
+  public async updateContactToUnemployed(partnerId: string, brandId: string) {
+    await this.model
+      .getQuery()
+      .where("partner_company_id", "==", partnerId)
+      .whereNull("deleted_at")
+      .update({
+        partner_company_id: brandId,
+        company_name: DEFAULT_UNEMPLOYED_COMPANY_NAME,
+      });
+  }
 }
 
 export default new PartnerContactRepository();

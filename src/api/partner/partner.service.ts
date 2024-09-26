@@ -16,6 +16,7 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import partnerRepository from "@/repositories/partner.repository";
+import { partnerContactRepository } from "@/repositories/partner_contact.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
 import {
   CommonTypeAttributes,
@@ -390,15 +391,15 @@ class PartnerService {
     return await partnerRepository.update(id, data);
   }
 
-  public async delete(id: string, authenticatedUser: UserAttributes) {
+  public async delete(id: string) {
     const foundPartner = await partnerRepository.findAndDelete(id);
 
     if (!foundPartner)
       return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND, 404);
 
-    await partnerRepository.updateContactToUnemployed(
+    await partnerContactRepository.updateContactToUnemployed(
       id,
-      authenticatedUser.relation_id
+      foundPartner[0].brand_id
     );
 
     return successMessageResponse(MESSAGES.GENERAL.SUCCESS);
