@@ -47,7 +47,8 @@ export default class PartnerController {
 
   public delete = async (req: Request, toolkit: ResponseToolkit) => {
     const { id } = req.params;
-    const response = await partnerService.delete(id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await partnerService.delete(id, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 }
