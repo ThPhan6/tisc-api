@@ -55,11 +55,8 @@ class PartnerContactService {
     };
   }
 
-  public async getOne(id: string, authenticatedUser?: UserAttributes) {
-    const { data } = await partnerContactRepository.getOne(
-      id,
-      authenticatedUser?.relation_id!
-    );
+  public async getOne(id: string) {
+    const { data } = await partnerContactRepository.getOne(id);
 
     if (!data) return errorMessageResponse(MESSAGES.PARTNER.PARTNER_NOT_FOUND);
 
