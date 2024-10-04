@@ -376,4 +376,11 @@ export const ROUTES = {
     UPDATE_PARTNER_CONTACT: "/api/partner-contact/update/{id}",
     DELETE_PARTNER_CONTACT: "/api/partner-contact/delete/{id}",
   },
+  DYNAMIC_CATEGORY: {
+    GET_CATEGORIES: "/api/dynamic-category/get-list",
+    CREATE_CATEGORY: "/api/dynamic-category/create",
+    UPDATE_CATEGORY: "/api/dynamic-category/update/{id}",
+    DETELE_CATEGORY: "/api/dynamic-category/delete/{id}",
+    MOVE_TO: "/api/dynamic-category/{category_id}/move-to/{sub_category_id}",
+  },
 };
