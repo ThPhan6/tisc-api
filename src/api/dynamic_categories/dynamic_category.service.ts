@@ -6,22 +6,23 @@ import {
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
-import { CategoryTypeEnum, DynamicCategory, UserAttributes } from "@/types";
+import {
+  CategoryTypeEnum,
+  CategoryEntity,
+  UserAttributes,
+  DetailedCategoryEntity,
+} from "@/types";
+import { filter, isEmpty } from "lodash";
 
 class DynamicCategoryService {
-  public async create(payload: DynamicCategory, user: UserAttributes) {
-    const { name, parent_id } = payload;
-
-    let level = 1;
+  public async create(payload: DetailedCategoryEntity, user: UserAttributes) {
+    const { name, level, parent_id } = payload;
 
     if (parent_id) {
       const parentItem = await dynamicCategoryRepository.findBy({
         id: parent_id,
       });
-
       if (!parentItem) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
-
-      level = (parentItem as any)?.level + 1;
     }
 
     const newItem = await dynamicCategoryRepository.create({
@@ -37,13 +38,15 @@ class DynamicCategoryService {
 
   public async getAll(user: UserAttributes) {
     const categories = await dynamicCategoryRepository.getAll();
-
-    const mappedData = mappingDynamicCategories(categories, user.relation_id);
-
-    return successResponse({ data: mappedData });
+    const filterdFollowingRelationId = categories.filter(
+      (category) =>
+        category.relation_id === user.relation_id &&
+        isEmpty(category.deleted_at)
+    );
+    return successResponse({ data: filterdFollowingRelationId });
   }
 
-  public async update(id: string, payload: DynamicCategory) {
+  public async update(id: string, payload: CategoryEntity) {
     const category = await dynamicCategoryRepository.find(id);
     if (!category) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
     await dynamicCategoryRepository.update(id, { name: payload.name });
@@ -55,27 +58,56 @@ class DynamicCategoryService {
 
     if (!category) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
 
-    await dynamicCategoryRepository.delete(id);
+    const allCategories = await dynamicCategoryRepository.getAll();
 
-    if (!category.parent_id)
-      await dynamicCategoryRepository.deleteBy({ parent_id: id });
+    const descendants = this.getDescendants(allCategories, id);
+
+    for (const descendant of descendants) {
+      await dynamicCategoryRepository.delete(descendant.id);
+    }
+
+    // Delete the main
+    await dynamicCategoryRepository.delete(id);
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async moveTo(category_id: string, sub_category_id: string) {
-    const category = await dynamicCategoryRepository.find(category_id);
+  public async move(sub_id: string, parent_id: string) {
+    const category = await dynamicCategoryRepository.find(sub_id);
 
-    const subCategory = await dynamicCategoryRepository.find(sub_category_id);
+    const subCategory = await dynamicCategoryRepository.find(parent_id);
 
     if (!category || !subCategory)
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
 
-    await dynamicCategoryRepository.update(category_id, {
-      parent_id: sub_category_id,
+    await dynamicCategoryRepository.update(sub_id, {
+      parent_id: parent_id,
     });
 
     return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  private getDescendants(items: DetailedCategoryEntity[], parent_id: string) {
+    const descendants = [];
+    const stack = [parent_id];
+
+    while (stack.length > 0) {
+      const currentId = stack.pop();
+      const children = filter(items, { parent_id: currentId });
+
+      for (const child of children) {
+        descendants.push(child);
+        stack.push(child.id);
+      }
+    }
+
+    return descendants;
+  }
+
+  public async groupCategories(user: UserAttributes) {
+    const categories = await dynamicCategoryRepository.getAll();
+    const mappedData = mappingDynamicCategories(categories, user.relation_id);
+    return successResponse({ data: mappedData });
   }
 }
 

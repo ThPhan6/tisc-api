@@ -1,7 +1,7 @@
 import Model from "@/Database/Model";
-import { DynamicCategory } from "@/types";
+import { DetailedCategoryEntity } from "@/types";
 
-export default class DynamicCategoryModel extends Model<DynamicCategory> {
+export default class DynamicCategoryModel extends Model<DetailedCategoryEntity> {
   protected table = "dynamic_categories";
   protected softDelete = true;
 }

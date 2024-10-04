@@ -1,11 +1,18 @@
 import DynamicCategoryModel from "@/models/dynamic_category.model";
 import BaseRepository from "@/repositories/base.repository";
-import { DynamicCategory } from "@/types";
+import {
+  CategoryEntity,
+  CategoryTypeEnum,
+  DetailedCategoryEntity,
+} from "@/types";
 
-class DynamicCategoryRepository extends BaseRepository<DynamicCategory> {
+class DynamicCategoryRepository extends BaseRepository<DetailedCategoryEntity> {
   protected model: DynamicCategoryModel;
-  protected DEFAULT_ATTRIBUTE: Partial<DynamicCategory> = {
+  protected DEFAULT_ATTRIBUTE: Partial<CategoryEntity> = {
     name: "",
+    parent_id: null,
+    type: CategoryTypeEnum.Inventory,
+    level: 1,
   };
   constructor() {
     super();

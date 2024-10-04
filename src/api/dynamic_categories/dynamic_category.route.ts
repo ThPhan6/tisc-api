@@ -88,10 +88,10 @@ export default class DynamicCategoryRoute implements IRoute {
         },
         {
           method: "POST",
-          path: ROUTES.DYNAMIC_CATEGORY.MOVE_TO,
+          path: ROUTES.DYNAMIC_CATEGORY.MOVE,
           options: {
-            handler: controller.moveTo,
-            validate: validate.moveTo,
+            handler: controller.move,
+            validate: validate.move,
             description:
               "Method that move last category to another sub category",
             tags: ["api", "Dynamic Category"],
@@ -100,6 +100,23 @@ export default class DynamicCategoryRoute implements IRoute {
               status: {
                 ...defaultRouteOptionResponseStatus,
                 200: generalMessageResponse,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.DYNAMIC_CATEGORY.GROUP_CATEGORIES,
+          options: {
+            handler: controller.groupCategories,
+            description:
+              "Method that get list categories after group together based on the relationship",
+            tags: ["api", "Dynamic Category"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getAll,
               },
             },
           },

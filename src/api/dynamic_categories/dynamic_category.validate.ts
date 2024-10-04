@@ -23,10 +23,12 @@ export default {
       ),
     },
   },
-  moveTo: {
+  move: {
     params: {
-      category_id: requireStringValidation("Category"),
-      sub_category_id: requireStringValidation("Sub Category"),
+      sub_id: requireStringValidation("Category"),
+    },
+    payload: {
+      parent_id: Joi.string(),
     },
   },
 };
