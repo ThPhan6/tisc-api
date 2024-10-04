@@ -1,8 +1,8 @@
-import { DynamicCategory } from "@/types";
+import { DetailedCategoryEntity } from "@/types";
 import { groupBy, isEmpty } from "lodash";
 
 export const mappingDynamicCategories = (
-  categories: DynamicCategory[],
+  categories: DetailedCategoryEntity[],
   relationId: string
 ) => {
   const filteredCategories = categories.filter(
@@ -16,9 +16,9 @@ export const mappingDynamicCategories = (
     (category) => category.parent_id || ""
   );
 
-  const rootCategories: DynamicCategory[] = categoryMap[""] || [];
+  const rootCategories: DetailedCategoryEntity[] = categoryMap[""] || [];
 
-  const stack: DynamicCategory[] = [...rootCategories];
+  const stack: DetailedCategoryEntity[] = [...rootCategories];
 
   while (stack.length) {
     const category = stack.pop();
