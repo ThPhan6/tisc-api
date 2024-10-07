@@ -314,6 +314,8 @@ const records = [
   { "type": COMMON_TYPES.DEPARTMENT, "name": "Production & Manufacturing" },
   { "type": COMMON_TYPES.DEPARTMENT, "name": "Research & Development" },
   { "type": COMMON_TYPES.DEPARTMENT, "name": "3rd Party & External Consultant" },
+  { "type": COMMON_TYPES.DEPARTMENT, "name": "Quality Assurance" },
+  { "type": COMMON_TYPES.DEPARTMENT, "name": "Technical & Support" },
 
   { "type": COMMON_TYPES.REQUEST_FOR, "name": "Brochure/Catalogue" },
   { "type": COMMON_TYPES.REQUEST_FOR, "name": "Demonstration & Performance Review" },
