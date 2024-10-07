@@ -115,7 +115,7 @@ export type RegionKey =
 export enum DesignFirmFunctionalType {
   MainOffice = "1",
   SatelliteOffice = "2",
-  Other = "3",
+  RepresentativeOffice = "3",
 }
 
 export const DesignLocationFunctionTypeOption = [
@@ -128,8 +128,8 @@ export const DesignLocationFunctionTypeOption = [
     id: DesignFirmFunctionalType.SatelliteOffice,
   },
   {
-    name: "Other",
-    id: DesignFirmFunctionalType.Other,
+    name: "Representative Office",
+    id: DesignFirmFunctionalType.RepresentativeOffice,
   },
 ];
 
