@@ -75,6 +75,7 @@
     "make:seed": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/make/seed",
     "make:migration": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/make/migration",
     "db:seed": "NODE_OPTIONS=--max_old_space_size=8192 env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/seed",
+    "db:seed:one": "NODE_OPTIONS=--max_old_space_size=8192 env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/seed --file",
     "db:migrate": "NODE_OPTIONS=--max_old_space_size=8192 env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/migrate",
     "db:rollback": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/rollback",
     "db:reset": "env TS_NODE_PROJECT=\"console/tsconfig.json\" ts-node console/commands/reset",

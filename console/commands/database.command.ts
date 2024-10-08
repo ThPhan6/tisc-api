@@ -69,27 +69,38 @@ class DatabaseConsole {
     });
   }
 
-  public runUp = async (collection: MigrationSeedModel) => {
+  public runUp = async (collection: MigrationSeedModel, specificFile?: string) => {
     await this.init(collection);
-    //
-    const filenames = fs.readdirSync(`${this.databasePath}/${collection}`);
-    const data = await this.getMigrationSeedData(collection);
-    /// get file unsued
-    const executedFiles = data.map((item) => item.file);
-    const unexecutedFiles = difference(filenames, executedFiles);
-
-    /// run seed - migration
-    await this.executeTemplate(unexecutedFiles, collection);
-
-    /// update batch fileModule
-    const latestBatch = this.getLatestBatch(data);
-    connection.collection(collection).save(unexecutedFiles.map((unexecutedFile) => {
-      return {
-        file: unexecutedFile,
-        batch: latestBatch + 1,
+    
+    let filenames = fs.readdirSync(`${this.databasePath}/${collection}`);
+    if (specificFile) {
+      // Only run the specific file
+      if (!filenames.includes(specificFile)) {
+        throw new Error(`Seed file ${specificFile} does not exist in the ${collection} collection.`);
       }
-    }));
-  }
+      filenames = [specificFile];
+    } else {
+      // Get all files if no specific file is provided
+      const data = await this.getMigrationSeedData(collection);
+      const executedFiles = data.map((item) => item.file);
+      filenames = difference(filenames, executedFiles);
+    }
+  
+    // Run seed - migration
+    await this.executeTemplate(filenames, collection);
+  
+    // Update batch file if no specific file is being executed
+    if (!specificFile) {
+      const latestBatch = this.getLatestBatch(await this.getMigrationSeedData(collection));
+      connection.collection(collection).save(filenames.map((file) => {
+        return {
+          file,
+          batch: latestBatch + 1,
+        };
+      }));
+    }
+  };
+  
 
   public rollback = async () => {
     const data = reverse(await this.getMigrationSeedData('migrations'));

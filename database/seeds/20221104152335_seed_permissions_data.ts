@@ -745,6 +745,22 @@ const permissionData = [
       },
     ],
   },
+  {
+    logo: "/logo/prices_and_inventories.svg",
+    name: "PRICES & INVENTORIES",
+    parent_id: null,
+    type: 2,
+    index: 42,
+    id: "permission_15",
+    routes: [
+      ROUTES.DYNAMIC_CATEGORY.CREATE_CATEGORY,
+      ROUTES.DYNAMIC_CATEGORY.DETELE_CATEGORY,
+      ROUTES.DYNAMIC_CATEGORY.GET_CATEGORIES,
+      ROUTES.DYNAMIC_CATEGORY.GROUP_CATEGORIES,
+      ROUTES.DYNAMIC_CATEGORY.UPDATE_CATEGORY,
+      ROUTES.DYNAMIC_CATEGORY.MOVE,
+    ],
+  },
 ];
 
 export const up = (connection: ConnectionInterface) => {
