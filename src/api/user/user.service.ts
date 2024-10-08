@@ -6,6 +6,7 @@ import {
   TiscRoles,
   RoleIndex,
   ImageSize,
+  DesignFirmRoles,
 } from "@/constants";
 
 import {
@@ -67,10 +68,14 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
-    const department = await commonTypeRepository.findOrCreate(
+    const department = authenticatedUser.role_id != DesignFirmRoles.Admin ? await commonTypeRepository.findOrCreate(
       payload.department_id,
       authenticatedUser.relation_id,
       COMMON_TYPES.DEPARTMENT
+    ) : await commonTypeRepository.findOrCreate(
+      payload.department_id,
+      authenticatedUser.relation_id,
+      COMMON_TYPES.DESIGNER_DEPARTMENT
     );
 
     const createdUser = await userRepository.create({
@@ -203,10 +208,14 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
-    const department = await commonTypeRepository.findOrCreate(
+    const department = authenticatedUser.role_id != DesignFirmRoles.Admin ? await commonTypeRepository.findOrCreate(
       payload.department_id,
       authenticatedUser.relation_id,
       COMMON_TYPES.DEPARTMENT
+    ) : await commonTypeRepository.findOrCreate(
+      payload.department_id,
+      authenticatedUser.relation_id,
+      COMMON_TYPES.DESIGNER_DEPARTMENT
     );
     const updatedUser = await userRepository.update(user.id, {
       ...payload,
