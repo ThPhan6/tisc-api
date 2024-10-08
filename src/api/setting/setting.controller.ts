@@ -1,4 +1,4 @@
-import { MEASUREMENT_UNIT_OPTIONS } from "@/constants";
+import { COMMON_TYPES, DesignFirmRoles, MEASUREMENT_UNIT_OPTIONS } from "@/constants";
 import { UserAttributes, DesignLocationFunctionTypeOption } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { settingService } from "./setting.service";
@@ -51,9 +51,11 @@ export default class SettingController {
   public getCommonTypes = async (req: Request, toolkit: ResponseToolkit) => {
     const { type, sort_order } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
+    const newType = type == COMMON_TYPES.DEPARTMENT && user.role_id == DesignFirmRoles.Admin ?
+        COMMON_TYPES.DESIGNER_DEPARTMENT : type;
     const response = await settingService.getCommonTypes(
       user.relation_id,
-      type,
+      newType,
       sort_order
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
