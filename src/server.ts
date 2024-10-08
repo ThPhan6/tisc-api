@@ -9,6 +9,7 @@ import { emailQueue } from "./queues/email.queue";
 import { databaseBackupQueue } from "./queues/database_backup.queue";
 import { invoiceEmailQueue } from "./queues/invoice_mail.queue";
 import { colorDetectionQueue } from "./queues/color_detection.queue";
+import { activityLogService } from "./services/activityLog.service";
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIRONMENT.HOST,
@@ -58,6 +59,15 @@ server.events.on("response", (event: any) => {
   }
 });
 //
+server.ext("onPostAuth", (request: any, h: any) => {
+  try {
+    activityLogService.createActivityLog(
+      request,
+      h.request.auth.credentials.user_id
+    );
+  } catch (error) {}
+  return h.continue;
+});
 
 async function start() {
   try {
