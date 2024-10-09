@@ -23,10 +23,10 @@ export default class DynamicCategoryRoute implements IRoute {
           method: "GET",
           path: ROUTES.DYNAMIC_CATEGORY.GET_CATEGORIES,
           options: {
-            handler: controller.getAll,
+            handler: controller.getCategoriesByRelationId,
             description: "Method that get list categories for dynamic category",
             tags: ["api", "Dynamic Category"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -43,7 +43,7 @@ export default class DynamicCategoryRoute implements IRoute {
             validate: validate.create,
             description: "Method that create category for dynamic category",
             tags: ["api", "Dynamic Category"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -60,7 +60,7 @@ export default class DynamicCategoryRoute implements IRoute {
             validate: validate.update,
             description: "Method that update category for dynamic category",
             tags: ["api", "Dynamic Category"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -77,7 +77,7 @@ export default class DynamicCategoryRoute implements IRoute {
             validate: getOneValidation,
             description: "Method that delete category for dynamic category",
             tags: ["api", "Dynamic Category"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -95,7 +95,7 @@ export default class DynamicCategoryRoute implements IRoute {
             description:
               "Method that move last category to another sub category",
             tags: ["api", "Dynamic Category"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -112,7 +112,7 @@ export default class DynamicCategoryRoute implements IRoute {
             description:
               "Method that get list categories after group together based on the relationship",
             tags: ["api", "Dynamic Category"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

@@ -36,14 +36,11 @@ class DynamicCategoryService {
     return successResponse({ data: newItem });
   }
 
-  public async getAll(user: UserAttributes) {
-    const categories = await dynamicCategoryRepository.getAll();
-    const filterdFollowingRelationId = categories.filter(
-      (category) =>
-        category.relation_id === user.relation_id &&
-        isEmpty(category.deleted_at)
+  public async getCategoriesByRelationId(user: UserAttributes) {
+    const data = await dynamicCategoryRepository.getCategoriesByRelationId(
+      user.relation_id
     );
-    return successResponse({ data: filterdFollowingRelationId });
+    return successResponse({ data });
   }
 
   public async update(id: string, payload: CategoryEntity) {
@@ -58,16 +55,16 @@ class DynamicCategoryService {
 
     if (!category) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
 
-    const allCategories = await dynamicCategoryRepository.getAll();
+    const categories =
+      await dynamicCategoryRepository.getCategoriesByRelationId(
+        category.relation_id
+      );
 
-    const descendants = this.getDescendants(allCategories, id);
+    const descendantIds = this.getDescendants(categories, id);
 
-    for (const descendant of descendants) {
-      await dynamicCategoryRepository.delete(descendant.id);
-    }
+    const ids = [id, ...descendantIds];
 
-    // Delete the main
-    await dynamicCategoryRepository.delete(id);
+    await dynamicCategoryRepository.deleteMany(ids);
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
@@ -88,20 +85,20 @@ class DynamicCategoryService {
   }
 
   private getDescendants(items: DetailedCategoryEntity[], parent_id: string) {
-    const descendants = [];
+    const descendantIds = [];
     const stack = [parent_id];
 
     while (stack.length > 0) {
       const currentId = stack.pop();
-      const children = filter(items, { parent_id: currentId });
+      const children = items.filter((item) => item.parent_id === currentId);
 
       for (const child of children) {
-        descendants.push(child);
+        descendantIds.push(child.id);
         stack.push(child.id);
       }
     }
 
-    return descendants;
+    return descendantIds;
   }
 
   public async groupCategories(user: UserAttributes) {

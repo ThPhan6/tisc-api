@@ -18,6 +18,14 @@ class DynamicCategoryRepository extends BaseRepository<DetailedCategoryEntity> {
     super();
     this.model = new DynamicCategoryModel();
   }
+
+  public getCategoriesByRelationId = async (relationId: string) => {
+    return await this.model
+      .getQuery()
+      .where("relation_id", "==", relationId)
+      .whereNull("deleted_at")
+      .get();
+  };
 }
 
 export default new DynamicCategoryRepository();
