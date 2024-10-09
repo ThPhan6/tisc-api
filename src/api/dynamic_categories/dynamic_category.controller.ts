@@ -14,9 +14,14 @@ export default class DynamicCategoryController {
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
-  public getAll = async (req: Request, toolkit: ResponseToolkit) => {
+  public getCategoriesByRelationId = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await DynamicCategoryService.getAll(user);
+    const response = await DynamicCategoryService.getCategoriesByRelationId(
+      user
+    );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
 
