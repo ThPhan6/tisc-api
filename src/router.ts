@@ -36,6 +36,7 @@ import LinkageRoute from "./api/linkage/linkage.route";
 import LabelRoute from "./api/label/label.route";
 import PartnerRoute from "@/api/partner/partner.route";
 import PartnerContactRoute from "@/api/partner_contact/partner_contact.route";
+import DynamicCategoryRoute from "@/api/dynamic_categories/dynamic_category.route";
 
 export default class Router {
   public static async loadRoute(server: Hapi.Server): Promise<any> {
@@ -76,5 +77,6 @@ export default class Router {
     await new LabelRoute().register(server);
     await new PartnerRoute().register(server);
     await new PartnerContactRoute().register(server);
+    await new DynamicCategoryRoute().register(server);
   }
 }
