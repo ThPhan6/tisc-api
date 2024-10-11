@@ -177,5 +177,9 @@ class BaseRepository<DataType> {
     });
     return await query.delete();
   }
+
+  public async deleteMany(ids: string[]) {
+    return this.model.getQuery().whereIn("id", ids).delete();
+  }
 }
 export default BaseRepository;

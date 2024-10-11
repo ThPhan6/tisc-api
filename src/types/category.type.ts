@@ -1,5 +1,9 @@
 import { Pagination } from "@/types";
 
+export enum CategoryTypeEnum {
+  Inventory,
+}
+
 export interface CategoryValue {
   id: string;
   name: string;
