@@ -8,7 +8,10 @@ export class BaseQueue {
   constructor(queue: Bull.Queue<any>) {
     this.queue = queue;
     this.concurrency = 10;
+
     this.clearQueue();
+
+    this.setupQueueListeners();
   }
   private clearQueue() {
     this.queue.clean(0, "delayed");
@@ -20,6 +23,23 @@ export class BaseQueue {
     let multi = this.queue.multi();
     multi.del(this.queue.toKey("repeat"));
     multi.exec();
+  }
+  private setupQueueListeners() {
+    this.queue.on("failed", (job, err) => {
+      console.error(`Job ${job.id} failed:`, err);
+    });
+
+    this.queue.on("stalled", (job) => {
+      console.warn(`Job ${job.id} stalled`);
+    });
+
+    this.queue.on("completed", (job, result) => {
+      console.log(`Job ${job.id} completed successfully`);
+    });
+
+    this.queue.on("error", (error) => {
+      console.error("Queue encountered an error:", error);
+    });
   }
   public log(error: any, type?: "slack" | "log_collections") {
     if (!type || type === "slack") {
