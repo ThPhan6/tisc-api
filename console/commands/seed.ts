@@ -1,2 +1,2 @@
-import {databaseConsole} from './database.command';
-databaseConsole.runUp('seeds');
+import { databaseConsole } from "./database.command";
+databaseConsole.runUp("seeds");
