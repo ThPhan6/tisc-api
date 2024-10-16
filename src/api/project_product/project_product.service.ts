@@ -345,12 +345,15 @@ class ProjectProductService {
       return [...prev, curr.name];
     }, []);
 
-    const newData = consideredProducts.data.filter(
+    const mappedData = consideredProducts.data.filter(
       (zone: any) => zone.name == 'ENTIRE PROJECT' || zoneNames.includes(zone.name)
     );
+    const entireProject = mappedData.find((zone: any)=> zone.name == 'ENTIRE PROJECT');
+    const rest = mappedData.filter((zone: any) => zone.name != 'ENTIRE PROJECT');
+    const newData = [entireProject, ...sortBy(rest,'name')];
 
     return successResponse({
-      data: {...consideredProducts, data: newData},
+      data: {...consideredProducts, data: zone_order? mappedData : newData},
     });
   };
 
