@@ -3,6 +3,7 @@ import * as FileType from "file-type";
 import { template, round, omitBy, isEqual, pick } from "lodash";
 import { INTEREST_RATE } from "@/constants";
 import { SortOrder } from "@/types";
+import moment from "moment";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -279,3 +280,5 @@ export const getLodashOrder = (order: SortOrder) =>
 export const toFixedNumber = (amount: number, n: number) => {
   return parseFloat(amount.toFixed(n));
 };
+
+export const getFullTime = () => moment().format("YYYY-MM-DD HH:mm:ss");

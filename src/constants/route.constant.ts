@@ -384,4 +384,12 @@ export const ROUTES = {
     MOVE: "/api/dynamic-category/{sub_id}/move",
     GROUP_CATEGORIES: "/api/dynamic-category/group",
   },
+  INVENTORY: {
+    CREATE: "/api/inventory/create",
+    GET_LIST: "/api/inventory/get-list",
+    GET_ONE: "/api/inventory/get-one/{id}",
+    GET_INVENTORY_CATEGORY: "/api/inventory/category/{id}",
+    UPDATE: "/api/inventory/update/{id}",
+    DELETE: "/api/inventory/delete/{id}",
+  },
 };
