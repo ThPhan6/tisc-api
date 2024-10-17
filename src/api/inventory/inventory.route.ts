@@ -13,7 +13,7 @@ export default class InventoryRoute implements IRoute {
       server.route([
         {
           method: "GET",
-          path: ROUTES.INVENTORY.GET,
+          path: ROUTES.INVENTORY.GET_ONE,
           options: {
             handler: controller.get,
             validate: validate.get,
@@ -29,11 +29,11 @@ export default class InventoryRoute implements IRoute {
         },
         {
           method: "GET",
-          path: ROUTES.INVENTORY.GET_INVENTORY_CATEGORY,
+          path: ROUTES.INVENTORY.GET_LIST,
           options: {
-            handler: controller.getInventoryCategoryListWithPagination,
-            validate: validate.getInventoryCategoryList,
-            description: "Method that get inventory category",
+            handler: controller.getList,
+            validate: validate.getList,
+            description: "Method that get inventory list",
             tags: ["api", "Inventory"],
             auth: AUTH_NAMES.GENERAL,
             response: {

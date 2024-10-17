@@ -5,18 +5,14 @@ import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
-    const response = await inventoryService.get(req.query?.id);
+    const response = await inventoryService.get(req.params.id);
     return toolkit.response(response).code(response.statusCode);
   }
 
-  public async getInventoryCategoryListWithPagination(
-    req: Request,
-    toolkit: ResponseToolkit
-  ) {
-    const response =
-      await inventoryService.getInventoryCategoryListWithPagination(
-        req.query as InventoryCategoryQuery
-      );
+  public async getList(req: Request, toolkit: ResponseToolkit) {
+    const response = await inventoryService.getList(
+      req.query as InventoryCategoryQuery
+    );
     return toolkit.response(response).code(response.statusCode);
   }
 

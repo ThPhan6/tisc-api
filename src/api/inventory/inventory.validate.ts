@@ -22,13 +22,12 @@ const InventoryUpdateRequest = {
 
 export default {
   get: {
-    query: {
-      id: Joi.string().allow(null),
+    params: {
+      id: Joi.string().required(),
     },
   },
-  getInventoryCategoryList: {
+  getList: {
     query: {
-      id: Joi.string().allow(null),
       category_id: Joi.string().allow(null),
       limit: Joi.number().allow(null),
       offset: Joi.number().allow(null),

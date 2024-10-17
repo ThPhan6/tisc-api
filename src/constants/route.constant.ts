@@ -386,8 +386,8 @@ export const ROUTES = {
   },
   INVENTORY: {
     CREATE: "/api/inventory/create",
-    GET: "/api/inventory",
-    GET_INVENTORY_CATEGORY: "/api/inventory/category",
+    GET_ONE: "/api/inventory/get-one/{id}",
+    GET_LIST: "/api/inventory/get-list",
     UPDATE: "/api/inventory/update/{id}",
     DELETE: "/api/inventory/delete/{id}",
   },

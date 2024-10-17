@@ -16,20 +16,19 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     this.model = new InventoryModel();
   }
 
-  public async getInventoryCategoryListWithPagination(
+  public async getList(
     query: InventoryCategoryQuery
   ): Promise<InventoryCategoryListWithPaginate> {
-    const { limit, offset = 0, category_id, sort, search, order, id } = query;
+    const { limit, offset = 0, category_id, sort, search, order } = query;
 
     const rawQuery = `
       FOR inventory IN inventories
       FILTER inventory.deleted_at == null
       ${
-        category_id && !id
+        category_id
           ? "FILTER inventory.inventory_category_id == @category_id"
           : ""
       }
-      ${id && !category_id ? "FILTER inventory.id == @id" : ""}
       ${search ? `FILTER inventory.sku LIKE "%${search}%"` : ""}
       ${sort && order ? `SORT inventory.@sort @order` : ""}
       ${limit && offset ? `LIMIT ${offset}, ${limit}` : ""}
@@ -38,7 +37,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
     const result = await this.model.rawQueryV2(
       rawQuery,
-      omitBy({ category_id, sort, order, id }, isNil)
+      omitBy({ category_id, sort, order }, isNil)
     );
 
     return {

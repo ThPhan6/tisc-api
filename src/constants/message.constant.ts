@@ -189,6 +189,7 @@ export const MESSAGES = {
   SUB_CATEGORY_DUPLICATED: "Sub category duplicated",
   MAIN_CATEGORY_DUPLICATED: "Main category duplicated",
   IMAGE_INVALID: "Image invalid",
+  IMAGE_UPLOAD_FAILED: "Failed to upload image",
   BASIS_OPTION_NOT_FOUND: "Basis option not found",
   LOCATION_NOT_FOUND: "Location not found",
   PRODUCT_NOT_FOUND: "Product not found",

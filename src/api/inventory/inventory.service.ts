@@ -1,4 +1,5 @@
 import { MESSAGES } from "@/constants";
+import { getTimestamps } from "@/Database/Utils/Time";
 import {
   errorMessageResponse,
   successResponse,
@@ -11,21 +12,12 @@ import {
 } from "@/services/image.service";
 import { UserAttributes } from "@/types";
 import { randomUUID } from "crypto";
-import { isNil, pick } from "lodash";
+import { pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
-import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryService {
-  public async get(id?: string) {
-    if (isNil(id)) {
-      const data = await inventoryRepository.getAll();
-      return successResponse({
-        data,
-        message: MESSAGES.SUCCESS,
-      });
-    }
-
+  public async get(id: string) {
     const inventory = await inventoryRepository.find(id);
 
     if (!inventory) {
@@ -38,11 +30,8 @@ class InventoryService {
     });
   }
 
-  public async getInventoryCategoryListWithPagination(
-    query: InventoryCategoryQuery
-  ) {
-    const inventoryList =
-      await inventoryRepository.getInventoryCategoryListWithPagination(query);
+  public async getList(query: InventoryCategoryQuery) {
+    const inventoryList = await inventoryRepository.getList(query);
 
     if (!inventoryList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
@@ -69,7 +58,28 @@ class InventoryService {
     /// find brand
     const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
-      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    const newId = randomUUID();
+
+    /// upload image
+    let image: string = "";
+    if (payload.image) {
+      if (!(await validateImageType([payload.image]))) {
+        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+      }
+
+      image = await uploadImagesInventory(
+        payload.image,
+        brand.name,
+        brand.id,
+        newId
+      );
+
+      if (!image) {
+        return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
+      }
     }
 
     /// create inventory
@@ -81,35 +91,12 @@ class InventoryService {
         "inventory_category_id",
         "image",
       ]),
-      id: randomUUID(),
+      image,
+      id: newId,
     });
 
     if (!newInventory) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
-    }
-
-    /// upload image
-    let image: string = "";
-    if (payload.image) {
-      if (!(await validateImageType([payload.image]))) {
-        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
-      }
-
-      const uploadedImages = await uploadImagesInventory(
-        [payload.image],
-        brand.name,
-        newInventory.id
-      );
-      image = uploadedImages?.[0];
-    }
-
-    /// update image to database
-    const inventoryUpdated = await this.update(user, newInventory.id, {
-      image,
-    });
-
-    if (!inventoryUpdated) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
     return successResponse({
@@ -126,7 +113,7 @@ class InventoryService {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {
-      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
     }
 
     /// find category to get brand
@@ -135,27 +122,31 @@ class InventoryService {
     );
 
     if (!category) {
-      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
     }
 
     /// find brand
     const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
-      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    let image: string = "";
+    let image: string = inventoryExisted.image;
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
 
-      const imageUploaded = await uploadImagesInventory(
-        [payload.image],
+      image = await uploadImagesInventory(
+        payload.image,
         brand.name,
+        brand.id,
         inventoryExisted.id
       );
-      image = imageUploaded?.[0];
+
+      if (!image) {
+        return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
+      }
     }
 
     const updatedInventory = await inventoryRepository.update(id, {
@@ -171,7 +162,6 @@ class InventoryService {
 
     return successResponse({
       data: updatedInventory,
-      message: MESSAGES.SUCCESS,
     });
   }
 

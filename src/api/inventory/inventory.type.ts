@@ -10,7 +10,6 @@ export interface InventoryCreate
 }
 
 export interface InventoryCategoryQuery {
-  id?: string;
   category_id?: string;
   limit?: number;
   offset?: number;
