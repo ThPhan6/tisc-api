@@ -1,9 +1,8 @@
-import { randomBytes } from "crypto";
-import * as FileType from "file-type";
-import { template, round, omitBy, isEqual, pick } from "lodash";
 import { INTEREST_RATE } from "@/constants";
 import { SortOrder } from "@/types";
-import moment from "moment";
+import { randomBytes } from "crypto";
+import * as FileType from "file-type";
+import { isEqual, omitBy, pick, round, template } from "lodash";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {

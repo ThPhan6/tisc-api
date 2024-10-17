@@ -13,7 +13,7 @@ export default class InventoryRoute implements IRoute {
       server.route([
         {
           method: "GET",
-          path: ROUTES.INVENTORY.GET_ONE,
+          path: ROUTES.INVENTORY.GET,
           options: {
             handler: controller.get,
             validate: validate.get,

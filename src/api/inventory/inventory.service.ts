@@ -11,17 +11,25 @@ import {
 } from "@/services/image.service";
 import { UserAttributes } from "@/types";
 import { randomUUID } from "crypto";
-import { pick } from "lodash";
+import { isNil, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
 import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryService {
-  public async get(id: string) {
+  public async get(id?: string) {
+    if (isNil(id)) {
+      const data = await inventoryRepository.getAll();
+      return successResponse({
+        data,
+        message: MESSAGES.SUCCESS,
+      });
+    }
+
     const inventory = await inventoryRepository.find(id);
 
     if (!inventory) {
-      return errorMessageResponse(MESSAGES.NOT_FOUND);
+      return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
     return successResponse({
@@ -33,15 +41,15 @@ class InventoryService {
   public async getInventoryCategoryListWithPagination(
     query: InventoryCategoryQuery
   ) {
-    const invenList =
+    const inventoryList =
       await inventoryRepository.getInventoryCategoryListWithPagination(query);
 
-    if (!invenList) {
-      return errorMessageResponse(MESSAGES.NOT_FOUND);
+    if (!inventoryList) {
+      return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
     return successResponse({
-      ...invenList,
+      ...inventoryList,
       message: MESSAGES.SUCCESS,
     });
   }
@@ -64,6 +72,23 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
 
+    /// create inventory
+    const newInventory = await inventoryRepository.create({
+      ...pick(payload, [
+        "name",
+        "description",
+        "sku",
+        "inventory_category_id",
+        "image",
+      ]),
+      id: randomUUID(),
+    });
+
+    if (!newInventory) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    /// upload image
     let image: string = "";
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
@@ -73,19 +98,18 @@ class InventoryService {
       const uploadedImages = await uploadImagesInventory(
         [payload.image],
         brand.name,
-        brand.id
+        newInventory.id
       );
       image = uploadedImages?.[0];
     }
 
-    const newInventory = await inventoryRepository.create({
-      ...pick(payload, ["name", "description", "sku", "inventory_category_id"]),
+    /// update image to database
+    const inventoryUpdated = await this.update(user, newInventory.id, {
       image,
-      id: randomUUID(),
     });
 
-    if (!newInventory) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    if (!inventoryUpdated) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
     return successResponse({
@@ -97,17 +121,17 @@ class InventoryService {
   public async update(
     user: UserAttributes,
     id: string,
-    payload: InventoryCreate
+    payload: Partial<InventoryCreate>
   ) {
     /// find inventory
-    const invenExisted = await inventoryRepository.find(id);
-    if (!invenExisted) {
+    const inventoryExisted = await inventoryRepository.find(id);
+    if (!inventoryExisted) {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
     }
 
     /// find category to get brand
     const category = await dynamicCategoryRepository.find(
-      invenExisted.inventory_category_id
+      inventoryExisted.inventory_category_id
     );
 
     if (!category) {
@@ -126,16 +150,16 @@ class InventoryService {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
 
-      const uploadedImages = await uploadImagesInventory(
+      const imageUploaded = await uploadImagesInventory(
         [payload.image],
         brand.name,
-        brand.id
+        inventoryExisted.id
       );
-      image = uploadedImages?.[0];
+      image = imageUploaded?.[0];
     }
 
     const updatedInventory = await inventoryRepository.update(id, {
-      ...invenExisted,
+      ...inventoryExisted,
       ...pick(payload, ["name", "description", "sku"]),
       image,
       updated_at: getTimestamps(),
@@ -155,12 +179,12 @@ class InventoryService {
     const inventory = await inventoryRepository.find(id);
 
     if (!inventory) {
-      return errorMessageResponse(MESSAGES.NOT_FOUND);
+      return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
-    const deletedInventory = await inventoryRepository.delete(id);
+    const inventoryDeleted = await inventoryRepository.delete(id);
 
-    if (!deletedInventory) {
+    if (!inventoryDeleted) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
     }
 

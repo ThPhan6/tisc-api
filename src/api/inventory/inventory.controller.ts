@@ -5,7 +5,7 @@ import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
-    const response = await inventoryService.get(req.params.id);
+    const response = await inventoryService.get(req.query?.id);
     return toolkit.response(response).code(response.statusCode);
   }
 

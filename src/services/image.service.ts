@@ -138,7 +138,7 @@ export const uploadImagesProduct = (
 export const uploadImagesInventory = (
   images: string[],
   brandName: string,
-  brandId: string,
+  inventoryId: string,
   inventoryName?: string
 ) => {
   const formatedBrandName = simplizeString(brandName);
@@ -165,15 +165,15 @@ export const uploadImagesInventory = (
       const pngBuffer = await toPng(webpBuffer);
       await upload(
         webpBuffer,
-        `inventory/${brandId}/${newFileName}.webp`,
+        `inventory/${inventoryId}/${newFileName}.webp`,
         "image/webp"
       );
       await upload(
         pngBuffer,
-        `inventory/${brandId}/${newFileName}.png`,
+        `inventory/${inventoryId}/${newFileName}.png`,
         "image/png"
       );
-      return `/inventory/${brandId}/${newFileName}.webp`;
+      return `/inventory/${inventoryId}/${newFileName}.webp`;
     })
   );
 };
