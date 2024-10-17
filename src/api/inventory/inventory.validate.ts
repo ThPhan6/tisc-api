@@ -5,12 +5,18 @@ const InventoryId = {
   id: requireStringValidation("Inventory id"),
 };
 
-const InventoryRequest = {
-  brand_id: requireStringValidation("Brand id"),
+const InventoryCreateRequest = {
   name: requireStringValidation("Inventory name"),
-  image: requireStringValidation("Inventory image"),
   sku: requireStringValidation("Inventory sku"),
   inventory_category_id: requireStringValidation("Inventory category id"),
+  image: Joi.string().allow(null),
+  description: Joi.string().allow(null),
+};
+
+const InventoryUpdateRequest = {
+  name: Joi.string().allow(null),
+  image: Joi.string().allow(null),
+  sku: Joi.string().allow(null),
   description: Joi.string().allow(null),
 };
 
@@ -18,19 +24,25 @@ export default {
   get: {
     params: InventoryId,
   },
-  getByCategory: {
-    params: {
-      id: requireStringValidation("Inventory category id"),
+  getInventoryCategoryList: {
+    query: {
+      id: Joi.string().allow(null),
+      category_id: Joi.string().allow(null),
+      limit: Joi.number().allow(null),
+      offset: Joi.number().allow(null),
+      order: Joi.string().allow(null),
+      sort: Joi.string().allow(null),
+      search: Joi.string().allow(null),
     },
   },
   create: {
-    payload: InventoryRequest,
+    payload: InventoryCreateRequest,
   },
   delete: {
     params: InventoryId,
   },
   update: {
     params: InventoryId,
-    payload: InventoryRequest,
+    payload: InventoryUpdateRequest,
   },
 };

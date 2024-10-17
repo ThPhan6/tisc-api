@@ -166,6 +166,7 @@ export const MESSAGES = {
   CONTACT_NOT_FOUND: "Contact not found",
   PERMISSION_NOT_FOUND: "Permission not found",
   CATEGORY_NOT_FOUND: "Category not found",
+  CATEGORY_NOT_BELONG_TO_BRAND: "Category not belong to any brand",
   CATEGORY_IN_PRODUCT: "Some products use this category. So, cannot delete.",
   CATEGORY_EXISTED: "Category existed",
   NOT_FOUND: "Not found",
@@ -294,4 +295,5 @@ export const MESSAGES = {
   LABEL_NOTFOUND: "Label not found.",
   SUB_LABEL_NOTFOUND: "Sub-label not found.",
   CANNOT_MOVE_TO_PARENT: "Cannot move sub-label to its parent label.",
+  INVENTORY_NOT_FOUND: "Inventory not found",
 };

@@ -31,8 +31,8 @@ export default class InventoryRoute implements IRoute {
           method: "GET",
           path: ROUTES.INVENTORY.GET_INVENTORY_CATEGORY,
           options: {
-            handler: controller.getByCategory,
-            validate: validate.getByCategory,
+            handler: controller.getInventoryCategoryListWithPagination,
+            validate: validate.getInventoryCategoryList,
             description: "Method that get inventory category",
             tags: ["api", "Inventory"],
             auth: AUTH_NAMES.GENERAL,

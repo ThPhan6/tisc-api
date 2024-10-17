@@ -1,7 +1,7 @@
 import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { inventoryService } from "./inventory.service";
-import { InventoryCreate } from "./inventory.type";
+import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
@@ -9,8 +9,14 @@ export default class InventoryController {
     return toolkit.response(response).code(response.statusCode);
   }
 
-  public async getByCategory(req: Request, toolkit: ResponseToolkit) {
-    const response = await inventoryService.getByCategoryId(req.params.id);
+  public async getInventoryCategoryListWithPagination(
+    req: Request,
+    toolkit: ResponseToolkit
+  ) {
+    const response =
+      await inventoryService.getInventoryCategoryListWithPagination(
+        req.query as InventoryCategoryQuery
+      );
     return toolkit.response(response).code(response.statusCode);
   }
 

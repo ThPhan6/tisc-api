@@ -135,6 +135,48 @@ export const uploadImagesProduct = (
     })
   );
 };
+export const uploadImagesInventory = (
+  images: string[],
+  brandName: string,
+  brandId: string,
+  inventoryName?: string
+) => {
+  const formatedBrandName = simplizeString(brandName);
+
+  const formatedInventoryName = simplizeString(inventoryName || "");
+  return Promise.all(
+    images.map(async (image) => {
+      const fileType = await getFileTypeFromBase64(image);
+      if (!fileType) {
+        return image;
+      }
+
+      // const fileName = fileNameFromKeywords(keywords, formatedBrandName);
+      const fileKeywords = [
+        formatedBrandName,
+        formatedInventoryName,
+        moment.now(),
+      ];
+      const newFileName = fileKeywords.join("-");
+      const webpBuffer = await toWebp(
+        Buffer.from(image, "base64"),
+        ImageSize.large
+      );
+      const pngBuffer = await toPng(webpBuffer);
+      await upload(
+        webpBuffer,
+        `inventory/${brandId}/${newFileName}.webp`,
+        "image/webp"
+      );
+      await upload(
+        pngBuffer,
+        `inventory/${brandId}/${newFileName}.png`,
+        "image/png"
+      );
+      return `/inventory/${brandId}/${newFileName}.webp`;
+    })
+  );
+};
 export const uploadGalleryImages = (
   images: string[],
   collectionId: string,

@@ -1,6 +1,12 @@
+import {
+  InventoryCategoryListWithPaginate,
+  InventoryCategoryQuery,
+} from "@/api/inventory/inventory.type";
+import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
 import { InventoryEntity } from "@/types";
+import { isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
   protected model: InventoryModel;
@@ -10,10 +16,35 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     this.model = new InventoryModel();
   }
 
-  public async getByCategoryId(categoryId: string): Promise<InventoryEntity> {
-    return await this.model
-      .where(categoryId, "==", "inventory_category_id")
-      .get();
+  public async getInventoryCategoryListWithPagination(
+    query: InventoryCategoryQuery
+  ): Promise<InventoryCategoryListWithPaginate> {
+    const { limit, offset = 0, category_id, sort, search, order, id } = query;
+
+    const rawQuery = `
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      ${
+        category_id && !id
+          ? "FILTER inventory.inventory_category_id == @category_id"
+          : ""
+      }
+      ${id && !category_id ? "FILTER inventory.id == @id" : ""}
+      ${search ? `FILTER inventory.sku LIKE "%${search}%"` : ""}
+      ${sort && order ? `SORT inventory.@sort @order` : ""}
+      ${limit && offset ? `LIMIT ${offset}, ${limit}` : ""}
+      RETURN UNSET(inventory, ["_id", "_key", "_rev", "deleted_at"])
+      `;
+
+    const result = await this.model.rawQueryV2(
+      rawQuery,
+      omitBy({ category_id, sort, order, id }, isNil)
+    );
+
+    return {
+      data: result,
+      pagination: pagination(limit ?? 10, offset, result.length),
+    };
   }
 }
 

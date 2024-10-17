@@ -280,5 +280,3 @@ export const getLodashOrder = (order: SortOrder) =>
 export const toFixedNumber = (amount: number, n: number) => {
   return parseFloat(amount.toFixed(n));
 };
-
-export const getFullTime = () => moment().format("YYYY-MM-DD HH:mm:ss");

@@ -1,16 +1,20 @@
 import { MESSAGES } from "@/constants";
-import { getFullTime } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
-import { uploadImagesProduct } from "@/services/image.service";
-import { InventoryEntity, UserAttributes } from "@/types";
+import {
+  uploadImagesInventory,
+  validateImageType,
+} from "@/services/image.service";
+import { UserAttributes } from "@/types";
 import { randomUUID } from "crypto";
-import { omit } from "lodash";
-import { InventoryCreate } from "./inventory.type";
+import { pick } from "lodash";
+import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
+import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
+import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryService {
   public async get(id: string) {
@@ -26,43 +30,59 @@ class InventoryService {
     });
   }
 
-  public async getByCategoryId(id: string) {
-    const inventories = await inventoryRepository.getAllBy({
-      inventory_category_id: id,
-    });
+  public async getInventoryCategoryListWithPagination(
+    query: InventoryCategoryQuery
+  ) {
+    const invenList =
+      await inventoryRepository.getInventoryCategoryListWithPagination(query);
 
-    if (!inventories) {
+    if (!invenList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND);
     }
 
     return successResponse({
-      data: inventories,
+      ...invenList,
       message: MESSAGES.SUCCESS,
     });
   }
 
-  public async create(user: UserAttributes, payload: InventoryCreate) {
-    const brand = await brandRepository.find(payload.brand_id);
+  public async create(
+    user: UserAttributes,
+    payload: Omit<InventoryCreate, "brand_id">
+  ) {
+    /// find category
+    const category = await dynamicCategoryRepository.find(
+      payload.inventory_category_id
+    );
+    if (!category?.relation_id) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_BELONG_TO_BRAND);
+    }
+
+    /// find brand
+    const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
 
-    const uploadedImages = await uploadImagesProduct(
-      [payload.image],
-      brand.name,
-      brand.id
-    );
+    let image: string = "";
+    if (payload.image) {
+      if (!(await validateImageType([payload.image]))) {
+        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+      }
 
-    const inventoryData: InventoryEntity = {
-      ...omit(payload, ["brand_id", "image"]),
-      image: uploadedImages?.[0] ?? "",
+      const uploadedImages = await uploadImagesInventory(
+        [payload.image],
+        brand.name,
+        brand.id
+      );
+      image = uploadedImages?.[0];
+    }
+
+    const newInventory = await inventoryRepository.create({
+      ...pick(payload, ["name", "description", "sku", "inventory_category_id"]),
+      image,
       id: randomUUID(),
-      created_at: getFullTime(),
-      deleted_at: null,
-      updated_at: null,
-    };
-
-    const newInventory = await inventoryRepository.create(inventoryData);
+    });
 
     if (!newInventory) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -79,27 +99,47 @@ class InventoryService {
     id: string,
     payload: InventoryCreate
   ) {
-    const brand = await brandRepository.find(payload.brand_id);
+    /// find inventory
+    const invenExisted = await inventoryRepository.find(id);
+    if (!invenExisted) {
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
+    }
+
+    /// find category to get brand
+    const category = await dynamicCategoryRepository.find(
+      invenExisted.inventory_category_id
+    );
+
+    if (!category) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+    }
+
+    /// find brand
+    const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
 
-    const uploadedImages = await uploadImagesProduct(
-      [payload.image],
-      brand.name,
-      brand.id
-    );
+    let image: string = "";
+    if (payload.image) {
+      if (!(await validateImageType([payload.image]))) {
+        return errorMessageResponse(MESSAGES.IMAGE_INVALID);
+      }
 
-    const inventoryData: Partial<InventoryEntity> = {
-      ...omit(payload, ["brand_id", "image"]),
-      image: uploadedImages?.[0] ?? "",
-      updated_at: getFullTime(),
-    };
+      const uploadedImages = await uploadImagesInventory(
+        [payload.image],
+        brand.name,
+        brand.id
+      );
+      image = uploadedImages?.[0];
+    }
 
-    const updatedInventory = await inventoryRepository.update(
-      id,
-      inventoryData
-    );
+    const updatedInventory = await inventoryRepository.update(id, {
+      ...invenExisted,
+      ...pick(payload, ["name", "description", "sku"]),
+      image,
+      updated_at: getTimestamps(),
+    });
 
     if (!updatedInventory) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
