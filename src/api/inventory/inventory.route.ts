@@ -4,6 +4,7 @@ import IRoute from "@/helpers/route.helper";
 import { Server } from "@hapi/hapi";
 import InventoryController from "./inventory.controller";
 import validate from "./inventory.validate";
+import response from "./inventory.response";
 
 export default class InventoryRoute implements IRoute {
   public async register(server: Server): Promise<any> {
@@ -39,6 +40,7 @@ export default class InventoryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                // 200: response.getList,
               },
             },
           },

@@ -297,4 +297,10 @@ export const MESSAGES = {
   SUB_LABEL_NOTFOUND: "Sub-label not found.",
   CANNOT_MOVE_TO_PARENT: "Cannot move sub-label to its parent label.",
   INVENTORY_NOT_FOUND: "Inventory not found",
+  INVENTORY_BASE_PRICE_NOT_FOUND: "Inventory base price not found",
+  INVENTORY_VOLUME_PRICE_NOT_FOUND: "Inventory volume price not found",
+  SOMETHING_WRONG_CREATE_INVENTORY_BASE_PRICE:
+    "Something went wrong when create inventory base price",
+  SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE:
+    "Something went wrong when create inventory volume price",
 };

@@ -10,13 +10,67 @@ import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import { UserAttributes } from "@/types";
+import {
+  InventoryBasePriceEntity,
+  InventoryVolumePriceEntity,
+  UserAttributes,
+} from "@/types";
 import { randomUUID } from "crypto";
-import { pick } from "lodash";
+import { isEmpty, isNil, isNumber, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
-import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
+import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
+import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
+import {
+  InventoryCategoryQuery,
+  InventoryCreate,
+  InventoryListResponse,
+} from "./inventory.type";
 
 class InventoryService {
+  private async createInventoryPrices(
+    inventoryId: string,
+    payload: Partial<
+      Pick<InventoryCreate, "unit_price" | "unit_type" | "volume_prices">
+    >
+  ) {
+    const { unit_price = -1, unit_type = "", volume_prices = [] } = payload;
+
+    if (
+      !inventoryId ||
+      isNil(unit_price) ||
+      !isNumber(unit_price) ||
+      (isNumber(unit_price) && unit_price <= 0) ||
+      isEmpty(unit_type)
+    ) {
+      return;
+    }
+
+    /// create base price
+    const basePrice = await inventoryBasePriceService.create({
+      unit_price,
+      unit_type,
+      inventory_id: inventoryId,
+    });
+
+    if (!basePrice.data) {
+      return;
+    }
+
+    /// create volume prices
+    const volumePrices = await inventoryVolumePriceService.create(
+      volume_prices.map((item) => ({
+        ...item,
+        inventory_base_price_id: basePrice.data.id,
+        base_price: basePrice.data.unit_price,
+      }))
+    );
+
+    return {
+      basePrice: basePrice.data,
+      volumePrices: volumePrices.data,
+    };
+  }
+
   public async get(id: string) {
     const inventory = await inventoryRepository.find(id);
 
@@ -24,8 +78,17 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
+    const latestPrice = await inventoryRepository.getLatestPrice(inventory.id);
+
+    if (!latestPrice) {
+      return errorMessageResponse(MESSAGES.INVENTORY_BASE_PRICE_NOT_FOUND, 404);
+    }
+
     return successResponse({
-      data: inventory,
+      data: {
+        ...inventory,
+        price: latestPrice,
+      },
       message: MESSAGES.SUCCESS,
     });
   }
@@ -43,10 +106,7 @@ class InventoryService {
     });
   }
 
-  public async create(
-    user: UserAttributes,
-    payload: Omit<InventoryCreate, "brand_id">
-  ) {
+  public async create(user: UserAttributes, payload: InventoryCreate) {
     /// find category
     const category = await dynamicCategoryRepository.find(
       payload.inventory_category_id
@@ -61,7 +121,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    const newId = randomUUID();
+    const inventoryId = randomUUID();
 
     /// upload image
     let image: string = "";
@@ -74,7 +134,7 @@ class InventoryService {
         payload.image,
         brand.name,
         brand.id,
-        newId
+        inventoryId
       );
 
       if (!image) {
@@ -82,25 +142,41 @@ class InventoryService {
       }
     }
 
+    /// create inventory base and volume prices
+    const inventoryPrice = await this.createInventoryPrices(inventoryId, {
+      unit_price: payload.unit_price,
+      unit_type: payload.unit_type,
+      volume_prices: payload?.volume_prices,
+    });
+
+    if (
+      isEmpty(inventoryPrice?.basePrice) ||
+      (!isEmpty(payload?.volume_prices) &&
+        isEmpty(inventoryPrice?.volumePrices))
+    ) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
     /// create inventory
     const newInventory = await inventoryRepository.create({
-      ...pick(payload, [
-        "name",
-        "description",
-        "sku",
-        "inventory_category_id",
-        "image",
-      ]),
+      ...pick(payload, ["description", "sku", "inventory_category_id"]),
       image,
-      id: newId,
+      id: inventoryId,
     });
 
     if (!newInventory) {
+      ///TODO: delete base price, volume prices and image
+
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
     return successResponse({
-      data: newInventory,
+      data: {
+        ...newInventory,
+        unit_price: inventoryPrice?.basePrice?.unit_price ?? null,
+        unit_type: inventoryPrice?.basePrice?.unit_type ?? null,
+        volume_prices: inventoryPrice?.volumePrices ?? null,
+      },
       message: MESSAGES.SUCCESS,
     });
   }
@@ -149,19 +225,55 @@ class InventoryService {
       }
     }
 
+    let newInventoryPrice:
+      | {
+          basePrice: InventoryBasePriceEntity;
+          volumePrices: InventoryVolumePriceEntity | null;
+        }
+      | undefined;
+    /// create inventory base and volume prices
+    if (!isNil(payload.unit_price) && !isNil(payload.unit_type)) {
+      const inventoryPrice = await this.createInventoryPrices(
+        inventoryExisted.id,
+        {
+          unit_price: payload.unit_price,
+          unit_type: payload.unit_type,
+          volume_prices: payload?.volume_prices,
+        }
+      );
+
+      if (
+        isEmpty(inventoryPrice?.basePrice) ||
+        (!isEmpty(payload?.volume_prices) &&
+          isEmpty(inventoryPrice?.volumePrices))
+      ) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      }
+
+      newInventoryPrice = inventoryPrice;
+    }
+
+    /// update inventory
     const updatedInventory = await inventoryRepository.update(id, {
       ...inventoryExisted,
-      ...pick(payload, ["name", "description", "sku"]),
+      ...pick(payload, "description", "sku"),
       image,
       updated_at: getTimestamps(),
     });
 
     if (!updatedInventory) {
+      ///TODO: delete base price, volume prices and image
+
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
     return successResponse({
-      data: updatedInventory,
+      data: {
+        ...updatedInventory,
+        unit_price: newInventoryPrice?.basePrice?.unit_price ?? null,
+        unit_type: newInventoryPrice?.basePrice?.unit_type ?? null,
+        volume_prices: newInventoryPrice?.volumePrices ?? null,
+      },
     });
   }
 
