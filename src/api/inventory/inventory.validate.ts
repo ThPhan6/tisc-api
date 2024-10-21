@@ -1,4 +1,7 @@
-import { requireStringValidation } from "@/validates/common.validate";
+import {
+  getListValidation,
+  requireStringValidation,
+} from "@/validates/common.validate";
 import Joi from "joi";
 
 const InventoryId = {
@@ -70,7 +73,7 @@ export default {
       id: Joi.string().required(),
     },
   },
-  getList: {
+  getList: getListValidation({
     query: {
       category_id: Joi.string().allow(null),
       limit: Joi.number().allow(null),
@@ -79,7 +82,11 @@ export default {
       sort: Joi.string().allow(null),
       search: Joi.string().allow(null),
     },
-  },
+    custom: (value) => ({
+      sort: value.sort || "sku",
+      order: value.order || "DESC",
+    }),
+  }),
   create: {
     payload: InventoryCreateRequest,
   },

@@ -10,9 +10,7 @@ export default class InventoryController {
   }
 
   public async getList(req: Request, toolkit: ResponseToolkit) {
-    const response = await inventoryService.getList(
-      req.query as InventoryCategoryQuery
-    );
+    const response = await inventoryService.getList(req.query);
     return toolkit.response(response).code(response.statusCode);
   }
 

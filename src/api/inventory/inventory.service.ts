@@ -103,18 +103,20 @@ class InventoryService {
     }
 
     return successResponse({
-      data: inventoryList.data.map((el) => ({
-        ...el,
-        price: isEmpty(el?.price)
-          ? null
-          : {
-              ...el.price,
-              volume_prices: el.price?.volume_prices?.length
-                ? el.price.volume_prices
-                : null,
-            },
-      })),
-      pagination: inventoryList.pagination,
+      data: {
+        inventories: inventoryList.data.map((el) => ({
+          ...el,
+          price: isEmpty(el?.price)
+            ? null
+            : {
+                ...el.price,
+                volume_prices: el.price?.volume_prices?.length
+                  ? el.price.volume_prices
+                  : null,
+              },
+        })),
+        pagination: inventoryList.pagination,
+      },
       message: MESSAGES.SUCCESS,
     });
   }
@@ -179,6 +181,9 @@ class InventoryService {
 
     if (!newInventory) {
       ///TODO: delete base price, volume prices and image
+
+      /// delete image
+      deleteFile(image);
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }

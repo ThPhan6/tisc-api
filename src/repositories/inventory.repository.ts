@@ -42,6 +42,8 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   ): Promise<InventoryCategoryListWithPaginate> {
     const { limit, offset = 0, category_id, sort, search, order } = query;
 
+    console.log("query", query);
+
     const rawQuery = `
       FOR inventory IN inventories
       FILTER inventory.deleted_at == null
@@ -52,7 +54,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       }
       ${search ? `FILTER inventory.sku LIKE "%${search}%"` : ""}
       ${sort && order ? `SORT inventory.@sort @order` : ""}
-      ${limit && offset ? `LIMIT ${offset}, ${limit}` : ""}
+      ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
       SORT inventory.created_at DESC
 
       LET latestPrice = (FOR price IN inventory_base_prices
