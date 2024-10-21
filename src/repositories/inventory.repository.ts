@@ -40,9 +40,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   public async getList(
     query: InventoryCategoryQuery
   ): Promise<InventoryCategoryListWithPaginate> {
-    const { limit, offset = 0, category_id, sort, search, order } = query;
-
-    console.log("query", query);
+    const { limit, offset, category_id, sort, search, order } = query;
 
     const rawQuery = `
       FOR inventory IN inventories
@@ -85,9 +83,16 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       omitBy({ category_id, sort, order }, isNil)
     );
 
+    let total = result.length;
+    if (category_id) {
+      total = await this.model
+        .where("inventory_category_id", "==", category_id)
+        .count();
+    }
+
     return {
       data: result,
-      pagination: pagination(limit ?? 10, offset, result.length),
+      pagination: pagination(limit, offset, total),
     };
   }
 
