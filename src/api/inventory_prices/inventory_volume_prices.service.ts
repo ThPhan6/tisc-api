@@ -11,7 +11,14 @@ class InventoryVolumePriceService {
     basePrice: number,
     discountPrice: number
   ): number {
-    return (discountPrice / basePrice) * 100;
+    return (basePrice - discountPrice / basePrice) * 100;
+  }
+
+  private calculateDiscountPrice(
+    basePrice: number,
+    discountPercent: number
+  ): number {
+    return basePrice - (basePrice * discountPercent) / 100;
   }
 
   public async create(
@@ -34,12 +41,13 @@ class InventoryVolumePriceService {
           const basePrice = item.base_price;
           return {
             ...omit(item, ["base_price"]),
-            discount_price: isNumber(item.discount_price)
-              ? item.discount_price
-              : null,
-            discount_rate: isNumber(item.discount_price)
-              ? this.calculateDiscountRate(basePrice, item.discount_price)
-              : null,
+            // discount_price:  item.discount_price,
+            // discount_rate: this.calculateDiscountRate(basePrice, item.discount_price),
+            discount_rate: item.discount_rate,
+            discount_price: this.calculateDiscountRate(
+              basePrice,
+              item.discount_rate
+            ),
           };
         }) as InventoryVolumePriceEntity[]
       );

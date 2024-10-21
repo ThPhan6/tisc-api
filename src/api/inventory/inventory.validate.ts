@@ -11,14 +11,12 @@ const InventoryId = {
 const volumePricesSchema = Joi.array()
   .items(
     Joi.object({
-      discount_price: Joi.number().min(1).strict().required().messages({
-        "number.base": "Discount price must be a number.",
-        "number.min": "Discount price must be at least 1.",
-        "any.required": "Discount price is required.",
+      discount_rate: Joi.number().strict().required().messages({
+        "number.base": "Discount rate must be a number.",
+        "any.required": "Discount rate is required.",
       }),
-      min_quantity: Joi.number().min(1).strict().required().messages({
+      min_quantity: Joi.number().strict().required().messages({
         "number.base": "Minimum quantity must be a number.",
-        "number.min": "Minimum quantity must be at least 1.",
         "any.required": "Minimum quantity is required.",
       }),
       max_quantity: Joi.number()
@@ -31,7 +29,7 @@ const volumePricesSchema = Joi.array()
             "Maximum quantity must be greater than minimum quantity.",
           "any.required": "Maximum quantity is required.",
         }),
-    }).and("discount_price", "min_quantity", "max_quantity")
+    }).and("discount_rate", "min_quantity", "max_quantity")
   )
   .allow(null); // Volume prices are optional
 
