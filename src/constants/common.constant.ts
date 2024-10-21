@@ -30,7 +30,17 @@ export const COMMON_TYPES: CommonTypes = {
   PARTNER_RELATION: 17,
   PARTNER_ACQUISITION: 18,
   DESIGNER_DEPARTMENT: 19,
+  INVENTORY_UNIT: 20,
 };
+
+export enum CommonTypeGroup {
+  INV_AREA,
+  INV_LENGTH,
+  INV_LINEAR_DISTANCE,
+  INV_VOLUME,
+  INV_WEIGHT,
+  INV_COUNT,
+}
 
 export const MEASUREMENT_UNIT: {
   IMPERIAL: MeasurementUnitValue;
