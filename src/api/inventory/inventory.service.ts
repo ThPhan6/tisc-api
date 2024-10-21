@@ -6,6 +6,7 @@ import {
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
@@ -20,11 +21,7 @@ import { isEmpty, isNil, isNumber, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
-import {
-  InventoryCategoryQuery,
-  InventoryCreate,
-  InventoryListResponse,
-} from "./inventory.type";
+import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -87,7 +84,12 @@ class InventoryService {
     return successResponse({
       data: {
         ...inventory,
-        price: latestPrice,
+        price: {
+          ...latestPrice,
+          volume_prices: latestPrice?.volume_prices?.length
+            ? latestPrice.volume_prices
+            : null,
+        },
       },
       message: MESSAGES.SUCCESS,
     });
@@ -101,7 +103,18 @@ class InventoryService {
     }
 
     return successResponse({
-      ...inventoryList,
+      data: inventoryList.data.map((el) => ({
+        ...el,
+        price: isEmpty(el?.price)
+          ? null
+          : {
+              ...el.price,
+              volume_prices: el.price?.volume_prices?.length
+                ? el.price.volume_prices
+                : null,
+            },
+      })),
+      pagination: inventoryList.pagination,
       message: MESSAGES.SUCCESS,
     });
   }
@@ -175,7 +188,9 @@ class InventoryService {
         ...newInventory,
         unit_price: inventoryPrice?.basePrice?.unit_price ?? null,
         unit_type: inventoryPrice?.basePrice?.unit_type ?? null,
-        volume_prices: inventoryPrice?.volumePrices ?? null,
+        volume_prices: inventoryPrice?.volumePrices?.length
+          ? inventoryPrice.volumePrices
+          : null,
       },
       message: MESSAGES.SUCCESS,
     });
@@ -228,7 +243,7 @@ class InventoryService {
     let newInventoryPrice:
       | {
           basePrice: InventoryBasePriceEntity;
-          volumePrices: InventoryVolumePriceEntity | null;
+          volumePrices: InventoryVolumePriceEntity[] | null;
         }
       | undefined;
     /// create inventory base and volume prices
@@ -264,6 +279,9 @@ class InventoryService {
     if (!updatedInventory) {
       ///TODO: delete base price, volume prices and image
 
+      /// delete image
+      deleteFile(image);
+
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
@@ -272,7 +290,9 @@ class InventoryService {
         ...updatedInventory,
         unit_price: newInventoryPrice?.basePrice?.unit_price ?? null,
         unit_type: newInventoryPrice?.basePrice?.unit_type ?? null,
-        volume_prices: newInventoryPrice?.volumePrices ?? null,
+        volume_prices: newInventoryPrice?.volumePrices?.length
+          ? newInventoryPrice.volumePrices
+          : null,
       },
     });
   }

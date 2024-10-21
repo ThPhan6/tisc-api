@@ -27,7 +27,7 @@ export interface InventoryCategoryQuery {
 }
 
 export interface InventoryListResponse extends InventoryEntity {
-  price: InventoryBasePrice;
+  price: InventoryBasePrice & { volume_prices: InventoryVolumePrice[] | null };
 }
 
 export interface InventoryCategoryListWithPaginate {

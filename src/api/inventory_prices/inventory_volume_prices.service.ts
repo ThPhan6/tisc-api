@@ -28,23 +28,24 @@ class InventoryVolumePriceService {
         statusCode: 200,
       };
     }
-
-    const result = await inventoryVolumePriceRepository.createMany(
-      payload.map((item) => {
-        return {
-          ...omit(item, ["base_price"]),
-          discount_price: isNumber(item.discount_price)
-            ? item.discount_price
-            : null,
-          discount_rate: isNumber(item.discount_price)
-            ? this.calculateDiscountRate(item.base_price, item.discount_price)
-            : null,
-        };
-      }) as InventoryVolumePriceEntity[]
-    );
+    const result: InventoryVolumePriceEntity[] | undefined =
+      await inventoryVolumePriceRepository.createMany(
+        payload.map((item) => {
+          const basePrice = item.base_price;
+          return {
+            ...omit(item, ["base_price"]),
+            discount_price: isNumber(item.discount_price)
+              ? item.discount_price
+              : null,
+            discount_rate: isNumber(item.discount_price)
+              ? this.calculateDiscountRate(basePrice, item.discount_price)
+              : null,
+          };
+        }) as InventoryVolumePriceEntity[]
+      );
 
     /// SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE
-    if (!result) {
+    if (!result || result.length === 0) {
       /// delete inventory base price
       const inventoryBasePriceId = payload.map(
         (item) => item.inventory_base_price_id

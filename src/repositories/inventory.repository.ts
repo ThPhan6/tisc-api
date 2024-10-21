@@ -17,24 +17,25 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     this.model = new InventoryModel();
   }
 
-  private latestPriceQuery = `FOR price IN inventory_base_prices
-      FILTER price.deleted_at == null
-      FILTER price.inventory_id == @inventoryId
-      LIMIT 1
-      SORT price.created_at DESC
+  private latestPriceByInventoryIdQuery = `
+    FOR price IN inventory_base_prices
+    FILTER price.deleted_at == null
+    FILTER price.inventory_id == @inventoryId
+    SORT price.created_at DESC
+    LIMIT 1
 
-      LET inventoryVolumePrice = (
-        FOR volumePrice IN inventory_volume_prices
-        FILTER volumePrice.deleted_at == null
-        FILTER volumePrice.inventory_base_price_id == price.id
-        SORT volumePrice.created_at DESC
-        RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
-      )
+    LET inventoryVolumePrice = (
+      FOR volumePrice IN inventory_volume_prices
+      FILTER volumePrice.deleted_at == null
+      FILTER volumePrice.inventory_base_price_id == price.id
+      SORT volumePrice.created_at DESC
+      RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
+    )
 
-      RETURN MERGE(
-        KEEP(price, 'unit_price', 'unit_type', 'created_at'),
-        {volume_prices: inventoryVolumePrice}
-      )`;
+    RETURN MERGE(
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
+      {volume_prices: inventoryVolumePrice}
+    )`;
 
   public async getList(
     query: InventoryCategoryQuery
@@ -52,12 +53,13 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       ${search ? `FILTER inventory.sku LIKE "%${search}%"` : ""}
       ${sort && order ? `SORT inventory.@sort @order` : ""}
       ${limit && offset ? `LIMIT ${offset}, ${limit}` : ""}
+      SORT inventory.created_at DESC
 
       LET latestPrice = (FOR price IN inventory_base_prices
         FILTER price.deleted_at == null
         FILTER price.inventory_id == inventory.id
-        LIMIT 1
         SORT price.created_at DESC
+        LIMIT 1
 
         LET inventoryVolumePrice = (
           FOR volumePrice IN inventory_volume_prices
@@ -68,7 +70,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         )
 
         RETURN MERGE(
-          KEEP(price, 'unit_price', 'unit_type', 'created_at'),
+          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
           {volume_prices: inventoryVolumePrice}
         ))
 
@@ -77,7 +79,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       `;
 
     const result = await this.model.rawQueryV2(
-      rawQuery,
+      `FOR item IN (${rawQuery}) SORT item.price.unit_price.created_at DESC RETURN item`,
       omitBy({ category_id, sort, order }, isNil)
     );
 
@@ -91,9 +93,12 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   public async getLatestPrice(
     inventoryId: string
   ): Promise<LatestPrice | null> {
-    const result = await this.model.rawQueryV2(this.latestPriceQuery, {
-      inventoryId,
-    });
+    const result = await this.model.rawQueryV2(
+      this.latestPriceByInventoryIdQuery,
+      {
+        inventoryId,
+      }
+    );
     return result?.[0] ?? null;
   }
 }
