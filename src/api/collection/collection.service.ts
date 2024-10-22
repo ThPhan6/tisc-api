@@ -152,6 +152,14 @@ class CollectionService {
     if (collection.relation_type === CollectionRelationType.Color) {
       return errorMessageResponse(MESSAGES.CANNOT_CHANGE_COLOR_COLLECTION, 400);
     }
+    const products = await ProductRepository.getProductByCollectionId(id);
+    products.forEach(async (product)=> {
+      const newCollectionIds = product.collection_ids
+        .filter((collectionId)=> collectionId !== id);
+      await ProductRepository.update(product.id, {
+        collection_ids: newCollectionIds
+      });
+    });
     // const product = await ProductRepository.findBy({
     //   collection_id: id,
     // });
