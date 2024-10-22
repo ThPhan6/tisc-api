@@ -503,6 +503,13 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     }
     return result;
   }
+  
+  public async getProductByCollectionId (
+    collection_id: string,
+  ): Promise<IProductAttributes[]> {
+    return await this.model
+      .whereIn("collection_ids", collection_id, "inverse").get();
+  }
 }
 
 export default new ProductRepository();
