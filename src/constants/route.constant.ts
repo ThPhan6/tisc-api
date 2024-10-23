@@ -390,5 +390,6 @@ export const ROUTES = {
     GET_LIST: "/api/inventory/get-list",
     UPDATE: "/api/inventory/update/{id}",
     DELETE: "/api/inventory/delete/{id}",
+    SUMMARY: "/api/inventory/summary/brand/{id}",
   },
 };

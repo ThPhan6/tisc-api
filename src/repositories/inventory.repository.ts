@@ -7,7 +7,7 @@ import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
 import { InventoryEntity } from "@/types";
-import { isNil, omitBy } from "lodash";
+import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
   protected model: InventoryModel;
@@ -36,6 +36,49 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
       {volume_prices: inventoryVolumePrice}
     )`;
+
+  public async getTotalInventories(brandId: string): Promise<number> {
+    const rawQuery = `
+      FOR brand IN brands
+      FILTER brand.deleted_at == null
+      FILTER brand.id == @brandId
+      FOR category IN dynamic_categories
+      FILTER brand.deleted_at == null
+      FILTER category.relation_id == brand.id
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      FILTER inventory.inventory_category_id == category.id
+      COLLECT WITH COUNT INTO length
+      RETURN length
+    `;
+
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+
+    return head(result);
+  }
+
+  public async getTotalStockValue(brandId: string): Promise<number> {
+    const rawQuery = `
+      FOR brand IN brands
+      FILTER brand.deleted_at == null
+      FILTER brand.id == @brandId
+      FOR category IN dynamic_categories
+      FILTER brand.deleted_at == null
+      FILTER category.relation_id == brand.id
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      FILTER inventory.inventory_category_id == category.id
+      FOR price in inventory_base_prices
+      FILTER price.deleted_at == null
+      FILTER price.inventory_id == inventory.id
+      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * 30)
+      RETURN totalPrice
+    `;
+
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+
+    return head(result);
+  }
 
   public async getList(
     query: InventoryCategoryQuery
@@ -106,7 +149,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         inventoryId,
       }
     );
-    return result?.[0] ?? null;
+    return head(result);
   }
 }
 

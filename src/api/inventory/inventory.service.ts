@@ -5,6 +5,7 @@ import {
   successResponse,
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
+import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
@@ -22,6 +23,8 @@ import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categor
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
+import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
+import { freeCurrencyService } from "@/services/free_currency.service";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -118,6 +121,43 @@ class InventoryService {
         pagination: inventoryList.pagination,
       },
       message: MESSAGES.SUCCESS,
+    });
+  }
+
+  public async getSummary(brandId: string) {
+    if (!brandId) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    // const baseCurrency = await exchangeCurrencyRepository.getBaseCurrency();
+
+    const baseCurrency = await freeCurrencyService.exchangeRate();
+
+    if (!baseCurrency) {
+      return errorMessageResponse(MESSAGES.EXCHANGE_CURRENCY_NOT_FOUND, 404);
+    }
+
+    const exchangeHistory = await exchangeHistoryRepository.getLatestHistory(
+      brandId
+    );
+
+    if (!exchangeHistory) {
+      return errorMessageResponse(MESSAGES.EXCHANGE_HISTORY_NOT_FOUND, 404);
+    }
+
+    const totalProduct = await inventoryRepository.getTotalInventories(brandId);
+
+    const totalStock = await inventoryRepository.getTotalStockValue(brandId);
+
+    return successResponse({
+      data: {
+        currencies: baseCurrency.map((el) => ({
+          ...pick(el, ["code", "name"]),
+        })),
+        exchange_history: exchangeHistory,
+        total_product: totalProduct,
+        total_stock: totalStock,
+      },
     });
   }
 

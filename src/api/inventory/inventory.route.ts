@@ -46,6 +46,22 @@ export default class InventoryRoute implements IRoute {
           },
         },
         {
+          method: "GET",
+          path: ROUTES.INVENTORY.SUMMARY,
+          options: {
+            handler: controller.getSummary,
+            validate: validate.getSummary,
+            description: "Method that get inventory summary",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "POST",
           path: ROUTES.INVENTORY.CREATE,
           options: {

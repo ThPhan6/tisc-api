@@ -11,6 +11,7 @@ export interface InventoryCreate
       "inventory_category_id" | "sku" | "image" | "description"
     >,
     Pick<InventoryBasePrice, "unit_price" | "unit_type"> {
+  currency: string;
   volume_prices?: Pick<
     InventoryVolumePrice,
     "discount_price" | "discount_rate" | "max_quantity" | "min_quantity"
@@ -39,6 +40,7 @@ export interface InventoryDetailResponse
   extends InventoryEntity,
     InventoryBasePrice {
   volume_prices: null | InventoryVolumePrice[];
+  currency: string;
 }
 
 export interface LatestPrice extends InventoryBasePrice {

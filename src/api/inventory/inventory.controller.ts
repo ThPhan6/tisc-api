@@ -16,6 +16,11 @@ export default class InventoryController {
     return toolkit.response(response).code(response.statusCode);
   }
 
+  public async getSummary(req: Request, toolkit: ResponseToolkit) {
+    const response = await inventoryService.getSummary(req.params.id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+
   public async create(
     req: Request & { payload: InventoryCreate },
     toolkit: ResponseToolkit
