@@ -391,5 +391,6 @@ export const ROUTES = {
     UPDATE: "/api/inventory/update/{id}",
     DELETE: "/api/inventory/delete/{id}",
     SUMMARY: "/api/inventory/summary/brand/{id}",
+    EXCHANGE: "/api/inventory/exchange/brand/{id}",
   },
 };

@@ -97,6 +97,14 @@ export default {
     params: InventoryId,
     payload: InventoryUpdateRequest,
   },
+  exchange: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    payload: Joi.object({
+      to_currency: Joi.string().required(),
+    }),
+  },
   getSummary: {
     params: {
       id: Joi.string().required(),

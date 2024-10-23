@@ -19,7 +19,7 @@ class ExchangeCurrencyQueue extends BaseQueue {
   public process = () => {
     this.queue.process(async (job, done) => {
       try {
-        const currencyData = freeCurrencyService.exchangeRate();
+        const currencyData = freeCurrencyService.exchangeCurrencies();
         console.log("currency_queue data", currencyData);
 
         if (!currencyData) {

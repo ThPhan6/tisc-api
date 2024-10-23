@@ -32,7 +32,7 @@ class FreeCurrencyService {
       });
   };
 
-  public exchangeRate = async () => {
+  public exchangeCurrencies = async () => {
     const exchange = await this.exchange();
     const currencies = await this.currencies();
 

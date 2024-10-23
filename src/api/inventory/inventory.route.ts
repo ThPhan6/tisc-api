@@ -78,6 +78,22 @@ export default class InventoryRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.INVENTORY.EXCHANGE,
+          options: {
+            handler: controller.exchange,
+            validate: validate.exchange,
+            description: "Method that exchange currency",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "PATCH",
           path: ROUTES.INVENTORY.UPDATE,
           options: {

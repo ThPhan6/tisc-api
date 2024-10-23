@@ -1,12 +1,15 @@
 import { getTimestamps } from "@/Database/Utils/Time";
-import { ExchangeCurrencyCode, ExchangeHistoryEntity } from "@/types";
+import { ExchangeHistoryEntity } from "@/types";
 
 export const DEFAULT_EXCHANGE_CURRENCY: ExchangeHistoryEntity = {
   id: "",
   relation_id: "",
-  from_currency: ExchangeCurrencyCode.USD,
-  to_currency: ExchangeCurrencyCode.USD,
+  from_currency: "USD",
+  to_currency: "USD",
   rate: 1,
   created_at: getTimestamps(),
   deleted_at: null,
 };
+
+export interface ExchangeCurrencyRequest
+  extends Pick<ExchangeHistoryEntity, "to_currency" | "relation_id"> {}

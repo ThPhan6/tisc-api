@@ -9,7 +9,7 @@ import { DEFAULT_EXCHANGE_CURRENCY } from "./exchange_history.type";
 import { isNil } from "lodash";
 
 class ExchangeHistoryService {
-  public async createExchangeHistory(
+  public async create(
     payload: Pick<
       ExchangeHistoryEntity,
       "from_currency" | "to_currency" | "rate" | "relation_id"
@@ -25,6 +25,32 @@ class ExchangeHistoryService {
         payload.from_currency ?? DEFAULT_EXCHANGE_CURRENCY.from_currency,
       to_currency: payload.to_currency ?? DEFAULT_EXCHANGE_CURRENCY.to_currency,
       rate: payload.rate ?? DEFAULT_EXCHANGE_CURRENCY.rate,
+    });
+
+    if (!currency) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    return successResponse({
+      data: {
+        currency,
+      },
+    });
+  }
+
+  public async update(
+    payload: Pick<ExchangeHistoryEntity, "to_currency" | "relation_id">
+  ) {
+    if (isNil(payload?.relation_id)) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    const currency = exchangeHistoryRepository.create({
+      ...payload,
+      // from_currency:
+      //   payload.from_currency ?? DEFAULT_EXCHANGE_CURRENCY.from_currency,
+      // to_currency: payload.to_currency ?? DEFAULT_EXCHANGE_CURRENCY.to_currency,
+      // rate: payload.rate ?? DEFAULT_EXCHANGE_CURRENCY.rate,
     });
 
     if (!currency) {

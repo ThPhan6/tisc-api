@@ -303,6 +303,7 @@ export const MESSAGES = {
     "Something went wrong when create inventory base price",
   SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE:
     "Something went wrong when create inventory volume price",
-  EXCHANGE_CURRENCY_NOT_FOUND: "Exchange currency not found",
+  BASE_CURRENCY_NOT_FOUND: "Base currency not found",
   EXCHANGE_HISTORY_NOT_FOUND: "Exchange history not found",
+  EXCHANGE_CURRENCY_SUCCESS: "Exchange currency success",
 };

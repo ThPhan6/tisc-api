@@ -2,6 +2,7 @@ import { MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
 import {
   errorMessageResponse,
+  successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
@@ -13,6 +14,9 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import {
+  ExchangeCurrencyEntity,
+  ExchangeHistoryEntity,
+  IExchangeCurrency,
   InventoryBasePriceEntity,
   InventoryVolumePriceEntity,
   UserAttributes,
@@ -25,6 +29,7 @@ import { inventoryVolumePriceService } from "../inventory_prices/inventory_volum
 import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { freeCurrencyService } from "@/services/free_currency.service";
+import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -131,10 +136,10 @@ class InventoryService {
 
     // const baseCurrency = await exchangeCurrencyRepository.getBaseCurrency();
 
-    const baseCurrency = await freeCurrencyService.exchangeRate();
+    const baseCurrency = await freeCurrencyService.exchangeCurrencies();
 
     if (!baseCurrency) {
-      return errorMessageResponse(MESSAGES.EXCHANGE_CURRENCY_NOT_FOUND, 404);
+      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
     }
 
     const exchangeHistory = await exchangeHistoryRepository.getLatestHistory(
@@ -159,6 +164,50 @@ class InventoryService {
         total_stock: totalStock,
       },
     });
+  }
+
+  public async exchange(
+    user: UserAttributes,
+    payload: ExchangeCurrencyRequest
+  ) {
+    /// find brand
+    const brand = await brandRepository.find(payload.relation_id);
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    /// find previous exchange currency
+    const previousBaseCurrency =
+      await exchangeHistoryRepository.getLatestHistory(payload.relation_id, {
+        createNew: false,
+      });
+
+    if (!previousBaseCurrency) {
+      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
+    }
+
+    /// find exchange currency
+    const baseCurrency = (await exchangeHistoryRepository.getBaseCurrency(
+      payload.to_currency
+    )) as IExchangeCurrency;
+
+    if (!baseCurrency) {
+      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
+    }
+
+    /// create new exchange currency history
+    const currency = await exchangeHistoryRepository.create({
+      from_currency: previousBaseCurrency.to_currency,
+      to_currency: baseCurrency.code,
+      rate: baseCurrency.rate,
+      relation_id: payload.relation_id,
+    });
+
+    if (!currency) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    return successMessageResponse(MESSAGES.EXCHANGE_CURRENCY_SUCCESS);
   }
 
   public async create(user: UserAttributes, payload: InventoryCreate) {
