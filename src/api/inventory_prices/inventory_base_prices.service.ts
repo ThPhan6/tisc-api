@@ -23,6 +23,7 @@ class InventoryBasePriceService {
 
     const result = await inventoryBasePriceRepository.create({
       ...payload,
+      currency: baseCurrency.to_currency,
     });
 
     if (!result) {

@@ -306,4 +306,7 @@ export const MESSAGES = {
   BASE_CURRENCY_NOT_FOUND: "Base currency not found",
   EXCHANGE_HISTORY_NOT_FOUND: "Exchange history not found",
   EXCHANGE_CURRENCY_SUCCESS: "Exchange currency success",
+  SOMETHING_WRONG_EXCHANGE_CURRENCY:
+    "Something went wrong when exchange currency",
+  EXCHANGE_CURRENCY_THE_SAME: "Cannot exchange the same currency",
 };

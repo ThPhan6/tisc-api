@@ -7,6 +7,7 @@ import {
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
+import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
@@ -14,8 +15,7 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import {
-  ExchangeCurrencyEntity,
-  ExchangeHistoryEntity,
+  EBaseCurrency,
   IExchangeCurrency,
   InventoryBasePriceEntity,
   InventoryVolumePriceEntity,
@@ -24,12 +24,10 @@ import {
 import { randomUUID } from "crypto";
 import { isEmpty, isNil, isNumber, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
+import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
-import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
-import { freeCurrencyService } from "@/services/free_currency.service";
-import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -109,7 +107,6 @@ class InventoryService {
             : null,
         },
       },
-      message: MESSAGES.SUCCESS,
     });
   }
 
@@ -128,6 +125,9 @@ class InventoryService {
             ? null
             : {
                 ...el.price,
+                exchange_histories: el.price?.exchange_histories?.length
+                  ? el.price.exchange_histories
+                  : null,
                 volume_prices: el.price?.volume_prices?.length
                   ? el.price.volume_prices
                   : null,
@@ -135,7 +135,6 @@ class InventoryService {
         })),
         pagination: inventoryList.pagination,
       },
-      message: MESSAGES.SUCCESS,
     });
   }
 
@@ -144,9 +143,8 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    // const baseCurrency = await exchangeCurrencyRepository.getBaseCurrency();
-
-    const baseCurrency = await freeCurrencyService.exchangeCurrencies();
+    const baseCurrency =
+      (await exchangeCurrencyRepository.getBaseCurrency()) as IExchangeCurrency[];
 
     if (!baseCurrency) {
       return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
@@ -169,6 +167,7 @@ class InventoryService {
         currencies: baseCurrency.map((el) => ({
           ...pick(el, ["code", "name"]),
         })),
+        base_currency: EBaseCurrency.USD,
         exchange_history: exchangeHistory,
         total_product: totalProduct,
         total_stock: totalStock,
@@ -196,25 +195,20 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
     }
 
-    /// find exchange currency
-    const baseCurrency = (await exchangeHistoryRepository.getBaseCurrency(
-      payload.to_currency
-    )) as IExchangeCurrency;
-
-    if (!baseCurrency) {
-      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
+    /// check if the previous exchange currency is the same as the new one
+    if (previousBaseCurrency.to_currency === payload.to_currency) {
+      return errorMessageResponse(MESSAGES.EXCHANGE_CURRENCY_THE_SAME);
     }
 
-    /// create new exchange currency history
-    const currency = await exchangeHistoryRepository.create({
-      from_currency: previousBaseCurrency.to_currency,
-      to_currency: baseCurrency.code,
-      rate: baseCurrency.rate,
-      relation_id: payload.relation_id,
-    });
+    const exchangeHistory =
+      await exchangeHistoryRepository.createExchangeHistory({
+        from_currency: previousBaseCurrency.to_currency,
+        to_currency: payload.to_currency,
+        relation_id: payload.relation_id,
+      });
 
-    if (!currency) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    if (!exchangeHistory) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_EXCHANGE_CURRENCY);
     }
 
     return successMessageResponse(MESSAGES.EXCHANGE_CURRENCY_SUCCESS);
@@ -290,6 +284,8 @@ class InventoryService {
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+
+    // return successMessageResponse(MESSAGES.SUCCESS);
 
     return successResponse({
       data: {
@@ -394,16 +390,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    return successResponse({
-      data: {
-        ...updatedInventory,
-        unit_price: newInventoryPrice?.basePrice?.unit_price ?? null,
-        unit_type: newInventoryPrice?.basePrice?.unit_type ?? null,
-        volume_prices: newInventoryPrice?.volumePrices?.length
-          ? newInventoryPrice.volumePrices
-          : null,
-      },
-    });
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async delete(id: string) {

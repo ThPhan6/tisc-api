@@ -38,7 +38,6 @@ const InventoryCreateRequest = Joi.object({
   inventory_category_id: requireStringValidation("Inventory category id"),
   image: Joi.string().allow(null),
   description: Joi.string().allow(null),
-  currency: requireStringValidation("Currency"),
   unit_price: Joi.number().min(1).strict().required().messages({
     "any.required": "Unit price is required",
     "any.min": "Unit price is must be greater than 0",
@@ -46,25 +45,24 @@ const InventoryCreateRequest = Joi.object({
   unit_type: requireStringValidation("Unit type"),
   volume_prices: volumePricesSchema,
 })
-  .and("unit_price", "unit_type", "currency")
+  .and("unit_price", "unit_type")
   .messages({
     "object.and":
-      "Unit price, currency, unit type, and volume prices must all be provided together.",
+      "Unit price, unit type, and volume prices must all be provided together.",
   });
 
 const InventoryUpdateRequest = Joi.object({
   image: Joi.string().allow(null),
   sku: Joi.string().allow(null),
-  currency: Joi.string().allow(null),
   description: Joi.string().allow(null),
   unit_price: Joi.number().min(1).strict().allow(null),
   unit_type: Joi.string().allow(null),
   volume_prices: volumePricesSchema,
 })
-  .and("unit_price", "unit_type", "currency")
+  .and("unit_price", "unit_type")
   .messages({
     "object.and":
-      "Unit price, currency, unit type, and volume prices must all be provided together.",
+      "Unit price, unit type, and volume prices must all be provided together.",
   });
 
 export default {

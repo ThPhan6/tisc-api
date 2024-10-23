@@ -6,7 +6,7 @@ import {
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
-import { ExchangeHistoryEntity, InventoryEntity } from "@/types";
+import { EBaseCurrency, ExchangeHistoryEntity, InventoryEntity } from "@/types";
 import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
@@ -33,7 +33,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     )
 
     RETURN MERGE(
-      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency'),
       {volume_prices: inventoryVolumePrice}
     )`;
 
@@ -58,7 +58,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   }
 
   ///TODO: get total stock amount
-  private totalStock = 30;
+  private totalStock = 1;
   public async getTotalStockValue(brandId: string): Promise<number> {
     const rawQuery = `
       FOR brand IN brands
@@ -70,28 +70,39 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       FOR inventory IN inventories
       FILTER inventory.deleted_at == null
       FILTER inventory.inventory_category_id == category.id
-      FOR price in inventory_base_prices
+      FOR price IN inventory_base_prices
       FILTER price.deleted_at == null
       FILTER price.inventory_id == inventory.id
-      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * ${this.totalStock})
+
+      LET rates = (
+        FOR history IN exchange_histories
+        FILTER history.deleted_at == null
+        FILTER history.created_at >= price.created_at
+        RETURN history.rate
+      )
+
+      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * PRODUCT(rates) * ${this.totalStock})
       RETURN totalPrice
     `;
 
-    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+    const result = await this.model.rawQueryV2(rawQuery, {
+      brandId,
+      baseCurrency: EBaseCurrency.USD,
+    });
 
     return head(result);
   }
 
   public async getExchangeHistoryOfPrice(
-    priceCreateAt: string
+    priceCreatedAt: string
   ): Promise<ExchangeHistoryEntity[]> {
     return await this.model.rawQueryV2(
-      `FOR history in exchange_histories
+      `FOR history IN exchange_histories
       FILTER history.deleted_at == null
-      FILTER history.created_at >= @priceCreateAt
+      FILTER history.created_at >= @priceCreatedAt
       RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
       `,
-      { priceCreateAt }
+      { priceCreatedAt }
     );
   }
 
@@ -128,7 +139,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         )
 
         LET exchangeHistories = (
-          FOR history in exchange_histories
+          FOR history IN exchange_histories
           FILTER history.created_at >= price.created_at
           RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
         )
@@ -143,7 +154,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       `;
 
     const result = await this.model.rawQueryV2(
-      `FOR item IN (${rawQuery}) SORT item.price.unit_price.created_at DESC RETURN item`,
+      `FOR item IN (${rawQuery}) SORT item.price.created_at DESC RETURN item`,
       omitBy({ category_id, sort, order }, isNil)
     );
 

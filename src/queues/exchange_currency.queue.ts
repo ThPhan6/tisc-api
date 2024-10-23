@@ -11,7 +11,8 @@ class ExchangeCurrencyQueue extends BaseQueue {
     super(
       new Bull(
         "Currency_queue",
-        `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
+        `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`,
+        {}
       )
     );
   }
@@ -19,8 +20,7 @@ class ExchangeCurrencyQueue extends BaseQueue {
   public process = () => {
     this.queue.process(async (job, done) => {
       try {
-        const currencyData = freeCurrencyService.exchangeCurrencies();
-        console.log("currency_queue data", currencyData);
+        const currencyData = await freeCurrencyService.exchangeCurrencies();
 
         if (!currencyData) {
           throw Error("No data returned from exchange service");
@@ -49,8 +49,6 @@ class ExchangeCurrencyQueue extends BaseQueue {
 
         done();
       } catch (error: any) {
-        console.log("currency_queue error", error);
-
         this.log(error, "slack");
         this.log(
           {

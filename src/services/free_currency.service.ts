@@ -7,7 +7,7 @@ class FreeCurrencyService {
   public exchange = async (): Promise<{ data: Record<string, number> }> => {
     return axios
       .get(
-        `https://api.freecurrencyapi.com/v1/latest?apikey=${ENVIRONMENT.FREE_CURRENCY_API_KEY}`
+        `https://api.freecurrencyapi.com/v1/latest?apikey=${ENVIRONMENT.FREE_CURRENCY_API_KEY}&base_currency=USD`
       )
       .then((response) => response.data)
       .catch((error) => {

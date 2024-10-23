@@ -1,11 +1,12 @@
+import { DEFAULT_EXCHANGE_CURRENCY } from "@/api/exchange_history/exchange_history.type";
 import ExchangeHistoryModel from "@/models/exchange_history.model";
-import { ExchangeHistoryEntity } from "@/types";
-import BaseRepository from "./base.repository";
-import { isEmpty } from "lodash";
 import {
-  DEFAULT_EXCHANGE_CURRENCY,
-  ExchangeCurrencyRequest,
-} from "@/api/exchange_history/exchange_history.type";
+  EBaseCurrency,
+  ExchangeHistoryEntity,
+  IExchangeCurrency,
+} from "@/types";
+import { isEmpty, isNumber } from "lodash";
+import BaseRepository from "./base.repository";
 import { exchangeCurrencyRepository } from "./exchange_currency.repository";
 
 class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
@@ -37,12 +38,73 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
     return data as ExchangeHistoryEntity;
   }
 
-  public async getBaseCurrency(currency: string) {
-    const exchangeHistory = await exchangeCurrencyRepository.getBaseCurrency(
-      currency
-    );
+  public async createExchangeHistory(
+    payload: Pick<
+      ExchangeHistoryEntity,
+      "from_currency" | "to_currency" | "relation_id"
+    >
+  ): Promise<ExchangeHistoryEntity | null> {
+    /// find currency which is going to be exchanged
+    const currencyExchange = (await exchangeCurrencyRepository.getBaseCurrency(
+      payload.to_currency
+    )) as IExchangeCurrency;
 
-    return exchangeHistory;
+    if (isEmpty(currencyExchange)) {
+      return null;
+    }
+
+    const latestExchanged = (await this.model
+      .where("deleted_at", "==", null)
+      .where("relation_id", "==", payload.relation_id)
+      .order("created_at", "DESC")
+      .first()) as ExchangeHistoryEntity;
+
+    // console.log("latestExchanged", latestExchanged);
+
+    if (
+      isEmpty(latestExchanged) ||
+      isEmpty(payload) ||
+      !isNumber(currencyExchange.rate) ||
+      isEmpty(payload.from_currency) ||
+      isEmpty(payload.to_currency) ||
+      isEmpty(payload.relation_id) ||
+      latestExchanged.to_currency !== payload.from_currency
+    ) {
+      return null;
+    }
+
+    let rate = currencyExchange.rate;
+    /// if the last exchange currency is not USD
+    if (latestExchanged.from_currency !== EBaseCurrency.USD) {
+      /// find the last exchange currency
+      const previousCurrency =
+        (await exchangeCurrencyRepository.getBaseCurrency(
+          payload.from_currency
+        )) as IExchangeCurrency;
+
+      if (isEmpty(previousCurrency)) {
+        return null;
+      }
+
+      // console.log("previousCurrency", previousCurrency);
+      // console.log("currencyExchange", currencyExchange);
+
+      rate = (1 / previousCurrency.rate) * currencyExchange.rate;
+    }
+
+    const result = await this.create({
+      ...payload,
+      rate,
+    });
+
+    if (isEmpty(result)) {
+      return null;
+    }
+
+    return {
+      ...result,
+      rate,
+    } as ExchangeHistoryEntity;
   }
 }
 

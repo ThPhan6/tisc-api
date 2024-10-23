@@ -3,8 +3,8 @@ import { errorMessageResponse } from "@/helpers/response.helper";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
 import { inventoryVolumePriceRepository } from "@/repositories/inventory_volume_prices.repository";
 import { InventoryVolumePriceEntity } from "@/types";
+import { omit } from "lodash";
 import { InventoryVolumePrice } from "./inventory_prices.type";
-import { isNumber, omit } from "lodash";
 
 class InventoryVolumePriceService {
   private calculateDiscountRate(
@@ -44,7 +44,7 @@ class InventoryVolumePriceService {
             // discount_price:  item.discount_price,
             // discount_rate: this.calculateDiscountRate(basePrice, item.discount_price),
             discount_rate: item.discount_rate,
-            discount_price: this.calculateDiscountRate(
+            discount_price: this.calculateDiscountPrice(
               basePrice,
               item.discount_rate
             ),

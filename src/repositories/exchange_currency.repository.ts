@@ -4,8 +4,6 @@ import {
   IExchangeCurrency,
 } from "@/types/exchange_currency.type";
 import BaseRepository from "./base.repository";
-import { freeCurrencyService } from "@/services/free_currency.service";
-import { forEach } from "lodash";
 
 class ExchangeCurrencyRepository extends BaseRepository<ExchangeCurrencyEntity> {
   protected model: ExchangeCurrencyModel;
@@ -15,38 +13,21 @@ class ExchangeCurrencyRepository extends BaseRepository<ExchangeCurrencyEntity> 
     this.model = new ExchangeCurrencyModel();
   }
 
-  /// TODO: using this getBaseCurrency later
-  // public async getBaseCurrency(
-  //   currency?: string
-  // ): Promise<ExchangeCurrencyEntity[] | ExchangeCurrencyEntity | null> {
-  //   if (currency) {
-  //     const data = await this.model
-  //       .select()
-  //       .order("created_at", "DESC")
-  //       .where(`${currency.toUpperCase()}`, "==", currency)
-  //       .first();
-
-  //     return data;
-  //   }
-
-  //   const data = await this.model.select().order("created_at", "DESC").first();
-
-  //   return data;
-  // }
-
-  /// TODO!: delete this getBaseCurrency later
   public async getBaseCurrency(
     currency?: string
   ): Promise<IExchangeCurrency[] | IExchangeCurrency | null> {
-    if (currency) {
-      const data = await freeCurrencyService.exchangeCurrencies();
+    const data = (await this.model
+      .select()
+      .order("created_at", "DESC")
+      .first()) as ExchangeCurrencyEntity;
 
-      return data.find(
+    if (currency) {
+      return data.data.find(
         (el) => el.code.toUpperCase() === currency.toUpperCase()
-      );
+      ) as IExchangeCurrency | null;
     }
 
-    return await freeCurrencyService.exchangeCurrencies();
+    return data.data as IExchangeCurrency[];
   }
 }
 

@@ -11,8 +11,12 @@ export interface IExchangeCurrency {
   symbol_native: string;
   decimal_digits: number;
   rounding: number;
-  code: string;
+  code: string; /// USD, EUR, etc
   name_plural: string;
   type: string;
   rate: number;
+}
+
+export enum EBaseCurrency {
+  USD = "USD",
 }

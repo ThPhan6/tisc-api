@@ -1,11 +1,11 @@
 import { getTimestamps } from "@/Database/Utils/Time";
-import { ExchangeHistoryEntity } from "@/types";
+import { EBaseCurrency, ExchangeHistoryEntity } from "@/types";
 
 export const DEFAULT_EXCHANGE_CURRENCY: ExchangeHistoryEntity = {
   id: "",
   relation_id: "",
-  from_currency: "USD",
-  to_currency: "USD",
+  from_currency: EBaseCurrency.USD,
+  to_currency: EBaseCurrency.USD,
   rate: 1,
   created_at: getTimestamps(),
   deleted_at: null,
