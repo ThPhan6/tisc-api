@@ -103,7 +103,7 @@ export const mappingByCollections = (
         // Other Collection
         {
         id: '-1',
-        name: 'Other',
+        name: 'X Collection',
         type: 2,
         description: '',
         images: [],
