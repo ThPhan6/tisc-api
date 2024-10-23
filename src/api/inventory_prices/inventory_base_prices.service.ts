@@ -1,10 +1,26 @@
 import { MESSAGES } from "@/constants";
-import { errorMessageResponse } from "@/helpers/response.helper";
+import {
+  errorMessageResponse,
+  successMessageResponse,
+} from "@/helpers/response.helper";
+import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
-import { InventoryBasePrice } from "./inventory_prices.type";
+import { InventoryBasePriceRequest } from "./inventory_prices.type";
 
 class InventoryBasePriceService {
-  public async create(payload: Omit<InventoryBasePrice, "id" | "created_at">) {
+  public async create(payload: InventoryBasePriceRequest) {
+    /// find the last currency
+    const baseCurrency = await exchangeHistoryRepository.getLatestHistory(
+      payload.relation_id
+    );
+
+    if (!baseCurrency) {
+      return {
+        ...errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND),
+        data: null,
+      };
+    }
+
     const result = await inventoryBasePriceRepository.create({
       ...payload,
     });
@@ -19,9 +35,8 @@ class InventoryBasePriceService {
     }
 
     return {
+      ...successMessageResponse(MESSAGES.SUCCESS),
       data: result,
-      message: MESSAGES.SUCCESS,
-      statusCode: 200,
     };
   }
 }

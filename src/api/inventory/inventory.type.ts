@@ -1,5 +1,5 @@
 import { Sequence } from "@/Database/Interfaces";
-import { InventoryEntity, Pagination } from "@/types";
+import { ExchangeHistoryEntity, InventoryEntity, Pagination } from "@/types";
 import {
   InventoryBasePrice,
   InventoryVolumePrice,
@@ -28,7 +28,10 @@ export interface InventoryCategoryQuery {
 }
 
 export interface InventoryListResponse extends InventoryEntity {
-  price: InventoryBasePrice & { volume_prices: InventoryVolumePrice[] | null };
+  price: InventoryBasePrice & {
+    volume_prices: InventoryVolumePrice[] | null;
+    exchange_histories: ExchangeHistoryEntity[];
+  };
 }
 
 export interface InventoryCategoryListWithPaginate {

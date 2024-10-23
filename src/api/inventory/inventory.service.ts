@@ -34,6 +34,7 @@ import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.ty
 class InventoryService {
   private async createInventoryPrices(
     inventoryId: string,
+    brandId: string,
     payload: Partial<
       Pick<InventoryCreate, "unit_price" | "unit_type" | "volume_prices">
     >
@@ -55,6 +56,7 @@ class InventoryService {
       unit_price,
       unit_type,
       inventory_id: inventoryId,
+      relation_id: brandId,
     });
 
     if (!basePrice.data) {
@@ -89,11 +91,19 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.INVENTORY_BASE_PRICE_NOT_FOUND, 404);
     }
 
+    const exchangeHistories =
+      await inventoryRepository.getExchangeHistoryOfPrice(
+        latestPrice.created_at
+      );
+
     return successResponse({
       data: {
         ...inventory,
         price: {
           ...latestPrice,
+          exchange_histories: exchangeHistories?.length
+            ? exchangeHistories
+            : null,
           volume_prices: latestPrice?.volume_prices?.length
             ? latestPrice.volume_prices
             : null,
@@ -247,11 +257,15 @@ class InventoryService {
     }
 
     /// create inventory base and volume prices
-    const inventoryPrice = await this.createInventoryPrices(inventoryId, {
-      unit_price: payload.unit_price,
-      unit_type: payload.unit_type,
-      volume_prices: payload?.volume_prices,
-    });
+    const inventoryPrice = await this.createInventoryPrices(
+      inventoryId,
+      category.relation_id,
+      {
+        unit_price: payload.unit_price,
+        unit_type: payload.unit_type,
+        volume_prices: payload?.volume_prices,
+      }
+    );
 
     if (
       isEmpty(inventoryPrice?.basePrice) ||
@@ -344,6 +358,7 @@ class InventoryService {
     if (!isNil(payload.unit_price) && !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
         inventoryExisted.id,
+        category.relation_id,
         {
           unit_price: payload.unit_price,
           unit_type: payload.unit_type,

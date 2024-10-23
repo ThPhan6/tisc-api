@@ -6,7 +6,7 @@ import {
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
-import { InventoryEntity } from "@/types";
+import { ExchangeHistoryEntity, InventoryEntity } from "@/types";
 import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
@@ -57,6 +57,8 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     return head(result);
   }
 
+  ///TODO: get total stock amount
+  private totalStock = 30;
   public async getTotalStockValue(brandId: string): Promise<number> {
     const rawQuery = `
       FOR brand IN brands
@@ -71,13 +73,26 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       FOR price in inventory_base_prices
       FILTER price.deleted_at == null
       FILTER price.inventory_id == inventory.id
-      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * 30)
+      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * ${this.totalStock})
       RETURN totalPrice
     `;
 
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
     return head(result);
+  }
+
+  public async getExchangeHistoryOfPrice(
+    priceCreateAt: string
+  ): Promise<ExchangeHistoryEntity[]> {
+    return await this.model.rawQueryV2(
+      `FOR history in exchange_histories
+      FILTER history.deleted_at == null
+      FILTER history.created_at >= @priceCreateAt
+      RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
+      `,
+      { priceCreateAt }
+    );
   }
 
   public async getList(
@@ -112,12 +127,18 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
           RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
         )
 
+        LET exchangeHistories = (
+          FOR history in exchange_histories
+          FILTER history.created_at >= price.created_at
+          RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
+        )
+
         RETURN MERGE(
-          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
-          {volume_prices: inventoryVolumePrice}
+          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency'),
+          {volume_prices: inventoryVolumePrice, exchange_histories: exchangeHistories}
         ))
 
-      LET inventoryData = UNSET(inventory, ["_id", "_key", "_rev", "deleted_at"])
+      LET inventoryData = UNSET(inventory, ['_id','_key','_rev','deleted_at'])
       RETURN MERGE(inventoryData, {price: latestPrice[0]})
       `;
 
