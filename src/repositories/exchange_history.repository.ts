@@ -59,8 +59,6 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
       .order("created_at", "DESC")
       .first()) as ExchangeHistoryEntity;
 
-    // console.log("latestExchanged", latestExchanged);
-
     if (
       isEmpty(latestExchanged) ||
       isEmpty(payload) ||
@@ -74,7 +72,7 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
     }
 
     let rate = currencyExchange.rate;
-    /// if the last exchange currency is not USD
+    /// if the last exchange currency is not from USD
     if (latestExchanged.from_currency !== EBaseCurrency.USD) {
       /// find the last exchange currency
       const previousCurrency =
@@ -86,10 +84,7 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
         return null;
       }
 
-      // console.log("previousCurrency", previousCurrency);
-      // console.log("currencyExchange", currencyExchange);
-
-      rate = (1 / previousCurrency.rate) * currencyExchange.rate;
+      rate = currencyExchange.rate * previousCurrency.rate;
     }
 
     const result = await this.create({
@@ -101,10 +96,7 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
       return null;
     }
 
-    return {
-      ...result,
-      rate,
-    } as ExchangeHistoryEntity;
+    return result as ExchangeHistoryEntity;
   }
 }
 

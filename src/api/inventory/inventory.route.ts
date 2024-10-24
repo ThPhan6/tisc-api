@@ -24,6 +24,7 @@ export default class InventoryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
               },
             },
           },
@@ -40,7 +41,7 @@ export default class InventoryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getList,
+                200: response.getList,
               },
             },
           },
@@ -57,6 +58,7 @@ export default class InventoryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                200: response.getSummary,
               },
             },
           },

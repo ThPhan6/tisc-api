@@ -117,6 +117,15 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
+    ///!ERROR
+    // if (inventoryList.data.some((el) => isEmpty(el.price))) {
+    //   // console.log(
+    //   //   inventoryList.data.map((el) => (isEmpty(el.price) ? el : null))
+    //   // );
+
+    //   console.log("ERROR Inventory -> get list -> Some inventory has no price");
+    // }
+
     return successResponse({
       data: {
         inventories: inventoryList.data.map((el) => ({
@@ -167,7 +176,6 @@ class InventoryService {
         currencies: baseCurrency.map((el) => ({
           ...pick(el, ["code", "name"]),
         })),
-        base_currency: EBaseCurrency.USD,
         exchange_history: exchangeHistory,
         total_product: totalProduct,
         total_stock: totalStock,

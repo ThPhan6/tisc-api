@@ -6,7 +6,7 @@ import {
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
-import { EBaseCurrency, ExchangeHistoryEntity, InventoryEntity } from "@/types";
+import { ExchangeHistoryEntity, InventoryEntity } from "@/types";
 import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
@@ -33,7 +33,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     )
 
     RETURN MERGE(
-      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency'),
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
       {volume_prices: inventoryVolumePrice}
     )`;
 
@@ -85,10 +85,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       RETURN totalPrice
     `;
 
-    const result = await this.model.rawQueryV2(rawQuery, {
-      brandId,
-      baseCurrency: EBaseCurrency.USD,
-    });
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
     return head(result);
   }
@@ -124,7 +121,8 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
       SORT inventory.created_at DESC
 
-      LET latestPrice = (FOR price IN inventory_base_prices
+      LET latestPrice = FIRST(
+        FOR price IN inventory_base_prices
         FILTER price.deleted_at == null
         FILTER price.inventory_id == inventory.id
         SORT price.created_at DESC
@@ -145,12 +143,12 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         )
 
         RETURN MERGE(
-          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency'),
+          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
           {volume_prices: inventoryVolumePrice, exchange_histories: exchangeHistories}
         ))
 
-      LET inventoryData = UNSET(inventory, ['_id','_key','_rev','deleted_at'])
-      RETURN MERGE(inventoryData, {price: latestPrice[0]})
+        LET inventoryData = UNSET(inventory, ['_id','_key','_rev','deleted_at'])
+        RETURN MERGE(inventoryData, {price: latestPrice})
       `;
 
     const result = await this.model.rawQueryV2(
