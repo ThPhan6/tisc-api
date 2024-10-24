@@ -99,7 +99,8 @@ export const mappingByCollections = (
     collections = collections.filter(
       (collection) => collection.id === collectionId
     );
-  } else if(user?.role_id === TiscRoles.Admin) {
+  } else if((Object.values(TiscRoles) as string[])
+              .includes(user?.role_id as string)) {
     if(products.find((product)=> product.collection_ids.length == 0)){
       collections = [...collections,
         // Other Collection
