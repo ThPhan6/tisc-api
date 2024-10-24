@@ -519,7 +519,8 @@ class ProductService {
     } else if (collectionId) {
       returnedProducts = await mappingByCollections(
         products,
-        collectionId === "all" ? undefined : collectionId
+        collectionId === "all" ? undefined : collectionId,
+        user,
       );
     } else {
       returnedProducts = mappingByBrand(products);
