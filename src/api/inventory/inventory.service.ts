@@ -117,15 +117,6 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
-    ///!ERROR
-    // if (inventoryList.data.some((el) => isEmpty(el.price))) {
-    //   console.log(
-    //     inventoryList.data.filter((el) => (isEmpty(el.price) ))
-    //   );
-
-    //   console.log("ERROR Inventory -> get list -> Some inventory has no price");
-    // }
-
     return successResponse({
       data: {
         inventories: inventoryList.data.map((el) => ({
@@ -183,10 +174,7 @@ class InventoryService {
     });
   }
 
-  public async exchange(
-    user: UserAttributes,
-    payload: ExchangeCurrencyRequest
-  ) {
+  public async exchange(payload: ExchangeCurrencyRequest) {
     /// find brand
     const brand = await brandRepository.find(payload.relation_id);
     if (!brand) {
@@ -222,7 +210,7 @@ class InventoryService {
     return successMessageResponse(MESSAGES.EXCHANGE_CURRENCY_SUCCESS);
   }
 
-  public async create(user: UserAttributes, payload: InventoryCreate) {
+  public async create(payload: InventoryCreate) {
     /// find category
     const category = await dynamicCategoryRepository.find(
       payload.inventory_category_id
@@ -296,11 +284,7 @@ class InventoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async update(
-    user: UserAttributes,
-    id: string,
-    payload: Partial<InventoryCreate>
-  ) {
+  public async update(id: string, payload: Partial<InventoryCreate>) {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {

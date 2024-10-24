@@ -7,18 +7,11 @@ import { omit } from "lodash";
 import { InventoryVolumePrice } from "./inventory_prices.type";
 
 class InventoryVolumePriceService {
-  private calculateDiscountRate(
-    basePrice: number,
-    discountPrice: number
-  ): number {
-    return (basePrice - discountPrice / basePrice) * 100;
-  }
-
   private calculateDiscountPrice(
     basePrice: number,
     discountPercent: number
   ): number {
-    return basePrice - (basePrice * discountPercent) / 100;
+    return (basePrice * discountPercent) / 100;
   }
 
   public async create(
@@ -41,8 +34,6 @@ class InventoryVolumePriceService {
           const basePrice = item.base_price;
           return {
             ...omit(item, ["base_price"]),
-            // discount_price:  item.discount_price,
-            // discount_rate: this.calculateDiscountRate(basePrice, item.discount_price),
             discount_rate: item.discount_rate,
             discount_price: this.calculateDiscountPrice(
               basePrice,

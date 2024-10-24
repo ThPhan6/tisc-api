@@ -1,8 +1,7 @@
-import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryService } from "./inventory.service";
 import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
-import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
@@ -26,8 +25,7 @@ export default class InventoryController {
     req: Request & { payload: InventoryCreate },
     toolkit: ResponseToolkit
   ) {
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await inventoryService.create(user, req.payload);
+    const response = await inventoryService.create(req.payload);
     return toolkit.response(response).code(response.statusCode);
   }
 
@@ -35,12 +33,7 @@ export default class InventoryController {
     req: Request & { payload: InventoryCreate },
     toolkit: ResponseToolkit
   ) {
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await inventoryService.update(
-      user,
-      req.params.id,
-      req.payload
-    );
+    const response = await inventoryService.update(req.params.id, req.payload);
     return toolkit.response(response).code(response.statusCode);
   }
 
@@ -48,8 +41,7 @@ export default class InventoryController {
     req: Request & { payload: Pick<ExchangeCurrencyRequest, "to_currency"> },
     toolkit: ResponseToolkit
   ) {
-    const user = req.auth.credentials.user as UserAttributes;
-    const response = await inventoryService.exchange(user, {
+    const response = await inventoryService.exchange({
       relation_id: req.params.id,
       to_currency: req.payload.to_currency,
     });

@@ -11,7 +11,7 @@ const InventoryId = Joi.object({
 const volumePricesSchema = Joi.array()
   .items(
     Joi.object({
-      discount_rate: Joi.number().strict().required().messages({
+      discount_rate: Joi.number().strict().min(0).max(100).required().messages({
         "number.base": "Discount rate must be a number.",
         "any.required": "Discount rate is required.",
       }),
