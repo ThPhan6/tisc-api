@@ -119,9 +119,9 @@ class InventoryService {
 
     ///!ERROR
     // if (inventoryList.data.some((el) => isEmpty(el.price))) {
-    //   // console.log(
-    //   //   inventoryList.data.map((el) => (isEmpty(el.price) ? el : null))
-    //   // );
+    //   console.log(
+    //     inventoryList.data.filter((el) => (isEmpty(el.price) ))
+    //   );
 
     //   console.log("ERROR Inventory -> get list -> Some inventory has no price");
     // }
@@ -293,19 +293,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
-    // return successMessageResponse(MESSAGES.SUCCESS);
-
-    return successResponse({
-      data: {
-        ...newInventory,
-        unit_price: inventoryPrice?.basePrice?.unit_price ?? null,
-        unit_type: inventoryPrice?.basePrice?.unit_type ?? null,
-        volume_prices: inventoryPrice?.volumePrices?.length
-          ? inventoryPrice.volumePrices
-          : null,
-      },
-      message: MESSAGES.SUCCESS,
-    });
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async update(
@@ -352,12 +340,6 @@ class InventoryService {
       }
     }
 
-    let newInventoryPrice:
-      | {
-          basePrice: InventoryBasePriceEntity;
-          volumePrices: InventoryVolumePriceEntity[] | null;
-        }
-      | undefined;
     /// create inventory base and volume prices
     if (!isNil(payload.unit_price) && !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
@@ -377,8 +359,6 @@ class InventoryService {
       ) {
         return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
       }
-
-      newInventoryPrice = inventoryPrice;
     }
 
     /// update inventory

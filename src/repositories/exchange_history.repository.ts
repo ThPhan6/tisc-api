@@ -71,21 +71,15 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
       return null;
     }
 
-    let rate = currencyExchange.rate;
-    /// if the last exchange currency is not from USD
-    if (latestExchanged.from_currency !== EBaseCurrency.USD) {
-      /// find the last exchange currency
-      const previousCurrency =
-        (await exchangeCurrencyRepository.getBaseCurrency(
-          payload.from_currency
-        )) as IExchangeCurrency;
+    const previousCurrency = (await exchangeCurrencyRepository.getBaseCurrency(
+      payload.from_currency
+    )) as IExchangeCurrency;
 
-      if (isEmpty(previousCurrency)) {
-        return null;
-      }
-
-      rate = currencyExchange.rate * previousCurrency.rate;
+    if (isEmpty(previousCurrency)) {
+      return null;
     }
+
+    const rate = currencyExchange.rate / previousCurrency.rate;
 
     const result = await this.create({
       ...payload,

@@ -6,6 +6,7 @@ import {
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
 import { InventoryBasePriceRequest } from "./inventory_prices.type";
+import { omit } from "lodash";
 
 class InventoryBasePriceService {
   public async create(payload: InventoryBasePriceRequest) {
@@ -22,7 +23,7 @@ class InventoryBasePriceService {
     }
 
     const result = await inventoryBasePriceRepository.create({
-      ...payload,
+      ...omit(payload, "relation_id"),
       currency: baseCurrency.to_currency,
     });
 

@@ -54,7 +54,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
-    return head(result);
+    return head(result) as number;
   }
 
   ///TODO: get total stock amount
@@ -87,7 +87,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
-    return head(result);
+    return head(result) as number;
   }
 
   public async getExchangeHistoryOfPrice(
@@ -179,7 +179,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         inventoryId,
       }
     );
-    return head(result);
+    return head(result) as LatestPrice;
   }
 }
 
