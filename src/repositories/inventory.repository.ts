@@ -6,8 +6,8 @@ import {
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
-import { InventoryEntity } from "@/types";
-import { isNil, omitBy } from "lodash";
+import { ExchangeHistoryEntity, InventoryEntity } from "@/types";
+import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
   protected model: InventoryModel;
@@ -33,9 +33,75 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     )
 
     RETURN MERGE(
-      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
       {volume_prices: inventoryVolumePrice}
     )`;
+
+  public async getTotalInventories(brandId: string): Promise<number> {
+    const rawQuery = `
+      FOR brand IN brands
+      FILTER brand.deleted_at == null
+      FILTER brand.id == @brandId
+      FOR category IN dynamic_categories
+      FILTER brand.deleted_at == null
+      FILTER category.relation_id == brand.id
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      FILTER inventory.inventory_category_id == category.id
+      COLLECT WITH COUNT INTO length
+      RETURN length
+    `;
+
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+
+    return head(result) as number;
+  }
+
+  ///TODO: get total stock amount
+  private totalStock = 1;
+  public async getTotalStockValue(brandId: string): Promise<number> {
+    const rawQuery = `
+      FOR brand IN brands
+      FILTER brand.deleted_at == null
+      FILTER brand.id == @brandId
+      FOR category IN dynamic_categories
+      FILTER brand.deleted_at == null
+      FILTER category.relation_id == brand.id
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      FILTER inventory.inventory_category_id == category.id
+      FOR price IN inventory_base_prices
+      FILTER price.deleted_at == null
+      FILTER price.inventory_id == inventory.id
+
+      LET rates = (
+        FOR history IN exchange_histories
+        FILTER history.deleted_at == null
+        FILTER history.created_at >= price.created_at
+        RETURN history.rate
+      )
+
+      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * PRODUCT(rates) * ${this.totalStock})
+      RETURN totalPrice
+    `;
+
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+
+    return head(result) as number;
+  }
+
+  public async getExchangeHistoryOfPrice(
+    priceCreatedAt: string
+  ): Promise<ExchangeHistoryEntity[]> {
+    return await this.model.rawQueryV2(
+      `FOR history IN exchange_histories
+      FILTER history.deleted_at == null
+      FILTER history.created_at >= @priceCreatedAt
+      RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
+      `,
+      { priceCreatedAt }
+    );
+  }
 
   public async getList(
     query: InventoryCategoryQuery
@@ -55,7 +121,8 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
       SORT inventory.created_at DESC
 
-      LET latestPrice = (FOR price IN inventory_base_prices
+      LET latestPrice = FIRST(
+        FOR price IN inventory_base_prices
         FILTER price.deleted_at == null
         FILTER price.inventory_id == inventory.id
         SORT price.created_at DESC
@@ -69,17 +136,23 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
           RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
         )
 
+        LET exchangeHistories = (
+          FOR history IN exchange_histories
+          FILTER history.created_at >= price.created_at
+          RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
+        )
+
         RETURN MERGE(
-          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at'),
-          {volume_prices: inventoryVolumePrice}
+          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
+          {volume_prices: inventoryVolumePrice, exchange_histories: exchangeHistories}
         ))
 
-      LET inventoryData = UNSET(inventory, ["_id", "_key", "_rev", "deleted_at"])
-      RETURN MERGE(inventoryData, {price: latestPrice[0]})
+        LET inventoryData = UNSET(inventory, ['_id','_key','_rev','deleted_at'])
+        RETURN MERGE(inventoryData, {price: latestPrice})
       `;
 
     const result = await this.model.rawQueryV2(
-      `FOR item IN (${rawQuery}) SORT item.price.unit_price.created_at DESC RETURN item`,
+      `FOR item IN (${rawQuery}) SORT item.price.created_at DESC RETURN item`,
       omitBy({ category_id, sort, order }, isNil)
     );
 
@@ -106,7 +179,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         inventoryId,
       }
     );
-    return result?.[0] ?? null;
+    return head(result) as LatestPrice;
   }
 }
 

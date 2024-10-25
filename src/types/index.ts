@@ -34,6 +34,8 @@ export * from "./dynamic_category.type";
 export * from "./inventory.type";
 export * from "./inventory_base_prices.type";
 export * from "./inventory_volume_prices.type";
+export * from "./exchange_history.type";
+export * from "./exchange_currency.type";
 
 export * from "@/api/brand/brand.type";
 export * from "@/api/action_task/action_task.type";

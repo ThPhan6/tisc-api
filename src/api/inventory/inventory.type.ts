@@ -1,5 +1,10 @@
 import { Sequence } from "@/Database/Interfaces";
-import { InventoryEntity, Pagination } from "@/types";
+import {
+  ExchangeHistoryEntity,
+  InventoryBasePriceEntity,
+  InventoryEntity,
+  Pagination,
+} from "@/types";
 import {
   InventoryBasePrice,
   InventoryVolumePrice,
@@ -11,6 +16,7 @@ export interface InventoryCreate
       "inventory_category_id" | "sku" | "image" | "description"
     >,
     Pick<InventoryBasePrice, "unit_price" | "unit_type"> {
+  currency: string;
   volume_prices?: Pick<
     InventoryVolumePrice,
     "discount_price" | "discount_rate" | "max_quantity" | "min_quantity"
@@ -27,7 +33,10 @@ export interface InventoryCategoryQuery {
 }
 
 export interface InventoryListResponse extends InventoryEntity {
-  price: InventoryBasePrice & { volume_prices: InventoryVolumePrice[] | null };
+  price: InventoryBasePrice & {
+    volume_prices: InventoryVolumePrice[] | null;
+    exchange_histories: ExchangeHistoryEntity[];
+  };
 }
 
 export interface InventoryCategoryListWithPaginate {
@@ -39,8 +48,12 @@ export interface InventoryDetailResponse
   extends InventoryEntity,
     InventoryBasePrice {
   volume_prices: null | InventoryVolumePrice[];
+  currency: string;
 }
 
 export interface LatestPrice extends InventoryBasePrice {
   volume_prices: InventoryVolumePrice[];
 }
+
+export interface InventoryListRequest
+  extends Pick<InventoryCreate, "unit_price" | "unit_type" | "volume_prices"> {}

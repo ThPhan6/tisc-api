@@ -2,9 +2,12 @@ import { MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
 import {
   errorMessageResponse,
+  successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
+import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
+import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
@@ -12,20 +15,29 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import {
+  EBaseCurrency,
+  IExchangeCurrency,
   InventoryBasePriceEntity,
+  InventoryEntity,
   InventoryVolumePriceEntity,
   UserAttributes,
 } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, pick } from "lodash";
+import { isEmpty, isNil, isNumber, map, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
+import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
-import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
+import {
+  InventoryCategoryQuery,
+  InventoryCreate,
+  InventoryListRequest,
+} from "./inventory.type";
 
 class InventoryService {
   private async createInventoryPrices(
     inventoryId: string,
+    brandId: string,
     payload: Partial<
       Pick<InventoryCreate, "unit_price" | "unit_type" | "volume_prices">
     >
@@ -47,6 +59,7 @@ class InventoryService {
       unit_price,
       unit_type,
       inventory_id: inventoryId,
+      relation_id: brandId,
     });
 
     if (!basePrice.data) {
@@ -81,17 +94,24 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.INVENTORY_BASE_PRICE_NOT_FOUND, 404);
     }
 
+    const exchangeHistories =
+      await inventoryRepository.getExchangeHistoryOfPrice(
+        latestPrice.created_at
+      );
+
     return successResponse({
       data: {
         ...inventory,
         price: {
           ...latestPrice,
+          exchange_histories: exchangeHistories?.length
+            ? exchangeHistories
+            : null,
           volume_prices: latestPrice?.volume_prices?.length
             ? latestPrice.volume_prices
             : null,
         },
       },
-      message: MESSAGES.SUCCESS,
     });
   }
 
@@ -110,6 +130,9 @@ class InventoryService {
             ? null
             : {
                 ...el.price,
+                exchange_histories: el.price?.exchange_histories?.length
+                  ? el.price.exchange_histories
+                  : null,
                 volume_prices: el.price?.volume_prices?.length
                   ? el.price.volume_prices
                   : null,
@@ -117,11 +140,82 @@ class InventoryService {
         })),
         pagination: inventoryList.pagination,
       },
-      message: MESSAGES.SUCCESS,
     });
   }
 
-  public async create(user: UserAttributes, payload: InventoryCreate) {
+  public async getSummary(brandId: string) {
+    if (!brandId) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    const baseCurrency =
+      (await exchangeCurrencyRepository.getBaseCurrency()) as IExchangeCurrency[];
+
+    if (!baseCurrency) {
+      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
+    }
+
+    const exchangeHistory = await exchangeHistoryRepository.getLatestHistory(
+      brandId
+    );
+
+    if (!exchangeHistory) {
+      return errorMessageResponse(MESSAGES.EXCHANGE_HISTORY_NOT_FOUND, 404);
+    }
+
+    const totalProduct = await inventoryRepository.getTotalInventories(brandId);
+
+    const totalStock = await inventoryRepository.getTotalStockValue(brandId);
+
+    return successResponse({
+      data: {
+        currencies: baseCurrency.map((el) => ({
+          ...pick(el, ["code", "name"]),
+        })),
+        exchange_history: exchangeHistory,
+        total_product: totalProduct,
+        total_stock: totalStock,
+      },
+    });
+  }
+
+  public async exchange(payload: ExchangeCurrencyRequest) {
+    /// find brand
+    const brand = await brandRepository.find(payload.relation_id);
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    /// find previous exchange currency
+    const previousBaseCurrency =
+      await exchangeHistoryRepository.getLatestHistory(payload.relation_id, {
+        createNew: false,
+      });
+
+    if (!previousBaseCurrency) {
+      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
+    }
+
+    /// check if the previous exchange currency is the same as the new one
+    if (previousBaseCurrency.to_currency === payload.to_currency) {
+      return errorMessageResponse(MESSAGES.EXCHANGE_CURRENCY_THE_SAME);
+    }
+
+    const exchangeHistory =
+      await exchangeHistoryRepository.createExchangeHistory({
+        from_currency: previousBaseCurrency.to_currency,
+        to_currency: payload.to_currency,
+        relation_id: payload.relation_id,
+      });
+
+    if (!exchangeHistory) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_EXCHANGE_CURRENCY);
+    }
+
+    return successMessageResponse(MESSAGES.EXCHANGE_CURRENCY_SUCCESS);
+  }
+
+  public async create(payload: InventoryCreate) {
     /// find category
     const category = await dynamicCategoryRepository.find(
       payload.inventory_category_id
@@ -158,11 +252,15 @@ class InventoryService {
     }
 
     /// create inventory base and volume prices
-    const inventoryPrice = await this.createInventoryPrices(inventoryId, {
-      unit_price: payload.unit_price,
-      unit_type: payload.unit_type,
-      volume_prices: payload?.volume_prices,
-    });
+    const inventoryPrice = await this.createInventoryPrices(
+      inventoryId,
+      category.relation_id,
+      {
+        unit_price: payload.unit_price,
+        unit_type: payload.unit_type,
+        volume_prices: payload?.volume_prices,
+      }
+    );
 
     if (
       isEmpty(inventoryPrice?.basePrice) ||
@@ -174,7 +272,8 @@ class InventoryService {
 
     /// create inventory
     const newInventory = await inventoryRepository.create({
-      ...pick(payload, ["description", "sku", "inventory_category_id"]),
+      ...pick(payload, ["sku", "inventory_category_id"]),
+      description: payload.description ?? "",
       image,
       id: inventoryId,
     });
@@ -188,24 +287,10 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
-    return successResponse({
-      data: {
-        ...newInventory,
-        unit_price: inventoryPrice?.basePrice?.unit_price ?? null,
-        unit_type: inventoryPrice?.basePrice?.unit_type ?? null,
-        volume_prices: inventoryPrice?.volumePrices?.length
-          ? inventoryPrice.volumePrices
-          : null,
-      },
-      message: MESSAGES.SUCCESS,
-    });
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async update(
-    user: UserAttributes,
-    id: string,
-    payload: Partial<InventoryCreate>
-  ) {
+  public async update(id: string, payload: Partial<InventoryCreate>) {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {
@@ -245,16 +330,11 @@ class InventoryService {
       }
     }
 
-    let newInventoryPrice:
-      | {
-          basePrice: InventoryBasePriceEntity;
-          volumePrices: InventoryVolumePriceEntity[] | null;
-        }
-      | undefined;
     /// create inventory base and volume prices
     if (!isNil(payload.unit_price) && !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
         inventoryExisted.id,
+        category.relation_id,
         {
           unit_price: payload.unit_price,
           unit_type: payload.unit_type,
@@ -267,10 +347,8 @@ class InventoryService {
         (!isEmpty(payload?.volume_prices) &&
           isEmpty(inventoryPrice?.volumePrices))
       ) {
-        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
       }
-
-      newInventoryPrice = inventoryPrice;
     }
 
     /// update inventory
@@ -282,23 +360,23 @@ class InventoryService {
     });
 
     if (!updatedInventory) {
-      ///TODO: delete base price, volume prices and image
-
-      /// delete image
       deleteFile(image);
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async updateInventories(
+    payload: Record<string, InventoryListRequest>
+  ) {
+    await Promise.all(
+      map(payload, async (value, key) => await this.update(key, value))
+    );
+
     return successResponse({
-      data: {
-        ...updatedInventory,
-        unit_price: newInventoryPrice?.basePrice?.unit_price ?? null,
-        unit_type: newInventoryPrice?.basePrice?.unit_type ?? null,
-        volume_prices: newInventoryPrice?.volumePrices?.length
-          ? newInventoryPrice.volumePrices
-          : null,
-      },
+      message: MESSAGES.SUCCESS,
     });
   }
 

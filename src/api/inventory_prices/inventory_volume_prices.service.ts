@@ -3,22 +3,15 @@ import { errorMessageResponse } from "@/helpers/response.helper";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
 import { inventoryVolumePriceRepository } from "@/repositories/inventory_volume_prices.repository";
 import { InventoryVolumePriceEntity } from "@/types";
+import { omit } from "lodash";
 import { InventoryVolumePrice } from "./inventory_prices.type";
-import { isNumber, omit } from "lodash";
 
 class InventoryVolumePriceService {
-  private calculateDiscountRate(
-    basePrice: number,
-    discountPrice: number
-  ): number {
-    return (basePrice - discountPrice / basePrice) * 100;
-  }
-
   private calculateDiscountPrice(
     basePrice: number,
     discountPercent: number
   ): number {
-    return basePrice - (basePrice * discountPercent) / 100;
+    return (basePrice * discountPercent) / 100;
   }
 
   public async create(
@@ -41,10 +34,8 @@ class InventoryVolumePriceService {
           const basePrice = item.base_price;
           return {
             ...omit(item, ["base_price"]),
-            // discount_price:  item.discount_price,
-            // discount_rate: this.calculateDiscountRate(basePrice, item.discount_price),
             discount_rate: item.discount_rate,
-            discount_price: this.calculateDiscountRate(
+            discount_price: this.calculateDiscountPrice(
               basePrice,
               item.discount_rate
             ),

@@ -24,6 +24,7 @@ export default class InventoryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
+                200: response.getOne,
               },
             },
           },
@@ -40,7 +41,24 @@ export default class InventoryRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getList,
+                200: response.getList,
+              },
+            },
+          },
+        },
+        {
+          method: "GET",
+          path: ROUTES.INVENTORY.SUMMARY,
+          options: {
+            handler: controller.getSummary,
+            validate: validate.getSummary,
+            description: "Method that get inventory summary",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.getSummary,
               },
             },
           },
@@ -62,12 +80,44 @@ export default class InventoryRoute implements IRoute {
           },
         },
         {
+          method: "POST",
+          path: ROUTES.INVENTORY.EXCHANGE,
+          options: {
+            handler: controller.exchange,
+            validate: validate.exchange,
+            description: "Method that exchange currency",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "PATCH",
           path: ROUTES.INVENTORY.UPDATE,
           options: {
             handler: controller.update,
             validate: validate.update,
             description: "Method that update inventory",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "PATCH",
+          path: ROUTES.INVENTORY.UPDATE_INVENTORIES,
+          options: {
+            handler: controller.updateInventories,
+            validate: validate.updateInventories,
+            description: "Method that update inventory on list",
             tags: ["api", "Inventory"],
             auth: AUTH_NAMES.GENERAL,
             response: {
