@@ -68,6 +68,9 @@ export interface CustomResouceAttributes {
 
   created_at: string;
   updated_at: string | null;
+
+  type_code: string;
+  notes: string;
 }
 
 export interface CustomResourcePayload
