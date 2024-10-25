@@ -297,4 +297,16 @@ export const MESSAGES = {
   SUB_LABEL_NOTFOUND: "Sub-label not found.",
   CANNOT_MOVE_TO_PARENT: "Cannot move sub-label to its parent label.",
   INVENTORY_NOT_FOUND: "Inventory not found",
+  INVENTORY_BASE_PRICE_NOT_FOUND: "Inventory base price not found",
+  INVENTORY_VOLUME_PRICE_NOT_FOUND: "Inventory volume price not found",
+  SOMETHING_WRONG_CREATE_INVENTORY_BASE_PRICE:
+    "Something went wrong when create inventory base price",
+  SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE:
+    "Something went wrong when create inventory volume price",
+  BASE_CURRENCY_NOT_FOUND: "Base currency not found",
+  EXCHANGE_HISTORY_NOT_FOUND: "Exchange history not found",
+  EXCHANGE_CURRENCY_SUCCESS: "Exchange currency success",
+  SOMETHING_WRONG_EXCHANGE_CURRENCY:
+    "Something went wrong when exchange currency",
+  EXCHANGE_CURRENCY_THE_SAME: "Cannot exchange the same currency",
 };
