@@ -6,6 +6,7 @@ import {
   IProductAttributes,
   ProductWithRelationData,
   ProductWithCollectionAndBrand,
+  UserAttributes,
 } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
@@ -15,7 +16,7 @@ import {
   SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
 import { isArray, toNumber, isNaN, isEmpty } from "lodash";
-import { SpecificationType } from "@/constants";
+import { SpecificationType, TiscRoles } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { linkageService } from "../linkage/linkage.service";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
@@ -90,20 +91,22 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
 
 export const mappingByCollections = (
   products: ProductWithRelationData[],
-  collectionId?: string
+  collectionId?: string,
+  user?: UserAttributes,
 ) => {
   let collections = getUniqueCollections(products);
   if (collectionId) {
     collections = collections.filter(
       (collection) => collection.id === collectionId
     );
-  } else {
+  } else if((Object.values(TiscRoles) as string[])
+              .includes(user?.role_id as string)) {
     if(products.find((product)=> product.collection_ids.length == 0)){
       collections = [...collections,
         // Other Collection
         {
         id: '-1',
-        name: 'Other',
+        name: 'X Collection',
         type: 2,
         description: '',
         images: [],

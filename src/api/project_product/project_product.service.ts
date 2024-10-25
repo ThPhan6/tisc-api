@@ -337,9 +337,23 @@ class ProjectProductService {
         room_order,
         brand_order
       );
+    
+    const projectZones = await projectZoneRepository.getListProjectZone(
+      project_id
+    );
+    const zoneNames = projectZones.reduce((prev: any, curr: any) => {
+      return [...prev, curr.name];
+    }, []);
+
+    const mappedData = consideredProducts.data.filter(
+      (zone: any) => zone.name == 'ENTIRE PROJECT' || zoneNames.includes(zone.name)
+    );
+    const entireProject = mappedData.find((zone: any)=> zone.name == 'ENTIRE PROJECT');
+    const rest = mappedData.filter((zone: any) => zone.name != 'ENTIRE PROJECT');
+    const newData = [entireProject, ...sortBy(rest,'name')];
 
     return successResponse({
-      data: consideredProducts,
+      data: {...consideredProducts, data: zone_order? mappedData : newData},
     });
   };
 
