@@ -19,4 +19,6 @@ export interface IExchangeCurrency {
 
 export enum EBaseCurrency {
   USD = "USD",
+  AUD = "AUD",
+  EUR = "EUR",
 }

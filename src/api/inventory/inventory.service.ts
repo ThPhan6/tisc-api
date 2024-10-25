@@ -14,14 +14,7 @@ import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import {
-  EBaseCurrency,
-  IExchangeCurrency,
-  InventoryBasePriceEntity,
-  InventoryEntity,
-  InventoryVolumePriceEntity,
-  UserAttributes,
-} from "@/types";
+import { IExchangeCurrency } from "@/types";
 import { randomUUID } from "crypto";
 import { isEmpty, isNil, isNumber, map, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
@@ -63,7 +56,13 @@ class InventoryService {
     });
 
     if (!basePrice.data) {
-      return;
+      return {
+        basePrice: basePrice.data,
+        volumePrices: null,
+        message:
+          basePrice?.message ??
+          MESSAGES.SOMETHING_WRONG_CREATE_INVENTORY_BASE_PRICE,
+      };
     }
 
     /// create volume prices
@@ -74,6 +73,16 @@ class InventoryService {
         base_price: basePrice.data.unit_price,
       }))
     );
+
+    if (!volumePrices.data) {
+      return {
+        basePrice: basePrice.data,
+        volumePrices: volumePrices.data,
+        message:
+          volumePrices?.message ??
+          MESSAGES.SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE,
+      };
+    }
 
     return {
       basePrice: basePrice.data,
@@ -267,7 +276,9 @@ class InventoryService {
       (!isEmpty(payload?.volume_prices) &&
         isEmpty(inventoryPrice?.volumePrices))
     ) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      return errorMessageResponse(
+        inventoryPrice?.message ?? MESSAGES.SOMETHING_WRONG_CREATE
+      );
     }
 
     /// create inventory

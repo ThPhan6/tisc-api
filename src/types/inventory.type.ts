@@ -3,8 +3,8 @@ export interface InventoryEntity {
   inventory_category_id: string;
   sku: string;
   image: string;
-  description: null | string;
+  description?: string;
   created_at: string;
-  updated_at: null | string;
-  deleted_at: null | string;
+  updated_at?: string;
+  deleted_at?: string;
 }

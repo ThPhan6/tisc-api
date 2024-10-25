@@ -18,7 +18,7 @@ class FreeCurrencyService {
       });
   };
 
-  public currencies = async (): Promise<{ data: Record<string, any> }> => {
+  public getCurrencies = async (): Promise<{ data: Record<string, any> }> => {
     return axios
       .get(
         `https://api.freecurrencyapi.com/v1/currencies?apikey=${ENVIRONMENT.FREE_CURRENCY_API_KEY}`
@@ -34,7 +34,7 @@ class FreeCurrencyService {
 
   public exchangeCurrencies = async () => {
     const exchange = await this.exchange();
-    const currencies = await this.currencies();
+    const currencies = await this.getCurrencies();
 
     if (!exchange.data || !currencies.data) {
       throw Boom.badRequest(MESSAGES.GENERAL.SOMETHING_WRONG_CONTACT_SYSADMIN);
