@@ -26,6 +26,8 @@ export const customResourceValidate = Joi.object({
   general_phone: requireStringValidation("General phone"),
   general_email: requireEmailValidation("General email"),
   contacts: customProductContactValidate,
+  type_code: Joi.string().trim().allow(""),
+  notes: Joi.string().trim().allow(""),
 });
 
 export const resourceTypevalidate = Joi.number()
