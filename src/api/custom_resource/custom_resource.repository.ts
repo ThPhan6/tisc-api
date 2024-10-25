@@ -251,7 +251,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         FILTER loc.id == custom_resources.location_id
         FILTER loc.deleted_at == null
         RETURN MERGE(
-          KEEP(custom_resources, 'id', 'type', 'website_uri', 'associate_resource_ids', 'contacts', 'design_id'),
+          KEEP(custom_resources, 'id', 'type', 'website_uri', 'associate_resource_ids', 'contacts', 'design_id', 'type_code', 'notes'),
           KEEP(loc, ${locationRepository.basicAttributesQuery}, 'business_name', 'general_phone', 'general_email')
         )
       `,
