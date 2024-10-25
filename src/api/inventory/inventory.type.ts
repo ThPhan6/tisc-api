@@ -1,5 +1,10 @@
 import { Sequence } from "@/Database/Interfaces";
-import { ExchangeHistoryEntity, InventoryEntity, Pagination } from "@/types";
+import {
+  ExchangeHistoryEntity,
+  InventoryBasePriceEntity,
+  InventoryEntity,
+  Pagination,
+} from "@/types";
 import {
   InventoryBasePrice,
   InventoryVolumePrice,
@@ -49,3 +54,6 @@ export interface InventoryDetailResponse
 export interface LatestPrice extends InventoryBasePrice {
   volume_prices: InventoryVolumePrice[];
 }
+
+export interface InventoryListRequest
+  extends Pick<InventoryCreate, "unit_price" | "unit_type" | "volume_prices"> {}
