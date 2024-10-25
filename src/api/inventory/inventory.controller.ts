@@ -1,7 +1,11 @@
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryService } from "./inventory.service";
-import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
+import {
+  InventoryCategoryQuery,
+  InventoryCreate,
+  InventoryListRequest,
+} from "./inventory.type";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
@@ -34,6 +38,13 @@ export default class InventoryController {
     toolkit: ResponseToolkit
   ) {
     const response = await inventoryService.update(req.params.id, req.payload);
+    return toolkit.response(response).code(response.statusCode);
+  }
+  public async updateInventories(
+    req: Request & { payload: Record<string, InventoryListRequest> },
+    toolkit: ResponseToolkit
+  ) {
+    const response = await inventoryService.updateInventories(req.payload);
     return toolkit.response(response).code(response.statusCode);
   }
 

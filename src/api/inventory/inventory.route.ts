@@ -112,6 +112,22 @@ export default class InventoryRoute implements IRoute {
           },
         },
         {
+          method: "PATCH",
+          path: ROUTES.INVENTORY.UPDATE_INVENTORIES,
+          options: {
+            handler: controller.updateInventories,
+            validate: validate.updateInventories,
+            description: "Method that update inventory on list",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
           method: "DELETE",
           path: ROUTES.INVENTORY.DELETE,
           options: {

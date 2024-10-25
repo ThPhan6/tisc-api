@@ -11,8 +11,7 @@ class ExchangeCurrencyQueue extends BaseQueue {
     super(
       new Bull(
         "Currency_queue",
-        `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`,
-        {}
+        `redis://${ENVIRONMENT.REDIS_HOST}:${ENVIRONMENT.REDIS_PORT}`
       )
     );
   }

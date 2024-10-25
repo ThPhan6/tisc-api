@@ -18,16 +18,21 @@ import {
   EBaseCurrency,
   IExchangeCurrency,
   InventoryBasePriceEntity,
+  InventoryEntity,
   InventoryVolumePriceEntity,
   UserAttributes,
 } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, pick } from "lodash";
+import { isEmpty, isNil, isNumber, map, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
-import { InventoryCategoryQuery, InventoryCreate } from "./inventory.type";
+import {
+  InventoryCategoryQuery,
+  InventoryCreate,
+  InventoryListRequest,
+} from "./inventory.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -267,7 +272,8 @@ class InventoryService {
 
     /// create inventory
     const newInventory = await inventoryRepository.create({
-      ...pick(payload, ["description", "sku", "inventory_category_id"]),
+      ...pick(payload, ["sku", "inventory_category_id"]),
+      description: payload.description ?? "",
       image,
       id: inventoryId,
     });
@@ -341,7 +347,7 @@ class InventoryService {
         (!isEmpty(payload?.volume_prices) &&
           isEmpty(inventoryPrice?.volumePrices))
       ) {
-        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
       }
     }
 
@@ -354,15 +360,24 @@ class InventoryService {
     });
 
     if (!updatedInventory) {
-      ///TODO: delete base price, volume prices and image
-
-      /// delete image
       deleteFile(image);
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
     return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async updateInventories(
+    payload: Record<string, InventoryListRequest>
+  ) {
+    await Promise.all(
+      map(payload, async (value, key) => await this.update(key, value))
+    );
+
+    return successResponse({
+      message: MESSAGES.SUCCESS,
+    });
   }
 
   public async delete(id: string) {
