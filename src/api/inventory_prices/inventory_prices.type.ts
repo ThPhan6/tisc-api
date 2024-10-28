@@ -26,6 +26,4 @@ export interface InventoryVolumePrice
     | "min_quantity"
     | "inventory_base_price_id"
     | "created_at"
-  > {
-  base_price: number;
-}
+  > {}

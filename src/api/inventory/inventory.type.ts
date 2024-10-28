@@ -8,9 +8,10 @@ import {
 export interface InventoryCreate
   extends Pick<
       InventoryEntity,
-      "inventory_category_id" | "sku" | "image" | "description"
+      "inventory_category_id" | "sku" | "description"
     >,
     Pick<InventoryBasePrice, "unit_price" | "unit_type"> {
+  image: string;
   currency: string;
   volume_prices?: Pick<
     InventoryVolumePrice,

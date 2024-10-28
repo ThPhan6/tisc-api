@@ -172,6 +172,7 @@ export const MESSAGES = {
   NOT_FOUND: "Not found",
   COLLECTION_EXISTED: "Collection existed.",
   PRODUCT_EXISTED: "Product existed.",
+  PRICE_NOT_FOUND: "Price not found",
   ATTRIBUTE_EXISTED: "Attribute existed.",
   BASIS_OPTION_EXISTED: "Basis option existed.",
   BASIS_PRESET_EXISTED: "Basis preset existed.",

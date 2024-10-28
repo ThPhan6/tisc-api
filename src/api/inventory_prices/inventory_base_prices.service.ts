@@ -6,12 +6,18 @@ import {
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
-import { omit } from "lodash";
+import { isNil, omit } from "lodash";
 import { InventoryBasePriceRequest } from "./inventory_prices.type";
 
 class InventoryBasePriceService {
-  public async create(payload: InventoryBasePriceRequest) {
-    /// find the last currency
+  public async create(payload: Partial<InventoryBasePriceRequest>) {
+    if (!payload.relation_id || !payload.inventory_id) {
+      return {
+        ...errorMessageResponse(MESSAGES.SOMETHING_WRONG),
+        data: null,
+      };
+    }
+
     const baseCurrency = await exchangeHistoryRepository.getLatestHistory(
       payload.relation_id
     );
@@ -23,7 +29,25 @@ class InventoryBasePriceService {
       };
     }
 
-    const unitType = await commonTypeRepository.find(payload.unit_type);
+    const basePriceExisted =
+      await inventoryBasePriceRepository.getLatestBasePriceByInventoryId(
+        payload.inventory_id
+      );
+
+    const unitPrice = !isNil(payload.unit_price)
+      ? payload.unit_price
+      : basePriceExisted?.unit_price;
+
+    if (isNil(unitPrice)) {
+      return {
+        ...errorMessageResponse(MESSAGES.PRICE_NOT_FOUND),
+        data: null,
+      };
+    }
+
+    const unitType = await commonTypeRepository.find(
+      payload?.unit_type ?? basePriceExisted?.unit_type
+    );
 
     if (!unitType) {
       return {
@@ -33,8 +57,9 @@ class InventoryBasePriceService {
     }
 
     const result = await inventoryBasePriceRepository.create({
-      ...omit(payload, "relation_id", "unit_type"),
+      inventory_id: payload.inventory_id,
       unit_type: unitType.id,
+      unit_price: unitPrice,
       currency: baseCurrency.to_currency,
     });
 

@@ -147,28 +147,44 @@ export const uploadImagesInventory = async (
   const formatedInventoryName = simplizeString(inventoryName || "");
   const fileType = await getFileTypeFromBase64(image);
   if (!fileType) {
-    return image;
+    return {
+      large: image,
+      small: image,
+    };
   }
 
-  // const fileName = fileNameFromKeywords(keywords, formatedBrandName);
-  const fileKeywords = [formatedBrandName, formatedInventoryName, moment.now()];
-  const newFileName = fileKeywords.join("-");
-  const webpBuffer = await toWebp(
+  const largeName = [
+    formatedBrandName,
+    formatedInventoryName,
+    moment.now(),
+    "l",
+  ].join("-");
+
+  const smallName = [
+    formatedBrandName,
+    formatedInventoryName,
+    moment.now(),
+    "s",
+  ].join("-");
+
+  const largeImage = await toWebp(
     Buffer.from(image, "base64"),
     ImageSize.large
   );
-  const pngBuffer = await toPng(webpBuffer);
-  await upload(
-    webpBuffer,
-    `inventory/${brandId}/${inventoryId}/${newFileName}.webp`,
-    "image/webp"
+  const largeImageFileName = `inventory/${brandId}/${inventoryId}/${largeName}.webp`;
+  await upload(largeImage, largeImageFileName, "image/webp");
+
+  const smallImage = await toWebp(
+    Buffer.from(image, "base64"),
+    ImageSize.small
   );
-  await upload(
-    pngBuffer,
-    `inventory/${brandId}/${inventoryId}/${newFileName}.png`,
-    "image/png"
-  );
-  return `/inventory/${brandId}/${inventoryId}/${newFileName}.webp`;
+  const smallImageFileName = `inventory/${brandId}/${inventoryId}/${smallName}.webp`;
+  await upload(smallImage, smallImageFileName, "image/webp");
+
+  return {
+    large: largeImageFileName,
+    small: smallImageFileName,
+  };
 };
 export const uploadGalleryImages = (
   images: string[],
