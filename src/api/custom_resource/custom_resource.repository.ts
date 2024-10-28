@@ -181,7 +181,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
         LET business_name = loc.business_name
         LET created_at = cr.created_at
 
-        SORT ${sort} ${order}
+        SORT ${sort === 'type_code' ? 'cr.type_code' : sort} ${order}
         LIMIT @offset, @limit
         RETURN MERGE(
           KEEP(loc, 'business_name', 'general_email', 'general_phone', 'phone_code'),
@@ -192,6 +192,7 @@ export default class CustomResouceRepository extends BaseRepository<CustomResouc
             distributors,
             cards,
             brands,
+            type_code: cr.type_code? cr.type_code : '',
           }
         )
       `,
