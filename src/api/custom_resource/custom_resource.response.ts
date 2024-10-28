@@ -34,6 +34,7 @@ export default {
         distributors: Joi.number(),
         cards: Joi.number(),
         brands: Joi.number(),
+        type_code: Joi.string().allow('', null),
       }),
     }),
   }),
