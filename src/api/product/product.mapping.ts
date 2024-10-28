@@ -121,9 +121,11 @@ export const mappingByCollections = (
     );
   }
   // const tempHideCollections = ['newone']
-  const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
+  // const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
   return Promise.all(
-    collections.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase())).map(async (collection) => {
+    collections
+      //.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase()))
+      .map(async (collection) => {
       let categoryProducts = products.filter((item) =>
         item.collection_ids?.includes(collection.id)
       );
