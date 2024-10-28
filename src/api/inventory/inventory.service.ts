@@ -16,7 +16,7 @@ import {
 } from "@/services/image.service";
 import { IExchangeCurrency } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, map, pick } from "lodash";
+import { isEmpty, isNil, map, omit, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
@@ -101,7 +101,8 @@ class InventoryService {
 
     return successResponse({
       data: {
-        ...inventory,
+        ...omit(inventory, ["image"]),
+        image: inventory?.image?.small ?? "",
         price: {
           ...latestPrice,
           exchange_histories: exchangeHistories?.length
@@ -125,7 +126,8 @@ class InventoryService {
     return successResponse({
       data: {
         inventories: inventoryList.data.map((el) => ({
-          ...el,
+          ...omit(el, ["image"]),
+          image: el?.image?.small ?? "",
           price: isEmpty(el?.price)
             ? null
             : {
@@ -245,17 +247,12 @@ class InventoryService {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
 
-      const imageUploaded = await uploadImagesInventory(
+      image = await uploadImagesInventory(
         payload.image,
         brand.name,
         brand.id,
         inventoryId
       );
-
-      image = {
-        large: imageUploaded.large,
-        small: imageUploaded.small,
-      };
 
       if (!image) {
         return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
@@ -328,27 +325,19 @@ class InventoryService {
     let image: {
       large: string;
       small: string;
-    } = {
-      large: inventoryExisted?.image?.large ?? "",
-      small: inventoryExisted?.image?.small ?? "",
-    };
+    } = inventoryExisted.image;
 
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
 
-      const imageUploaded = await uploadImagesInventory(
+      image = await uploadImagesInventory(
         payload.image,
         brand.name,
         brand.id,
         inventoryExisted.id
       );
-
-      image = {
-        large: imageUploaded.large,
-        small: imageUploaded.small,
-      };
 
       if (!image) {
         return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
