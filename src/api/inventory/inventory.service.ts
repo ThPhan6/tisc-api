@@ -16,7 +16,7 @@ import {
 } from "@/services/image.service";
 import { IExchangeCurrency } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, map, omit, pick } from "lodash";
+import { isEmpty, isNil, isString, map, omit, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
@@ -235,13 +235,14 @@ class InventoryService {
     const inventoryId = randomUUID();
 
     /// upload image
-    let image: {
-      large: string;
-      small: string;
-    } = {
-      large: "",
-      small: "",
-    };
+    let image:
+      | string
+      | {
+          largeWebp: string;
+          smallWebp: string;
+          largePng: string;
+          smallPng: string;
+        } = "";
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
@@ -283,15 +284,23 @@ class InventoryService {
     const newInventory = await inventoryRepository.create({
       ...pick(payload, ["sku", "inventory_category_id"]),
       description: payload.description ?? "",
-      image: {
-        large: image.large,
-        small: image.small,
-      },
+      image: isString(image) ? image : image.smallWebp,
       id: inventoryId,
     });
 
     if (!newInventory) {
-      Promise.all([image.large, image.small].map((el) => deleteFile(el)));
+      if (isString(image)) {
+        await deleteFile(image);
+      } else {
+        Promise.all(
+          [
+            image.largeWebp,
+            image.smallWebp,
+            image.largePng,
+            image.smallPng,
+          ].map(async (el) => await deleteFile(el))
+        );
+      }
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
@@ -322,10 +331,14 @@ class InventoryService {
     }
 
     /// upload image
-    let image: {
-      large: string;
-      small: string;
-    } = inventoryExisted.image;
+    let image:
+      | string
+      | {
+          largeWebp: string;
+          smallWebp: string;
+          largePng: string;
+          smallPng: string;
+        } = inventoryExisted.image;
 
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
@@ -371,12 +384,23 @@ class InventoryService {
     const updatedInventory = await inventoryRepository.update(id, {
       ...inventoryExisted,
       ...pick(payload, "description", "sku"),
-      image,
+      image: isString(image) ? image : image.smallWebp,
       updated_at: getTimestamps(),
     });
 
     if (!updatedInventory) {
-      Promise.all([image.large, image.small].map((el) => deleteFile(el)));
+      if (isString(image)) {
+        await deleteFile(image);
+      } else {
+        Promise.all(
+          [
+            image.largeWebp,
+            image.smallWebp,
+            image.largePng,
+            image.smallPng,
+          ].map(async (el) => await deleteFile(el))
+        );
+      }
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }

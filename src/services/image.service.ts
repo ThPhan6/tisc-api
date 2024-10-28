@@ -147,10 +147,7 @@ export const uploadImagesInventory = async (
   const formatedInventoryName = simplizeString(inventoryName || "");
   const fileType = await getFileTypeFromBase64(image);
   if (!fileType) {
-    return {
-      large: image,
-      small: image,
-    };
+    return image;
   }
 
   const largeName = [
@@ -167,23 +164,37 @@ export const uploadImagesInventory = async (
     "s",
   ].join("-");
 
-  const largeImage = await toWebp(
+  const largeImageWebp = await toWebp(
     Buffer.from(image, "base64"),
     ImageSize.large
   );
-  const largeImageFileName = `inventory/${brandId}/${inventoryId}/${largeName}.webp`;
-  await upload(largeImage, largeImageFileName, "image/webp");
 
-  const smallImage = await toWebp(
+  const largePath = `inventory/${brandId}/${inventoryId}/${largeName}`;
+  const smallPath = `inventory/${brandId}/${inventoryId}/${smallName}`;
+
+  const largeImageWebpFileName = `${largePath}.webp`;
+  await upload(largeImageWebp, largeImageWebpFileName, "image/webp");
+
+  const smallImageWebpFileName = `${smallPath}.webp`;
+  const smallImageWebp = await toWebp(
     Buffer.from(image, "base64"),
     ImageSize.small
   );
-  const smallImageFileName = `inventory/${brandId}/${inventoryId}/${smallName}.webp`;
-  await upload(smallImage, smallImageFileName, "image/webp");
+  await upload(smallImageWebp, smallImageWebpFileName, "image/webp");
+
+  const largeImagePng = await toPng(largeImageWebp);
+  const largeImagePngFileName = `${largePath}.png`;
+  await upload(largeImagePng, largeImagePngFileName, "image/png");
+
+  const smallImagePng = await toPng(smallImageWebp);
+  const smallImagePngFileName = `${smallPath}.png`;
+  await upload(smallImagePng, smallImagePngFileName, "image/png");
 
   return {
-    large: largeImageFileName,
-    small: smallImageFileName,
+    largeWebp: largeImageWebpFileName,
+    smallWebp: smallImageWebpFileName,
+    largePng: largeImagePngFileName,
+    smallPng: smallImagePngFileName,
   };
 };
 export const uploadGalleryImages = (
