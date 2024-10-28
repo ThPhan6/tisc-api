@@ -462,6 +462,7 @@ class ProductService {
 
   public getBrandProductSummary = async (brandId: string) => {
     const products = await productRepository.getProductBy(undefined, brandId);
+    const returnedProducts = products.filter((product)=>product.collection_ids.length > 0);
     const collections = sortObjectArray(
       getUniqueCollections(products),
       "name",
@@ -479,7 +480,7 @@ class ProductService {
         collections,
         category_count: categories.length,
         collection_count: collections.length,
-        card_count: products.length,
+        card_count: returnedProducts.length,
         product_count: variants.length,
       },
     });
