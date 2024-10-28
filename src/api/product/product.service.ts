@@ -498,7 +498,7 @@ class ProductService {
       user.id,
       brandId,
       categoryId === "all" ? undefined : categoryId,
-      collectionId === "all" ? undefined : collectionId,
+      collectionId === "all" || collectionId === "-1" ? undefined : collectionId,
       keyword,
       sortName,
       orderBy

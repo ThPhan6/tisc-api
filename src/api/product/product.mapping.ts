@@ -95,12 +95,8 @@ export const mappingByCollections = (
   user?: UserAttributes,
 ) => {
   let collections = getUniqueCollections(products);
-  if (collectionId) {
-    collections = collections.filter(
-      (collection) => collection.id === collectionId
-    );
-  } else if((Object.values(TiscRoles) as string[])
-              .includes(user?.role_id as string)) {
+  if((Object.values(TiscRoles) as string[])
+      .includes(user?.role_id as string)) {
     if(products.find((product)=> product.collection_ids.length == 0)){
       collections = [...collections,
         // Other Collection
@@ -118,6 +114,11 @@ export const mappingByCollections = (
           product.collection_ids.push('-1');
       });
     }
+  }
+  if (collectionId) {
+    collections = collections.filter(
+      (collection) => collection.id === collectionId
+    );
   }
   // const tempHideCollections = ['newone']
   const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
