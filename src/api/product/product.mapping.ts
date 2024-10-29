@@ -95,12 +95,8 @@ export const mappingByCollections = (
   user?: UserAttributes,
 ) => {
   let collections = getUniqueCollections(products);
-  if (collectionId) {
-    collections = collections.filter(
-      (collection) => collection.id === collectionId
-    );
-  } else if((Object.values(TiscRoles) as string[])
-              .includes(user?.role_id as string)) {
+  if((Object.values(TiscRoles) as string[])
+      .includes(user?.role_id as string)) {
     if(products.find((product)=> product.collection_ids.length == 0)){
       collections = [...collections,
         // Other Collection
@@ -119,10 +115,17 @@ export const mappingByCollections = (
       });
     }
   }
+  if (collectionId) {
+    collections = collections.filter(
+      (collection) => collection.id === collectionId
+    );
+  }
   // const tempHideCollections = ['newone']
-  const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
+  // const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
   return Promise.all(
-    collections.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase())).map(async (collection) => {
+    collections
+      //.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase()))
+      .map(async (collection) => {
       let categoryProducts = products.filter((item) =>
         item.collection_ids?.includes(collection.id)
       );
