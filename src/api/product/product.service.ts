@@ -462,7 +462,8 @@ class ProductService {
 
   public getBrandProductSummary = async (brandId: string) => {
     const products = await productRepository.getProductBy(undefined, brandId);
-    const returnedProducts = products.filter((product)=>product.collection_ids.length > 0);
+    const returnedProducts = products.filter((product)=>
+      product.collection_ids.length > 0 && product.collections.length > 0);
     const collections = sortObjectArray(
       getUniqueCollections(products),
       "name",
@@ -562,17 +563,19 @@ class ProductService {
       limit,
       offset
     );
+    const newProducts = products.filter((product)=>
+      product?.collection_ids?.length > 0 && product?.collections?.length > 0);
     if (brandId) {
-      const variants = getTotalVariantOfProducts(products);
+      const variants = getTotalVariantOfProducts(newProducts);
       const brand = await brandRepository.find(brandId);
-      const collections = getUniqueCollections(products);
+      const collections = getUniqueCollections(newProducts);
       return successResponse({
-        data: sortBy(await mappingByCollections(products), "name"),
+        data: sortBy(await mappingByCollections(newProducts), "name"),
         brand_summary: {
           brand_name: brand?.name ?? "",
           brand_logo: brand?.logo ?? "",
           collection_count: collections.length,
-          card_count: products.length,
+          card_count: newProducts.length,
           product_count: variants.length,
         },
       });
@@ -580,7 +583,7 @@ class ProductService {
 
     if (categoryId) {
       return successResponse({
-        data: sortBy(mappingByBrand(products), "name"),
+        data: sortBy(mappingByBrand(newProducts), "name"),
       });
     }
     const total = await productRepository.countProductBy(
@@ -594,7 +597,7 @@ class ProductService {
       false
     );
     return successResponse({
-      allProducts: products,
+      allProducts: newProducts,
       pagination: pagination(limit || 0, offset || 0, total[0]),
     });
   };
