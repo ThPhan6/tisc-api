@@ -79,6 +79,8 @@ export default {
     data: Joi.array().items({
       id: Joi.string().allow(),
       name: Joi.string(),
+      code: Joi.any(),
+      group: Joi.any(),
     }),
   }) as any,
   commonPartnersList: Joi.object({
