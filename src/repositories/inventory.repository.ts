@@ -116,7 +116,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
           ? "FILTER inventory.inventory_category_id == @category_id"
           : ""
       }
-      ${search ? `FILTER inventory.sku LIKE "%${search}%"` : ""}
+      ${search ? `FILTER LOWER(inventory.sku) LIKE "%${search}%"` : ""}
       ${sort && order ? `SORT inventory.@sort @order` : ""}
       ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
       SORT inventory.created_at DESC
