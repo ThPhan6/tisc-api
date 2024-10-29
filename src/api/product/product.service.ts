@@ -462,7 +462,8 @@ class ProductService {
 
   public getBrandProductSummary = async (brandId: string) => {
     const products = await productRepository.getProductBy(undefined, brandId);
-    const returnedProducts = products.filter((product)=>product.collection_ids.length > 0);
+    const returnedProducts = products.filter((product)=>
+      product.collection_ids.length > 0 && product.collections.length > 0);
     const collections = sortObjectArray(
       getUniqueCollections(products),
       "name",
