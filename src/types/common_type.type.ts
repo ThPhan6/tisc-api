@@ -1,3 +1,5 @@
+import { CommonTypeGroup } from "@/constants";
+
 export interface CommonTypes {
   SHARING_GROUP: 1;
   SHARING_PURPOSE: 2;
@@ -18,6 +20,7 @@ export interface CommonTypes {
   PARTNER_RELATION: 17;
   PARTNER_ACQUISITION: 18;
   DESIGNER_DEPARTMENT: 19;
+  INVENTORY_UNIT: 20;
 }
 
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];
@@ -25,6 +28,8 @@ export type CommonTypeValue = CommonTypes[keyof CommonTypes];
 export interface CommonTypeAttributes {
   id: string;
   name: string;
+  code?: string;
+  group?: CommonTypeGroup;
   type: CommonTypeValue;
   relation_id: string | null;
   created_at: string;
