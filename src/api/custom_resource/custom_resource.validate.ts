@@ -51,7 +51,7 @@ export default {
   getListResource: getListValidation({
     query: {
       type: resourceTypevalidate,
-      sort: Joi.string().valid("business_name", "location"), // GetCustomResourceListSorting
+      sort: Joi.string().valid("business_name", "location", "type_code"), // GetCustomResourceListSorting
     },
   }),
   updateResource: {
