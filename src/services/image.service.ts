@@ -150,25 +150,52 @@ export const uploadImagesInventory = async (
     return image;
   }
 
-  // const fileName = fileNameFromKeywords(keywords, formatedBrandName);
-  const fileKeywords = [formatedBrandName, formatedInventoryName, moment.now()];
-  const newFileName = fileKeywords.join("-");
-  const webpBuffer = await toWebp(
+  const largeName = [
+    formatedBrandName,
+    formatedInventoryName,
+    moment.now(),
+    "l",
+  ].join("-");
+
+  const smallName = [
+    formatedBrandName,
+    formatedInventoryName,
+    moment.now(),
+    "s",
+  ].join("-");
+
+  const largeImageWebp = await toWebp(
     Buffer.from(image, "base64"),
     ImageSize.large
   );
-  const pngBuffer = await toPng(webpBuffer);
-  await upload(
-    webpBuffer,
-    `inventory/${brandId}/${inventoryId}/${newFileName}.webp`,
-    "image/webp"
+
+  const largePath = `inventory/${brandId}/${inventoryId}/${largeName}`;
+  const smallPath = `inventory/${brandId}/${inventoryId}/${smallName}`;
+
+  const largeImageWebpFileName = `${largePath}.webp`;
+  await upload(largeImageWebp, largeImageWebpFileName, "image/webp");
+
+  const smallImageWebpFileName = `${smallPath}.webp`;
+  const smallImageWebp = await toWebp(
+    Buffer.from(image, "base64"),
+    ImageSize.small
   );
-  await upload(
-    pngBuffer,
-    `inventory/${brandId}/${inventoryId}/${newFileName}.png`,
-    "image/png"
-  );
-  return `/inventory/${brandId}/${inventoryId}/${newFileName}.webp`;
+  await upload(smallImageWebp, smallImageWebpFileName, "image/webp");
+
+  const largeImagePng = await toPng(largeImageWebp);
+  const largeImagePngFileName = `${largePath}.png`;
+  await upload(largeImagePng, largeImagePngFileName, "image/png");
+
+  const smallImagePng = await toPng(smallImageWebp);
+  const smallImagePngFileName = `${smallPath}.png`;
+  await upload(smallImagePng, smallImagePngFileName, "image/png");
+
+  return {
+    largeWebp: largeImageWebpFileName,
+    smallWebp: smallImageWebpFileName,
+    largePng: largeImagePngFileName,
+    smallPng: smallImagePngFileName,
+  };
 };
 export const uploadGalleryImages = (
   images: string[],

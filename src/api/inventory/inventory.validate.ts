@@ -33,22 +33,27 @@ const volumePricesSchema = Joi.array()
             "Maximum quantity must be greater than minimum quantity.",
           "any.required": "Maximum quantity is required.",
         }),
-    }).and("discount_rate", "min_quantity", "max_quantity")
+    })
+      .and("discount_rate", "min_quantity", "max_quantity")
+      .min(1)
+      .unknown(false)
   );
 
 const InventoryCreateRequest = Joi.object({
-  sku: requireStringValidation("Inventory sku"),
+  sku: requireStringValidation("Inventory sku").trim(),
   inventory_category_id: requireStringValidation("Inventory category id"),
   image: Joi.string().allow(null).allow(""),
-  description: Joi.string().allow(null).allow(""),
+  description: Joi.string().allow(null).allow("").trim(),
   unit_price: Joi.number().min(1).strict().required().messages({
     "any.required": "Unit price is required",
     "any.min": "Unit price is must be greater than 0",
   }),
-  unit_type: requireStringValidation("Unit type"),
+  unit_type: requireStringValidation("Unit type").not("").not(null),
   volume_prices: volumePricesSchema,
 })
-  .and("unit_price", "unit_type")
+  .min(1)
+  .unknown(false)
+  .and("unit_price", "unit_type", "volume_prices")
   .messages({
     "object.and":
       "Unit price, unit type, and volume prices must all be provided together.",
@@ -56,12 +61,22 @@ const InventoryCreateRequest = Joi.object({
 
 const InventoryUpdateRequest = Joi.object({
   image: Joi.string().allow(null).allow(""),
-  sku: Joi.string().allow(null),
-  description: Joi.string().allow(null).allow(""),
-  unit_price: Joi.number().min(1).strict().allow(null),
-  unit_type: Joi.string().allow(null),
+  sku: Joi.string().allow(null).trim(),
+  description: Joi.string().allow(null).allow("").trim(),
+  unit_price: Joi.number().min(1).strict().not(null),
+  unit_type: Joi.string().not("").not(null),
   volume_prices: volumePricesSchema,
-});
+})
+  .min(1)
+  .unknown(false)
+  .messages({
+    "object.min": "At least one field must be provided.",
+  })
+  .and("unit_price", "volume_prices")
+  .messages({
+    "object.and":
+      "Unit price, and volume prices must all be provided together.",
+  });
 
 export default {
   get: {
@@ -103,19 +118,27 @@ export default {
           unit_type: Joi.string().required(),
           volume_prices: volumePricesSchema,
         }).required()
-      ),
+      )
+      .unknown(false)
+      .min(1),
   },
   exchange: {
     params: Joi.object({
       id: Joi.string().required(),
-    }),
+    })
+      .unknown(false)
+      .min(1),
     payload: Joi.object({
       to_currency: Joi.string().required(),
-    }),
+    })
+      .unknown(false)
+      .min(1),
   },
   getSummary: {
-    params: {
+    params: Joi.object({
       id: Joi.string().required(),
-    },
+    })
+      .unknown(false)
+      .min(1),
   },
 };

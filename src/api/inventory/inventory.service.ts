@@ -16,7 +16,7 @@ import {
 } from "@/services/image.service";
 import { IExchangeCurrency } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, map, pick } from "lodash";
+import { isEmpty, isNil, isString, map, omit, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
@@ -35,15 +35,9 @@ class InventoryService {
       Pick<InventoryCreate, "unit_price" | "unit_type" | "volume_prices">
     >
   ) {
-    const { unit_price = -1, unit_type = "", volume_prices = [] } = payload;
+    const { unit_price, unit_type, volume_prices = [] } = payload;
 
-    if (
-      !inventoryId ||
-      isNil(unit_price) ||
-      !isNumber(unit_price) ||
-      (isNumber(unit_price) && unit_price <= 0) ||
-      isEmpty(unit_type)
-    ) {
+    if (!inventoryId || !brandId) {
       return;
     }
 
@@ -67,11 +61,8 @@ class InventoryService {
 
     /// create volume prices
     const volumePrices = await inventoryVolumePriceService.create(
-      volume_prices.map((item) => ({
-        ...item,
-        inventory_base_price_id: basePrice.data.id,
-        base_price: basePrice.data.unit_price,
-      }))
+      basePrice.data,
+      volume_prices
     );
 
     if (!volumePrices.data) {
@@ -110,7 +101,8 @@ class InventoryService {
 
     return successResponse({
       data: {
-        ...inventory,
+        ...omit(inventory, ["image"]),
+        image: inventory?.image ?? "",
         price: {
           ...latestPrice,
           exchange_histories: exchangeHistories?.length
@@ -134,7 +126,8 @@ class InventoryService {
     return successResponse({
       data: {
         inventories: inventoryList.data.map((el) => ({
-          ...el,
+          ...omit(el, ["image"]),
+          image: el?.image ?? "",
           price: isEmpty(el?.price)
             ? null
             : {
@@ -242,7 +235,14 @@ class InventoryService {
     const inventoryId = randomUUID();
 
     /// upload image
-    let image: string = "";
+    let image:
+      | string
+      | {
+          largeWebp: string;
+          smallWebp: string;
+          largePng: string;
+          smallPng: string;
+        } = "";
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
@@ -281,19 +281,26 @@ class InventoryService {
       );
     }
 
-    /// create inventory
     const newInventory = await inventoryRepository.create({
       ...pick(payload, ["sku", "inventory_category_id"]),
       description: payload.description ?? "",
-      image,
+      image: isString(image) ? image : image.smallWebp,
       id: inventoryId,
     });
 
     if (!newInventory) {
-      ///TODO: delete base price, volume prices and image
-
-      /// delete image
-      deleteFile(image);
+      if (isString(image)) {
+        await deleteFile(image);
+      } else {
+        Promise.all(
+          [
+            image.largeWebp,
+            image.smallWebp,
+            image.largePng,
+            image.smallPng,
+          ].map(async (el) => await deleteFile(el))
+        );
+      }
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
@@ -323,7 +330,16 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    let image: string = inventoryExisted.image;
+    /// upload image
+    let image:
+      | string
+      | {
+          largeWebp: string;
+          smallWebp: string;
+          largePng: string;
+          smallPng: string;
+        } = inventoryExisted.image;
+
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
@@ -342,13 +358,13 @@ class InventoryService {
     }
 
     /// create inventory base and volume prices
-    if (!isNil(payload.unit_price) && !isNil(payload.unit_type)) {
+    if (!isNil(payload.unit_price) || !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
         inventoryExisted.id,
         category.relation_id,
         {
-          unit_price: payload.unit_price,
-          unit_type: payload.unit_type,
+          unit_price: payload?.unit_price,
+          unit_type: payload?.unit_type,
           volume_prices: payload?.volume_prices,
         }
       );
@@ -358,7 +374,9 @@ class InventoryService {
         (!isEmpty(payload?.volume_prices) &&
           isEmpty(inventoryPrice?.volumePrices))
       ) {
-        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+        return errorMessageResponse(
+          inventoryPrice?.message ?? MESSAGES.SOMETHING_WRONG_UPDATE
+        );
       }
     }
 
@@ -366,12 +384,23 @@ class InventoryService {
     const updatedInventory = await inventoryRepository.update(id, {
       ...inventoryExisted,
       ...pick(payload, "description", "sku"),
-      image,
+      image: isString(image) ? image : image.smallWebp,
       updated_at: getTimestamps(),
     });
 
     if (!updatedInventory) {
-      deleteFile(image);
+      if (isString(image)) {
+        await deleteFile(image);
+      } else {
+        Promise.all(
+          [
+            image.largeWebp,
+            image.smallWebp,
+            image.largePng,
+            image.smallPng,
+          ].map(async (el) => await deleteFile(el))
+        );
+      }
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
