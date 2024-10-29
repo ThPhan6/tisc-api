@@ -102,7 +102,7 @@ class InventoryService {
     return successResponse({
       data: {
         ...omit(inventory, ["image"]),
-        image: inventory?.image?.small ?? "",
+        image: inventory?.image ?? "",
         price: {
           ...latestPrice,
           exchange_histories: exchangeHistories?.length
@@ -127,7 +127,7 @@ class InventoryService {
       data: {
         inventories: inventoryList.data.map((el) => ({
           ...omit(el, ["image"]),
-          image: el?.image?.small ?? "",
+          image: el?.image ?? "",
           price: isEmpty(el?.price)
             ? null
             : {
