@@ -6,6 +6,7 @@ import {
   IProductAttributes,
   ProductWithRelationData,
   ProductWithCollectionAndBrand,
+  UserAttributes,
 } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
@@ -15,7 +16,7 @@ import {
   SelectionAttributeGroupWithOptionalId,
 } from "./product.type";
 import { isArray, toNumber, isNaN, isEmpty } from "lodash";
-import { SpecificationType } from "@/constants";
+import { SpecificationType, TiscRoles } from "@/constants";
 import { specificationStepRepository } from "@/repositories/specification_step.repository";
 import { linkageService } from "../linkage/linkage.service";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
@@ -90,20 +91,18 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
 
 export const mappingByCollections = (
   products: ProductWithRelationData[],
-  collectionId?: string
+  collectionId?: string,
+  user?: UserAttributes,
 ) => {
   let collections = getUniqueCollections(products);
-  if (collectionId) {
-    collections = collections.filter(
-      (collection) => collection.id === collectionId
-    );
-  } else {
+  if((Object.values(TiscRoles) as string[])
+      .includes(user?.role_id as string)) {
     if(products.find((product)=> product.collection_ids.length == 0)){
       collections = [...collections,
         // Other Collection
         {
         id: '-1',
-        name: 'Other',
+        name: 'X Collection',
         type: 2,
         description: '',
         images: [],
@@ -116,10 +115,17 @@ export const mappingByCollections = (
       });
     }
   }
+  if (collectionId) {
+    collections = collections.filter(
+      (collection) => collection.id === collectionId
+    );
+  }
   // const tempHideCollections = ['newone']
-  const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
+  // const tempHideCollections = ['ls990 duroplastic - white', 'ls990 metal -  antique brass']
   return Promise.all(
-    collections.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase())).map(async (collection) => {
+    collections
+      //.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase()))
+      .map(async (collection) => {
       let categoryProducts = products.filter((item) =>
         item.collection_ids?.includes(collection.id)
       );

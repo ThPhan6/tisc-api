@@ -96,9 +96,7 @@ export const dimensionAndWeightValidate = Joi.object({
 export const productPayloadValidate = {
   brand_id: requireStringValidation("Brand id"),
   collection_ids: Joi.array()
-    .items(Joi.string().required())
-    .required()
-    .error(errorMessage("Please select collection")),
+    .items(Joi.string()),
   label_ids: Joi.array().items(Joi.string()),
   category_ids: Joi.array()
     .items(Joi.string().required())
