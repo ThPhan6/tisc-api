@@ -13,6 +13,8 @@ export const customResourceResponse = Joi.object({
   created_at: Joi.string().allow("", null),
   updated_at: Joi.string().allow("", null),
   location_id: Joi.string().allow("", null),
+  type_code: Joi.string().allow("", null),
+  notes: Joi.string().allow("", null),
   ...locationBasicResponse,
 });
 
@@ -32,6 +34,7 @@ export default {
         distributors: Joi.number(),
         cards: Joi.number(),
         brands: Joi.number(),
+        type_code: Joi.string().allow('', null),
       }),
     }),
   }),

@@ -26,6 +26,8 @@ export const customResourceValidate = Joi.object({
   general_phone: requireStringValidation("General phone"),
   general_email: requireEmailValidation("General email"),
   contacts: customProductContactValidate,
+  type_code: Joi.string().trim().allow(""),
+  notes: Joi.string().trim().allow(""),
 });
 
 export const resourceTypevalidate = Joi.number()
@@ -49,7 +51,7 @@ export default {
   getListResource: getListValidation({
     query: {
       type: resourceTypevalidate,
-      sort: Joi.string().valid("business_name", "location"), // GetCustomResourceListSorting
+      sort: Joi.string().valid("business_name", "location", "type_code"), // GetCustomResourceListSorting
     },
   }),
   updateResource: {

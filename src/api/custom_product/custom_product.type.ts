@@ -68,13 +68,16 @@ export interface CustomResouceAttributes {
 
   created_at: string;
   updated_at: string | null;
+
+  type_code: string;
+  notes: string;
 }
 
 export interface CustomResourcePayload
   extends Omit<CustomResouceAttributes, "id" | "created_at" | "updated_at">,
     Omit<LocationPayload, "type"> {}
 
-export type GetCustomResourceListSorting = "business_name" | "location";
+export type GetCustomResourceListSorting = "business_name" | "location" | "type_code";
 
 export interface CustomResourceListItem {
   id: string;
@@ -87,6 +90,7 @@ export interface CustomResourceListItem {
   distributors: number;
   cards: number;
   brands: number;
+  type_code: string;
 }
 export interface CustomProductWithRelation extends CustomProductAttributes {
   design: { name: string; logo: string };

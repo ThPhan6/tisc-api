@@ -57,6 +57,8 @@ class CustomResourceService {
       contacts: payload.contacts,
       location_id: location.id,
       design_id: user.relation_id,
+      type_code: payload.type_code,
+      notes: payload.notes,
     });
 
     if (!result) {
@@ -154,6 +156,8 @@ class CustomResourceService {
         return error;
       }
     }
+
+    console.log(customPayload);
 
     const result = await customResourceRepository.update(id, customPayload);
 
