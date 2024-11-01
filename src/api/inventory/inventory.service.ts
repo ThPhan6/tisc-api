@@ -437,6 +437,21 @@ class InventoryService {
       message: MESSAGES.SUCCESS,
     });
   }
+
+  public async move(inventoryId: string, categoryId: string) {
+    const inventory = await inventoryRepository.find(inventoryId);
+    if (!inventory)
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
+
+    const updatedInventory = await inventoryRepository.update(inventoryId, {
+      inventory_category_id: categoryId,
+    });
+
+    if (!updatedInventory)
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+
+    return successResponse({ message: MESSAGES.SUCCESS });
+  }
 }
 
 export const inventoryService = new InventoryService();
