@@ -142,6 +142,7 @@ export const productPayloadValidate = {
     product_name: Joi.string().allow(""),
     product_id: Joi.string().allow(""),
   }),
+  ecoLabel: Joi.object(),
 };
 
 export default {
