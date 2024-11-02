@@ -82,6 +82,7 @@ export const productResponse = {
   dimension_and_weight: dimensionWeightResponse,
   product_information: Joi.any(),
   detected_color_images: Joi.any(),
+  ecoLabel: Joi.any(),
 };
 
 export default {
