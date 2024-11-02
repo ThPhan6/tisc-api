@@ -44,7 +44,12 @@ export const errorMessageResponse = (
 export const successMessageResponse = (message: string = "") => {
   return { message, statusCode: 200 };
 };
-export const successResponse = (res: { [key: string]: any } = {}) => {
+export const successResponse = (
+  res: { [key: string]: any } = {}
+): {
+  [key: string]: any;
+  statusCode: 200;
+} => {
   return { ...res, statusCode: 200 };
 };
 
