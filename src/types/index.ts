@@ -45,4 +45,4 @@ export * from "@/api/custom_product/custom_product.type";
 export * from "@/api/distributor/distributor.type";
 
 export * from "./warehouse.type";
-export * from "./warehouse_ledger.type";
+export * from "./inventory_ledger.type";

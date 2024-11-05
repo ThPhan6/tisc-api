@@ -1,4 +1,4 @@
-export interface WarehouseLedgerEntity {
+export interface InventoryLedgerEntity {
   id: string;
   warehouse_id: string;
   inventory_id: string;

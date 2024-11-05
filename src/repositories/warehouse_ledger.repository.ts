@@ -1,15 +1,15 @@
-import WarehouseLedgerModel from "@/models/warehouse_ledger.model";
+import InventoryLedgerModel from "@/models/inventory_ledger.model";
 import BaseRepository from "@/repositories/base.repository";
-import { WarehouseLedgerEntity } from "@/types";
+import { InventoryLedgerEntity } from "@/types";
 
-class WarehouseLedgerRepository extends BaseRepository<WarehouseLedgerEntity> {
-  protected model: WarehouseLedgerModel;
+class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
+  protected model: InventoryLedgerModel;
 
   constructor() {
     super();
-    this.model = new WarehouseLedgerModel();
+    this.model = new InventoryLedgerModel();
   }
 }
 
-export const warehouseLedgerRepository = new WarehouseLedgerRepository();
-export default WarehouseLedgerRepository;
+export const inventoryLedgerRepository = new InventoryLedgerRepository();
+export default InventoryLedgerRepository;
