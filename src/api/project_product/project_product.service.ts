@@ -733,12 +733,33 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const specifiedProducts =
+    const rawSpecifiedProducts =
       await projectProductRepository.getSpecifiedProductsForBrandGroup(
         project_id,
         brand_id,
         brand_order
       );
+    
+    const projectZones = await projectZoneRepository.getListProjectZone(
+      project_id
+    );
+    const zonesRoomIds = projectZones.reduce((totalIds: any, currZone: any) => {
+      const zoneRoomIds = currZone?.areas?.reduce((zoneIds: any, currArea: any) => {
+        const roomsIds = currArea?.rooms?.reduce((areaIds: any, currRoom: any) => {
+          return [...areaIds, currRoom?.id];
+        }, []);
+        return [...zoneIds, ...roomsIds];
+      }, []);
+      return [...totalIds, ...zoneRoomIds];
+    }, []);
+    const specifiedProducts = rawSpecifiedProducts.map((brandProducts: any)=> {
+      const newProducts = brandProducts?.products?.filter((product: any)=>
+        product.specifiedDetail?.allocation?.some((room_id: any)=>
+          zonesRoomIds.includes(room_id))
+        || product.specifiedDetail?.entire_allocation
+      );
+      return {...brandProducts, products: newProducts};
+    });
 
     const total = sumBy(specifiedProducts, "count");
 
@@ -824,13 +845,30 @@ class ProjectProductService {
       return errorMessageResponse(MESSAGES.PROJECT_NOT_FOUND, 404);
     }
 
-    const specifiedProducts =
+    const rawSpecifiedProducts =
       await projectProductRepository.getSpecifiedProductsForMaterial(
         user.id,
         project_id,
         brand_order,
         material_order || "ASC"
       );
+    const projectZones = await projectZoneRepository.getListProjectZone(
+      project_id
+    );
+    const zonesRoomIds = projectZones.reduce((totalIds: any, currZone: any) => {
+      const zoneRoomIds = currZone?.areas?.reduce((zoneIds: any, currArea: any) => {
+        const roomsIds = currArea?.rooms?.reduce((areaIds: any, currRoom: any) => {
+          return [...areaIds, currRoom?.id];
+        }, []);
+        return [...zoneIds, ...roomsIds];
+      }, []);
+      return [...totalIds, ...zoneRoomIds];
+    }, []);
+    const specifiedProducts = rawSpecifiedProducts.filter((product: any)=>
+      product.project_products?.allocation?.some((room_id: any)=>
+        zonesRoomIds.includes(room_id))
+      || product.project_products?.entire_allocation
+    );
     const mappedProducts = this.mappingSpecifiedData(specifiedProducts);
     const uniqueList = uniqBy(mappedProducts, "full_material_code");
     const cancelledCount =
@@ -893,9 +931,20 @@ class ProjectProductService {
         brand_order || "ASC",
         true
       );
+    
+    const projectZones = await projectZoneRepository.getListProjectZone(
+      project_id
+    );
+    const zoneNames = projectZones.reduce((prev: any, curr: any) => {
+      return [...prev, curr.name];
+    }, []);
+
+    const mappedData = consideredProducts.data.filter(
+      (zone: any) => zone.name == 'ENTIRE PROJECT' || zoneNames.includes(zone.name)
+    );
 
     return successResponse({
-      data: consideredProducts,
+      data: {...consideredProducts, data: mappedData},
     });
   };
 
