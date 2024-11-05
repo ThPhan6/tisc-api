@@ -34,6 +34,7 @@ export * from "./dynamic_category.type";
 export * from "./inventory.type";
 export * from "./inventory_base_prices.type";
 export * from "./inventory_volume_prices.type";
+export * from "./inventory_action.type";
 export * from "./exchange_history.type";
 export * from "./exchange_currency.type";
 
@@ -42,3 +43,6 @@ export * from "@/api/action_task/action_task.type";
 export * from "@/api/project/project.type";
 export * from "@/api/custom_product/custom_product.type";
 export * from "@/api/distributor/distributor.type";
+
+export * from "./warehouse.type";
+export * from "./warehouse_ledger.type";
