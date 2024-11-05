@@ -12,10 +12,10 @@ export default class WarehouseRoute implements IRoute {
       server.route([
         {
           method: "GET",
-          path: ROUTES.WAREHOUSE.GET_ONE,
+          path: ROUTES.WAREHOUSE.GET_LIST_WITH_INVENTORY,
           options: {
-            handler: controller.get,
-            // validate: validate.get,
+            handler: controller.getList,
+            validate: validate.getList,
             description: "Method that get warehouse",
             tags: ["api", "Warehouse"],
             auth: AUTH_NAMES.GENERAL,

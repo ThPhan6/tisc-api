@@ -396,7 +396,7 @@ export const ROUTES = {
   },
   WAREHOUSE: {
     GET_ONE: "/api/warehouse/get-one/{id}",
-    GET_LIST: "/api/warehouse/get-list",
+    GET_LIST_WITH_INVENTORY: "/api/warehouse/get-list/inventory/{id}",
     CREATE: "/api/warehouse/create",
     UPDATE: "/api/warehouse/update/{id}",
     DELETE: "/api/warehouse/delete/{id}",

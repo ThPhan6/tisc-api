@@ -11,7 +11,7 @@ const WarehouseRequest = Joi.object({
   .min(1);
 
 export default {
-  get: {
+  getList: {
     params: {
       id: Joi.string().required(),
     },

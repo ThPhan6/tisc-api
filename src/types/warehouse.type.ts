@@ -13,17 +13,13 @@ export interface WarehouseEntity {
 
 export enum WarehouseType {
   PHYSICAL = 1,
-  NON_PHYSICAL = 2,
+  IN_STOCK = 2,
+  ON_ORDER = 3,
+  BACK_ORDER = 4,
+  DONE = 5,
 }
 
 export enum WarehouseStatus {
   ACTIVE = 1,
   INACTIVE = 2,
-}
-
-export enum WarehouseNonPhysicalType {
-  IN_STOCK = "IN_STOCK",
-  ON_ORDER = "ON_ORDER",
-  BACK_ORDER = "BACK_ORDER",
-  DONE = "DONE",
 }

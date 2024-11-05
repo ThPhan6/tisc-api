@@ -4,8 +4,8 @@ import { WarehouseCreate } from "./warehouse.type";
 import { UserAttributes } from "@/types";
 
 export default class WarehouseController {
-  public async get(req: Request, toolkit: ResponseToolkit) {
-    const response = await warehouseService.get(req.params.id);
+  public async getList(req: Request, toolkit: ResponseToolkit) {
+    const response = await warehouseService.getList(req.params.id);
     return toolkit.response(response).code(response.statusCode);
   }
 

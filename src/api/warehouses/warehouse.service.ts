@@ -7,13 +7,11 @@ import {
 import { inventoryRepository } from "@/repositories/inventory.repository";
 import partnerRepository from "@/repositories/partner.repository";
 import { warehouseRepository } from "@/repositories/warehouse.repository";
-import { warehouseLedgerRepository } from "@/repositories/warehouse_ledger.repository";
 import {
   InventoryActionDescription,
   InventoryActionType,
   UserAttributes,
   WarehouseEntity,
-  WarehouseNonPhysicalType,
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
@@ -21,6 +19,8 @@ import { NonPhysicalWarehouseCreate, WarehouseCreate } from "./warehouse.type";
 import { inventoryActionRepository } from "@/repositories/inventory_action.repository";
 import { getInventoryActionDescription } from "@/helpers/common.helper";
 import { brandRepository } from "@/repositories/brand.repository";
+import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
+import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
 
 class WarehouseService {
   private async createNonPhysicalWarehouse(
@@ -32,23 +32,27 @@ class WarehouseService {
       !payload?.location_id ||
       !payload?.name ||
       !payload?.parent_id ||
-      !payload?.relation_id
+      !payload?.relation_id ||
+      !payload?.type
     ) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    const warehouseExisted = await warehouseRepository.findBy({
+    const existedWarehouse = await warehouseRepository.findBy({
       name: payload.name,
+      type: payload.type,
+      parent_id: payload.parent_id,
+      relation_id: payload.relation_id,
     });
 
     let warehouse: WarehouseEntity | undefined;
-    if (!warehouseExisted) {
+    if (!existedWarehouse) {
       warehouse = await warehouseRepository.create({
         name: payload.name,
         location_id: payload.location_id,
         parent_id: payload.parent_id,
         relation_id: payload.relation_id,
-        type: WarehouseType.NON_PHYSICAL,
+        type: payload.type,
         status: WarehouseStatus.ACTIVE,
       });
     }
@@ -57,13 +61,13 @@ class WarehouseService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
-    let ledgerExisted = await warehouseLedgerRepository.findBy({
+    let existedLedger = await inventoryLedgerRepository.findBy({
       warehouse_id: warehouse.id,
       inventory_id: payload.inventory_id,
     });
 
-    if (!ledgerExisted) {
-      ledgerExisted = await warehouseLedgerRepository.create({
+    if (!existedLedger) {
+      existedLedger = await inventoryLedgerRepository.create({
         warehouse_id: warehouse.id,
         inventory_id: payload.inventory_id,
         status: WarehouseStatus.ACTIVE,
@@ -71,21 +75,21 @@ class WarehouseService {
       });
     }
 
-    if (!ledgerExisted) {
+    if (!existedLedger) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
 
-    const newLedgerQuantity = ledgerExisted.quantity + payload.quantity;
+    const newLedgerQuantity = existedLedger.quantity + payload.quantity;
 
     if (newLedgerQuantity < 0) {
       return errorMessageResponse(MESSAGES.LESS_THAN_ZERO);
     }
 
-    ledgerExisted = (await warehouseLedgerRepository.update(ledgerExisted.id, {
+    existedLedger = (await inventoryLedgerRepository.update(existedLedger.id, {
       quantity: newLedgerQuantity,
     })) as any;
 
-    if (!ledgerExisted) {
+    if (!existedLedger) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
@@ -98,7 +102,7 @@ class WarehouseService {
         InventoryActionDescription.ADJUST
       ),
       type:
-        ledgerExisted.quantity > newLedgerQuantity
+        existedLedger.quantity > newLedgerQuantity
           ? InventoryActionType.IN
           : InventoryActionType.OUT,
     });
@@ -106,15 +110,64 @@ class WarehouseService {
     return successResponse({
       data: {
         warehouse,
-        ledger: ledgerExisted,
+        ledger: existedLedger,
         inventory_action: inventoryAction,
       },
     });
   }
 
-  public async get(relation_id: string) {
-    const warehouses = warehouseRepository.getAllBy({ relation_id });
-    return successResponse(warehouses);
+  public async getList(inventoryId: string) {
+    const existedInventory = await inventoryRepository.find(inventoryId);
+
+    if (!existedInventory) {
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
+    }
+
+    const category = await dynamicCategoryRepository.findBy({
+      id: existedInventory.inventory_category_id,
+    });
+
+    if (!category) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+    }
+
+    const brand = brandRepository.find(category.relation_id);
+
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+
+    const inventoryLedgers = await inventoryLedgerRepository.getAllBy({
+      inventory_id: existedInventory.id,
+    });
+
+    const instockWarehouses: WarehouseEntity[] = [];
+    await Promise.all(
+      inventoryLedgers.map(async (el) => {
+        const nonePhysicalWarehouse = await warehouseRepository.findBy({
+          id: el.warehouse_id,
+          type: WarehouseType.IN_STOCK,
+        });
+
+        if (!nonePhysicalWarehouse?.parent_id) {
+          return;
+        }
+
+        const physicalWarehouse = await warehouseRepository.find(
+          nonePhysicalWarehouse.parent_id
+        );
+
+        if (!physicalWarehouse) {
+          return;
+        }
+
+        instockWarehouses.push(nonePhysicalWarehouse);
+      })
+    );
+
+    return successResponse({
+      data: instockWarehouses,
+    });
   }
 
   public async create(user: UserAttributes, payload: WarehouseCreate) {
@@ -161,17 +214,18 @@ class WarehouseService {
 
     await Promise.all(
       [
-        WarehouseNonPhysicalType.IN_STOCK,
-        WarehouseNonPhysicalType.ON_ORDER,
-        WarehouseNonPhysicalType.BACK_ORDER,
-        WarehouseNonPhysicalType.DONE,
+        WarehouseType.IN_STOCK,
+        WarehouseType.ON_ORDER,
+        WarehouseType.BACK_ORDER,
+        WarehouseType.DONE,
       ].map(
         async (type) =>
           await this.createNonPhysicalWarehouse({
             ...payload,
+            type,
             created_by: user.id,
             parent_id: (physicalWarehouseExisted as WarehouseEntity).id,
-            name: `${(physicalWarehouseExisted as WarehouseEntity).id}_${type}`,
+            name: locationExisted.name,
           })
       )
     );

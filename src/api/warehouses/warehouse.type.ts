@@ -9,7 +9,7 @@ export interface WarehouseCreate
 export interface NonPhysicalWarehouseCreate
   extends Pick<
     WarehouseEntity,
-    "location_id" | "relation_id" | "parent_id" | "name"
+    "location_id" | "relation_id" | "parent_id" | "name" | "type"
   > {
   quantity: number;
   inventory_id: string;
