@@ -118,7 +118,6 @@ class InventoryService {
 
   public async getList(query: InventoryCategoryQuery) {
     const inventoryList = await inventoryRepository.getList(query);
-
     if (!inventoryList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
@@ -282,7 +281,12 @@ class InventoryService {
     }
 
     const newInventory = await inventoryRepository.create({
-      ...pick(payload, ["sku", "inventory_category_id"]),
+      ...pick(payload, [
+        "sku",
+        "inventory_category_id",
+        "on_order",
+        "back_order",
+      ]),
       description: payload.description ?? "",
       image: isString(image) ? image : image.smallWebp,
       id: inventoryId,
@@ -386,8 +390,9 @@ class InventoryService {
       ...pick(payload, "description", "sku"),
       image: isString(image) ? image : image.smallWebp,
       updated_at: getTimestamps(),
+      on_order: payload.on_order ?? inventoryExisted.on_order,
+      back_order: payload.back_order ?? inventoryExisted.back_order,
     });
-
     if (!updatedInventory) {
       if (isString(image)) {
         await deleteFile(image);
