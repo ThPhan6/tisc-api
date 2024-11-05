@@ -310,4 +310,5 @@ export const MESSAGES = {
   SOMETHING_WRONG_EXCHANGE_CURRENCY:
     "Something went wrong when exchange currency",
   EXCHANGE_CURRENCY_THE_SAME: "Cannot exchange the same currency",
+  LESS_THAN_ZERO: "Value must be greater than or equal to 0",
 };

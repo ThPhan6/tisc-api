@@ -1,23 +1,17 @@
-export enum WarehouseType {
-  PHYSICAL = 1,
-  NON_PHYSICAL = 2,
-}
+import { WarehouseEntity } from "@/types";
 
-export enum WarehouseStatus {
-  ACTIVE = 1,
-  INACTIVE = 2,
-}
-
-export enum WarehouseNonPhysicalType {
-  IN_STOCK = "IN_STOCK",
-  ON_ORDER = "ON_ORDER",
-  BACK_ORDER = "BACK_ORDER",
-  DONE = "DONE",
-}
-
-export interface WarehouseCreate {
-  id?: string;
+export interface WarehouseCreate
+  extends Pick<WarehouseEntity, "id" | "location_id" | "relation_id"> {
   quantity: number;
-  brand_id: string;
-  location_id: string;
+  inventory_id: string;
+}
+
+export interface NonPhysicalWarehouseCreate
+  extends Pick<
+    WarehouseEntity,
+    "location_id" | "relation_id" | "parent_id" | "name"
+  > {
+  quantity: number;
+  inventory_id: string;
+  created_by: string;
 }
