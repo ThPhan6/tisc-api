@@ -28,11 +28,8 @@ class WarehouseService {
   ) {
     if (
       !payload?.created_by ||
-      !payload?.inventory_id ||
-      !payload?.location_id ||
       !payload?.name ||
       !payload?.parent_id ||
-      !payload?.relation_id ||
       !payload?.type
     ) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
@@ -102,7 +99,7 @@ class WarehouseService {
         InventoryActionDescription.ADJUST
       ),
       type:
-        existedLedger.quantity > newLedgerQuantity
+        newLedgerQuantity > existedLedger.quantity
           ? InventoryActionType.IN
           : InventoryActionType.OUT,
     });
