@@ -388,6 +388,7 @@ class WarehouseService {
             ...payload,
             type,
             created_by: user.id,
+            relation_id: brandId.id,
             parent_id: (physicalWarehouseExisted as WarehouseEntity).id,
             name: (physicalWarehouseExisted as WarehouseEntity).name,
           })
