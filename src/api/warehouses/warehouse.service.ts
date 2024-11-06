@@ -388,7 +388,7 @@ class WarehouseService {
             type,
             created_by: user.id,
             parent_id: (physicalWarehouseExisted as WarehouseEntity).id,
-            name: locationExisted.name,
+            name: (physicalWarehouseExisted as WarehouseEntity).name,
           })
       )
     );
