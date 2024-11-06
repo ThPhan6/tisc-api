@@ -63,4 +63,11 @@ export default class InventoryController {
     const response = await inventoryService.delete(req.params.id);
     return toolkit.response(response).code(response.statusCode);
   }
+
+  public async move(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const { categoryId } = req.payload as any;
+    const response = await inventoryService.move(id, categoryId);
+    return toolkit.response(response).code(response.statusCode);
+  }
 }

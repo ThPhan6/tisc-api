@@ -143,6 +143,22 @@ export default class InventoryRoute implements IRoute {
             },
           },
         },
+        {
+          method: "PATCH",
+          path: ROUTES.INVENTORY.MOVE,
+          options: {
+            handler: controller.move,
+            validate: validate.move,
+            description: "Method that move inventory to another category",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
