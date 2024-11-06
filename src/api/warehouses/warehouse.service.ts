@@ -16,8 +16,10 @@ import {
   WarehouseType,
 } from "@/types";
 import {
+  InStockWarehouseResponse,
   NonPhysicalWarehouseCreate,
   WarehouseCreate,
+  WarehouseListResponse,
   WarehouseUpdate,
 } from "./warehouse.type";
 import { inventoryActionRepository } from "@/repositories/inventory_action.repository";
@@ -25,7 +27,8 @@ import { getInventoryActionDescription } from "@/helpers/common.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
-import { map } from "lodash";
+import { map, pick } from "lodash";
+import { PartnerAttributes } from "@/types/partner.type";
 
 class WarehouseService {
   private async createNonPhysicalWarehouse(
@@ -33,11 +36,8 @@ class WarehouseService {
   ) {
     if (
       !payload?.created_by ||
-      !payload?.inventory_id ||
-      !payload?.location_id ||
       !payload?.name ||
       !payload?.parent_id ||
-      !payload?.relation_id ||
       !payload?.type
     ) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
@@ -101,13 +101,13 @@ class WarehouseService {
     const inventoryAction = await inventoryActionRepository.create({
       warehouse_id: warehouse.id,
       inventory_id: payload.inventory_id,
-      quantity: payload.quantity,
+      quantity: payload.quantity ?? 0,
       created_by: payload.created_by,
       description: getInventoryActionDescription(
         InventoryActionDescription.ADJUST
       ),
       type:
-        existedLedger.quantity > newLedgerQuantity
+        newLedgerQuantity > existedLedger.quantity
           ? InventoryActionType.IN
           : InventoryActionType.OUT,
     });
@@ -146,7 +146,7 @@ class WarehouseService {
       inventory_id: existedInventory.id,
     });
 
-    const instockWarehouses: WarehouseEntity[] = [];
+    const instockWarehouses: InStockWarehouseResponse[] = [];
     await Promise.all(
       inventoryLedgers.map(async (el) => {
         const nonePhysicalWarehouse = await warehouseRepository.findBy({
@@ -166,12 +166,29 @@ class WarehouseService {
           return;
         }
 
-        instockWarehouses.push(nonePhysicalWarehouse);
+        const location = await partnerRepository.find(
+          physicalWarehouse.location_id
+        );
+
+        instockWarehouses.push({
+          ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
+          ...(pick(location, "country_name", "city_name") as Pick<
+            PartnerAttributes,
+            "country_name" | "city_name"
+          >),
+          in_stock: Number(el.quantity),
+        });
       })
     );
 
     return successResponse({
-      data: instockWarehouses,
+      data: {
+        warehouses: instockWarehouses,
+        total_stock: instockWarehouses.reduce(
+          (acc, el) => acc + el.in_stock,
+          0
+        ),
+      } as WarehouseListResponse,
     });
   }
 
@@ -196,22 +213,30 @@ class WarehouseService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
+    const inventoryLedgerExisted = await inventoryLedgerRepository.findBy({
+      inventory_id: payload.inventory_id,
+    });
+
     let physicalWarehouseExisted: WarehouseEntity | undefined;
 
-    if (payload?.id) {
-      physicalWarehouseExisted = await warehouseRepository.find(payload.id);
+    if (inventoryLedgerExisted) {
+      physicalWarehouseExisted = await warehouseRepository.find(
+        inventoryLedgerExisted.warehouse_id
+      );
     }
 
-    if (!physicalWarehouseExisted) {
-      physicalWarehouseExisted = await warehouseRepository.create({
-        name: locationExisted.name,
-        location_id: payload.location_id,
-        parent_id: null,
-        relation_id: payload.relation_id,
-        type: WarehouseType.PHYSICAL,
-        status: WarehouseStatus.ACTIVE,
-      });
+    if (physicalWarehouseExisted) {
+      return errorMessageResponse(MESSAGES.WAREHOUSE.EXISTED);
     }
+
+    physicalWarehouseExisted = await warehouseRepository.create({
+      name: locationExisted.name,
+      location_id: payload.location_id,
+      parent_id: null,
+      relation_id: payload.relation_id,
+      type: WarehouseType.PHYSICAL,
+      status: WarehouseStatus.ACTIVE,
+    });
 
     if (!physicalWarehouseExisted) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -265,7 +290,7 @@ class WarehouseService {
     payload: WarehouseUpdate,
     errorMessage: string[]
   ) {
-    const { changeQuality } = payload;
+    const { changeQuantity } = payload;
 
     const warehouseInStock = await this.getWarehouseInStock(id);
     if (!warehouseInStock) {
@@ -281,10 +306,8 @@ class WarehouseService {
       );
       return;
     }
-    console.log(inventoryLedger);
 
-    const newQuantity = inventoryLedger.quantity + changeQuality;
-    console.log(newQuantity);
+    const newQuantity = inventoryLedger.quantity + changeQuantity;
     if (newQuantity < 0) {
       errorMessage.push(
         `${warehouseInStock.name}: ${MESSAGES.WAREHOUSE.LESS_THAN_ZERO}`
@@ -295,9 +318,19 @@ class WarehouseService {
     await this.createInventoryAction(
       inventoryLedger.warehouse_id,
       inventoryLedger.inventory_id,
-      changeQuality,
+      changeQuantity,
       user.id
     );
+  }
+
+  public async delete(id: string) {
+    const warehouseExisted = await warehouseRepository.find(id);
+
+    if (!warehouseExisted) {
+      return errorMessageResponse(MESSAGES.NOT_FOUND);
+    }
+
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   private async getWarehouseInStock(id: string) {
@@ -325,19 +358,19 @@ class WarehouseService {
   private async createInventoryAction(
     warehouseId: string,
     inventoryId: string,
-    changeQuality: number,
+    changeQuantity: number,
     userId: string
   ) {
     await inventoryActionRepository.create({
       warehouse_id: warehouseId,
       inventory_id: inventoryId,
-      quantity: changeQuality,
+      quantity: changeQuantity,
       created_by: userId,
       description: getInventoryActionDescription(
         InventoryActionDescription.ADJUST
       ),
       type:
-        changeQuality > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
+        changeQuantity > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
     });
   }
 }

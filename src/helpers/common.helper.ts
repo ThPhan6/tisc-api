@@ -292,6 +292,6 @@ export const getInventoryActionDescription = (
     case InventoryActionDescription.TRANSFER_FROM:
       return `Transfer from ${description}`;
     default:
-      return "";
+      return "Adjust";
   }
 };

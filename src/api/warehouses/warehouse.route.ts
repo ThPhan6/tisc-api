@@ -4,6 +4,7 @@ import WarehouseController from "./warehouse.controller";
 import { AUTH_NAMES, ROUTES } from "@/constants";
 import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import validate from "./warehouse.validate";
+import response from "./warehouse.repsonse";
 export default class WarehouseRoute implements IRoute {
   public async register(server: Server): Promise<any> {
     return new Promise((resolve) => {
@@ -22,7 +23,7 @@ export default class WarehouseRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                // 200: response.getOne,
+                200: response.getList,
               },
             },
           },
@@ -50,6 +51,22 @@ export default class WarehouseRoute implements IRoute {
             handler: controller.updateMultiple,
             validate: validate.updateMultiple,
             description: "Method that update multiple warehouse",
+            tags: ["api", "Warehouse"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.WAREHOUSE.DELETE,
+          options: {
+            handler: controller.delete,
+            validate: validate.delete,
+            description: "Method that delete warehouse",
             tags: ["api", "Warehouse"],
             auth: AUTH_NAMES.GENERAL,
             response: {
