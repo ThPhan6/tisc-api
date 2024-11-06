@@ -1,20 +1,28 @@
 import { MESSAGES } from "@/constants";
+import { getInventoryActionDescription } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { brandRepository } from "@/repositories/brand.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { inventoryActionRepository } from "@/repositories/inventory_action.repository";
+import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
 import partnerRepository from "@/repositories/partner.repository";
 import { warehouseRepository } from "@/repositories/warehouse.repository";
 import {
   InventoryActionDescription,
+  InventoryActionEntity,
   InventoryActionType,
   UserAttributes,
   WarehouseEntity,
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
+import { PartnerAttributes } from "@/types/partner.type";
+import { difference, intersection, isEqual, map, pick } from "lodash";
+import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
   InStockWarehouseResponse,
   NonPhysicalWarehouseCreate,
@@ -22,15 +30,15 @@ import {
   WarehouseListResponse,
   WarehouseUpdate,
 } from "./warehouse.type";
-import { inventoryActionRepository } from "@/repositories/inventory_action.repository";
-import { getInventoryActionDescription } from "@/helpers/common.helper";
-import { brandRepository } from "@/repositories/brand.repository";
-import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
-import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
-import { map, pick } from "lodash";
-import { PartnerAttributes } from "@/types/partner.type";
 
 class WarehouseService {
+  private nonPhysicalWarehouseTypes = [
+    WarehouseType.BACK_ORDER,
+    WarehouseType.DONE,
+    WarehouseType.IN_STOCK,
+    WarehouseType.ON_ORDER,
+  ];
+
   private async createNonPhysicalWarehouse(
     payload: NonPhysicalWarehouseCreate
   ) {
@@ -121,6 +129,129 @@ class WarehouseService {
     });
   }
 
+  private async updateNonPhysicalWarehouse(
+    payload: Pick<NonPhysicalWarehouseCreate, "created_by" | "parent_id">
+  ) {
+    const { created_by: userId, parent_id: parentId } = payload;
+
+    if (!userId) {
+      return {
+        ...errorMessageResponse(MESSAGES.USER_NOT_FOUND),
+        data: null,
+      };
+    }
+
+    if (!parentId) {
+      return {
+        ...errorMessageResponse(MESSAGES.USER_NOT_FOUND),
+        data: null,
+      };
+    }
+
+    const allNonPhysicalWarehouses =
+      await warehouseRepository.getAllNonPhysicalWarehousesByParentId(parentId);
+
+    if (!allNonPhysicalWarehouses) {
+      return {
+        ...errorMessageResponse(MESSAGES.NOT_FOUND),
+        data: null,
+      };
+    }
+
+    const data = await Promise.all(
+      allNonPhysicalWarehouses.map(async (el) => {
+        const warehouse = await warehouseRepository.update(el.id, {
+          status: WarehouseStatus.INACTIVE,
+        });
+
+        const ledger =
+          await inventoryLedgerRepository.updateInventoryLedgerByWarehouseId(
+            el.id
+          );
+
+        const inventoryAction = await inventoryActionRepository.create({
+          warehouse_id: el.id,
+          inventory_id: ledger.inventory_id,
+          quantity: ledger.quantity === 0 ? 0 : -ledger.quantity,
+          created_by: userId,
+          description: getInventoryActionDescription(
+            InventoryActionDescription.ADJUST
+          ),
+          type: InventoryActionType.OUT,
+        });
+
+        return {
+          warehouse,
+          ledger,
+          inventoryAction,
+        };
+      })
+    );
+
+    const warehouses = data
+      .map((el) => el.warehouse)
+      .filter(Boolean) as unknown as WarehouseEntity[];
+    const warehouseIds = warehouses.map((el) => el.id);
+
+    let errorMessage = "";
+    const differenceTypes = difference(
+      warehouses.map((el) => el.type),
+      this.nonPhysicalWarehouseTypes
+    );
+
+    if (differenceTypes.length) {
+      errorMessage = `Cannot update ${warehouses
+        .map((el) => el.name)
+        .join(", ")} warehouse. `;
+    }
+
+    const ledgers = data.map((el) => el.ledger);
+    const differenceLedgers = difference(
+      warehouseIds,
+      ledgers.map((el) => el.warehouse_id).filter(Boolean)
+    );
+
+    if (differenceLedgers.length) {
+      errorMessage =
+        errorMessage +
+        `Cannot update ${warehouses
+          .filter((el) => ledgers.map((le) => le.warehouse_id).includes(el.id))
+          .map((el) => el.name)
+          .join(", ")} ledger. `;
+    }
+
+    const inventoryActions = data
+      .map((el) => el.inventoryAction)
+      .filter(Boolean) as unknown as InventoryActionEntity[];
+    const differenceInventoryActions = difference(
+      warehouseIds,
+      inventoryActions.map((el) => el.warehouse_id)
+    );
+
+    if (differenceInventoryActions.length) {
+      errorMessage =
+        errorMessage +
+        `Cannot update ${warehouses
+          .filter((el) =>
+            inventoryActions.map((le) => le.warehouse_id).includes(el.id)
+          )
+          .map((el) => el.name)
+          .join(", ")} inventory action`;
+    }
+
+    if (errorMessage) {
+      return {
+        ...errorMessageResponse(errorMessage),
+        data: null,
+      };
+    }
+
+    return {
+      ...successMessageResponse(MESSAGES.SUCCESS),
+      data,
+    };
+  }
+
   public async getList(inventoryId: string) {
     const existedInventory = await inventoryRepository.find(inventoryId);
 
@@ -152,6 +283,7 @@ class WarehouseService {
         const nonePhysicalWarehouse = await warehouseRepository.findBy({
           id: el.warehouse_id,
           type: WarehouseType.IN_STOCK,
+          status: WarehouseStatus.ACTIVE,
         });
 
         if (!nonePhysicalWarehouse?.parent_id) {
@@ -215,14 +347,16 @@ class WarehouseService {
 
     const inventoryLedgerExisted = await inventoryLedgerRepository.findBy({
       inventory_id: payload.inventory_id,
+      status: WarehouseStatus.ACTIVE,
     });
 
     let physicalWarehouseExisted: WarehouseEntity | undefined;
 
     if (inventoryLedgerExisted) {
-      physicalWarehouseExisted = await warehouseRepository.find(
-        inventoryLedgerExisted.warehouse_id
-      );
+      physicalWarehouseExisted = await warehouseRepository.findBy({
+        id: inventoryLedgerExisted.warehouse_id,
+        status: WarehouseStatus.ACTIVE,
+      });
     }
 
     if (physicalWarehouseExisted) {
@@ -255,7 +389,7 @@ class WarehouseService {
             type,
             created_by: user.id,
             parent_id: (physicalWarehouseExisted as WarehouseEntity).id,
-            name: locationExisted.name,
+            name: (physicalWarehouseExisted as WarehouseEntity).name,
           })
       )
     );
@@ -312,6 +446,7 @@ class WarehouseService {
       errorMessage.push(
         `${warehouseInStock.name}: ${MESSAGES.WAREHOUSE.LESS_THAN_ZERO}`
       );
+      return;
     }
 
     await this.updateInventoryLedger(inventoryLedger.id, newQuantity);
@@ -323,14 +458,44 @@ class WarehouseService {
     );
   }
 
-  public async delete(id: string) {
-    const warehouseExisted = await warehouseRepository.find(id);
+  public async delete(user: UserAttributes, id: string) {
+    const instockWarehouseExisted = await warehouseRepository.find(id);
 
-    if (!warehouseExisted) {
+    if (!instockWarehouseExisted) {
       return errorMessageResponse(MESSAGES.NOT_FOUND);
     }
 
-    return successMessageResponse(MESSAGES.SUCCESS);
+    if (
+      instockWarehouseExisted.type !== WarehouseType.IN_STOCK ||
+      !instockWarehouseExisted?.parent_id
+    ) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
+    if (instockWarehouseExisted.status !== WarehouseStatus.ACTIVE) {
+      return errorMessageResponse(MESSAGES.WAREHOUSE.NOT_AVAILABLE);
+    }
+
+    const physicalWarehouseExisted = await warehouseRepository.update(
+      instockWarehouseExisted.parent_id,
+      {
+        status: WarehouseStatus.INACTIVE,
+      }
+    );
+
+    if (!physicalWarehouseExisted) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+
+    const nonPhysicalWarehouses = await this.updateNonPhysicalWarehouse({
+      created_by: user.id,
+      parent_id: physicalWarehouseExisted.id,
+    });
+
+    return {
+      message: nonPhysicalWarehouses.message,
+      statusCode: nonPhysicalWarehouses.statusCode,
+    };
   }
 
   private async getWarehouseInStock(id: string) {

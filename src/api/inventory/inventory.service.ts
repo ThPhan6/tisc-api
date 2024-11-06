@@ -16,7 +16,7 @@ import {
 } from "@/services/image.service";
 import { IExchangeCurrency } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isString, map, omit, pick } from "lodash";
+import { isEmpty, isNil, isNumber, isString, map, omit, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
@@ -26,6 +26,8 @@ import {
   InventoryCreate,
   InventoryListRequest,
 } from "./inventory.type";
+import { warehouseService } from "../warehouses/warehouse.service";
+import { WarehouseListResponse } from "../warehouses/warehouse.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -122,9 +124,9 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
-    return successResponse({
-      data: {
-        inventories: inventoryList.data.map((el) => ({
+    const inventories = await Promise.all(
+      inventoryList.data.map(async (el) => {
+        const newEl = {
           ...omit(el, ["image"]),
           image: el?.image ?? "",
           price: isEmpty(el?.price)
@@ -138,7 +140,37 @@ class InventoryService {
                   ? el.price.volume_prices
                   : null,
               },
-        })),
+        };
+
+        const warehouses = (await warehouseService.getList(
+          newEl.id
+        )) as unknown as {
+          data: WarehouseListResponse;
+        };
+
+        if (isEmpty(warehouses?.data)) {
+          return {
+            ...newEl,
+            total_stock: null,
+            out_stock: null,
+            warehouses: [],
+          };
+        }
+
+        return {
+          ...newEl,
+          total_stock: warehouses.data.total_stock,
+          out_stock: !isNumber(newEl.on_order)
+            ? null
+            : warehouses.data.total_stock - newEl.on_order,
+          warehouses: warehouses.data.warehouses,
+        };
+      })
+    );
+
+    return successResponse({
+      data: {
+        inventories,
         pagination: inventoryList.pagination,
       },
     });

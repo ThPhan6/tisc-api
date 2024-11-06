@@ -30,7 +30,8 @@ export default class WarehouseController {
   }
 
   public async delete(req: Request, toolkit: ResponseToolkit) {
-    const response = await warehouseService.delete(req.params.id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await warehouseService.delete(user, req.params.id);
     return toolkit.response(response).code(response.statusCode);
   }
 }

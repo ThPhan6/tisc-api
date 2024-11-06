@@ -317,6 +317,7 @@ export const MESSAGES = {
     IN_STOCK_NOT_FOUND: "Warehouse In Stock not found",
     EXISTED: "Warehouse existed",
     LESS_THAN_ZERO: "In Stock must be greater than or equal to 0",
+    NOT_AVAILABLE: "Warehouse not available.",
   },
   INVENTORY: {
     NOT_FOUND_LEDGER: "Inventory ledger not found",
