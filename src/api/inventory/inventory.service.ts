@@ -125,32 +125,32 @@ class InventoryService {
     }
 
     const inventories = await Promise.all(
-      inventoryList.data.map(async (el) => {
-        const newEl = {
-          ...omit(el, ["image"]),
-          image: el?.image ?? "",
-          price: isEmpty(el?.price)
+      inventoryList.data.map(async (inventory) => {
+        const newInventory = {
+          ...omit(inventory, ["image"]),
+          image: inventory?.image ?? "",
+          price: isEmpty(inventory?.price)
             ? null
             : {
-                ...el.price,
-                exchange_histories: el.price?.exchange_histories?.length
-                  ? el.price.exchange_histories
+                ...inventory.price,
+                exchange_histories: inventory.price?.exchange_histories?.length
+                  ? inventory.price.exchange_histories
                   : null,
-                volume_prices: el.price?.volume_prices?.length
-                  ? el.price.volume_prices
+                volume_prices: inventory.price?.volume_prices?.length
+                  ? inventory.price.volume_prices
                   : null,
               },
         };
 
         const warehouses = (await warehouseService.getList(
-          newEl.id
+          newInventory.id
         )) as unknown as {
           data: WarehouseListResponse;
         };
 
         if (isEmpty(warehouses?.data)) {
           return {
-            ...newEl,
+            ...newInventory,
             total_stock: null,
             out_stock: null,
             warehouses: [],
@@ -158,11 +158,11 @@ class InventoryService {
         }
 
         return {
-          ...newEl,
+          ...newInventory,
           total_stock: warehouses.data.total_stock,
-          out_stock: !isNumber(newEl.on_order)
+          out_stock: !isNumber(newInventory.on_order)
             ? null
-            : warehouses.data.total_stock - newEl.on_order,
+            : warehouses.data.total_stock - newInventory.on_order,
           warehouses: warehouses.data.warehouses,
         };
       })
@@ -441,6 +441,8 @@ class InventoryService {
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
+
+    /// create warehouse
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
