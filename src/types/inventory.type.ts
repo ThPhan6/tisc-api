@@ -7,4 +7,6 @@ export interface InventoryEntity {
   created_at: string;
   updated_at?: string;
   deleted_at?: string;
+  on_order?: number;
+  back_order?: number;
 }
