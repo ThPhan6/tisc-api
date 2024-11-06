@@ -313,5 +313,6 @@ export const MESSAGES = {
   LESS_THAN_ZERO: "Value must be greater than or equal to 0",
   WAREHOUSE: {
     EXISTED: "Warehouse existed.",
+    NOT_AVAILABLE: "Warehouse not available.",
   },
 };
