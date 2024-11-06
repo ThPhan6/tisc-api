@@ -442,6 +442,29 @@ class InventoryService {
       message: MESSAGES.SUCCESS,
     });
   }
+
+  public async move(inventoryId: string, categoryId: string) {
+    const inventory = await inventoryRepository.find(inventoryId);
+    if (!inventory)
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
+
+    const category = await dynamicCategoryRepository.find(categoryId);
+    if (!category) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+
+    const lastLevel = await dynamicCategoryRepository.getMaxCategoryLevel();
+
+    if (category.level !== +lastLevel)
+      return errorMessageResponse("Only the category is acceptable");
+
+    const updatedInventory = await inventoryRepository.update(inventoryId, {
+      inventory_category_id: categoryId,
+    });
+
+    if (!updatedInventory)
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+
+    return successResponse({ message: MESSAGES.SUCCESS });
+  }
 }
 
 export const inventoryService = new InventoryService();

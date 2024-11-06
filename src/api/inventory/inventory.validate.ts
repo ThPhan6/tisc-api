@@ -159,4 +159,12 @@ export default {
       .unknown(false)
       .min(1),
   },
+  move: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    payload: {
+      categoryId: Joi.string().required(),
+    },
+  },
 };
