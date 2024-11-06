@@ -48,6 +48,12 @@ const InventoryCreateRequest = Joi.object({
     "any.required": "Unit price is required",
     "any.min": "Unit price is must be greater than 0",
   }),
+  on_order: Joi.number().min(1).strict().messages({
+    "any.min": "On order is must be greater than 0",
+  }),
+  back_order: Joi.number().min(1).strict().messages({
+    "any.min": "Backorder is must be greater than 0",
+  }),
   unit_type: requireStringValidation("Unit type").not("").not(null),
   volume_prices: volumePricesSchema,
 })
@@ -64,6 +70,12 @@ const InventoryUpdateRequest = Joi.object({
   sku: Joi.string().allow(null).trim(),
   description: Joi.string().allow(null).allow("").trim(),
   unit_price: Joi.number().min(1).strict().not(null),
+  on_order: Joi.number().min(1).strict().messages({
+    "any.min": "On order is must be greater than 0",
+  }),
+  back_order: Joi.number().min(1).strict().messages({
+    "any.min": "Backorder is must be greater than 0",
+  }),
   unit_type: Joi.string().not("").not(null),
   volume_prices: volumePricesSchema,
 })
@@ -115,6 +127,12 @@ export default {
         Joi.string().required(),
         Joi.object({
           unit_price: Joi.number().min(1).strict().required(),
+          on_order: Joi.number().min(1).strict().messages({
+            "any.min": "On order is must be greater than 0",
+          }),
+          back_order: Joi.number().min(1).strict().messages({
+            "any.min": "Backorder is must be greater than 0",
+          }),
           unit_type: Joi.string().required(),
           volume_prices: volumePricesSchema,
         }).required()
@@ -140,5 +158,13 @@ export default {
     })
       .unknown(false)
       .min(1),
+  },
+  move: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    payload: {
+      categoryId: Joi.string().required(),
+    },
   },
 };

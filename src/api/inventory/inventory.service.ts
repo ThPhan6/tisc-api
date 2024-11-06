@@ -120,7 +120,6 @@ class InventoryService {
 
   public async getList(query: InventoryCategoryQuery) {
     const inventoryList = await inventoryRepository.getList(query);
-
     if (!inventoryList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
@@ -314,7 +313,12 @@ class InventoryService {
     }
 
     const newInventory = await inventoryRepository.create({
-      ...pick(payload, ["sku", "inventory_category_id"]),
+      ...pick(payload, [
+        "sku",
+        "inventory_category_id",
+        "on_order",
+        "back_order",
+      ]),
       description: payload.description ?? "",
       image: isString(image) ? image : image.smallWebp,
       id: inventoryId,
@@ -418,8 +422,9 @@ class InventoryService {
       ...pick(payload, "description", "sku"),
       image: isString(image) ? image : image.smallWebp,
       updated_at: getTimestamps(),
+      on_order: payload.on_order ?? inventoryExisted.on_order,
+      back_order: payload.back_order ?? inventoryExisted.back_order,
     });
-
     if (!updatedInventory) {
       if (isString(image)) {
         await deleteFile(image);
@@ -468,6 +473,29 @@ class InventoryService {
     return successResponse({
       message: MESSAGES.SUCCESS,
     });
+  }
+
+  public async move(inventoryId: string, categoryId: string) {
+    const inventory = await inventoryRepository.find(inventoryId);
+    if (!inventory)
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
+
+    const category = await dynamicCategoryRepository.find(categoryId);
+    if (!category) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+
+    const lastLevel = await dynamicCategoryRepository.getMaxCategoryLevel();
+
+    if (category.level !== +lastLevel)
+      return errorMessageResponse("Only the category is acceptable");
+
+    const updatedInventory = await inventoryRepository.update(inventoryId, {
+      inventory_category_id: categoryId,
+    });
+
+    if (!updatedInventory)
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+
+    return successResponse({ message: MESSAGES.SUCCESS });
   }
 }
 

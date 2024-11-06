@@ -15,6 +15,8 @@ const InventoryResponse = {
   inventory_category_id: Joi.string().required(),
   sku: Joi.string().required(),
   image: Joi.string().allow(null).allow(""),
+  back_order: Joi.number(),
+  on_order: Joi.number(),
   description: Joi.string().allow(null).allow(""),
   total_stock: Joi.number(),
   out_stock: Joi.number().allow(null),

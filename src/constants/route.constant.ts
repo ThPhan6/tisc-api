@@ -393,6 +393,7 @@ export const ROUTES = {
     DELETE: "/api/inventory/delete/{id}",
     SUMMARY: "/api/inventory/summary/brand/{id}",
     EXCHANGE: "/api/inventory/exchange/brand/{id}",
+    MOVE: "/api/inventory/move/{id}",
   },
   WAREHOUSE: {
     GET_ONE: "/api/warehouse/get-one/{id}",
