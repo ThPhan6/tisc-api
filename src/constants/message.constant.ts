@@ -311,4 +311,15 @@ export const MESSAGES = {
     "Something went wrong when exchange currency",
   EXCHANGE_CURRENCY_THE_SAME: "Cannot exchange the same currency",
   LESS_THAN_ZERO: "Value must be greater than or equal to 0",
+
+  WAREHOUSE: {
+    NOT_FOUND: "Warehouse not found",
+    IN_STOCK_NOT_FOUND: "Warehouse In Stock not found",
+    EXISTED: "Warehouse existed",
+    LESS_THAN_ZERO: "In Stock must be greater than or equal to 0",
+  },
+  INVENTORY: {
+    NOT_FOUND_LEDGER: "Inventory ledger not found",
+    NOT_FOUND_ACTION: "Inventory action not found",
+  },
 };

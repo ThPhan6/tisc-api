@@ -10,6 +10,19 @@ const WarehouseRequest = Joi.object({
   .unknown(false)
   .min(1);
 
+const WarehouseUpdateMultiple = {
+  payload: Joi.object()
+    .required()
+    .pattern(
+      Joi.string().required(),
+      Joi.object({
+        changeQuality: Joi.number().strict().required(),
+      }).required()
+    )
+    .unknown(false)
+    .min(1),
+};
+
 export default {
   getList: {
     params: {
@@ -20,4 +33,5 @@ export default {
   create: {
     payload: WarehouseRequest,
   },
+  updateMultiple: WarehouseUpdateMultiple,
 };

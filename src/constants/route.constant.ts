@@ -400,5 +400,6 @@ export const ROUTES = {
     CREATE: "/api/warehouse/create",
     UPDATE: "/api/warehouse/update/{id}",
     DELETE: "/api/warehouse/delete/{id}",
+    UPDATE_MULTIPLE: "/api/warehouse/update-multiple",
   },
 };

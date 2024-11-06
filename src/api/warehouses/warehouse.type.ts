@@ -15,3 +15,7 @@ export interface NonPhysicalWarehouseCreate
   inventory_id: string;
   created_by: string;
 }
+
+export interface WarehouseUpdate {
+  changeQuality: number;
+}

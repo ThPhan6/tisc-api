@@ -15,12 +15,17 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { NonPhysicalWarehouseCreate, WarehouseCreate } from "./warehouse.type";
+import {
+  NonPhysicalWarehouseCreate,
+  WarehouseCreate,
+  WarehouseUpdate,
+} from "./warehouse.type";
 import { inventoryActionRepository } from "@/repositories/inventory_action.repository";
 import { getInventoryActionDescription } from "@/helpers/common.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
+import { map } from "lodash";
 
 class WarehouseService {
   private async createNonPhysicalWarehouse(
@@ -231,6 +236,114 @@ class WarehouseService {
     );
 
     return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async updateMultiple(
+    user: UserAttributes,
+    payload: Record<string, WarehouseUpdate>
+  ) {
+    const errorMessage: string[] = [];
+    await Promise.all(
+      map(
+        payload,
+        async (value, key) => await this.update(user, key, value, errorMessage)
+      )
+    );
+
+    if (errorMessage.length > 0) {
+      return errorMessageResponse(errorMessage.join(", "));
+    }
+
+    return successResponse({
+      message: MESSAGES.SUCCESS,
+    });
+  }
+
+  public async update(
+    user: UserAttributes,
+    id: string,
+    payload: WarehouseUpdate,
+    errorMessage: string[]
+  ) {
+    const { changeQuality } = payload;
+    const warehouseExisted = await warehouseRepository.find(id);
+    if (!warehouseExisted) {
+      errorMessage.push(MESSAGES.WAREHOUSE.NOT_FOUND);
+      return;
+    }
+
+    const warehouseInStock = await this.getWarehouseInStock(id);
+    if (!warehouseInStock) {
+      errorMessage.push(
+        `${warehouseExisted.name}: ${MESSAGES.WAREHOUSE.IN_STOCK_NOT_FOUND}`
+      );
+      return;
+    }
+
+    const inventoryLedger = await this.getInventoryLedger(warehouseInStock.id);
+
+    if (!inventoryLedger) {
+      errorMessage.push(
+        `${warehouseExisted.name}: ${MESSAGES.INVENTORY.NOT_FOUND_LEDGER}`
+      );
+      return;
+    }
+
+    const newQuantity = inventoryLedger.quantity + changeQuality;
+    if (newQuantity < 0) {
+      errorMessage.push(
+        `${warehouseExisted.name}: ${MESSAGES.WAREHOUSE.LESS_THAN_ZERO}`
+      );
+    }
+
+    await this.updateInventoryLedger(inventoryLedger.id, newQuantity);
+    await this.createInventoryAction(
+      inventoryLedger.warehouse_id,
+      inventoryLedger.inventory_id,
+      changeQuality,
+      user.id
+    );
+  }
+
+  private async getWarehouseInStock(parentId: string) {
+    return await warehouseRepository.findBy({
+      parent_id: parentId,
+      type: WarehouseType.IN_STOCK,
+    });
+  }
+
+  private async getInventoryLedger(warehouseId: string) {
+    return await inventoryLedgerRepository.findBy({
+      warehouse_id: warehouseId,
+    });
+  }
+
+  private async updateInventoryLedger(
+    inventoryLedgerId: string,
+    newQuantity: number
+  ) {
+    await inventoryLedgerRepository.update(inventoryLedgerId, {
+      quantity: newQuantity,
+    });
+  }
+
+  private async createInventoryAction(
+    warehouseId: string,
+    inventoryId: string,
+    changeQuality: number,
+    userId: string
+  ) {
+    await inventoryActionRepository.create({
+      warehouse_id: warehouseId,
+      inventory_id: inventoryId,
+      quantity: changeQuality,
+      created_by: userId,
+      description: getInventoryActionDescription(
+        InventoryActionDescription.ADJUST
+      ),
+      type:
+        changeQuality > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
+    });
   }
 }
 
