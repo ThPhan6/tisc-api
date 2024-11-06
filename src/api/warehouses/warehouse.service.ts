@@ -266,17 +266,10 @@ class WarehouseService {
     errorMessage: string[]
   ) {
     const { changeQuality } = payload;
-    const warehouseExisted = await warehouseRepository.find(id);
-    if (!warehouseExisted) {
-      errorMessage.push(MESSAGES.WAREHOUSE.NOT_FOUND);
-      return;
-    }
 
     const warehouseInStock = await this.getWarehouseInStock(id);
     if (!warehouseInStock) {
-      errorMessage.push(
-        `${warehouseExisted.name}: ${MESSAGES.WAREHOUSE.IN_STOCK_NOT_FOUND}`
-      );
+      errorMessage.push(`${id}: ${MESSAGES.WAREHOUSE.IN_STOCK_NOT_FOUND}`);
       return;
     }
 
@@ -284,15 +277,17 @@ class WarehouseService {
 
     if (!inventoryLedger) {
       errorMessage.push(
-        `${warehouseExisted.name}: ${MESSAGES.INVENTORY.NOT_FOUND_LEDGER}`
+        `${warehouseInStock.name}: ${MESSAGES.INVENTORY.NOT_FOUND_LEDGER}`
       );
       return;
     }
+    console.log(inventoryLedger);
 
     const newQuantity = inventoryLedger.quantity + changeQuality;
+    console.log(newQuantity);
     if (newQuantity < 0) {
       errorMessage.push(
-        `${warehouseExisted.name}: ${MESSAGES.WAREHOUSE.LESS_THAN_ZERO}`
+        `${warehouseInStock.name}: ${MESSAGES.WAREHOUSE.LESS_THAN_ZERO}`
       );
     }
 
@@ -305,9 +300,9 @@ class WarehouseService {
     );
   }
 
-  private async getWarehouseInStock(parentId: string) {
+  private async getWarehouseInStock(id: string) {
     return await warehouseRepository.findBy({
-      parent_id: parentId,
+      id,
       type: WarehouseType.IN_STOCK,
     });
   }
