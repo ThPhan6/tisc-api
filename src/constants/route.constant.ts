@@ -395,4 +395,11 @@ export const ROUTES = {
     EXCHANGE: "/api/inventory/exchange/brand/{id}",
     MOVE: "/api/inventory/move/{id}",
   },
+  WAREHOUSE: {
+    GET_ONE: "/api/warehouse/get-one/{id}",
+    GET_LIST: "/api/warehouse/get-list",
+    CREATE: "/api/warehouse/create",
+    UPDATE: "/api/warehouse/update/{id}",
+    DELETE: "/api/warehouse/delete/{id}",
+  },
 };
