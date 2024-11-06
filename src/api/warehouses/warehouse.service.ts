@@ -15,12 +15,19 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { NonPhysicalWarehouseCreate, WarehouseCreate } from "./warehouse.type";
+import {
+  NonPhysicalWarehouseCreate,
+  WarehouseCreate,
+  InStockWarehouseResponse,
+  WarehouseListResponse,
+} from "./warehouse.type";
 import { inventoryActionRepository } from "@/repositories/inventory_action.repository";
 import { getInventoryActionDescription } from "@/helpers/common.helper";
 import { brandRepository } from "@/repositories/brand.repository";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
+import { pick } from "lodash";
+import { PartnerAttributes } from "@/types/partner.type";
 
 class WarehouseService {
   private async createNonPhysicalWarehouse(
@@ -93,7 +100,7 @@ class WarehouseService {
     const inventoryAction = await inventoryActionRepository.create({
       warehouse_id: warehouse.id,
       inventory_id: payload.inventory_id,
-      quantity: payload.quantity,
+      quantity: payload.quantity ?? 0,
       created_by: payload.created_by,
       description: getInventoryActionDescription(
         InventoryActionDescription.ADJUST
@@ -138,7 +145,7 @@ class WarehouseService {
       inventory_id: existedInventory.id,
     });
 
-    const instockWarehouses: WarehouseEntity[] = [];
+    const instockWarehouses: InStockWarehouseResponse[] = [];
     await Promise.all(
       inventoryLedgers.map(async (el) => {
         const nonePhysicalWarehouse = await warehouseRepository.findBy({
@@ -158,12 +165,29 @@ class WarehouseService {
           return;
         }
 
-        instockWarehouses.push(nonePhysicalWarehouse);
+        const location = await partnerRepository.find(
+          physicalWarehouse.location_id
+        );
+
+        instockWarehouses.push({
+          ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
+          ...(pick(location, "country_name", "city_name") as Pick<
+            PartnerAttributes,
+            "country_name" | "city_name"
+          >),
+          in_stock: Number(el.quantity),
+        });
       })
     );
 
     return successResponse({
-      data: instockWarehouses,
+      data: {
+        warehouses: instockWarehouses,
+        total_stock: instockWarehouses.reduce(
+          (acc, el) => acc + el.in_stock,
+          0
+        ),
+      } as WarehouseListResponse,
     });
   }
 
@@ -188,22 +212,30 @@ class WarehouseService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
+    const inventoryLedgerExisted = await inventoryLedgerRepository.findBy({
+      inventory_id: payload.inventory_id,
+    });
+
     let physicalWarehouseExisted: WarehouseEntity | undefined;
 
-    if (payload?.id) {
-      physicalWarehouseExisted = await warehouseRepository.find(payload.id);
+    if (inventoryLedgerExisted) {
+      physicalWarehouseExisted = await warehouseRepository.find(
+        inventoryLedgerExisted.warehouse_id
+      );
     }
 
-    if (!physicalWarehouseExisted) {
-      physicalWarehouseExisted = await warehouseRepository.create({
-        name: locationExisted.name,
-        location_id: payload.location_id,
-        parent_id: null,
-        relation_id: payload.relation_id,
-        type: WarehouseType.PHYSICAL,
-        status: WarehouseStatus.ACTIVE,
-      });
+    if (physicalWarehouseExisted) {
+      return errorMessageResponse(MESSAGES.WAREHOUSE.EXISTED);
     }
+
+    physicalWarehouseExisted = await warehouseRepository.create({
+      name: locationExisted.name,
+      location_id: payload.location_id,
+      parent_id: null,
+      relation_id: payload.relation_id,
+      type: WarehouseType.PHYSICAL,
+      status: WarehouseStatus.ACTIVE,
+    });
 
     if (!physicalWarehouseExisted) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
@@ -226,6 +258,16 @@ class WarehouseService {
           })
       )
     );
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async delete(id: string) {
+    const warehouseExisted = await warehouseRepository.find(id);
+
+    if (!warehouseExisted) {
+      return errorMessageResponse(MESSAGES.NOT_FOUND);
+    }
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }

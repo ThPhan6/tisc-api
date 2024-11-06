@@ -18,4 +18,9 @@ export default class WarehouseController {
 
     return toolkit.response(response).code(response.statusCode);
   }
+
+  public async delete(req: Request, toolkit: ResponseToolkit) {
+    const response = await warehouseService.delete(req.params.id);
+    return toolkit.response(response).code(response.statusCode);
+  }
 }

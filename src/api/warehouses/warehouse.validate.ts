@@ -14,6 +14,11 @@ export default {
       id: Joi.string().required(),
     },
   },
+  delete: {
+    params: {
+      id: Joi.string().required(),
+    },
+  },
 
   create: {
     payload: WarehouseRequest,

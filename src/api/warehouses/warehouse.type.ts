@@ -15,3 +15,15 @@ export interface NonPhysicalWarehouseCreate
   inventory_id: string;
   created_by: string;
 }
+
+export interface InStockWarehouseResponse
+  extends Pick<WarehouseEntity, "id" | "created_at" | "name"> {
+  country_name: string;
+  city_name: string;
+  in_stock: number;
+}
+
+export interface WarehouseListResponse {
+  warehouses: InStockWarehouseResponse[];
+  total_stock: number;
+}
