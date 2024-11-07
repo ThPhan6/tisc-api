@@ -78,6 +78,19 @@ const InventoryUpdateRequest = Joi.object({
   }),
   unit_type: Joi.string().not("").not(null),
   volume_prices: volumePricesSchema,
+  warehouses: Joi.array()
+    .allow(null)
+    .items(
+      Joi.object({
+        location_id: requireStringValidation("Location id"),
+        quantity: Joi.number().strict().required().messages({
+          "any.required": "Quantity is required",
+        }),
+      })
+        .required()
+        .unknown(false)
+        .min(1)
+    ),
 })
   .min(1)
   .unknown(false)

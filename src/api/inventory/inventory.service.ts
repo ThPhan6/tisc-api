@@ -9,25 +9,44 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { warehouseRepository } from "@/repositories/warehouse.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import { IExchangeCurrency } from "@/types";
+import {
+  IExchangeCurrency,
+  UserAttributes,
+  WarehouseStatus,
+  WarehouseType,
+} from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, isString, map, omit, pick } from "lodash";
+import {
+  head,
+  isEmpty,
+  isNil,
+  isNumber,
+  isString,
+  map,
+  omit,
+  pick,
+  uniqBy,
+} from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
+import { warehouseService } from "../warehouses/warehouse.service";
+import {
+  WarehouseCreate,
+  WarehouseListResponse,
+} from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryListRequest,
 } from "./inventory.type";
-import { warehouseService } from "../warehouses/warehouse.service";
-import { WarehouseListResponse } from "../warehouses/warehouse.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -143,7 +162,8 @@ class InventoryService {
         };
 
         const warehouses = (await warehouseService.getList(
-          newInventory.id
+          newInventory.id,
+          WarehouseStatus.ACTIVE
         )) as unknown as {
           data: WarehouseListResponse;
         };
@@ -344,7 +364,11 @@ class InventoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async update(id: string, payload: Partial<InventoryCreate>) {
+  public async update(
+    user: UserAttributes,
+    id: string,
+    payload: Partial<InventoryCreate>
+  ) {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {
@@ -442,16 +466,115 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    /// create warehouse
+    /// warehouses
+    if (payload?.warehouses) {
+      const uniqueLocationIds = uniqBy(payload.warehouses, "location_id");
+      const count = uniqueLocationIds.length;
+
+      if (count !== payload.warehouses.length) {
+        return errorMessageResponse("Duplicate location");
+      }
+
+      const instockWarehouses = (await warehouseService.getList(
+        id
+      )) as unknown as {
+        data: WarehouseListResponse;
+      };
+      const instockWarehousesLocationIds =
+        instockWarehouses.data.warehouses.map((el) => el.location_id);
+
+      const instockWarehouseActive = (await warehouseService.getList(
+        id,
+        WarehouseStatus.ACTIVE
+      )) as unknown as {
+        data: WarehouseListResponse;
+      };
+      const instockWarehouseActiveLocationIds =
+        instockWarehouseActive.data.warehouses.map((el) => el.location_id);
+
+      // find new warehouses
+      const newWarehouses = payload.warehouses.filter(
+        (el) => !instockWarehousesLocationIds.includes(el.location_id)
+      );
+
+      if (newWarehouses.some((el) => el.quantity < 0)) {
+        return errorMessageResponse(MESSAGES.LESS_THAN_ZERO);
+      }
+
+      const newWarehouseResponse = await Promise.all(
+        newWarehouses.map(async (ws) => {
+          console.log("Create warehouse", ws.location_id);
+
+          return await warehouseService.create(user, {
+            inventory_id: id,
+            location_id: ws.location_id,
+            quantity: ws.quantity,
+          });
+        })
+      );
+
+      const payloadWarehouseLocationIds = payload.warehouses.map(
+        (el) => el.location_id
+      );
+
+      const existedWarehouses = [
+        /// instock warehouse active in payload
+        ...payload.warehouses.filter((el) =>
+          instockWarehousesLocationIds.includes(el.location_id)
+        ),
+        /// instock warehouse active not in payload
+        ...instockWarehouseActive.data.warehouses
+          .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
+          .map((el) => ({
+            location_id: el.location_id,
+            quantity: el.in_stock,
+          })),
+      ];
+
+      console.log("existedWarehouses", existedWarehouses);
+
+      const existedWarehousesResponse = await Promise.all(
+        existedWarehouses.map(async (ws) => {
+          if (instockWarehouseActiveLocationIds.includes(ws.location_id)) {
+            console.log("Update warehouse", ws.location_id);
+            /// update instock warehouses active
+            return await warehouseService.create(user, {
+              inventory_id: id,
+              location_id: ws.location_id,
+              quantity: ws.quantity,
+            });
+          }
+
+          console.log("Delete warehouse", ws.location_id);
+
+          return await warehouseService.delete(user, ws.location_id);
+        })
+      );
+
+      const messageError = [
+        ...newWarehouseResponse,
+        ...existedWarehousesResponse,
+      ]
+        .filter((el) => el.statusCode !== 200)
+        .map((el) => el.message);
+
+      if (messageError.length) {
+        return {
+          message: messageError.join(", "),
+          statusCode: 400,
+        };
+      }
+    }
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async updateInventories(
+    user: UserAttributes,
     payload: Record<string, InventoryListRequest>
   ) {
     await Promise.all(
-      map(payload, async (value, key) => await this.update(key, value))
+      map(payload, async (value, key) => await this.update(user, key, value))
     );
 
     return successResponse({

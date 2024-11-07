@@ -12,14 +12,15 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
   }
 
   public async updateInventoryLedgerByWarehouseId(
-    warehouseId: string
+    warehouseId: string,
+    payload: Partial<InventoryLedgerEntity>
   ): Promise<InventoryLedgerEntity> {
     const ledgers = await this.model
       .where("deleted_at", "==", null)
       .where("warehouse_id", "==", warehouseId)
       .update({
-        status: WarehouseStatus.INACTIVE,
-        quantity: 0,
+        ...payload,
+        quantity: payload?.quantity || 0,
       });
 
     return head(ledgers);

@@ -1,11 +1,14 @@
+import { UserAttributes, WarehouseStatus } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { warehouseService } from "./warehouse.service";
 import { WarehouseCreate } from "./warehouse.type";
-import { UserAttributes } from "@/types";
 
 export default class WarehouseController {
   public async getList(req: Request, toolkit: ResponseToolkit) {
-    const response = await warehouseService.getList(req.params.id);
+    const response = await warehouseService.getList(
+      req.params.id,
+      WarehouseStatus.ACTIVE
+    );
     return toolkit.response(response).code(response.statusCode);
   }
 
