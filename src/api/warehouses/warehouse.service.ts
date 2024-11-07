@@ -454,6 +454,10 @@ class WarehouseService {
   ) {
     const { changeQuantity } = payload;
 
+    if (changeQuantity === 0) {
+      return;
+    }
+
     const warehouseInStock = await this.getWarehouseInStock(id);
     if (!warehouseInStock) {
       errorMessage.push(`${id}: ${MESSAGES.WAREHOUSE.IN_STOCK_NOT_FOUND}`);
