@@ -483,6 +483,7 @@ class ProductService {
         collection_count: collections.length,
         card_count: returnedProducts.length,
         product_count: variants.length,
+        x_collection: returnedProducts.length < products.length,
       },
     });
   };
