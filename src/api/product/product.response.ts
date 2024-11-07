@@ -148,6 +148,7 @@ export default {
       collection_count: Joi.number(),
       card_count: Joi.number(),
       product_count: Joi.number(),
+      x_collection: Joi.boolean(),
     }),
     statusCode: Joi.number(),
   }),
