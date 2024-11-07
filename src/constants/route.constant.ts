@@ -402,5 +402,6 @@ export const ROUTES = {
     UPDATE: "/api/warehouse/update/{id}",
     DELETE: "/api/warehouse/delete/{id}",
     UPDATE_MULTIPLE: "/api/warehouse/update-multiple",
+    UPDATE_MULTIPLE_BY_BACK_ORDER: "/api/warehouse/update-multiple-back-order",
   },
 };

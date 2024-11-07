@@ -20,6 +20,27 @@ const WarehouseUpdateMultiple = {
     .min(1),
 };
 
+const WarehouseUpdateMultipleBackOrder = {
+  payload: Joi.array()
+    .items(
+      Joi.object({
+        warehouses: Joi.object()
+          .required()
+          .pattern(
+            Joi.string().required(),
+            Joi.object({
+              changeQuantity: Joi.number().strict().required(),
+            }).required()
+          )
+          .unknown(false)
+          .min(1),
+        inventoryId: Joi.string().required(),
+      }).required()
+    )
+    .required()
+    .min(1),
+};
+
 export default {
   getList: {
     params: {
@@ -36,4 +57,5 @@ export default {
     payload: WarehouseRequest,
   },
   updateMultiple: WarehouseUpdateMultiple,
+  updateMultipleBackOrder: WarehouseUpdateMultipleBackOrder,
 };

@@ -31,3 +31,8 @@ export interface WarehouseListResponse {
 export interface WarehouseUpdate {
   changeQuantity: number;
 }
+
+export interface WarehouseUpdateBackOrder {
+  warehouses: Record<string, WarehouseUpdate>;
+  inventoryId: string;
+}

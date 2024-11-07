@@ -20,7 +20,7 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { difference, map, pick } from "lodash";
+import { difference, map, pick, sumBy } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
   InStockWarehouseResponse,
@@ -28,6 +28,7 @@ import {
   WarehouseCreate,
   WarehouseListResponse,
   WarehouseUpdate,
+  WarehouseUpdateBackOrder,
 } from "./warehouse.type";
 
 class WarehouseService {
@@ -420,11 +421,36 @@ class WarehouseService {
     });
   }
 
+  public async updateMultipleBackOrder(
+    user: UserAttributes,
+    payload: WarehouseUpdateBackOrder[]
+  ) {
+    const errorMessage: string[] = [];
+
+    await Promise.all(
+      payload.map(async (value) => {
+        await this.updateMultipleWarehouseByInventoryId(
+          user,
+          value,
+          errorMessage
+        );
+      })
+    );
+    if (errorMessage.length > 0) {
+      return errorMessageResponse(errorMessage.join(", "));
+    }
+
+    return successResponse({
+      message: MESSAGES.SUCCESS,
+    });
+  }
+
   public async update(
     user: UserAttributes,
     id: string,
     payload: WarehouseUpdate,
-    errorMessage: string[]
+    errorMessage: string[],
+    isBackOrder = false
   ) {
     const { changeQuantity } = payload;
 
@@ -450,13 +476,53 @@ class WarehouseService {
       );
       return;
     }
+    let warehouseBackOrderId: string = "";
+    if (isBackOrder) {
+      const warehouseBackOrder = await warehouseRepository.findBy({
+        parent_id: warehouseInStock.parent_id,
+        type: WarehouseType.BACK_ORDER,
+      });
+
+      if (!warehouseBackOrder) {
+        errorMessage.push(
+          `${warehouseInStock.name}: ${MESSAGES.WAREHOUSE.BACK_ORDER_NOT_FOUND}`
+        );
+        return;
+      }
+      warehouseBackOrderId = warehouseBackOrder.id;
+    }
+    if (warehouseBackOrderId) {
+      await this.createInventoryAction(
+        warehouseBackOrderId,
+        inventoryLedger.inventory_id,
+        changeQuantity,
+        user.id
+      );
+
+      await this.createInventoryAction(
+        warehouseBackOrderId,
+        inventoryLedger.inventory_id,
+        -changeQuantity,
+        user.id,
+        getInventoryActionDescription(
+          InventoryActionDescription.TRANSFER_TO,
+          "In Stock"
+        )
+      );
+    }
 
     await this.updateInventoryLedger(inventoryLedger.id, newQuantity);
     await this.createInventoryAction(
       inventoryLedger.warehouse_id,
       inventoryLedger.inventory_id,
       changeQuantity,
-      user.id
+      user.id,
+      warehouseBackOrderId
+        ? getInventoryActionDescription(
+            InventoryActionDescription.TRANSFER_FROM,
+            "Back Order"
+          )
+        : undefined
     );
   }
 
@@ -500,6 +566,52 @@ class WarehouseService {
     };
   }
 
+  private async updateMultipleWarehouseByInventoryId(
+    user: UserAttributes,
+    value: WarehouseUpdateBackOrder,
+    errorMessage: string[]
+  ) {
+    const inventoryExisted = await inventoryRepository.find(value.inventoryId);
+    if (!inventoryExisted) {
+      errorMessage.push(
+        `${value.inventoryId}: ${MESSAGES.INVENTORY_NOT_FOUND}`
+      );
+      return;
+    }
+    const changeQuantitySum = sumBy(
+      Object.values(value.warehouses),
+      "changeQuantity"
+    );
+    const backOrder = inventoryExisted.back_order || 0;
+    if (changeQuantitySum > backOrder) {
+      errorMessage.push(
+        `${value.inventoryId}: ${MESSAGES.WAREHOUSE.SUM_IN_STOCK}`
+      );
+      return;
+    }
+    const errorMessageWarehouse: string[] = [];
+    await Promise.all(
+      map(
+        value.warehouses,
+        async (valueWarehouse, key) =>
+          await this.update(
+            user,
+            key,
+            valueWarehouse,
+            errorMessageWarehouse,
+            true
+          )
+      )
+    );
+    if (errorMessageWarehouse.length) {
+      errorMessage.push(errorMessageWarehouse.join(", "));
+      return;
+    }
+    await inventoryRepository.update(value.inventoryId, {
+      back_order: backOrder - changeQuantitySum,
+    });
+  }
+
   private async getWarehouseInStock(id: string) {
     return await warehouseRepository.findBy({
       id,
@@ -526,16 +638,17 @@ class WarehouseService {
     warehouseId: string,
     inventoryId: string,
     changeQuantity: number,
-    userId: string
+    userId: string,
+    description?: string
   ) {
     await inventoryActionRepository.create({
       warehouse_id: warehouseId,
       inventory_id: inventoryId,
       quantity: changeQuantity,
       created_by: userId,
-      description: getInventoryActionDescription(
-        InventoryActionDescription.ADJUST
-      ),
+      description:
+        description ??
+        getInventoryActionDescription(InventoryActionDescription.ADJUST),
       type:
         changeQuantity > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
     });
