@@ -144,7 +144,7 @@ class InventoryService {
     const inventories = await Promise.all(
       inventoryList.data.map(async (inventory) => {
         const rate = isEmpty(inventory.price?.exchange_histories)
-          ? 0
+          ? 1
           : sumBy(inventory.price.exchange_histories, "rate");
 
         const newInventory = {
