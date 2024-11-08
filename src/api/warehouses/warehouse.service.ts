@@ -21,13 +21,13 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { difference, head, isNil, pick, pullAll } from "lodash";
+import { difference, head, pick } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
-  WarehouseResponse,
   NonPhysicalWarehouseCreate,
   WarehouseCreate,
   WarehouseListResponse,
+  WarehouseResponse,
 } from "./warehouse.type";
 
 class WarehouseService {
@@ -241,6 +241,18 @@ class WarehouseService {
       };
     }
 
+    const physicalWarehouse = await warehouseRepository.findBy({
+      id: parentId,
+      type: WarehouseType.PHYSICAL,
+    });
+
+    if (!physicalWarehouse) {
+      return {
+        ...errorMessageResponse(MESSAGES.NOT_FOUND),
+        data: null,
+      };
+    }
+
     const allNonPhysicalWarehouses =
       await warehouseRepository.getAllNonPhysicalWarehousesByParentId(parentId);
 
@@ -249,6 +261,32 @@ class WarehouseService {
         ...errorMessageResponse(MESSAGES.NOT_FOUND),
         data: null,
       };
+    }
+
+    if (physicalWarehouse.status !== WarehouseStatus.ACTIVE) {
+      const physicalWarehouseUpdated = await warehouseRepository.update(
+        physicalWarehouse.id,
+        {
+          status: WarehouseStatus.ACTIVE,
+        }
+      );
+
+      if (!physicalWarehouseUpdated) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      }
+
+      const allNonPhysicalWarehouseUpdated = await Promise.all(
+        allNonPhysicalWarehouses.map(
+          async (ws) =>
+            await warehouseRepository.findAndUpdate(ws.id, {
+              status: WarehouseStatus.ACTIVE,
+            })
+        )
+      );
+
+      if (!allNonPhysicalWarehouseUpdated.length) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      }
     }
 
     const inStockWarehouse = allNonPhysicalWarehouses.find(
@@ -260,10 +298,6 @@ class WarehouseService {
         ...errorMessageResponse(MESSAGES.NOT_FOUND),
         data: null,
       };
-    }
-
-    if (inStockWarehouse.status !== WarehouseStatus.ACTIVE) {
-      return errorMessageResponse(MESSAGES.WAREHOUSE.NOT_AVAILABLE);
     }
 
     let existedLedger = await inventoryLedgerRepository.findBy({
@@ -301,6 +335,7 @@ class WarehouseService {
 
     const newLedger = await inventoryLedgerRepository.update(existedLedger.id, {
       quantity: newLedgerQuantity,
+      status: WarehouseStatus.ACTIVE,
     });
 
     if (!newLedger) {
@@ -335,9 +370,7 @@ class WarehouseService {
   }
 
   private async deleteNonPhysicalWarehouse(
-    payload: Partial<
-      Pick<NonPhysicalWarehouseCreate, "created_by" | "parent_id">
-    >
+    payload: Pick<NonPhysicalWarehouseCreate, "created_by" | "parent_id">
   ) {
     const { created_by: userId, parent_id: parentId } = payload;
 
@@ -350,7 +383,7 @@ class WarehouseService {
 
     if (!parentId) {
       return {
-        ...errorMessageResponse(MESSAGES.USER_NOT_FOUND),
+        ...errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE),
         data: null,
       };
     }
@@ -365,43 +398,61 @@ class WarehouseService {
       };
     }
 
+    let inventoryAction: InventoryActionEntity | null = null;
+    let ledger: InventoryLedgerEntity | null = null;
+
     const data = await Promise.all(
       allNonPhysicalWarehouses.map(async (el) => {
         const warehouse = await warehouseRepository.update(el.id, {
           status: WarehouseStatus.INACTIVE,
         });
 
-        let ledger;
-
-        if (el.type === WarehouseType.IN_STOCK) {
-          ledger =
-            await inventoryLedgerRepository.updateInventoryLedgerByWarehouseId(
-              el.id,
-              {
-                status: WarehouseStatus.INACTIVE,
-                quantity: 0,
-              }
-            );
-        }
-
-        if (!ledger) {
+        if (!warehouse) {
           return {
-            warehouse,
-            ledger: undefined,
-            inventoryAction: undefined,
+            warehouse: null,
+            ledger: null,
+            inventoryAction: null,
           };
         }
 
-        const inventoryAction = await inventoryActionRepository.create({
-          warehouse_id: el.id,
-          inventory_id: ledger.inventory_id,
-          quantity: ledger.quantity === 0 ? 0 : -ledger.quantity,
-          created_by: userId,
-          type: InventoryActionType.OUT,
-          description: getInventoryActionDescription(
-            InventoryActionDescription.ADJUST
-          ),
-        });
+        if (el.type == WarehouseType.IN_STOCK) {
+          const prevLedger = await inventoryLedgerRepository.findBy({
+            warehouse_id: el.id,
+          });
+
+          if (!prevLedger) {
+            return {
+              warehouse,
+              ledger: null,
+              inventoryAction: null,
+            };
+          }
+
+          ledger = (await inventoryLedgerRepository.update(prevLedger.id, {
+            status: WarehouseStatus.INACTIVE,
+            quantity: el.type === WarehouseType.IN_STOCK ? 0 : undefined,
+          })) as InventoryLedgerEntity;
+
+          if (!ledger) {
+            return {
+              warehouse,
+              ledger: null,
+              inventoryAction: null,
+            };
+          }
+
+          inventoryAction = (await inventoryActionRepository.create({
+            warehouse_id: el.id,
+            inventory_id: ledger.inventory_id,
+            quantity:
+              Number(prevLedger.quantity) === 0 ? 0 : -prevLedger.quantity,
+            created_by: userId,
+            type: InventoryActionType.OUT,
+            description: getInventoryActionDescription(
+              InventoryActionDescription.ADJUST
+            ),
+          })) as InventoryActionEntity;
+        }
 
         return {
           warehouse,
@@ -411,7 +462,15 @@ class WarehouseService {
       })
     );
 
-    return this.validateUpdateNonPhysicalWarehouse(data);
+    return this.validateUpdateNonPhysicalWarehouse(
+      data
+        .map((el) => {
+          if (el.warehouse?.type === WarehouseType.IN_STOCK) {
+            return el;
+          }
+        })
+        .filter(Boolean) as any
+    );
   }
 
   public async getList(

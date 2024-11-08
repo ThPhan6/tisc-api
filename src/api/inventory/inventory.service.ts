@@ -374,22 +374,18 @@ class InventoryService {
     if (!inventoryExisted) {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
     }
-
     /// find category to get brand
     const category = await dynamicCategoryRepository.find(
       inventoryExisted.inventory_category_id
     );
-
     if (!category) {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
     }
-
     /// find brand
     const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
-
     /// upload image
     let image:
       | string
@@ -399,24 +395,20 @@ class InventoryService {
           largePng: string;
           smallPng: string;
         } = inventoryExisted.image;
-
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-
       image = await uploadImagesInventory(
         payload.image,
         brand.name,
         brand.id,
         inventoryExisted.id
       );
-
       if (!image) {
         return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
       }
     }
-
     /// create inventory base and volume prices
     if (!isNil(payload.unit_price) || !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
@@ -428,7 +420,6 @@ class InventoryService {
           volume_prices: payload?.volume_prices,
         }
       );
-
       if (
         isEmpty(inventoryPrice?.basePrice) ||
         (!isEmpty(payload?.volume_prices) &&
@@ -439,7 +430,6 @@ class InventoryService {
         );
       }
     }
-
     /// update inventory
     const updatedInventory = await inventoryRepository.update(id, {
       ...inventoryExisted,
@@ -462,26 +452,20 @@ class InventoryService {
           ].map(async (el) => await deleteFile(el))
         );
       }
-
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    /// warehouses
-    if (payload?.warehouses) {
+    if ("warehouses" in payload) {
       const uniqueLocationIds = uniqBy(payload.warehouses, "location_id");
       const count = uniqueLocationIds.length;
 
-      if (count !== payload.warehouses.length) {
-        return errorMessageResponse("Duplicate location");
+      if (count !== payload?.warehouses?.length) {
+        return errorMessageResponse("Warehouse duplicate location");
       }
 
-      const instockWarehouses = (await warehouseService.getList(
-        id
-      )) as unknown as {
-        data: WarehouseListResponse;
-      };
-      const instockWarehousesLocationIds =
-        instockWarehouses.data.warehouses.map((el) => el.location_id);
+      const payloadWarehouseLocationIds = payload.warehouses.map(
+        (el) => el.location_id
+      );
 
       const instockWarehouseActive = (await warehouseService.getList(
         id,
@@ -489,22 +473,30 @@ class InventoryService {
       )) as unknown as {
         data: WarehouseListResponse;
       };
-      const instockWarehouseActiveLocationIds =
-        instockWarehouseActive.data.warehouses.map((el) => el.location_id);
 
-      // find new warehouses
-      const newWarehouses = payload.warehouses.filter(
-        (el) => !instockWarehousesLocationIds.includes(el.location_id)
-      );
+      /// instock warehouses are not in payload
+      const warehouseDeleted = instockWarehouseActive.data.warehouses
+        .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
+        .map((el) => ({
+          location_id: el.location_id,
+          quantity: el.in_stock,
+        }));
 
-      if (newWarehouses.some((el) => el.quantity < 0)) {
-        return errorMessageResponse(MESSAGES.LESS_THAN_ZERO);
+      const res = [];
+
+      if (warehouseDeleted.length) {
+        const warehouses = await Promise.all(
+          warehouseDeleted.map(
+            async (ws) => await warehouseService.delete(user, ws.location_id)
+          )
+        );
+
+        res.push(...warehouses);
       }
 
-      const newWarehouseResponse = await Promise.all(
-        newWarehouses.map(async (ws) => {
-          console.log("Create warehouse", ws.location_id);
-
+      /// create new warehouse and update warehouse existed
+      const warehouseUpdated = await Promise.all(
+        payload.warehouses.map(async (ws) => {
           return await warehouseService.create(user, {
             inventory_id: id,
             location_id: ws.location_id,
@@ -513,50 +505,11 @@ class InventoryService {
         })
       );
 
-      const payloadWarehouseLocationIds = payload.warehouses.map(
-        (el) => el.location_id
-      );
+      res.push(...warehouseUpdated);
 
-      const existedWarehouses = [
-        /// instock warehouse active in payload
-        ...payload.warehouses.filter((el) =>
-          instockWarehousesLocationIds.includes(el.location_id)
-        ),
-        /// instock warehouse active not in payload
-        ...instockWarehouseActive.data.warehouses
-          .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
-          .map((el) => ({
-            location_id: el.location_id,
-            quantity: el.in_stock,
-          })),
-      ];
-
-      console.log("existedWarehouses", existedWarehouses);
-
-      const existedWarehousesResponse = await Promise.all(
-        existedWarehouses.map(async (ws) => {
-          if (instockWarehouseActiveLocationIds.includes(ws.location_id)) {
-            console.log("Update warehouse", ws.location_id);
-            /// update instock warehouses active
-            return await warehouseService.create(user, {
-              inventory_id: id,
-              location_id: ws.location_id,
-              quantity: ws.quantity,
-            });
-          }
-
-          console.log("Delete warehouse", ws.location_id);
-
-          return await warehouseService.delete(user, ws.location_id);
-        })
-      );
-
-      const messageError = [
-        ...newWarehouseResponse,
-        ...existedWarehousesResponse,
-      ]
-        .filter((el) => el.statusCode !== 200)
-        .map((el) => el.message);
+      const messageError = res
+        .filter((el) => el?.statusCode !== 200)
+        .map((el) => el?.message);
 
       if (messageError.length) {
         return {
