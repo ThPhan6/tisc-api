@@ -31,6 +31,7 @@ import {
   map,
   omit,
   pick,
+  sumBy,
   uniqBy,
 } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
@@ -38,10 +39,7 @@ import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.ty
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { warehouseService } from "../warehouses/warehouse.service";
-import {
-  WarehouseCreate,
-  WarehouseListResponse,
-} from "../warehouses/warehouse.type";
+import { WarehouseListResponse } from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
@@ -145,9 +143,13 @@ class InventoryService {
 
     const inventories = await Promise.all(
       inventoryList.data.map(async (inventory) => {
+        const rate = isEmpty(inventory.price?.exchange_histories)
+          ? 0
+          : sumBy(inventory.price.exchange_histories, "rate");
+
         const newInventory = {
           ...omit(inventory, ["image"]),
-          image: inventory?.image ?? "",
+          image: inventory.image ?? "",
           price: isEmpty(inventory?.price)
             ? null
             : {
@@ -179,6 +181,10 @@ class InventoryService {
 
         return {
           ...newInventory,
+          stockValue:
+            rate *
+            (inventory.price?.unit_price || 0) *
+            warehouses.data.total_stock,
           total_stock: warehouses.data.total_stock,
           out_stock: !isNumber(newInventory.on_order)
             ? null
