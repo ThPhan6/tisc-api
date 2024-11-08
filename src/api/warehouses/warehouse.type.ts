@@ -1,7 +1,6 @@
-import { WarehouseEntity } from "@/types";
+import { InventoryActionType, WarehouseEntity, WarehouseStatus } from "@/types";
 
-export interface WarehouseCreate
-  extends Pick<WarehouseEntity, "id" | "location_id" | "relation_id"> {
+export interface WarehouseCreate extends Pick<WarehouseEntity, "location_id"> {
   quantity: number;
   inventory_id: string;
 }
@@ -13,18 +12,20 @@ export interface NonPhysicalWarehouseCreate
   > {
   quantity: number;
   inventory_id: string;
+  inventory_action_type: InventoryActionType;
   created_by: string;
+  status?: WarehouseStatus;
 }
 
-export interface InStockWarehouseResponse
-  extends Pick<WarehouseEntity, "id" | "created_at" | "name"> {
+export interface WarehouseResponse
+  extends Pick<WarehouseEntity, "id" | "created_at" | "name" | "location_id"> {
   country_name: string;
   city_name: string;
   in_stock: number;
 }
 
 export interface WarehouseListResponse {
-  warehouses: InStockWarehouseResponse[];
+  warehouses: WarehouseResponse[];
   total_stock: number;
 }
 

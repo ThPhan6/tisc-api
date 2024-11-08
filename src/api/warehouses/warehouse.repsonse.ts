@@ -11,6 +11,7 @@ export default {
             id: Joi.string().required(),
             name: Joi.string().required(),
             created_at: Joi.string().required(),
+            location_id: Joi.string().required(),
             country_name: Joi.string().allow("").allow(null),
             city_name: Joi.string().allow("").allow(null),
             in_stock: Joi.number().required(),

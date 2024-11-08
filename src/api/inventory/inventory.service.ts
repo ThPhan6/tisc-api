@@ -9,25 +9,44 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { warehouseRepository } from "@/repositories/warehouse.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import { IExchangeCurrency } from "@/types";
+import {
+  IExchangeCurrency,
+  UserAttributes,
+  WarehouseStatus,
+  WarehouseType,
+} from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, isString, map, omit, pick } from "lodash";
+import {
+  head,
+  isEmpty,
+  isNil,
+  isNumber,
+  isString,
+  map,
+  omit,
+  pick,
+  uniqBy,
+} from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
+import { warehouseService } from "../warehouses/warehouse.service";
+import {
+  WarehouseCreate,
+  WarehouseListResponse,
+} from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryListRequest,
 } from "./inventory.type";
-import { warehouseService } from "../warehouses/warehouse.service";
-import { WarehouseListResponse } from "../warehouses/warehouse.type";
 
 class InventoryService {
   private async createInventoryPrices(
@@ -143,7 +162,8 @@ class InventoryService {
         };
 
         const warehouses = (await warehouseService.getList(
-          newInventory.id
+          newInventory.id,
+          WarehouseStatus.ACTIVE
         )) as unknown as {
           data: WarehouseListResponse;
         };
@@ -344,28 +364,28 @@ class InventoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async update(id: string, payload: Partial<InventoryCreate>) {
+  public async update(
+    user: UserAttributes,
+    id: string,
+    payload: Partial<InventoryCreate>
+  ) {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
     }
-
     /// find category to get brand
     const category = await dynamicCategoryRepository.find(
       inventoryExisted.inventory_category_id
     );
-
     if (!category) {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
     }
-
     /// find brand
     const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
-
     /// upload image
     let image:
       | string
@@ -375,24 +395,20 @@ class InventoryService {
           largePng: string;
           smallPng: string;
         } = inventoryExisted.image;
-
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-
       image = await uploadImagesInventory(
         payload.image,
         brand.name,
         brand.id,
         inventoryExisted.id
       );
-
       if (!image) {
         return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
       }
     }
-
     /// create inventory base and volume prices
     if (!isNil(payload.unit_price) || !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
@@ -404,7 +420,6 @@ class InventoryService {
           volume_prices: payload?.volume_prices,
         }
       );
-
       if (
         isEmpty(inventoryPrice?.basePrice) ||
         (!isEmpty(payload?.volume_prices) &&
@@ -415,7 +430,6 @@ class InventoryService {
         );
       }
     }
-
     /// update inventory
     const updatedInventory = await inventoryRepository.update(id, {
       ...inventoryExisted,
@@ -438,20 +452,82 @@ class InventoryService {
           ].map(async (el) => await deleteFile(el))
         );
       }
-
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
 
-    /// create warehouse
+    if ("warehouses" in payload) {
+      const uniqueLocationIds = uniqBy(payload.warehouses, "location_id");
+      const count = uniqueLocationIds.length;
+
+      if (count !== payload?.warehouses?.length) {
+        return errorMessageResponse("Warehouse duplicate location");
+      }
+
+      const payloadWarehouseLocationIds = payload.warehouses.map(
+        (el) => el.location_id
+      );
+
+      const instockWarehouseActive = (await warehouseService.getList(
+        id,
+        WarehouseStatus.ACTIVE
+      )) as unknown as {
+        data: WarehouseListResponse;
+      };
+
+      /// instock warehouses are not in payload
+      const warehouseDeleted = instockWarehouseActive.data.warehouses
+        .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
+        .map((el) => ({
+          location_id: el.location_id,
+          quantity: el.in_stock,
+        }));
+
+      const res = [];
+
+      if (warehouseDeleted.length) {
+        const warehouses = await Promise.all(
+          warehouseDeleted.map(
+            async (ws) => await warehouseService.delete(user, ws.location_id)
+          )
+        );
+
+        res.push(...warehouses);
+      }
+
+      /// create new warehouse and update warehouse existed
+      const warehouseUpdated = await Promise.all(
+        payload.warehouses.map(async (ws) => {
+          return await warehouseService.create(user, {
+            inventory_id: id,
+            location_id: ws.location_id,
+            quantity: ws.quantity,
+          });
+        })
+      );
+
+      res.push(...warehouseUpdated);
+
+      const messageError = res
+        .filter((el) => el?.statusCode !== 200)
+        .map((el) => el?.message);
+
+      if (messageError.length) {
+        return {
+          message: messageError.join(", "),
+          statusCode: 400,
+        };
+      }
+    }
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async updateInventories(
+    user: UserAttributes,
     payload: Record<string, InventoryListRequest>
   ) {
     await Promise.all(
-      map(payload, async (value, key) => await this.update(key, value))
+      map(payload, async (value, key) => await this.update(user, key, value))
     );
 
     return successResponse({
