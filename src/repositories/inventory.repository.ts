@@ -109,8 +109,6 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       FOR category IN dynamic_categories
       FILTER category.deleted_at == null
       FILTER category.relation_id == brand.id
-      filter category.id == "18be106d-dd5b-4228-b1ce-a279396201c4"
-
       FOR inven IN inventories
       FILTER inven.deleted_at == null
       FILTER inven.inventory_category_id == category.id
