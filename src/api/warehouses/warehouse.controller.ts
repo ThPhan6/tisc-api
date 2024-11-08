@@ -40,7 +40,6 @@ export default class WarehouseController {
     req: Request & { payload: WarehouseUpdateBackOrder[] },
     toolkit: ResponseToolkit
   ) {
-    console.log(req.payload);
     const user = req.auth.credentials.user as UserAttributes;
     const response = await warehouseService.updateMultipleBackOrder(
       user,
