@@ -779,34 +779,58 @@ class WarehouseService {
       warehouseBackOrderId = warehouseBackOrder.id;
     }
     if (warehouseBackOrderId) {
-      inventoryActionRepository.create({
-        warehouse_id: warehouseBackOrderId,
-        inventory_id: inventoryLedger.inventory_id,
-        quantity: changeQuantity,
-        created_by: user.id,
-        description: getInventoryActionDescription(
-          InventoryActionDescription.ADJUST
-        ),
-        type: InventoryActionType.IN,
-      });
+      const inventoryActionBackOrderInCreated =
+        await inventoryActionRepository.create({
+          warehouse_id: warehouseBackOrderId,
+          inventory_id: inventoryLedger.inventory_id,
+          quantity: changeQuantity,
+          created_by: user.id,
+          description: getInventoryActionDescription(
+            InventoryActionDescription.ADJUST
+          ),
+          type: InventoryActionType.IN,
+        });
 
-      inventoryActionRepository.create({
-        warehouse_id: warehouseBackOrderId,
-        inventory_id: inventoryLedger.inventory_id,
-        quantity: -changeQuantity,
-        created_by: user.id,
-        description: getInventoryActionDescription(
-          InventoryActionDescription.TRANSFER_TO,
-          "In Stock"
-        ),
-        type: InventoryActionType.OUT,
-      });
+      if (!inventoryActionBackOrderInCreated) {
+        errorMessage.push(
+          `${warehouseInStock.name}: ${MESSAGES.SOMETHING_WRONG_CREATE}`
+        );
+        return;
+      }
+      const inventoryActionBackOrderOutCreated =
+        await inventoryActionRepository.create({
+          warehouse_id: warehouseBackOrderId,
+          inventory_id: inventoryLedger.inventory_id,
+          quantity: -changeQuantity,
+          created_by: user.id,
+          description: getInventoryActionDescription(
+            InventoryActionDescription.TRANSFER_TO,
+            "In Stock"
+          ),
+          type: InventoryActionType.OUT,
+        });
+      if (!inventoryActionBackOrderOutCreated) {
+        errorMessage.push(
+          `${warehouseInStock.name}: ${MESSAGES.SOMETHING_WRONG_CREATE}`
+        );
+        return;
+      }
     }
 
-    inventoryLedgerRepository.update(inventoryLedger.id, {
-      quantity: newQuantity,
-    });
-    inventoryActionRepository.create({
+    const inventoryLedgerUpdated = await inventoryLedgerRepository.update(
+      inventoryLedger.id,
+      {
+        quantity: newQuantity,
+      }
+    );
+    if (!inventoryLedgerUpdated) {
+      errorMessage.push(
+        `${warehouseInStock.name}: ${MESSAGES.SOMETHING_WRONG_UPDATE}`
+      );
+      return;
+    }
+
+    const inventoryActionStockCreated = await inventoryActionRepository.create({
       warehouse_id: inventoryLedger.warehouse_id,
       inventory_id: inventoryLedger.inventory_id,
       quantity: changeQuantity,
@@ -820,6 +844,11 @@ class WarehouseService {
       type:
         changeQuantity > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
     });
+    if (!inventoryActionStockCreated) {
+      errorMessage.push(
+        `${warehouseInStock.name}: ${MESSAGES.SOMETHING_WRONG_CREATE}`
+      );
+    }
   }
 
   private async updateMultipleWarehouseByInventoryId(
@@ -841,7 +870,7 @@ class WarehouseService {
     const backOrder = inventoryExisted.back_order || 0;
     if (changeQuantitySum > backOrder) {
       errorMessage.push(
-        `${value.inventoryId}: ${MESSAGES.WAREHOUSE.SUM_IN_STOCK}`
+        `${inventoryExisted.sku}: ${MESSAGES.WAREHOUSE.SUM_IN_STOCK}`
       );
       return;
     }
