@@ -21,12 +21,14 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { difference, head, pick } from "lodash";
+import { difference, head, map, pick, sumBy } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
   NonPhysicalWarehouseCreate,
   WarehouseCreate,
   WarehouseListResponse,
+  WarehouseUpdate,
+  WarehouseUpdateBackOrder,
   WarehouseResponse,
 } from "./warehouse.type";
 
@@ -678,6 +680,192 @@ class WarehouseService {
       message: nonPhysicalWarehouses.message,
       statusCode: nonPhysicalWarehouses.statusCode,
     };
+  }
+
+  public async updateMultiple(
+    user: UserAttributes,
+    payload: Record<string, WarehouseUpdate>
+  ) {
+    const errorMessage: string[] = [];
+    await Promise.all(
+      map(
+        payload,
+        async (value, key) => await this.update(user, key, value, errorMessage)
+      )
+    );
+
+    if (errorMessage.length > 0) {
+      return errorMessageResponse(errorMessage.join(", "));
+    }
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async updateMultipleBackOrder(
+    user: UserAttributes,
+    payload: WarehouseUpdateBackOrder[]
+  ) {
+    const errorMessage: string[] = [];
+
+    await Promise.all(
+      payload.map(async (value) => {
+        await this.updateMultipleWarehouseByInventoryId(
+          user,
+          value,
+          errorMessage
+        );
+      })
+    );
+    if (errorMessage.length > 0) {
+      return errorMessageResponse(errorMessage.join(", "));
+    }
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async update(
+    user: UserAttributes,
+    id: string,
+    payload: WarehouseUpdate,
+    errorMessage: string[],
+    isBackOrder = false
+  ) {
+    const { changeQuantity } = payload;
+
+    if (changeQuantity === 0) {
+      return;
+    }
+
+    const warehouseInStock = await warehouseRepository.findBy({
+      id,
+      type: WarehouseType.IN_STOCK,
+    });
+    if (!warehouseInStock) {
+      errorMessage.push(`${id}: ${MESSAGES.WAREHOUSE.IN_STOCK_NOT_FOUND}`);
+      return;
+    }
+
+    const inventoryLedger = await inventoryLedgerRepository.findBy({
+      warehouse_id: warehouseInStock.id,
+    });
+
+    if (!inventoryLedger) {
+      errorMessage.push(
+        `${warehouseInStock.name}: ${MESSAGES.INVENTORY.NOT_FOUND_LEDGER}`
+      );
+      return;
+    }
+
+    const newQuantity = inventoryLedger.quantity + changeQuantity;
+    if (newQuantity < 0) {
+      errorMessage.push(
+        `${warehouseInStock.name}: ${MESSAGES.WAREHOUSE.LESS_THAN_ZERO}`
+      );
+      return;
+    }
+    let warehouseBackOrderId: string = "";
+    if (isBackOrder) {
+      const warehouseBackOrder = await warehouseRepository.findBy({
+        parent_id: warehouseInStock.parent_id,
+        type: WarehouseType.BACK_ORDER,
+      });
+
+      if (!warehouseBackOrder) {
+        errorMessage.push(
+          `${warehouseInStock.name}: ${MESSAGES.WAREHOUSE.BACK_ORDER_NOT_FOUND}`
+        );
+        return;
+      }
+      warehouseBackOrderId = warehouseBackOrder.id;
+    }
+    if (warehouseBackOrderId) {
+      inventoryActionRepository.create({
+        warehouse_id: warehouseBackOrderId,
+        inventory_id: inventoryLedger.inventory_id,
+        quantity: changeQuantity,
+        created_by: user.id,
+        description: getInventoryActionDescription(
+          InventoryActionDescription.ADJUST
+        ),
+        type: InventoryActionType.IN,
+      });
+
+      inventoryActionRepository.create({
+        warehouse_id: warehouseBackOrderId,
+        inventory_id: inventoryLedger.inventory_id,
+        quantity: -changeQuantity,
+        created_by: user.id,
+        description: getInventoryActionDescription(
+          InventoryActionDescription.TRANSFER_TO,
+          "In Stock"
+        ),
+        type: InventoryActionType.OUT,
+      });
+    }
+
+    inventoryLedgerRepository.update(inventoryLedger.id, {
+      quantity: newQuantity,
+    });
+    inventoryActionRepository.create({
+      warehouse_id: inventoryLedger.warehouse_id,
+      inventory_id: inventoryLedger.inventory_id,
+      quantity: changeQuantity,
+      created_by: user.id,
+      description: getInventoryActionDescription(
+        warehouseBackOrderId
+          ? InventoryActionDescription.TRANSFER_FROM
+          : InventoryActionDescription.ADJUST,
+        warehouseBackOrderId ? "Back Order" : ""
+      ),
+      type:
+        changeQuantity > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
+    });
+  }
+
+  private async updateMultipleWarehouseByInventoryId(
+    user: UserAttributes,
+    value: WarehouseUpdateBackOrder,
+    errorMessage: string[]
+  ) {
+    const inventoryExisted = await inventoryRepository.find(value.inventoryId);
+    if (!inventoryExisted) {
+      errorMessage.push(
+        `${value.inventoryId}: ${MESSAGES.INVENTORY_NOT_FOUND}`
+      );
+      return;
+    }
+    const changeQuantitySum = sumBy(
+      Object.values(value.warehouses),
+      "changeQuantity"
+    );
+    const backOrder = inventoryExisted.back_order || 0;
+    if (changeQuantitySum > backOrder) {
+      errorMessage.push(
+        `${value.inventoryId}: ${MESSAGES.WAREHOUSE.SUM_IN_STOCK}`
+      );
+      return;
+    }
+    const errorMessageWarehouse: string[] = [];
+    await Promise.all(
+      map(
+        value.warehouses,
+        async (valueWarehouse, key) =>
+          await this.update(
+            user,
+            key,
+            valueWarehouse,
+            errorMessageWarehouse,
+            true
+          )
+      )
+    );
+    if (errorMessageWarehouse.length) {
+      errorMessage.push(errorMessageWarehouse.join(", "));
+      return;
+    }
+    await inventoryRepository.update(value.inventoryId, {
+      back_order: backOrder - changeQuantitySum,
+    });
   }
 }
 

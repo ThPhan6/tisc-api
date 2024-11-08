@@ -28,3 +28,12 @@ export interface WarehouseListResponse {
   warehouses: WarehouseResponse[];
   total_stock: number;
 }
+
+export interface WarehouseUpdate {
+  changeQuantity: number;
+}
+
+export interface WarehouseUpdateBackOrder {
+  warehouses: Record<string, WarehouseUpdate>;
+  inventoryId: string;
+}
