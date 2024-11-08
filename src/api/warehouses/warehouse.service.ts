@@ -745,7 +745,9 @@ class WarehouseService {
       return;
     }
 
-    const inventoryLedger = await this.getInventoryLedger(warehouseInStock.id);
+    const inventoryLedger = await inventoryLedgerRepository.findBy({
+      warehouse_id: warehouseInStock.id,
+    });
 
     if (!inventoryLedger) {
       errorMessage.push(
@@ -857,29 +859,23 @@ class WarehouseService {
     });
   }
 
-  private async getInventoryLedger(warehouseId: string) {
-    return await inventoryLedgerRepository.findBy({
-      warehouse_id: warehouseId,
-    });
-  }
-
-  private async updateInventoryLedger(
+  private updateInventoryLedger(
     inventoryLedgerId: string,
     newQuantity: number
   ) {
-    await inventoryLedgerRepository.update(inventoryLedgerId, {
+    return inventoryLedgerRepository.update(inventoryLedgerId, {
       quantity: newQuantity,
     });
   }
 
-  private async createInventoryAction(
+  private createInventoryAction(
     warehouseId: string,
     inventoryId: string,
     changeQuantity: number,
     userId: string,
     description?: string
   ) {
-    await inventoryActionRepository.create({
+    return inventoryActionRepository.create({
       warehouse_id: warehouseId,
       inventory_id: inventoryId,
       quantity: changeQuantity,
