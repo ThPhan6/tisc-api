@@ -36,6 +36,7 @@ export interface InventoryCategoryQuery {
 
 export interface InventoryListResponse extends InventoryEntity {
   out_stock: number | null;
+  total_stock: number;
   price: InventoryBasePrice & {
     volume_prices: InventoryVolumePrice[] | null;
     exchange_histories: ExchangeHistoryEntity[];
