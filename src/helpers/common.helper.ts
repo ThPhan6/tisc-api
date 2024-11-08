@@ -285,8 +285,6 @@ export const getInventoryActionDescription = (
   description?: string
 ) => {
   switch (type) {
-    case InventoryActionDescription.ADJUST:
-      return "Adjust";
     case InventoryActionDescription.TRANSFER_TO:
       return `Transfer to ${description}`;
     case InventoryActionDescription.TRANSFER_FROM:
