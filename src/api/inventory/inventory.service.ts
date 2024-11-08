@@ -16,12 +16,22 @@ import {
 } from "@/services/image.service";
 import { IExchangeCurrency } from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isNumber, isString, map, omit, pick } from "lodash";
+import {
+  isEmpty,
+  isNil,
+  isNumber,
+  isString,
+  map,
+  omit,
+  pick,
+  sumBy,
+} from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import {
+  ExchangeSummary,
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryListRequest,
@@ -126,6 +136,10 @@ class InventoryService {
 
     const inventories = await Promise.all(
       inventoryList.data.map(async (inventory) => {
+        const rate = isEmpty(inventory?.price)
+          ? 0
+          : sumBy(inventory.price.exchange_histories, "rate");
+
         const newInventory = {
           ...omit(inventory, ["image"]),
           image: inventory?.image ?? "",
@@ -159,6 +173,10 @@ class InventoryService {
 
         return {
           ...newInventory,
+          stockValue:
+            rate *
+            (inventory.price?.unit_price || 0) *
+            warehouses.data.total_stock,
           total_stock: warehouses.data.total_stock,
           out_stock: !isNumber(newInventory.on_order)
             ? null

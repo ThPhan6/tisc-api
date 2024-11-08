@@ -6,7 +6,12 @@ import {
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
-import { ExchangeHistoryEntity, InventoryEntity } from "@/types";
+import {
+  ExchangeHistoryEntity,
+  InventoryEntity,
+  WarehouseStatus,
+  WarehouseType,
+} from "@/types";
 import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
@@ -37,6 +42,44 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       {volume_prices: inventoryVolumePrice}
     )`;
 
+  private totalStockValueQuery = `
+      let totalStockValue = sum(
+        FOR ware IN warehouses
+        FILTER ware.deleted_at == null
+        FILTER ware.type == ${WarehouseType.IN_STOCK}
+        FILTER ware.status == ${WarehouseStatus.ACTIVE}
+        
+        let ledgers = (
+            FOR led IN inventory_ledgers
+            FILTER led.deleted_at == null
+            FILTER led.status == ${WarehouseStatus.ACTIVE}
+            FILTER led.inventory_id == inven.id
+            FILTER led.warehouse_id == ware.id
+            return led
+        )
+        
+        let unitPrice = FIRST(
+          FOR price IN inventory_base_prices
+          FILTER price.deleted_at == null
+          FILTER price.inventory_id == inven.id
+          sort price.created_at DESC
+          
+          LET rates = (
+            FOR history IN exchange_histories
+            FILTER history.deleted_at == null
+            FILTER history.created_at >= price.created_at
+            RETURN history.rate
+          )
+          return price.unit_price * PRODUCT(rates) 
+        )
+        
+        LET quantity = sum(FOR ledger IN ledgers RETURN ledger.quantity)
+        return quantity * unitPrice 
+      )
+      
+      return totalStockValue
+    `;
+
   public async getTotalInventories(brandId: string): Promise<number> {
     const rawQuery = `
       FOR brand IN brands
@@ -57,32 +100,26 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     return head(result) as number;
   }
 
-  ///TODO: get total stock amount
-  private totalStock = 1;
   public async getTotalStockValue(brandId: string): Promise<number> {
     const rawQuery = `
       FOR brand IN brands
       FILTER brand.deleted_at == null
       FILTER brand.id == @brandId
+
       FOR category IN dynamic_categories
-      FILTER brand.deleted_at == null
+      FILTER category.deleted_at == null
       FILTER category.relation_id == brand.id
-      FOR inventory IN inventories
-      FILTER inventory.deleted_at == null
-      FILTER inventory.inventory_category_id == category.id
-      FOR price IN inventory_base_prices
-      FILTER price.deleted_at == null
-      FILTER price.inventory_id == inventory.id
+      filter category.id == "18be106d-dd5b-4228-b1ce-a279396201c4"
 
-      LET rates = (
-        FOR history IN exchange_histories
-        FILTER history.deleted_at == null
-        FILTER history.created_at >= price.created_at
-        RETURN history.rate
-      )
+      FOR inven IN inventories
+      FILTER inven.deleted_at == null
+      FILTER inven.inventory_category_id == category.id
 
-      COLLECT AGGREGATE totalPrice = SUM(price.unit_price * PRODUCT(rates) * ${this.totalStock})
-      RETURN totalPrice
+      let total = (${this.totalStockValueQuery})
+
+      FOR amount IN total
+      COLLECT AGGREGATE totalStockValueSum = SUM(amount)
+      RETURN totalStockValueSum
     `;
 
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
