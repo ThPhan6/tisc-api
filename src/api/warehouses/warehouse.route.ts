@@ -66,7 +66,7 @@ export default class WarehouseRoute implements IRoute {
           options: {
             handler: controller.updateMultipleBackOrder,
             validate: validate.updateMultipleBackOrder,
-            description: "Method that update multiple warehouse",
+            description: "Method that update multiple warehouse by back order",
             tags: ["api", "Warehouse"],
             auth: AUTH_NAMES.GENERAL,
             response: {

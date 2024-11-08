@@ -698,9 +698,7 @@ class WarehouseService {
       return errorMessageResponse(errorMessage.join(", "));
     }
 
-    return successResponse({
-      message: MESSAGES.SUCCESS,
-    });
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async updateMultipleBackOrder(
@@ -722,9 +720,7 @@ class WarehouseService {
       return errorMessageResponse(errorMessage.join(", "));
     }
 
-    return successResponse({
-      message: MESSAGES.SUCCESS,
-    });
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async update(
@@ -740,7 +736,10 @@ class WarehouseService {
       return;
     }
 
-    const warehouseInStock = await this.getWarehouseInStock(id);
+    const warehouseInStock = await warehouseRepository.findBy({
+      id,
+      type: WarehouseType.IN_STOCK,
+    });
     if (!warehouseInStock) {
       errorMessage.push(`${id}: ${MESSAGES.WAREHOUSE.IN_STOCK_NOT_FOUND}`);
       return;
@@ -855,13 +854,6 @@ class WarehouseService {
     }
     await inventoryRepository.update(value.inventoryId, {
       back_order: backOrder - changeQuantitySum,
-    });
-  }
-
-  private async getWarehouseInStock(id: string) {
-    return await warehouseRepository.findBy({
-      id,
-      type: WarehouseType.IN_STOCK,
     });
   }
 
