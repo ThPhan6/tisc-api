@@ -779,40 +779,47 @@ class WarehouseService {
       warehouseBackOrderId = warehouseBackOrder.id;
     }
     if (warehouseBackOrderId) {
-      await this.createInventoryAction(
-        warehouseBackOrderId,
-        inventoryLedger.inventory_id,
-        changeQuantity,
-        user.id
-      );
+      inventoryActionRepository.create({
+        warehouse_id: warehouseBackOrderId,
+        inventory_id: inventoryLedger.inventory_id,
+        quantity: changeQuantity,
+        created_by: user.id,
+        description: getInventoryActionDescription(
+          InventoryActionDescription.ADJUST
+        ),
+        type: InventoryActionType.IN,
+      });
 
-      await this.createInventoryAction(
-        warehouseBackOrderId,
-        inventoryLedger.inventory_id,
-        -changeQuantity,
-        user.id,
-        getInventoryActionDescription(
+      inventoryActionRepository.create({
+        warehouse_id: warehouseBackOrderId,
+        inventory_id: inventoryLedger.inventory_id,
+        quantity: -changeQuantity,
+        created_by: user.id,
+        description: getInventoryActionDescription(
           InventoryActionDescription.TRANSFER_TO,
           "In Stock"
-        )
-      );
+        ),
+        type: InventoryActionType.OUT,
+      });
     }
 
     inventoryLedgerRepository.update(inventoryLedger.id, {
       quantity: newQuantity,
     });
-    await this.createInventoryAction(
-      inventoryLedger.warehouse_id,
-      inventoryLedger.inventory_id,
-      changeQuantity,
-      user.id,
-      warehouseBackOrderId
-        ? getInventoryActionDescription(
-            InventoryActionDescription.TRANSFER_FROM,
-            "Back Order"
-          )
-        : undefined
-    );
+    inventoryActionRepository.create({
+      warehouse_id: inventoryLedger.warehouse_id,
+      inventory_id: inventoryLedger.inventory_id,
+      quantity: changeQuantity,
+      created_by: user.id,
+      description: getInventoryActionDescription(
+        warehouseBackOrderId
+          ? InventoryActionDescription.TRANSFER_FROM
+          : InventoryActionDescription.ADJUST,
+        warehouseBackOrderId ? "Back Order" : ""
+      ),
+      type:
+        changeQuantity > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
+    });
   }
 
   private async updateMultipleWarehouseByInventoryId(
@@ -858,26 +865,6 @@ class WarehouseService {
     }
     await inventoryRepository.update(value.inventoryId, {
       back_order: backOrder - changeQuantitySum,
-    });
-  }
-
-  private createInventoryAction(
-    warehouseId: string,
-    inventoryId: string,
-    changeQuantity: number,
-    userId: string,
-    description?: string
-  ) {
-    return inventoryActionRepository.create({
-      warehouse_id: warehouseId,
-      inventory_id: inventoryId,
-      quantity: changeQuantity,
-      created_by: userId,
-      description:
-        description ??
-        getInventoryActionDescription(InventoryActionDescription.ADJUST),
-      type:
-        changeQuantity > 0 ? InventoryActionType.IN : InventoryActionType.OUT,
     });
   }
 }
