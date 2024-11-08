@@ -798,7 +798,9 @@ class WarehouseService {
       );
     }
 
-    await this.updateInventoryLedger(inventoryLedger.id, newQuantity);
+    inventoryLedgerRepository.update(inventoryLedger.id, {
+      quantity: newQuantity,
+    });
     await this.createInventoryAction(
       inventoryLedger.warehouse_id,
       inventoryLedger.inventory_id,
@@ -856,15 +858,6 @@ class WarehouseService {
     }
     await inventoryRepository.update(value.inventoryId, {
       back_order: backOrder - changeQuantitySum,
-    });
-  }
-
-  private updateInventoryLedger(
-    inventoryLedgerId: string,
-    newQuantity: number
-  ) {
-    return inventoryLedgerRepository.update(inventoryLedgerId, {
-      quantity: newQuantity,
     });
   }
 
