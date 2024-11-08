@@ -15,7 +15,7 @@ export default {
   },
   delete: {
     params: {
-      id: Joi.string().required(),
+      location_id: Joi.string().required(),
     },
   },
 

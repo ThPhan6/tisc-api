@@ -4,6 +4,7 @@ import {
   InventoryBasePrice,
   InventoryVolumePrice,
 } from "../inventory_prices/inventory_prices.type";
+import { WarehouseCreate } from "../warehouses/warehouse.type";
 
 export interface InventoryCreate
   extends Pick<
@@ -21,6 +22,7 @@ export interface InventoryCreate
     InventoryVolumePrice,
     "discount_price" | "discount_rate" | "max_quantity" | "min_quantity"
   >[];
+  warehouses?: Pick<WarehouseCreate, "location_id" | "quantity">[];
 }
 
 export interface InventoryCategoryQuery {

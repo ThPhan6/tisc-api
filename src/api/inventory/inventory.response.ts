@@ -31,6 +31,7 @@ const InventoryResponse = {
       country_name: Joi.string().allow("").allow(null),
       city_name: Joi.string().allow("").allow(null),
       created_at: Joi.string().required(),
+      location_id: Joi.string().required(),
     })
   ),
   price: Joi.object({

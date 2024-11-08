@@ -154,6 +154,7 @@ export const MESSAGES = {
   USER_ROLE_NOT_FOUND: "Please login in the right section.",
   SEND_EMAIL_WRONG: "Something wrong when send email",
   USER_NOT_FOUND: "User not found",
+  STATUS_NOT_FOUND: "Status not found",
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
@@ -300,6 +301,7 @@ export const MESSAGES = {
   INVENTORY_NOT_FOUND: "Inventory not found",
   INVENTORY_BASE_PRICE_NOT_FOUND: "Inventory base price not found",
   INVENTORY_VOLUME_PRICE_NOT_FOUND: "Inventory volume price not found",
+  INVENTORY_LEDGER_NOT_FOUND: "Inventory ledger not found",
   SOMETHING_WRONG_CREATE_INVENTORY_BASE_PRICE:
     "Something went wrong when create inventory base price",
   SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE:

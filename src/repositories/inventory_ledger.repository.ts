@@ -1,6 +1,6 @@
 import InventoryLedgerModel from "@/models/inventory_ledger.model";
 import BaseRepository from "@/repositories/base.repository";
-import { InventoryLedgerEntity, WarehouseStatus } from "@/types";
+import { InventoryLedgerEntity } from "@/types";
 import { head } from "lodash";
 
 class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
@@ -12,15 +12,13 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
   }
 
   public async updateInventoryLedgerByWarehouseId(
-    warehouseId: string
+    warehouseId: string,
+    payload: Partial<InventoryLedgerEntity>
   ): Promise<InventoryLedgerEntity> {
     const ledgers = await this.model
       .where("deleted_at", "==", null)
       .where("warehouse_id", "==", warehouseId)
-      .update({
-        status: WarehouseStatus.INACTIVE,
-        quantity: 0,
-      });
+      .update(payload);
 
     return head(ledgers);
   }
