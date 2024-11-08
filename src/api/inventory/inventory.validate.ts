@@ -137,9 +137,8 @@ export default {
           back_order: Joi.number().min(1).strict().messages({
             "any.min": "Backorder is must be greater than 0",
           }),
-          unit_type: Joi.string().required(),
           volume_prices: volumePricesSchema,
-        }).required()
+        })
       )
       .unknown(false)
       .min(1),
