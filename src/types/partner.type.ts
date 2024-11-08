@@ -3,7 +3,9 @@ export interface PartnerAttributes {
   name: string;
   brand_id: string;
   country_id: string;
+  country_name: string;
   city_id: string;
+  city_name: string;
   contact: string | null;
   affiliation_name: string;
   affiliation_id: string;

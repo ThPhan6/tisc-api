@@ -18,8 +18,21 @@ const InventoryResponse = {
   back_order: Joi.number(),
   on_order: Joi.number(),
   description: Joi.string().allow(null).allow(""),
+  total_stock: Joi.number(),
+  out_stock: Joi.number().allow(null),
   created_at: Joi.string().required(),
   updated_at: Joi.string().allow(null),
+  warehouses: Joi.array().items(
+    Joi.object({
+      id: Joi.string().required(),
+      in_stock: Joi.number().required(),
+      name: Joi.string().required(),
+      country_name: Joi.string().allow("").allow(null),
+      city_name: Joi.string().allow("").allow(null),
+      created_at: Joi.string().required(),
+      location_id: Joi.string().required(),
+    })
+  ),
   price: Joi.object({
     id: Joi.string().required(),
     currency: Joi.string().required(),
