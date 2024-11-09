@@ -170,26 +170,22 @@ class InventoryService {
           data: WarehouseListResponse;
         };
 
-        if (isEmpty(warehouses?.data)) {
-          return {
-            ...newInventory,
-            total_stock: null,
-            out_stock: null,
-            warehouses: [],
-          };
-        }
-
-        return {
-          ...newInventory,
+        const stock = {
           stockValue:
             rate *
             (inventory.price?.unit_price || 0) *
             warehouses.data.total_stock,
           total_stock: warehouses.data.total_stock,
-          out_stock: !isNumber(newInventory.on_order)
-            ? null
-            : warehouses.data.total_stock - newInventory.on_order,
-          warehouses: warehouses.data.warehouses,
+          out_stock:
+            warehouses.data.total_stock - (newInventory?.on_order ?? 0),
+        };
+
+        return {
+          ...newInventory,
+          ...stock,
+          warehouses: isEmpty(warehouses.data)
+            ? []
+            : warehouses.data.warehouses,
         };
       })
     );
