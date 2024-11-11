@@ -170,14 +170,13 @@ class InventoryService {
           data: WarehouseListResponse;
         };
 
+        const totalStock = warehouses.data.total_stock;
+        const outStock = (newInventory?.on_order ?? 0) - totalStock;
+
         const stock = {
-          stockValue:
-            rate *
-            (inventory.price?.unit_price || 0) *
-            warehouses.data.total_stock,
-          total_stock: warehouses.data.total_stock,
-          out_stock:
-            warehouses.data.total_stock - (newInventory?.on_order ?? 0),
+          stockValue: rate * (inventory.price?.unit_price || 0) * totalStock,
+          total_stock: totalStock,
+          out_stock: outStock <= 0 ? 0 : -outStock,
         };
 
         return {
