@@ -141,7 +141,14 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   public async getList(
     query: InventoryCategoryQuery
   ): Promise<InventoryCategoryListWithPaginate> {
-    const { limit, offset, category_id, sort, search, order } = query;
+    const {
+      limit,
+      offset,
+      category_id,
+      sort = "sku",
+      search,
+      order = "ASC",
+    } = query;
 
     const rawQuery = `
       FOR inventory IN inventories
@@ -154,7 +161,6 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       ${search ? `FILTER LOWER(inventory.sku) LIKE "%${search}%"` : ""}
       ${sort && order ? `SORT inventory.@sort @order` : ""}
       ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
-      SORT inventory.created_at DESC
 
       LET latestPrice = FIRST(
         FOR price IN inventory_base_prices
@@ -187,7 +193,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       `;
 
     const result = await this.model.rawQueryV2(
-      `FOR item IN (${rawQuery}) SORT item.price.created_at DESC RETURN item`,
+      rawQuery,
       omitBy({ category_id, sort, order }, isNil)
     );
 
