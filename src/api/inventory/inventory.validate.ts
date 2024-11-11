@@ -63,12 +63,12 @@ const InventoryUpdateRequest = Joi.object({
   image: Joi.string().allow(null).allow(""),
   sku: Joi.string().allow(null).trim(),
   description: Joi.string().allow(null).allow("").trim(),
-  unit_price: Joi.number().min(1).strict().not(null),
+  unit_price: Joi.number().strict().not(null),
   on_order: Joi.number().min(0).strict().messages({
-    "any.min": "On order is must be positive number",
+    "number.min": "On order is must be positive number",
   }),
   back_order: Joi.number().min(0).strict().messages({
-    "any.min": "Backorder is must be positive number",
+    "number.min": "Backorder is must be positive number",
   }),
   unit_type: Joi.string().not("").not(null),
   volume_prices: volumePricesSchema,
@@ -126,16 +126,15 @@ export default {
   },
   updateInventories: {
     payload: Joi.object()
-      .required()
       .pattern(
         Joi.string().required(),
         Joi.object({
-          unit_price: Joi.number().min(1).strict().required(),
-          on_order: Joi.number().min(1).strict().messages({
-            "number.min": "On order is must be greater than 0",
+          unit_price: Joi.number().strict(),
+          on_order: Joi.number().min(0).strict().messages({
+            "number.min": "On order is must be positive number",
           }),
-          back_order: Joi.number().min(1).strict().messages({
-            "number.min": "Backorder is must be greater than 0",
+          back_order: Joi.number().min(0).strict().messages({
+            "number.min": "Backorder is must be positive number",
           }),
           volume_prices: volumePricesSchema,
         })
