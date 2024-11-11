@@ -6,6 +6,7 @@ import {
   InventoryCreate,
   InventoryListRequest,
 } from "./inventory.type";
+import { UserAttributes } from "@/types";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
@@ -37,14 +38,23 @@ export default class InventoryController {
     req: Request & { payload: InventoryCreate },
     toolkit: ResponseToolkit
   ) {
-    const response = await inventoryService.update(req.params.id, req.payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await inventoryService.update(
+      user,
+      req.params.id,
+      req.payload
+    );
     return toolkit.response(response).code(response.statusCode);
   }
   public async updateInventories(
     req: Request & { payload: Record<string, InventoryListRequest> },
     toolkit: ResponseToolkit
   ) {
-    const response = await inventoryService.updateInventories(req.payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await inventoryService.updateInventories(
+      user,
+      req.payload
+    );
     return toolkit.response(response).code(response.statusCode);
   }
 
@@ -61,6 +71,13 @@ export default class InventoryController {
 
   public async delete(req: Request, toolkit: ResponseToolkit) {
     const response = await inventoryService.delete(req.params.id);
+    return toolkit.response(response).code(response.statusCode);
+  }
+
+  public async move(req: Request, toolkit: ResponseToolkit) {
+    const { id } = req.params;
+    const { categoryId } = req.payload as any;
+    const response = await inventoryService.move(id, categoryId);
     return toolkit.response(response).code(response.statusCode);
   }
 }

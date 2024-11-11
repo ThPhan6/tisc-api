@@ -1,5 +1,5 @@
 import { INTEREST_RATE } from "@/constants";
-import { SortOrder } from "@/types";
+import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
 import { isEqual, omitBy, pick, round, template } from "lodash";
@@ -278,4 +278,18 @@ export const getLodashOrder = (order: SortOrder) =>
 
 export const toFixedNumber = (amount: number, n: number) => {
   return parseFloat(amount.toFixed(n));
+};
+
+export const getInventoryActionDescription = (
+  type: InventoryActionDescription,
+  description?: string
+) => {
+  switch (type) {
+    case InventoryActionDescription.TRANSFER_TO:
+      return `Transfer to ${description}`;
+    case InventoryActionDescription.TRANSFER_FROM:
+      return `Transfer from ${description}`;
+    default:
+      return "Adjust";
+  }
 };

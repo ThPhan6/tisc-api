@@ -154,6 +154,7 @@ export const MESSAGES = {
   USER_ROLE_NOT_FOUND: "Please login in the right section.",
   SEND_EMAIL_WRONG: "Something wrong when send email",
   USER_NOT_FOUND: "User not found",
+  STATUS_NOT_FOUND: "Status not found",
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
@@ -300,6 +301,7 @@ export const MESSAGES = {
   INVENTORY_NOT_FOUND: "Inventory not found",
   INVENTORY_BASE_PRICE_NOT_FOUND: "Inventory base price not found",
   INVENTORY_VOLUME_PRICE_NOT_FOUND: "Inventory volume price not found",
+  INVENTORY_LEDGER_NOT_FOUND: "Inventory ledger not found",
   SOMETHING_WRONG_CREATE_INVENTORY_BASE_PRICE:
     "Something went wrong when create inventory base price",
   SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE:
@@ -310,4 +312,19 @@ export const MESSAGES = {
   SOMETHING_WRONG_EXCHANGE_CURRENCY:
     "Something went wrong when exchange currency",
   EXCHANGE_CURRENCY_THE_SAME: "Cannot exchange the same currency",
+  LESS_THAN_ZERO: "Value must be greater than or equal to 0",
+
+  WAREHOUSE: {
+    NOT_FOUND: "Warehouse not found",
+    IN_STOCK_NOT_FOUND: "Warehouse In Stock not found",
+    EXISTED: "Warehouse existed",
+    LESS_THAN_ZERO: "In Stock must be greater than or equal to 0",
+    NOT_AVAILABLE: "Warehouse not available.",
+    SUM_IN_STOCK: "Total In Stock is greater than Backorder",
+    BACK_ORDER_NOT_FOUND: "Warehouse Back Order not found",
+  },
+  INVENTORY: {
+    NOT_FOUND_LEDGER: "Inventory ledger not found",
+    NOT_FOUND_ACTION: "Inventory action not found",
+  },
 };

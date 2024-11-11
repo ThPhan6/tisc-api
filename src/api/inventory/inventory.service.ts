@@ -9,18 +9,37 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { warehouseRepository } from "@/repositories/warehouse.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import { IExchangeCurrency } from "@/types";
+import {
+  IExchangeCurrency,
+  UserAttributes,
+  WarehouseStatus,
+  WarehouseType,
+} from "@/types";
 import { randomUUID } from "crypto";
-import { isEmpty, isNil, isString, map, omit, pick } from "lodash";
+import {
+  head,
+  isEmpty,
+  isNil,
+  isNumber,
+  isString,
+  map,
+  omit,
+  pick,
+  sumBy,
+  uniqBy,
+} from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
+import { warehouseService } from "../warehouses/warehouse.service";
+import { WarehouseListResponse } from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
@@ -118,28 +137,61 @@ class InventoryService {
 
   public async getList(query: InventoryCategoryQuery) {
     const inventoryList = await inventoryRepository.getList(query);
-
     if (!inventoryList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
-    return successResponse({
-      data: {
-        inventories: inventoryList.data.map((el) => ({
-          ...omit(el, ["image"]),
-          image: el?.image ?? "",
-          price: isEmpty(el?.price)
+    const inventories = await Promise.all(
+      inventoryList.data.map(async (inventory) => {
+        const rate = isEmpty(inventory.price?.exchange_histories)
+          ? 1
+          : sumBy(inventory.price.exchange_histories, "rate");
+
+        const newInventory = {
+          ...omit(inventory, ["image"]),
+          image: inventory.image ?? "",
+          price: isEmpty(inventory?.price)
             ? null
             : {
-                ...el.price,
-                exchange_histories: el.price?.exchange_histories?.length
-                  ? el.price.exchange_histories
+                ...inventory.price,
+                exchange_histories: inventory.price?.exchange_histories?.length
+                  ? inventory.price.exchange_histories
                   : null,
-                volume_prices: el.price?.volume_prices?.length
-                  ? el.price.volume_prices
+                volume_prices: inventory.price?.volume_prices?.length
+                  ? inventory.price.volume_prices
                   : null,
               },
-        })),
+        };
+
+        const warehouses = (await warehouseService.getList(
+          newInventory.id,
+          WarehouseStatus.ACTIVE
+        )) as unknown as {
+          data: WarehouseListResponse;
+        };
+
+        const totalStock = warehouses.data.total_stock;
+        const outStock = (newInventory?.on_order ?? 0) - totalStock;
+
+        const stock = {
+          stockValue: rate * (inventory.price?.unit_price || 0) * totalStock,
+          total_stock: totalStock,
+          out_stock: outStock <= 0 ? 0 : -outStock,
+        };
+
+        return {
+          ...newInventory,
+          ...stock,
+          warehouses: isEmpty(warehouses.data)
+            ? []
+            : warehouses.data.warehouses,
+        };
+      })
+    );
+
+    return successResponse({
+      data: {
+        inventories,
         pagination: inventoryList.pagination,
       },
     });
@@ -282,7 +334,12 @@ class InventoryService {
     }
 
     const newInventory = await inventoryRepository.create({
-      ...pick(payload, ["sku", "inventory_category_id"]),
+      ...pick(payload, [
+        "sku",
+        "inventory_category_id",
+        "on_order",
+        "back_order",
+      ]),
       description: payload.description ?? "",
       image: isString(image) ? image : image.smallWebp,
       id: inventoryId,
@@ -308,28 +365,28 @@ class InventoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async update(id: string, payload: Partial<InventoryCreate>) {
+  public async update(
+    user: UserAttributes,
+    id: string,
+    payload: Partial<InventoryCreate>
+  ) {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
     }
-
     /// find category to get brand
     const category = await dynamicCategoryRepository.find(
       inventoryExisted.inventory_category_id
     );
-
     if (!category) {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
     }
-
     /// find brand
     const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
-
     /// upload image
     let image:
       | string
@@ -339,24 +396,20 @@ class InventoryService {
           largePng: string;
           smallPng: string;
         } = inventoryExisted.image;
-
     if (payload.image) {
       if (!(await validateImageType([payload.image]))) {
         return errorMessageResponse(MESSAGES.IMAGE_INVALID);
       }
-
       image = await uploadImagesInventory(
         payload.image,
         brand.name,
         brand.id,
         inventoryExisted.id
       );
-
       if (!image) {
         return errorMessageResponse(MESSAGES.IMAGE_UPLOAD_FAILED);
       }
     }
-
     /// create inventory base and volume prices
     if (!isNil(payload.unit_price) || !isNil(payload.unit_type)) {
       const inventoryPrice = await this.createInventoryPrices(
@@ -368,7 +421,6 @@ class InventoryService {
           volume_prices: payload?.volume_prices,
         }
       );
-
       if (
         isEmpty(inventoryPrice?.basePrice) ||
         (!isEmpty(payload?.volume_prices) &&
@@ -379,15 +431,15 @@ class InventoryService {
         );
       }
     }
-
     /// update inventory
     const updatedInventory = await inventoryRepository.update(id, {
       ...inventoryExisted,
       ...pick(payload, "description", "sku"),
       image: isString(image) ? image : image.smallWebp,
       updated_at: getTimestamps(),
+      on_order: payload.on_order ?? inventoryExisted.on_order,
+      back_order: payload.back_order ?? inventoryExisted.back_order,
     });
-
     if (!updatedInventory) {
       if (isString(image)) {
         await deleteFile(image);
@@ -401,18 +453,82 @@ class InventoryService {
           ].map(async (el) => await deleteFile(el))
         );
       }
-
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+    }
+
+    if ("warehouses" in payload) {
+      const uniqueLocationIds = uniqBy(payload.warehouses, "location_id");
+      const count = uniqueLocationIds.length;
+
+      if (count !== payload?.warehouses?.length) {
+        return errorMessageResponse("Warehouse duplicate location");
+      }
+
+      const payloadWarehouseLocationIds = payload.warehouses.map(
+        (el) => el.location_id
+      );
+
+      const instockWarehouseActive = (await warehouseService.getList(
+        id,
+        WarehouseStatus.ACTIVE
+      )) as unknown as {
+        data: WarehouseListResponse;
+      };
+
+      /// instock warehouses are not in payload
+      const warehouseDeleted = instockWarehouseActive.data.warehouses
+        .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
+        .map((el) => ({
+          location_id: el.location_id,
+          quantity: el.in_stock,
+        }));
+
+      const res = [];
+
+      if (warehouseDeleted.length) {
+        const warehouses = await Promise.all(
+          warehouseDeleted.map(
+            async (ws) => await warehouseService.delete(user, ws.location_id)
+          )
+        );
+
+        res.push(...warehouses);
+      }
+
+      /// create new warehouse and update warehouse existed
+      const warehouseUpdated = await Promise.all(
+        payload.warehouses.map(async (ws) => {
+          return await warehouseService.create(user, {
+            inventory_id: id,
+            location_id: ws.location_id,
+            quantity: ws.quantity,
+          });
+        })
+      );
+
+      res.push(...warehouseUpdated);
+
+      const messageError = res
+        .filter((el) => el?.statusCode !== 200)
+        .map((el) => el?.message);
+
+      if (messageError.length) {
+        return {
+          message: messageError.join(", "),
+          statusCode: 400,
+        };
+      }
     }
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
   public async updateInventories(
+    user: UserAttributes,
     payload: Record<string, InventoryListRequest>
   ) {
     await Promise.all(
-      map(payload, async (value, key) => await this.update(key, value))
+      map(payload, async (value, key) => await this.update(user, key, value))
     );
 
     return successResponse({
@@ -436,6 +552,29 @@ class InventoryService {
     return successResponse({
       message: MESSAGES.SUCCESS,
     });
+  }
+
+  public async move(inventoryId: string, categoryId: string) {
+    const inventory = await inventoryRepository.find(inventoryId);
+    if (!inventory)
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
+
+    const category = await dynamicCategoryRepository.find(categoryId);
+    if (!category) return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+
+    const lastLevel = await dynamicCategoryRepository.getMaxCategoryLevel();
+
+    if (category.level !== +lastLevel)
+      return errorMessageResponse("Only the category is acceptable");
+
+    const updatedInventory = await inventoryRepository.update(inventoryId, {
+      inventory_category_id: categoryId,
+    });
+
+    if (!updatedInventory)
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+
+    return successResponse({ message: MESSAGES.SUCCESS });
   }
 }
 

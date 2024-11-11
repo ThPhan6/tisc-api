@@ -393,5 +393,15 @@ export const ROUTES = {
     DELETE: "/api/inventory/delete/{id}",
     SUMMARY: "/api/inventory/summary/brand/{id}",
     EXCHANGE: "/api/inventory/exchange/brand/{id}",
+    MOVE: "/api/inventory/move/{id}",
+  },
+  WAREHOUSE: {
+    GET_ONE: "/api/warehouse/get-one/{id}",
+    GET_LIST_WITH_INVENTORY: "/api/warehouse/get-list/inventory/{id}",
+    CREATE: "/api/warehouse/create",
+    UPDATE: "/api/warehouse/update/{id}",
+    DELETE: "/api/warehouse/delete/{id}",
+    UPDATE_MULTIPLE: "/api/warehouse/update-multiple",
+    UPDATE_MULTIPLE_BY_BACK_ORDER: "/api/warehouse/update-multiple-back-order",
   },
 };
