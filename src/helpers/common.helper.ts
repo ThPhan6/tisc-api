@@ -1,8 +1,8 @@
+import { INTEREST_RATE } from "@/constants";
+import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { template, round, omitBy, isEqual, pick } from "lodash";
-import { INTEREST_RATE } from "@/constants";
-import { SortOrder } from "@/types";
+import { isEqual, omitBy, pick, round, template } from "lodash";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -278,4 +278,18 @@ export const getLodashOrder = (order: SortOrder) =>
 
 export const toFixedNumber = (amount: number, n: number) => {
   return parseFloat(amount.toFixed(n));
+};
+
+export const getInventoryActionDescription = (
+  type: InventoryActionDescription,
+  description?: string
+) => {
+  switch (type) {
+    case InventoryActionDescription.TRANSFER_TO:
+      return `Transfer to ${description}`;
+    case InventoryActionDescription.TRANSFER_FROM:
+      return `Transfer from ${description}`;
+    default:
+      return "Adjust";
+  }
 };

@@ -10,6 +10,7 @@ import { databaseBackupQueue } from "./queues/database_backup.queue";
 import { invoiceEmailQueue } from "./queues/invoice_mail.queue";
 import { colorDetectionQueue } from "./queues/color_detection.queue";
 import { activityLogService } from "./services/activityLog.service";
+import { exchangeCurrencyQueue } from "./queues/exchange_currency.queue";
 
 const server: hapi.Server = new hapi.Server({
   host: ENVIRONMENT.HOST,
@@ -81,6 +82,8 @@ async function start() {
     databaseBackupQueue.add();
     invoiceEmailQueue.process();
     invoiceEmailQueue.add();
+    exchangeCurrencyQueue.process();
+    exchangeCurrencyQueue.add();
     await Router.loadRoute(server);
     await server.start();
     server.events.on("log", (event, tags) => {
