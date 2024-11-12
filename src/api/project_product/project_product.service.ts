@@ -18,7 +18,7 @@ import {
   SummaryItemPosition,
   UserType,
 } from "@/types";
-import { isEmpty, sumBy, countBy, sortBy, uniqBy, orderBy } from "lodash";
+import { isEmpty, sumBy, countBy, sortBy, uniqBy, orderBy, filter } from "lodash";
 import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
@@ -752,7 +752,7 @@ class ProjectProductService {
       }, []);
       return [...totalIds, ...zoneRoomIds];
     }, []);
-    const specifiedProducts = rawSpecifiedProducts.map((brandProducts: any)=> {
+    const filteredSpecifiedProducts = rawSpecifiedProducts.map((brandProducts: any)=> {
       const newProducts = brandProducts?.products?.filter((product: any)=>
         product.specifiedDetail?.allocation?.some((room_id: any)=>
           zonesRoomIds.includes(room_id))
@@ -760,6 +760,9 @@ class ProjectProductService {
       );
       return {...brandProducts, products: newProducts};
     });
+
+    const specifiedProducts = filteredSpecifiedProducts.filter(
+      (brand: any)=> brand?.products?.length > 0);
 
     const total = sumBy(specifiedProducts, "count");
 
