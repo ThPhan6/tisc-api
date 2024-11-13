@@ -274,6 +274,7 @@ class InventoryService {
     const category = await dynamicCategoryRepository.find(
       payload.inventory_category_id
     );
+
     if (!category?.relation_id) {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_BELONG_TO_BRAND);
     }
@@ -282,6 +283,15 @@ class InventoryService {
     const brand = await brandRepository.find(category.relation_id);
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    const inventories = await inventoryRepository.getAll();
+    const isNameExist = inventories.some(
+      (el) => el.sku.toLowerCase() === payload.sku.toLowerCase()
+    );
+
+    if (isNameExist) {
+      return errorMessageResponse(MESSAGES.INVENTORY.SKU_EXISTED);
     }
 
     const inventoryId = randomUUID();
@@ -375,10 +385,23 @@ class InventoryService {
     if (!inventoryExisted) {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
     }
+
+    if ("sku" in payload) {
+      const inventories = await inventoryRepository.getAll();
+      const isNameExist = inventories.some(
+        (el) => el.sku.toLowerCase() === payload.sku?.toLowerCase()
+      );
+
+      if (isNameExist) {
+        return errorMessageResponse(MESSAGES.INVENTORY.SKU_EXISTED);
+      }
+    }
+
     /// find category to get brand
     const category = await dynamicCategoryRepository.find(
       inventoryExisted.inventory_category_id
     );
+
     if (!category) {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND, 404);
     }
