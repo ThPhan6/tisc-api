@@ -326,5 +326,6 @@ export const MESSAGES = {
   INVENTORY: {
     NOT_FOUND_LEDGER: "Inventory ledger not found",
     NOT_FOUND_ACTION: "Inventory action not found",
+    SKU_EXISTED: "SKU existed",
   },
 };
