@@ -67,6 +67,51 @@ class InventoryService {
     return newErrors;
   }
 
+  private async validateImportPayload(payload: InventoryCreate[]) {
+    let errors: InventoryErrorList[] = [];
+
+    const inventories = await inventoryRepository.getAll();
+    const existedSKU = inventories.map((el) => el.sku.toLowerCase());
+
+    payload.forEach((item) => {
+      if (existedSKU.includes(item.sku.toLowerCase())) {
+        errors = this.pushErrorMessages(
+          errors,
+          item,
+          MESSAGES.INVENTORY.SKU_EXISTED
+        );
+      }
+
+      if (!isEmpty(item?.volume_prices)) {
+        if (!this.isValidVolumePrices(item.volume_prices as any)) {
+          errors = this.pushErrorMessages(
+            errors,
+            item,
+            MESSAGES.INVENTORY.INVALID_VOLUME_PRICES
+          );
+        }
+      }
+
+      if (item.on_order && item.on_order < 0) {
+        errors = this.pushErrorMessages(
+          errors,
+          item,
+          MESSAGES.INVENTORY.ON_ORDER_LESS_THAN_ZERO
+        );
+      }
+
+      if (item.back_order && item.back_order < 0) {
+        errors = this.pushErrorMessages(
+          errors,
+          item,
+          MESSAGES.INVENTORY.BACK_ORDER_LESS_THAN_ZERO
+        );
+      }
+    });
+
+    return errors;
+  }
+
   private isValidVolumePrices(
     volumePrices: Pick<
       InventoryVolumePrice,
@@ -665,52 +710,12 @@ class InventoryService {
   }
 
   public async createMultiple(payload: InventoryCreate[]) {
-    let errors: InventoryErrorList[] = [];
-
-    const inventories = await inventoryRepository.getAll();
-    const existedSKU = inventories.map((el) => el.sku.toLowerCase());
-
-    payload.forEach((item) => {
-      if (existedSKU.includes(item.sku.toLowerCase())) {
-        errors = this.pushErrorMessages(
-          errors,
-          item,
-          MESSAGES.INVENTORY.SKU_EXISTED
-        );
-      }
-
-      if (!isEmpty(item?.volume_prices)) {
-        if (!this.isValidVolumePrices(item.volume_prices as any)) {
-          errors = this.pushErrorMessages(
-            errors,
-            item,
-            MESSAGES.INVENTORY.INVALID_VOLUME_PRICES
-          );
-        }
-      }
-
-      if (item.on_order && item.on_order < 0) {
-        errors = this.pushErrorMessages(
-          errors,
-          item,
-          MESSAGES.INVENTORY.ON_ORDER_LESS_THAN_ZERO
-        );
-      }
-
-      if (item.back_order && item.back_order < 0) {
-        errors = this.pushErrorMessages(
-          errors,
-          item,
-          MESSAGES.INVENTORY.BACK_ORDER_LESS_THAN_ZERO
-        );
-      }
-    });
+    const errors: InventoryErrorList[] = await this.validateImportPayload(
+      payload
+    );
 
     if (errors.length) {
-      return successResponse({
-        errors,
-        statusCode: 400,
-      });
+      return errorMessageResponse(JSON.stringify(errors), 400);
     }
 
     const newInventories = await Promise.all(
