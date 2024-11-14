@@ -117,6 +117,9 @@ export default {
   create: {
     payload: InventoryCreateRequest,
   },
+  import: {
+    payload: Joi.array().required().items(InventoryCreateRequest).min(1),
+  },
   delete: {
     params: InventoryId,
   },

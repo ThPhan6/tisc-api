@@ -9,28 +9,22 @@ import { brandRepository } from "@/repositories/brand.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
-import { warehouseRepository } from "@/repositories/warehouse.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import {
-  IExchangeCurrency,
-  UserAttributes,
-  WarehouseStatus,
-  WarehouseType,
-} from "@/types";
+import { IExchangeCurrency, UserAttributes, WarehouseStatus } from "@/types";
 import { randomUUID } from "crypto";
 import {
-  head,
   isEmpty,
   isNil,
-  isNumber,
   isString,
+  lastIndexOf,
   map,
   omit,
   pick,
+  sortBy,
   sumBy,
   uniqBy,
 } from "lodash";
@@ -43,10 +37,73 @@ import { WarehouseListResponse } from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
+  InventoryErrorList,
   InventoryListRequest,
 } from "./inventory.type";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 
 class InventoryService {
+  private pushErrorMessages(
+    errors: InventoryErrorList[],
+    item: InventoryCreate,
+    message: string
+  ) {
+    const newErrors = [...errors];
+
+    const index = lastIndexOf(
+      newErrors.map((err) => err.sku),
+      item.sku
+    );
+
+    if (index !== -1) {
+      newErrors[index].errors.push(message);
+    } else {
+      newErrors.push({
+        ...item,
+        errors: [message],
+      });
+    }
+
+    return newErrors;
+  }
+
+  private isValidVolumePrices(
+    volumePrices: Pick<
+      InventoryVolumePrice,
+      "min_quantity" | "discount_price" | "discount_rate" | "max_quantity"
+    >[]
+  ) {
+    if (!volumePrices?.length) {
+      return true;
+    }
+
+    let isValidVolumePrice = true;
+    volumePrices.forEach((el) => {
+      if (
+        el.min_quantity === 0 ||
+        el.max_quantity === 0 ||
+        el.discount_rate === 0 ||
+        (el?.max_quantity || 0) - (el?.min_quantity || 0) <= 1
+      ) {
+        isValidVolumePrice = false;
+      }
+    });
+
+    if (!isValidVolumePrice) return false;
+
+    const newVolumePrices = sortBy(volumePrices, "min_quantity");
+
+    for (let i = 1; i < newVolumePrices.length; i++) {
+      if (
+        newVolumePrices[i].min_quantity <= newVolumePrices[i - 1].max_quantity
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   private async createInventoryPrices(
     inventoryId: string,
     brandId: string,
@@ -59,6 +116,13 @@ class InventoryService {
     if (!inventoryId || !brandId) {
       return;
     }
+
+    if (!this.isValidVolumePrices(volume_prices))
+      return {
+        basePrice: null,
+        volumePrices: null,
+        message: MESSAGES.INVENTORY.INVALID_VOLUME_PRICES,
+      };
 
     /// create base price
     const basePrice = await inventoryBasePriceService.create({
@@ -598,6 +662,68 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
 
     return successResponse({ message: MESSAGES.SUCCESS });
+  }
+
+  public async createMultiple(payload: InventoryCreate[]) {
+    let errors: InventoryErrorList[] = [];
+
+    const inventories = await inventoryRepository.getAll();
+    const existedSKU = inventories.map((el) => el.sku.toLowerCase());
+
+    payload.forEach((item) => {
+      if (existedSKU.includes(item.sku.toLowerCase())) {
+        errors = this.pushErrorMessages(
+          errors,
+          item,
+          MESSAGES.INVENTORY.SKU_EXISTED
+        );
+      }
+
+      if (!isEmpty(item?.volume_prices)) {
+        if (!this.isValidVolumePrices(item.volume_prices as any)) {
+          errors = this.pushErrorMessages(
+            errors,
+            item,
+            MESSAGES.INVENTORY.INVALID_VOLUME_PRICES
+          );
+        }
+      }
+
+      if (item.on_order && item.on_order < 0) {
+        errors = this.pushErrorMessages(
+          errors,
+          item,
+          MESSAGES.INVENTORY.ON_ORDER_LESS_THAN_ZERO
+        );
+      }
+
+      if (item.back_order && item.back_order < 0) {
+        errors = this.pushErrorMessages(
+          errors,
+          item,
+          MESSAGES.INVENTORY.BACK_ORDER_LESS_THAN_ZERO
+        );
+      }
+    });
+
+    if (errors.length) {
+      return successResponse({
+        errors,
+        statusCode: 400,
+      });
+    }
+
+    const newInventories = await Promise.all(
+      payload.map(
+        async (inventory) => await this.create(omit(inventory, "image"))
+      )
+    );
+
+    if (newInventories.some((el) => el.statusCode !== 200)) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
 

@@ -80,4 +80,12 @@ export default class InventoryController {
     const response = await inventoryService.move(id, categoryId);
     return toolkit.response(response).code(response.statusCode);
   }
+
+  public async import(
+    req: Request & { payload: InventoryCreate[] },
+    toolkit: ResponseToolkit
+  ) {
+    const response = await inventoryService.createMultiple(req.payload);
+    return toolkit.response(response).code(response.statusCode);
+  }
 }
