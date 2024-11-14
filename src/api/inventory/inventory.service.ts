@@ -715,7 +715,10 @@ class InventoryService {
     );
 
     if (errors.length) {
-      return errorMessageResponse(JSON.stringify(errors), 400);
+      return errorMessageResponse(
+        errors.map((el) => `${el.sku}: ${el.errors.join(" - ")}`).join(", "),
+        400
+      );
     }
 
     const newInventories = await Promise.all(
