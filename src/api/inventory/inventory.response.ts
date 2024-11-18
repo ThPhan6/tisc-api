@@ -19,7 +19,7 @@ const InventoryResponse = {
   on_order: Joi.number(),
   description: Joi.string().allow(null).allow(""),
   total_stock: Joi.number(),
-  stockValue: Joi.number().allow(null),
+  stock_value: Joi.number().allow(null),
   out_stock: Joi.number().allow(null),
   created_at: Joi.string().required(),
   updated_at: Joi.string().allow(null),

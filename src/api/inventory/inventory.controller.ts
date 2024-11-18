@@ -87,14 +87,14 @@ export default class InventoryController {
     req: Request & { payload: InventoryExportRequest },
     toolkit: ResponseToolkit
   ) {
-    const response = await inventoryService.export(req.payload);
+    const response = (await inventoryService.export(req.payload)) as any;
 
     return toolkit
-      .response(response)
+      .response(response.data)
       .type("text/csv")
       .header(
         "Content-Disposition",
-        `attachment; filename=${new Date().toISOString()}-export.csv`
+        `attachment; filename="${new Date().toISOString()}-export.csv";`
       )
       .code(response.statusCode);
   }

@@ -99,12 +99,12 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.OUT_OF_STOCK]: "out_of_stock",
   [InventoryExportType.TOTAL_STOCK]: "total_stock",
 
-  [InventoryExportType.DISCOUNT_RATE]: "volume_discount_rate",
-  [InventoryExportType.MIN_QUANTITY]: "volume_min_quantity",
-  [InventoryExportType.MAX_QUANTITY]: "volume_max_quantity",
+  [InventoryExportType.DISCOUNT_RATE]: "discount_rate",
+  [InventoryExportType.MIN_QUANTITY]: "min_quantity",
+  [InventoryExportType.MAX_QUANTITY]: "max_quantity",
 
-  [InventoryExportType.WAREHOUSE_NAME]: "warehouse_name",
-  [InventoryExportType.WAREHOUSE_CITY]: "warehouse_city_name",
-  [InventoryExportType.WAREHOUSE_COUNTRY]: "warehouse_country_name",
-  [InventoryExportType.WAREHOUSE_IN_STOCK]: "warehouse_in_stock",
+  [InventoryExportType.WAREHOUSE_NAME]: "name",
+  [InventoryExportType.WAREHOUSE_CITY]: "city_name",
+  [InventoryExportType.WAREHOUSE_COUNTRY]: "country_name",
+  [InventoryExportType.WAREHOUSE_IN_STOCK]: "in_stock",
 };

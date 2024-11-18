@@ -1,6 +1,6 @@
 import { MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
-import { convertInventoryArrayToCsv } from "@/helpers/common.helper";
+import { jsonToCSV } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -19,6 +19,7 @@ import {
 import { IExchangeCurrency, UserAttributes, WarehouseStatus } from "@/types";
 import { randomUUID } from "crypto";
 import {
+  forEach,
   isEmpty,
   isNil,
   isString,
@@ -31,19 +32,90 @@ import {
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { warehouseService } from "../warehouses/warehouse.service";
-import { WarehouseListResponse } from "../warehouses/warehouse.type";
+import {
+  WarehouseListResponse,
+  WarehouseResponse,
+} from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryExportRequest,
+  InventoryExportType,
   InventoryExportTypeLabel,
   InventoryListRequest,
   InventoryListResponse,
 } from "./inventory.type";
 
 class InventoryService {
+  private convertInventoryArrayToCsv = (
+    typeHeaders: InventoryExportType[],
+    content: InventoryListResponse[]
+  ) => {
+    const headerSelected: string[] = typeHeaders.map(
+      (el) => InventoryExportTypeLabel[el]
+    );
+
+    const contentFlat = content.map((item) => {
+      const newContent: any = {
+        ...omit(item, ["price", "warehouses"]),
+        unit_price: item.price.unit_price,
+        unit_type: item.price.unit_type,
+      };
+
+      forEach(
+        item.price.volume_prices,
+        (volume_price: InventoryVolumePrice, idx: number) => {
+          forEach(volume_price, (price, key: string) => {
+            if (headerSelected.includes(key)) {
+              newContent[`#${idx + 1}_${key}`] = price;
+            }
+          });
+        }
+      );
+
+      forEach(item.warehouses, (warehouse: WarehouseResponse, idx: number) => {
+        forEach(warehouse, (value, key: string) => {
+          if (headerSelected.includes(key)) {
+            newContent[`#${idx + 1}_${key}`] = value;
+          }
+        });
+      });
+
+      return newContent;
+    });
+
+    return jsonToCSV(
+      contentFlat.map((el) => ({
+        sku: el.sku,
+        description: el.description,
+        unit_price: el.unit_price,
+        unit_type: el.unit_type,
+        back_order: el.back_order,
+        on_order: el.on_order,
+        total_stock: el.total_stock,
+        out_stock: el.out_stock,
+        ...omit(el, [
+          "sku",
+          "description",
+          "unit_price",
+          "unit_type",
+          "back_order",
+          "on_order",
+          "total_stock",
+          "out_stock",
+          "image",
+          "id",
+          "inventory_category_id",
+          "updated_at",
+          "created_at",
+        ]),
+      }))
+    );
+  };
+
   private async createInventoryPrices(
     inventoryId: string,
     brandId: string,
@@ -171,7 +243,7 @@ class InventoryService {
         const outStock = (newInventory?.on_order ?? 0) - totalStock;
 
         const stock = {
-          stockValue: rate * (inventory.price?.unit_price || 0) * totalStock,
+          stock_value: rate * (inventory.price?.unit_price || 0) * totalStock,
           total_stock: totalStock,
           out_stock: outStock <= 0 ? 0 : -outStock,
         };
@@ -634,12 +706,8 @@ class InventoryService {
 
     const unitTypes = await commonTypeRepository.getAll();
 
-    const headerSelected = payload.types.map(
-      (el) => InventoryExportTypeLabel[el]
-    );
-
-    const data = convertInventoryArrayToCsv(
-      headerSelected,
+    const data = this.convertInventoryArrayToCsv(
+      payload.types,
       inventory.data.inventories.map((el) => ({
         ...el,
         price: {
