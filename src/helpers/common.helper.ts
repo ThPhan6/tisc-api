@@ -1,8 +1,20 @@
+import { InventoryListResponse } from "@/api/inventory/inventory.type";
+import { InventoryVolumePrice } from "@/api/inventory_prices/inventory_prices.type";
+import { WarehouseResponse } from "@/api/warehouses/warehouse.type";
 import { INTEREST_RATE } from "@/constants";
 import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
 import * as FileType from "file-type";
-import { isEqual, omitBy, pick, round, template } from "lodash";
+import {
+  forEach,
+  get,
+  isEqual,
+  omit,
+  omitBy,
+  pick,
+  round,
+  template,
+} from "lodash";
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -292,4 +304,49 @@ export const getInventoryActionDescription = (
     default:
       return "Adjust";
   }
+};
+
+export const convertInventoryArrayToCsv = (
+  headers: string[],
+  content: InventoryListResponse[]
+) => {
+  const rows: any[] = [];
+
+  const contentFlat = content.map((item) => {
+    const newContent: any = {
+      ...omit(item, ["price", "warehouses"]),
+      unit_price: item.price.unit_price,
+      unit_type: item.price.unit_type,
+    };
+
+    forEach(
+      item.price.volume_prices,
+      (volume_price: InventoryVolumePrice, idx: number) => {
+        forEach(volume_price, (price, key: string) => {
+          newContent[`#${idx + 1}_volume_${key}`] = price;
+        });
+      }
+    );
+
+    forEach(item.warehouses, (warehouse: WarehouseResponse, idx: number) => {
+      forEach(warehouse, (value, key: string) => {
+        newContent[`#${idx + 1}_warehouse_${key}`] = value;
+      });
+    });
+
+    return newContent;
+  });
+
+  forEach(contentFlat, (obj) => {
+    forEach(obj, (value, key) => {
+      switch (key) {
+        case "price":
+
+        default:
+          rows.push(value);
+      }
+    });
+  });
+
+  return contentFlat;
 };

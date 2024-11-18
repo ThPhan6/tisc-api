@@ -1,32 +1,26 @@
 import { MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
+import { convertInventoryArrayToCsv } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
-import { warehouseRepository } from "@/repositories/warehouse.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import {
-  IExchangeCurrency,
-  UserAttributes,
-  WarehouseStatus,
-  WarehouseType,
-} from "@/types";
+import { IExchangeCurrency, UserAttributes, WarehouseStatus } from "@/types";
 import { randomUUID } from "crypto";
 import {
-  head,
   isEmpty,
   isNil,
-  isNumber,
   isString,
   map,
   omit,
@@ -43,7 +37,10 @@ import { WarehouseListResponse } from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
+  InventoryExportRequest,
+  InventoryExportTypeLabel,
   InventoryListRequest,
+  InventoryListResponse,
 } from "./inventory.type";
 
 class InventoryService {
@@ -598,6 +595,63 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
 
     return successResponse({ message: MESSAGES.SUCCESS });
+  }
+
+  public async export(payload: InventoryExportRequest) {
+    const inValidPayload = payload.types.some(
+      (el) => !InventoryExportTypeLabel[el]
+    );
+
+    if (inValidPayload) {
+      return errorMessageResponse(MESSAGES.INVALID_EXPORT_TYPE);
+    }
+
+    const category = await dynamicCategoryRepository.find(payload.category_id);
+
+    if (!category) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+    }
+
+    if (!category?.relation_id) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_BELONG_TO_BRAND);
+    }
+
+    const brand = await brandRepository.find(category.relation_id);
+
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+
+    const inventory = (await this.getList({
+      category_id: payload.category_id,
+    })) as unknown as {
+      data: { inventories: InventoryListResponse[] };
+    };
+
+    if (!inventory?.data?.inventories?.length) {
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
+    }
+
+    const unitTypes = await commonTypeRepository.getAll();
+
+    const headerSelected = payload.types.map(
+      (el) => InventoryExportTypeLabel[el]
+    );
+
+    const data = convertInventoryArrayToCsv(
+      headerSelected,
+      inventory.data.inventories.map((el) => ({
+        ...el,
+        price: {
+          ...el.price,
+          unit_type:
+            unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
+            "",
+        },
+      }))
+    );
+
+    return successResponse({ data });
   }
 }
 

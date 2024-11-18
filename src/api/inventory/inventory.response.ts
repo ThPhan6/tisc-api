@@ -73,7 +73,7 @@ export default {
         page_size: Joi.number().required(),
         total: Joi.number().required(),
         page_count: Joi.number().required(),
-      }).required(),
+      }).allow(null),
     }).required(),
     statusCode: Joi.number().required(),
   }).required(),
