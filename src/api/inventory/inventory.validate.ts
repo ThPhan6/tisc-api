@@ -48,6 +48,12 @@ const InventoryCreateRequest = Joi.object({
     "any.required": "Unit price is required",
     "any.min": "Unit price is must be greater than 0",
   }),
+  on_order: Joi.number().min(0).strict().messages({
+    "number.min": "On order is must be positive number",
+  }),
+  back_order: Joi.number().min(0).strict().messages({
+    "number.min": "Backorder is must be positive number",
+  }),
   unit_type: requireStringValidation("Unit type").not("").not(null),
   volume_prices: volumePricesSchema,
 })
