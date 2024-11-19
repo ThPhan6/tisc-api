@@ -45,7 +45,8 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
-    const response = await productService.getBrandProductSummary(brand_id);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await productService.getBrandProductSummary(brand_id, user);
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {

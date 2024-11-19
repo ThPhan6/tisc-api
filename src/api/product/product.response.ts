@@ -82,6 +82,7 @@ export const productResponse = {
   dimension_and_weight: dimensionWeightResponse,
   product_information: Joi.any(),
   detected_color_images: Joi.any(),
+  ecoLabel: Joi.any(),
 };
 
 export default {
@@ -147,6 +148,7 @@ export default {
       collection_count: Joi.number(),
       card_count: Joi.number(),
       product_count: Joi.number(),
+      x_collection: Joi.boolean(),
     }),
     statusCode: Joi.number(),
   }),

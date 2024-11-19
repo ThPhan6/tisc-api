@@ -460,10 +460,12 @@ class ProductService {
     });
   }
 
-  public getBrandProductSummary = async (brandId: string) => {
+  public getBrandProductSummary = async (brandId: string, user: UserAttributes) => {
     const products = await productRepository.getProductBy(undefined, brandId);
     const returnedProducts = products.filter((product)=>
       product.collection_ids.length > 0 && product.collections.length > 0);
+    const returnedCollections = await mappingByCollections(products, undefined, user);
+    const x_collection = returnedCollections?.some((collection:any)=> collection.id === "-1");
     const collections = sortObjectArray(
       getUniqueCollections(products),
       "name",
@@ -483,6 +485,7 @@ class ProductService {
         collection_count: collections.length,
         card_count: returnedProducts.length,
         product_count: variants.length,
+        x_collection: x_collection,
       },
     });
   };
