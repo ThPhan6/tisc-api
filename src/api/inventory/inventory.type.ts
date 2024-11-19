@@ -19,13 +19,17 @@ export interface InventoryCreate
       | "on_order"
     >,
     Pick<InventoryBasePrice, "unit_price" | "unit_type"> {
-  image: string;
+  image?: string;
   currency: string;
   volume_prices?: Pick<
     InventoryVolumePrice,
     "discount_price" | "discount_rate" | "max_quantity" | "min_quantity"
   >[];
   warehouses?: Pick<WarehouseCreate, "location_id" | "quantity">[];
+}
+
+export interface InventoryErrorList extends InventoryCreate {
+  errors: string[];
 }
 
 export interface InventoryCategoryQuery {

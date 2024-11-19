@@ -328,5 +328,8 @@ export const MESSAGES = {
     NOT_FOUND_LEDGER: "Inventory ledger not found",
     NOT_FOUND_ACTION: "Inventory action not found",
     SKU_EXISTED: "SKU existed",
+    INVALID_VOLUME_PRICES: "Invalid volume prices",
+    ON_ORDER_LESS_THAN_ZERO: "On Order must be positive number",
+    BACK_ORDER_LESS_THAN_ZERO: "Back Order must be positive number",
   },
 };
