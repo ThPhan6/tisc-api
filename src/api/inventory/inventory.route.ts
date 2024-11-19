@@ -117,7 +117,7 @@ export default class InventoryRoute implements IRoute {
           options: {
             handler: controller.export,
             validate: validate.export,
-            description: "Method that export currency",
+            description: "Method that export inventory",
             tags: ["api", "Inventory"],
             auth: AUTH_NAMES.GENERAL,
             response: {

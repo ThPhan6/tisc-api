@@ -94,7 +94,7 @@ export default class InventoryController {
       .type("text/csv")
       .header(
         "Content-Disposition",
-        `attachment; filename="${new Date().toISOString()}-export.csv";`
+        `attachment; filename="inventory-export-${new Date().toISOString()}.csv";`
       )
       .code(response.statusCode);
   }
