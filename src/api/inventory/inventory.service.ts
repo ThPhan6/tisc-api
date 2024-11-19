@@ -1,11 +1,13 @@
 import { MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
+import { jsonToCSV } from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
 import { brandRepository } from "@/repositories/brand.repository";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
@@ -17,6 +19,7 @@ import {
 import { IExchangeCurrency, UserAttributes, WarehouseStatus } from "@/types";
 import { randomUUID } from "crypto";
 import {
+  forEach,
   isEmpty,
   isNil,
   isString,
@@ -31,18 +34,91 @@ import {
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { warehouseService } from "../warehouses/warehouse.service";
-import { WarehouseListResponse } from "../warehouses/warehouse.type";
+import {
+  WarehouseListResponse,
+  WarehouseResponse,
+} from "../warehouses/warehouse.type";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryErrorList,
+  InventoryExportRequest,
+  InventoryExportType,
+  InventoryExportTypeLabel,
   InventoryListRequest,
+  InventoryListResponse,
 } from "./inventory.type";
-import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 
 class InventoryService {
+  private convertInventoryArrayToCsv = (
+    typeHeaders: InventoryExportType[],
+    content: InventoryListResponse[]
+  ) => {
+    const headerSelected: string[] = typeHeaders.map(
+      (el) => InventoryExportTypeLabel[el]
+    );
+
+    const contentFlat = content.map((item) => {
+      const newContent: any = {
+        ...omit(item, ["price", "warehouses"]),
+        unit_price: item.price.unit_price,
+        unit_type: item.price.unit_type,
+      };
+
+      forEach(
+        item.price.volume_prices,
+        (volume_price: InventoryVolumePrice, idx: number) => {
+          forEach(volume_price, (price, key: string) => {
+            if (headerSelected.includes(key)) {
+              newContent[`#${idx + 1}_${key}`] = price;
+            }
+          });
+        }
+      );
+
+      forEach(item.warehouses, (warehouse: WarehouseResponse, idx: number) => {
+        forEach(warehouse, (value, key: string) => {
+          if (headerSelected.includes(key)) {
+            newContent[`#${idx + 1}_${key}`] = value;
+          }
+        });
+      });
+
+      return newContent;
+    });
+
+    return jsonToCSV(
+      contentFlat.map((el) => ({
+        sku: el.sku,
+        description: el.description,
+        unit_price: el.unit_price,
+        unit_type: el.unit_type,
+        back_order: el.back_order,
+        on_order: el.on_order,
+        total_stock: el.total_stock,
+        out_stock: el.out_stock,
+        ...omit(el, [
+          "sku",
+          "description",
+          "unit_price",
+          "unit_type",
+          "back_order",
+          "on_order",
+          "total_stock",
+          "out_stock",
+          "image",
+          "id",
+          "inventory_category_id",
+          "updated_at",
+          "created_at",
+        ]),
+      }))
+    );
+  };
+
   private pushErrorMessages(
     errors: InventoryErrorList[],
     item: InventoryCreate,
@@ -283,7 +359,7 @@ class InventoryService {
         const outStock = (newInventory?.on_order ?? 0) - totalStock;
 
         const stock = {
-          stockValue: rate * (inventory.price?.unit_price || 0) * totalStock,
+          stock_value: rate * (inventory.price?.unit_price || 0) * totalStock,
           total_stock: totalStock,
           out_stock: outStock <= 0 ? 0 : -outStock,
         };
@@ -732,6 +808,59 @@ class InventoryService {
     }
 
     return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async export(payload: InventoryExportRequest) {
+    const inValidPayload = payload.types.some(
+      (el) => !InventoryExportTypeLabel[el]
+    );
+
+    if (inValidPayload) {
+      return errorMessageResponse(MESSAGES.INVALID_EXPORT_TYPE);
+    }
+
+    const category = await dynamicCategoryRepository.find(payload.category_id);
+
+    if (!category) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
+    }
+
+    if (!category?.relation_id) {
+      return errorMessageResponse(MESSAGES.CATEGORY_NOT_BELONG_TO_BRAND);
+    }
+
+    const brand = await brandRepository.find(category.relation_id);
+
+    if (!brand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
+    }
+
+    const inventory = (await this.getList({
+      category_id: payload.category_id,
+    })) as unknown as {
+      data: { inventories: InventoryListResponse[] };
+    };
+
+    if (!inventory?.data?.inventories?.length) {
+      return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
+    }
+
+    const unitTypes = await commonTypeRepository.getAll();
+
+    const data = this.convertInventoryArrayToCsv(
+      payload.types,
+      inventory.data.inventories.map((el) => ({
+        ...el,
+        price: {
+          ...el.price,
+          unit_type:
+            unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
+            "",
+        },
+      }))
+    );
+
+    return successResponse({ data });
   }
 }
 

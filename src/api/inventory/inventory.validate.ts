@@ -123,6 +123,15 @@ export default {
   create: {
     payload: InventoryCreateRequest,
   },
+  export: {
+    payload: Joi.object({
+      types: Joi.array().items(Joi.number().required()).min(1),
+      category_id: requireStringValidation("Category id"),
+    })
+      .unknown(false)
+      .min(1)
+      .required(),
+  },
   import: {
     payload: Joi.array().required().items(InventoryCreateRequest).min(1),
   },

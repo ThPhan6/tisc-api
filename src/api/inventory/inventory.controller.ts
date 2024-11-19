@@ -4,6 +4,8 @@ import { inventoryService } from "./inventory.service";
 import {
   InventoryCategoryQuery,
   InventoryCreate,
+  InventoryExportRequest,
+  InventoryExportType,
   InventoryListRequest,
 } from "./inventory.type";
 import { UserAttributes } from "@/types";
@@ -79,6 +81,22 @@ export default class InventoryController {
     const { categoryId } = req.payload as any;
     const response = await inventoryService.move(id, categoryId);
     return toolkit.response(response).code(response.statusCode);
+  }
+
+  public async export(
+    req: Request & { payload: InventoryExportRequest },
+    toolkit: ResponseToolkit
+  ) {
+    const response = (await inventoryService.export(req.payload)) as any;
+
+    return toolkit
+      .response(response.data)
+      .type("text/csv")
+      .header(
+        "Content-Disposition",
+        `attachment; filename="inventory-export-${new Date().toISOString()}.csv";`
+      )
+      .code(response.statusCode);
   }
 
   public async import(

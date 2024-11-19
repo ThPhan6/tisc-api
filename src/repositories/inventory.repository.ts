@@ -48,7 +48,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         FILTER ware.deleted_at == null
         FILTER ware.type == ${WarehouseType.IN_STOCK}
         FILTER ware.status == ${WarehouseStatus.ACTIVE}
-        
+
         let ledgers = (
             FOR led IN inventory_ledgers
             FILTER led.deleted_at == null
@@ -57,26 +57,26 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
             FILTER led.warehouse_id == ware.id
             return led
         )
-        
+
         let unitPrice = FIRST(
           FOR price IN inventory_base_prices
           FILTER price.deleted_at == null
           FILTER price.inventory_id == inven.id
           sort price.created_at DESC
-          
+
           LET rates = (
             FOR history IN exchange_histories
             FILTER history.deleted_at == null
             FILTER history.created_at >= price.created_at
             RETURN history.rate
           )
-          return price.unit_price * PRODUCT(rates) 
+          return price.unit_price * PRODUCT(rates)
         )
-        
+
         LET quantity = sum(FOR ledger IN ledgers RETURN ledger.quantity)
-        return quantity * unitPrice 
+        return quantity * unitPrice
       )
-      
+
       return totalStockValue
     `;
 
@@ -204,9 +204,16 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         .count();
     }
 
+    if (!isNil(limit) && !isNil(offset)) {
+      return {
+        data: result,
+        pagination: pagination(limit, offset, total),
+      };
+    }
+
     return {
       data: result,
-      pagination: pagination(limit, offset, total),
+      pagination: null,
     };
   }
 
