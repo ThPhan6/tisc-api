@@ -100,7 +100,7 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.UNIT_TYPE]: "unit_type",
   [InventoryExportType.ON_ORDER]: "on_order",
   [InventoryExportType.BACK_ORDER]: "back_order",
-  [InventoryExportType.OUT_OF_STOCK]: "out_of_stock",
+  [InventoryExportType.OUT_OF_STOCK]: "out_stock",
   [InventoryExportType.TOTAL_STOCK]: "total_stock",
 
   [InventoryExportType.DISCOUNT_RATE]: "discount_rate",
