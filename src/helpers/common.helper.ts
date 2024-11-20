@@ -3,7 +3,17 @@ import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
 
 import * as FileType from "file-type";
-import { isEqual, omitBy, pick, round, startCase, template } from "lodash";
+import {
+  fromPairs,
+  isEqual,
+  omitBy,
+  pick,
+  round,
+  startCase,
+  template,
+} from "lodash";
+
+export const REGEX_ORDER = /^#\d+_/;
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -327,4 +337,14 @@ export const jsonToCSV = (jsonData: any[]) => {
     ),
     ...rows,
   ].join("\n");
+};
+
+export const sortObjectByKey = (obj: Object, keys: string[]): Object => {
+  const sortedKeys = keys.filter((key) => (obj as any)[key] !== undefined);
+  const sortedObj = fromPairs(keys.map((key) => [key, (obj as any)[key]]));
+
+  const otherKeys = Object.keys(obj).filter((key) => !sortedKeys.includes(key));
+  const otherObj = fromPairs(otherKeys.map((key) => [key, (obj as any)[key]]));
+
+  return { ...sortedObj, ...otherObj };
 };

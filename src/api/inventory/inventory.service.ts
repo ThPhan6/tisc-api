@@ -1,6 +1,10 @@
 import { MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
-import { jsonToCSV } from "@/helpers/common.helper";
+import {
+  jsonToCSV,
+  REGEX_ORDER,
+  sortObjectByKey,
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -70,52 +74,67 @@ class InventoryService {
 
       forEach(
         item.price.volume_prices,
-        (volume_price: InventoryVolumePrice, idx: number) => {
-          forEach(volume_price, (price, key: string) => {
-            if (headerSelected.includes(key)) {
-              newContent[`#${idx + 1}_${key}`] = price;
+        (volumePrice: InventoryVolumePrice, idx: number) => {
+          forEach(
+            sortObjectByKey(volumePrice, [
+              "discount_rate",
+              "discount_price",
+              "min_quantity",
+              "max_quantity",
+            ]),
+            (price, key: string) => {
+              if (headerSelected.includes(key)) {
+                newContent[`#${idx + 1}_${key}`] = price;
+              }
             }
-          });
+          );
         }
       );
 
       forEach(item.warehouses, (warehouse: WarehouseResponse, idx: number) => {
-        forEach(warehouse, (value, key: string) => {
-          if (headerSelected.includes(key)) {
-            newContent[`#${idx + 1}_${key}`] = value;
+        forEach(
+          sortObjectByKey(warehouse, [
+            "name",
+            "country_name",
+            "city_name",
+            "in_stock",
+          ]),
+          (value, key: string) => {
+            if (headerSelected.includes(key)) {
+              newContent[`#${idx + 1}_${key}`] = value;
+            }
           }
-        });
+        );
       });
 
       return newContent;
     });
 
     return jsonToCSV(
-      contentFlat.map((el) => ({
-        sku: el.sku,
-        description: el.description,
-        unit_price: el.unit_price,
-        unit_type: el.unit_type,
-        back_order: el.back_order,
-        on_order: el.on_order,
-        total_stock: el.total_stock,
-        out_stock: el.out_stock,
-        ...omit(el, [
-          "sku",
-          "description",
-          "unit_price",
-          "unit_type",
-          "back_order",
-          "on_order",
-          "total_stock",
-          "out_stock",
-          "image",
-          "id",
-          "inventory_category_id",
-          "updated_at",
-          "created_at",
-        ]),
-      }))
+      contentFlat.map((el) => {
+        const newEl: any = {};
+
+        forEach(
+          sortObjectByKey(el, [
+            "sku",
+            "description",
+            "unit_price",
+            "unit_type",
+            "total_stock",
+            "stock_value",
+            "out_stock",
+            "on_order",
+            "back_order",
+          ]),
+          (value, key) => {
+            if (headerSelected.includes(key.replace(REGEX_ORDER, ""))) {
+              newEl[key] = value;
+            }
+          }
+        );
+
+        return newEl;
+      })
     );
   };
 
