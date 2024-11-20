@@ -1,8 +1,19 @@
 import { INTEREST_RATE } from "@/constants";
 import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
+
 import * as FileType from "file-type";
-import { isEqual, omitBy, pick, round, template } from "lodash";
+import {
+  fromPairs,
+  isEqual,
+  omitBy,
+  pick,
+  round,
+  startCase,
+  template,
+} from "lodash";
+
+export const REGEX_ORDER = /^#\d+_/;
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -292,4 +303,48 @@ export const getInventoryActionDescription = (
     default:
       return "Adjust";
   }
+};
+
+export const jsonToCSV = (jsonData: any[]) => {
+  const headers: string[] = [];
+
+  jsonData.forEach((row) => {
+    Object.keys(row).forEach((key) => {
+      if (!headers.includes(key)) {
+        headers.push(key);
+      }
+    });
+  });
+
+  const filledData = jsonData.map((row) => {
+    const filledRow: Record<string, any> = {};
+
+    headers.forEach((key) => {
+      filledRow[key] =
+        row[key] !== undefined && row[key] !== null ? row[key] : "";
+    });
+
+    return filledRow;
+  });
+
+  const rows = filledData.map((row) =>
+    headers.map((header) => row[header]).join(",")
+  );
+
+  return [
+    headers.map((header) =>
+      header.startsWith("#") ? "#" + startCase(header) : startCase(header)
+    ),
+    ...rows,
+  ].join("\n");
+};
+
+export const sortObjectByKey = (obj: Object, keys: string[]): Object => {
+  const sortedKeys = keys.filter((key) => (obj as any)[key] !== undefined);
+  const sortedObj = fromPairs(keys.map((key) => [key, (obj as any)[key]]));
+
+  const otherKeys = Object.keys(obj).filter((key) => !sortedKeys.includes(key));
+  const otherObj = fromPairs(otherKeys.map((key) => [key, (obj as any)[key]]));
+
+  return { ...sortedObj, ...otherObj };
 };
