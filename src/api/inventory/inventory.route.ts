@@ -3,8 +3,8 @@ import { defaultRouteOptionResponseStatus } from "@/helpers/response.helper";
 import IRoute from "@/helpers/route.helper";
 import { Server } from "@hapi/hapi";
 import InventoryController from "./inventory.controller";
-import validate from "./inventory.validate";
 import response from "./inventory.response";
+import validate from "./inventory.validate";
 
 export default class InventoryRoute implements IRoute {
   public async register(server: Server): Promise<any> {
@@ -81,11 +81,43 @@ export default class InventoryRoute implements IRoute {
         },
         {
           method: "POST",
+          path: ROUTES.INVENTORY.IMPORT,
+          options: {
+            handler: controller.import,
+            validate: validate.import,
+            description: "Method that import inventory",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
           path: ROUTES.INVENTORY.EXCHANGE,
           options: {
             handler: controller.exchange,
             validate: validate.exchange,
             description: "Method that exchange currency",
+            tags: ["api", "Inventory"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+              },
+            },
+          },
+        },
+        {
+          method: "POST",
+          path: ROUTES.INVENTORY.EXPORT,
+          options: {
+            handler: controller.export,
+            validate: validate.export,
+            description: "Method that export inventory",
             tags: ["api", "Inventory"],
             auth: AUTH_NAMES.GENERAL,
             response: {

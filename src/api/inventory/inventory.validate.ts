@@ -48,6 +48,12 @@ const InventoryCreateRequest = Joi.object({
     "any.required": "Unit price is required",
     "any.min": "Unit price is must be greater than 0",
   }),
+  on_order: Joi.number().min(0).strict().messages({
+    "number.min": "On order is must be positive number",
+  }),
+  back_order: Joi.number().min(0).strict().messages({
+    "number.min": "Backorder is must be positive number",
+  }),
   unit_type: requireStringValidation("Unit type").not("").not(null),
   volume_prices: volumePricesSchema,
 })
@@ -116,6 +122,18 @@ export default {
   }),
   create: {
     payload: InventoryCreateRequest,
+  },
+  export: {
+    payload: Joi.object({
+      types: Joi.array().items(Joi.number().required()).min(1),
+      category_id: requireStringValidation("Category id"),
+    })
+      .unknown(false)
+      .min(1)
+      .required(),
+  },
+  import: {
+    payload: Joi.array().required().items(InventoryCreateRequest).min(1),
   },
   delete: {
     params: InventoryId,
