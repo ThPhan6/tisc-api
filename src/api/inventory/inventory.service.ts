@@ -3,6 +3,7 @@ import { getTimestamps } from "@/Database/Utils/Time";
 import {
   jsonToCSV,
   REGEX_ORDER,
+  renameKeys,
   sortObjectByKey,
 } from "@/helpers/common.helper";
 import {
@@ -31,6 +32,7 @@ import {
   map,
   omit,
   pick,
+  round,
   sortBy,
   sumBy,
   uniqBy,
@@ -46,9 +48,11 @@ import {
   WarehouseResponse,
 } from "../warehouses/warehouse.type";
 import {
+  ExportResponse,
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryErrorList,
+  INVENTORY_EXPORT_KEYS,
   InventoryExportRequest,
   InventoryExportType,
   InventoryExportTypeLabel,
@@ -61,14 +65,16 @@ class InventoryService {
     typeHeaders: InventoryExportType[],
     content: InventoryListResponse[]
   ) => {
-    const headerSelected: string[] = typeHeaders.map(
-      (el) => InventoryExportTypeLabel[el]
-    );
+    // const headerSelected: string[] = typeHeaders.map(
+    //   (el) => InventoryExportTypeLabel[el]
+    // );
+
+    const headerSelected: string[] = INVENTORY_EXPORT_KEYS;
 
     const contentFlat = content.map((item) => {
       const newContent: any = {
-        ...omit(item, ["price", "warehouses"]),
-        unit_price: item.price.unit_price,
+        ...omit(item, ["price", "warehouses", "total_stock"]),
+        unit_price: item.price.unit_price.toFixed(2),
         unit_type: item.price.unit_type,
       };
 
@@ -114,17 +120,57 @@ class InventoryService {
       contentFlat.map((el) => {
         const newEl: any = {};
 
+        const orderedKeys = Object.keys(el)
+          .map((key) => (key.startsWith("#") ? key : undefined))
+          .filter(Boolean) as string[];
+
+        const warehouseGroupKeys = orderedKeys.filter(
+          (key) =>
+            key.endsWith(
+              `_${InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_NAME]}`
+            ) ||
+            key.endsWith(
+              `_${
+                InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_COUNTRY]
+              }`
+            ) ||
+            key.endsWith(
+              `_${InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_CITY]}`
+            ) ||
+            key.endsWith(
+              `_${
+                InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_IN_STOCK]
+              }`
+            )
+        );
+
+        const volumePriceGroupKeys = orderedKeys.filter(
+          (key) =>
+            key.endsWith(
+              `_${InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]}`
+            ) ||
+            key.endsWith(
+              `_${InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]}`
+            ) ||
+            key.endsWith(
+              `_${InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]}`
+            ) ||
+            key.endsWith(
+              `_${InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]}`
+            )
+        );
+
         forEach(
           sortObjectByKey(el, [
             "sku",
             "description",
             "unit_price",
             "unit_type",
-            "total_stock",
-            "stock_value",
+            ...warehouseGroupKeys,
             "out_stock",
             "on_order",
             "back_order",
+            ...volumePriceGroupKeys,
           ]),
           (value, key) => {
             if (headerSelected.includes(key.replace(REGEX_ORDER, ""))) {
@@ -133,7 +179,52 @@ class InventoryService {
           }
         );
 
-        return newEl;
+        const changedKeys = orderedKeys
+          .map((key) => {
+            const newKey = key.replace(REGEX_ORDER, "");
+            const ordered = key.match(REGEX_ORDER)?.[0];
+
+            if (
+              newKey ===
+              InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]
+            ) {
+              return {
+                [key]: `${ordered} Volume Price`,
+              };
+            }
+
+            if (
+              newKey ===
+              InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]
+            ) {
+              return {
+                [key]: `${ordered} Volume % Rate`,
+              };
+            }
+
+            if (
+              newKey ===
+              InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]
+            ) {
+              return {
+                [key]: `${ordered} Volume Min.Qty`,
+              };
+            }
+
+            if (
+              newKey ===
+              InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]
+            ) {
+              return {
+                [key]: `${ordered} Volume Max.Qty`,
+              };
+            }
+
+            return undefined;
+          })
+          .filter(Boolean) as Record<string, string>[];
+
+        return renameKeys(newEl, [...changedKeys, { sku: "Product ID" }]);
       })
     );
   };
@@ -830,13 +921,13 @@ class InventoryService {
   }
 
   public async export(payload: InventoryExportRequest) {
-    const inValidPayload = payload.types.some(
-      (el) => !InventoryExportTypeLabel[el]
-    );
+    // const inValidPayload = payload.types.some(
+    //   (el) => !InventoryExportTypeLabel[el]
+    // );
 
-    if (inValidPayload) {
-      return errorMessageResponse(MESSAGES.INVALID_EXPORT_TYPE);
-    }
+    // if (inValidPayload) {
+    //   return errorMessageResponse(MESSAGES.INVALID_EXPORT_TYPE);
+    // }
 
     const category = await dynamicCategoryRepository.find(payload.category_id);
 
@@ -879,7 +970,11 @@ class InventoryService {
       }))
     );
 
-    return successResponse({ data });
+    return successResponse({
+      data,
+      brand_name: brand.name,
+      category_name: category.name,
+    }) as ExportResponse;
   }
 }
 
