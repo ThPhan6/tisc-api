@@ -61,6 +61,153 @@ import {
 } from "./inventory.type";
 
 class InventoryService {
+  private formatCSVColumn = (content: any[]) =>
+    content.map((el) => {
+      const newEl: any = {};
+
+      const orderedKeys = Object.keys(el)
+        .map((key) => (key.startsWith("#") ? key : undefined))
+        .filter(Boolean) as string[];
+
+      const warehouseGroupKeys = orderedKeys.filter(
+        (key) =>
+          key.endsWith(
+            `_${InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_NAME]}`
+          ) ||
+          key.endsWith(
+            `_${
+              InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_COUNTRY]
+            }`
+          ) ||
+          key.endsWith(
+            `_${InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_CITY]}`
+          ) ||
+          key.endsWith(
+            `_${
+              InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_IN_STOCK]
+            }`
+          )
+      );
+
+      const volumePriceGroupKeys = orderedKeys.filter(
+        (key) =>
+          key.endsWith(
+            `_${InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]}`
+          ) ||
+          key.endsWith(
+            `_${InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]}`
+          ) ||
+          key.endsWith(
+            `_${InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]}`
+          ) ||
+          key.endsWith(
+            `_${InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]}`
+          )
+      );
+
+      forEach(
+        sortObjectByKey(el, [
+          "sku",
+          "description",
+          "unit_price",
+          "unit_type",
+          ...warehouseGroupKeys,
+          "out_stock",
+          "on_order",
+          "back_order",
+          ...volumePriceGroupKeys,
+        ]),
+        (value, key) => {
+          if (INVENTORY_EXPORT_KEYS.includes(key.replace(REGEX_ORDER, ""))) {
+            newEl[key] = value;
+          }
+        }
+      );
+
+      const changedKeys = orderedKeys
+        .map((key) => {
+          const newKey = key.replace(REGEX_ORDER, "");
+          const ordered = key.split("_")?.[0];
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_NAME]
+          ) {
+            return {
+              [key]: `${ordered} Warehouse Name`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_COUNTRY]
+          ) {
+            return {
+              [key]: `${ordered} Warehouse Country`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_CITY]
+          ) {
+            return {
+              [key]: `${ordered} Warehouse City`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_IN_STOCK]
+          ) {
+            return {
+              [key]: `${ordered} Warehouse In Stock`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]
+          ) {
+            return {
+              [key]: `${ordered} Volume Price`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]
+          ) {
+            return {
+              [key]: `${ordered} Volume % Rate`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]
+          ) {
+            return {
+              [key]: `${ordered} Volume Min.Qty`,
+            };
+          }
+
+          if (
+            newKey ===
+            InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]
+          ) {
+            return {
+              [key]: `${ordered} Volume Max.Qty`,
+            };
+          }
+
+          return undefined;
+        })
+        .filter(Boolean) as Record<string, string>[];
+
+      return renameKeys(newEl, [...changedKeys, { sku: "Product ID" }]);
+    });
+
   private convertInventoryArrayToCsv = (
     typeHeaders: InventoryExportType[],
     content: InventoryListResponse[]
@@ -68,8 +215,6 @@ class InventoryService {
     // const headerSelected: string[] = typeHeaders.map(
     //   (el) => InventoryExportTypeLabel[el]
     // );
-
-    const headerSelected: string[] = INVENTORY_EXPORT_KEYS;
 
     const contentFlat = content.map((item) => {
       const newContent: any = {
@@ -89,7 +234,7 @@ class InventoryService {
               "max_quantity",
             ]),
             (price, key: string) => {
-              if (headerSelected.includes(key)) {
+              if (INVENTORY_EXPORT_KEYS.includes(key)) {
                 newContent[`#${idx + 1}_${key}`] = price;
               }
             }
@@ -106,7 +251,7 @@ class InventoryService {
             "in_stock",
           ]),
           (value, key: string) => {
-            if (headerSelected.includes(key)) {
+            if (INVENTORY_EXPORT_KEYS.includes(key)) {
               newContent[`#${idx + 1}_${key}`] = value;
             }
           }
@@ -116,117 +261,7 @@ class InventoryService {
       return newContent;
     });
 
-    return jsonToCSV(
-      contentFlat.map((el) => {
-        const newEl: any = {};
-
-        const orderedKeys = Object.keys(el)
-          .map((key) => (key.startsWith("#") ? key : undefined))
-          .filter(Boolean) as string[];
-
-        const warehouseGroupKeys = orderedKeys.filter(
-          (key) =>
-            key.endsWith(
-              `_${InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_NAME]}`
-            ) ||
-            key.endsWith(
-              `_${
-                InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_COUNTRY]
-              }`
-            ) ||
-            key.endsWith(
-              `_${InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_CITY]}`
-            ) ||
-            key.endsWith(
-              `_${
-                InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_IN_STOCK]
-              }`
-            )
-        );
-
-        const volumePriceGroupKeys = orderedKeys.filter(
-          (key) =>
-            key.endsWith(
-              `_${InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]}`
-            ) ||
-            key.endsWith(
-              `_${InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]}`
-            ) ||
-            key.endsWith(
-              `_${InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]}`
-            ) ||
-            key.endsWith(
-              `_${InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]}`
-            )
-        );
-
-        forEach(
-          sortObjectByKey(el, [
-            "sku",
-            "description",
-            "unit_price",
-            "unit_type",
-            ...warehouseGroupKeys,
-            "out_stock",
-            "on_order",
-            "back_order",
-            ...volumePriceGroupKeys,
-          ]),
-          (value, key) => {
-            if (headerSelected.includes(key.replace(REGEX_ORDER, ""))) {
-              newEl[key] = value;
-            }
-          }
-        );
-
-        const changedKeys = orderedKeys
-          .map((key) => {
-            const newKey = key.replace(REGEX_ORDER, "");
-            const ordered = key.match(REGEX_ORDER)?.[0];
-
-            if (
-              newKey ===
-              InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]
-            ) {
-              return {
-                [key]: `${ordered} Volume Price`,
-              };
-            }
-
-            if (
-              newKey ===
-              InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]
-            ) {
-              return {
-                [key]: `${ordered} Volume % Rate`,
-              };
-            }
-
-            if (
-              newKey ===
-              InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]
-            ) {
-              return {
-                [key]: `${ordered} Volume Min.Qty`,
-              };
-            }
-
-            if (
-              newKey ===
-              InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]
-            ) {
-              return {
-                [key]: `${ordered} Volume Max.Qty`,
-              };
-            }
-
-            return undefined;
-          })
-          .filter(Boolean) as Record<string, string>[];
-
-        return renameKeys(newEl, [...changedKeys, { sku: "Product ID" }]);
-      })
-    );
+    return jsonToCSV(this.formatCSVColumn(contentFlat));
   };
 
   private pushErrorMessages(
