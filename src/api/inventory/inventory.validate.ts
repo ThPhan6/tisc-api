@@ -56,6 +56,16 @@ const InventoryCreateRequest = Joi.object({
   }),
   unit_type: requireStringValidation("Unit type").not("").not(null),
   volume_prices: volumePricesSchema,
+  warehouses: Joi.array()
+    .allow(null)
+    .items(
+      Joi.object({
+        location_id: requireStringValidation("Location id"),
+        quantity: Joi.number().strict().required().messages({
+          "any.required": "Quantity is required",
+        }),
+      }).unknown(false)
+    ),
 })
   .min(1)
   .unknown(false)
@@ -155,7 +165,7 @@ export default {
   },
   export: {
     payload: Joi.object({
-      // types: Joi.array().items(Joi.number().required()).min(1),
+      types: Joi.array().required().items(Joi.number().required()).min(1),
       category_id: requireStringValidation("Category id"),
     })
       .unknown(false)
