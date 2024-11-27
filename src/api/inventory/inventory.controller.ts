@@ -34,7 +34,8 @@ export default class InventoryController {
     req: Request & { payload: InventoryCreate },
     toolkit: ResponseToolkit
   ) {
-    const response = await inventoryService.create(req.payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await inventoryService.create(user, req.payload);
     return toolkit.response(response).code(response.statusCode);
   }
 
@@ -109,7 +110,8 @@ export default class InventoryController {
     req: Request & { payload: InventoryCreate[] },
     toolkit: ResponseToolkit
   ) {
-    const response = await inventoryService.createMultiple(req.payload);
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await inventoryService.createMultiple(user, req.payload);
     return toolkit.response(response).code(response.statusCode);
   }
 }

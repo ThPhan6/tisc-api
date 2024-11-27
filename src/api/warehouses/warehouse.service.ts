@@ -547,13 +547,15 @@ class WarehouseService {
           nonePhysicalWarehouse.location_id
         );
 
-        warehouses.push({
-          ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
-          location_id: location?.id ?? "",
-          country_name: location?.country_name ?? "",
-          city_name: location?.city_name ?? "",
-          in_stock: Number(inventoryLedger.quantity),
-        });
+        if (location) {
+          warehouses.push({
+            ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
+            location_id: location.id,
+            country_name: location?.country_name ?? "",
+            city_name: location?.city_name ?? "",
+            in_stock: Number(inventoryLedger.quantity),
+          });
+        }
       })
     );
 

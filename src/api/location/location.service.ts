@@ -17,6 +17,7 @@ import {
   UserAttributes,
   UserType,
   DesignFirmFunctionalType,
+  LocationWithTeamCountAndFunctionType,
 } from "@/types";
 import { isEqual } from "lodash";
 import {
@@ -146,13 +147,19 @@ export default class LocationService {
 
   public getList = async (
     user: UserAttributes,
-    limit: number,
-    offset: number,
+    limit?: number,
+    offset?: number,
     sort?: string,
     order?: SortOrder,
     _filter?: any,
     is_sort_main_office_first?: boolean
-  ) => {
+  ): Promise<{
+    data: {
+      locations: LocationWithTeamCountAndFunctionType[];
+      pagination: any;
+    };
+    statusCode: number;
+  }> => {
     const response = await locationRepository.getLocationPagination(
       user.relation_id,
       limit,
@@ -167,7 +174,7 @@ export default class LocationService {
           : response.data,
         pagination: response.pagination,
       },
-    });
+    }) as any;
   };
 
   public getListWithGroup = async (user: UserAttributes) => {
