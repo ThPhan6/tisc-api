@@ -44,6 +44,7 @@ export interface InventoryCategoryQuery {
 export interface InventoryListResponse extends InventoryEntity {
   out_stock: number | null;
   total_stock: number;
+  stock_value: number;
   warehouses: WarehouseResponse[];
   price: InventoryBasePrice & {
     volume_prices: InventoryVolumePrice[] | null;
@@ -123,20 +124,3 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.WAREHOUSE_COUNTRY]: "country_name",
   [InventoryExportType.WAREHOUSE_IN_STOCK]: "in_stock",
 };
-
-export const INVENTORY_EXPORT_KEYS = [
-  "sku",
-  "description",
-  "unit_price",
-  "unit_type",
-  "name",
-  "city_name",
-  "country_name",
-  "in_stock",
-  "on_order",
-  "back_order",
-  "out_stock",
-  "discount_price",
-  "min_quantity",
-  "max_quantity",
-];

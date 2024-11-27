@@ -58,7 +58,6 @@ import {
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryErrorList,
-  INVENTORY_EXPORT_KEYS,
   InventoryExportRequest,
   InventoryExportType,
   InventoryExportTypeLabel,
@@ -68,7 +67,7 @@ import {
 import { locationService } from "../location/location.service";
 
 class InventoryService {
-  private formatCSVColumn = (content: any[]) =>
+  private formatCSVColumn = (header: string[], content: any[]) =>
     content.map((el) => {
       const newEl: any = {};
 
@@ -119,13 +118,15 @@ class InventoryService {
           "unit_price",
           "unit_type",
           ...warehouseGroupKeys,
+          "total_stock",
+          "stock_value",
           "out_stock",
           "on_order",
           "back_order",
           ...volumePriceGroupKeys,
         ]),
         (value, key) => {
-          if (INVENTORY_EXPORT_KEYS.includes(key.replace(REGEX_ORDER, ""))) {
+          if (header.includes(key.replace(REGEX_ORDER, ""))) {
             newEl[key] = value;
           }
         }
@@ -177,7 +178,7 @@ class InventoryService {
             InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]
           ) {
             return {
-              [key]: `${ordered} Volume Price`,
+              [key]: `${ordered} Vol. Discount Price`,
             };
           }
 
@@ -186,7 +187,7 @@ class InventoryService {
             InventoryExportTypeLabel[InventoryExportType.DISCOUNT_RATE]
           ) {
             return {
-              [key]: `${ordered} Volume % Rate`,
+              [key]: `${ordered} Vol. Discount %`,
             };
           }
 
@@ -195,7 +196,7 @@ class InventoryService {
             InventoryExportTypeLabel[InventoryExportType.MIN_QUANTITY]
           ) {
             return {
-              [key]: `${ordered} Volume Min.Qty`,
+              [key]: `${ordered} Vol. Min. Qty`,
             };
           }
 
@@ -204,7 +205,7 @@ class InventoryService {
             InventoryExportTypeLabel[InventoryExportType.MAX_QUANTITY]
           ) {
             return {
-              [key]: `${ordered} Volume Max.Qty`,
+              [key]: `${ordered} Vol. Max. Qty`,
             };
           }
 
@@ -219,15 +220,16 @@ class InventoryService {
     typeHeaders: InventoryExportType[],
     content: InventoryListResponse[]
   ) => {
-    // const headerSelected: string[] = typeHeaders.map(
-    //   (el) => InventoryExportTypeLabel[el]
-    // );
+    const headerSelected: string[] = typeHeaders.map(
+      (el) => InventoryExportTypeLabel[el]
+    );
 
     const contentFlat = content.map((item) => {
       const newContent: any = {
-        ...omit(item, ["price", "warehouses", "total_stock"]),
+        ...omit(item, ["price", "warehouses"]),
         unit_price: item.price.unit_price.toFixed(2),
         unit_type: item.price.unit_type,
+        stock_value: item.stock_value.toFixed(2),
       };
 
       forEach(
@@ -241,7 +243,7 @@ class InventoryService {
               "max_quantity",
             ]),
             (price, key: string) => {
-              if (INVENTORY_EXPORT_KEYS.includes(key)) {
+              if (headerSelected.includes(key)) {
                 newContent[`#${idx + 1}_${key}`] = price;
               }
             }
@@ -258,7 +260,7 @@ class InventoryService {
             "in_stock",
           ]),
           (value, key: string) => {
-            if (INVENTORY_EXPORT_KEYS.includes(key)) {
+            if (headerSelected.includes(key)) {
               newContent[`#${idx + 1}_${key}`] = value;
             }
           }
@@ -268,7 +270,7 @@ class InventoryService {
       return newContent;
     });
 
-    return jsonToCSV(this.formatCSVColumn(contentFlat));
+    return jsonToCSV(this.formatCSVColumn(headerSelected, contentFlat));
   };
 
   private pushErrorMessages(
@@ -1016,13 +1018,13 @@ class InventoryService {
   }
 
   public async export(payload: InventoryExportRequest) {
-    // const inValidPayload = payload.types.some(
-    //   (el) => !InventoryExportTypeLabel[el]
-    // );
+    const inValidPayload = payload.types.some(
+      (el) => !InventoryExportTypeLabel[el]
+    );
 
-    // if (inValidPayload) {
-    //   return errorMessageResponse(MESSAGES.INVALID_EXPORT_TYPE);
-    // }
+    if (inValidPayload) {
+      return errorMessageResponse(MESSAGES.INVALID_EXPORT_TYPE);
+    }
 
     const category = await dynamicCategoryRepository.find(payload.category_id);
 

@@ -135,7 +135,7 @@ export default {
   },
   export: {
     payload: Joi.object({
-      // types: Joi.array().items(Joi.number().required()).min(1),
+      types: Joi.array().required().items(Joi.number().required()).min(1),
       category_id: requireStringValidation("Category id"),
     })
       .unknown(false)
