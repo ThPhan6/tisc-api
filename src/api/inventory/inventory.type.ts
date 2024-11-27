@@ -75,6 +75,13 @@ export interface InventoryExportRequest {
   category_id: string;
 }
 
+export interface ExportResponse {
+  data: string;
+  brand_name: string;
+  category_name: string;
+  statusCode: number;
+}
+
 export enum InventoryExportType {
   PRODUCT_ID = 1,
   DESCRIPTION = 2,
@@ -85,12 +92,13 @@ export enum InventoryExportType {
   OUT_OF_STOCK = 7,
   TOTAL_STOCK = 8,
   DISCOUNT_RATE = 9,
-  MIN_QUANTITY = 10,
-  MAX_QUANTITY = 11,
-  WAREHOUSE_NAME = 12,
-  WAREHOUSE_CITY = 13,
-  WAREHOUSE_COUNTRY = 14,
-  WAREHOUSE_IN_STOCK = 15,
+  DISCOUNT_PRICE = 10,
+  MIN_QUANTITY = 11,
+  MAX_QUANTITY = 12,
+  WAREHOUSE_NAME = 13,
+  WAREHOUSE_CITY = 14,
+  WAREHOUSE_COUNTRY = 15,
+  WAREHOUSE_IN_STOCK = 16,
 }
 
 export const InventoryExportTypeLabel = {
@@ -104,6 +112,7 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.TOTAL_STOCK]: "total_stock",
 
   [InventoryExportType.DISCOUNT_RATE]: "discount_rate",
+  [InventoryExportType.DISCOUNT_PRICE]: "discount_price",
   [InventoryExportType.MIN_QUANTITY]: "min_quantity",
   [InventoryExportType.MAX_QUANTITY]: "max_quantity",
 
@@ -112,3 +121,20 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.WAREHOUSE_COUNTRY]: "country_name",
   [InventoryExportType.WAREHOUSE_IN_STOCK]: "in_stock",
 };
+
+export const INVENTORY_EXPORT_KEYS = [
+  "sku",
+  "description",
+  "unit_price",
+  "unit_type",
+  "name",
+  "city_name",
+  "country_name",
+  "in_stock",
+  "on_order",
+  "back_order",
+  "out_stock",
+  "discount_price",
+  "min_quantity",
+  "max_quantity",
+];

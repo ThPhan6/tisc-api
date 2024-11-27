@@ -2,6 +2,7 @@ import { Request, ResponseToolkit } from "@hapi/hapi";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryService } from "./inventory.service";
 import {
+  ExportResponse,
   InventoryCategoryQuery,
   InventoryCreate,
   InventoryExportRequest,
@@ -9,6 +10,7 @@ import {
   InventoryListRequest,
 } from "./inventory.type";
 import { UserAttributes } from "@/types";
+import { convertISOToRandomText } from "@/helpers/common.helper";
 
 export default class InventoryController {
   public async get(req: Request, toolkit: ResponseToolkit) {
@@ -87,14 +89,18 @@ export default class InventoryController {
     req: Request & { payload: InventoryExportRequest },
     toolkit: ResponseToolkit
   ) {
-    const response = (await inventoryService.export(req.payload)) as any;
+    const response = (await inventoryService.export(
+      req.payload
+    )) as ExportResponse;
 
     return toolkit
       .response(response.data)
       .type("text/csv")
       .header(
         "Content-Disposition",
-        `attachment; filename="inventory-export-${new Date().toISOString()}.csv";`
+        `attachment; filename="${response.brand_name}-${
+          response.category_name
+        }-${convertISOToRandomText(new Date().toISOString())}.csv";`
       )
       .code(response.statusCode);
   }
