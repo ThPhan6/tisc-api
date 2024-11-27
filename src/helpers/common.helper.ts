@@ -6,6 +6,7 @@ import * as FileType from "file-type";
 import {
   fromPairs,
   isEqual,
+  mapKeys,
   omitBy,
   pick,
   round,
@@ -347,4 +348,33 @@ export const sortObjectByKey = (obj: Object, keys: string[]): Object => {
   const otherObj = fromPairs(otherKeys.map((key) => [key, (obj as any)[key]]));
 
   return { ...sortedObj, ...otherObj };
+};
+
+export const renameKeys = (
+  obj: Record<string, string>,
+  keyPairs: Record<string, string>[]
+): Record<string, string> => {
+  const keyMap: Record<string, string> = {};
+
+  keyPairs.forEach((pair) => {
+    const [oldKey, newKey] = Object.entries(pair)[0];
+    keyMap[oldKey] = newKey;
+  });
+
+  return mapKeys(obj, (_value, key) => keyMap[key] || key);
+};
+
+export const convertISOToRandomText = (isoString: string): string => {
+  const date = new Date(isoString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+
+  return `${year}${month}${day}-T${hours}${minutes}${seconds}${milliseconds}Z`;
 };
