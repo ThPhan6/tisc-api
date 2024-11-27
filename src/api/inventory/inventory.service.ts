@@ -21,7 +21,12 @@ import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import { IExchangeCurrency, UserAttributes, WarehouseStatus } from "@/types";
+import {
+  IExchangeCurrency,
+  InventoryEntity,
+  UserAttributes,
+  WarehouseStatus,
+} from "@/types";
 import { randomUUID } from "crypto";
 import {
   forEach,
@@ -31,6 +36,7 @@ import {
   lastIndexOf,
   map,
   omit,
+  partition,
   pick,
   round,
   sortBy,
@@ -291,15 +297,12 @@ class InventoryService {
   private async validateImportPayload(payload: InventoryCreate[]) {
     let errors: InventoryErrorList[] = [];
 
-    const inventories = await inventoryRepository.getAll();
-    const existedSKU = inventories.map((el) => el.sku.toLowerCase());
-
     payload.forEach((item) => {
-      if (existedSKU.includes(item.sku.toLowerCase())) {
+      if (isNil(item?.sku)) {
         errors = this.pushErrorMessages(
           errors,
           item,
-          MESSAGES.INVENTORY.SKU_EXISTED
+          MESSAGES.INVENTORY.SKU_REQUIRED
         );
       }
 
@@ -708,7 +711,12 @@ class InventoryService {
   public async update(
     user: UserAttributes,
     id: string,
-    payload: Partial<InventoryCreate>
+    payload: Partial<InventoryCreate>,
+    options: {
+      isCheckSKUExisted?: boolean;
+    } = {
+      isCheckSKUExisted: true,
+    }
   ) {
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
@@ -716,7 +724,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND, 404);
     }
 
-    if ("sku" in payload) {
+    if ("sku" in payload && options.isCheckSKUExisted) {
       const inventories = await inventoryRepository.getAll();
       const isNameExist = inventories.some(
         (el) => el.sku.toLowerCase() === payload.sku?.toLowerCase()
@@ -930,7 +938,10 @@ class InventoryService {
     return successResponse({ message: MESSAGES.SUCCESS });
   }
 
-  public async createMultiple(payload: InventoryCreate[]) {
+  public async createMultiple(
+    user: UserAttributes,
+    payload: InventoryCreate[]
+  ) {
     const errors: InventoryErrorList[] = await this.validateImportPayload(
       payload
     );
@@ -942,14 +953,62 @@ class InventoryService {
       );
     }
 
-    const newInventories = await Promise.all(
-      payload.map(
-        async (inventory) => await this.create(omit(inventory, "image"))
-      )
+    const inventories = await inventoryRepository.getAll();
+    const existedSKU = inventories.map((el) => el.sku.toLowerCase());
+
+    const [existedInventories, newInventories] = partition(
+      payload,
+      (inventory) => existedSKU.includes(inventory.sku.toLowerCase())
     );
 
-    if (newInventories.some((el) => el.statusCode !== 200)) {
-      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    if (existedInventories.length) {
+      const updatedInventories = await Promise.all(
+        existedInventories.map(async (inventory) => {
+          const existedInventory = await inventoryRepository.getInventoryBySKU(
+            inventory.sku
+          );
+
+          if (!existedInventory) {
+            return {
+              message: MESSAGES.SOMETHING_WRONG_UPDATE,
+              statusCode: 404,
+            };
+          }
+
+          return await this.update(
+            user,
+            existedInventory.id,
+            omit(inventory, "image"),
+            {
+              isCheckSKUExisted: false,
+            }
+          );
+        })
+      );
+
+      const errors = updatedInventories
+        .filter((el) => el.statusCode !== 200)
+        .map((el) => el.message);
+
+      if (errors.length) {
+        return errorMessageResponse(errors.join(", "));
+      }
+    }
+
+    if (newInventories.length) {
+      const createdInventories = await Promise.all(
+        newInventories.map(
+          async (inventory) => await this.create(omit(inventory, "image"))
+        )
+      );
+
+      const errors = createdInventories
+        .filter((el) => el.statusCode !== 200)
+        .map((el) => el.message);
+
+      if (errors.length) {
+        return errorMessageResponse(errors.join(", "));
+      }
     }
 
     return successMessageResponse(MESSAGES.SUCCESS);
