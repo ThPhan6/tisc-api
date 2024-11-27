@@ -84,13 +84,15 @@ export enum InventoryExportType {
   BACK_ORDER = 6,
   OUT_OF_STOCK = 7,
   TOTAL_STOCK = 8,
-  DISCOUNT_RATE = 9,
-  MIN_QUANTITY = 10,
-  MAX_QUANTITY = 11,
-  WAREHOUSE_NAME = 12,
-  WAREHOUSE_CITY = 13,
-  WAREHOUSE_COUNTRY = 14,
-  WAREHOUSE_IN_STOCK = 15,
+  STOCK_VALUE = 9,
+  DISCOUNT_RATE = 10,
+  DISCOUNT_PRICE = 11,
+  MIN_QUANTITY = 12,
+  MAX_QUANTITY = 13,
+  WAREHOUSE_NAME = 14,
+  WAREHOUSE_CITY = 15,
+  WAREHOUSE_COUNTRY = 16,
+  WAREHOUSE_IN_STOCK = 17,
 }
 
 export const InventoryExportTypeLabel = {
@@ -102,8 +104,10 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.BACK_ORDER]: "back_order",
   [InventoryExportType.OUT_OF_STOCK]: "out_stock",
   [InventoryExportType.TOTAL_STOCK]: "total_stock",
+  [InventoryExportType.STOCK_VALUE]: "stock_value",
 
   [InventoryExportType.DISCOUNT_RATE]: "discount_rate",
+  [InventoryExportType.DISCOUNT_PRICE]: "discount_price",
   [InventoryExportType.MIN_QUANTITY]: "min_quantity",
   [InventoryExportType.MAX_QUANTITY]: "max_quantity",
 

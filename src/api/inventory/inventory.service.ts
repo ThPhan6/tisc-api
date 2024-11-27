@@ -20,7 +20,12 @@ import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
-import { IExchangeCurrency, UserAttributes, WarehouseStatus } from "@/types";
+import {
+  IExchangeCurrency,
+  LocationWithTeamCountAndFunctionType,
+  UserAttributes,
+  WarehouseStatus,
+} from "@/types";
 import { randomUUID } from "crypto";
 import {
   forEach,
@@ -42,6 +47,7 @@ import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type"
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { warehouseService } from "../warehouses/warehouse.service";
 import {
+  WarehouseCreate,
   WarehouseListResponse,
   WarehouseResponse,
 } from "../warehouses/warehouse.type";
@@ -55,6 +61,7 @@ import {
   InventoryListRequest,
   InventoryListResponse,
 } from "./inventory.type";
+import { locationService } from "../location/location.service";
 
 class InventoryService {
   private convertInventoryArrayToCsv = (
@@ -304,6 +311,81 @@ class InventoryService {
     };
   }
 
+  private async modifyWarehouses(
+    user: UserAttributes,
+    inventoryId: string,
+    warehouses: Pick<WarehouseCreate, "location_id" | "quantity">[]
+  ) {
+    if (!warehouses?.length) {
+      return errorMessageResponse(MESSAGES.WAREHOUSE.REQUIRED);
+    }
+
+    const uniqueLocationIds = uniqBy(warehouses, "location_id");
+    const count = uniqueLocationIds.length;
+
+    if (count !== warehouses?.length) {
+      return errorMessageResponse(MESSAGES.WAREHOUSE.LOCATION_DUPLICATED);
+    }
+
+    const payloadWarehouseLocationIds = warehouses.map((el) => el.location_id);
+
+    const instockWarehouseActive = (await warehouseService.getList(
+      inventoryId,
+      WarehouseStatus.ACTIVE
+    )) as unknown as {
+      data: WarehouseListResponse;
+    };
+
+    /// instock warehouses are not in payload
+    const warehouseDeleted = instockWarehouseActive.data.warehouses
+      .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
+      .map((el) => ({
+        location_id: el.location_id,
+        quantity: el.in_stock,
+      }));
+
+    const res = [];
+
+    if (warehouseDeleted.length) {
+      const warehouses = await Promise.all(
+        warehouseDeleted.map(
+          async (ws) => await warehouseService.delete(user, ws.location_id)
+        )
+      );
+
+      res.push(...warehouses);
+    }
+
+    /// create new warehouse and update warehouse existed
+    const warehouseUpdated = await Promise.all(
+      warehouses.map(async (ws) => {
+        return await warehouseService.create(user, {
+          inventory_id: inventoryId,
+          location_id: ws.location_id,
+          quantity: ws.quantity,
+        });
+      })
+    );
+
+    res.push(...warehouseUpdated);
+
+    const messageError = res
+      .filter((el) => el?.statusCode !== 200)
+      .map((el) => el?.message);
+
+    if (messageError.length) {
+      return {
+        message: messageError.join(", "),
+        statusCode: 400,
+      };
+    }
+
+    return {
+      statusCode: 200,
+      message: MESSAGES.SUCCESS,
+    };
+  }
+
   public async get(id: string) {
     const inventory = await inventoryRepository.find(id);
 
@@ -473,7 +555,7 @@ class InventoryService {
     return successMessageResponse(MESSAGES.EXCHANGE_CURRENCY_SUCCESS);
   }
 
-  public async create(payload: InventoryCreate) {
+  public async create(user: UserAttributes, payload: InventoryCreate) {
     /// find category
     const category = await dynamicCategoryRepository.find(
       payload.inventory_category_id
@@ -574,6 +656,33 @@ class InventoryService {
       }
 
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    const warehouses: Pick<WarehouseCreate, "location_id" | "quantity">[] = [];
+
+    if ("warehouses" in payload) {
+      warehouses.push(...(payload.warehouses ?? []));
+    } else {
+      const locations = await locationService.getList(user);
+
+      if (locations?.data?.locations?.length) {
+        locations.data.locations.forEach((location) => {
+          warehouses.push({
+            location_id: location.id,
+            quantity: 0,
+          });
+        });
+      }
+    }
+
+    const newWarehouses = await this.modifyWarehouses(
+      user,
+      newInventory.id,
+      warehouses
+    );
+
+    if (newWarehouses?.statusCode !== 200) {
+      return errorMessageResponse(newWarehouses.message);
     }
 
     return successMessageResponse(MESSAGES.SUCCESS);
@@ -684,66 +793,14 @@ class InventoryService {
     }
 
     if ("warehouses" in payload) {
-      const uniqueLocationIds = uniqBy(payload.warehouses, "location_id");
-      const count = uniqueLocationIds.length;
-
-      if (count !== payload?.warehouses?.length) {
-        return errorMessageResponse("Warehouse duplicate location");
-      }
-
-      const payloadWarehouseLocationIds = payload.warehouses.map(
-        (el) => el.location_id
-      );
-
-      const instockWarehouseActive = (await warehouseService.getList(
+      const warehouses = await this.modifyWarehouses(
+        user,
         id,
-        WarehouseStatus.ACTIVE
-      )) as unknown as {
-        data: WarehouseListResponse;
-      };
-
-      /// instock warehouses are not in payload
-      const warehouseDeleted = instockWarehouseActive.data.warehouses
-        .filter((el) => !payloadWarehouseLocationIds.includes(el.location_id))
-        .map((el) => ({
-          location_id: el.location_id,
-          quantity: el.in_stock,
-        }));
-
-      const res = [];
-
-      if (warehouseDeleted.length) {
-        const warehouses = await Promise.all(
-          warehouseDeleted.map(
-            async (ws) => await warehouseService.delete(user, ws.location_id)
-          )
-        );
-
-        res.push(...warehouses);
-      }
-
-      /// create new warehouse and update warehouse existed
-      const warehouseUpdated = await Promise.all(
-        payload.warehouses.map(async (ws) => {
-          return await warehouseService.create(user, {
-            inventory_id: id,
-            location_id: ws.location_id,
-            quantity: ws.quantity,
-          });
-        })
+        payload.warehouses ?? []
       );
 
-      res.push(...warehouseUpdated);
-
-      const messageError = res
-        .filter((el) => el?.statusCode !== 200)
-        .map((el) => el?.message);
-
-      if (messageError.length) {
-        return {
-          message: messageError.join(", "),
-          statusCode: 400,
-        };
+      if (warehouses?.statusCode !== 200) {
+        return errorMessageResponse(warehouses.message);
       }
     }
 
@@ -804,7 +861,10 @@ class InventoryService {
     return successResponse({ message: MESSAGES.SUCCESS });
   }
 
-  public async createMultiple(payload: InventoryCreate[]) {
+  public async createMultiple(
+    user: UserAttributes,
+    payload: InventoryCreate[]
+  ) {
     const errors: InventoryErrorList[] = await this.validateImportPayload(
       payload
     );
@@ -818,7 +878,7 @@ class InventoryService {
 
     const newInventories = await Promise.all(
       payload.map(
-        async (inventory) => await this.create(omit(inventory, "image"))
+        async (inventory) => await this.create(user, omit(inventory, "image"))
       )
     );
 

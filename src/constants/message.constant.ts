@@ -323,6 +323,8 @@ export const MESSAGES = {
     NOT_AVAILABLE: "Warehouse not available.",
     SUM_IN_STOCK: "Total In Stock is greater than Backorder",
     BACK_ORDER_NOT_FOUND: "Warehouse Back Order not found",
+    LOCATION_DUPLICATED: "Warehouses duplicated",
+    REQUIRED: "Warehouse is required",
   },
   INVENTORY: {
     NOT_FOUND_LEDGER: "Inventory ledger not found",
