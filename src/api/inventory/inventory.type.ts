@@ -25,7 +25,7 @@ export interface InventoryCreate
     InventoryVolumePrice,
     "discount_price" | "discount_rate" | "max_quantity" | "min_quantity"
   >[];
-  warehouses?: Pick<WarehouseCreate, "location_id" | "quantity">[];
+  warehouses?: Pick<WarehouseCreate, "location_id" | "quantity" | "convert">[];
 }
 
 export interface InventoryErrorList extends InventoryCreate {

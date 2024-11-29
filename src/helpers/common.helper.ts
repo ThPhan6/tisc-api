@@ -381,3 +381,13 @@ export const convertISOToRandomText = (isoString: string): string => {
 
   return `${year}${month}${day}-T${hours}${minutes}${seconds}${milliseconds}Z`;
 };
+
+export const convertInStock = (
+  oldInStock: number,
+  newInStock: number,
+  convert: number = 0
+) => {
+  if (oldInStock === newInStock) return oldInStock + convert;
+
+  return newInStock + convert;
+};

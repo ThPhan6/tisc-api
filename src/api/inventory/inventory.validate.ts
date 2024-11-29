@@ -96,6 +96,7 @@ const InventoryUpdateRequest = Joi.object({
         quantity: Joi.number().strict().required().messages({
           "any.required": "Quantity is required",
         }),
+        convert: Joi.number().strict().allow(null),
       }).unknown(false)
     ),
 })
@@ -115,9 +116,8 @@ const InventoryImportRequest = Joi.object({
   inventory_category_id: requireStringValidation("Inventory category id"),
   image: Joi.string().allow(null).allow(""),
   description: Joi.string().allow(null).allow("").trim(),
-  unit_type: requireStringValidation("Unit type").not("").not(null),
-  unit_price: Joi.number().min(1).strict().required().messages({
-    "any.required": "Unit price is required",
+  unit_type: Joi.string().allow(null).allow(""),
+  unit_price: Joi.number().min(1).strict().messages({
     "any.min": "Unit price is must be greater than 0",
   }),
   on_order: Joi.number().min(0).strict().messages({
@@ -126,6 +126,7 @@ const InventoryImportRequest = Joi.object({
   back_order: Joi.number().min(0).strict().messages({
     "number.min": "Backorder is must be positive number",
   }),
+  volume_prices: volumePricesSchema,
   warehouses: Joi.array()
     .allow(null)
     .items(
@@ -134,6 +135,7 @@ const InventoryImportRequest = Joi.object({
         quantity: Joi.number().strict().required().messages({
           "any.required": "Quantity is required",
         }),
+        convert: Joi.number().strict().allow(null),
       }).unknown(false)
     ),
 })

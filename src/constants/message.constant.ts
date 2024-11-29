@@ -334,5 +334,7 @@ export const MESSAGES = {
     ON_ORDER_LESS_THAN_ZERO: "On Order must be positive number",
     BACK_ORDER_LESS_THAN_ZERO: "Back Order must be positive number",
     SKU_REQUIRED: "SKU is required",
+    BELONG_TO_ANOTHER_CATEGORY:
+      "Inventory has been created in another category",
   },
 };

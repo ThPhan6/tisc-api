@@ -441,7 +441,7 @@ class InventoryService {
   private async modifyWarehouses(
     user: UserAttributes,
     inventoryId: string,
-    warehouses: Pick<WarehouseCreate, "location_id" | "quantity">[]
+    warehouses: Pick<WarehouseCreate, "location_id" | "quantity" | "convert">[]
   ) {
     if (!warehouses?.length) {
       return errorMessageResponse(MESSAGES.WAREHOUSE.REQUIRED);
@@ -490,6 +490,7 @@ class InventoryService {
           inventory_id: inventoryId,
           location_id: ws.location_id,
           quantity: ws.quantity,
+          convert: ws.convert,
         });
       })
     );
@@ -1030,14 +1031,31 @@ class InventoryService {
             };
           }
 
-          return await this.update(
-            user,
-            existedInventory.id,
-            omit(inventory, "image"),
-            {
-              isCheckSKUExisted: false,
+          if (
+            existedInventory.inventory_category_id !==
+            inventory.inventory_category_id
+          ) {
+            return {
+              message: `${inventory.sku}: ${MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY}`,
+              statusCode: 404,
+            };
+          }
+
+          const payload = omit(inventory, "image");
+
+          if ("unit_price" in inventory && !("volume_prices" in inventory)) {
+            const latestPrice = await inventoryRepository.getLatestPrice(
+              existedInventory.id
+            );
+
+            if (latestPrice) {
+              payload.volume_prices = latestPrice.volume_prices;
             }
-          );
+          }
+
+          return await this.update(user, existedInventory.id, payload, {
+            isCheckSKUExisted: false,
+          });
         })
       );
 
