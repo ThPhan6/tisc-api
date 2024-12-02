@@ -65,6 +65,7 @@ import {
   InventoryExportTypeLabel,
   InventoryListRequest,
   InventoryListResponse,
+  InventoryWarehouse,
 } from "./inventory.type";
 import { locationService } from "../location/location.service";
 
@@ -512,6 +513,45 @@ class InventoryService {
       statusCode: 200,
       message: MESSAGES.SUCCESS,
     };
+  }
+
+  private async findWarehouseByLocationIndex(
+    locations: LocationWithTeamCountAndFunctionType[],
+    warehouses?: InventoryWarehouse[],
+    inventoryId?: string
+  ) {
+    let existedWarehouse:
+      | { data: WarehouseListResponse; statusCode: number }
+      | undefined = undefined;
+
+    if (inventoryId) {
+      existedWarehouse = (await warehouseService.getList(inventoryId)) as {
+        data: WarehouseListResponse;
+        statusCode: number;
+      };
+    }
+
+    const newWarehouses = locations.map((location, locationIdx) => {
+      const warehouse = warehouses?.find((ws) => ws.index === locationIdx);
+
+      if (warehouse) {
+        return {
+          location_id: location.id,
+          quantity: warehouse.quantity,
+        };
+      }
+
+      return {
+        location_id: location.id,
+        quantity:
+          existedWarehouse?.data?.warehouses?.find(
+            (ws) =>
+              ws.name.toLowerCase() === location.business_name.toLowerCase()
+          )?.in_stock ?? 0,
+      };
+    });
+
+    return newWarehouses;
   }
 
   public async get(id: string) {
@@ -1017,6 +1057,14 @@ class InventoryService {
       (inventory) => existedSKU.includes(inventory.sku.toLowerCase())
     );
 
+    const locations = await locationService.getList(
+      user,
+      undefined,
+      undefined,
+      "business_name",
+      "ASC"
+    );
+
     if (existedInventories.length) {
       const updatedInventories = await Promise.all(
         existedInventories.map(async (inventory) => {
@@ -1041,7 +1089,10 @@ class InventoryService {
             };
           }
 
-          const payload = omit(inventory, "image");
+          const newPayload: Partial<InventoryCreate> = omit(inventory, [
+            "image",
+            "warehouses",
+          ]);
 
           if ("unit_price" in inventory && !("volume_prices" in inventory)) {
             const latestPrice = await inventoryRepository.getLatestPrice(
@@ -1049,11 +1100,19 @@ class InventoryService {
             );
 
             if (latestPrice) {
-              payload.volume_prices = latestPrice.volume_prices;
+              newPayload.volume_prices = latestPrice.volume_prices;
             }
           }
 
-          return await this.update(user, existedInventory.id, payload, {
+          if ("warehouses" in inventory) {
+            newPayload.warehouses = await this.findWarehouseByLocationIndex(
+              locations.data.locations,
+              inventory.warehouses,
+              existedInventory.id
+            );
+          }
+
+          return await this.update(user, existedInventory.id, newPayload, {
             isCheckSKUExisted: false,
           });
         })
@@ -1069,9 +1128,20 @@ class InventoryService {
     }
 
     if (newInventories.length) {
+      const newPayload = await Promise.all(
+        newInventories.map(async (inventory) => ({
+          ...inventory,
+          warehouses: await this.findWarehouseByLocationIndex(
+            locations.data.locations,
+            inventory.warehouses
+          ),
+        }))
+      );
+
       const createdInventories = await Promise.all(
-        newInventories.map(
-          async (inventory) => await this.create(user, omit(inventory, "image"))
+        newPayload.map(
+          async (inventory) =>
+            await this.create(user, await omit(inventory, "image"))
         )
       );
 

@@ -24,7 +24,7 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { difference, head, isEmpty, map, pick, sumBy } from "lodash";
+import { difference, head, isEmpty, map, pick, sortBy, sumBy } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
   NonPhysicalWarehouseCreate,
@@ -563,7 +563,7 @@ class WarehouseService {
 
     return successResponse({
       data: {
-        warehouses: warehouses,
+        warehouses: sortBy(warehouses, "name"),
         total_stock: warehouses.reduce((acc, item) => acc + item.in_stock, 0),
       } as WarehouseListResponse,
     });

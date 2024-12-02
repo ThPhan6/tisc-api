@@ -131,7 +131,8 @@ const InventoryImportRequest = Joi.object({
     .allow(null)
     .items(
       Joi.object({
-        location_id: requireStringValidation("Location id"),
+        // location_id: requireStringValidation("Location id"),
+        index: Joi.number().strict().required(),
         quantity: Joi.number().strict().required().messages({
           "any.required": "Quantity is required",
         }),
