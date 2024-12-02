@@ -96,6 +96,7 @@ const InventoryUpdateRequest = Joi.object({
         quantity: Joi.number().strict().required().messages({
           "any.required": "Quantity is required",
         }),
+        convert: Joi.number().strict().allow(null),
       }).unknown(false)
     ),
 })
@@ -109,6 +110,38 @@ const InventoryUpdateRequest = Joi.object({
     "object.and":
       "Unit price, and volume prices must all be provided together.",
   });
+
+const InventoryImportRequest = Joi.object({
+  sku: requireStringValidation("Inventory sku").trim(),
+  inventory_category_id: requireStringValidation("Inventory category id"),
+  image: Joi.string().allow(null).allow(""),
+  description: Joi.string().allow(null).allow("").trim(),
+  unit_type: Joi.string().allow(null).allow(""),
+  unit_price: Joi.number().min(1).strict().messages({
+    "any.min": "Unit price is must be greater than 0",
+  }),
+  on_order: Joi.number().min(0).strict().messages({
+    "number.min": "On order is must be positive number",
+  }),
+  back_order: Joi.number().min(0).strict().messages({
+    "number.min": "Backorder is must be positive number",
+  }),
+  volume_prices: volumePricesSchema,
+  warehouses: Joi.array()
+    .allow(null)
+    .items(
+      Joi.object({
+        // location_id: requireStringValidation("Location id"),
+        index: Joi.number().strict().required(),
+        quantity: Joi.number().strict().required().messages({
+          "any.required": "Quantity is required",
+        }),
+        convert: Joi.number().strict().allow(null),
+      }).unknown(false)
+    ),
+})
+  .min(1)
+  .unknown(false);
 
 export default {
   get: {
@@ -143,7 +176,7 @@ export default {
       .required(),
   },
   import: {
-    payload: Joi.array().required().items(InventoryCreateRequest).min(1),
+    payload: Joi.array().required().items(InventoryImportRequest).min(1),
   },
   delete: {
     params: InventoryId,
