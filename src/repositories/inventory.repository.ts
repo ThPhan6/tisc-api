@@ -229,6 +229,23 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     );
     return head(result) as LatestPrice;
   }
+
+  public async getInventoryBySKU(
+    sku: string
+  ): Promise<InventoryEntity | undefined> {
+    const inventory = await this.model.rawQueryV2(
+      ` FOR inventory IN inventories
+        FILTER inventory.deleted_at == null
+        FILTER LOWER(inventory.sku) == LOWER(@sku)
+        RETURN UNSET(inventory, ['_key','_id','_rev','deleted_at'])
+      `,
+      {
+        sku,
+      }
+    );
+
+    return head(inventory) as Promise<InventoryEntity | undefined>;
+  }
 }
 
 export const inventoryRepository = new InventoryRepository();

@@ -1,5 +1,8 @@
 import { MESSAGES } from "@/constants";
-import { getInventoryActionDescription } from "@/helpers/common.helper";
+import {
+  convertInStock,
+  getInventoryActionDescription,
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -21,7 +24,7 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { difference, head, isEmpty, map, pick, sumBy } from "lodash";
+import { difference, head, isEmpty, map, pick, sortBy, sumBy } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
   NonPhysicalWarehouseCreate,
@@ -210,7 +213,7 @@ class WarehouseService {
   private async updateNonPhysicalWarehouse(
     payload: Pick<
       NonPhysicalWarehouseCreate,
-      "created_by" | "parent_id" | "quantity" | "inventory_id"
+      "created_by" | "parent_id" | "quantity" | "convert" | "inventory_id"
     >
   ) {
     const {
@@ -218,6 +221,7 @@ class WarehouseService {
       parent_id: parentId,
       inventory_id: inventoryId,
       quantity = 0,
+      convert = 0,
     } = payload;
 
     if (!userId) {
@@ -330,16 +334,17 @@ class WarehouseService {
       };
     }
 
-    if (quantity === 0) {
+    const newQuantity = convertInStock(
+      existedLedger.quantity,
+      quantity,
+      convert
+    );
+
+    if (newQuantity === existedLedger.quantity) {
       return successMessageResponse(MESSAGES.SUCCESS);
     }
 
-    const newLedgerQuantity =
-      existedLedger.status === WarehouseStatus.ACTIVE
-        ? existedLedger.quantity + quantity
-        : quantity;
-
-    if (newLedgerQuantity < 0) {
+    if (newQuantity < 0) {
       return {
         ...errorMessageResponse(MESSAGES.LESS_THAN_ZERO),
         data: null,
@@ -347,7 +352,7 @@ class WarehouseService {
     }
 
     const newLedger = await inventoryLedgerRepository.update(existedLedger.id, {
-      quantity: newLedgerQuantity,
+      quantity: newQuantity,
       status: WarehouseStatus.ACTIVE,
     });
 
@@ -363,10 +368,7 @@ class WarehouseService {
       inventory_id: inventoryId,
       quantity,
       created_by: userId,
-      type: this.getInventoryActionType(
-        existedLedger.quantity,
-        newLedgerQuantity
-      ),
+      type: this.getInventoryActionType(existedLedger.quantity, newQuantity),
       description: getInventoryActionDescription(
         InventoryActionDescription.ADJUST
       ),
@@ -547,19 +549,21 @@ class WarehouseService {
           nonePhysicalWarehouse.location_id
         );
 
-        warehouses.push({
-          ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
-          location_id: location?.id ?? "",
-          country_name: location?.country_name ?? "",
-          city_name: location?.city_name ?? "",
-          in_stock: Number(inventoryLedger.quantity),
-        });
+        if (location) {
+          warehouses.push({
+            ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
+            location_id: location.id,
+            country_name: location?.country_name ?? "",
+            city_name: location?.city_name ?? "",
+            in_stock: Number(inventoryLedger.quantity),
+          });
+        }
       })
     );
 
     return successResponse({
       data: {
-        warehouses: warehouses,
+        warehouses: sortBy(warehouses, "name"),
         total_stock: warehouses.reduce((acc, item) => acc + item.in_stock, 0),
       } as WarehouseListResponse,
     });
@@ -684,6 +688,7 @@ class WarehouseService {
       created_by: user.id,
       parent_id: physicalWarehouseExisted.id,
       quantity: payload.quantity,
+      convert: payload.convert,
       inventory_id: inventoryExisted.id,
     });
 
