@@ -2,6 +2,7 @@ import { InventoryActionType, WarehouseEntity, WarehouseStatus } from "@/types";
 
 export interface WarehouseCreate extends Pick<WarehouseEntity, "location_id"> {
   quantity: number;
+  convert?: number;
   inventory_id: string;
 }
 
@@ -11,6 +12,7 @@ export interface NonPhysicalWarehouseCreate
     "location_id" | "relation_id" | "parent_id" | "name" | "type"
   > {
   quantity: number;
+  convert?: number;
   inventory_id: string;
   inventory_action_type: InventoryActionType;
   created_by: string;

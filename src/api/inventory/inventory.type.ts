@@ -25,7 +25,12 @@ export interface InventoryCreate
     InventoryVolumePrice,
     "discount_price" | "discount_rate" | "max_quantity" | "min_quantity"
   >[];
-  warehouses?: Pick<WarehouseCreate, "location_id" | "quantity">[];
+  warehouses?: InventoryWarehouse[];
+}
+
+export interface InventoryWarehouse
+  extends Pick<WarehouseCreate, "location_id" | "quantity" | "convert"> {
+  index?: number;
 }
 
 export interface InventoryErrorList extends InventoryCreate {
@@ -44,6 +49,7 @@ export interface InventoryCategoryQuery {
 export interface InventoryListResponse extends InventoryEntity {
   out_stock: number | null;
   total_stock: number;
+  stock_value: number;
   warehouses: WarehouseResponse[];
   price: InventoryBasePrice & {
     volume_prices: InventoryVolumePrice[] | null;
@@ -91,14 +97,15 @@ export enum InventoryExportType {
   BACK_ORDER = 6,
   OUT_OF_STOCK = 7,
   TOTAL_STOCK = 8,
-  DISCOUNT_RATE = 9,
-  DISCOUNT_PRICE = 10,
-  MIN_QUANTITY = 11,
-  MAX_QUANTITY = 12,
-  WAREHOUSE_NAME = 13,
-  WAREHOUSE_CITY = 14,
-  WAREHOUSE_COUNTRY = 15,
-  WAREHOUSE_IN_STOCK = 16,
+  STOCK_VALUE = 9,
+  DISCOUNT_RATE = 10,
+  DISCOUNT_PRICE = 11,
+  MIN_QUANTITY = 12,
+  MAX_QUANTITY = 13,
+  WAREHOUSE_NAME = 14,
+  WAREHOUSE_CITY = 15,
+  WAREHOUSE_COUNTRY = 16,
+  WAREHOUSE_IN_STOCK = 17,
 }
 
 export const InventoryExportTypeLabel = {
@@ -110,6 +117,7 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.BACK_ORDER]: "back_order",
   [InventoryExportType.OUT_OF_STOCK]: "out_stock",
   [InventoryExportType.TOTAL_STOCK]: "total_stock",
+  [InventoryExportType.STOCK_VALUE]: "stock_value",
 
   [InventoryExportType.DISCOUNT_RATE]: "discount_rate",
   [InventoryExportType.DISCOUNT_PRICE]: "discount_price",
@@ -121,20 +129,3 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.WAREHOUSE_COUNTRY]: "country_name",
   [InventoryExportType.WAREHOUSE_IN_STOCK]: "in_stock",
 };
-
-export const INVENTORY_EXPORT_KEYS = [
-  "sku",
-  "description",
-  "unit_price",
-  "unit_type",
-  "name",
-  "city_name",
-  "country_name",
-  "in_stock",
-  "on_order",
-  "back_order",
-  "out_stock",
-  "discount_price",
-  "min_quantity",
-  "max_quantity",
-];

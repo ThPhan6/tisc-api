@@ -10,7 +10,6 @@ import {
   omitBy,
   pick,
   round,
-  startCase,
   template,
 } from "lodash";
 
@@ -306,6 +305,15 @@ export const getInventoryActionDescription = (
   }
 };
 
+export const startCase = (str: string) => {
+  return str
+    .split(/[\s-_]+/) // Split by spaces, hyphens, or underscores
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+};
+
 export const jsonToCSV = (jsonData: any[]) => {
   const headers: string[] = [];
 
@@ -332,12 +340,7 @@ export const jsonToCSV = (jsonData: any[]) => {
     headers.map((header) => row[header]).join(",")
   );
 
-  return [
-    headers.map((header) =>
-      header.startsWith("#") ? "#" + startCase(header) : startCase(header)
-    ),
-    ...rows,
-  ].join("\n");
+  return [headers.map((header) => startCase(header)), ...rows].join("\n");
 };
 
 export const sortObjectByKey = (obj: Object, keys: string[]): Object => {
@@ -377,4 +380,14 @@ export const convertISOToRandomText = (isoString: string): string => {
   const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
 
   return `${year}${month}${day}-T${hours}${minutes}${seconds}${milliseconds}Z`;
+};
+
+export const convertInStock = (
+  oldInStock: number,
+  newInStock: number,
+  convert: number = 0
+) => {
+  if (oldInStock === newInStock) return oldInStock + convert;
+
+  return newInStock + convert;
 };
