@@ -70,6 +70,36 @@ import {
 import { locationService } from "../location/location.service";
 
 class InventoryService {
+  private transferInventory = (inventory: Record<string, any>) => {
+    const newInventory = { ...inventory };
+
+    for (const key in inventory) {
+      if (key.startsWith("#") && key.includes("Vol. Discount Price & Qty")) {
+        const index = key.split(" ")[0];
+
+        const discountPriceKey = `${index} Vol. Discount Price & Qty`;
+        const minQtyKey = `${index} Vol. Min. Qty`;
+        const maxQtyKey = `${index} Vol. Max. Qty`;
+
+        const priceAndQty = `"${inventory[discountPriceKey]}, ${inventory[minQtyKey]}-${inventory[maxQtyKey]}"`;
+
+        newInventory[discountPriceKey] = priceAndQty;
+        delete newInventory[minQtyKey];
+        delete newInventory[maxQtyKey];
+      }
+
+      if (key.startsWith("#") && key.includes("Warehouse")) {
+        const index = key.split(" ")[0];
+
+        delete newInventory[`${index} Warehouse Name`];
+        delete newInventory[`${index} Warehouse Country`];
+        delete newInventory[`${index} Warehouse City`];
+      }
+    }
+
+    return newInventory;
+  };
+
   private formatCSVColumn = (header: string[], content: any[]) =>
     content.map((el) => {
       const newEl: any = {};
@@ -172,7 +202,7 @@ class InventoryService {
             InventoryExportTypeLabel[InventoryExportType.WAREHOUSE_IN_STOCK]
           ) {
             return {
-              [key]: `${ordered} Warehouse In Stock`,
+              [key]: `${el[`${ordered}_name`]} In Stock`,
             };
           }
 
@@ -181,7 +211,7 @@ class InventoryService {
             InventoryExportTypeLabel[InventoryExportType.DISCOUNT_PRICE]
           ) {
             return {
-              [key]: `${ordered} Vol. Discount Price`,
+              [key]: `${ordered} Vol. Discount Price & Qty`,
             };
           }
 
@@ -216,7 +246,9 @@ class InventoryService {
         })
         .filter(Boolean) as Record<string, string>[];
 
-      return renameKeys(newEl, [...changedKeys, { sku: "Product ID" }]);
+      return this.transferInventory(
+        renameKeys(newEl, [...changedKeys, { sku: "Product ID" }])
+      );
     });
 
   private convertInventoryArrayToCsv = (
@@ -946,8 +978,8 @@ class InventoryService {
       ...pick(payload, "description", "sku"),
       image: isString(image) ? image : image.smallWebp,
       updated_at: getTimestamps(),
-      on_order: payload.on_order ?? inventoryExisted.on_order,
-      back_order: payload.back_order ?? inventoryExisted.back_order,
+      on_order: payload.on_order ?? inventoryExisted.on_order ?? 0,
+      back_order: payload.back_order ?? inventoryExisted.back_order ?? 0,
     });
     if (!updatedInventory) {
       if (isString(image)) {
