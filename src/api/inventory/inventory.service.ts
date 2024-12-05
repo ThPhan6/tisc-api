@@ -1155,7 +1155,23 @@ class InventoryService {
         .map((el) => el.message);
 
       if (errors.length) {
+        if (
+          errors.some((el) =>
+            el.includes(MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY)
+          )
+        ) {
+          const skuErrors = errors.map((item) => item.split(":")[0].trim());
+
+          return errorMessageResponse(
+            `We don't want two ${skuErrors.join(", ")} in the inventory`
+          );
+        }
+
         return errorMessageResponse(errors.join(", "));
+      }
+
+      if (errors.length) {
+        return errorMessageResponse(errors[0]);
       }
     }
 
@@ -1182,7 +1198,7 @@ class InventoryService {
         .map((el) => el.message);
 
       if (errors.length) {
-        return errorMessageResponse(errors.join(", "));
+        return errorMessageResponse(errors[0]);
       }
     }
 
