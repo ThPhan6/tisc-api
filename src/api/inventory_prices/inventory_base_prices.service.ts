@@ -34,13 +34,20 @@ class InventoryBasePriceService {
         payload.inventory_id
       );
 
-    const unitPrice = !isNil(payload.unit_price)
+    const unitPrice = !isNil(payload?.unit_price)
       ? payload.unit_price
       : basePriceExisted?.unit_price;
 
     if (isNil(unitPrice)) {
       return {
         ...errorMessageResponse(MESSAGES.PRICE_NOT_FOUND),
+        data: null,
+      };
+    }
+
+    if (!payload?.unit_type && !basePriceExisted?.unit_type) {
+      return {
+        ...errorMessageResponse(MESSAGES.UNIT_TYPE_NOT_FOUND),
         data: null,
       };
     }
