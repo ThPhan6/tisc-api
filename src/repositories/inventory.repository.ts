@@ -43,41 +43,52 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     )`;
 
   private totalStockValueQuery = `
-      let totalStockValue = sum(
-        FOR ware IN warehouses
-        FILTER ware.deleted_at == null
-        FILTER ware.type == ${WarehouseType.IN_STOCK}
-        FILTER ware.status == ${WarehouseStatus.ACTIVE}
+    LET totalStockValue = SUM(
+      LET activeLedgers = (
+        FOR led IN inventory_ledgers
+        FILTER led.deleted_at == null
+        FILTER led.status == 1
+        FILTER led.inventory_id == inven.id
 
-        let ledgers = (
-            FOR led IN inventory_ledgers
-            FILTER led.deleted_at == null
-            FILTER led.status == ${WarehouseStatus.ACTIVE}
-            FILTER led.inventory_id == inven.id
-            FILTER led.warehouse_id == ware.id
-            return led
+        LET warehouse = FIRST(
+          FOR ws IN warehouses
+          FILTER ws.deleted_at == null
+          FILTER ws.type == ${WarehouseType.IN_STOCK}
+          FILTER ws.status == ${WarehouseStatus.ACTIVE}
+          FILTER ws.id == led.warehouse_id
+          RETURN ws
         )
 
-        let unitPrice = FIRST(
-          FOR price IN inventory_base_prices
-          FILTER price.deleted_at == null
-          FILTER price.inventory_id == inven.id
-          sort price.created_at DESC
-
-          LET rates = (
-            FOR history IN exchange_histories
-            FILTER history.deleted_at == null
-            FILTER history.created_at >= price.created_at
-            RETURN history.rate
-          )
-          return price.unit_price * PRODUCT(rates)
-        )
-
-        LET quantity = sum(FOR ledger IN ledgers RETURN ledger.quantity)
-        return quantity * unitPrice
+        FILTER led.warehouse_id == warehouse.id
+        RETURN led
       )
 
-      return totalStockValue
+      FOR ware IN warehouses
+      FILTER ware.deleted_at == null
+      FILTER ware.type == ${WarehouseType.IN_STOCK}
+      FILTER ware.status == ${WarehouseStatus.ACTIVE}
+      FILTER ware.id IN (FOR le IN activeLedgers RETURN le.warehouse_id)
+
+      LET unitPrice = FIRST(
+        FOR price IN inventory_base_prices
+        FILTER price.deleted_at == null
+        FILTER price.inventory_id == inven.id
+        SORT price.created_at DESC
+
+        LET rates = (
+          FOR history IN exchange_histories
+          FILTER history.deleted_at == null
+          FILTER history.created_at >= price.created_at
+          RETURN history.rate
+        )
+
+        RETURN price.unit_price * PRODUCT(rates)
+      )
+
+      RETURN SUM(FOR le IN activeLedgers RETURN le.quantity) * unitPrice
+      )
+
+      RETURN totalStockValue
     `;
 
   public async getTotalInventories(brandId: string): Promise<number> {
@@ -102,18 +113,25 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
   public async getTotalStockValue(brandId: string): Promise<number> {
     const rawQuery = `
-      FOR brand IN brands
-      FILTER brand.deleted_at == null
-      FILTER brand.id == @brandId
+      LET activeBrands = (
+        FOR brand IN brands
+        FILTER brand.deleted_at == null
+        FILTER brand.id == @brandId
+        RETURN brand
+      )
 
-      FOR category IN dynamic_categories
-      FILTER category.deleted_at == null
-      FILTER category.relation_id == brand.id
+      LET activeCategories = (
+        FOR category IN dynamic_categories
+        FILTER category.deleted_at == null
+        FILTER category.relation_id IN (FOR b IN activeBrands RETURN b.id)
+        RETURN category
+      )
+
       FOR inven IN inventories
       FILTER inven.deleted_at == null
-      FILTER inven.inventory_category_id == category.id
+      FILTER inven.inventory_category_id IN (FOR c IN activeCategories RETURN c.id)
 
-      let total = (${this.totalStockValueQuery})
+      LET total = (${this.totalStockValueQuery})
 
       FOR amount IN total
       COLLECT AGGREGATE totalStockValueSum = SUM(amount)
