@@ -602,7 +602,7 @@ class WarehouseService {
     if (
       !locationExisted.functional_type
         .toLowerCase()
-        .includes(CompanyFunctionalGroup.LOGISTIC)
+        .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
     ) {
       return errorMessageResponse(MESSAGES.LOCATION.NOT_LOGISTIC);
     }
