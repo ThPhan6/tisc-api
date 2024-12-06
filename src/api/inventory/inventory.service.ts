@@ -22,6 +22,7 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import {
+  CompanyFunctionalGroup,
   IExchangeCurrency,
   InventoryEntity,
   LocationWithTeamCountAndFunctionType,
@@ -861,12 +862,44 @@ class InventoryService {
     const warehouses: Pick<WarehouseCreate, "location_id" | "quantity">[] = [];
 
     if ("warehouses" in payload) {
-      warehouses.push(...(payload.warehouses ?? []));
-    } else {
-      const locations = await locationService.getList(user);
+      const locations = await locationService.getList(
+        user,
+        undefined,
+        undefined,
+        "business_name",
+        "ASC"
+      );
 
-      if (locations?.data?.locations?.length) {
-        locations.data.locations.forEach((location) => {
+      const locationLogistics = locations.data.locations.filter((loca) =>
+        loca.functional_type
+          .toLowerCase()
+          .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
+      );
+
+      if (locationLogistics.length) {
+        locationLogistics.forEach((location, index) => {
+          warehouses.push({
+            location_id: location.id,
+            quantity: payload.warehouses?.[index]?.quantity ?? 0,
+          });
+        });
+      }
+    } else {
+      const locations = await locationService.getList(
+        user,
+        undefined,
+        undefined,
+        "business_name",
+        "ASC"
+      );
+      const locationLogistics = locations.data.locations.filter((loca) =>
+        loca.functional_type
+          .toLowerCase()
+          .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
+      );
+
+      if (locationLogistics.length) {
+        locationLogistics.forEach((location) => {
           warehouses.push({
             location_id: location.id,
             quantity: 0,
@@ -1097,6 +1130,12 @@ class InventoryService {
       "ASC"
     );
 
+    const locationLogistics = locations.data.locations.filter((loca) =>
+      loca.functional_type
+        .toLowerCase()
+        .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
+    );
+
     if (existedInventories.length) {
       const updatedInventories = await Promise.all(
         existedInventories.map(async (inventory) => {
@@ -1138,7 +1177,7 @@ class InventoryService {
 
           if ("warehouses" in inventory) {
             newPayload.warehouses = await this.findWarehouseByLocationIndex(
-              locations.data.locations,
+              locationLogistics,
               inventory.warehouses,
               existedInventory.id
             );
