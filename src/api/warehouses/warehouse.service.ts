@@ -1,4 +1,4 @@
-import { MESSAGES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   convertInStock,
   getInventoryActionDescription,
@@ -15,6 +15,7 @@ import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repos
 import { locationRepository } from "@/repositories/location.repository";
 import { warehouseRepository } from "@/repositories/warehouse.repository";
 import {
+  CompanyFunctionalGroup,
   InventoryActionDescription,
   InventoryActionEntity,
   InventoryActionType,
@@ -596,6 +597,14 @@ class WarehouseService {
 
     if (!locationExisted) {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
+    }
+
+    if (
+      !locationExisted.functional_type
+        .toLowerCase()
+        .includes(CompanyFunctionalGroup.LOGISTIC)
+    ) {
+      return errorMessageResponse(MESSAGES.LOCATION.NOT_LOGISTIC);
     }
 
     const allInStockWarehousesBelongToLocations =

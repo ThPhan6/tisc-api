@@ -24,6 +24,7 @@ export const MESSAGES = {
 
   LOCATION: {
     USER_USED: "This location is using in Team Profile",
+    NOT_LOGISTIC: "This location is not Logistic Facility & Warehouse",
   },
 
   FAVOURITE: {

@@ -35,3 +35,7 @@ export interface CommonTypeAttributes {
   created_at: string;
   updated_at: string | null;
 }
+
+export enum CompanyFunctionalGroup {
+  LOGISTIC = "Logistic Facility & Warehouse",
+}
