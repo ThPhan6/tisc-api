@@ -9,10 +9,10 @@ import {
 
 export default class WarehouseController {
   public async getList(req: Request, toolkit: ResponseToolkit) {
-    const response = await warehouseService.getList(
-      req.params.id,
-      WarehouseStatus.ACTIVE
-    );
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await warehouseService.getList(user, req.params.id, {
+      status: WarehouseStatus.ACTIVE,
+    });
     return toolkit.response(response).code(response.statusCode);
   }
 

@@ -19,7 +19,9 @@ export default class InventoryController {
   }
 
   public async getList(req: Request, toolkit: ResponseToolkit) {
+    const user = req.auth.credentials.user as UserAttributes;
     const response = await inventoryService.getList(
+      user,
       req.query as InventoryCategoryQuery
     );
     return toolkit.response(response).code(response.statusCode);
@@ -90,7 +92,9 @@ export default class InventoryController {
     req: Request & { payload: InventoryExportRequest },
     toolkit: ResponseToolkit
   ) {
+    const user = req.auth.credentials.user as UserAttributes;
     const response = (await inventoryService.export(
+      user,
       req.payload
     )) as ExportResponse;
 

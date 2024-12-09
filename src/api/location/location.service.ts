@@ -147,12 +147,15 @@ export default class LocationService {
 
   public getList = async (
     user: UserAttributes,
-    limit?: number,
-    offset?: number,
-    sort?: string,
-    order?: SortOrder,
-    _filter?: any,
-    is_sort_main_office_first?: boolean
+    options?: {
+      limit?: number;
+      offset?: number;
+      sort?: string;
+      order?: SortOrder;
+      is_sort_main_office_first?: boolean;
+      functional_type?: string;
+      filter?: any;
+    }
   ): Promise<{
     data: {
       locations: LocationWithTeamCountAndFunctionType[];
@@ -160,6 +163,15 @@ export default class LocationService {
     };
     statusCode: number;
   }> => {
+    const {
+      limit,
+      offset,
+      sort,
+      order,
+      is_sort_main_office_first = false,
+      functional_type,
+    } = options || {};
+
     const response = await locationRepository.getLocationPagination(
       user.relation_id,
       limit,
@@ -167,11 +179,24 @@ export default class LocationService {
       sort,
       order
     );
+
+    let locations = response.data;
+
+    if (is_sort_main_office_first) {
+      locations = sortMainOfficeFirst(response.data);
+    }
+
+    if (functional_type) {
+      locations = locations.filter((location) =>
+        location.functional_type
+          .toLowerCase()
+          .includes(functional_type.toLowerCase())
+      );
+    }
+
     return successResponse({
       data: {
-        locations: is_sort_main_office_first
-          ? sortMainOfficeFirst(response.data)
-          : response.data,
+        locations,
         pagination: response.pagination,
       },
     }) as any;

@@ -25,7 +25,17 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { difference, head, isEmpty, map, pick, sortBy, sumBy } from "lodash";
+import {
+  difference,
+  head,
+  isEmpty,
+  map,
+  pick,
+  sortBy,
+  sumBy,
+  unionBy,
+  uniqBy,
+} from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import {
   NonPhysicalWarehouseCreate,
@@ -35,6 +45,7 @@ import {
   WarehouseUpdate,
   WarehouseUpdateBackOrder,
 } from "./warehouse.type";
+import { locationService } from "../location/location.service";
 
 class WarehouseService {
   private nonPhysicalWarehouseTypes = [
@@ -498,10 +509,15 @@ class WarehouseService {
   }
 
   public async getList(
+    user: UserAttributes,
     inventoryId: string,
-    status?: WarehouseStatus,
-    type: WarehouseType = WarehouseType.IN_STOCK
+    params?: {
+      status?: WarehouseStatus;
+      type?: WarehouseType;
+    }
   ) {
+    const { status, type = WarehouseType.IN_STOCK } = params ?? {};
+
     const existedInventory = await inventoryRepository.find(inventoryId);
 
     if (!existedInventory) {
@@ -562,10 +578,39 @@ class WarehouseService {
       })
     );
 
+    const locations = await locationService.getList(user as UserAttributes, {
+      sort: "business_name",
+      order: "ASC",
+      functional_type: CompanyFunctionalGroup.LOGISTIC,
+    });
+
+    const locationLogistics: WarehouseResponse[] = locations.data.locations.map(
+      (el) => ({
+        id: el.id,
+        name: el.business_name,
+        country_name: el.country_name,
+        city_name: el.city_name,
+        in_stock: 0,
+        location_id: el.id,
+        created_at: el.created_at,
+      })
+    );
+
+    const locationLogisticLocationIds = locationLogistics.map(
+      (el) => el.location_id
+    );
+
+    const result = sortBy(
+      warehouses.filter((el) =>
+        locationLogisticLocationIds.includes(el.location_id)
+      ),
+      "name"
+    );
+
     return successResponse({
       data: {
-        warehouses: sortBy(warehouses, "name"),
-        total_stock: warehouses.reduce((acc, item) => acc + item.in_stock, 0),
+        warehouses: result,
+        total_stock: result.reduce((acc, item) => acc + item.in_stock, 0),
       } as WarehouseListResponse,
     });
   }
@@ -604,7 +649,9 @@ class WarehouseService {
         .toLowerCase()
         .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
     ) {
-      return errorMessageResponse(MESSAGES.LOCATION.NOT_LOGISTIC);
+      return errorMessageResponse(
+        `This location ${locationExisted.business_name} is not a ${CompanyFunctionalGroup.LOGISTIC}`
+      );
     }
 
     const allInStockWarehousesBelongToLocations =
