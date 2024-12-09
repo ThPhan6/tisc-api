@@ -24,6 +24,7 @@ import {
 import {
   CompanyFunctionalGroup,
   IExchangeCurrency,
+  InventoryEntity,
   LocationWithTeamCountAndFunctionType,
   UserAttributes,
   WarehouseStatus,
@@ -39,7 +40,7 @@ import {
   omit,
   partition,
   pick,
-  reduce,
+  round,
   sortBy,
   sumBy,
   uniqBy,
@@ -49,7 +50,6 @@ import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.ty
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
-import { locationService } from "../location/location.service";
 import { warehouseService } from "../warehouses/warehouse.service";
 import {
   WarehouseCreate,
@@ -68,6 +68,7 @@ import {
   InventoryListResponse,
   InventoryWarehouse,
 } from "./inventory.type";
+import { locationService } from "../location/location.service";
 
 class InventoryService {
   private transferInventory = (inventory: Record<string, any>) => {
@@ -247,11 +248,7 @@ class InventoryService {
         .filter(Boolean) as Record<string, string>[];
 
       return this.transferInventory(
-        renameKeys(newEl, [
-          ...changedKeys,
-          { sku: "Product ID" },
-          { unit_price: "Base Price" },
-        ])
+        renameKeys(newEl, [...changedKeys, { sku: "Product ID" }])
       );
     });
 
@@ -1147,28 +1144,42 @@ class InventoryService {
     );
 
     if (existedInventories.length) {
-      const updatedInventories = await Promise.all(
+      const errors: string[] = [];
+      const inventories: InventoryEntity[] = [];
+
+      await Promise.all(
         existedInventories.map(async (inventory) => {
           const existedInventory = await inventoryRepository.getInventoryBySKU(
             inventory.sku
           );
 
           if (!existedInventory) {
-            return {
-              message: MESSAGES.SOMETHING_WRONG_UPDATE,
-              statusCode: 404,
-            };
+            errors.push(`${inventory.sku} not found`);
+            return;
           }
 
           if (
             existedInventory.inventory_category_id !==
             inventory.inventory_category_id
           ) {
-            return {
-              message: `${inventory.sku}: ${MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY}`,
-              statusCode: 404,
-            };
+            errors.push(
+              `${inventory.sku} ${MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY}`
+            );
           }
+
+          inventories.push(existedInventory);
+        })
+      );
+
+      if (errors.length) {
+        return errorMessageResponse(errors.join(", "));
+      }
+
+      await Promise.all(
+        existedInventories.map(async (inventory) => {
+          const existedInventory = inventories.find(
+            (el) => el.sku.toLowerCase() === inventory.sku.toLowerCase()
+          ) as InventoryEntity;
 
           const newPayload: Partial<InventoryCreate> = omit(inventory, [
             "image",
@@ -1199,29 +1210,7 @@ class InventoryService {
         })
       );
 
-      const errors = updatedInventories
-        .filter((el) => el.statusCode !== 200)
-        .map((el) => el.message);
-
-      if (errors.length) {
-        if (
-          errors.some((el) =>
-            el.includes(MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY)
-          )
-        ) {
-          // const skuErrors = errors.map((item) => item.split(":")[0].trim());
-
-          return errorMessageResponse(
-            `We don't want two Product ID in the inventory`
-          );
-        }
-
-        return errorMessageResponse(errors[0]);
-      }
-
-      if (errors.length) {
-        return errorMessageResponse(errors[0]);
-      }
+      return successMessageResponse(MESSAGES.SUCCESS);
     }
 
     if (newInventories.length) {
@@ -1293,26 +1282,15 @@ class InventoryService {
 
     const data = this.convertInventoryArrayToCsv(
       payload.types,
-      inventory.data.inventories.map((el) => {
-        const rate = reduce(
-          el.price.exchange_histories?.map((unit) => unit.rate),
-          (acc, el) => acc * el,
-          1
-        );
-
-        const unitPrice = Number(el?.price?.unit_price ?? 0) * rate;
-
-        return {
-          ...el,
-          price: {
-            ...el.price,
-            unit_price: Number(unitPrice.toFixed(2)),
-            unit_type:
-              unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
-              "",
-          },
-        };
-      })
+      inventory.data.inventories.map((el) => ({
+        ...el,
+        price: {
+          ...el.price,
+          unit_type:
+            unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
+            "",
+        },
+      }))
     );
 
     return successResponse({

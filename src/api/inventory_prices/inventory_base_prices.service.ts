@@ -6,8 +6,9 @@ import {
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
-import { isNil, omit } from "lodash";
+import { isNil, omit, reduce } from "lodash";
 import { InventoryBasePriceRequest } from "./inventory_prices.type";
+import { inventoryRepository } from "@/repositories/inventory.repository";
 
 class InventoryBasePriceService {
   public async create(payload: Partial<InventoryBasePriceRequest>) {
@@ -34,9 +35,20 @@ class InventoryBasePriceService {
         payload.inventory_id
       );
 
+    const exchangeHistories =
+      await inventoryRepository.getExchangeHistoryOfPrice(payload.inventory_id);
+
+    const rate = reduce(
+      exchangeHistories?.map((unit) => unit.rate),
+      (acc, el) => acc * el,
+      1
+    );
+
     const unitPrice = !isNil(payload?.unit_price)
       ? payload.unit_price
       : basePriceExisted?.unit_price;
+
+    const unitPriceWithRate = unitPrice / rate;
 
     if (isNil(unitPrice)) {
       return {
@@ -66,7 +78,7 @@ class InventoryBasePriceService {
     const result = await inventoryBasePriceRepository.create({
       inventory_id: payload.inventory_id,
       unit_type: unitType.id,
-      unit_price: unitPrice,
+      unit_price: unitPriceWithRate,
       currency: baseCurrency.to_currency,
     });
 
