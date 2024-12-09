@@ -149,11 +149,10 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     return await this.model.rawQueryV2(
       `FOR history IN exchange_histories
       FILTER history.deleted_at == null
-      SORT history.created_at DESC
-      LIMIT 1
+      FILTER history.created_at >= @priceCreatedAt
       RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
       `,
-      {}
+      { priceCreatedAt }
     );
   }
 
@@ -199,8 +198,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         LET exchangeHistories = (
           FOR history IN exchange_histories
           FILTER history.deleted_at == null
-          SORT history.created_at DESC
-          LIMIT 1
+          FILTER history.created_at >= price.created_at
           RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
         )
 

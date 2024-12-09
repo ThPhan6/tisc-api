@@ -40,6 +40,7 @@ import {
   omit,
   partition,
   pick,
+  reduce,
   round,
   sortBy,
   sumBy,
@@ -1285,15 +1286,26 @@ class InventoryService {
 
     const data = this.convertInventoryArrayToCsv(
       payload.types,
-      inventory.data.inventories.map((el) => ({
-        ...el,
-        price: {
-          ...el.price,
-          unit_type:
-            unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
-            "",
-        },
-      }))
+      inventory.data.inventories.map((el) => {
+        const rate = reduce(
+          el.price.exchange_histories?.map((unit) => unit.rate),
+          (acc, el) => acc * el,
+          1
+        );
+
+        const unitPrice = Number(el?.price?.unit_price ?? 0) * rate;
+
+        return {
+          ...el,
+          price: {
+            ...el.price,
+            unit_price: Number(unitPrice.toFixed(2)),
+            unit_type:
+              unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
+              "",
+          },
+        };
+      })
     );
 
     return successResponse({
