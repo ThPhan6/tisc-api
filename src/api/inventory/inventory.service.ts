@@ -247,7 +247,11 @@ class InventoryService {
         .filter(Boolean) as Record<string, string>[];
 
       return this.transferInventory(
-        renameKeys(newEl, [...changedKeys, { sku: "Product ID" }])
+        renameKeys(newEl, [
+          ...changedKeys,
+          { sku: "Product ID" },
+          { unit_price: "Base Price" },
+        ])
       );
     });
 
