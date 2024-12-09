@@ -385,6 +385,13 @@ class InventoryService {
       return true;
     }
 
+    const discountRates = volumePrices.map((price) => price.discount_rate);
+    const discountRateDuplicated = discountRates.filter(
+      (rate, index) => discountRates.indexOf(rate) !== index
+    );
+
+    if (discountRateDuplicated.length) return false;
+
     let isValidVolumePrice = true;
     volumePrices.forEach((el) => {
       if (
