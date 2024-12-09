@@ -498,11 +498,23 @@ class InventoryService {
     const payloadWarehouseLocationIds = warehouses.map((el) => el.location_id);
 
     const instockWarehouseActive = (await warehouseService.getList(
+      user,
       inventoryId,
-      WarehouseStatus.ACTIVE
-    )) as unknown as {
+      {
+        status: WarehouseStatus.ACTIVE,
+      }
+    )) as {
       data: WarehouseListResponse;
+      message: string;
+      statusCode: number;
     };
+
+    if (instockWarehouseActive?.statusCode !== 200) {
+      return {
+        message: instockWarehouseActive.message,
+        statusCode: instockWarehouseActive.statusCode,
+      };
+    }
 
     /// instock warehouses are not in payload
     const warehouseDeleted = instockWarehouseActive.data.warehouses
@@ -556,6 +568,7 @@ class InventoryService {
   }
 
   private async findWarehouseByLocationIndex(
+    user: UserAttributes,
     locations: LocationWithTeamCountAndFunctionType[],
     warehouses?: InventoryWarehouse[],
     inventoryId?: string
@@ -565,7 +578,10 @@ class InventoryService {
       | undefined = undefined;
 
     if (inventoryId) {
-      existedWarehouse = (await warehouseService.getList(inventoryId)) as {
+      existedWarehouse = (await warehouseService.getList(
+        user,
+        inventoryId
+      )) as {
         data: WarehouseListResponse;
         statusCode: number;
       };
@@ -629,7 +645,7 @@ class InventoryService {
     });
   }
 
-  public async getList(query: InventoryCategoryQuery) {
+  public async getList(user: UserAttributes, query: InventoryCategoryQuery) {
     const inventoryList = await inventoryRepository.getList(query);
     if (!inventoryList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
@@ -658,8 +674,11 @@ class InventoryService {
         };
 
         const warehouses = (await warehouseService.getList(
+          user,
           newInventory.id,
-          WarehouseStatus.ACTIVE
+          {
+            status: WarehouseStatus.ACTIVE,
+          }
         )) as unknown as {
           data: WarehouseListResponse;
         };
@@ -868,52 +887,22 @@ class InventoryService {
 
     const warehouses: Pick<WarehouseCreate, "location_id" | "quantity">[] = [];
 
-    if ("warehouses" in payload) {
-      const locations = await locationService.getList(
-        user,
-        undefined,
-        undefined,
-        "business_name",
-        "ASC"
-      );
+    const locations = await locationService.getList(user, {
+      sort: "business_name",
+      order: "ASC",
+      functional_type: CompanyFunctionalGroup.LOGISTIC,
+    });
 
-      const locationLogistics = locations.data.locations.filter((loca) =>
-        loca.functional_type
-          .toLowerCase()
-          .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
-      );
-
-      if (locationLogistics.length) {
-        locationLogistics.forEach((location, index) => {
-          warehouses.push({
-            location_id: location.id,
-            quantity: payload.warehouses?.[index]?.quantity ?? 0,
-          });
-        });
-      }
-    } else {
-      const locations = await locationService.getList(
-        user,
-        undefined,
-        undefined,
-        "business_name",
-        "ASC"
-      );
-      const locationLogistics = locations.data.locations.filter((loca) =>
-        loca.functional_type
-          .toLowerCase()
-          .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
-      );
-
-      if (locationLogistics.length) {
-        locationLogistics.forEach((location) => {
-          warehouses.push({
-            location_id: location.id,
-            quantity: 0,
-          });
-        });
-      }
+    if (!locations.data.locations.length) {
+      return successMessageResponse(MESSAGES.SUCCESS);
     }
+
+    locations.data.locations.forEach((location, index) => {
+      warehouses.push({
+        location_id: location.id,
+        quantity: payload?.warehouses?.[index]?.quantity ?? 0,
+      });
+    });
 
     const newWarehouses = await this.modifyWarehouses(
       user,
@@ -1038,14 +1027,34 @@ class InventoryService {
     }
 
     if ("warehouses" in payload) {
-      const warehouses = await this.modifyWarehouses(
+      const newWarehouses: Pick<WarehouseCreate, "location_id" | "quantity">[] =
+        [];
+
+      const locations = await locationService.getList(user, {
+        sort: "business_name",
+        order: "ASC",
+        functional_type: CompanyFunctionalGroup.LOGISTIC,
+      });
+
+      if (!locations.data.locations.length) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+
+      locations.data.locations.forEach((location, index) => {
+        newWarehouses.push({
+          location_id: location.id,
+          quantity: payload?.warehouses?.[index].quantity ?? 0,
+        });
+      });
+
+      const warehouseUpdated = await this.modifyWarehouses(
         user,
         id,
-        payload.warehouses ?? []
+        newWarehouses
       );
 
-      if (warehouses?.statusCode !== 200) {
-        return errorMessageResponse(warehouses.message);
+      if (warehouseUpdated?.statusCode !== 200) {
+        return errorMessageResponse(warehouseUpdated.message);
       }
     }
 
@@ -1129,19 +1138,11 @@ class InventoryService {
       (inventory) => existedSKU.includes(inventory.sku.toLowerCase())
     );
 
-    const locations = await locationService.getList(
-      user,
-      undefined,
-      undefined,
-      "business_name",
-      "ASC"
-    );
-
-    const locationLogistics = locations.data.locations.filter((loca) =>
-      loca.functional_type
-        .toLowerCase()
-        .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
-    );
+    const locations = await locationService.getList(user, {
+      sort: "business_name",
+      order: "ASC",
+      functional_type: CompanyFunctionalGroup.LOGISTIC,
+    });
 
     if (existedInventories.length) {
       const errors: string[] = [];
@@ -1198,7 +1199,8 @@ class InventoryService {
 
           if ("warehouses" in inventory) {
             newPayload.warehouses = await this.findWarehouseByLocationIndex(
-              locationLogistics,
+              user,
+              locations.data.locations,
               inventory.warehouses,
               existedInventory.id
             );
@@ -1218,6 +1220,7 @@ class InventoryService {
         newInventories.map(async (inventory) => ({
           ...inventory,
           warehouses: await this.findWarehouseByLocationIndex(
+            user,
             locations.data.locations,
             inventory.warehouses
           ),
@@ -1243,7 +1246,7 @@ class InventoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  public async export(payload: InventoryExportRequest) {
+  public async export(user: UserAttributes, payload: InventoryExportRequest) {
     const inValidPayload = payload.types.some(
       (el) => !InventoryExportTypeLabel[el]
     );
@@ -1268,7 +1271,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
     }
 
-    const inventory = (await this.getList({
+    const inventory = (await this.getList(user, {
       category_id: payload.category_id,
     })) as unknown as {
       data: { inventories: InventoryListResponse[] };

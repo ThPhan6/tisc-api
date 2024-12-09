@@ -50,6 +50,7 @@ export default {
   getList: getListValidation({
     query: {
       is_sort_main_office_first: Joi.boolean(),
+      functional_type: Joi.string().trim(),
     },
     custom: (value) => ({
       sort: value.sort || "business_name",
