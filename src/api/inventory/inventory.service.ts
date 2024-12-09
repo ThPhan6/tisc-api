@@ -39,6 +39,7 @@ import {
   omit,
   partition,
   pick,
+  reduce,
   sortBy,
   sumBy,
   uniqBy,
@@ -246,7 +247,11 @@ class InventoryService {
         .filter(Boolean) as Record<string, string>[];
 
       return this.transferInventory(
-        renameKeys(newEl, [...changedKeys, { sku: "Product ID" }])
+        renameKeys(newEl, [
+          ...changedKeys,
+          { sku: "Product ID" },
+          { unit_price: "Base Price" },
+        ])
       );
     });
 
@@ -382,6 +387,13 @@ class InventoryService {
     if (!volumePrices?.length) {
       return true;
     }
+
+    const discountRates = volumePrices.map((price) => price.discount_rate);
+    const discountRateDuplicated = discountRates.filter(
+      (rate, index) => discountRates.indexOf(rate) !== index
+    );
+
+    if (discountRateDuplicated.length) return false;
 
     let isValidVolumePrice = true;
     volumePrices.forEach((el) => {
@@ -1199,14 +1211,14 @@ class InventoryService {
             el.includes(MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY)
           )
         ) {
-          const skuErrors = errors.map((item) => item.split(":")[0].trim());
+          // const skuErrors = errors.map((item) => item.split(":")[0].trim());
 
           return errorMessageResponse(
-            `We don't want two ${skuErrors.join(", ")} in the inventory`
+            `We don't want two Product ID in the inventory`
           );
         }
 
-        return errorMessageResponse(errors.join(", "));
+        return errorMessageResponse(errors[0]);
       }
 
       if (errors.length) {
@@ -1284,15 +1296,26 @@ class InventoryService {
 
     const data = this.convertInventoryArrayToCsv(
       payload.types,
-      inventory.data.inventories.map((el) => ({
-        ...el,
-        price: {
-          ...el.price,
-          unit_type:
-            unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
-            "",
-        },
-      }))
+      inventory.data.inventories.map((el) => {
+        const rate = reduce(
+          el.price.exchange_histories?.map((unit) => unit.rate),
+          (acc, el) => acc * el,
+          1
+        );
+
+        const unitPrice = Number(el?.price?.unit_price ?? 0) * rate;
+
+        return {
+          ...el,
+          price: {
+            ...el.price,
+            unit_price: Number(unitPrice.toFixed(2)),
+            unit_type:
+              unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
+              "",
+          },
+        };
+      })
     );
 
     return successResponse({
