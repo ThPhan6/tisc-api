@@ -24,7 +24,6 @@ import {
 import {
   CompanyFunctionalGroup,
   IExchangeCurrency,
-  InventoryEntity,
   LocationWithTeamCountAndFunctionType,
   UserAttributes,
   WarehouseStatus,
@@ -40,7 +39,7 @@ import {
   omit,
   partition,
   pick,
-  round,
+  reduce,
   sortBy,
   sumBy,
   uniqBy,
@@ -50,6 +49,7 @@ import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.ty
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
 import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
+import { locationService } from "../location/location.service";
 import { warehouseService } from "../warehouses/warehouse.service";
 import {
   WarehouseCreate,
@@ -68,7 +68,6 @@ import {
   InventoryListResponse,
   InventoryWarehouse,
 } from "./inventory.type";
-import { locationService } from "../location/location.service";
 
 class InventoryService {
   private transferInventory = (inventory: Record<string, any>) => {
@@ -1199,14 +1198,14 @@ class InventoryService {
             el.includes(MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY)
           )
         ) {
-          const skuErrors = errors.map((item) => item.split(":")[0].trim());
+          // const skuErrors = errors.map((item) => item.split(":")[0].trim());
 
           return errorMessageResponse(
-            `We don't want two ${skuErrors.join(", ")} in the inventory`
+            `We don't want two Product ID in the inventory`
           );
         }
 
-        return errorMessageResponse(errors.join(", "));
+        return errorMessageResponse(errors[0]);
       }
 
       if (errors.length) {
@@ -1283,15 +1282,26 @@ class InventoryService {
 
     const data = this.convertInventoryArrayToCsv(
       payload.types,
-      inventory.data.inventories.map((el) => ({
-        ...el,
-        price: {
-          ...el.price,
-          unit_type:
-            unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
-            "",
-        },
-      }))
+      inventory.data.inventories.map((el) => {
+        const rate = reduce(
+          el.price.exchange_histories?.map((unit) => unit.rate),
+          (acc, el) => acc * el,
+          1
+        );
+
+        const unitPrice = Number(el?.price?.unit_price ?? 0) * rate;
+
+        return {
+          ...el,
+          price: {
+            ...el.price,
+            unit_price: Number(unitPrice.toFixed(2)),
+            unit_type:
+              unitTypes.find((type) => type.id === el.price.unit_type)?.name ??
+              "",
+          },
+        };
+      })
     );
 
     return successResponse({
