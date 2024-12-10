@@ -254,17 +254,10 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     brandId: string
   ): Promise<InventoryEntity | undefined> {
     const inventory = await this.model.rawQueryV2(
-      ` LET activeBrands = (
-          FOR b IN brands
-          FILTER b.deleted_at == null
-          FILTER b.id == @brandId
-          RETURN b
-        )
-
-        LET activeCategories = (
+      ` LET activeCategories = (
           FOR c IN dynamic_categories
           FILTER c.deleted_at == null
-          FILTER c.relation_id IN (FOR b IN activeBrands RETURN b.id)
+          FILTER c.relation_id == @brandId
           RETURN c
         )
 
@@ -287,17 +280,10 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     brandId: string
   ): Promise<InventoryEntity[]> {
     const inventory = await this.model.rawQueryV2(
-      ` LET activeBrands = (
-          FOR b IN brands
-          FILTER b.deleted_at == null
-          FILTER b.id == @brandId
-          RETURN b
-        )
-
-        LET activeCategories = (
+      ` LET activeCategories = (
           FOR c IN dynamic_categories
           FILTER c.deleted_at == null
-          FILTER c.relation_id IN (FOR b IN activeBrands RETURN b.id)
+          FILTER c.relation_id == @brandId
           RETURN c
         )
 
