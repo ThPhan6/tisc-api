@@ -93,12 +93,9 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
   public async getTotalInventories(brandId: string): Promise<number> {
     const rawQuery = `
-      FOR brand IN brands
-      FILTER brand.deleted_at == null
-      FILTER brand.id == @brandId
       FOR category IN dynamic_categories
-      FILTER brand.deleted_at == null
-      FILTER category.relation_id == brand.id
+      FILTER category.deleted_at == null
+      FILTER category.relation_id == @brandId
       FOR inventory IN inventories
       FILTER inventory.deleted_at == null
       FILTER inventory.inventory_category_id == category.id
@@ -113,17 +110,10 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
   public async getTotalStockValue(brandId: string): Promise<number> {
     const rawQuery = `
-      LET activeBrands = (
-        FOR brand IN brands
-        FILTER brand.deleted_at == null
-        FILTER brand.id == @brandId
-        RETURN brand
-      )
-
       LET activeCategories = (
         FOR category IN dynamic_categories
         FILTER category.deleted_at == null
-        FILTER category.relation_id IN (FOR b IN activeBrands RETURN b.id)
+        FILTER category.relation_id == @brandId
         RETURN category
       )
 
