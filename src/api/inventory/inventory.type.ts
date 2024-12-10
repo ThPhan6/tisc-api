@@ -1,13 +1,11 @@
 import { Sequence } from "@/Database/Interfaces";
 import { ExchangeHistoryEntity, InventoryEntity, Pagination } from "@/types";
-import {
-  InventoryBasePrice,
-  InventoryVolumePrice,
-} from "../inventory_prices/inventory_prices.type";
+import { InventoryBasePrice } from "../inventory_prices/inventory_prices.type";
 import {
   WarehouseCreate,
   WarehouseResponse,
 } from "../warehouses/warehouse.type";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_volume_price";
 
 export interface InventoryCreate
   extends Pick<
@@ -129,3 +127,20 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.WAREHOUSE_COUNTRY]: "country_name",
   [InventoryExportType.WAREHOUSE_IN_STOCK]: "in_stock",
 };
+
+export interface MultipleInventoryRequest
+  extends Pick<
+    InventoryEntity,
+    | "id"
+    | "image"
+    | "inventory_category_id"
+    | "sku"
+    | "description"
+    | "back_order"
+    | "on_order"
+  > {}
+
+export interface MultipleInventoryResponse {
+  before: InventoryEntity;
+  after: InventoryEntity;
+}
