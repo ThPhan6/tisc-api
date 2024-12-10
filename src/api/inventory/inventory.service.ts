@@ -799,7 +799,9 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    const inventories = await inventoryRepository.getAll();
+    const inventories = await inventoryRepository.getAllInventoryByBrand(
+      brand.id
+    );
     const isNameExist = inventories.some(
       (el) => el.sku.toLowerCase() === payload.sku.toLowerCase()
     );
@@ -928,6 +930,12 @@ class InventoryService {
       isCheckSKUExisted: true,
     }
   ) {
+    const existedBrand = await brandRepository.find(user.relation_id);
+
+    if (!existedBrand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
     /// find inventory
     const inventoryExisted = await inventoryRepository.find(id);
     if (!inventoryExisted) {
@@ -935,7 +943,9 @@ class InventoryService {
     }
 
     if ("sku" in payload && options.isCheckSKUExisted) {
-      const inventories = await inventoryRepository.getAll();
+      const inventories = await inventoryRepository.getAllInventoryByBrand(
+        existedBrand.id
+      );
       const isNameExist = inventories.some(
         (el) => el.sku.toLowerCase() === payload.sku?.toLowerCase()
       );
@@ -1120,6 +1130,12 @@ class InventoryService {
     user: UserAttributes,
     payload: InventoryCreate[]
   ) {
+    const existedBrand = await brandRepository.find(user.relation_id);
+
+    if (!existedBrand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
     const errors: InventoryErrorList[] = await this.validateImportPayload(
       payload
     );
@@ -1131,8 +1147,11 @@ class InventoryService {
       );
     }
 
-    const inventories = await inventoryRepository.getAll();
-    const existedSKU = inventories.map((el) => el.sku.toLowerCase());
+    const inventories = await inventoryRepository.getAllInventoryByBrand(
+      existedBrand.id
+    );
+
+    const existedSKU = inventories.map((el) => el.sku.toLowerCase()) ?? [];
 
     const [existedInventories, newInventories] = partition(
       payload,
@@ -1152,7 +1171,8 @@ class InventoryService {
       await Promise.all(
         existedInventories.map(async (inventory) => {
           const existedInventory = await inventoryRepository.getInventoryBySKU(
-            inventory.sku
+            inventory.sku,
+            existedBrand.id
           );
 
           if (!existedInventory) {

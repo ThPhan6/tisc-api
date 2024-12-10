@@ -250,20 +250,68 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   }
 
   public async getInventoryBySKU(
-    sku: string
+    sku: string,
+    brandId: string
   ): Promise<InventoryEntity | undefined> {
     const inventory = await this.model.rawQueryV2(
-      ` FOR inventory IN inventories
+      ` LET activeBrands = (
+          FOR b IN brands
+          FILTER b.deleted_at == null
+          FILTER b.id == @brandId
+          RETURN b
+        )
+
+        LET activeCategories = (
+          FOR c IN dynamic_categories
+          FILTER c.deleted_at == null
+          FILTER c.relation_id IN (FOR b IN activeBrands RETURN b.id)
+          RETURN c
+        )
+
+        FOR inventory IN inventories
         FILTER inventory.deleted_at == null
         FILTER LOWER(inventory.sku) == LOWER(@sku)
+        FILTER inventory.inventory_category_id IN (FOR c IN activeCategories RETURN c.id)
         RETURN UNSET(inventory, ['_key','_id','_rev','deleted_at'])
       `,
       {
         sku,
+        brandId,
       }
     );
 
     return head(inventory) as Promise<InventoryEntity | undefined>;
+  }
+
+  public async getAllInventoryByBrand(
+    brandId: string
+  ): Promise<InventoryEntity[]> {
+    const inventory = await this.model.rawQueryV2(
+      ` LET activeBrands = (
+          FOR b IN brands
+          FILTER b.deleted_at == null
+          FILTER b.id == @brandId
+          RETURN b
+        )
+
+        LET activeCategories = (
+          FOR c IN dynamic_categories
+          FILTER c.deleted_at == null
+          FILTER c.relation_id IN (FOR b IN activeBrands RETURN b.id)
+          RETURN c
+        )
+
+        FOR inventory IN inventories
+        FILTER inventory.deleted_at == null
+        FILTER inventory.inventory_category_id IN (FOR c IN activeCategories RETURN c.id)
+        RETURN UNSET(inventory, ['_key','_id','_rev','deleted_at'])
+      `,
+      {
+        brandId,
+      }
+    );
+
+    return (inventory ?? []) as Promise<InventoryEntity[]>;
   }
 }
 
