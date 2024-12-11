@@ -49,7 +49,6 @@ import {
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
-import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { warehouseService } from "../warehouses/warehouse.service";
 import {
@@ -70,6 +69,7 @@ import {
   InventoryWarehouse,
 } from "./inventory.type";
 import { locationService } from "../location/location.service";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_volume_price";
 
 class InventoryService {
   private transferInventory = (inventory: Record<string, any>) => {

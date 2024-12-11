@@ -7,7 +7,7 @@ import { inventoryBasePriceRepository } from "@/repositories/inventory_base_pric
 import { inventoryVolumePriceRepository } from "@/repositories/inventory_volume_prices.repository";
 import { InventoryBasePriceEntity, InventoryVolumePriceEntity } from "@/types";
 import { isEmpty } from "lodash";
-import { InventoryVolumePrice } from "./inventory_prices.type";
+import { InventoryVolumePrice } from "./inventory_volume_price";
 
 class InventoryVolumePriceService {
   public async create(
