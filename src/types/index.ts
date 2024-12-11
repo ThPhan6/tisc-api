@@ -46,3 +46,4 @@ export * from "@/api/distributor/distributor.type";
 
 export * from "./warehouse.type";
 export * from "./inventory_ledger.type";
+export * from "./inventory_stock_value.type";
