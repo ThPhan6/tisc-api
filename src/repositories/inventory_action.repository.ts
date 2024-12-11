@@ -42,7 +42,6 @@ class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
       FOR inventory IN @inventoryActions
       LET ledger = FIRST(
         FOR led IN ledgers
-        FILTER led.deleted_at == null
         FILTER led.inventory_id == inventory.inventory_id
         FILTER led.warehouse_id == inventory.warehouse_id
         RETURN led

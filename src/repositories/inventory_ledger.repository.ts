@@ -52,13 +52,12 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
       FOR inventory IN @inventoryLedgers
       LET target = FIRST(
         FOR inven IN ledgers
-        FILTER inven.deleted_at == null
         FILTER inven.inventory_id == inventory.inventory_id
         FILTER inven.warehouse_id == inventory.warehouse_id
         RETURN inven
       )
       UPDATE target._key WITH {
-        quantity: TO_NUMBER(target.quantity) == TO_NUMBER(inventory.quantity) ? TO_NUMBER(target.quantity) + TO_NUMBER(inventory.convert) : TO_NUMBER(inventory.quantity) + TO_NUMBER(inventory.convert),
+        quantity: TO_NUMBER(inventory.quantity),
         status: ${WarehouseStatus.ACTIVE},
         updated_at: "${getTimestamps()}",
         deleted_at: null

@@ -1316,8 +1316,6 @@ class InventoryService {
     const allLedgers: MultipleInventoryLedgerRequest[] = [];
     const allActions: MultipleInventoryActionRequest[] = [];
 
-    console.log("warehouses", JSON.stringify(warehouses, null, 2));
-
     warehouses.forEach((ws) => {
       const warehouseId = randomUUID();
       const warehouseInStockId = randomUUID();
@@ -1440,9 +1438,7 @@ class InventoryService {
           ["id", "unit_price", "unit_type", "currency", "inventory_id"]
         )
       )
-      .filter(
-        (inven) => "unit_price" in inven && "unit_type" in inven
-      ) as MultipleInventoryBasePriceRequest[];
+      .filter(Boolean) as MultipleInventoryBasePriceRequest[];
 
     const volumePrices = inventories
       .map((inven) =>
