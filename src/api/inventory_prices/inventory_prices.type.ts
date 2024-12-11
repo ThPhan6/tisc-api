@@ -19,5 +19,5 @@ export interface InventoryBasePriceRequest
 export interface MultipleInventoryBasePriceRequest
   extends Pick<
     InventoryBasePriceEntity,
-    "id" | "currency" | "unit_price" | "unit_type" | "inventory_id"
+    "currency" | "unit_price" | "unit_type" | "inventory_id"
   > {}

@@ -29,13 +29,13 @@ class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEnti
     const inventoryQuery = `
       FOR inventory IN @inventoryBasePrices
       INSERT {
-        id: ${randomUUID()},
+        id: "${randomUUID()}",
         inventory_id: inventory.inventory_id,
-        unit_price: inventory.unit_price,
+        unit_price: TO_NUMBER(inventory.unit_price),
         unit_type: inventory.unit_type,
         currency: inventory.currency,
-        created_at: ${getTimestamps()},
-        updated_at: ${getTimestamps()},
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventory_base_prices
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

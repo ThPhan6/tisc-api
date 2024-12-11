@@ -1,4 +1,4 @@
-import { COMMON_TYPES, MESSAGES } from "@/constants";
+import { MESSAGES } from "@/constants";
 import {
   convertInStock,
   getInventoryActionDescription,
@@ -25,19 +25,11 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import {
-  difference,
-  head,
-  isEmpty,
-  map,
-  pick,
-  sortBy,
-  sumBy,
-  unionBy,
-  uniqBy,
-} from "lodash";
+import { difference, head, isEmpty, map, pick, sortBy, sumBy } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
+import { locationService } from "../location/location.service";
 import {
+  MultipleWarehouseRequest,
   NonPhysicalWarehouseCreate,
   WarehouseCreate,
   WarehouseListResponse,
@@ -45,7 +37,6 @@ import {
   WarehouseUpdate,
   WarehouseUpdateBackOrder,
 } from "./warehouse.type";
-import { locationService } from "../location/location.service";
 
 class WarehouseService {
   private nonPhysicalWarehouseTypes = [
@@ -55,7 +46,7 @@ class WarehouseService {
     WarehouseType.DONE,
   ];
 
-  private getInventoryActionType(oldQuantity: number, newQuantity: number) {
+  public getInventoryActionType(oldQuantity: number, newQuantity: number) {
     return newQuantity > oldQuantity
       ? InventoryActionType.IN
       : InventoryActionType.OUT;
@@ -650,7 +641,7 @@ class WarehouseService {
         .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
     ) {
       return errorMessageResponse(
-        `This location ${locationExisted.business_name} is not a ${CompanyFunctionalGroup.LOGISTIC}`
+        `The location ${locationExisted.business_name} is not a ${CompanyFunctionalGroup.LOGISTIC}`
       );
     }
 
@@ -800,7 +791,7 @@ class WarehouseService {
     };
   }
 
-  public async updateMultiple(
+  public async updateWarehouseQuantity(
     user: UserAttributes,
     payload: Record<string, WarehouseUpdate>
   ) {
@@ -1013,6 +1004,23 @@ class WarehouseService {
     await inventoryRepository.update(value.inventoryId, {
       back_order: backOrder - changeQuantitySum,
     });
+  }
+
+  public async updateMultiple(payload: Omit<MultipleWarehouseRequest, "id">[]) {
+    const warehouseUpdated = await warehouseRepository.updateMultiple(payload);
+    const newUpdatedWarehouses = warehouseUpdated.map((inven) => inven.after);
+
+    return newUpdatedWarehouses.length === payload.length
+      ? successMessageResponse(MESSAGES.SUCCESS)
+      : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+  }
+
+  public async createMultiple(payload: MultipleWarehouseRequest[]) {
+    const warehouseCreated = await warehouseRepository.createMultiple(payload);
+
+    return warehouseCreated.length === payload.length
+      ? successMessageResponse(MESSAGES.SUCCESS)
+      : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
   }
 }
 

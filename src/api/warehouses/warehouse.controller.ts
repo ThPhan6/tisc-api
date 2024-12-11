@@ -26,13 +26,16 @@ export default class WarehouseController {
     return toolkit.response(response).code(response.statusCode);
   }
 
-  public async updateMultiple(
+  public async updateWarehouseQuantity(
     req: Request & { payload: Record<string, WarehouseUpdate> },
     toolkit: ResponseToolkit
   ) {
     const user = req.auth.credentials.user as UserAttributes;
 
-    const response = await warehouseService.updateMultiple(user, req.payload);
+    const response = await warehouseService.updateWarehouseQuantity(
+      user,
+      req.payload
+    );
     return toolkit.response(response).code(response.statusCode);
   }
 

@@ -18,14 +18,14 @@ class InventoryVolumePriceRepository extends BaseRepository<InventoryVolumePrice
     const inventoryQuery = `
       FOR inventory IN @inventoryVolumePrices
       INSERT {
-        id: ${randomUUID()},
+        id: "${randomUUID()}",
         inventory_base_price_id: inventory.inventory_base_price_id,
         discount_price: inventory.discount_price,
         discount_rate: inventory.discount_rate,
         max_quantity: inventory.max_quantity,
         min_quantity: inventory.min_quantity,
-        created_at: ${getTimestamps()},
-        updated_at: ${getTimestamps()},
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventory_volume_prices
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

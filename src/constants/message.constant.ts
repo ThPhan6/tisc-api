@@ -320,7 +320,7 @@ export const MESSAGES = {
     NOT_FOUND: "Warehouse not found",
     IN_STOCK_NOT_FOUND: "Warehouse In Stock not found",
     EXISTED: "Warehouse existed",
-    LESS_THAN_ZERO: "In Stock must be greater than or equal to 0",
+    LESS_THAN_ZERO: "In Stock must be positive number",
     NOT_AVAILABLE: "Warehouse not available.",
     SUM_IN_STOCK: "Total In Stock is greater than Backorder",
     BACK_ORDER_NOT_FOUND: "Warehouse Back Order not found",
