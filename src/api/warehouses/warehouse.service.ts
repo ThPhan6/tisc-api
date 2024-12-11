@@ -1007,10 +1007,11 @@ class WarehouseService {
   }
 
   public async updateMultiple(payload: Omit<MultipleWarehouseRequest, "id">[]) {
-    const warehouseUpdated = await warehouseRepository.updateMultiple(payload);
-    const newUpdatedWarehouses = warehouseUpdated.map((inven) => inven.after);
+    if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    return newUpdatedWarehouses.length === payload.length
+    const warehouseUpdated = await warehouseRepository.updateMultiple(payload);
+
+    return warehouseUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
   }

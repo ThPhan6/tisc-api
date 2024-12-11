@@ -415,7 +415,7 @@ class InventoryService {
           errors = this.pushErrorMessages(
             errors,
             inventory,
-            `${inventory.sku}: ${MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY}`
+            MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY
           );
         }
 
@@ -426,7 +426,7 @@ class InventoryService {
             errors = this.pushErrorMessages(
               errors,
               inventory,
-              `${inventory.sku}: ${MESSAGES.UNIT_TYPE_NOT_FOUND}`
+              MESSAGES.UNIT_TYPE_NOT_FOUND
             );
           }
         }
@@ -1419,10 +1419,7 @@ class InventoryService {
     );
   }
 
-  private async updateMultipleInventories(
-    user: UserAttributes,
-    inventories: MappingInventory[]
-  ) {
+  private async updateMultipleInventories(inventories: MappingInventory[]) {
     const existedInventories = inventories.map((inven) =>
       pick(inven, ["sku", "on_order", "image", "back_order", "description"])
     ) as Omit<MultipleInventoryRequest, "id">[];
@@ -1492,10 +1489,7 @@ class InventoryService {
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  private async createMultipleInventories(
-    user: UserAttributes,
-    inventories: MappingInventory[]
-  ) {
+  private async createMultipleInventories(inventories: MappingInventory[]) {
     const newInventories = inventories.map((inven) =>
       pick(inven, [
         "id",
@@ -1529,13 +1523,11 @@ class InventoryService {
 
     const inventoryLedgers = inventories
       .map((inven) => inven.inventory_ledgers)
-      .flat()
-      .filter(Boolean) as MultipleInventoryLedgerRequest[];
+      .flat() as MultipleInventoryLedgerRequest[];
 
     const inventoryActions = inventories
       .map((inven) => inven.inventory_actions)
-      .flat()
-      .filter(Boolean) as MultipleInventoryActionRequest[];
+      .flat() as MultipleInventoryActionRequest[];
 
     await this.createMultiple(newInventories);
     await inventoryBasePriceService.createMultiple(basePrices);
@@ -1550,8 +1542,7 @@ class InventoryService {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
     const inventoryUpdated = await inventoryRepository.updateMultiple(payload);
-    const newUpdatedInventories = inventoryUpdated.map((inven) => inven.after);
-    return newUpdatedInventories.length === payload.length
+    return inventoryUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
   }
@@ -1604,7 +1595,6 @@ class InventoryService {
 
     if (existedInventories.length) {
       const updatedInventories = await this.updateMultipleInventories(
-        user,
         existedInventories
       );
 
@@ -1615,7 +1605,6 @@ class InventoryService {
 
     if (newInventories.length) {
       const createdInventories = await this.createMultipleInventories(
-        user,
         newInventories
       );
 

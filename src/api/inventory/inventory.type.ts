@@ -150,11 +150,6 @@ export interface MultipleInventoryRequest
     | "on_order"
   > {}
 
-export interface MultipleInventoryResponse {
-  before: InventoryEntity;
-  after: InventoryEntity;
-}
-
 export interface MappingInventory extends InventoryCreate {
   id: string;
   _type: "old" | "new"; // to determine if the inventory is new or old

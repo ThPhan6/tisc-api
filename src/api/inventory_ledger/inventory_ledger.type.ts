@@ -7,8 +7,3 @@ export interface MultipleInventoryLedgerRequest
   > {
   convert?: number;
 }
-
-export interface MultipleInventoryLedgerResponse {
-  before: InventoryLedgerEntity[];
-  after: InventoryLedgerEntity[];
-}

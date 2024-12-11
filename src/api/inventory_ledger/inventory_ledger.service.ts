@@ -12,15 +12,10 @@ class InventoryLedgerService {
   ) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    console.log("InventoryLedgerService updateMultiple", payload);
-
     const inventoryLedgerUpdated =
       await inventoryLedgerRepository.updateMultiple(payload);
-    const newUpdatedInventoryLedgers = inventoryLedgerUpdated.map(
-      (inven) => inven.after
-    );
 
-    return newUpdatedInventoryLedgers.length === payload.length
+    return inventoryLedgerUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
   }

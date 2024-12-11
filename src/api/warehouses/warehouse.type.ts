@@ -54,8 +54,3 @@ export interface MultipleWarehouseRequest
   quantity: number;
   convert?: number;
 }
-
-export interface MultipleWarehouseResponse {
-  before: WarehouseEntity;
-  after: WarehouseEntity;
-}

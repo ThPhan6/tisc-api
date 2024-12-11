@@ -1,9 +1,5 @@
-import {
-  MultipleInventoryLedgerRequest,
-  MultipleInventoryLedgerResponse,
-} from "@/api/inventory_ledger/inventory_ledger.type";
+import { MultipleInventoryLedgerRequest } from "@/api/inventory_ledger/inventory_ledger.type";
 import { getTimestamps } from "@/Database/Utils/Time";
-import { convertInStock } from "@/helpers/common.helper";
 import InventoryLedgerModel from "@/models/inventory_ledger.model";
 import BaseRepository from "@/repositories/base.repository";
 import { InventoryLedgerEntity, WarehouseStatus, WarehouseType } from "@/types";
@@ -32,7 +28,7 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
 
   public async updateMultiple(
     inventoryLedgers: Partial<MultipleInventoryLedgerRequest>[]
-  ): Promise<MultipleInventoryLedgerResponse[]> {
+  ): Promise<InventoryLedgerEntity[]> {
     const inventoryQuery = `
       LET warehouseInStockIds = (
         FOR warehouse IN warehouses
@@ -51,10 +47,10 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
 
       FOR inventory IN @inventoryLedgers
       LET target = FIRST(
-        FOR inven IN ledgers
-        FILTER inven.inventory_id == inventory.inventory_id
-        FILTER inven.warehouse_id == inventory.warehouse_id
-        RETURN inven
+        FOR led IN ledgers
+        FILTER led.inventory_id == inventory.inventory_id
+        FILTER led.warehouse_id == inventory.warehouse_id
+        RETURN led
       )
       UPDATE target._key WITH {
         quantity: TO_NUMBER(inventory.quantity),
@@ -62,10 +58,7 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
         updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventory_ledgers
-      RETURN {
-        before: UNSET(OLD, ['_key', '_id', '_rev', 'deleted_at']),
-        after: UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
-      }
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {

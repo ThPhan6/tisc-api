@@ -1,12 +1,9 @@
 import {
   InventoryCategoryListWithPaginate,
   InventoryCategoryQuery,
-  InventoryCreate,
   LatestPrice,
   MultipleInventoryRequest,
-  MultipleInventoryResponse,
 } from "@/api/inventory/inventory.type";
-import { connection } from "@/Database/Connections/ArangoConnection";
 import { getTimestamps } from "@/Database/Utils/Time";
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
@@ -17,7 +14,6 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { randomUUID } from "crypto";
 import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
@@ -298,7 +294,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
   public async updateMultiple(
     inventories: Partial<MultipleInventoryRequest>[]
-  ): Promise<MultipleInventoryResponse[]> {
+  ): Promise<InventoryEntity[]> {
     const inventoryQuery = `
       FOR inventory IN @inventories
       LET target = FIRST(
@@ -315,10 +311,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventories
-      RETURN {
-        before: UNSET(OLD, ['_key', '_id', '_rev', 'deleted_at']),
-        after: UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
-      }
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {

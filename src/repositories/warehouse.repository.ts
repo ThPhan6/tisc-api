@@ -1,12 +1,8 @@
-import {
-  MultipleWarehouseRequest,
-  MultipleWarehouseResponse,
-} from "@/api/warehouses/warehouse.type";
+import { MultipleWarehouseRequest } from "@/api/warehouses/warehouse.type";
 import { getTimestamps } from "@/Database/Utils/Time";
 import WarehouseModel from "@/models/warehouse.model";
 import BaseRepository from "@/repositories/base.repository";
-import { WarehouseEntity, WarehouseStatus, WarehouseType } from "@/types";
-import { randomUUID } from "crypto";
+import { WarehouseEntity, WarehouseType } from "@/types";
 
 class WarehouseRepository extends BaseRepository<WarehouseEntity> {
   protected model: WarehouseModel;
@@ -28,7 +24,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
 
   public async updateMultiple(
     warehouses: Partial<MultipleWarehouseRequest>[]
-  ): Promise<MultipleWarehouseResponse[]> {
+  ): Promise<WarehouseEntity[]> {
     const warehouseQuery = `
       FOR warehouse IN @warehouses
       LET target = FIRST(
@@ -42,10 +38,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN warehouses
-      RETURN {
-        before: UNSET(OLD, ['_key', '_id', '_rev', 'deleted_at']),
-        after: UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
-      }
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
     `;
 
     return await this.model.rawQueryV2(warehouseQuery, {
