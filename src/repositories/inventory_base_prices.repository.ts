@@ -29,7 +29,7 @@ class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEnti
     const inventoryQuery = `
       FOR inventory IN @inventoryBasePrices
       INSERT {
-        id: "${randomUUID()}",
+        id: inventory.id OR "${randomUUID()}",
         inventory_id: inventory.inventory_id,
         unit_price: TO_NUMBER(inventory.unit_price),
         unit_type: inventory.unit_type,

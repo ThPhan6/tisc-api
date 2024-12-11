@@ -83,8 +83,8 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
         id: "${randomUUID()}",
         inventory_id: inventory.inventory_id,
         warehouse_id: inventory.warehouse_id,
-        quantity: inventory.quantity,
-        status: inventory.status,
+        quantity: TO_NUMBER(inventory.quantity) + TO_NUMBER(inventory.convert OR 0),
+        status: ${WarehouseStatus.ACTIVE},
         created_at: "${getTimestamps()}",
         updated_at: "${getTimestamps()}",
         deleted_at: null

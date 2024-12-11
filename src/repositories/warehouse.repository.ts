@@ -59,13 +59,13 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
     const warehouseQuery = `
       FOR warehouse IN @warehouses
       INSERT {
-        id: "${randomUUID()}",
-        name: target.name,
-        type: target.type,
+        id: warehouse.id,
+        name: warehouse.name,
+        type: warehouse.type,
         status: warehouse.status,
-        parent_id: target.parent_id,
-        location_id: target.location_id,
-        relation_id: target.relation_id,
+        parent_id: warehouse.parent_id,
+        location_id: warehouse.location_id,
+        relation_id: warehouse.relation_id,
         created_at: "${getTimestamps()}",
         updated_at: "${getTimestamps()}",
         deleted_at: null

@@ -332,12 +332,12 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     const inventoryQuery = `
       FOR inventory IN @inventories
       INSERT {
-        id: "${randomUUID()}",
+        id: inventory.id,
         sku: inventory.sku,
-        description: inventory.description,
-        image: inventory.image,
-        back_order: inventory.back_order,
-        on_order: inventory.on_order,
+        description: inventory.description OR "",
+        image: inventory.image OR "",
+        back_order: inventory.back_order OR 0,
+        on_order: inventory.on_order OR 0,
         inventory_category_id: inventory.inventory_category_id,
         created_at: "${getTimestamps()}",
         updated_at: "${getTimestamps()}",

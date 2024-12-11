@@ -39,7 +39,7 @@ import {
 } from "./warehouse.type";
 
 class WarehouseService {
-  private nonPhysicalWarehouseTypes = [
+  public nonPhysicalWarehouseTypes = [
     WarehouseType.IN_STOCK,
     WarehouseType.ON_ORDER,
     WarehouseType.BACK_ORDER,
