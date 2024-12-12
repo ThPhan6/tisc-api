@@ -48,9 +48,9 @@ export default class WarehouseRoute implements IRoute {
           method: "POST",
           path: ROUTES.WAREHOUSE.UPDATE_MULTIPLE,
           options: {
-            handler: controller.updateMultiple,
+            handler: controller.updateWarehouseQuantity,
             validate: validate.updateMultiple,
-            description: "Method that update multiple warehouse",
+            description: "Method that update multiple warehouses quantity",
             tags: ["api", "Warehouse"],
             auth: AUTH_NAMES.GENERAL,
             response: {

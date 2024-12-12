@@ -1,13 +1,20 @@
 import { Sequence } from "@/Database/Interfaces";
-import { ExchangeHistoryEntity, InventoryEntity, Pagination } from "@/types";
 import {
-  InventoryBasePrice,
-  InventoryVolumePrice,
-} from "../inventory_prices/inventory_prices.type";
+  ExchangeHistoryEntity,
+  InventoryActionEntity,
+  InventoryEntity,
+  InventoryLedgerEntity,
+  Pagination,
+  WarehouseEntity,
+} from "@/types";
+import { InventoryBasePrice } from "../inventory_prices/inventory_prices.type";
 import {
   WarehouseCreate,
   WarehouseResponse,
 } from "../warehouses/warehouse.type";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_volume_price.type";
+import { MultipleInventoryLedgerRequest } from "../inventory_ledger/inventory_ledger.type";
+import { MultipleInventoryActionRequest } from "../inventory_action/inventory_action.type";
 
 export interface InventoryCreate
   extends Pick<
@@ -30,6 +37,7 @@ export interface InventoryCreate
 
 export interface InventoryWarehouse
   extends Pick<WarehouseCreate, "location_id" | "quantity" | "convert"> {
+  id?: string;
   index?: number;
 }
 
@@ -129,3 +137,23 @@ export const InventoryExportTypeLabel = {
   [InventoryExportType.WAREHOUSE_COUNTRY]: "country_name",
   [InventoryExportType.WAREHOUSE_IN_STOCK]: "in_stock",
 };
+
+export interface MultipleInventoryRequest
+  extends Pick<
+    InventoryEntity,
+    | "id"
+    | "image"
+    | "inventory_category_id"
+    | "sku"
+    | "description"
+    | "back_order"
+    | "on_order"
+  > {}
+
+export interface MappingInventory extends InventoryCreate {
+  id: string;
+  _type: "old" | "new"; // to determine if the inventory is new or old
+  inventory_base_price_id?: string;
+  inventory_ledgers?: MultipleInventoryLedgerRequest[];
+  inventory_actions?: MultipleInventoryActionRequest[];
+}

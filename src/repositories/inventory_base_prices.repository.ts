@@ -1,7 +1,10 @@
 import { InventoryBasePriceEntity } from "@/types/inventory_base_prices.type";
 import BaseRepository from "./base.repository";
 import InventoryBasePriceModel from "@/models/inventory_base_prices.model";
-import { head } from "lodash";
+import { head, random } from "lodash";
+import { MultipleInventoryBasePriceRequest } from "@/api/inventory_prices/inventory_prices.type";
+import { getTimestamps } from "@/Database/Utils/Time";
+import { randomUUID } from "crypto";
 
 class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEntity> {
   protected model: InventoryBasePriceModel;
@@ -18,6 +21,42 @@ class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEnti
       .first();
 
     return result as InventoryBasePriceEntity;
+  }
+
+  public async createMultiple(
+    inventoryBasePrices: Partial<MultipleInventoryBasePriceRequest>[]
+  ): Promise<InventoryBasePriceEntity[]> {
+    const inventoryQuery = `
+      LET oldInventories = (
+        FOR inventory IN inventory_base_prices
+        FILTER inventory.deleted_at == null
+        FILTER inventory.inventory_id IN @inventoryBasePrices[*].inventory_id
+        SORT inventory.created_at DESC
+        RETURN inventory
+      )
+
+      FOR inventory IN @inventoryBasePrices
+      LET oldInventory = FIRST(
+        FOR oldInven IN oldInventories
+        FILTER oldInven.inventory_id == inventory.inventory_id
+        RETURN oldInven
+      )
+      INSERT {
+        id: inventory.id OR "${randomUUID()}",
+        inventory_id: inventory.inventory_id,
+        unit_price: TO_NUMBER(inventory.unit_price) OR oldInventory.unit_price,
+        unit_type: inventory.unit_type OR oldInventory.unit_type,
+        currency: inventory.currency OR oldInventory.currency,
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
+        deleted_at: null
+      } IN inventory_base_prices
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventoryBasePrices,
+    });
   }
 }
 

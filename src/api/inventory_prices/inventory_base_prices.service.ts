@@ -5,10 +5,13 @@ import {
 } from "@/helpers/response.helper";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
-import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
-import { isNil, omit, reduce } from "lodash";
-import { InventoryBasePriceRequest } from "./inventory_prices.type";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
+import { isNil, reduce } from "lodash";
+import {
+  InventoryBasePriceRequest,
+  MultipleInventoryBasePriceRequest,
+} from "./inventory_prices.type";
 
 class InventoryBasePriceService {
   public async create(payload: Partial<InventoryBasePriceRequest>) {
@@ -95,6 +98,17 @@ class InventoryBasePriceService {
       ...successMessageResponse(MESSAGES.SUCCESS),
       data: result,
     };
+  }
+
+  public async createMultiple(payload: MultipleInventoryBasePriceRequest[]) {
+    if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
+
+    const inventoryBasePriceCreated =
+      await inventoryBasePriceRepository.createMultiple(payload);
+
+    return inventoryBasePriceCreated.length === payload.length
+      ? successMessageResponse(MESSAGES.SUCCESS)
+      : errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
   }
 }
 

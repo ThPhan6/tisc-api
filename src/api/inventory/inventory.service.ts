@@ -27,7 +27,9 @@ import {
   InventoryEntity,
   LocationWithTeamCountAndFunctionType,
   UserAttributes,
+  WarehouseEntity,
   WarehouseStatus,
+  WarehouseType,
 } from "@/types";
 import { randomUUID } from "crypto";
 import {
@@ -41,18 +43,28 @@ import {
   partition,
   pick,
   reduce,
-  round,
   sortBy,
   sumBy,
   uniqBy,
 } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
+import { MultipleInventoryActionRequest } from "../inventory_action/inventory_action.type";
+import { MultipleInventoryLedgerRequest } from "../inventory_ledger/inventory_ledger.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
-import { InventoryVolumePrice } from "../inventory_prices/inventory_prices.type";
+import {
+  InventoryBasePrice,
+  MultipleInventoryBasePriceRequest,
+} from "../inventory_prices/inventory_prices.type";
+import {
+  InventoryVolumePrice,
+  MultipleInventoryVolumePricePriceRequest,
+} from "../inventory_prices/inventory_volume_price.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
+import { locationService } from "../location/location.service";
 import { warehouseService } from "../warehouses/warehouse.service";
 import {
+  MultipleWarehouseRequest,
   WarehouseCreate,
   WarehouseListResponse,
   WarehouseResponse,
@@ -68,8 +80,11 @@ import {
   InventoryListRequest,
   InventoryListResponse,
   InventoryWarehouse,
+  MappingInventory,
+  MultipleInventoryRequest,
 } from "./inventory.type";
-import { locationService } from "../location/location.service";
+import { inventoryLedgerService } from "../inventory_ledger/inventory_ledger.service";
+import { inventoryActionService } from "../inventory_action/inventory_action.service";
 
 class InventoryService {
   private transferInventory = (inventory: Record<string, any>) => {
@@ -334,44 +349,145 @@ class InventoryService {
     return newErrors;
   }
 
-  private async validateImportPayload(payload: InventoryCreate[]) {
+  private async findWarehouseByLocationIndex(
+    user: UserAttributes,
+    locations: LocationWithTeamCountAndFunctionType[],
+    warehouses?: Omit<InventoryWarehouse, "location_id">[],
+    inventoryId?: string
+  ) {
+    let existedWarehouse:
+      | { data: WarehouseListResponse; statusCode: number }
+      | undefined = undefined;
+
+    if (inventoryId) {
+      existedWarehouse = (await warehouseService.getList(user, inventoryId, {
+        status: WarehouseStatus.ACTIVE,
+        type: WarehouseType.IN_STOCK,
+      })) as {
+        data: WarehouseListResponse;
+        statusCode: number;
+      };
+    }
+
+    const newWarehouses = locations.map((location, locationIdx) => {
+      const warehouse = warehouses?.find((ws) => ws.index === locationIdx);
+      const existedWarehouseLocation = existedWarehouse?.data?.warehouses?.find(
+        (_ws, wsIdx) => wsIdx === warehouse?.index
+      );
+
+      if (warehouse) {
+        return {
+          ...omit(existedWarehouseLocation, ["in_stock"]),
+          name: location.business_name,
+          location_id: location.id,
+          quantity: warehouse.quantity,
+        };
+      }
+
+      return {
+        ...omit(existedWarehouseLocation, ["in_stock"]),
+        name: location.business_name,
+        location_id: location.id,
+        quantity: existedWarehouseLocation?.in_stock ?? 0,
+      };
+    });
+
+    return newWarehouses;
+  }
+
+  private async validateImportPayload(
+    existedInventories: InventoryEntity[],
+    inventories: InventoryCreate[]
+  ) {
     let errors: InventoryErrorList[] = [];
 
-    payload.forEach((item) => {
-      if (isNil(item?.sku)) {
-        errors = this.pushErrorMessages(
-          errors,
-          item,
-          MESSAGES.INVENTORY.SKU_REQUIRED
+    await Promise.all(
+      inventories.map(async (inventory) => {
+        const existedInventory = existedInventories.find(
+          (inven) => inven.sku.toLowerCase() === inventory.sku.toLowerCase()
         );
-      }
 
-      if (!isEmpty(item?.volume_prices)) {
-        if (!this.isValidVolumePrices(item.volume_prices as any)) {
+        if (
+          existedInventory &&
+          inventory.inventory_category_id !==
+            existedInventory.inventory_category_id
+        ) {
           errors = this.pushErrorMessages(
             errors,
-            item,
-            MESSAGES.INVENTORY.INVALID_VOLUME_PRICES
+            inventory,
+            MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY
           );
         }
-      }
 
-      if (item.on_order && item.on_order < 0) {
-        errors = this.pushErrorMessages(
-          errors,
-          item,
-          MESSAGES.INVENTORY.ON_ORDER_LESS_THAN_ZERO
-        );
-      }
+        if ("unit_price" in inventory) {
+          if (!inventory.unit_price) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.INVENTORY.UNIT_PRICE_LESS_THAN_ZERO
+            );
+          }
+        }
 
-      if (item.back_order && item.back_order < 0) {
-        errors = this.pushErrorMessages(
-          errors,
-          item,
-          MESSAGES.INVENTORY.BACK_ORDER_LESS_THAN_ZERO
-        );
-      }
-    });
+        if ("unit_type" in inventory) {
+          const unitType = await commonTypeRepository.find(inventory.unit_type);
+
+          if (!unitType) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.UNIT_TYPE_NOT_FOUND
+            );
+          }
+        }
+      })
+    );
+
+    return errors;
+  }
+
+  private async validateImportPayloadInsert(inventories: InventoryCreate[]) {
+    let errors: InventoryErrorList[] = [];
+
+    await Promise.all(
+      inventories.map(async (inventory) => {
+        if (!inventory?.unit_price) {
+          errors = this.pushErrorMessages(
+            errors,
+            inventory,
+            MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+          );
+        }
+
+        if (!inventory?.unit_type) {
+          errors = this.pushErrorMessages(
+            errors,
+            inventory,
+            MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+          );
+        } else {
+          const unitType = await commonTypeRepository.find(inventory.unit_type);
+
+          if (!unitType) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.UNIT_TYPE_NOT_FOUND
+            );
+          }
+        }
+
+        if ("warehouses" in inventory) {
+          if (inventory.warehouses?.some((el) => el.quantity < 0)) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.WAREHOUSE.LESS_THAN_ZERO
+            );
+          }
+        }
+      })
+    );
 
     return errors;
   }
@@ -568,49 +684,6 @@ class InventoryService {
     };
   }
 
-  private async findWarehouseByLocationIndex(
-    user: UserAttributes,
-    locations: LocationWithTeamCountAndFunctionType[],
-    warehouses?: InventoryWarehouse[],
-    inventoryId?: string
-  ) {
-    let existedWarehouse:
-      | { data: WarehouseListResponse; statusCode: number }
-      | undefined = undefined;
-
-    if (inventoryId) {
-      existedWarehouse = (await warehouseService.getList(
-        user,
-        inventoryId
-      )) as {
-        data: WarehouseListResponse;
-        statusCode: number;
-      };
-    }
-
-    const newWarehouses = locations.map((location, locationIdx) => {
-      const warehouse = warehouses?.find((ws) => ws.index === locationIdx);
-
-      if (warehouse) {
-        return {
-          location_id: location.id,
-          quantity: warehouse.quantity,
-        };
-      }
-
-      return {
-        location_id: location.id,
-        quantity:
-          existedWarehouse?.data?.warehouses?.find(
-            (ws) =>
-              ws.name.toLowerCase() === location.business_name.toLowerCase()
-          )?.in_stock ?? 0,
-      };
-    });
-
-    return newWarehouses;
-  }
-
   public async get(id: string) {
     const inventory = await inventoryRepository.find(id);
 
@@ -733,7 +806,7 @@ class InventoryService {
 
     const totalProduct = await inventoryRepository.getTotalInventories(brandId);
 
-    const totalStock = await inventoryRepository.getTotalStockValue(brandId);
+    const totalStock = 0;
 
     return successResponse({
       data: {
@@ -1126,147 +1199,6 @@ class InventoryService {
     return successResponse({ message: MESSAGES.SUCCESS });
   }
 
-  public async createMultiple(
-    user: UserAttributes,
-    payload: InventoryCreate[]
-  ) {
-    const existedBrand = await brandRepository.find(user.relation_id);
-
-    if (!existedBrand) {
-      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
-    }
-
-    const errors: InventoryErrorList[] = await this.validateImportPayload(
-      payload
-    );
-
-    if (errors.length) {
-      return errorMessageResponse(
-        errors.map((el) => `${el.sku}: ${el.errors.join(" - ")}`).join(", "),
-        400
-      );
-    }
-
-    const inventories = await inventoryRepository.getAllInventoryByBrand(
-      existedBrand.id
-    );
-
-    const existedSKU = inventories.map((el) => el.sku.toLowerCase()) ?? [];
-
-    const [existedInventories, newInventories] = partition(
-      payload,
-      (inventory) => existedSKU.includes(inventory.sku.toLowerCase())
-    );
-
-    const locations = await locationService.getList(user, {
-      sort: "business_name",
-      order: "ASC",
-      functional_type: CompanyFunctionalGroup.LOGISTIC,
-    });
-
-    if (existedInventories.length) {
-      const errors: string[] = [];
-      const inventories: InventoryEntity[] = [];
-
-      await Promise.all(
-        existedInventories.map(async (inventory) => {
-          const existedInventory = await inventoryRepository.getInventoryBySKU(
-            inventory.sku,
-            existedBrand.id
-          );
-
-          if (!existedInventory) {
-            errors.push(`${inventory.sku} not found`);
-            return;
-          }
-
-          if (
-            existedInventory.inventory_category_id !==
-            inventory.inventory_category_id
-          ) {
-            errors.push(
-              `${inventory.sku} ${MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY}`
-            );
-          }
-
-          inventories.push(existedInventory);
-        })
-      );
-
-      if (errors.length) {
-        return errorMessageResponse(errors.join(", "));
-      }
-
-      await Promise.all(
-        existedInventories.map(async (inventory) => {
-          const existedInventory = inventories.find(
-            (el) => el.sku.toLowerCase() === inventory.sku.toLowerCase()
-          ) as InventoryEntity;
-
-          const newPayload: Partial<InventoryCreate> = omit(inventory, [
-            "image",
-            "warehouses",
-          ]);
-
-          if ("unit_price" in inventory && !("volume_prices" in inventory)) {
-            const latestPrice = await inventoryRepository.getLatestPrice(
-              existedInventory.id
-            );
-
-            if (latestPrice) {
-              newPayload.volume_prices = latestPrice.volume_prices;
-            }
-          }
-
-          if ("warehouses" in inventory) {
-            newPayload.warehouses = await this.findWarehouseByLocationIndex(
-              user,
-              locations.data.locations,
-              inventory.warehouses,
-              existedInventory.id
-            );
-          }
-
-          return await this.update(user, existedInventory.id, newPayload, {
-            isCheckSKUExisted: false,
-          });
-        })
-      );
-
-      return successMessageResponse(MESSAGES.SUCCESS);
-    }
-
-    if (newInventories.length) {
-      const newPayload = await Promise.all(
-        newInventories.map(async (inventory) => ({
-          ...inventory,
-          warehouses: await this.findWarehouseByLocationIndex(
-            user,
-            locations.data.locations,
-            inventory.warehouses
-          ),
-        }))
-      );
-
-      const createdInventories = await Promise.all(
-        newPayload.map(
-          async (inventory) =>
-            await this.create(user, await omit(inventory, "image"))
-        )
-      );
-
-      const errors = createdInventories
-        .filter((el) => el.statusCode !== 200)
-        .map((el) => el.message);
-
-      if (errors.length) {
-        return errorMessageResponse(errors[0]);
-      }
-    }
-
-    return successMessageResponse(MESSAGES.SUCCESS);
-  }
-
   public async export(user: UserAttributes, payload: InventoryExportRequest) {
     const inValidPayload = payload.types.some(
       (el) => !InventoryExportTypeLabel[el]
@@ -1333,6 +1265,419 @@ class InventoryService {
       brand_name: brand.name,
       category_name: category.name,
     }) as ExportResponse;
+  }
+
+  private async mappingUpdatedInventories(
+    inventory: InventoryCreate,
+    params: {
+      currency: string;
+      locations: LocationWithTeamCountAndFunctionType[];
+      user: UserAttributes;
+      existedInventoryId: string;
+    }
+  ) {
+    const { currency, locations, user, existedInventoryId } = params;
+
+    const newExistedInventory: MappingInventory = {
+      ...inventory,
+      id: existedInventoryId,
+      _type: "old",
+    };
+
+    if ("unit_price" in inventory) {
+      const basePriceId = randomUUID();
+      newExistedInventory.inventory_base_price_id = basePriceId;
+      newExistedInventory.currency = currency;
+
+      const latestPrice = await inventoryRepository.getLatestPrice(
+        existedInventoryId
+      );
+
+      newExistedInventory.volume_prices = !latestPrice?.volume_prices?.length
+        ? undefined
+        : latestPrice.volume_prices.map((price) => ({
+            ...price,
+            discount_price: (inventory.unit_price * price.discount_rate) / 100,
+            inventory_base_price_id: basePriceId,
+          }));
+    }
+
+    if ("warehouses" in inventory) {
+      newExistedInventory.warehouses = await this.findWarehouseByLocationIndex(
+        user,
+        locations,
+        inventory.warehouses,
+        existedInventoryId
+      );
+
+      newExistedInventory.inventory_ledgers =
+        newExistedInventory.warehouses.map((ws) =>
+          pick(
+            {
+              ...ws,
+              warehouse_id: ws.id as string,
+              inventory_id: existedInventoryId,
+              status: WarehouseStatus.ACTIVE,
+              convert: ws?.convert ?? 0,
+            },
+            ["status", "quantity", "warehouse_id", "inventory_id", "convert"]
+          )
+        );
+
+      newExistedInventory.inventory_actions =
+        newExistedInventory.warehouses.map((ws) =>
+          pick(
+            {
+              ...ws,
+              warehouse_id: ws.id as string,
+              inventory_id: existedInventoryId,
+              status: WarehouseStatus.ACTIVE,
+              created_by: user.id,
+            },
+            ["quantity", "warehouse_id", "inventory_id", "created_by"]
+          )
+        );
+    }
+
+    return newExistedInventory;
+  }
+
+  private async mappingCreatedInventories(
+    inventory: InventoryCreate,
+    params: {
+      currency: string;
+      locations: LocationWithTeamCountAndFunctionType[];
+      user: UserAttributes;
+    }
+  ) {
+    const { currency, locations, user } = params;
+    const inventoryId = randomUUID();
+    const basePriceId = randomUUID();
+
+    const newInventory: MappingInventory = {
+      ...inventory,
+      _type: "new",
+      id: inventoryId,
+      currency: currency,
+      inventory_base_price_id: basePriceId,
+    };
+
+    const warehouses = await this.findWarehouseByLocationIndex(
+      user,
+      locations,
+      inventory.warehouses
+    );
+
+    const allWarehouses: MultipleWarehouseRequest[] = [];
+    const allLedgers: MultipleInventoryLedgerRequest[] = [];
+    const allActions: MultipleInventoryActionRequest[] = [];
+
+    warehouses.forEach((ws) => {
+      const warehouseId = randomUUID();
+      const warehouseInStockId = randomUUID();
+      const warehouseBackOrderId = randomUUID();
+      const warehouseOnOrderId = randomUUID();
+      const warehouseDoneId = randomUUID();
+
+      allWarehouses.push({
+        id: warehouseId,
+        name: ws.name,
+        type: WarehouseType.PHYSICAL,
+        status: WarehouseStatus.ACTIVE,
+        location_id: ws.location_id,
+        relation_id: user.relation_id,
+        quantity: 0,
+        parent_id: null,
+      });
+
+      warehouseService.nonPhysicalWarehouseTypes.forEach((type) => {
+        allWarehouses.push({
+          id:
+            type === WarehouseType.IN_STOCK
+              ? warehouseInStockId
+              : type === WarehouseType.BACK_ORDER
+              ? warehouseBackOrderId
+              : type === WarehouseType.ON_ORDER
+              ? warehouseOnOrderId
+              : warehouseDoneId,
+          type,
+          name: ws.name,
+          status: WarehouseStatus.ACTIVE,
+          location_id: ws.location_id,
+          relation_id: user.relation_id,
+          quantity: type === WarehouseType.IN_STOCK ? ws.quantity : 0,
+          parent_id: warehouseId,
+        });
+      });
+    });
+
+    allWarehouses.forEach((ws) => {
+      allLedgers.push({
+        warehouse_id: ws.id,
+        inventory_id: inventoryId,
+        quantity: ws.type === WarehouseType.IN_STOCK ? ws.quantity : 0,
+        convert: ws.type === WarehouseType.IN_STOCK ? ws?.convert ?? 0 : 0,
+      });
+
+      allActions.push({
+        warehouse_id: ws.id,
+        inventory_id: inventoryId,
+        quantity: ws.type === WarehouseType.IN_STOCK ? ws.quantity : 0,
+        created_by: user.id,
+      });
+    });
+
+    newInventory.warehouses = allWarehouses;
+    newInventory.inventory_actions = allActions;
+    newInventory.inventory_ledgers = allLedgers;
+
+    return newInventory;
+  }
+
+  private async mappingInventories(
+    user: UserAttributes,
+    brandInventories: InventoryEntity[],
+    currency: string,
+    inventories: InventoryCreate[]
+  ) {
+    const locations = await locationService.getList(user, {
+      sort: "business_name",
+      order: "ASC",
+      functional_type: CompanyFunctionalGroup.LOGISTIC,
+    });
+
+    const importedInventories: MappingInventory[] = await Promise.all(
+      inventories.map(async (inventory) => {
+        const existedInventory = brandInventories.find(
+          (inven) => inven.sku.toLowerCase() === inventory.sku.toLowerCase()
+        );
+
+        if (existedInventory) {
+          return await this.mappingUpdatedInventories(inventory, {
+            currency,
+            locations: locations.data.locations,
+            user,
+            existedInventoryId: existedInventory.id,
+          });
+        }
+
+        return await this.mappingCreatedInventories(inventory, {
+          currency,
+          locations: locations.data.locations,
+          user,
+        });
+      })
+    );
+
+    return partition(
+      importedInventories,
+      (inventory) => inventory._type === "old"
+    );
+  }
+
+  private async updateMultipleInventories(inventories: MappingInventory[]) {
+    const existedInventories = inventories.map((inven) =>
+      pick(inven, ["sku", "on_order", "image", "back_order", "description"])
+    ) as Omit<MultipleInventoryRequest, "id">[];
+
+    const basePrices = inventories
+      .map((inven) =>
+        pick(
+          {
+            ...inven,
+            inventory_id: inven.id,
+            id: inven.inventory_base_price_id, // base price id
+          },
+          ["id", "unit_price", "unit_type", "currency", "inventory_id"]
+        )
+      )
+      .filter(Boolean) as MultipleInventoryBasePriceRequest[];
+
+    const volumePrices = inventories
+      .map((inven) =>
+        inven.volume_prices?.map((volume) =>
+          pick(volume, [
+            "discount_price",
+            "discount_rate",
+            "min_quantity",
+            "max_quantity",
+            "inventory_base_price_id", // base price id
+          ])
+        )
+      )
+      .flat()
+      .filter(Boolean) as MultipleInventoryVolumePricePriceRequest[];
+
+    const inventoryLedgers = inventories
+      .map((inven) =>
+        inven.inventory_ledgers?.map((ledger) =>
+          pick(ledger, ["warehouse_id", "inventory_id", "quantity", "convert"])
+        )
+      )
+      .flat()
+      .filter((el) => el?.warehouse_id && el?.inventory_id) as Omit<
+      MultipleInventoryLedgerRequest,
+      "id"
+    >[];
+
+    const inventoryActions = inventories
+      .map((inven) =>
+        inven.inventory_actions?.map((action) =>
+          pick(action, [
+            "warehouse_id",
+            "inventory_id",
+            "quantity",
+            "created_by",
+          ])
+        )
+      )
+      .flat()
+      .filter(
+        (el) => el?.warehouse_id && el?.inventory_id
+      ) as MultipleInventoryActionRequest[];
+
+    await this.updateMultiple(existedInventories);
+    await inventoryBasePriceService.createMultiple(basePrices);
+    await inventoryVolumePriceService.createMultiple(volumePrices);
+    await inventoryLedgerService.updateMultiple(inventoryLedgers);
+    await inventoryActionService.createMultiple(inventoryActions);
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  private async createMultipleInventories(inventories: MappingInventory[]) {
+    const newInventories = inventories.map((inven) =>
+      pick(inven, [
+        "id",
+        "sku",
+        "on_order",
+        "image",
+        "back_order",
+        "description",
+        "inventory_category_id",
+      ])
+    ) as MultipleInventoryRequest[];
+
+    const basePrices = inventories
+      .map((inven) =>
+        pick(
+          {
+            ...inven,
+            inventory_id: inven.id,
+            id: inven.inventory_base_price_id,
+          },
+          ["id", "unit_price", "unit_type", "currency", "inventory_id"]
+        )
+      )
+      .filter(
+        (inven) => "unit_price" in inven && "unit_type" in inven
+      ) as MultipleInventoryBasePriceRequest[];
+
+    const warehouses = inventories
+      .map((inven) => inven.warehouses)
+      .flat() as MultipleWarehouseRequest[];
+
+    const inventoryLedgers = inventories
+      .map((inven) => inven.inventory_ledgers)
+      .flat() as MultipleInventoryLedgerRequest[];
+
+    const inventoryActions = inventories
+      .map((inven) => inven.inventory_actions)
+      .flat() as MultipleInventoryActionRequest[];
+
+    await this.createMultiple(newInventories);
+    await inventoryBasePriceService.createMultiple(basePrices);
+    await warehouseService.createMultiple(warehouses);
+    await inventoryLedgerService.createMultiple(inventoryLedgers);
+    await inventoryActionService.createMultiple(inventoryActions);
+
+    return successMessageResponse(MESSAGES.SUCCESS);
+  }
+
+  public async updateMultiple(payload: Omit<MultipleInventoryRequest, "id">[]) {
+    if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
+
+    const inventoryUpdated = await inventoryRepository.updateMultiple(payload);
+    return inventoryUpdated.length === payload.length
+      ? successMessageResponse(MESSAGES.SUCCESS)
+      : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+  }
+
+  public async createMultiple(payload: MultipleInventoryRequest[]) {
+    if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
+
+    const inventoryCreated = await inventoryRepository.createMultiple(payload);
+    return inventoryCreated.length === payload.length
+      ? successMessageResponse(MESSAGES.SUCCESS)
+      : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+  }
+
+  public async import(user: UserAttributes, payload: InventoryCreate[]) {
+    const existedBrand = await brandRepository.find(user.relation_id);
+
+    if (!existedBrand) {
+      return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
+    }
+
+    const baseCurrency = await exchangeHistoryRepository.getLatestHistory(
+      existedBrand.id
+    );
+
+    if (!baseCurrency) {
+      return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
+    }
+    const brandInventories = await inventoryRepository.getAllInventoryByBrand(
+      existedBrand.id
+    );
+
+    const errors: InventoryErrorList[] = await this.validateImportPayload(
+      brandInventories,
+      payload
+    );
+
+    if (errors.length) {
+      return errorMessageResponse(
+        errors.map((el) => `${el.sku}: ${el.errors.join(" - ")}`).join(", "),
+        400
+      );
+    }
+
+    const [existedInventories, newInventories] = await this.mappingInventories(
+      user,
+      brandInventories,
+      baseCurrency.to_currency,
+      payload
+    );
+
+    if (existedInventories.length) {
+      const updatedInventories = await this.updateMultipleInventories(
+        existedInventories
+      );
+
+      if (updatedInventories.statusCode !== 200) {
+        return errorMessageResponse(updatedInventories.message);
+      }
+    }
+
+    if (newInventories.length) {
+      const newInventoryErrors = await this.validateImportPayloadInsert(
+        newInventories
+      );
+
+      if (newInventoryErrors.length) {
+        return errorMessageResponse(MESSAGES.INVENTORY.INVALID_DATA_INSERT);
+      }
+
+      const createdInventories = await this.createMultipleInventories(
+        newInventories
+      );
+
+      if (createdInventories.statusCode !== 200) {
+        return errorMessageResponse(createdInventories.message);
+      }
+    }
+
+    return successMessageResponse(MESSAGES.SUCCESS);
   }
 }
 
