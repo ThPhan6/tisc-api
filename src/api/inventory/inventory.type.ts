@@ -12,7 +12,7 @@ import {
   WarehouseCreate,
   WarehouseResponse,
 } from "../warehouses/warehouse.type";
-import { InventoryVolumePrice } from "../inventory_prices/inventory_volume_price";
+import { InventoryVolumePrice } from "../inventory_prices/inventory_volume_price.type";
 import { MultipleInventoryLedgerRequest } from "../inventory_ledger/inventory_ledger.type";
 import { MultipleInventoryActionRequest } from "../inventory_action/inventory_action.type";
 

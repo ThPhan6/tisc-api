@@ -59,7 +59,7 @@ import {
 import {
   InventoryVolumePrice,
   MultipleInventoryVolumePricePriceRequest,
-} from "../inventory_prices/inventory_volume_price";
+} from "../inventory_prices/inventory_volume_price.type";
 import { inventoryVolumePriceService } from "../inventory_prices/inventory_volume_prices.service";
 import { locationService } from "../location/location.service";
 import { warehouseService } from "../warehouses/warehouse.service";

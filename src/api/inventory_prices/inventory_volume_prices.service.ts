@@ -11,7 +11,7 @@ import { isEmpty } from "lodash";
 import {
   InventoryVolumePrice,
   MultipleInventoryVolumePricePriceRequest,
-} from "./inventory_volume_price";
+} from "./inventory_volume_price.type";
 
 class InventoryVolumePriceService {
   public async create(

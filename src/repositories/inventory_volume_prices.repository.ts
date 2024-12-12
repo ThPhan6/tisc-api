@@ -1,4 +1,4 @@
-import { MultipleInventoryVolumePricePriceRequest } from "@/api/inventory_prices/inventory_volume_price";
+import { MultipleInventoryVolumePricePriceRequest } from "@/api/inventory_prices/inventory_volume_price.type";
 import InventoryVolumePriceModel from "@/models/inventory_volume_prices.model";
 import { InventoryVolumePriceEntity } from "@/types";
 import BaseRepository from "./base.repository";
