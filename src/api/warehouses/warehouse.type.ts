@@ -39,3 +39,18 @@ export interface WarehouseUpdateBackOrder {
   warehouses: Record<string, WarehouseUpdate>;
   inventoryId: string;
 }
+
+export interface MultipleWarehouseRequest
+  extends Pick<
+    WarehouseEntity,
+    | "id"
+    | "name"
+    | "type"
+    | "status"
+    | "parent_id"
+    | "location_id"
+    | "relation_id"
+  > {
+  quantity: number;
+  convert?: number;
+}

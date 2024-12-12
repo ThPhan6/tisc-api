@@ -115,7 +115,7 @@ export default class InventoryController {
     toolkit: ResponseToolkit
   ) {
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await inventoryService.createMultiple(user, req.payload);
+    const response = await inventoryService.import(user, req.payload);
     return toolkit.response(response).code(response.statusCode);
   }
 }

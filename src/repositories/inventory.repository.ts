@@ -2,7 +2,9 @@ import {
   InventoryCategoryListWithPaginate,
   InventoryCategoryQuery,
   LatestPrice,
+  MultipleInventoryRequest,
 } from "@/api/inventory/inventory.type";
+import { getTimestamps } from "@/Database/Utils/Time";
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
@@ -42,53 +44,55 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       {volume_prices: inventoryVolumePrice}
     )`;
 
-  private totalStockValueQuery = `
-    LET totalStockValue = SUM(
-      LET activeLedgers = (
-        FOR led IN inventory_ledgers
-        FILTER led.deleted_at == null
-        FILTER led.status == 1
-        FILTER led.inventory_id == inven.id
+  private readonly totalStockValueQuery = `
+    LET activeLedgers = (
+    FOR led IN inventory_ledgers
+      FILTER led.deleted_at == null
+      FILTER led.status == 1
+      FILTER led.inventory_id == inven.id
+      RETURN {
+        warehouse_id: led.warehouse_id,
+        quantity: led.quantity
+      }
+  )
 
-        LET warehouse = FIRST(
-          FOR ws IN warehouses
-          FILTER ws.deleted_at == null
-          FILTER ws.type == ${WarehouseType.IN_STOCK}
-          FILTER ws.status == ${WarehouseStatus.ACTIVE}
-          FILTER ws.id == led.warehouse_id
-          RETURN ws
-        )
+  LET warehouseIds = UNIQUE(
+    FOR ledger IN activeLedgers
+      RETURN ledger.warehouse_id
+  )
 
-        FILTER led.warehouse_id == warehouse.id
-        RETURN led
-      )
-
-      FOR ware IN warehouses
-      FILTER ware.deleted_at == null
-      FILTER ware.type == ${WarehouseType.IN_STOCK}
-      FILTER ware.status == ${WarehouseStatus.ACTIVE}
-      FILTER ware.id IN (FOR le IN activeLedgers RETURN le.warehouse_id)
+  LET totalStockValue = SUM(
+    FOR warehouse IN warehouses
+      FILTER warehouse.deleted_at == null
+      FILTER warehouse.type == ${WarehouseType.IN_STOCK}
+      FILTER warehouse.status == ${WarehouseStatus.ACTIVE}
+      FILTER warehouse.id IN warehouseIds
 
       LET unitPrice = FIRST(
         FOR price IN inventory_base_prices
-        FILTER price.deleted_at == null
-        FILTER price.inventory_id == inven.id
-        SORT price.created_at DESC
-
-        LET rates = (
-          FOR history IN exchange_histories
-          FILTER history.deleted_at == null
-          FILTER history.created_at >= price.created_at
-          RETURN history.rate
-        )
-
-        RETURN price.unit_price * PRODUCT(rates)
+          FILTER price.deleted_at == null
+          FILTER price.inventory_id == inven.id
+          SORT price.created_at DESC
+          LIMIT 1
+          LET rates = (
+            FOR history IN exchange_histories
+              FILTER history.deleted_at == null
+              FILTER history.created_at >= price.created_at
+              RETURN history.rate
+          )
+          RETURN price.unit_price * PRODUCT(rates)
       )
 
-      RETURN SUM(FOR le IN activeLedgers RETURN le.quantity) * unitPrice
+      LET totalQuantity = SUM(
+        FOR ledger IN activeLedgers
+          FILTER ledger.warehouse_id == warehouse.id
+          RETURN ledger.quantity
       )
 
-      RETURN totalStockValue
+      RETURN totalQuantity * unitPrice
+  )
+
+  RETURN totalStockValue
     `;
 
   public async getTotalInventories(brandId: string): Promise<number> {
@@ -114,16 +118,16 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         FOR category IN dynamic_categories
         FILTER category.deleted_at == null
         FILTER category.relation_id == @brandId
-        RETURN category
+        RETURN category.id
       )
 
       FOR inven IN inventories
       FILTER inven.deleted_at == null
-      FILTER inven.inventory_category_id IN (FOR c IN activeCategories RETURN c.id)
+      FILTER inven.inventory_category_id IN activeCategories
 
       LET total = (${this.totalStockValueQuery})
 
-      FOR amount IN total
+       FOR amount IN total
       COLLECT AGGREGATE totalStockValueSum = SUM(amount)
       RETURN totalStockValueSum
     `;
@@ -288,6 +292,58 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     );
 
     return (inventory ?? []) as Promise<InventoryEntity[]>;
+  }
+
+  public async updateMultiple(
+    inventories: Partial<MultipleInventoryRequest>[]
+  ): Promise<InventoryEntity[]> {
+    const inventoryQuery = `
+      FOR inventory IN @inventories
+      LET target = FIRST(
+        FOR inven IN inventories
+        FILTER inven.deleted_at == null
+        FILTER LOWER(inven.sku) == LOWER(inventory.sku)
+        RETURN inven
+      )
+      UPDATE target._key WITH {
+        description: HAS(inventory, 'description') ? inventory.description : target.description,
+        back_order: HAS(inventory, 'back_order') ? inventory.back_order : target.back_order,
+        image: HAS(inventory, 'image') ? inventory.image : target.image,
+        on_order: HAS(inventory, 'on_order') ? inventory.on_order : target.on_order,
+        updated_at: "${getTimestamps()}",
+        deleted_at: null
+      } IN inventories
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventories,
+    });
+  }
+
+  public async createMultiple(
+    inventories: Partial<MultipleInventoryRequest>[]
+  ): Promise<InventoryEntity[]> {
+    const inventoryQuery = `
+      FOR inventory IN @inventories
+      INSERT {
+        id: inventory.id,
+        sku: inventory.sku,
+        description: inventory.description OR "",
+        image: inventory.image OR "",
+        back_order: inventory.back_order OR 0,
+        on_order: inventory.on_order OR 0,
+        inventory_category_id: inventory.inventory_category_id,
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
+        deleted_at: null
+      } IN inventories
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventories,
+    });
   }
 }
 

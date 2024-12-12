@@ -1,4 +1,4 @@
-import { InventoryBasePriceEntity, InventoryVolumePriceEntity } from "@/types";
+import { InventoryBasePriceEntity } from "@/types";
 
 export interface InventoryBasePrice
   extends Pick<
@@ -16,14 +16,8 @@ export interface InventoryBasePriceRequest
   relation_id: string;
 }
 
-export interface InventoryVolumePrice
+export interface MultipleInventoryBasePriceRequest
   extends Pick<
-    InventoryVolumePriceEntity,
-    | "id"
-    | "discount_price"
-    | "discount_rate"
-    | "max_quantity"
-    | "min_quantity"
-    | "inventory_base_price_id"
-    | "created_at"
+    InventoryBasePriceEntity,
+    "id" | "currency" | "unit_price" | "unit_type" | "inventory_id"
   > {}
