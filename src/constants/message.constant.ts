@@ -320,7 +320,7 @@ export const MESSAGES = {
     NOT_FOUND: "Warehouse not found",
     IN_STOCK_NOT_FOUND: "Warehouse In Stock not found",
     EXISTED: "Warehouse existed",
-    LESS_THAN_ZERO: "In Stock must be greater than or equal to 0",
+    LESS_THAN_ZERO: "In Stock must be positive number",
     NOT_AVAILABLE: "Warehouse not available.",
     SUM_IN_STOCK: "Total In Stock is greater than Backorder",
     BACK_ORDER_NOT_FOUND: "Warehouse Back Order not found",
@@ -328,11 +328,16 @@ export const MESSAGES = {
     REQUIRED: "Warehouse is required",
   },
   INVENTORY: {
+    INVALID_DATA_INSERT:
+      "Invalid data for the items that need to be inserted. Please check them.",
     NOT_FOUND_LEDGER: "Inventory ledger not found",
     NOT_FOUND_ACTION: "Inventory action not found",
     SKU_EXISTED: "SKU existed",
+    UNIT_PRICE_REQUIRED: "Unit price is required",
+    UNIT_TYPE_REQUIRED: "Unit type is required",
     INVALID_VOLUME_PRICES: "Invalid volume prices",
     ON_ORDER_LESS_THAN_ZERO: "On Order must be positive number",
+    UNIT_PRICE_LESS_THAN_ZERO: "On Order must be positive number",
     BACK_ORDER_LESS_THAN_ZERO: "Back Order must be positive number",
     SKU_REQUIRED: "SKU is required",
     BELONG_TO_ANOTHER_CATEGORY:

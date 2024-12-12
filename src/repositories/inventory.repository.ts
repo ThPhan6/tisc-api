@@ -2,7 +2,9 @@ import {
   InventoryCategoryListWithPaginate,
   InventoryCategoryQuery,
   LatestPrice,
+  MultipleInventoryRequest,
 } from "@/api/inventory/inventory.type";
+import { getTimestamps } from "@/Database/Utils/Time";
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
 import BaseRepository from "@/repositories/base.repository";
@@ -290,6 +292,58 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     );
 
     return (inventory ?? []) as Promise<InventoryEntity[]>;
+  }
+
+  public async updateMultiple(
+    inventories: Partial<MultipleInventoryRequest>[]
+  ): Promise<InventoryEntity[]> {
+    const inventoryQuery = `
+      FOR inventory IN @inventories
+      LET target = FIRST(
+        FOR inven IN inventories
+        FILTER inven.deleted_at == null
+        FILTER LOWER(inven.sku) == LOWER(inventory.sku)
+        RETURN inven
+      )
+      UPDATE target._key WITH {
+        description: HAS(inventory, 'description') ? inventory.description : target.description,
+        back_order: HAS(inventory, 'back_order') ? inventory.back_order : target.back_order,
+        image: HAS(inventory, 'image') ? inventory.image : target.image,
+        on_order: HAS(inventory, 'on_order') ? inventory.on_order : target.on_order,
+        updated_at: "${getTimestamps()}",
+        deleted_at: null
+      } IN inventories
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventories,
+    });
+  }
+
+  public async createMultiple(
+    inventories: Partial<MultipleInventoryRequest>[]
+  ): Promise<InventoryEntity[]> {
+    const inventoryQuery = `
+      FOR inventory IN @inventories
+      INSERT {
+        id: inventory.id,
+        sku: inventory.sku,
+        description: inventory.description OR "",
+        image: inventory.image OR "",
+        back_order: inventory.back_order OR 0,
+        on_order: inventory.on_order OR 0,
+        inventory_category_id: inventory.inventory_category_id,
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
+        deleted_at: null
+      } IN inventories
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventories,
+    });
   }
 }
 
