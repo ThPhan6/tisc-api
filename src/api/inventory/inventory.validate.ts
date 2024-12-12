@@ -61,8 +61,9 @@ const InventoryCreateRequest = Joi.object({
     .items(
       Joi.object({
         location_id: requireStringValidation("Location id"),
-        quantity: Joi.number().strict().required().messages({
-          "any.required": "Quantity is required",
+        quantity: Joi.number().strict().min(0).required().messages({
+          "any.required": "In stock is required",
+          "number.min": "In stock is must be positive number",
         }),
       }).unknown(false)
     ),
@@ -93,8 +94,9 @@ const InventoryUpdateRequest = Joi.object({
     .items(
       Joi.object({
         location_id: requireStringValidation("Location id"),
-        quantity: Joi.number().strict().required().messages({
-          "any.required": "Quantity is required",
+        quantity: Joi.number().strict().min(0).required().messages({
+          "any.required": "In stock is required",
+          "number.min": "In stock is must be positive number",
         }),
         convert: Joi.number().strict().allow(null),
       }).unknown(false)
@@ -131,10 +133,10 @@ const InventoryImportRequest = Joi.object({
     .allow(null)
     .items(
       Joi.object({
-        // location_id: requireStringValidation("Location id"),
         index: Joi.number().strict().required(),
-        quantity: Joi.number().strict().required().messages({
-          "any.required": "Quantity is required",
+        quantity: Joi.number().strict().min(0).required().messages({
+          "any.required": "In stock is required",
+          "number.min": "In stock is must be positive number",
         }),
         convert: Joi.number().strict().allow(null),
       }).unknown(false)

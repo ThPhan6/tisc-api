@@ -50,9 +50,7 @@ export interface MultipleWarehouseRequest
     | "parent_id"
     | "location_id"
     | "relation_id"
-  > {}
-
-export interface MultipleWarehouseResponse {
-  before: WarehouseEntity;
-  after: WarehouseEntity;
+  > {
+  quantity: number;
+  convert?: number;
 }
