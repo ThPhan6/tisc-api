@@ -419,6 +419,16 @@ class InventoryService {
           );
         }
 
+        if ("unit_price" in inventory) {
+          if (!inventory.unit_price) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.INVENTORY.UNIT_PRICE_LESS_THAN_ZERO
+            );
+          }
+        }
+
         if ("unit_type" in inventory) {
           const unitType = await commonTypeRepository.find(inventory.unit_type);
 
@@ -427,6 +437,52 @@ class InventoryService {
               errors,
               inventory,
               MESSAGES.UNIT_TYPE_NOT_FOUND
+            );
+          }
+        }
+      })
+    );
+
+    return errors;
+  }
+
+  private async validateImportPayloadInsert(inventories: InventoryCreate[]) {
+    let errors: InventoryErrorList[] = [];
+
+    await Promise.all(
+      inventories.map(async (inventory) => {
+        if (!inventory?.unit_price) {
+          errors = this.pushErrorMessages(
+            errors,
+            inventory,
+            MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+          );
+        }
+
+        if (!inventory?.unit_type) {
+          errors = this.pushErrorMessages(
+            errors,
+            inventory,
+            MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+          );
+        } else {
+          const unitType = await commonTypeRepository.find(inventory.unit_type);
+
+          if (!unitType) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.UNIT_TYPE_NOT_FOUND
+            );
+          }
+        }
+
+        if ("warehouses" in inventory) {
+          if (inventory.warehouses?.some((el) => el.quantity < 0)) {
+            errors = this.pushErrorMessages(
+              errors,
+              inventory,
+              MESSAGES.WAREHOUSE.LESS_THAN_ZERO
             );
           }
         }
@@ -1604,6 +1660,14 @@ class InventoryService {
     }
 
     if (newInventories.length) {
+      const newInventoryErrors = await this.validateImportPayloadInsert(
+        newInventories
+      );
+
+      if (newInventoryErrors.length) {
+        return errorMessageResponse(MESSAGES.INVENTORY.INVALID_DATA_INSERT);
+      }
+
       const createdInventories = await this.createMultipleInventories(
         newInventories
       );
