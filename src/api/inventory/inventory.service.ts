@@ -806,7 +806,7 @@ class InventoryService {
 
     const totalProduct = await inventoryRepository.getTotalInventories(brandId);
 
-    const totalStock = await inventoryRepository.getTotalStockValue(brandId);
+    const totalStock = 0;
 
     return successResponse({
       data: {
