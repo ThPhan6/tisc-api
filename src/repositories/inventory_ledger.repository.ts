@@ -1,11 +1,8 @@
-import {
-  MultipleInventoryLedgerRequest,
-  MultipleInventoryLedgerResponse,
-} from "@/api/inventory_ledger/inventory_ledger.type";
+import { MultipleInventoryLedgerRequest } from "@/api/inventory_ledger/inventory_ledger.type";
 import { getTimestamps } from "@/Database/Utils/Time";
 import InventoryLedgerModel from "@/models/inventory_ledger.model";
 import BaseRepository from "@/repositories/base.repository";
-import { InventoryLedgerEntity } from "@/types";
+import { InventoryLedgerEntity, WarehouseStatus, WarehouseType } from "@/types";
 import { randomUUID } from "crypto";
 import { head } from "lodash";
 
@@ -31,24 +28,37 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
 
   public async updateMultiple(
     inventoryLedgers: Partial<MultipleInventoryLedgerRequest>[]
-  ): Promise<MultipleInventoryLedgerResponse[]> {
+  ): Promise<InventoryLedgerEntity[]> {
     const inventoryQuery = `
+      LET warehouseInStockIds = (
+        FOR warehouse IN warehouses
+        FILTER warehouse.deleted_at == null
+        FILTER warehouse.status == ${WarehouseStatus.ACTIVE}
+        FILTER warehouse.type == ${WarehouseType.IN_STOCK}
+        RETURN warehouse.id
+      )
+
+      LET ledgers = (
+        FOR le IN inventory_ledgers
+        FILTER le.deleted_at == null
+        FILTER le.warehouse_id IN warehouseInStockIds
+        RETURN le
+      )
+
       FOR inventory IN @inventoryLedgers
-      LET target = FIRST(FOR inven IN inventory_ledgers FILTER inven.deleted_at == null FILTER inven.id == inventory.id RETURN inven)
-      INSERT {
-        id: target.id,
-        inventory_id: target.inventory_id,
-        warehouse_id: target.warehouse_id,
-        quantity: inventory.quantity,
-        status: inventory.status,
-        created_at: target.created_at,
-        updated_at: ${getTimestamps()},
+      LET target = FIRST(
+        FOR led IN ledgers
+        FILTER led.inventory_id == inventory.inventory_id
+        FILTER led.warehouse_id == inventory.warehouse_id
+        RETURN led
+      )
+      UPDATE target._key WITH {
+        quantity: TO_NUMBER(inventory.quantity),
+        status: ${WarehouseStatus.ACTIVE},
+        updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventory_ledgers
-      RETURN {
-        before: UNSET(OLD, ['_key', '_id', '_rev', 'deleted_at']),
-        after: UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
-      }
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {
@@ -62,13 +72,13 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
     const inventoryQuery = `
       FOR inventory IN @inventoryLedgers
       INSERT {
-        id: ${randomUUID()},
+        id: "${randomUUID()}",
         inventory_id: inventory.inventory_id,
         warehouse_id: inventory.warehouse_id,
-        quantity: inventory.quantity,
-        status: inventory.status,
-        created_at: ${getTimestamps()},
-        updated_at: ${getTimestamps()},
+        quantity: TO_NUMBER(inventory.quantity) + TO_NUMBER(inventory.convert OR 0),
+        status: ${WarehouseStatus.ACTIVE},
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventory_ledgers
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

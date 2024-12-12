@@ -1,12 +1,9 @@
 import {
   InventoryCategoryListWithPaginate,
   InventoryCategoryQuery,
-  InventoryCreate,
   LatestPrice,
   MultipleInventoryRequest,
-  MultipleInventoryResponse,
 } from "@/api/inventory/inventory.type";
-import { connection } from "@/Database/Connections/ArangoConnection";
 import { getTimestamps } from "@/Database/Utils/Time";
 import { pagination } from "@/helpers/common.helper";
 import InventoryModel from "@/models/inventory.model";
@@ -17,7 +14,6 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { randomUUID } from "crypto";
 import { head, isNil, omitBy } from "lodash";
 
 class InventoryRepository extends BaseRepository<InventoryEntity> {
@@ -298,26 +294,24 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
   public async updateMultiple(
     inventories: Partial<MultipleInventoryRequest>[]
-  ): Promise<MultipleInventoryResponse[]> {
+  ): Promise<InventoryEntity[]> {
     const inventoryQuery = `
       FOR inventory IN @inventories
-      LET target = FIRST(FOR inven IN inventories FILTER inven.deleted_at == null FILTER LOWER(inven.sku) == LOWER(inventory.sku) RETURN inven)
+      LET target = FIRST(
+        FOR inven IN inventories
+        FILTER inven.deleted_at == null
+        FILTER LOWER(inven.sku) == LOWER(inventory.sku)
+        RETURN inven
+      )
       UPDATE target._key WITH {
-        id: target.id,
-        sku: target.sku,
         description: HAS(inventory, 'description') ? inventory.description : target.description,
         back_order: HAS(inventory, 'back_order') ? inventory.back_order : target.back_order,
         image: HAS(inventory, 'image') ? inventory.image : target.image,
         on_order: HAS(inventory, 'on_order') ? inventory.on_order : target.on_order,
-        inventory_category_id: HAS(inventory, 'inventory_category_id') ? inventory.inventory_category_id : target.inventory_category_id,
-        created_at: target.created_at,
-        updated_at: ${getTimestamps()},
+        updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventories
-      RETURN {
-        before: UNSET(OLD, ['_key', '_id', '_rev', 'deleted_at']),
-        after: UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
-      }
+      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {
@@ -331,15 +325,15 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     const inventoryQuery = `
       FOR inventory IN @inventories
       INSERT {
-        id: ${randomUUID()},
+        id: inventory.id,
         sku: inventory.sku,
-        description: inventory.description,
-        image: inventory.image,
-        back_order: inventory.back_order,
-        on_order: inventory.on_order,
+        description: inventory.description OR "",
+        image: inventory.image OR "",
+        back_order: inventory.back_order OR 0,
+        on_order: inventory.on_order OR 0,
         inventory_category_id: inventory.inventory_category_id,
-        created_at: ${getTimestamps()},
-        updated_at: ${getTimestamps()},
+        created_at: "${getTimestamps()}",
+        updated_at: "${getTimestamps()}",
         deleted_at: null
       } IN inventories
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
