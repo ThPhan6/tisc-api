@@ -158,6 +158,7 @@ class WarehouseService {
     let existedLedger = await inventoryLedgerRepository.findBy({
       warehouse_id: warehouse.id,
       inventory_id: payload.inventory_id,
+      type: payload.type,
     });
 
     if (!existedLedger) {
@@ -169,6 +170,7 @@ class WarehouseService {
         warehouse_id: warehouse.id,
         inventory_id: payload.inventory_id,
         status: WarehouseStatus.ACTIVE,
+        type: payload.type,
         quantity: payload.quantity,
       });
     }
@@ -326,6 +328,7 @@ class WarehouseService {
         warehouse_id: inStockWarehouse.id,
         inventory_id: inventoryId,
         status: WarehouseStatus.ACTIVE,
+        type: WarehouseType.IN_STOCK,
         quantity,
       });
     }

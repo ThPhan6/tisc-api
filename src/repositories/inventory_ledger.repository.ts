@@ -77,6 +77,7 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
         warehouse_id: inventory.warehouse_id,
         quantity: TO_NUMBER(inventory.quantity) + TO_NUMBER(inventory.convert OR 0),
         status: ${WarehouseStatus.ACTIVE},
+        type: inventory.type,
         created_at: "${getTimestamps()}",
         updated_at: "${getTimestamps()}",
         deleted_at: null
@@ -89,13 +90,13 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
     });
   }
 
-  public findByInventories = async (
-    inventoryIds: string[],
-  ) => {
+  public findByInventories = async (inventoryIds: string[]) => {
     const query = `
      for ledger in inventory_ledgers
+     filter ledger.deleted_at == null
      filter ledger.inventory_id in @inventoryIds
-     filter ledger.status == 1
+     filter ledger.status == ${WarehouseStatus.ACTIVE}
+     filter ledger.type == ${WarehouseType.IN_STOCK}
      return ledger
     `;
 

@@ -25,6 +25,7 @@ import {
   CompanyFunctionalGroup,
   IExchangeCurrency,
   InventoryEntity,
+  InventoryLedgerEntity,
   LocationWithTeamCountAndFunctionType,
   UserAttributes,
   WarehouseEntity,
@@ -809,31 +810,27 @@ class InventoryService {
 
     const totalProduct = await inventoryRepository.getTotalInventories(brandId);
 
-    const totalStock = 0;
     const inventories = await inventoryRepository.getAllInventoryByBrand(
       brandId
     );
     const inventoryIds = inventories.map((item) => item.id);
-    // const warehouses = await warehouseRepository.getAllBy({
-    //   relation_id: brandId,
-    //   deleted_at: null,
-    //   type: WarehouseType.IN_STOCK,
-    //   status: WarehouseStatus.ACTIVE,
-    // });
-    // const warehouseIds = warehouses.map((item) => item.id);
-    const inventoryLedgers = await inventoryLedgerRepository.findByInventories(
-      inventoryIds,
-    );
+
+    const inventoryLedgers: InventoryLedgerEntity[] =
+      await inventoryLedgerRepository.findByInventories(inventoryIds);
 
     const inventoryBasePrices =
       await inventoryBasePriceRepository.findByInventories(inventoryIds);
+
     const exchangeHistories = await inventoryRepository.getBrandExchangeHistory(
       brandId
     );
+
     const total = inventories.reduce((pre, cur) => {
-      const ledger = inventoryLedgers.find(
+      const ledgers = inventoryLedgers.filter(
         (item: any) => item.inventory_id === cur.id
       );
+      const ledgerQuantity = sumBy(ledgers, "quantity");
+
       const basePrice = sortBy(
         inventoryBasePrices.filter((item: any) => item.inventory_id === cur.id),
         "created_at",
@@ -844,11 +841,11 @@ class InventoryService {
         if (item.created_at >= basePrice.created_at)
           tempRate = tempRate * item.rate;
       });
-      const quantity = ledger?.quantity || 0;
-      const inventoryStockValue = quantity * basePrice.unit_price * tempRate;
+
+      const inventoryStockValue =
+        ledgerQuantity * basePrice.unit_price * tempRate;
       return pre + inventoryStockValue;
     }, 0);
-    // console.log(inventoryBasePrices);
 
     return successResponse({
       data: {
@@ -1364,7 +1361,7 @@ class InventoryService {
             },
             ["status", "quantity", "warehouse_id", "inventory_id", "convert"]
           )
-        );
+        ) as MultipleInventoryLedgerRequest[];
 
       newExistedInventory.inventory_actions =
         newExistedInventory.warehouses.map((ws) =>
@@ -1459,6 +1456,8 @@ class InventoryService {
         inventory_id: inventoryId,
         quantity: ws.type === WarehouseType.IN_STOCK ? ws.quantity : 0,
         convert: ws.type === WarehouseType.IN_STOCK ? ws?.convert ?? 0 : 0,
+        type: ws.type,
+        status: WarehouseStatus.ACTIVE,
       });
 
       allActions.push({
