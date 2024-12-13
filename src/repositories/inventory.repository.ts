@@ -95,6 +95,14 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
   RETURN totalStockValue
     `;
 
+  public async getBrandExchangeHistory(brandId: string) {
+    const query = `
+      FOR history IN exchange_histories
+        FILTER history.deleted_at == null
+        FILTER history.relation_id == @brandId
+        RETURN history`;
+    return this.model.rawQueryV2(query, { brandId });
+  }
   public async getTotalInventories(brandId: string): Promise<number> {
     const rawQuery = `
       FOR category IN dynamic_categories
@@ -132,6 +140,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       RETURN totalStockValueSum
     `;
 
+    console.log(rawQuery);
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
     return head(result) as number;
@@ -278,12 +287,12 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
           FOR c IN dynamic_categories
           FILTER c.deleted_at == null
           FILTER c.relation_id == @brandId
-          RETURN c
+          RETURN c.id
         )
 
         FOR inventory IN inventories
         FILTER inventory.deleted_at == null
-        FILTER inventory.inventory_category_id IN (FOR c IN activeCategories RETURN c.id)
+        FILTER inventory.inventory_category_id IN activeCategories
         RETURN UNSET(inventory, ['_key','_id','_rev','deleted_at'])
       `,
       {

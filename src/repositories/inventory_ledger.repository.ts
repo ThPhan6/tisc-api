@@ -88,6 +88,21 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
       inventoryLedgers,
     });
   }
+
+  public findByInventories = async (
+    inventoryIds: string[],
+  ) => {
+    const query = `
+     for ledger in inventory_ledgers
+     filter ledger.inventory_id in @inventoryIds
+     filter ledger.status == 1
+     return ledger
+    `;
+
+    return this.model.rawQueryV2(query, {
+      inventoryIds,
+    });
+  };
 }
 
 export const inventoryLedgerRepository = new InventoryLedgerRepository();

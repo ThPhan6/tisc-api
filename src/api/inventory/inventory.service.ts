@@ -85,6 +85,9 @@ import {
 } from "./inventory.type";
 import { inventoryLedgerService } from "../inventory_ledger/inventory_ledger.service";
 import { inventoryActionService } from "../inventory_action/inventory_action.service";
+import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
+import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
+import { warehouseRepository } from "@/repositories/warehouse.repository";
 
 class InventoryService {
   private transferInventory = (inventory: Record<string, any>) => {
@@ -807,6 +810,45 @@ class InventoryService {
     const totalProduct = await inventoryRepository.getTotalInventories(brandId);
 
     const totalStock = 0;
+    const inventories = await inventoryRepository.getAllInventoryByBrand(
+      brandId
+    );
+    const inventoryIds = inventories.map((item) => item.id);
+    // const warehouses = await warehouseRepository.getAllBy({
+    //   relation_id: brandId,
+    //   deleted_at: null,
+    //   type: WarehouseType.IN_STOCK,
+    //   status: WarehouseStatus.ACTIVE,
+    // });
+    // const warehouseIds = warehouses.map((item) => item.id);
+    const inventoryLedgers = await inventoryLedgerRepository.findByInventories(
+      inventoryIds,
+    );
+
+    const inventoryBasePrices =
+      await inventoryBasePriceRepository.findByInventories(inventoryIds);
+    const exchangeHistories = await inventoryRepository.getBrandExchangeHistory(
+      brandId
+    );
+    const total = inventories.reduce((pre, cur) => {
+      const ledger = inventoryLedgers.find(
+        (item: any) => item.inventory_id === cur.id
+      );
+      const basePrice = sortBy(
+        inventoryBasePrices.filter((item: any) => item.inventory_id === cur.id),
+        "created_at",
+        "DESC"
+      )[0];
+      let tempRate = 1;
+      exchangeHistories.forEach((item: any) => {
+        if (item.created_at >= basePrice.created_at)
+          tempRate = tempRate * item.rate;
+      });
+      const quantity = ledger?.quantity || 0;
+      const inventoryStockValue = quantity * basePrice.unit_price * tempRate;
+      return pre + inventoryStockValue;
+    }, 0);
+    // console.log(inventoryBasePrices);
 
     return successResponse({
       data: {
@@ -815,7 +857,7 @@ class InventoryService {
         })),
         exchange_history: exchangeHistory,
         total_product: totalProduct,
-        total_stock: totalStock,
+        total_stock: total,
       },
     });
   }

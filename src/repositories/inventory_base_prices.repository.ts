@@ -58,6 +58,17 @@ class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEnti
       inventoryBasePrices,
     });
   }
+  public findByInventories = async (inventoryIds: string[]) => {
+    const query = `
+     for basePrice in inventory_base_prices
+     filter basePrice.inventory_id in @inventoryIds
+     return basePrice
+    `;
+
+    return this.model.rawQueryV2(query, {
+      inventoryIds,
+    });
+  };
 }
 
 export const inventoryBasePriceRepository = new InventoryBasePriceRepository();
