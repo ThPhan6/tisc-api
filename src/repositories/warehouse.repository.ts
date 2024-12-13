@@ -2,7 +2,7 @@ import { MultipleWarehouseRequest } from "@/api/warehouses/warehouse.type";
 import { getTimestamps } from "@/Database/Utils/Time";
 import WarehouseModel from "@/models/warehouse.model";
 import BaseRepository from "@/repositories/base.repository";
-import { WarehouseEntity, WarehouseType } from "@/types";
+import { WarehouseEntity, WarehouseStatus, WarehouseType } from "@/types";
 
 class WarehouseRepository extends BaseRepository<WarehouseEntity> {
   protected model: WarehouseModel;
@@ -10,6 +10,20 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
   constructor() {
     super();
     this.model = new WarehouseModel();
+  }
+
+  public async getWarehouseByBrand(
+    brandId: string,
+    warehouseIds: string[],
+    type: WarehouseType = WarehouseType.IN_STOCK,
+    status: WarehouseStatus = WarehouseStatus.ACTIVE
+  ): Promise<WarehouseEntity[]> {
+    return await this.model
+      .where("relation_id", "==", brandId)
+      .where("id", "in", warehouseIds)
+      .where("type", "==", type)
+      .where("status", "==", status)
+      .get();
   }
 
   public async getAllNonPhysicalWarehousesByParentId(

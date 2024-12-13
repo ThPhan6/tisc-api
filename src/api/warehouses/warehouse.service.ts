@@ -526,7 +526,7 @@ class WarehouseService {
       return errorMessageResponse(MESSAGES.CATEGORY_NOT_FOUND);
     }
 
-    const brand = brandRepository.find(category.relation_id);
+    const brand = await brandRepository.find(category.relation_id);
 
     if (!brand) {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND);
@@ -536,40 +536,11 @@ class WarehouseService {
       inventory_id: existedInventory.id,
     });
 
-    const warehouses: WarehouseResponse[] = [];
-    await Promise.all(
-      inventoryLedgers.map(async (inventoryLedger) => {
-        const conditionObj: Partial<WarehouseEntity> = {
-          id: inventoryLedger.warehouse_id,
-          type,
-        };
-
-        if (status) {
-          conditionObj.status = status;
-        }
-
-        const nonePhysicalWarehouse = await warehouseRepository.findBy(
-          conditionObj
-        );
-
-        if (!nonePhysicalWarehouse?.parent_id) {
-          return;
-        }
-
-        const location = await locationRepository.find(
-          nonePhysicalWarehouse.location_id
-        );
-
-        if (location) {
-          warehouses.push({
-            ...pick(nonePhysicalWarehouse, "id", "created_at", "name"),
-            location_id: location.id,
-            country_name: location?.country_name ?? "",
-            city_name: location?.city_name ?? "",
-            in_stock: Number(inventoryLedger.quantity),
-          });
-        }
-      })
+    const inventoryWarehouses = await warehouseRepository.getWarehouseByBrand(
+      brand.id,
+      inventoryLedgers.map((item) => item.warehouse_id),
+      type,
+      status
     );
 
     const locations = await locationService.getList(user as UserAttributes, {
@@ -578,28 +549,37 @@ class WarehouseService {
       functional_type: CompanyFunctionalGroup.LOGISTIC,
     });
 
-    const locationLogistics: WarehouseResponse[] = locations.data.locations.map(
-      (el) => ({
-        id: el.id,
-        name: el.business_name,
-        country_name: el.country_name,
-        city_name: el.city_name,
+    const warehouses = locations.data.locations.map((location) => {
+      const warehouse = inventoryWarehouses.find(
+        (ws) => ws.location_id === location.id
+      );
+
+      const ledger = inventoryLedgers.find(
+        (ledger) => ledger.warehouse_id === warehouse?.id
+      );
+
+      if (warehouse) {
+        return {
+          ...pick(warehouse, ["id", "created_at", "name"]),
+          location_id: location.id,
+          country_name: location?.country_name ?? "",
+          city_name: location?.city_name ?? "",
+          in_stock: Number(ledger?.quantity ?? 0),
+        };
+      }
+
+      return {
+        id: location.id,
+        name: location.business_name,
+        country_name: location?.country_name ?? "",
+        city_name: location?.city_name ?? "",
         in_stock: 0,
-        location_id: el.id,
-        created_at: el.created_at,
-      })
-    );
+        location_id: location.id,
+        created_at: location.created_at,
+      };
+    });
 
-    const locationLogisticLocationIds = locationLogistics.map(
-      (el) => el.location_id
-    );
-
-    const result = sortBy(
-      warehouses.filter((el) =>
-        locationLogisticLocationIds.includes(el.location_id)
-      ),
-      "name"
-    );
+    const result = sortBy(warehouses, "name");
 
     return successResponse({
       data: {
