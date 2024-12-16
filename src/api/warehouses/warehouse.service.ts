@@ -629,21 +629,17 @@ class WarehouseService {
         location_id: locationExisted.id,
         type: WarehouseType.IN_STOCK,
       });
-
-    const ledgers = await Promise.all(
-      allInStockWarehousesBelongToLocations.map(
-        async (ws) =>
-          await inventoryLedgerRepository.findBy({
-            inventory_id: inventoryExisted.id,
-            warehouse_id: ws.id,
-          })
-      )
+    const warehouseIds = allInStockWarehousesBelongToLocations.map(
+      (item) => item.id
+    );
+    const ledgers = await inventoryLedgerRepository.getByWarehouses(
+      warehouseIds,
+      inventoryExisted.id
     );
 
     const inventoryLedgerExisted = ledgers.find(
-      (el) => el?.inventory_id === inventoryExisted.id
+      (el: any) => el?.inventory_id === inventoryExisted.id
     );
-
     if (!inventoryLedgerExisted) {
       if (payload.quantity < 0) {
         return errorMessageResponse(MESSAGES.LESS_THAN_ZERO);
@@ -684,7 +680,6 @@ class WarehouseService {
         statusCode: res?.statusCode ?? 400,
       };
     }
-
     const instockWarehouseExisted = allInStockWarehousesBelongToLocations.find(
       (el) => el.id === inventoryLedgerExisted.warehouse_id
     );
@@ -717,7 +712,6 @@ class WarehouseService {
       convert: payload.convert,
       inventory_id: inventoryExisted.id,
     });
-
     return {
       message: nonPhysicalWarehouses.message,
       statusCode: nonPhysicalWarehouses.statusCode,

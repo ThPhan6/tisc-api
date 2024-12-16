@@ -104,6 +104,26 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
       inventoryIds,
     });
   };
+
+  public getByWarehouses = async (
+    warehouseIds: string[],
+    inventoryId: string
+  ) => {
+    const query = `
+     for ledger in inventory_ledgers
+     filter ledger.deleted_at == null
+     filter ledger.warehouse_id in @warehouseIds
+     filter ledger.inventory_id == @inventoryId
+     filter ledger.status == ${WarehouseStatus.ACTIVE}
+     filter ledger.type == ${WarehouseType.IN_STOCK}
+     return ledger
+    `;
+
+    return this.model.rawQueryV2(query, {
+      warehouseIds,
+      inventoryId,
+    }) as any;
+  };
 }
 
 export const inventoryLedgerRepository = new InventoryLedgerRepository();

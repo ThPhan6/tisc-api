@@ -605,7 +605,6 @@ class InventoryService {
     }
 
     const payloadWarehouseLocationIds = warehouses.map((el) => el.location_id);
-
     const instockWarehouseActive = (await warehouseService.getList(
       user,
       inventoryId,
@@ -636,27 +635,26 @@ class InventoryService {
     const res = [];
 
     if (warehouseDeleted.length) {
-      const warehouses = await Promise.all(
+      const deletedWarehouses = await Promise.all(
         warehouseDeleted.map(
           async (ws) => await warehouseService.delete(user, ws.location_id)
         )
       );
 
-      res.push(...warehouses);
+      res.push(...deletedWarehouses);
     }
-
     /// create new warehouse and update warehouse existed
     const warehouseUpdated = await Promise.all(
       warehouses.map(async (ws) => {
-        return await warehouseService.create(user, {
+        const temp = await warehouseService.create(user, {
           inventory_id: inventoryId,
           location_id: ws.location_id,
           quantity: ws.quantity,
           convert: ws.convert,
         });
+        return temp;
       })
     );
-
     res.push(...warehouseUpdated);
 
     const messageError = res
@@ -1157,13 +1155,11 @@ class InventoryService {
           quantity: payload?.warehouses?.[index].quantity ?? 0,
         });
       });
-
       const warehouseUpdated = await this.modifyWarehouses(
         user,
         id,
         newWarehouses
       );
-
       if (warehouseUpdated?.statusCode !== 200) {
         return errorMessageResponse(warehouseUpdated.message);
       }
