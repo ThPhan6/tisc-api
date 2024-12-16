@@ -1000,7 +1000,6 @@ class WarehouseService {
     const warehouseCreated = await warehouseRepository.createMultiple(
       payload.map((item) => ({
         ...item,
-        id: uuid(),
         created_at: getTimestamps(),
         updated_at: getTimestamps(),
       }))
