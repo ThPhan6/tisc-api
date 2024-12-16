@@ -38,7 +38,7 @@ import { ActivityTypes, logService } from "@/services/log.service";
 import { projectTrackingService } from "../project_tracking/project_tracking.service";
 import { userProductSpecificationRepository } from "../user_product_specification/user_product_specification.repository";
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import moment from "moment";
 
 class ProjectProductService {
@@ -194,7 +194,7 @@ class ProjectProductService {
     };
     const specificationVersion = {
       ...newSpecification,
-      version_id: randomUUID(),
+      version_id: uuid(),
       created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
       created_by: user.id,
     };
@@ -337,7 +337,7 @@ class ProjectProductService {
         room_order,
         brand_order
       );
-    
+
     const projectZones = await projectZoneRepository.getListProjectZone(
       project_id
     );
@@ -346,14 +346,19 @@ class ProjectProductService {
     }, []);
 
     const mappedData = consideredProducts.data.filter(
-      (zone: any) => zone.name == 'ENTIRE PROJECT' || zoneNames.includes(zone.name)
+      (zone: any) =>
+        zone.name == "ENTIRE PROJECT" || zoneNames.includes(zone.name)
     );
-    const entireProject = mappedData.find((zone: any)=> zone.name == 'ENTIRE PROJECT');
-    const rest = mappedData.filter((zone: any) => zone.name != 'ENTIRE PROJECT');
-    const newData = [entireProject, ...sortBy(rest,'name')];
+    const entireProject = mappedData.find(
+      (zone: any) => zone.name == "ENTIRE PROJECT"
+    );
+    const rest = mappedData.filter(
+      (zone: any) => zone.name != "ENTIRE PROJECT"
+    );
+    const newData = [entireProject, ...sortBy(rest, "name")];
 
     return successResponse({
-      data: {...consideredProducts, data: zone_order? mappedData : newData},
+      data: { ...consideredProducts, data: zone_order ? mappedData : newData },
     });
   };
 
@@ -514,7 +519,7 @@ class ProjectProductService {
 
     const specificationVersion = {
       ...payload.specification,
-      version_id: randomUUID(),
+      version_id: uuid(),
       created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
       created_by: user.id,
     };
