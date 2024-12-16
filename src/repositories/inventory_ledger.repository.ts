@@ -1,9 +1,7 @@
 import { MultipleInventoryLedgerRequest } from "@/api/inventory_ledger/inventory_ledger.type";
-import { getTimestamps } from "@/Database/Utils/Time";
 import InventoryLedgerModel from "@/models/inventory_ledger.model";
 import BaseRepository from "@/repositories/base.repository";
 import { InventoryLedgerEntity, WarehouseStatus, WarehouseType } from "@/types";
-import { randomUUID } from "crypto";
 import { head } from "lodash";
 
 class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
@@ -79,7 +77,7 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
         status: ${WarehouseStatus.ACTIVE},
         type: inventory.type,
         created_at: inventory.created_at,
-        updated_at: inventory.updated_at",
+        updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventory_ledgers
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

@@ -37,7 +37,7 @@ import {
   WarehouseUpdate,
   WarehouseUpdateBackOrder,
 } from "./warehouse.type";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import { getTimestamps } from "@/Database/Utils/Time";
 
 class WarehouseService {
@@ -1000,7 +1000,7 @@ class WarehouseService {
     const warehouseCreated = await warehouseRepository.createMultiple(
       payload.map((item) => ({
         ...item,
-        id: randomUUID(),
+        id: uuid(),
         created_at: getTimestamps(),
         updated_at: getTimestamps(),
       }))

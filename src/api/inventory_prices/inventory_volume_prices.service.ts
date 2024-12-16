@@ -12,7 +12,7 @@ import {
   InventoryVolumePrice,
   MultipleInventoryVolumePricePriceRequest,
 } from "./inventory_volume_price.type";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryVolumePriceService {
@@ -68,7 +68,7 @@ class InventoryVolumePriceService {
       await inventoryVolumePriceRepository.createMultiple(
         payload.map((item) => ({
           ...item,
-          id: randomUUID(),
+          id: uuid(),
           created_at: getTimestamps(),
           updated_at: getTimestamps(),
         }))

@@ -5,7 +5,7 @@ import {
   successMessageResponse,
 } from "@/helpers/response.helper";
 import { MESSAGES } from "@/constants";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import { now } from "moment";
 import { getTimestamps } from "@/Database/Utils/Time";
 
@@ -32,7 +32,7 @@ class InventoryLedgerService {
       await inventoryLedgerRepository.createMultiple(
         payload.map((item) => ({
           ...item,
-          id: randomUUID(),
+          id: uuid(),
           created_at: getTimestamps(),
           updated_at: getTimestamps(),
         }))

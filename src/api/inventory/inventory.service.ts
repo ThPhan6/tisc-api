@@ -35,7 +35,7 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import {
   forEach,
   isEmpty,
@@ -908,7 +908,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.INVENTORY.SKU_EXISTED);
     }
 
-    const inventoryId = randomUUID();
+    const inventoryId = uuid();
 
     /// upload image
     let image:
@@ -1319,7 +1319,7 @@ class InventoryService {
     };
 
     if ("unit_price" in inventory) {
-      const basePriceId = randomUUID();
+      const basePriceId = uuid();
       newExistedInventory.inventory_base_price_id = basePriceId;
       newExistedInventory.currency = currency;
 
@@ -1380,8 +1380,8 @@ class InventoryService {
     }
   ) {
     const { currency, locations, user } = params;
-    const inventoryId = randomUUID();
-    const basePriceId = randomUUID();
+    const inventoryId = uuid();
+    const basePriceId = uuid();
 
     const newInventory: MappingInventory = {
       ...inventory,
@@ -1402,11 +1402,11 @@ class InventoryService {
     const allActions: MultipleInventoryActionRequest[] = [];
 
     warehouses.forEach((ws) => {
-      const warehouseId = randomUUID();
-      const warehouseInStockId = randomUUID();
-      const warehouseBackOrderId = randomUUID();
-      const warehouseOnOrderId = randomUUID();
-      const warehouseDoneId = randomUUID();
+      const warehouseId = uuid();
+      const warehouseInStockId = uuid();
+      const warehouseBackOrderId = uuid();
+      const warehouseOnOrderId = uuid();
+      const warehouseDoneId = uuid();
 
       allWarehouses.push({
         id: warehouseId,
