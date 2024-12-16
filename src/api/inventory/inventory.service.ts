@@ -1551,7 +1551,7 @@ class InventoryService {
     );
   }
 
-  private updateMultipleInventories(inventories: MappingInventory[]) {
+  private async updateMultipleInventories(inventories: MappingInventory[]) {
     const existedInventories = inventories.map((inven) =>
       pick(inven, ["sku", "on_order", "image", "back_order", "description"])
     ) as Omit<MultipleInventoryRequest, "id">[];
@@ -1612,16 +1612,16 @@ class InventoryService {
         (el) => el?.warehouse_id && el?.inventory_id
       ) as MultipleInventoryActionRequest[];
 
-    this.updateMultiple(existedInventories);
-    inventoryBasePriceService.createMultiple(basePrices);
-    inventoryVolumePriceService.createMultiple(volumePrices);
-    inventoryLedgerService.updateMultiple(inventoryLedgers);
-    inventoryActionService.createMultiple(inventoryActions);
+    await this.updateMultiple(existedInventories);
+    await inventoryBasePriceService.createMultiple(basePrices);
+    await inventoryVolumePriceService.createMultiple(volumePrices);
+    await inventoryLedgerService.updateMultiple(inventoryLedgers);
+    await inventoryActionService.createMultiple(inventoryActions);
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  private createMultipleInventories(inventories: MappingInventory[]) {
+  private async createMultipleInventories(inventories: MappingInventory[]) {
     const newInventories = inventories.map((inven) =>
       pick(inven, [
         "id",
@@ -1661,11 +1661,11 @@ class InventoryService {
       .map((inven) => inven.inventory_actions)
       .flat() as MultipleInventoryActionRequest[];
 
-    this.createMultiple(newInventories);
-    inventoryBasePriceService.createMultiple(basePrices);
-    warehouseService.createMultiple(warehouses);
-    inventoryLedgerService.createMultiple(inventoryLedgers);
-    inventoryActionService.createMultiple(inventoryActions);
+    await this.createMultiple(newInventories);
+    await inventoryBasePriceService.createMultiple(basePrices);
+    await warehouseService.createMultiple(warehouses);
+    await inventoryLedgerService.createMultiple(inventoryLedgers);
+    await inventoryActionService.createMultiple(inventoryActions);
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
@@ -1743,8 +1743,9 @@ class InventoryService {
         );
       }
 
-      const updatedInventories =
-        this.updateMultipleInventories(existedInventories);
+      const updatedInventories = await this.updateMultipleInventories(
+        existedInventories
+      );
 
       if (updatedInventories.statusCode !== 200) {
         return errorMessageResponse(updatedInventories.message);
@@ -1761,7 +1762,9 @@ class InventoryService {
         return errorMessageResponse(MESSAGES.INVENTORY.INVALID_DATA_INSERT);
       }
 
-      const createdInventories = this.createMultipleInventories(newInventories);
+      const createdInventories = await this.createMultipleInventories(
+        newInventories
+      );
 
       if (createdInventories.statusCode !== 200) {
         return errorMessageResponse(createdInventories.message);
