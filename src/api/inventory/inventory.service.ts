@@ -1,4 +1,4 @@
-import { MESSAGES } from "@/constants";
+import { COMMON_TYPES, MESSAGES } from "@/constants";
 import { getTimestamps } from "@/Database/Utils/Time";
 import {
   jsonToCSV,
@@ -16,12 +16,15 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import { exchangeCurrencyRepository } from "@/repositories/exchange_currency.repository";
 import { exchangeHistoryRepository } from "@/repositories/exchange_history.repository";
 import { inventoryRepository } from "@/repositories/inventory.repository";
+import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
+import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
   validateImageType,
 } from "@/services/image.service";
 import {
+  CommonTypeAttributes,
   CompanyFunctionalGroup,
   IExchangeCurrency,
   InventoryEntity,
@@ -32,7 +35,7 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import {
   forEach,
   isEmpty,
@@ -41,6 +44,7 @@ import {
   lastIndexOf,
   map,
   omit,
+  orderBy,
   partition,
   pick,
   reduce,
@@ -50,13 +54,12 @@ import {
 } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
+import { inventoryActionService } from "../inventory_action/inventory_action.service";
 import { MultipleInventoryActionRequest } from "../inventory_action/inventory_action.type";
+import { inventoryLedgerService } from "../inventory_ledger/inventory_ledger.service";
 import { MultipleInventoryLedgerRequest } from "../inventory_ledger/inventory_ledger.type";
 import { inventoryBasePriceService } from "../inventory_prices/inventory_base_prices.service";
-import {
-  InventoryBasePrice,
-  MultipleInventoryBasePriceRequest,
-} from "../inventory_prices/inventory_prices.type";
+import { MultipleInventoryBasePriceRequest } from "../inventory_prices/inventory_prices.type";
 import {
   InventoryVolumePrice,
   MultipleInventoryVolumePricePriceRequest,
@@ -81,13 +84,10 @@ import {
   InventoryListRequest,
   InventoryListResponse,
   InventoryWarehouse,
+  LatestPrice,
   MappingInventory,
   MultipleInventoryRequest,
 } from "./inventory.type";
-import { inventoryLedgerService } from "../inventory_ledger/inventory_ledger.service";
-import { inventoryActionService } from "../inventory_action/inventory_action.service";
-import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
-import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
 import { warehouseRepository } from "@/repositories/warehouse.repository";
 
 class InventoryService {
@@ -353,145 +353,134 @@ class InventoryService {
     return newErrors;
   }
 
-  private async findWarehouseByLocationIndex(
-    user: UserAttributes,
+  private findWarehouseByLocationIndex(
     locations: LocationWithTeamCountAndFunctionType[],
-    warehouses?: Omit<InventoryWarehouse, "location_id">[],
-    inventoryId?: string
+    existedWarehouse?: (WarehouseEntity & { in_stock: number })[],
+    warehousePayload?: Omit<InventoryWarehouse, "location_id">[]
   ) {
-    let existedWarehouse:
-      | { data: WarehouseListResponse; statusCode: number }
-      | undefined = undefined;
-
-    if (inventoryId) {
-      existedWarehouse = (await warehouseService.getList(user, inventoryId, {
-        status: WarehouseStatus.ACTIVE,
-        type: WarehouseType.IN_STOCK,
-      })) as {
-        data: WarehouseListResponse;
-        statusCode: number;
-      };
-    }
-
-    const newWarehouses = locations.map((location, locationIdx) => {
-      const warehouse = warehouses?.find((ws) => ws.index === locationIdx);
-      const existedWarehouseLocation = existedWarehouse?.data?.warehouses?.find(
+    return locations.map((location, locationIdx) => {
+      const warehouse = warehousePayload?.find(
+        (ws) => ws.index === locationIdx
+      );
+      const existedWarehouseLocation = existedWarehouse?.find(
         (_ws, wsIdx) => wsIdx === warehouse?.index
       );
-
-      if (warehouse) {
-        return {
-          ...omit(existedWarehouseLocation, ["in_stock"]),
-          name: location.business_name,
-          location_id: location.id,
-          quantity: warehouse.quantity,
-        };
-      }
 
       return {
         ...omit(existedWarehouseLocation, ["in_stock"]),
         name: location.business_name,
         location_id: location.id,
-        quantity: existedWarehouseLocation?.in_stock ?? 0,
+        quantity:
+          warehouse?.quantity ?? existedWarehouseLocation?.in_stock ?? 0,
       };
     });
-
-    return newWarehouses;
   }
 
-  private async validateImportPayload(
+  private validateImportPayload(
     existedInventories: InventoryEntity[],
+    commonTypeAttributes: CommonTypeAttributes[],
     inventories: InventoryCreate[]
   ) {
     let errors: InventoryErrorList[] = [];
+    const commonTypeIds = commonTypeAttributes.map((el) => el.id);
 
-    await Promise.all(
-      inventories.map(async (inventory) => {
-        const existedInventory = existedInventories.find(
-          (inven) => inven.sku.toLowerCase() === inventory.sku.toLowerCase()
+    inventories.forEach((inventory) => {
+      const existedInventory = existedInventories.find(
+        (inven) => inven.sku.toLowerCase() === inventory.sku.toLowerCase()
+      );
+
+      if (
+        existedInventory &&
+        inventory.inventory_category_id !==
+          existedInventory.inventory_category_id
+      ) {
+        errors = this.pushErrorMessages(
+          errors,
+          inventory,
+          MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY
         );
+      }
 
-        if (
-          existedInventory &&
-          inventory.inventory_category_id !==
-            existedInventory.inventory_category_id
-        ) {
+      if ("unit_price" in inventory) {
+        if (!inventory.unit_price) {
           errors = this.pushErrorMessages(
             errors,
             inventory,
-            MESSAGES.INVENTORY.BELONG_TO_ANOTHER_CATEGORY
+            MESSAGES.INVENTORY.UNIT_PRICE_LESS_THAN_ZERO
           );
         }
+      }
 
-        if ("unit_price" in inventory) {
-          if (!inventory.unit_price) {
-            errors = this.pushErrorMessages(
-              errors,
-              inventory,
-              MESSAGES.INVENTORY.UNIT_PRICE_LESS_THAN_ZERO
-            );
-          }
+      if ("unit_type" in inventory) {
+        const unitType = commonTypeIds.includes(inventory.unit_type);
+
+        if (!unitType) {
+          errors = this.pushErrorMessages(
+            errors,
+            inventory,
+            MESSAGES.UNIT_TYPE_NOT_FOUND
+          );
         }
+      }
 
-        if ("unit_type" in inventory) {
-          const unitType = await commonTypeRepository.find(inventory.unit_type);
-
-          if (!unitType) {
-            errors = this.pushErrorMessages(
-              errors,
-              inventory,
-              MESSAGES.UNIT_TYPE_NOT_FOUND
-            );
-          }
+      if ("warehouses" in inventory) {
+        if (inventory.warehouses?.some((el) => el.quantity < 0)) {
+          errors = this.pushErrorMessages(
+            errors,
+            inventory,
+            MESSAGES.WAREHOUSE.LESS_THAN_ZERO
+          );
         }
-      })
-    );
+      }
+    });
 
     return errors;
   }
 
-  private async validateImportPayloadInsert(inventories: InventoryCreate[]) {
+  private validateImportPayloadInsert(
+    commonTypeAttributes: CommonTypeAttributes[],
+    inventories: InventoryCreate[]
+  ) {
     let errors: InventoryErrorList[] = [];
+    const commonTypeIds = commonTypeAttributes.map((el) => el.id);
 
-    await Promise.all(
-      inventories.map(async (inventory) => {
-        if (!inventory?.unit_price) {
+    inventories.map(async (inventory) => {
+      if (!inventory?.unit_price) {
+        errors = this.pushErrorMessages(
+          errors,
+          inventory,
+          MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+        );
+      }
+
+      if (!inventory?.unit_type) {
+        errors = this.pushErrorMessages(
+          errors,
+          inventory,
+          MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+        );
+      } else {
+        const unitType = commonTypeIds.includes(inventory.unit_type);
+
+        if (!unitType) {
           errors = this.pushErrorMessages(
             errors,
             inventory,
-            MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+            MESSAGES.UNIT_TYPE_NOT_FOUND
           );
         }
+      }
 
-        if (!inventory?.unit_type) {
+      if ("warehouses" in inventory) {
+        if (inventory.warehouses?.some((el) => el.quantity < 0)) {
           errors = this.pushErrorMessages(
             errors,
             inventory,
-            MESSAGES.INVENTORY.UNIT_PRICE_REQUIRED
+            MESSAGES.WAREHOUSE.LESS_THAN_ZERO
           );
-        } else {
-          const unitType = await commonTypeRepository.find(inventory.unit_type);
-
-          if (!unitType) {
-            errors = this.pushErrorMessages(
-              errors,
-              inventory,
-              MESSAGES.UNIT_TYPE_NOT_FOUND
-            );
-          }
         }
-
-        if ("warehouses" in inventory) {
-          if (inventory.warehouses?.some((el) => el.quantity < 0)) {
-            errors = this.pushErrorMessages(
-              errors,
-              inventory,
-              MESSAGES.WAREHOUSE.LESS_THAN_ZERO
-            );
-          }
-        }
-      })
-    );
+      }
+    });
 
     return errors;
   }
@@ -617,7 +606,6 @@ class InventoryService {
     }
 
     const payloadWarehouseLocationIds = warehouses.map((el) => el.location_id);
-
     const instockWarehouseActive = (await warehouseService.getList(
       user,
       inventoryId,
@@ -648,27 +636,26 @@ class InventoryService {
     const res = [];
 
     if (warehouseDeleted.length) {
-      const warehouses = await Promise.all(
+      const deletedWarehouses = await Promise.all(
         warehouseDeleted.map(
           async (ws) => await warehouseService.delete(user, ws.location_id)
         )
       );
 
-      res.push(...warehouses);
+      res.push(...deletedWarehouses);
     }
-
     /// create new warehouse and update warehouse existed
     const warehouseUpdated = await Promise.all(
       warehouses.map(async (ws) => {
-        return await warehouseService.create(user, {
+        const temp = await warehouseService.create(user, {
           inventory_id: inventoryId,
           location_id: ws.location_id,
           quantity: ws.quantity,
           convert: ws.convert,
         });
+        return temp;
       })
     );
-
     res.push(...warehouseUpdated);
 
     const messageError = res
@@ -831,10 +818,10 @@ class InventoryService {
       );
       const ledgerQuantity = sumBy(ledgers, "quantity");
 
-      const basePrice = sortBy(
+      const basePrice = orderBy(
         inventoryBasePrices.filter((item: any) => item.inventory_id === cur.id),
-        "created_at",
-        "DESC"
+        ["created_at"],
+        ["desc"]
       )[0];
       let tempRate = 1;
       exchangeHistories.forEach((item: any) => {
@@ -922,7 +909,7 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.INVENTORY.SKU_EXISTED);
     }
 
-    const inventoryId = randomUUID();
+    const inventoryId = uuid();
 
     /// upload image
     let image:
@@ -1169,13 +1156,11 @@ class InventoryService {
           quantity: payload?.warehouses?.[index].quantity ?? 0,
         });
       });
-
       const warehouseUpdated = await this.modifyWarehouses(
         user,
         id,
         newWarehouses
       );
-
       if (warehouseUpdated?.statusCode !== 200) {
         return errorMessageResponse(warehouseUpdated.message);
       }
@@ -1273,7 +1258,9 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.INVENTORY_NOT_FOUND);
     }
 
-    const unitTypes = await commonTypeRepository.getAll();
+    const unitTypes = await commonTypeRepository.getAllBy({
+      type: COMMON_TYPES.INVENTORY_UNIT,
+    });
 
     const data = this.convertInventoryArrayToCsv(
       payload.types,
@@ -1306,16 +1293,25 @@ class InventoryService {
     }) as ExportResponse;
   }
 
-  private async mappingUpdatedInventories(
+  private mappingUpdatedInventories(
     inventory: InventoryCreate,
     params: {
       currency: string;
       locations: LocationWithTeamCountAndFunctionType[];
+      warehouses: (WarehouseEntity & { in_stock: number })[];
       user: UserAttributes;
       existedInventoryId: string;
+      latestPrice?: LatestPrice;
     }
   ) {
-    const { currency, locations, user, existedInventoryId } = params;
+    const {
+      currency,
+      locations,
+      user,
+      existedInventoryId,
+      warehouses,
+      latestPrice,
+    } = params;
 
     const newExistedInventory: MappingInventory = {
       ...inventory,
@@ -1324,13 +1320,9 @@ class InventoryService {
     };
 
     if ("unit_price" in inventory) {
-      const basePriceId = randomUUID();
+      const basePriceId = uuid();
       newExistedInventory.inventory_base_price_id = basePriceId;
       newExistedInventory.currency = currency;
-
-      const latestPrice = await inventoryRepository.getLatestPrice(
-        existedInventoryId
-      );
 
       newExistedInventory.volume_prices = !latestPrice?.volume_prices?.length
         ? undefined
@@ -1342,11 +1334,10 @@ class InventoryService {
     }
 
     if ("warehouses" in inventory) {
-      newExistedInventory.warehouses = await this.findWarehouseByLocationIndex(
-        user,
+      newExistedInventory.warehouses = this.findWarehouseByLocationIndex(
         locations,
-        inventory.warehouses,
-        existedInventoryId
+        warehouses,
+        inventory.warehouses
       );
 
       newExistedInventory.inventory_ledgers =
@@ -1381,7 +1372,7 @@ class InventoryService {
     return newExistedInventory;
   }
 
-  private async mappingCreatedInventories(
+  private mappingCreatedInventories(
     inventory: InventoryCreate,
     params: {
       currency: string;
@@ -1390,8 +1381,8 @@ class InventoryService {
     }
   ) {
     const { currency, locations, user } = params;
-    const inventoryId = randomUUID();
-    const basePriceId = randomUUID();
+    const inventoryId = uuid();
+    const basePriceId = uuid();
 
     const newInventory: MappingInventory = {
       ...inventory,
@@ -1401,9 +1392,9 @@ class InventoryService {
       inventory_base_price_id: basePriceId,
     };
 
-    const warehouses = await this.findWarehouseByLocationIndex(
-      user,
+    const warehouses = this.findWarehouseByLocationIndex(
       locations,
+      [],
       inventory.warehouses
     );
 
@@ -1412,11 +1403,11 @@ class InventoryService {
     const allActions: MultipleInventoryActionRequest[] = [];
 
     warehouses.forEach((ws) => {
-      const warehouseId = randomUUID();
-      const warehouseInStockId = randomUUID();
-      const warehouseBackOrderId = randomUUID();
-      const warehouseOnOrderId = randomUUID();
-      const warehouseDoneId = randomUUID();
+      const warehouseId = uuid();
+      const warehouseInStockId = uuid();
+      const warehouseBackOrderId = uuid();
+      const warehouseOnOrderId = uuid();
+      const warehouseDoneId = uuid();
 
       allWarehouses.push({
         id: warehouseId,
@@ -1487,27 +1478,71 @@ class InventoryService {
       functional_type: CompanyFunctionalGroup.LOGISTIC,
     });
 
-    const importedInventories: MappingInventory[] = await Promise.all(
-      inventories.map(async (inventory) => {
+    const existedWarehouses = await warehouseRepository.getWarehouseByBrand(
+      user.relation_id
+    );
+
+    const skus = inventories.map((inven) => inven.sku.toLowerCase());
+
+    const existedInventories = brandInventories.filter((inven) =>
+      skus.includes(inven.sku.toLowerCase())
+    );
+    const existedInventoriesIds = existedInventories.map((inven) => inven.id);
+
+    const ledgers = await inventoryLedgerRepository.findByInventories(
+      existedInventoriesIds
+    );
+
+    const latestPrices = await inventoryRepository.getLatestPrices(
+      existedInventoriesIds
+    );
+
+    const importedInventories: MappingInventory[] = inventories.map(
+      (inventory) => {
         const existedInventory = brandInventories.find(
           (inven) => inven.sku.toLowerCase() === inventory.sku.toLowerCase()
         );
 
         if (existedInventory) {
-          return await this.mappingUpdatedInventories(inventory, {
+          const inventoryLedgers = ledgers.filter(
+            (el: any) => el.inventory_id === existedInventory.id
+          );
+
+          const inventoryWarehouseIds = inventoryLedgers.map(
+            (el: any) => el.warehouse_id
+          );
+
+          const inventoryWarehouses = sortBy(
+            existedWarehouses.filter((ws) =>
+              inventoryWarehouseIds.includes(ws.id)
+            ),
+            "name"
+          ).map((el) => ({
+            ...el,
+            in_stock:
+              inventoryLedgers.find(
+                (ledger: any) => ledger.warehouse_id === el.id
+              )?.quantity ?? 0,
+          }));
+
+          return this.mappingUpdatedInventories(inventory, {
             currency,
             locations: locations.data.locations,
+            warehouses: inventoryWarehouses,
             user,
             existedInventoryId: existedInventory.id,
+            latestPrice: latestPrices.find(
+              (el) => el.inventory_id === existedInventory.id
+            ),
           });
         }
 
-        return await this.mappingCreatedInventories(inventory, {
+        return this.mappingCreatedInventories(inventory, {
           currency,
           locations: locations.data.locations,
           user,
         });
-      })
+      }
     );
 
     return partition(
@@ -1516,7 +1551,7 @@ class InventoryService {
     );
   }
 
-  private async updateMultipleInventories(inventories: MappingInventory[]) {
+  private updateMultipleInventories(inventories: MappingInventory[]) {
     const existedInventories = inventories.map((inven) =>
       pick(inven, ["sku", "on_order", "image", "back_order", "description"])
     ) as Omit<MultipleInventoryRequest, "id">[];
@@ -1577,16 +1612,16 @@ class InventoryService {
         (el) => el?.warehouse_id && el?.inventory_id
       ) as MultipleInventoryActionRequest[];
 
-    await this.updateMultiple(existedInventories);
-    await inventoryBasePriceService.createMultiple(basePrices);
-    await inventoryVolumePriceService.createMultiple(volumePrices);
-    await inventoryLedgerService.updateMultiple(inventoryLedgers);
-    await inventoryActionService.createMultiple(inventoryActions);
+    this.updateMultiple(existedInventories);
+    inventoryBasePriceService.createMultiple(basePrices);
+    inventoryVolumePriceService.createMultiple(volumePrices);
+    inventoryLedgerService.updateMultiple(inventoryLedgers);
+    inventoryActionService.createMultiple(inventoryActions);
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
 
-  private async createMultipleInventories(inventories: MappingInventory[]) {
+  private createMultipleInventories(inventories: MappingInventory[]) {
     const newInventories = inventories.map((inven) =>
       pick(inven, [
         "id",
@@ -1626,11 +1661,11 @@ class InventoryService {
       .map((inven) => inven.inventory_actions)
       .flat() as MultipleInventoryActionRequest[];
 
-    await this.createMultiple(newInventories);
-    await inventoryBasePriceService.createMultiple(basePrices);
-    await warehouseService.createMultiple(warehouses);
-    await inventoryLedgerService.createMultiple(inventoryLedgers);
-    await inventoryActionService.createMultiple(inventoryActions);
+    this.createMultiple(newInventories);
+    inventoryBasePriceService.createMultiple(basePrices);
+    warehouseService.createMultiple(warehouses);
+    inventoryLedgerService.createMultiple(inventoryLedgers);
+    inventoryActionService.createMultiple(inventoryActions);
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
@@ -1638,7 +1673,12 @@ class InventoryService {
   public async updateMultiple(payload: Omit<MultipleInventoryRequest, "id">[]) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    const inventoryUpdated = await inventoryRepository.updateMultiple(payload);
+    const inventoryUpdated = await inventoryRepository.updateMultiple(
+      payload.map((item) => ({
+        ...item,
+        updated_at: getTimestamps(),
+      }))
+    );
     return inventoryUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
@@ -1647,7 +1687,13 @@ class InventoryService {
   public async createMultiple(payload: MultipleInventoryRequest[]) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    const inventoryCreated = await inventoryRepository.createMultiple(payload);
+    const inventoryCreated = await inventoryRepository.createMultiple(
+      payload.map((item) => ({
+        ...item,
+        created_at: getTimestamps(),
+        updated_at: getTimestamps(),
+      }))
+    );
     return inventoryCreated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
@@ -1667,21 +1713,14 @@ class InventoryService {
     if (!baseCurrency) {
       return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
     }
+
     const brandInventories = await inventoryRepository.getAllInventoryByBrand(
       existedBrand.id
     );
 
-    const errors: InventoryErrorList[] = await this.validateImportPayload(
-      brandInventories,
-      payload
-    );
-
-    if (errors.length) {
-      return errorMessageResponse(
-        errors.map((el) => `${el.sku}: ${el.errors.join(" - ")}`).join(", "),
-        400
-      );
-    }
+    const unitTypes = await commonTypeRepository.getAllBy({
+      type: COMMON_TYPES.INVENTORY_UNIT,
+    });
 
     const [existedInventories, newInventories] = await this.mappingInventories(
       user,
@@ -1691,9 +1730,21 @@ class InventoryService {
     );
 
     if (existedInventories.length) {
-      const updatedInventories = await this.updateMultipleInventories(
-        existedInventories
+      const errors: InventoryErrorList[] = this.validateImportPayload(
+        brandInventories,
+        unitTypes,
+        payload
       );
+
+      if (errors.length) {
+        return errorMessageResponse(
+          errors.map((el) => `${el.sku}: ${el.errors.join(" - ")}`).join(", "),
+          400
+        );
+      }
+
+      const updatedInventories =
+        this.updateMultipleInventories(existedInventories);
 
       if (updatedInventories.statusCode !== 200) {
         return errorMessageResponse(updatedInventories.message);
@@ -1701,7 +1752,8 @@ class InventoryService {
     }
 
     if (newInventories.length) {
-      const newInventoryErrors = await this.validateImportPayloadInsert(
+      const newInventoryErrors = this.validateImportPayloadInsert(
+        unitTypes,
         newInventories
       );
 
@@ -1709,9 +1761,7 @@ class InventoryService {
         return errorMessageResponse(MESSAGES.INVENTORY.INVALID_DATA_INSERT);
       }
 
-      const createdInventories = await this.createMultipleInventories(
-        newInventories
-      );
+      const createdInventories = this.createMultipleInventories(newInventories);
 
       if (createdInventories.statusCode !== 200) {
         return errorMessageResponse(createdInventories.message);

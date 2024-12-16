@@ -1,10 +1,7 @@
+import { MultipleInventoryBasePriceRequest } from "@/api/inventory_prices/inventory_prices.type";
+import InventoryBasePriceModel from "@/models/inventory_base_prices.model";
 import { InventoryBasePriceEntity } from "@/types/inventory_base_prices.type";
 import BaseRepository from "./base.repository";
-import InventoryBasePriceModel from "@/models/inventory_base_prices.model";
-import { head, random } from "lodash";
-import { MultipleInventoryBasePriceRequest } from "@/api/inventory_prices/inventory_prices.type";
-import { getTimestamps } from "@/Database/Utils/Time";
-import { randomUUID } from "crypto";
 
 class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEntity> {
   protected model: InventoryBasePriceModel;
@@ -42,13 +39,13 @@ class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEnti
         RETURN oldInven
       )
       INSERT {
-        id: inventory.id OR "${randomUUID()}",
+        id: inventory.id,
         inventory_id: inventory.inventory_id,
         unit_price: TO_NUMBER(inventory.unit_price) OR oldInventory.unit_price,
         unit_type: inventory.unit_type OR oldInventory.unit_type,
         currency: inventory.currency OR oldInventory.currency,
-        created_at: "${getTimestamps()}",
-        updated_at: "${getTimestamps()}",
+        created_at: inventory.created_at,
+        updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventory_base_prices
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
