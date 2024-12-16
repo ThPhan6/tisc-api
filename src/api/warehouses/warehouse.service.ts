@@ -505,13 +505,11 @@ class WarehouseService {
   public async getList(
     user: UserAttributes,
     inventoryId: string,
-    params?: {
+    _params?: {
       status?: WarehouseStatus;
       type?: WarehouseType;
     }
   ) {
-    const { status, type = WarehouseType.IN_STOCK } = params ?? {};
-
     const existedInventory = await inventoryRepository.find(inventoryId);
 
     if (!existedInventory) {
@@ -534,13 +532,11 @@ class WarehouseService {
 
     const inventoryLedgers = await inventoryLedgerRepository.getAllBy({
       inventory_id: existedInventory.id,
+      type: WarehouseType.IN_STOCK,
     });
 
-    const inventoryWarehouses = await warehouseRepository.getWarehouseByBrand(
-      brand.id,
-      inventoryLedgers.map((item) => item.warehouse_id),
-      type,
-      status
+    const inventoryWarehouses = await warehouseRepository.getWarehouses(
+      inventoryLedgers.map((item) => item.warehouse_id)
     );
 
     const locations = await locationService.getList(user as UserAttributes, {

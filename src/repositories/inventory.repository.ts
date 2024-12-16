@@ -44,6 +44,32 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       {volume_prices: inventoryVolumePrice}
     )`;
 
+  private latestPriceByInventoryIdsQuery = `
+  FOR inventoryId IN @inventoryIds
+  LET result = FIRST(
+    FOR price IN inventory_base_prices
+    FILTER price.deleted_at == null
+    FILTER price.inventory_id == inventoryId
+    SORT price.created_at DESC
+    LIMIT 1
+
+    LET inventoryVolumePrice = (
+      FOR volumePrice IN inventory_volume_prices
+      FILTER volumePrice.deleted_at == null
+      FILTER volumePrice.inventory_base_price_id == price.id
+      SORT volumePrice.created_at DESC
+      RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
+    )
+
+    RETURN MERGE(
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
+      {volume_prices: inventoryVolumePrice}
+    )
+  )
+
+  RETURN result
+  `;
+
   private readonly totalStockValueQuery = `
     LET activeLedgers = (
     FOR led IN inventory_ledgers
@@ -179,7 +205,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
           ? "FILTER inventory.inventory_category_id == @category_id"
           : ""
       }
-      ${search ? `FILTER LOWER(inventory.sku) LIKE "%${search}%"` : ""}
+      ${search ? `FILTER LOWER(inventory.sku) LIKE LOWER("%${search}%")` : ""}
       ${sort && order ? `SORT inventory.@sort @order` : ""}
       ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
 
@@ -250,6 +276,17 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
       }
     );
     return head(result) as LatestPrice;
+  }
+
+  /// get latest base and volume prices
+  public async getLatestPrices(inventoryIds: string[]): Promise<LatestPrice[]> {
+    const result = await this.model.rawQueryV2(
+      this.latestPriceByInventoryIdsQuery,
+      {
+        inventoryIds,
+      }
+    );
+    return result ?? [];
   }
 
   public async getInventoryBySKU(

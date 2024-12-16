@@ -14,16 +14,20 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
 
   public async getWarehouseByBrand(
     brandId: string,
-    warehouseIds: string[],
     type: WarehouseType = WarehouseType.IN_STOCK,
     status: WarehouseStatus = WarehouseStatus.ACTIVE
   ): Promise<WarehouseEntity[]> {
     return await this.model
       .where("relation_id", "==", brandId)
-      .where("id", "in", warehouseIds)
       .where("type", "==", type)
       .where("status", "==", status)
       .get();
+  }
+
+  public async getWarehouses(
+    warehouseIds: string[]
+  ): Promise<WarehouseEntity[]> {
+    return await this.model.where("id", "in", warehouseIds).get();
   }
 
   public async getAllNonPhysicalWarehousesByParentId(
