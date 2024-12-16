@@ -12,6 +12,8 @@ import {
   InventoryVolumePrice,
   MultipleInventoryVolumePricePriceRequest,
 } from "./inventory_volume_price.type";
+import { v4 as uuid } from "uuid";
+import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryVolumePriceService {
   public async create(
@@ -63,7 +65,14 @@ class InventoryVolumePriceService {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
     const inventoryBasePriceCreated =
-      await inventoryVolumePriceRepository.createMultiple(payload);
+      await inventoryVolumePriceRepository.createMultiple(
+        payload.map((item) => ({
+          ...item,
+          id: uuid(),
+          created_at: getTimestamps(),
+          updated_at: getTimestamps(),
+        }))
+      );
 
     return inventoryBasePriceCreated?.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)

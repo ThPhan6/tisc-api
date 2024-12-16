@@ -3,7 +3,7 @@ import { connection } from "@/Database/Connections/ArangoConnection";
 import { getTimestamps } from "@/Database/Utils/Time";
 import { freeCurrencyService } from "@/services/free_currency.service";
 import Bull from "bull";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import { BaseQueue } from "./base.queue";
 
 class ExchangeCurrencyQueue extends BaseQueue {
@@ -40,7 +40,7 @@ class ExchangeCurrencyQueue extends BaseQueue {
 
         // Save exchange data to collection 'exchange_currencies'
         await collection.save({
-          id: randomUUID(),
+          id: uuid(),
           data: currencyData,
           created_at: getTimestamps(),
           deleted_at: null,
