@@ -1,8 +1,7 @@
 import { MultipleWarehouseRequest } from "@/api/warehouses/warehouse.type";
-import { getTimestamps } from "@/Database/Utils/Time";
 import WarehouseModel from "@/models/warehouse.model";
 import BaseRepository from "@/repositories/base.repository";
-import { WarehouseEntity, WarehouseType } from "@/types";
+import { WarehouseEntity, WarehouseStatus, WarehouseType } from "@/types";
 
 class WarehouseRepository extends BaseRepository<WarehouseEntity> {
   protected model: WarehouseModel;
@@ -10,6 +9,24 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
   constructor() {
     super();
     this.model = new WarehouseModel();
+  }
+
+  public async getWarehouseByBrand(
+    brandId: string,
+    type: WarehouseType = WarehouseType.IN_STOCK,
+    status: WarehouseStatus = WarehouseStatus.ACTIVE
+  ): Promise<WarehouseEntity[]> {
+    return await this.model
+      .where("relation_id", "==", brandId)
+      .where("type", "==", type)
+      .where("status", "==", status)
+      .get();
+  }
+
+  public async getWarehouses(
+    warehouseIds: string[]
+  ): Promise<WarehouseEntity[]> {
+    return await this.model.where("id", "in", warehouseIds).get();
   }
 
   public async getAllNonPhysicalWarehousesByParentId(
@@ -35,7 +52,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
       )
       UPDATE target._key WITH {
         status: HAS(warehouse, 'status') ? warehouse.status :  target.status,
-        updated_at: "${getTimestamps()}",
+        updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
@@ -59,8 +76,8 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         parent_id: warehouse.parent_id,
         location_id: warehouse.location_id,
         relation_id: warehouse.relation_id,
-        created_at: "${getTimestamps()}",
-        updated_at: "${getTimestamps()}",
+        created_at: warehouse.created_at,
+        updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

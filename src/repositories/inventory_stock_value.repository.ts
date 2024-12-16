@@ -1,7 +1,7 @@
 import InventoryStockValueModel from "@/models/inventory_stock_value.model";
 import { IInventoryStockValueAttributes } from "@/types";
-import BaseRepository from "./base.repository";
 import { head } from "lodash";
+import BaseRepository from "./base.repository";
 
 class InventoryStockValueRepository extends BaseRepository<IInventoryStockValueAttributes> {
   protected model: InventoryStockValueModel;
@@ -51,7 +51,7 @@ class InventoryStockValueRepository extends BaseRepository<IInventoryStockValueA
           value: stockValue.value * @newRate / inventoryStockValue.rate
         }
       )
-      
+
       FOR isv IN inventory_stock_values
       FILTER isv.brand_id == @brandId
       UPDATE isv WITH { currency: @currency, rate: @newRate, stock_values: stockValues } IN inventory_stock_values

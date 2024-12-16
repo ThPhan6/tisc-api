@@ -1,5 +1,4 @@
 import { MultipleInventoryActionRequest } from "@/api/inventory_action/inventory_action.type";
-import { getTimestamps } from "@/Database/Utils/Time";
 import { getInventoryActionDescription } from "@/helpers/common.helper";
 import InventoryActionModel from "@/models/inventory_action.model";
 import BaseRepository from "@/repositories/base.repository";
@@ -10,7 +9,6 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { randomUUID } from "crypto";
 
 class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
   protected model: InventoryActionModel;
@@ -47,7 +45,7 @@ class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
         RETURN led
       )
       INSERT {
-        id: "${randomUUID()}",
+        id: inventory.id,
         inventory_id: inventory.inventory_id,
         warehouse_id: inventory.warehouse_id,
         quantity: TO_NUMBER(inventory.quantity) - TO_NUMBER(ledger.quantity),
@@ -58,8 +56,8 @@ class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
           InventoryActionDescription.ADJUST
         )}",
         created_by: inventory.created_by,
-        created_at: "${getTimestamps()}",
-        updated_at: "${getTimestamps()}",
+        created_at: inventory.created_at,
+        updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventory_actions
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
