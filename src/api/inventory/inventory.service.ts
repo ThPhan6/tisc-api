@@ -44,6 +44,7 @@ import {
   lastIndexOf,
   map,
   omit,
+  orderBy,
   partition,
   pick,
   reduce,
@@ -817,10 +818,10 @@ class InventoryService {
       );
       const ledgerQuantity = sumBy(ledgers, "quantity");
 
-      const basePrice = sortBy(
+      const basePrice = orderBy(
         inventoryBasePrices.filter((item: any) => item.inventory_id === cur.id),
-        "created_at",
-        "DESC"
+        ["created_at"],
+        ["desc"]
       )[0];
       let tempRate = 1;
       exchangeHistories.forEach((item: any) => {
