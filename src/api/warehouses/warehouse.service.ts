@@ -37,6 +37,8 @@ import {
   WarehouseUpdate,
   WarehouseUpdateBackOrder,
 } from "./warehouse.type";
+import { randomUUID } from "crypto";
+import { getTimestamps } from "@/Database/Utils/Time";
 
 class WarehouseService {
   public nonPhysicalWarehouseTypes = [
@@ -982,7 +984,12 @@ class WarehouseService {
   public async updateMultiple(payload: Omit<MultipleWarehouseRequest, "id">[]) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    const warehouseUpdated = await warehouseRepository.updateMultiple(payload);
+    const warehouseUpdated = await warehouseRepository.updateMultiple(
+      payload.map((item) => ({
+        ...item,
+        updated_at: getTimestamps(),
+      }))
+    );
 
     return warehouseUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
@@ -990,7 +997,14 @@ class WarehouseService {
   }
 
   public async createMultiple(payload: MultipleWarehouseRequest[]) {
-    const warehouseCreated = await warehouseRepository.createMultiple(payload);
+    const warehouseCreated = await warehouseRepository.createMultiple(
+      payload.map((item) => ({
+        ...item,
+        id: randomUUID(),
+        created_at: getTimestamps(),
+        updated_at: getTimestamps(),
+      }))
+    );
 
     return warehouseCreated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)

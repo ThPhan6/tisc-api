@@ -53,7 +53,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
       )
       UPDATE target._key WITH {
         status: HAS(warehouse, 'status') ? warehouse.status :  target.status,
-        updated_at: "${getTimestamps()}",
+        updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
@@ -77,8 +77,8 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         parent_id: warehouse.parent_id,
         location_id: warehouse.location_id,
         relation_id: warehouse.relation_id,
-        created_at: "${getTimestamps()}",
-        updated_at: "${getTimestamps()}",
+        created_at: warehouse.created_at,
+        updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

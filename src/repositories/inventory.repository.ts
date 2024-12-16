@@ -356,7 +356,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         back_order: HAS(inventory, 'back_order') ? inventory.back_order : target.back_order,
         image: HAS(inventory, 'image') ? inventory.image : target.image,
         on_order: HAS(inventory, 'on_order') ? inventory.on_order : target.on_order,
-        updated_at: "${getTimestamps()}",
+        updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventories
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
@@ -380,8 +380,8 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         back_order: inventory.back_order OR 0,
         on_order: inventory.on_order OR 0,
         inventory_category_id: inventory.inventory_category_id,
-        created_at: "${getTimestamps()}",
-        updated_at: "${getTimestamps()}",
+        created_at: inventory.created_at,
+        updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventories
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

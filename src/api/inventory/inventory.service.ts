@@ -1524,13 +1524,6 @@ class InventoryService {
               )?.quantity ?? 0,
           }));
 
-          console.log(
-            "warehouses",
-            JSON.stringify(inventoryWarehouses),
-            null,
-            2
-          );
-
           return this.mappingUpdatedInventories(inventory, {
             currency,
             locations: locations.data.locations,
@@ -1679,7 +1672,12 @@ class InventoryService {
   public async updateMultiple(payload: Omit<MultipleInventoryRequest, "id">[]) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    const inventoryUpdated = await inventoryRepository.updateMultiple(payload);
+    const inventoryUpdated = await inventoryRepository.updateMultiple(
+      payload.map((item) => ({
+        ...item,
+        updated_at: getTimestamps(),
+      }))
+    );
     return inventoryUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
@@ -1688,7 +1686,13 @@ class InventoryService {
   public async createMultiple(payload: MultipleInventoryRequest[]) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
-    const inventoryCreated = await inventoryRepository.createMultiple(payload);
+    const inventoryCreated = await inventoryRepository.createMultiple(
+      payload.map((item) => ({
+        ...item,
+        created_at: getTimestamps(),
+        updated_at: getTimestamps(),
+      }))
+    );
     return inventoryCreated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);

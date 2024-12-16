@@ -55,7 +55,7 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
       UPDATE target._key WITH {
         quantity: TO_NUMBER(inventory.quantity),
         status: ${WarehouseStatus.ACTIVE},
-        updated_at: "${getTimestamps()}",
+        updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventory_ledgers
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
@@ -72,14 +72,14 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
     const inventoryQuery = `
       FOR inventory IN @inventoryLedgers
       INSERT {
-        id: "${randomUUID()}",
+        id: inventory.id,
         inventory_id: inventory.inventory_id,
         warehouse_id: inventory.warehouse_id,
         quantity: TO_NUMBER(inventory.quantity) + TO_NUMBER(inventory.convert OR 0),
         status: ${WarehouseStatus.ACTIVE},
         type: inventory.type,
-        created_at: "${getTimestamps()}",
-        updated_at: "${getTimestamps()}",
+        created_at: inventory.created_at,
+        updated_at: inventory.updated_at",
         deleted_at: null
       } IN inventory_ledgers
       RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])

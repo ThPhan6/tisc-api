@@ -12,6 +12,8 @@ import {
   InventoryBasePriceRequest,
   MultipleInventoryBasePriceRequest,
 } from "./inventory_prices.type";
+import { randomUUID } from "crypto";
+import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryBasePriceService {
   public async create(payload: Partial<InventoryBasePriceRequest>) {
@@ -104,7 +106,14 @@ class InventoryBasePriceService {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
     const inventoryBasePriceCreated =
-      await inventoryBasePriceRepository.createMultiple(payload);
+      await inventoryBasePriceRepository.createMultiple(
+        payload.map((item) => ({
+          ...item,
+          id: item.id ?? randomUUID(),
+          created_at: getTimestamps(),
+          updated_at: getTimestamps(),
+        }))
+      );
 
     return inventoryBasePriceCreated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)

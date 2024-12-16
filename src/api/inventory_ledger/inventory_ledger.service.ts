@@ -5,6 +5,9 @@ import {
   successMessageResponse,
 } from "@/helpers/response.helper";
 import { MESSAGES } from "@/constants";
+import { randomUUID } from "crypto";
+import { now } from "moment";
+import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryLedgerService {
   public async updateMultiple(
@@ -13,7 +16,9 @@ class InventoryLedgerService {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
     const inventoryLedgerUpdated =
-      await inventoryLedgerRepository.updateMultiple(payload);
+      await inventoryLedgerRepository.updateMultiple(
+        payload.map((el) => ({ ...el, updated_at: getTimestamps() }))
+      );
 
     return inventoryLedgerUpdated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
@@ -21,8 +26,17 @@ class InventoryLedgerService {
   }
 
   public async createMultiple(payload: MultipleInventoryLedgerRequest[]) {
+    if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
+
     const inventoryLedgerCreated =
-      await inventoryLedgerRepository.createMultiple(payload);
+      await inventoryLedgerRepository.createMultiple(
+        payload.map((item) => ({
+          ...item,
+          id: randomUUID(),
+          created_at: getTimestamps(),
+          updated_at: getTimestamps(),
+        }))
+      );
 
     return inventoryLedgerCreated.length === payload.length
       ? successMessageResponse(MESSAGES.SUCCESS)
