@@ -309,7 +309,9 @@ class InventoryService {
               if (headerSelected.includes(key)) {
                 newContent[`#${idx + 1}_${key}`] =
                   key === "discount_price"
-                    ? `${newContent.currency} ${Number(price).toFixed(2)}`
+                    ? `${newContent.currency_symbol} ${Number(price).toFixed(
+                        2
+                      )}`
                     : key === "discount_rate"
                     ? `${price}%`
                     : price;
@@ -335,8 +337,8 @@ class InventoryService {
         );
       });
 
-      newContent.unit_price = `${newContent.currency} ${newContent.unit_price}`;
-      newContent.stock_value = `${newContent.currency} ${newContent.stock_value}`;
+      newContent.unit_price = `${newContent.currency_symbol} ${newContent.unit_price}`;
+      newContent.stock_value = `${newContent.currency_symbol} ${newContent.stock_value}`;
 
       return newContent;
     });
@@ -1276,22 +1278,22 @@ class InventoryService {
       type: COMMON_TYPES.INVENTORY_UNIT,
     });
 
-    // const currencies = uniq(
-    //   inventory.data.inventories
-    //     .map(
-    //       (inven) =>
-    //         orderBy(
-    //           inven?.price?.exchange_histories || [],
-    //           "created_at",
-    //           "desc"
-    //         )[0]?.to_currency ?? inven?.price?.currency
-    //     )
-    //     .filter(Boolean)
-    // );
+    const currencies = uniq(
+      inventory.data.inventories
+        .map(
+          (inven) =>
+            orderBy(
+              inven?.price?.exchange_histories || [],
+              "created_at",
+              "desc"
+            )[0]?.to_currency ?? inven?.price?.currency
+        )
+        .filter(Boolean)
+    );
 
-    // const currencySymbols = await exchangeCurrencyRepository.getBaseCurrencies(
-    //   currencies
-    // );
+    const currencySymbols = await exchangeCurrencyRepository.getBaseCurrencies(
+      currencies
+    );
 
     const data = this.convertInventoryArrayToCsv(
       payload.types,
@@ -1310,8 +1312,8 @@ class InventoryService {
 
         return {
           ...el,
-          // currency_symbol:
-          //   currencySymbols?.find((el) => el.code === currency)?.symbol ?? "",
+          currency_symbol:
+            currencySymbols?.find((el) => el.code === currency)?.symbol ?? "",
           price: {
             ...el.price,
             unit_price: Number(unitPrice.toFixed(2)),
