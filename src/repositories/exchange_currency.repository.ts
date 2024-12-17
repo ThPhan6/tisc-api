@@ -13,21 +13,21 @@ class ExchangeCurrencyRepository extends BaseRepository<ExchangeCurrencyEntity> 
     this.model = new ExchangeCurrencyModel();
   }
 
-  public async getBaseCurrency(
-    currency?: string
-  ): Promise<IExchangeCurrency[] | IExchangeCurrency | null> {
+  public async getBaseCurrencies(
+    currencies?: string[]
+  ): Promise<IExchangeCurrency[]> {
     const data = (await this.model
       .select()
       .order("created_at", "DESC")
-      .first()) as ExchangeCurrencyEntity;
+      .first()) as { data: IExchangeCurrency[] };
 
-    if (currency) {
-      return data.data.find(
-        (el) => el.code.toUpperCase() === currency.toUpperCase()
-      ) as IExchangeCurrency | null;
+    if (currencies?.length) {
+      return data.data.filter((el) =>
+        currencies.find((cur) => el.code.toUpperCase() === cur.toUpperCase())
+      );
     }
 
-    return data.data as IExchangeCurrency[];
+    return data.data ?? [];
   }
 }
 
