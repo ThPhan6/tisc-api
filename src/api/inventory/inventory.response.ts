@@ -88,6 +88,7 @@ export default {
           Joi.object({
             code: Joi.string().required(),
             name: Joi.string().required(),
+            symbol: Joi.any(),
           })
         )
         .required(),

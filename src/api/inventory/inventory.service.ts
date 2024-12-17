@@ -50,6 +50,7 @@ import {
   reduce,
   sortBy,
   sumBy,
+  uniq,
   uniqBy,
 } from "lodash";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
@@ -289,12 +290,6 @@ class InventoryService {
         ...omit(item, ["price", "warehouses"]),
         description: `"${item.description}"`,
         unit_price: item.price.unit_price.toFixed(2),
-        currency:
-          orderBy(
-            item?.price?.exchange_histories || [],
-            "created_at",
-            "desc"
-          )[0]?.to_currency ?? item?.price?.currency,
         unit_type: item.price.unit_type,
         stock_value: item.stock_value.toFixed(2),
       };
@@ -313,7 +308,9 @@ class InventoryService {
               if (headerSelected.includes(key)) {
                 newContent[`#${idx + 1}_${key}`] =
                   key === "discount_price"
-                    ? `${newContent.currency} ${Number(price).toFixed(2)}`
+                    ? `${newContent.currency_symbol} ${Number(price).toFixed(
+                        2
+                      )}`
                     : key === "discount_rate"
                     ? `${price}%`
                     : price;
@@ -339,8 +336,8 @@ class InventoryService {
         );
       });
 
-      newContent.unit_price = `${newContent.currency} ${newContent.unit_price}`;
-      newContent.stock_value = `${newContent.currency} ${newContent.stock_value}`;
+      newContent.unit_price = `${newContent.currency_symbol} ${newContent.unit_price}`;
+      newContent.stock_value = `${newContent.currency_symbol} ${newContent.stock_value}`;
 
       return newContent;
     });
@@ -799,10 +796,9 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.BRAND_NOT_FOUND, 404);
     }
 
-    const baseCurrency =
-      (await exchangeCurrencyRepository.getBaseCurrency()) as IExchangeCurrency[];
+    const baseCurrency = await exchangeCurrencyRepository.getBaseCurrencies();
 
-    if (!baseCurrency) {
+    if (isEmpty(baseCurrency)) {
       return errorMessageResponse(MESSAGES.BASE_CURRENCY_NOT_FOUND, 404);
     }
 
@@ -856,7 +852,7 @@ class InventoryService {
     return successResponse({
       data: {
         currencies: baseCurrency.map((el) => ({
-          ...pick(el, ["code", "name"]),
+          ...pick(el, ["code", "name", "symbol"]),
         })),
         exchange_history: exchangeHistory,
         total_product: totalProduct,
@@ -1281,6 +1277,23 @@ class InventoryService {
       type: COMMON_TYPES.INVENTORY_UNIT,
     });
 
+    const currencies = uniq(
+      inventory.data.inventories
+        .map(
+          (inven) =>
+            orderBy(
+              inven?.price?.exchange_histories || [],
+              "created_at",
+              "desc"
+            )[0]?.to_currency ?? inven?.price?.currency
+        )
+        .filter(Boolean)
+    );
+
+    const currencySymbols = await exchangeCurrencyRepository.getBaseCurrencies(
+      currencies
+    );
+
     const data = this.convertInventoryArrayToCsv(
       payload.types,
       inventory.data.inventories.map((el) => {
@@ -1292,8 +1305,14 @@ class InventoryService {
 
         const unitPrice = Number(el?.price?.unit_price ?? 0) * rate;
 
+        const currency =
+          orderBy(el?.price?.exchange_histories || [], "created_at", "desc")[0]
+            ?.to_currency ?? el?.price?.currency;
+
         return {
           ...el,
+          currency_symbol:
+            currencySymbols?.find((el) => el.code === currency)?.symbol ?? "",
           price: {
             ...el.price,
             unit_price: Number(unitPrice.toFixed(2)),
