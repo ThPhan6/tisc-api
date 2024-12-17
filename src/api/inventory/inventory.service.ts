@@ -268,7 +268,11 @@ class InventoryService {
         .filter(Boolean) as Record<string, string>[];
 
       return this.transferInventory(
-        renameKeys(newEl, [...changedKeys, { sku: "Product ID" }])
+        renameKeys(newEl, [
+          ...changedKeys,
+          { sku: "Product ID" },
+          { unit_price: "Base Price" },
+        ])
       );
     });
 
@@ -283,7 +287,14 @@ class InventoryService {
     const contentFlat = content.map((item) => {
       const newContent: any = {
         ...omit(item, ["price", "warehouses"]),
+        description: `"${item.description}"`,
         unit_price: item.price.unit_price.toFixed(2),
+        currency:
+          orderBy(
+            item?.price?.exchange_histories || [],
+            "created_at",
+            "desc"
+          )[0]?.to_currency ?? item?.price?.currency,
         unit_type: item.price.unit_type,
         stock_value: item.stock_value.toFixed(2),
       };
@@ -300,7 +311,12 @@ class InventoryService {
             ]),
             (price, key: string) => {
               if (headerSelected.includes(key)) {
-                newContent[`#${idx + 1}_${key}`] = price;
+                newContent[`#${idx + 1}_${key}`] =
+                  key === "discount_price"
+                    ? `${newContent.currency} ${Number(price).toFixed(2)}`
+                    : key === "discount_rate"
+                    ? `${price}%`
+                    : price;
               }
             }
           );
@@ -322,6 +338,9 @@ class InventoryService {
           }
         );
       });
+
+      newContent.unit_price = `${newContent.currency} ${newContent.unit_price}`;
+      newContent.stock_value = `${newContent.currency} ${newContent.stock_value}`;
 
       return newContent;
     });
