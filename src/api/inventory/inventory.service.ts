@@ -748,7 +748,7 @@ class InventoryService {
           data: WarehouseListResponse;
         };
 
-        const totalStock = warehouses.data.total_stock;
+        const totalStock = warehouses?.data?.total_stock ?? 0;
         const outStock = (newInventory?.on_order ?? 0) - totalStock;
 
         const stock = {
