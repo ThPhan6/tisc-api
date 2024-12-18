@@ -142,7 +142,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
 
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
-    return head(result) as number || 0;
+    return (head(result) as number) || 0;
   }
 
   public async getTotalStockValue(brandId: string): Promise<number> {
@@ -168,7 +168,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
     console.log(rawQuery);
     const result = await this.model.rawQueryV2(rawQuery, { brandId });
 
-    return head(result) as number || 0;
+    return (head(result) as number) || 0;
   }
 
   public async getExchangeHistoryOfPrice(
@@ -358,7 +358,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventories
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {
@@ -383,7 +383,7 @@ class InventoryRepository extends BaseRepository<InventoryEntity> {
         updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventories
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {

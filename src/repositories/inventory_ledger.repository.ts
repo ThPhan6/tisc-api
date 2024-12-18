@@ -122,6 +122,23 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
       inventoryId,
     }) as any;
   };
+
+  public getInventoryLedgers = async (
+    inventoryIds: string[]
+  ): Promise<InventoryLedgerEntity[]> => {
+    const query = `
+    FOR ledger IN inventory_ledgers
+    FILTER ledger.deleted_at == null
+    FILTER ledger.inventory_id IN @inventoryIds
+    FILTER ledger.type == ${WarehouseType.IN_STOCK}
+    FILTER ledger.status == ${WarehouseStatus.ACTIVE}
+    RETURN ledger
+  `;
+
+    return this.model.rawQueryV2(query, {
+      inventoryIds,
+    });
+  };
 }
 
 export const inventoryLedgerRepository = new InventoryLedgerRepository();

@@ -6,7 +6,6 @@ import {
   InventoryActionDescription,
   InventoryActionEntity,
   InventoryActionType,
-  WarehouseStatus,
   WarehouseType,
 } from "@/types";
 
@@ -19,21 +18,15 @@ class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
   }
 
   public async createMultiple(
+    categoryId: string,
     inventoryActions: Partial<MultipleInventoryActionRequest>[]
   ): Promise<InventoryActionEntity[]> {
     const inventoryQuery = `
-      LET warehouseInStockIds = (
-        FOR warehouse IN warehouses
-        FILTER warehouse.deleted_at == null
-        FILTER warehouse.status == ${WarehouseStatus.ACTIVE}
-        FILTER warehouse.type == ${WarehouseType.IN_STOCK}
-        RETURN warehouse.id
-      )
-
-      LET ledgers = (
+       LET ledgers = (
         FOR led IN inventory_ledgers
         FILTER led.deleted_at == null
-        FILTER led.warehouse_id IN warehouseInStockIds
+        FILTER led.inventory_category_id == @categoryId
+        FILTER led.type == ${WarehouseType.IN_STOCK}
         RETURN led
       )
 
@@ -48,8 +41,8 @@ class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
         id: inventory.id,
         inventory_id: inventory.inventory_id,
         warehouse_id: inventory.warehouse_id,
-        quantity: TO_NUMBER(inventory.quantity) - TO_NUMBER(ledger.quantity),
-        type: TO_NUMBER(inventory.quantity) - TO_NUMBER(ledger.quantity) > 0 ? ${
+        quantity: inventory.quantity - ledger.quantity,
+        type: inventory.quantity - ledger.quantity > 0 ? ${
           InventoryActionType.IN
         } : ${InventoryActionType.OUT},
         description: "${getInventoryActionDescription(
@@ -60,11 +53,12 @@ class InventoryActionRepository extends BaseRepository<InventoryActionEntity> {
         updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventory_actions
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {
       inventoryActions,
+      categoryId,
     });
   }
 }

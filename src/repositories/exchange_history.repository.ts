@@ -45,9 +45,9 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
     >
   ): Promise<ExchangeHistoryEntity | null> {
     /// find currency which is going to be exchanged
-    const currencyExchange = (await exchangeCurrencyRepository.getBaseCurrency(
-      payload.to_currency
-    )) as IExchangeCurrency;
+    const currencyExchange = await exchangeCurrencyRepository.getBaseCurrencies(
+      [payload.to_currency]
+    );
 
     if (isEmpty(currencyExchange)) {
       return null;
@@ -62,7 +62,7 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
     if (
       isEmpty(latestExchanged) ||
       isEmpty(payload) ||
-      !isNumber(currencyExchange.rate) ||
+      !isNumber(currencyExchange[0].rate) ||
       isEmpty(payload.from_currency) ||
       isEmpty(payload.to_currency) ||
       isEmpty(payload.relation_id) ||
@@ -71,15 +71,15 @@ class ExchangeHistoryRepository extends BaseRepository<ExchangeHistoryEntity> {
       return null;
     }
 
-    const previousCurrency = (await exchangeCurrencyRepository.getBaseCurrency(
-      payload.from_currency
-    )) as IExchangeCurrency;
+    const previousCurrency = await exchangeCurrencyRepository.getBaseCurrencies(
+      [payload.from_currency]
+    );
 
     if (isEmpty(previousCurrency)) {
       return null;
     }
 
-    const rate = currencyExchange.rate / previousCurrency.rate;
+    const rate = currencyExchange[0].rate / previousCurrency[0].rate;
 
     const result = await this.create({
       ...payload,
