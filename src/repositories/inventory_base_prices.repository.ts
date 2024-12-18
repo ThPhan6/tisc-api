@@ -48,7 +48,7 @@ class InventoryBasePriceRepository extends BaseRepository<InventoryBasePriceEnti
         updated_at: inventory.updated_at,
         deleted_at: null
       } IN inventory_base_prices
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(inventoryQuery, {

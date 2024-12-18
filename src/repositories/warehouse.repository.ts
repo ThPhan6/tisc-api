@@ -23,6 +23,27 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
       .get();
   }
 
+  public getBrandWarehouses = async (
+    locationIds: string[]
+  ): Promise<WarehouseEntity[]> => {
+    const query = `
+    FOR warehouse IN warehouses
+    FILTER warehouse.deleted_at == null
+    FILTER warehouse.location_id IN @locationIds
+    FILTER warehouse.type == @inStockType
+    FILTER warehouse.status == @status
+    RETURN warehouse
+  `;
+
+    const result = await this.model.rawQueryV2(query, {
+      locationIds,
+      inStockType: WarehouseType.IN_STOCK,
+      status: WarehouseStatus.ACTIVE,
+    });
+
+    return result;
+  };
+
   public async getWarehouses(
     warehouseIds: string[]
   ): Promise<WarehouseEntity[]> {
@@ -55,7 +76,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(warehouseQuery, {
@@ -80,7 +101,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(warehouseQuery, {

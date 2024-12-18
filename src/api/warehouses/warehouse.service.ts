@@ -647,6 +647,15 @@ class WarehouseService {
         return errorMessageResponse(MESSAGES.LESS_THAN_ZERO);
       }
 
+      const existedWarehouse = await warehouseRepository.findBy({
+        location_id: locationExisted.id,
+        relation_id: brand.id,
+      });
+
+      if (existedWarehouse) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+
       const newPhysicalWarehouse = await warehouseRepository.create({
         name: locationExisted.business_name,
         location_id: locationExisted.id,
@@ -682,6 +691,7 @@ class WarehouseService {
         statusCode: res?.statusCode ?? 400,
       };
     }
+
     const instockWarehouseExisted = allInStockWarehousesBelongToLocations.find(
       (el) => el.id === inventoryLedgerExisted.warehouse_id
     );

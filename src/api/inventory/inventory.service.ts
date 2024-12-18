@@ -37,6 +37,7 @@ import {
 } from "@/types";
 import { v4 as uuid } from "uuid";
 import {
+  chunk,
   forEach,
   isEmpty,
   isNil,
@@ -90,6 +91,8 @@ import {
   MultipleInventoryRequest,
 } from "./inventory.type";
 import { warehouseRepository } from "@/repositories/warehouse.repository";
+
+const IMPORT_CHUNK_SIZE = 50;
 
 class InventoryService {
   private transferInventory = (inventory: Record<string, any>) => {
@@ -733,56 +736,95 @@ class InventoryService {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
 
-    const inventories = await Promise.all(
-      inventoryList.data.map(async (inventory) => {
-        const rate = isEmpty(inventory.price?.exchange_histories)
-          ? 1
-          : sumBy(inventory.price.exchange_histories, "rate");
+    const locations = await locationService.getList(user, {
+      sort: "business_name",
+      order: "ASC",
+      functional_type: CompanyFunctionalGroup.LOGISTIC,
+    });
 
-        const newInventory = {
-          ...omit(inventory, ["image"]),
-          image: inventory.image ?? "",
-          price: isEmpty(inventory?.price)
-            ? null
-            : {
-                ...inventory.price,
-                exchange_histories: inventory.price?.exchange_histories?.length
-                  ? inventory.price.exchange_histories
-                  : null,
-                volume_prices: inventory.price?.volume_prices?.length
-                  ? inventory.price.volume_prices
-                  : null,
-              },
-        };
+    const inventoryIds = inventoryList.data.map((inventory) => inventory.id);
+    const locationIds = locations.data.locations.map((location) => location.id);
 
-        const warehouses = (await warehouseService.getList(
-          user,
-          newInventory.id,
-          {
-            status: WarehouseStatus.ACTIVE,
-          }
-        )) as unknown as {
-          data: WarehouseListResponse;
-        };
-
-        const totalStock = warehouses?.data?.total_stock ?? 0;
-        const outStock = (newInventory?.on_order ?? 0) - totalStock;
-
-        const stock = {
-          stock_value: rate * (inventory.price?.unit_price || 0) * totalStock,
-          total_stock: totalStock,
-          out_stock: outStock <= 0 ? 0 : -outStock,
-        };
-
-        return {
-          ...newInventory,
-          ...stock,
-          warehouses: isEmpty(warehouses.data)
-            ? []
-            : warehouses.data.warehouses,
-        };
-      })
+    const ledgers = await inventoryLedgerRepository.getInventoryLedgers(
+      inventoryIds
     );
+
+    const brandWarehouses = await warehouseRepository.getBrandWarehouses(
+      locationIds
+    );
+
+    const inventories = inventoryList.data.map((inventory) => {
+      const rate = isEmpty(inventory.price?.exchange_histories)
+        ? 1
+        : sumBy(inventory.price.exchange_histories, "rate");
+
+      const newInventory = {
+        ...inventory,
+        image: inventory.image ?? "",
+        price: isEmpty(inventory?.price)
+          ? null
+          : {
+              ...inventory.price,
+              exchange_histories: inventory.price?.exchange_histories?.length
+                ? inventory.price.exchange_histories
+                : null,
+              volume_prices: inventory.price?.volume_prices?.length
+                ? inventory.price.volume_prices
+                : null,
+            },
+      };
+
+      const inventoryLedgers = ledgers.filter(
+        (el) => el.inventory_id === inventory.id
+      );
+      const warehouses = sortBy(
+        brandWarehouses.map((warehouse) => {
+          const warehouseLocation = locations.data.locations.find(
+            (loca) => loca.id === warehouse.location_id
+          );
+
+          return pick(
+            {
+              ...warehouse,
+              country_name: warehouseLocation?.country_name ?? "",
+              city_name: warehouseLocation?.city_name ?? "",
+              in_stock:
+                inventoryLedgers.find(
+                  (led) => led.warehouse_id === warehouse.id
+                )?.quantity ?? 0,
+            },
+            [
+              "id",
+              "name",
+              "location_id",
+              "country_name",
+              "city_name",
+              "in_stock",
+              "created_at",
+            ]
+          );
+        }),
+        "name"
+      ) as WarehouseResponse[];
+
+      const totalStock = warehouses.reduce(
+        (acc, item) => acc + item.in_stock,
+        0
+      );
+      const outStock = (newInventory?.on_order ?? 0) - totalStock;
+
+      const stock = {
+        stock_value: rate * (inventory.price?.unit_price || 0) * totalStock,
+        total_stock: totalStock,
+        out_stock: outStock <= 0 ? 0 : -outStock,
+      };
+
+      return {
+        ...newInventory,
+        ...stock,
+        warehouses,
+      };
+    });
 
     return successResponse({
       data: {
@@ -1416,11 +1458,11 @@ class InventoryService {
     inventory: InventoryCreate,
     params: {
       currency: string;
-      locations: LocationWithTeamCountAndFunctionType[];
       user: UserAttributes;
+      allWarehouses: any[];
     }
   ) {
-    const { currency, locations, user } = params;
+    const { currency, allWarehouses, user } = params;
     const inventoryId = uuid();
     const basePriceId = uuid();
 
@@ -1432,56 +1474,10 @@ class InventoryService {
       inventory_base_price_id: basePriceId,
     };
 
-    const warehouses = this.findWarehouseByLocationIndex(
-      locations,
-      [],
-      inventory.warehouses
-    );
-
-    const allWarehouses: MultipleWarehouseRequest[] = [];
     const allLedgers: MultipleInventoryLedgerRequest[] = [];
     const allActions: MultipleInventoryActionRequest[] = [];
 
-    warehouses.forEach((ws) => {
-      const warehouseId = uuid();
-      const warehouseInStockId = uuid();
-      const warehouseBackOrderId = uuid();
-      const warehouseOnOrderId = uuid();
-      const warehouseDoneId = uuid();
-
-      allWarehouses.push({
-        id: warehouseId,
-        name: ws.name,
-        type: WarehouseType.PHYSICAL,
-        status: WarehouseStatus.ACTIVE,
-        location_id: ws.location_id,
-        relation_id: user.relation_id,
-        quantity: 0,
-        parent_id: null,
-      });
-
-      warehouseService.nonPhysicalWarehouseTypes.forEach((type) => {
-        allWarehouses.push({
-          id:
-            type === WarehouseType.IN_STOCK
-              ? warehouseInStockId
-              : type === WarehouseType.BACK_ORDER
-              ? warehouseBackOrderId
-              : type === WarehouseType.ON_ORDER
-              ? warehouseOnOrderId
-              : warehouseDoneId,
-          type,
-          name: ws.name,
-          status: WarehouseStatus.ACTIVE,
-          location_id: ws.location_id,
-          relation_id: user.relation_id,
-          quantity: type === WarehouseType.IN_STOCK ? ws.quantity : 0,
-          parent_id: warehouseId,
-        });
-      });
-    });
-
-    allWarehouses.forEach((ws) => {
+    allWarehouses.forEach((ws: any, index) => {
       allLedgers.push({
         warehouse_id: ws.id,
         inventory_id: inventoryId,
@@ -1537,6 +1533,55 @@ class InventoryService {
       existedInventoriesIds
     );
 
+    const warehouses = this.findWarehouseByLocationIndex(
+      locations.data.locations
+    );
+
+    const allWarehouses: MultipleWarehouseRequest[] = [];
+
+    warehouses.forEach((ws: any) => {
+      const warehouseId = uuid();
+      const warehouseInStockId = uuid();
+      const warehouseBackOrderId = uuid();
+      const warehouseOnOrderId = uuid();
+      const warehouseDoneId = uuid();
+
+      allWarehouses.push({
+        id: warehouseId,
+        name: ws.name,
+        type: WarehouseType.PHYSICAL,
+        status: WarehouseStatus.ACTIVE,
+        location_id: ws.location_id,
+        relation_id: user.relation_id,
+        quantity: 0,
+        parent_id: null,
+      });
+
+      warehouseService.nonPhysicalWarehouseTypes.forEach((type) => {
+        allWarehouses.push({
+          id:
+            type === WarehouseType.IN_STOCK
+              ? warehouseInStockId
+              : type === WarehouseType.BACK_ORDER
+              ? warehouseBackOrderId
+              : type === WarehouseType.ON_ORDER
+              ? warehouseOnOrderId
+              : warehouseDoneId,
+          type,
+          name: ws.name,
+          status: WarehouseStatus.ACTIVE,
+          location_id: ws.location_id,
+          relation_id: user.relation_id,
+          quantity: type === WarehouseType.IN_STOCK ? ws.quantity : 0,
+          parent_id: warehouseId,
+        });
+      });
+    });
+
+    const warehouseInStocks = allWarehouses.filter(
+      (ws) => ws.type === WarehouseType.IN_STOCK
+    );
+
     const importedInventories: MappingInventory[] = inventories.map(
       (inventory) => {
         const existedInventory = brandInventories.find(
@@ -1576,11 +1621,19 @@ class InventoryService {
             ),
           });
         }
+        const mappedInstockWarehouseQuantity = warehouseInStocks.map(
+          (item, index) => ({
+            ...item,
+            quantity: inventory?.warehouses?.[index]?.quantity ?? 0,
+          })
+        );
 
         return this.mappingCreatedInventories(inventory, {
           currency,
-          locations: locations.data.locations,
           user,
+          allWarehouses: allWarehouses
+            .filter((item) => item.type !== WarehouseType.IN_STOCK)
+            .concat(mappedInstockWarehouseQuantity),
         });
       }
     );
@@ -1656,7 +1709,10 @@ class InventoryService {
     await inventoryBasePriceService.createMultiple(basePrices);
     await inventoryVolumePriceService.createMultiple(volumePrices);
     await inventoryLedgerService.updateMultiple(inventoryLedgers);
-    await inventoryActionService.createMultiple(inventoryActions);
+    await inventoryActionService.createMultiple(
+      inventories[0].inventory_category_id,
+      inventoryActions
+    );
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
@@ -1689,9 +1745,8 @@ class InventoryService {
         (inven) => "unit_price" in inven && "unit_type" in inven
       ) as MultipleInventoryBasePriceRequest[];
 
-    const warehouses = inventories
-      .map((inven) => inven.warehouses)
-      .flat() as MultipleWarehouseRequest[];
+    const warehouses =
+      (inventories[0].warehouses as MultipleWarehouseRequest[]) ?? [];
 
     const inventoryLedgers = inventories
       .map((inven) => inven.inventory_ledgers)
@@ -1699,13 +1754,53 @@ class InventoryService {
 
     const inventoryActions = inventories
       .map((inven) => inven.inventory_actions)
-      .flat() as MultipleInventoryActionRequest[];
+      .flat()
+      .filter((el) => el?.quantity !== 0) as MultipleInventoryActionRequest[];
 
-    await this.createMultiple(newInventories);
-    await inventoryBasePriceService.createMultiple(basePrices);
-    await warehouseService.createMultiple(warehouses);
-    await inventoryLedgerService.createMultiple(inventoryLedgers);
-    await inventoryActionService.createMultiple(inventoryActions);
+    try {
+      await warehouseService.createMultiple(warehouses);
+    } catch (error) {
+      console.log(
+        "error warehouseService.createMultiple --->>>>>>>>>>>>>>>",
+        error
+      );
+    }
+
+    try {
+      await inventoryActionService.createMultiple(
+        inventories[0].inventory_category_id,
+        inventoryActions
+      );
+    } catch (error) {
+      console.log(
+        "error inventoryActionService.createMultiple --->>>>>>>>>>>>>>>",
+        error
+      );
+    }
+
+    try {
+      await inventoryLedgerService.createMultiple(inventoryLedgers);
+    } catch (error) {
+      console.log(
+        "error inventoryLedgerService.createMultiple --->>>>>>>>>>>>>>>",
+        error
+      );
+    }
+
+    try {
+      await inventoryBasePriceService.createMultiple(basePrices);
+    } catch (error) {
+      console.log(
+        "error inventoryBasePriceService.createMultiple --->>>>>>>>>>>>>>>",
+        error
+      );
+    }
+
+    try {
+      await this.createMultiple(newInventories);
+    } catch (error) {
+      console.log("error inventory.createMultiple --->>>>>>>>>>>>>>>", error);
+    }
 
     return successMessageResponse(MESSAGES.SUCCESS);
   }
@@ -1783,31 +1878,47 @@ class InventoryService {
         );
       }
 
-      const updatedInventories = await this.updateMultipleInventories(
-        existedInventories
+      const existedInventoryChunks = chunk(
+        existedInventories,
+        IMPORT_CHUNK_SIZE
       );
 
-      if (updatedInventories.statusCode !== 200) {
-        return errorMessageResponse(updatedInventories.message);
+      const updatedInventories = await Promise.all(
+        existedInventoryChunks.map((inventories, index) => {
+          console.time(`${index}`);
+          const temp = this.updateMultipleInventories(inventories);
+          console.timeEnd(`${index}`);
+
+          return temp;
+        })
+      );
+
+      const messageErrors = updatedInventories
+        .filter((el) => el.statusCode !== 200)
+        .map((el) => el.message);
+
+      if (messageErrors.length) {
+        return errorMessageResponse(messageErrors.join(", "));
       }
     }
 
     if (newInventories.length) {
-      const newInventoryErrors = this.validateImportPayloadInsert(
+      const errors = this.validateImportPayloadInsert(
         unitTypes,
         newInventories
       );
 
-      if (newInventoryErrors.length) {
+      if (errors.length) {
         return errorMessageResponse(MESSAGES.INVENTORY.INVALID_DATA_INSERT);
       }
 
-      const createdInventories = await this.createMultipleInventories(
-        newInventories
-      );
+      try {
+        return this.createMultipleInventories(newInventories);
+      } catch (error) {
+        console.log("error --->>>>>>>>>>>>>>>", error);
 
-      if (createdInventories.statusCode !== 200) {
-        return errorMessageResponse(createdInventories.message);
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      } finally {
       }
     }
 
