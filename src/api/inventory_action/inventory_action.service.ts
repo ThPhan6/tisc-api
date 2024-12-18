@@ -9,10 +9,14 @@ import { v4 as uuid } from "uuid";
 import { getTimestamps } from "@/Database/Utils/Time";
 
 class InventoryActionService {
-  public async createMultiple(payload: MultipleInventoryActionRequest[]) {
+  public async createMultiple(
+    categoryId: string,
+    payload: MultipleInventoryActionRequest[]
+  ) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
     const inventoryCreated = await inventoryActionRepository.createMultiple(
+      categoryId,
       payload.map((item) => ({
         ...item,
         id: uuid(),
