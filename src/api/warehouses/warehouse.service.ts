@@ -1,4 +1,5 @@
 import { MESSAGES } from "@/constants";
+import { getTimestamps } from "@/Database/Utils/Time";
 import {
   convertInStock,
   getInventoryActionDescription,
@@ -16,6 +17,7 @@ import { locationRepository } from "@/repositories/location.repository";
 import { warehouseRepository } from "@/repositories/warehouse.repository";
 import {
   CompanyFunctionalGroup,
+  ILocationAttributes,
   InventoryActionDescription,
   InventoryActionEntity,
   InventoryActionType,
@@ -33,12 +35,11 @@ import {
   NonPhysicalWarehouseCreate,
   WarehouseCreate,
   WarehouseListResponse,
-  WarehouseResponse,
   WarehouseUpdate,
   WarehouseUpdateBackOrder,
 } from "./warehouse.type";
+
 import { v4 as uuid } from "uuid";
-import { getTimestamps } from "@/Database/Utils/Time";
 
 class WarehouseService {
   public nonPhysicalWarehouseTypes = [
@@ -991,7 +992,9 @@ class WarehouseService {
     });
   }
 
-  public async updateMultiple(payload: Omit<MultipleWarehouseRequest, "id">[]) {
+  public async updateMultiple(
+    payload: Pick<MultipleWarehouseRequest, "id" | "status">[]
+  ) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
     const warehouseUpdated = await warehouseRepository.updateMultiple(
@@ -1006,18 +1009,69 @@ class WarehouseService {
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
   }
 
-  public async createMultiple(payload: MultipleWarehouseRequest[]) {
-    const warehouseCreated = await warehouseRepository.createMultiple(
-      payload.map((item) => ({
-        ...item,
-        created_at: getTimestamps(),
-        updated_at: getTimestamps(),
-      }))
+  public async createMultiple(
+    user: UserAttributes,
+    location: Pick<ILocationAttributes, "business_name" | "id">
+  ) {
+    const physicalWarehouseId = uuid();
+    const createdAt = getTimestamps();
+    const updatedAt = getTimestamps();
+
+    const physicalWarehouse = {
+      id: physicalWarehouseId,
+      name: location.business_name,
+      type: WarehouseType.PHYSICAL,
+      status: WarehouseStatus.ACTIVE,
+      location_id: location.id,
+      relation_id: user.relation_id,
+      parent_id: null,
+      created_at: createdAt,
+      updated_at: updatedAt,
+      deleted_at: null,
+    };
+
+    const allWarehouses: WarehouseEntity[] = [];
+
+    allWarehouses.push(physicalWarehouse);
+
+    warehouseService.nonPhysicalWarehouseTypes.forEach((type) => {
+      allWarehouses.push({
+        id: uuid(),
+        type,
+        name: physicalWarehouse.name,
+        status: WarehouseStatus.ACTIVE,
+        location_id: physicalWarehouse.location_id,
+        relation_id: user.relation_id,
+        parent_id: physicalWarehouseId,
+        created_at: createdAt,
+        updated_at: updatedAt,
+        deleted_at: null,
+      });
+    });
+
+    const createdWarehouses = await warehouseRepository.createMultiple(
+      allWarehouses
     );
 
-    return warehouseCreated.length === payload.length
+    return createdWarehouses.length
       ? successMessageResponse(MESSAGES.SUCCESS)
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+  }
+
+  public async updateWarehouseStatusByLocation(
+    locationIds: string[],
+    status: WarehouseStatus = WarehouseStatus.INACTIVE
+  ) {
+    const allWarehouses = await warehouseRepository.getBrandWarehouses(
+      locationIds
+    );
+
+    return await warehouseService.updateMultiple(
+      allWarehouses.map((ws) => ({
+        id: ws.id,
+        status,
+      }))
+    );
   }
 }
 
