@@ -11,34 +11,23 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
     this.model = new WarehouseModel();
   }
 
-  public async getWarehouseByBrand(
-    brandId: string,
-    type: WarehouseType = WarehouseType.IN_STOCK,
-    status: WarehouseStatus = WarehouseStatus.ACTIVE
-  ): Promise<WarehouseEntity[]> {
-    return await this.model
-      .where("relation_id", "==", brandId)
-      .where("type", "==", type)
-      .where("status", "==", status)
-      .get();
-  }
-
   public getBrandWarehouses = async (
-    locationIds: string[]
+    locationIds: string[],
+    params?: { type?: WarehouseType; status?: WarehouseStatus }
   ): Promise<WarehouseEntity[]> => {
+    const { type, status } = params || {};
+
     const query = `
     FOR warehouse IN warehouses
     FILTER warehouse.deleted_at == null
     FILTER warehouse.location_id IN @locationIds
-    FILTER warehouse.type == @inStockType
-    FILTER warehouse.status == @status
+    ${type ? `FILTER warehouse.type == ${type}` : ""}
+    ${status ? `FILTER warehouse.status == ${status}` : ""}
     RETURN warehouse
   `;
 
     const result = await this.model.rawQueryV2(query, {
       locationIds,
-      inStockType: WarehouseType.IN_STOCK,
-      status: WarehouseStatus.ACTIVE,
     });
 
     return result;
