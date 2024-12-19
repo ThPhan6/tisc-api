@@ -291,7 +291,6 @@ class InventoryService {
     const contentFlat = content.map((item) => {
       const newContent: any = {
         ...omit(item, ["price", "warehouses"]),
-        description: `"${item.description}"`,
         unit_price: item.price.unit_price.toFixed(2),
         unit_type: item.price.unit_type,
         currency: item.price.currency,
