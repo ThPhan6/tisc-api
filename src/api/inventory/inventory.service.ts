@@ -106,7 +106,7 @@ class InventoryService {
         const minQtyKey = `${index} Vol. Min. Qty`;
         const maxQtyKey = `${index} Vol. Max. Qty`;
 
-        const priceAndQty = `"${inventory[discountPriceKey]}, ${inventory[minQtyKey]}-${inventory[maxQtyKey]}"`;
+        const priceAndQty = `${inventory[discountPriceKey]}, ${inventory[minQtyKey]}-${inventory[maxQtyKey]}`;
 
         newInventory[discountPriceKey] = priceAndQty;
         delete newInventory[minQtyKey];
