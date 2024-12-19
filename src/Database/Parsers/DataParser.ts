@@ -46,6 +46,7 @@ class DataParser {
         "additional_sub_groups",
         "attributes",
         "inventories",
+        "locations",
       ].includes(table || "")
     ) {
       dataToCreate = {

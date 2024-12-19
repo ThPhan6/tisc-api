@@ -28,18 +28,12 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
     inventoryLedgers: Partial<MultipleInventoryLedgerRequest>[]
   ): Promise<InventoryLedgerEntity[]> {
     const inventoryQuery = `
-      LET warehouseInStockIds = (
-        FOR warehouse IN warehouses
-        FILTER warehouse.deleted_at == null
-        FILTER warehouse.status == ${WarehouseStatus.ACTIVE}
-        FILTER warehouse.type == ${WarehouseType.IN_STOCK}
-        RETURN warehouse.id
-      )
-
       LET ledgers = (
         FOR le IN inventory_ledgers
         FILTER le.deleted_at == null
-        FILTER le.warehouse_id IN warehouseInStockIds
+        FILTER le.type == ${WarehouseType.IN_STOCK}
+        FILTER le.inventory_id IN @inventoryLedgers[*].inventory_id
+        FILTER le.warehouse_id IN @inventoryLedgers[*].warehouse_id
         RETURN le
       )
 
@@ -51,7 +45,7 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
         RETURN led
       )
       UPDATE target._key WITH {
-        quantity: TO_NUMBER(inventory.quantity),
+        quantity: inventory.quantity + inventory.convert OR 0,
         status: ${WarehouseStatus.ACTIVE},
         updated_at: inventory.updated_at,
         deleted_at: null
@@ -90,12 +84,21 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
 
   public findByInventories = async (inventoryIds: string[]) => {
     const query = `
-     for ledger in inventory_ledgers
-     filter ledger.deleted_at == null
-     filter ledger.inventory_id in @inventoryIds
-     filter ledger.status == ${WarehouseStatus.ACTIVE}
-     filter ledger.type == ${WarehouseType.IN_STOCK}
-     return ledger
+    LET warehouseIds = (
+      FOR warehouse IN warehouses
+      FILTER warehouse.deleted_at == null
+      FILTER warehouse.status == ${WarehouseStatus.ACTIVE}
+      FILTER warehouse.type == ${WarehouseType.IN_STOCK}
+      RETURN warehouse.id
+    )
+
+    FOR ledger IN inventory_ledgers
+    FILTER ledger.deleted_at == null
+    FILTER ledger.inventory_id IN @inventoryIds
+    FILTER ledger.warehouse_id IN warehouseIds
+    FILTER ledger.status == ${WarehouseStatus.ACTIVE}
+    FILTER ledger.type == ${WarehouseType.IN_STOCK}
+    RETURN ledger
     `;
 
     return this.model.rawQueryV2(query, {
@@ -108,13 +111,13 @@ class InventoryLedgerRepository extends BaseRepository<InventoryLedgerEntity> {
     inventoryId: string
   ) => {
     const query = `
-     for ledger in inventory_ledgers
-     filter ledger.deleted_at == null
-     filter ledger.warehouse_id in @warehouseIds
-     filter ledger.inventory_id == @inventoryId
-     filter ledger.status == ${WarehouseStatus.ACTIVE}
-     filter ledger.type == ${WarehouseType.IN_STOCK}
-     return ledger
+    FOR ledger in inventory_ledgers
+    FILTER ledger.deleted_at == null
+    FILTER ledger.warehouse_id in @warehouseIds
+    FILTER ledger.inventory_id == @inventoryId
+    FILTER ledger.status == ${WarehouseStatus.ACTIVE}
+    FILTER ledger.type == ${WarehouseType.IN_STOCK}
+    RETURN ledger
     `;
 
     return this.model.rawQueryV2(query, {
