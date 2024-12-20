@@ -10,12 +10,13 @@ import { ILabelRequest, UpdateLabelRequest } from "./label.type";
 
 class LabelService {
   public async create(payload: ILabelRequest) {
-    let paramsToFind: any = { name: payload.name };
+    let paramsToFind: any = { name: payload.name, brand_id: payload.brand_id };
     const parent_id = payload.parent_id ?? null;
     paramsToFind = {
       ...paramsToFind,
       parent_id: parent_id,
     };
+
     const label = await labelRepository.findBy(paramsToFind);
     if (label) {
       return errorMessageResponse(MESSAGES.LABEL_EXISTED);
