@@ -1,4 +1,4 @@
-import { INTEREST_RATE } from "@/constants";
+import { INTEREST_RATE } from "@/constants/common.constant";
 import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
 
