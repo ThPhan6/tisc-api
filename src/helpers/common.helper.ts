@@ -337,12 +337,17 @@ export const jsonToCSV = (jsonData: any[]) => {
   });
 
   const rows = filledData.map((row) =>
-    headers.map((header) => `"${row[header]}"`).join(",")
+    headers
+      .map((header) => {
+        return `"${row[header].toString().replace(/"/g, '""')}"`;
+      })
+      .join(",")
   );
 
-  return [headers.map((header) => `"${startCase(header)}"`), ...rows].join(
-    "\n"
-  );
+  return [
+    headers.map((header) => `"${startCase(header).replace(/"/g, '""')}"`),
+    ...rows,
+  ].join("\n");
 };
 
 export const sortObjectByKey = (obj: Object, keys: string[]): Object => {
