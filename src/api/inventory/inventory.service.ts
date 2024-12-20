@@ -18,6 +18,7 @@ import { exchangeHistoryRepository } from "@/repositories/exchange_history.repos
 import { inventoryRepository } from "@/repositories/inventory.repository";
 import { inventoryBasePriceRepository } from "@/repositories/inventory_base_prices.repository";
 import { inventoryLedgerRepository } from "@/repositories/inventory_ledger.repository";
+import { warehouseRepository } from "@/repositories/warehouse.repository";
 import { deleteFile } from "@/services/aws.service";
 import {
   uploadImagesInventory,
@@ -26,7 +27,6 @@ import {
 import {
   CommonTypeAttributes,
   CompanyFunctionalGroup,
-  IExchangeCurrency,
   InventoryEntity,
   InventoryLedgerEntity,
   LocationWithTeamCountAndFunctionType,
@@ -35,7 +35,6 @@ import {
   WarehouseStatus,
   WarehouseType,
 } from "@/types";
-import { v4 as uuid } from "uuid";
 import {
   chunk,
   forEach,
@@ -54,6 +53,7 @@ import {
   uniq,
   uniqBy,
 } from "lodash";
+import { v4 as uuid } from "uuid";
 import { dynamicCategoryRepository } from "../dynamic_categories/dynamic_categories.repository";
 import { ExchangeCurrencyRequest } from "../exchange_history/exchange_history.type";
 import { inventoryActionService } from "../inventory_action/inventory_action.service";
@@ -70,7 +70,6 @@ import { inventoryVolumePriceService } from "../inventory_prices/inventory_volum
 import { locationService } from "../location/location.service";
 import { warehouseService } from "../warehouses/warehouse.service";
 import {
-  MultipleWarehouseRequest,
   WarehouseCreate,
   WarehouseListResponse,
   WarehouseResponse,
@@ -90,7 +89,6 @@ import {
   MappingInventory,
   MultipleInventoryRequest,
 } from "./inventory.type";
-import { warehouseRepository } from "@/repositories/warehouse.repository";
 
 const IMPORT_CHUNK_SIZE = 50;
 
@@ -757,9 +755,11 @@ class InventoryService {
     );
 
     const inventories = inventoryList.data.map((inventory) => {
-      const rate = isEmpty(inventory.price?.exchange_histories)
-        ? 1
-        : sumBy(inventory.price.exchange_histories, "rate");
+      const rate = reduce(
+        inventory.price?.exchange_histories,
+        (acc, item) => acc * item.rate,
+        1
+      );
 
       const newInventory = {
         ...inventory,
