@@ -2,7 +2,6 @@ node_modules
 dist
 logs/*.log
 build
-yarn.lock
 yarn-error.log
 package-lock.json
 .env
@@ -17,3 +16,4 @@ dump/
 logs/
 public/temp
 test.js
+.idea
