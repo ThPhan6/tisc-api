@@ -17,7 +17,7 @@ class LabelRepository extends BaseRepository<ILabelAttributes> {
     name: string,
     brandId: string,
     parentId?: string | null
-  ): Promise<ILabelAttributes | null> {
+  ): Promise<ILabelAttributes | null | undefined> {
     const result = await this.model.rawQueryV2(
       `
       FOR label in labels
