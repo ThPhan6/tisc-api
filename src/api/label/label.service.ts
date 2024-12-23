@@ -10,14 +10,11 @@ import { ILabelRequest, UpdateLabelRequest } from "./label.type";
 
 class LabelService {
   public async create(payload: ILabelRequest) {
-    let paramsToFind: any = { name: payload.name, brand_id: payload.brand_id };
-    const parent_id = payload.parent_id ?? null;
-    paramsToFind = {
-      ...paramsToFind,
-      parent_id: parent_id,
-    };
-
-    const label = await labelRepository.findBy(paramsToFind);
+    const label = await labelRepository.findLabelInBrand(
+      payload.name,
+      payload.brand_id,
+      payload.parent_id
+    );
     if (label) {
       return errorMessageResponse(MESSAGES.LABEL_EXISTED);
     }
@@ -42,6 +39,16 @@ class LabelService {
     if (!label) {
       return errorMessageResponse(MESSAGES.LABEL_NOTFOUND);
     }
+
+    const existedLabel = await labelRepository.findLabelInBrand(
+      payload.name,
+      label.brand_id
+    );
+
+    if (existedLabel) {
+      return errorMessageResponse(MESSAGES.LABEL_EXISTED);
+    }
+
     await labelRepository.update(id, { name: payload.name });
     return successMessageResponse(MESSAGES.SUCCESS);
   }
