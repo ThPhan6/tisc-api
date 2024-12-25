@@ -61,6 +61,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         RETURN ws
       )
       UPDATE target._key WITH {
+        name: HAS(warehouse, 'name') ? warehouse.name : target.name,
         status: HAS(warehouse, 'status') ? warehouse.status :  target.status,
         updated_at: warehouse.updated_at,
         deleted_at: null
