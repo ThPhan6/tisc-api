@@ -162,14 +162,14 @@ export default class LocationService {
       }
     } else {
       const warehouseStatusUpdate =
-        await warehouseService.updateWarehouseStatusByLocation(
-          [id],
-          functionalType
+        await warehouseService.updateWarehouseByLocation([id], {
+          name: payload?.business_name ?? undefined,
+          status: functionalType
             .toLowerCase()
             .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
             ? WarehouseStatus.ACTIVE
-            : WarehouseStatus.INACTIVE
-        );
+            : WarehouseStatus.INACTIVE,
+        });
 
       if (warehouseStatusUpdate.statusCode !== 200) {
         return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
@@ -313,7 +313,7 @@ export default class LocationService {
     }
 
     const updateInActiveWarehouses =
-      await warehouseService.updateWarehouseStatusByLocation([id]);
+      await warehouseService.updateWarehouseByLocation([id]);
 
     if (updateInActiveWarehouses.statusCode !== 200) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
