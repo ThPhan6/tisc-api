@@ -993,7 +993,7 @@ class WarehouseService {
   }
 
   public async updateMultiple(
-    payload: Pick<MultipleWarehouseRequest, "id" | "status">[]
+    payload: Partial<Pick<MultipleWarehouseRequest, "id" | "status" | "name">>[]
   ) {
     if (!payload.length) return successMessageResponse(MESSAGES.SUCCESS);
 
@@ -1058,9 +1058,11 @@ class WarehouseService {
       : errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
   }
 
-  public async updateWarehouseStatusByLocation(
+  public async updateWarehouseByLocation(
     locationIds: string[],
-    status: WarehouseStatus = WarehouseStatus.INACTIVE
+    payload: Partial<Pick<WarehouseEntity, "status" | "name">> = {
+      status: WarehouseStatus.INACTIVE,
+    }
   ) {
     const allWarehouses = await warehouseRepository.getBrandWarehouses(
       locationIds
@@ -1069,7 +1071,8 @@ class WarehouseService {
     return await warehouseService.updateMultiple(
       allWarehouses.map((ws) => ({
         id: ws.id,
-        status,
+        status: payload.status,
+        name: payload.name,
       }))
     );
   }
