@@ -114,7 +114,6 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           filter brand.deleted_at == null
           ${brandId ? `filter brand.id == @brandId` : ""}
 
-      
           ${
             collectionId
               ? `for collection in collections
@@ -123,7 +122,6 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           filter collection.id == @collectionId`
               : ""
           }
-          
       let favourite = (
           for product_favourite in product_favourites
           FILTER product_favourite.deleted_at == null
@@ -137,7 +135,6 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         ${withFavourite ? `filter product_favourite.created_by == @userId` : ""}
         COLLECT WITH COUNT INTO length RETURN length
       )
-     
       ${filterLiked ? `filter liked[0] > 0` : ""}
       ${
         options.isCount
@@ -147,7 +144,6 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
           !options.has_color ? ",'detected_color_images'" : ""
         }]), {
         categories: categories,
-        
         ${
           collectionId
             ? `collection: {
@@ -164,6 +160,89 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       }
     )`
       }
+     `;
+  };
+
+  private getBrandProductQuery = (options: {
+    brandId?: string;
+    productId?: string;
+    collectionId?: string;
+    categoryId?: string;
+    sortName?: string;
+    sortOrder?: SortOrder;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const {
+      brandId,
+      collectionId,
+      categoryId,
+      productId,
+      sortName,
+      sortOrder,
+      limit,
+      offset,
+    } = options;
+
+    return `
+      ${categoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
+      ${productId ? ` FILTER products.id == @productId ` : ""}
+      FILTER products.deleted_at == null
+      ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
+      ${limit ? `LIMIT ${offset}, ${limit}` : ""}
+      LET categories = (
+        FOR mainCategory IN categories
+        FILTER mainCategory.deleted_at == null
+          FOR subCategory IN mainCategory.subs
+            FILTER subCategory.deleted_at == null
+            FOR category IN subCategory.subs
+              FILTER category.deleted_at == null
+              FILTER category.id IN products.category_ids
+              ${categoryId ? ` FILTER category.id == @categoryId` : ""}
+        RETURN category
+      )
+      LET collections = (
+        FOR collections IN collections
+        FILTER collections.id IN products.collection_ids
+        FILTER collections.deleted_at == null
+        ${collectionId ? ` FILTER collections.id == @collectionId` : ""}
+        RETURN {
+          id: collections.id,
+          name: collections.name,
+          type: collections.relation_type,
+          description: collections.description
+        }
+      )
+      LET labels = (
+        FOR normalLabels IN labels
+        FILTER normalLabels.id IN products.label_ids
+        FILTER normalLabels.deleted_at == null
+        LET parentLabel = FIRST(FOR parentLabels IN labels FILTER parentLabels.id == normalLabels.parent_id RETURN {
+          id: parentLabels.id,
+          name: parentLabels.name
+        })
+        FILTER parentLabel != null
+        RETURN {
+          id: normalLabels.id,
+          name: normalLabels.name,
+          parent: parentLabel
+        }
+      )
+
+      FOR brand in brands
+      FILTER brand.deleted_at == null
+      FILTER brand.id == products.brand_id
+      ${brandId ? `FILTER brand.id == @brandId` : ""}
+
+      RETURN MERGE(
+        KEEP(products, ['id', 'description', 'images', 'name', 'brand_id','collection_ids', 'category_ids', 'created_at', 'updated_at']),
+        {
+          categories: categories,
+          collections: collections,
+          labels,
+          brand: KEEP(brand, 'id','name','logo')
+        }
+      )
      `;
   };
 
@@ -219,6 +298,32 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       params
     );
   }
+
+  public async getBrandProductBy(
+    brandId?: string,
+    categoryId?: string,
+    collectionId?: string,
+    sort: string = "created_at",
+    order: SortOrder = "DESC",
+    limit?: number,
+    offset?: number
+  ): Promise<ProductWithRelationData[]> {
+    const params = { brandId, categoryId, collectionId };
+
+    return this.model.rawQuery(
+      this.getBrandProductQuery({
+        brandId,
+        collectionId,
+        categoryId,
+        sortName: sort,
+        sortOrder: order,
+        limit,
+        offset,
+      }),
+      params
+    );
+  }
+
   public async countProductBy(
     userId?: string,
     brandId?: string,
@@ -503,12 +608,13 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     }
     return result;
   }
-  
-  public async getProductByCollectionId (
-    collection_id: string,
+
+  public async getProductByCollectionId(
+    collection_id: string
   ): Promise<IProductAttributes[]> {
     return await this.model
-      .whereIn("collection_ids", collection_id, "inverse").get();
+      .whereIn("collection_ids", collection_id, "inverse")
+      .get();
   }
 }
 
