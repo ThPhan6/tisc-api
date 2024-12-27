@@ -12,7 +12,7 @@ export default class ProductController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
     const { category_id, collection_id, brand_id } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await productService.getBrandProductList(
+    const response = await productService.getList(
       user,
       brand_id,
       category_id,
