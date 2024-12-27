@@ -24,6 +24,7 @@ export const MESSAGES = {
 
   LOCATION: {
     USER_USED: "This location is using in Team Profile",
+    NOT_LOGISTIC: "The location is not Logistic Facility & Warehouse",
   },
 
   FAVOURITE: {
@@ -154,6 +155,7 @@ export const MESSAGES = {
   USER_ROLE_NOT_FOUND: "Please login in the right section.",
   SEND_EMAIL_WRONG: "Something wrong when send email",
   USER_NOT_FOUND: "User not found",
+  STATUS_NOT_FOUND: "Status not found",
   USER_EXISTED: "User existed",
   EMAIL_USED: "Email is already used",
   VERIFICATION_LINK_HAS_EXPIRED: "Verified.",
@@ -166,11 +168,13 @@ export const MESSAGES = {
   CONTACT_NOT_FOUND: "Contact not found",
   PERMISSION_NOT_FOUND: "Permission not found",
   CATEGORY_NOT_FOUND: "Category not found",
+  CATEGORY_NOT_BELONG_TO_BRAND: "Category not belong to any brand",
   CATEGORY_IN_PRODUCT: "Some products use this category. So, cannot delete.",
   CATEGORY_EXISTED: "Category existed",
   NOT_FOUND: "Not found",
   COLLECTION_EXISTED: "Collection existed.",
   PRODUCT_EXISTED: "Product existed.",
+  PRICE_NOT_FOUND: "Price not found",
   ATTRIBUTE_EXISTED: "Attribute existed.",
   BASIS_OPTION_EXISTED: "Basis option existed.",
   BASIS_PRESET_EXISTED: "Basis preset existed.",
@@ -188,6 +192,7 @@ export const MESSAGES = {
   SUB_CATEGORY_DUPLICATED: "Sub category duplicated",
   MAIN_CATEGORY_DUPLICATED: "Main category duplicated",
   IMAGE_INVALID: "Image invalid",
+  IMAGE_UPLOAD_FAILED: "Failed to upload image",
   BASIS_OPTION_NOT_FOUND: "Basis option not found",
   LOCATION_NOT_FOUND: "Location not found",
   PRODUCT_NOT_FOUND: "Product not found",
@@ -294,4 +299,48 @@ export const MESSAGES = {
   LABEL_NOTFOUND: "Label not found.",
   SUB_LABEL_NOTFOUND: "Sub-label not found.",
   CANNOT_MOVE_TO_PARENT: "Cannot move sub-label to its parent label.",
+  INVENTORY_NOT_FOUND: "Inventory not found",
+  INVENTORY_BASE_PRICE_NOT_FOUND: "Inventory base price not found",
+  INVENTORY_VOLUME_PRICE_NOT_FOUND: "Inventory volume price not found",
+  INVENTORY_LEDGER_NOT_FOUND: "Inventory ledger not found",
+  SOMETHING_WRONG_CREATE_INVENTORY_BASE_PRICE:
+    "Something went wrong when create inventory base price",
+  SOMETHING_WRONG_CREATE_INVENTORY_VOLUME_PRICE:
+    "Something went wrong when create inventory volume price",
+  BASE_CURRENCY_NOT_FOUND: "Base currency not found",
+  EXCHANGE_HISTORY_NOT_FOUND: "Exchange history not found",
+  EXCHANGE_CURRENCY_SUCCESS: "Exchange currency success",
+  SOMETHING_WRONG_EXCHANGE_CURRENCY:
+    "Something went wrong when exchange currency",
+  EXCHANGE_CURRENCY_THE_SAME: "Cannot exchange the same currency",
+  LESS_THAN_ZERO: "Value must be greater than or equal to 0",
+  INVALID_EXPORT_TYPE: "Invalid export type",
+
+  WAREHOUSE: {
+    NOT_FOUND: "Warehouse not found",
+    IN_STOCK_NOT_FOUND: "Warehouse In Stock not found",
+    EXISTED: "Warehouse existed",
+    LESS_THAN_ZERO: "In Stock must be positive number",
+    NOT_AVAILABLE: "Warehouse not available.",
+    SUM_IN_STOCK: "Total In Stock is greater than Backorder",
+    BACK_ORDER_NOT_FOUND: "Warehouse Back Order not found",
+    LOCATION_DUPLICATED: "Warehouses duplicated",
+    REQUIRED: "Warehouse is required",
+  },
+  INVENTORY: {
+    INVALID_DATA_INSERT:
+      "Invalid data for the items that need to be inserted. Please check them.",
+    NOT_FOUND_LEDGER: "Inventory ledger not found",
+    NOT_FOUND_ACTION: "Inventory action not found",
+    SKU_EXISTED: "SKU existed",
+    UNIT_PRICE_REQUIRED: "Unit price is required",
+    UNIT_TYPE_REQUIRED: "Unit type is required",
+    INVALID_VOLUME_PRICES: "Invalid volume prices",
+    ON_ORDER_LESS_THAN_ZERO: "On Order must be positive number",
+    UNIT_PRICE_LESS_THAN_ZERO: "On Order must be positive number",
+    BACK_ORDER_LESS_THAN_ZERO: "Back Order must be positive number",
+    SKU_REQUIRED: "SKU is required",
+    BELONG_TO_ANOTHER_CATEGORY:
+      "Inventory has been created in another category",
+  },
 };

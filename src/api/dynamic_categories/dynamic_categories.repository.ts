@@ -26,6 +26,17 @@ class DynamicCategoryRepository extends BaseRepository<DetailedCategoryEntity> {
       .whereNull("deleted_at")
       .get();
   };
+
+  public async getMaxCategoryLevel(): Promise<number> {
+    const result = await this.model.rawQueryV2(
+      `FOR category IN dynamic_categories
+         COLLECT AGGREGATE maxLevel = MAX(category.level)
+         RETURN maxLevel`,
+      {}
+    );
+
+    return result[0] || 0;
+  }
 }
 
 export default new DynamicCategoryRepository();
