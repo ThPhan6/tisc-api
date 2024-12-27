@@ -187,6 +187,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
     return `
       ${categoryId ? ` FILTER @categoryId IN products.category_ids` : ""}
       ${productId ? ` FILTER products.id == @productId ` : ""}
+      ${brandId ? `FILTER products.brand_id == @brandId` : ""}
       FILTER products.deleted_at == null
       ${sortName && sortOrder ? ` SORT products.${sortName} ${sortOrder} ` : ""}
       ${limit ? `LIMIT ${offset}, ${limit}` : ""}
