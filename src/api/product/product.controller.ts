@@ -1,13 +1,12 @@
+import { UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
+import { customProductService } from "../custom_product/custom_product.service";
 import { productService } from "./product.service";
 import {
   IProductRequest,
   IUpdateProductRequest,
   ShareProductBodyRequest,
 } from "./product.type";
-import { UserAttributes } from "@/types";
-import { customProductService } from "../custom_product/custom_product.service";
-import productRepository from "@/repositories/product.repository";
 
 export default class ProductController {
   public getList = async (req: Request, toolkit: ResponseToolkit) => {
@@ -21,6 +20,23 @@ export default class ProductController {
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
+
+  /// only for brand products
+  public getBrandProductList = async (
+    req: Request,
+    toolkit: ResponseToolkit
+  ) => {
+    const { category_id, collection_id, brand_id } = req.query;
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await productService.getBrandProductList(
+      user,
+      brand_id,
+      category_id,
+      collection_id
+    );
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
   public getListDesignerBrandProducts = async (
     req: Request,
     toolkit: ResponseToolkit
@@ -45,8 +61,12 @@ export default class ProductController {
     toolkit: ResponseToolkit
   ) => {
     const { brand_id } = req.params;
+    const { is_get_total_product } = req.query;
     const user = req.auth.credentials.user as UserAttributes;
-    const response = await productService.getBrandProductSummary(brand_id, user);
+    const response = await productService.getBrandProductSummary(user, {
+      brand_id,
+      is_get_total_product,
+    });
     return toolkit.response(response).code(response.statusCode ?? 200);
   };
   public get = async (req: Request, toolkit: ResponseToolkit) => {

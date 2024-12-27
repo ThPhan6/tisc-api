@@ -256,35 +256,23 @@ class AttributeService {
     const { general, feature, specification } =
       await AttributeRepository.getAllAttributesGroupByType(brandId);
 
-    const addGeneralSubAttribute = await additionalSubGroupRepository.getAllBy({
+    const dontAddSub = !addSub || addSub === "false";
+
+    const attributes = await additionalSubGroupRepository.getAllBy({
       type: AdditionalSubGroupType.Attribute,
     });
-    const newGeneral =
-      !addSub || addSub === "false"
-        ? general
-        : addAttributeSubGroup(general, addGeneralSubAttribute, "ASC");
 
-    const addFeatureSubAttribute = await additionalSubGroupRepository.getAllBy({
-      type: AdditionalSubGroupType.Attribute,
-    });
-    const newFeature =
-      !addSub || addSub === "false"
-        ? feature
-        : addAttributeSubGroup(feature, addFeatureSubAttribute, "ASC");
+    const newGeneral = dontAddSub
+      ? general
+      : addAttributeSubGroup(general, attributes, "ASC");
 
-    const addSpecificationSubAttribute =
-      await additionalSubGroupRepository.getAllBy({
-        type: AdditionalSubGroupType.Attribute,
-      });
+    const newFeature = dontAddSub
+      ? feature
+      : addAttributeSubGroup(feature, attributes, "ASC");
 
-    const newSpecification =
-      !addSub || addSub === "false"
-        ? specification
-        : addAttributeSubGroup(
-            specification,
-            addSpecificationSubAttribute,
-            "ASC"
-          );
+    const newSpecification = dontAddSub
+      ? specification
+      : addAttributeSubGroup(specification, attributes, "ASC");
 
     return successResponse({
       data: {
@@ -294,17 +282,17 @@ class AttributeService {
       },
     });
   }
+
   public async copyToBrand(attributeId: string, brandId: string) {
     const attribute: any = await this.get(attributeId);
     let copiedName = attribute.data.name + " - copy";
     const brandAttributes = await attributeRepository.getAllBy({
       brand_id: brandId,
     });
-    let temp = copiedName
+    let temp = copiedName;
     let found: any;
     let index = 1;
     do {
-      
       found = brandAttributes.find((item) => item.name === copiedName);
       if (found) {
         copiedName = temp + " " + index;
