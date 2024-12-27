@@ -65,6 +65,7 @@ export const ROUTES = {
   UPDATE_PRODUCT: "/api/product/update/{id}",
   DELETE_PRODUCT: "/api/product/delete/{id}",
   GET_LIST_PRODUCT: "/api/product/get-list",
+  GET_BRAND_LIST_PRODUCT: "/api/product/brand/get-list",
   GET_ONE_PRODUCT: "/api/product/get-one/{id}",
   LIKE_OR_UNLIKE_PRODUCT: "/api/product/like/{id}",
   GET_BRAND_PRODUCT_SUMMARY: "/api/product/brand-product-summary/{brand_id}",
