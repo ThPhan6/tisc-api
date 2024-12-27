@@ -103,6 +103,23 @@ export default {
     }),
     statusCode: Joi.number(),
   }),
+  getBrandProductList: Joi.object({
+    data: Joi.object({
+      data: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          description: Joi.any(),
+          images: Joi.any(),
+          type: Joi.any(),
+          count: Joi.number(),
+          products: Joi.array().items(Joi.object(productResponse)),
+        })
+      ),
+      brand: Joi.any(),
+    }),
+    statusCode: Joi.number(),
+  }),
   getListDesignerProducts: Joi.object({
     data: Joi.array().items(
       Joi.object({
