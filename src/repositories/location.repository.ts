@@ -1,16 +1,15 @@
-import LocationModel from "@/models/location.model";
-import BaseRepository from "./base.repository";
-import {
-  ILocationAttributes,
-  UserType,
-  SortOrder,
-  LocationWithTeamCountAndFunctionType,
-  DesignLocationFunctionTypeOption,
-  UserStatus,
-} from "@/types";
-import _, { isFinite, head } from "lodash";
 import { COMMON_TYPES } from "@/constants";
 import { pagination } from "@/helpers/common.helper";
+import LocationModel from "@/models/location.model";
+import {
+  DesignLocationFunctionTypeOption,
+  ILocationAttributes,
+  LocationWithTeamCountAndFunctionType,
+  SortOrder,
+  UserStatus,
+} from "@/types";
+import _, { head, isFinite } from "lodash";
+import BaseRepository from "./base.repository";
 
 class LocationRepository extends BaseRepository<ILocationAttributes> {
   protected model: LocationModel;
@@ -255,7 +254,7 @@ class LocationRepository extends BaseRepository<ILocationAttributes> {
     }
     const rawQuery = `for location in locations
     filter location.id == @locationId
-    
+
     for country in countries
     filter country.id == location.country_id
     return country.currency

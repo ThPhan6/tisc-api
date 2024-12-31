@@ -208,7 +208,7 @@ export const requireEmailValidation = (
   return Joi.string()
     .trim()
     .required()
-    .email()
+    // .email()
     .lowercase()
     .error((errors: any) => {
       errors[0].local.label = fieldName;
