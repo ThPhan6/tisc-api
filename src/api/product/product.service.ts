@@ -660,7 +660,20 @@ class ProductService {
     limit?: number,
     offset?: number
   ) => {
-    const products = await productRepository.getProductBy(
+    // const products = await productRepository.getProductBy(
+    // user.id,
+    // brandId,
+    // categoryId,
+    // undefined,
+    // keyword,
+    // sortName,
+    // orderBy,
+    // false,
+    // limit,
+    // offset
+    // );
+
+    const products = await productRepository.getBrandDesignerProductBy(
       user.id,
       brandId,
       categoryId,
