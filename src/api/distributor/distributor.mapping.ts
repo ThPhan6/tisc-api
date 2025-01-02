@@ -1,7 +1,7 @@
 import { sortObjectArray } from "@/helpers/common.helper";
-import { ICountryAttributes, DistributorWithLocation } from "@/types";
+import { DistributorWithLocation, ICountryAttributes } from "@/types";
+import { PartnerContactAttributes } from "../partner_contact/partner_contact.type";
 import { MarketDistributorGroupByCountry } from "./distributor.type";
-import { PartnerContactAttributes } from "@/api/partner_contact/partner_contact.type";
 
 export const mappingAuthorizedCountriesName = (
   authorizedCountries: ICountryAttributes[]
@@ -59,7 +59,7 @@ export const mappingDistributorByCountry = (
         const removedFieldsOfDistributor = groupDistributors.map(
           (distributor) => {
             const partnerContact = partnerContacts.find(
-              (item) => item.partner_company_id === distributor.id
+              (item) => item.relation_id === distributor.id
             );
 
             const person = partnerContact

@@ -1,43 +1,35 @@
-import { Pagination } from "@/types";
-import { PartnerAttributes } from "@/types/partner.type";
+import { Pagination, UserAttributes, UserStatus } from "@/types";
 
-export enum PartnerContactStatus {
-  Uninitiate,
-  Pending,
-  Activated,
-}
 export type PartnerContactSort = "fullname" | "company_name" | "country_name";
 export type PartnerContactFilter = {
-  status?: PartnerContactStatus;
+  status?: UserStatus;
 };
-export interface PartnerContactAttributes {
-  id: string;
-  partner_company_id: string;
-  firstname: string;
-  lastname: string;
-  gender: boolean;
-  linkedin: string;
-  position: string;
-  email: string;
-  phone: string;
-  mobile: string;
-  remark: string;
-  status: PartnerContactStatus;
-}
-export type PartnerContactRequest = Omit<PartnerAttributes, "id" | "status">;
+export interface PartnerContactAttributes extends UserAttributes {}
 
-export interface PartnerContactResponse {
+export interface PartnerContactRequest
+  extends Pick<
+    PartnerContactAttributes,
+    | "id"
+    | "firstname"
+    | "lastname"
+    | "linkedin"
+    | "position"
+    | "gender"
+    | "email"
+    | "phone"
+    | "mobile"
+    | "status"
+    | "relation_id"
+    | "remark"
+  > {}
+
+export interface PartnerContactResponse extends PartnerContactRequest {
+  id: string;
+}
+
+export interface PartnerContactListResponse {
   data: {
-    partner_contacts: {
-      fullname: string;
-      company: string;
-      country: string;
-      position: string;
-      email: string;
-      phone: string;
-      mobile: string;
-      activation: number;
-    }[];
+    partner_contacts: PartnerContactResponse[];
     pagination: Pagination;
   };
   statusCode: number;

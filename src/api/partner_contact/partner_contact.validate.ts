@@ -1,3 +1,4 @@
+import { UserStatus } from "@/types";
 import {
   getListValidation,
   getOneValidation,
@@ -5,18 +6,38 @@ import {
 } from "@/validates/common.validate";
 import Joi from "joi";
 
-const partnerContactPayload = {
+const createdPartnerContactPayload = {
   firstname: requireStringValidation("First name"),
   lastname: requireStringValidation("Last name"),
-  gender: Joi.boolean(),
+  gender: Joi.boolean().required(),
   linkedin: Joi.any(),
-  partner_company_id: requireStringValidation("Company"),
+  relation_id: requireStringValidation("Company"),
   position: requireStringValidation("Position"),
   email: requireStringValidation("Email"),
   phone: requireStringValidation("Phone"),
   mobile: requireStringValidation("Mobile"),
   remark: Joi.any(),
 };
+
+const updatedPartnerContactPayload = {
+  id: requireStringValidation("Id"),
+  firstname: requireStringValidation("First name"),
+  lastname: requireStringValidation("Last name"),
+  gender: Joi.boolean().required(),
+  linkedin: Joi.any(),
+  relation_id: requireStringValidation("Company"),
+  position: requireStringValidation("Position"),
+  email: requireStringValidation("Email"),
+  phone: requireStringValidation("Phone"),
+  mobile: requireStringValidation("Mobile"),
+  remark: Joi.any(),
+  status: Joi.number().valid(
+    UserStatus.Active,
+    UserStatus.Pending,
+    UserStatus.Uninitiate
+  ),
+};
+
 export default {
   getList: getListValidation({
     query: {
@@ -33,10 +54,10 @@ export default {
     }),
   }),
   create: {
-    payload: partnerContactPayload,
+    payload: Joi.object(createdPartnerContactPayload).unknown(false),
   },
   update: {
     ...getOneValidation,
-    payload: partnerContactPayload,
+    payload: Joi.object(updatedPartnerContactPayload).unknown(false),
   },
 };

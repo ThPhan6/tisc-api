@@ -18,6 +18,7 @@ import {
   Availability,
   SummaryItemPosition,
   UserStatus,
+  UserType,
 } from "@/types";
 import { COMMON_TYPES, SpecificationType } from "@/constants";
 import { getDefaultDimensionAndWeightAttribute } from "@/api/attribute/attribute.mapping";
@@ -157,7 +158,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                   RETURN prevFormat == 0? ", " : curFormat == 0? ", " : " - "
                 )
                 RETURN index == 0?
-                       NTH(selectedCodes,index).code : 
+                       NTH(selectedCodes,index).code :
                        CONCAT(FIRST(seperator), NTH(selectedCodes,index).code)
               )
               RETURN CONCAT(stepCode) != "" ?
@@ -185,7 +186,7 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     RETURN prevFormat == 0? ", " : curFormat == 0? ", " : " - "
                   )
                   RETURN index == 0?
-                        NTH(optionCodes,index).code : 
+                        NTH(optionCodes,index).code :
                         CONCAT(FIRST(seperator), NTH(optionCodes,index).code)
                 )
               ))
@@ -1095,9 +1096,10 @@ class ProjectProductRepository extends BaseRepository<ProjectProductAttributes> 
                     FOR distributorLocation IN locations
                       FILTER distributorLocation.id == distributor.location_id
                       FILTER distributorLocation.deleted_at == null
-                LET firstContact = FIRST(FOR partnerContact IN partner_contacts
+                LET firstContact = FIRST(FOR partnerContact IN users
                                     FILTER partnerContact.deleted_at == null
-                                    FILTER partnerContact.partner_company_id == distributor.id
+                                    FILTER partnerContact.type == ${UserType.Partner}
+                                    FILTER partnerContact.relation_id == distributor.id
                                     SORT partnerContact.created_at ASC
                                     RETURN partnerContact)
                 RETURN MERGE(
