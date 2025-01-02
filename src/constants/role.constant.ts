@@ -1,5 +1,5 @@
-import {UserType} from '@/types';
-import {getEnumValues} from '@/helpers/common.helper';
+import { getEnumValues } from "@/helpers/common.helper";
+import { UserType } from "@/types";
 
 export enum TiscRoles {
   Admin = "4fb9a23d-d60a-45a4-8ed4-2300276bc19b",
@@ -8,12 +8,16 @@ export enum TiscRoles {
 
 export enum BrandRoles {
   Admin = "62ad5077-6183-435e-97f8-81c35065504e",
-  Member = "c93584c7-7987-4be0-aa7d-e48e20960630"
+  Member = "c93584c7-7987-4be0-aa7d-e48e20960630",
 }
 
 export enum DesignFirmRoles {
   Admin = "68fdf6d0-464e-404b-90e8-5d02a48ac498",
-  Member = "1493b47a-1118-43e2-9bd8-1a3c3adc3f13"
+  Member = "1493b47a-1118-43e2-9bd8-1a3c3adc3f13",
+}
+
+export enum PartnerRoles {
+  Admin = "52057038-8646-441a-ae54-f3fd8215e665",
 }
 
 export const RoleType = {
@@ -23,12 +27,14 @@ export const RoleType = {
   [BrandRoles.Member]: UserType.Brand,
   [DesignFirmRoles.Admin]: UserType.Designer,
   [DesignFirmRoles.Member]: UserType.Designer,
-}
+  [PartnerRoles.Admin]: UserType.Partner,
+};
 export const RoleData = {
   [UserType.TISC]: getEnumValues(TiscRoles),
   [UserType.Brand]: getEnumValues(BrandRoles),
   [UserType.Designer]: getEnumValues(DesignFirmRoles),
-}
+  [UserType.Partner]: getEnumValues(PartnerRoles),
+};
 
 export const RoleNames = {
   [TiscRoles.Admin]: "TISC Admin",
@@ -39,7 +45,9 @@ export const RoleNames = {
 
   [DesignFirmRoles.Admin]: "Design Admin",
   [DesignFirmRoles.Member]: "Design Team",
-}
+
+  [PartnerRoles.Admin]: "Partner",
+};
 
 export const RoleIndex = {
   [TiscRoles.Admin]: 1,
@@ -50,6 +58,8 @@ export const RoleIndex = {
 
   [DesignFirmRoles.Admin]: 5,
   [DesignFirmRoles.Member]: 6,
+
+  [PartnerRoles.Admin]: 7,
 };
 
 export const DefaultPermission = {
@@ -63,12 +73,8 @@ export const DefaultPermission = {
     "permission_3_3",
     "permission_4",
   ],
-  brand_team: [
-    "permission_5",
-    "permission_6",
-    "permission_7",
-    "permission_9",
-  ],
+  brand_team: ["permission_5", "permission_6", "permission_7", "permission_9"],
+  partner_admin: ["permission_6", "permission_7", "permission_8"],
   design_team: [
     "permission_10",
     "permission_11",
@@ -77,6 +83,6 @@ export const DefaultPermission = {
     "permission_13_2",
     "permission_13_3",
     "permission_13_4",
-    "permission_14"
-  ]
-}
+    "permission_14",
+  ],
+};

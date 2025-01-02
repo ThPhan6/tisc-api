@@ -1,5 +1,5 @@
 import { UserType, UserRole } from "@/types";
-import {RoleType} from '@/constants';
+import { RoleType } from "@/constants";
 
 export const validateRoleType = (role: UserType, roleId: UserRole) => {
   const roleType = RoleType[roleId];
@@ -16,6 +16,11 @@ export const validateRoleType = (role: UserType, roleId: UserRole) => {
 
   // DESIGN FIRM ROLE
   if (role === UserType.Designer && roleType === UserType.Designer) {
+    return true;
+  }
+
+  // PARTNER ROLE
+  if (role === UserType.Partner && roleType === UserType.Partner) {
     return true;
   }
 

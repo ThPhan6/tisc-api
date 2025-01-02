@@ -1,14 +1,15 @@
 import {
   TiscRoles,
   BrandRoles,
-  DesignFirmRoles
-} from '@/constants';
+  DesignFirmRoles,
+  PartnerRoles,
+} from "@/constants";
 
-export type UserRole = TiscRoles | BrandRoles | DesignFirmRoles;
+export type UserRole = TiscRoles | BrandRoles | DesignFirmRoles | PartnerRoles;
 
 export interface UserAttributes {
   id: string;
-  role_id: TiscRoles | BrandRoles | DesignFirmRoles;
+  role_id: UserRole;
   firstname: string;
   lastname: string;
   gender: boolean;
@@ -36,18 +37,21 @@ export interface UserAttributes {
   relation_id: string;
   retrieve_favourite: boolean;
   interested: any[];
+  remark: string;
 }
 
 export enum UserStatus {
   Active = 1,
   Blocked = 2,
   Pending = 3,
+  Uninitiate = 4,
 }
 
 export enum UserType {
   TISC = 1,
   Brand = 2,
   Designer = 3,
+  Partner = 4,
 }
 
 export type UserTypeKey = keyof typeof UserType;
