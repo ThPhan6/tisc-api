@@ -7,27 +7,27 @@ import {
   ProjectStatus,
   RespondedOrPendingStatus,
   SortOrder,
+  ProjectTrackingEntity,
+  ProjectTrackingPriority,
 } from "@/types";
 import { isNumber } from "lodash";
 import { v4 } from "uuid";
-import { ProjectRequestAttributes } from "./project_request.model";
-import ProjectTrackingModel, {
-  ProjectTrackingAttributes,
-  ProjectTrackingPriority,
-} from "./project_tracking.model";
+import { ProjectRequestAttributes } from "../api/project_tracking/project_request.model";
+
 import {
   GetProjectListFilter,
   GetProjectListSort,
-} from "./project_tracking.types";
+} from "../api/project_tracking/project_tracking.types";
 import {
   ProjectTrackingNotificationAttributes,
   ProjectTrackingNotificationStatus,
-} from "./project_tracking_notification.model";
+} from "../api/project_tracking/project_tracking_notification.model";
+import ProjectTrackingModel from "@/models/project_tracking.model";
 
-class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes> {
+class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
   protected model: ProjectTrackingModel;
 
-  protected DEFAULT_ATTRIBUTE: Partial<ProjectTrackingAttributes> = {
+  protected DEFAULT_ATTRIBUTE: Partial<ProjectTrackingEntity> = {
     id: "",
     project_id: "",
     brand_id: "",
@@ -46,7 +46,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
   public async findOrCreateIfNotExists(
     projectId: string,
     brandId: string
-  ): Promise<ProjectTrackingAttributes> {
+  ): Promise<ProjectTrackingEntity> {
     const now = new Date();
     const results = await this.model.rawQueryV2(
       `UPSERT {project_id: @projectId, brand_id: @brandId, deleted_at: null}
@@ -81,7 +81,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingAttributes
     userId?: string
   ): Promise<
     {
-      project_tracking: ProjectTrackingAttributes;
+      project_tracking: ProjectTrackingEntity;
       project: ProjectAttributes;
       projectLocation: string;
       projectRequests: ProjectRequestAttributes[];

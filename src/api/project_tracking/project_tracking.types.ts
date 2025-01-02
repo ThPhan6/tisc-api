@@ -1,5 +1,4 @@
-import { ProjectStatusValue } from "@/types";
-import { ProjectTrackingPriority } from "./project_tracking.model";
+import { ProjectStatusValue, ProjectTrackingPriority } from "@/types";
 
 export interface GetProjectListFilter {
   project_status: ProjectStatusValue;

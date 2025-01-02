@@ -4,6 +4,13 @@ export enum EProjectTrackingType {
   PARTNER,
 }
 
+export enum ProjectTrackingPriority {
+  "Non",
+  "High priority",
+  "Mid priority",
+  "Low priority",
+}
+
 export interface ProjectTrackingEntity {
   id: string;
   partner_id: string; // Foreign Key referencing partners.id
