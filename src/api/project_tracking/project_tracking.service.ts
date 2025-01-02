@@ -8,14 +8,14 @@ import productRepository from "@/repositories/product.repository";
 import { settingService } from "../setting/setting.service";
 import {
   ProjectStatus,
+  ProjectTrackingPriority,
   RespondedOrPendingStatus,
   SortOrder,
   UserAttributes,
 } from "@/types";
 import { CreateProjectRequestBody } from "./project_request.model";
 import { projectRequestRepository } from "./project_request.repository";
-import { ProjectTrackingPriority } from "./project_tracking.model";
-import { projectTrackingRepository } from "./project_tracking.repository";
+import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
 import {
   GetProjectListFilter,
   GetProjectListSort,

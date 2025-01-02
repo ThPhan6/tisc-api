@@ -1,12 +1,11 @@
 import { getEnumValues } from "@/helpers/common.helper";
-import { ProjectStatus } from "@/types";
+import { ProjectStatus, ProjectTrackingPriority } from "@/types";
 import {
   errorMessage,
   getListValidation,
   requireStringValidation,
 } from "@/validates/common.validate";
 import * as Joi from "joi";
-import { ProjectTrackingPriority } from "./project_tracking.model";
 
 const requiredProductId = requireStringValidation("Product id");
 const requiredProjectId = requireStringValidation("Project id");

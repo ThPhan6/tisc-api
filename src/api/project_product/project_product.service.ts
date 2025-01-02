@@ -19,7 +19,7 @@ import {
   UserType,
 } from "@/types";
 import { isEmpty, sumBy, countBy, sortBy, uniqBy, orderBy } from "lodash";
-import { projectTrackingRepository } from "../project_tracking/project_tracking.repository";
+import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
 import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
 import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
 import { ProjectProductAttributes } from "./project_product.model";
