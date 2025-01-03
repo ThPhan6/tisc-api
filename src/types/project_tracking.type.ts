@@ -38,8 +38,8 @@ export interface ProjectTrackingEntity {
   city_id: string;
   address: string;
   postal_code: string;
-  project_type: string;
-  building_type: string;
+  project_type_id: string;
+  building_type_id: string;
   date_of_tender: string;
   date_of_delivery: string;
   note: string;

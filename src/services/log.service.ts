@@ -6,6 +6,8 @@ export enum ActivityTypes {
   create_inquiry_request,
   create_project_request,
   create_brand_project,
+  update_brand_project,
+  delete_brand_project,
   assign_member_to_project,
   create_project,
   update_project,
@@ -47,7 +49,7 @@ class LogService {
         message = "Created project request of product <%= product_id %>";
         break;
       case ActivityTypes.create_brand_project:
-        message = "Created brand project of product <%= product_id %>";
+        message = "Created brand project <%= project_id %>";
         break;
       case ActivityTypes.assign_member_to_project:
         message = "Assigned user <%= user_id %> to project <%= project_id %>";
@@ -58,8 +60,15 @@ class LogService {
       case ActivityTypes.update_project:
         message = "Updated basic information of project <%= project_id %>";
         break;
+      case ActivityTypes.update_brand_project:
+        message =
+          "Updated basic information of brand project <%= project_id %>";
+        break;
       case ActivityTypes.delete_project:
         message = "Deleted project <%= project_id %>";
+        break;
+      case ActivityTypes.delete_brand_project:
+        message = "Deleted brand project <%= project_id %>";
         break;
       case ActivityTypes.create_project_space:
         message =

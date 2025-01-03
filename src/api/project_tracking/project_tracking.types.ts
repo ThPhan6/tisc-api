@@ -26,7 +26,6 @@ export interface ProjectTrackingBrandRequest
     ProjectTrackingEntity,
     | "project_name"
     | "address"
-    | "building_type"
     | "city_id"
     | "state_id"
     | "date_of_delivery"
@@ -37,7 +36,8 @@ export interface ProjectTrackingBrandRequest
     | "partner_id"
     | "project_code"
     | "project_stage_id"
-    | "project_type"
+    | "project_type_id"
+    | "building_type_id"
     | "postal_code"
     | "priority"
   > {}

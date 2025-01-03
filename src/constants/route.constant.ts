@@ -300,6 +300,7 @@ export const ROUTES = {
     GET_ONE: "/api/project-tracking/{id}/get-one",
     UPDATE: "/api/project-tracking/{id}/update",
     GET_SUMMARY: "/api/project-tracking/summary",
+    DELETE: "/api/project-tracking/{id}/delete",
   },
   PDF: {
     GENERATE_PROJECT_PDF: "/api/pdf/project/{project_id}/generate",

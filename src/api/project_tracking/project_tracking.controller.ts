@@ -45,15 +45,15 @@ export default class ProjectTrackingController {
       return toolkit.response(response).code(response.statusCode ?? 200);
     };
 
-  public updateProjectTracking = async (
-    req: Request & { payload: Partial<ProjectTrackingEntity> },
+  public update = async (
+    req: Request & { payload: Partial<ProjectTrackingCreateRequest> },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await projectTrackingService.update(
       user,
-      { ...(req.payload as ProjectTrackingEntity), id },
+      { ...(req.payload as Partial<ProjectTrackingCreateRequest>), id },
       req.path
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -76,6 +76,14 @@ export default class ProjectTrackingController {
     const { type } = req.query;
 
     const response = await projectTrackingService.get(user, id, type);
+
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const user = req.auth.credentials.user as UserAttributes;
+    const { id } = req.params;
+    const response = await projectTrackingService.delete(user, id, req.path);
 
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

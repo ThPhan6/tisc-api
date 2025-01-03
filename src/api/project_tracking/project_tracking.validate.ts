@@ -26,21 +26,19 @@ const getCreateProjectTrackingSchema = (
         location_id: Joi.string().required().messages({
           "any.required": "Location is required",
         }),
-        project_code: Joi.string().allow(null).allow("").messages({
-          "any.allow": "Invalid project code",
-        }),
+        project_code: Joi.string().allow(null).allow(""),
         city_id: Joi.string().allow(null).allow(""),
         state_id: Joi.string().allow(null).allow(""),
         address: Joi.string().allow(null).allow(""),
-        project_type: Joi.string().allow(null).allow(""),
-        building_type: Joi.string().allow(null).allow(""),
+        project_type_id: Joi.string().allow(null).allow(""),
+        building_type_id: Joi.string().allow(null).allow(""),
+        project_stage_id: Joi.string().allow(null).allow(""),
         date_of_tender: Joi.string().allow(null).allow(""),
         date_of_delivery: Joi.string().allow(null).allow(""),
         design_firm: Joi.string().allow(null).allow(""),
         postal_code: Joi.string().allow(null).allow(""),
         partner_id: Joi.string().allow(null).allow(""),
         note: Joi.string().allow(null).allow(""),
-        project_stage_id: Joi.string().allow(null).allow(""),
         priority: Joi.number()
           .allow(null)
           .valid(...getEnumValues(ProjectTrackingPriority)),
@@ -57,15 +55,15 @@ const getCreateProjectTrackingSchema = (
         city_id: Joi.string().allow(null).allow(""),
         state_id: Joi.string().allow(null).allow(""),
         address: Joi.string().allow(null).allow(""),
-        project_type: Joi.string().allow(null).allow(""),
-        building_type: Joi.string().allow(null).allow(""),
+        project_type_id: Joi.string().allow(null).allow(""),
+        building_type_id: Joi.string().allow(null).allow(""),
+        project_stage_id: Joi.string().allow(null).allow(""),
         date_of_tender: Joi.string().allow(null).allow(""),
         date_of_delivery: Joi.string().allow(null).allow(""),
         design_firm: Joi.string().allow(null).allow(""),
         postal_code: Joi.string().allow(null).allow(""),
         partner_id: Joi.string().allow(null).allow(""),
         note: Joi.string().allow(null).allow(""),
-        project_stage_id: Joi.string().allow(null).allow(""),
         priority: Joi.number()
           .allow(null)
           .valid(...getEnumValues(ProjectTrackingPriority)),
@@ -88,10 +86,95 @@ const getCreateProjectTrackingSchema = (
   }
 };
 
+const getUpdateProjectTrackingSchema = (
+  value: ProjectTrackingCreateRequest,
+  _helpers: Joi.CustomHelpers
+) => {
+  switch (value.type) {
+    case EProjectTrackingType.BRAND:
+      return Joi.object({
+        project_name: Joi.string().allow(null),
+        location_id: Joi.string().allow(null),
+        project_code: Joi.string().allow(null).allow(""),
+        city_id: Joi.string().allow(null).allow(""),
+        state_id: Joi.string().allow(null).allow(""),
+        address: Joi.string().allow(null).allow(""),
+        project_type_id: Joi.string().allow(null).allow(""),
+        building_type_id: Joi.string().allow(null).allow(""),
+        project_stage_id: Joi.string().allow(null).allow(""),
+        date_of_tender: Joi.string().allow(null).allow(""),
+        date_of_delivery: Joi.string().allow(null).allow(""),
+        design_firm: Joi.string().allow(null).allow(""),
+        postal_code: Joi.string().allow(null).allow(""),
+        partner_id: Joi.string().allow(null).allow(""),
+        note: Joi.string().allow(null).allow(""),
+        priority: Joi.number()
+          .allow(null)
+          .valid(...getEnumValues(ProjectTrackingPriority)),
+        type: Joi.number()
+          .required()
+          .valid(...getEnumValues(EProjectTrackingType)),
+      });
+
+    case EProjectTrackingType.PARTNER:
+      return Joi.object({
+        project_name: Joi.string().allow(null),
+        location_id: Joi.string().allow(null),
+        project_code: Joi.string().allow(null).allow(""),
+        city_id: Joi.string().allow(null).allow(""),
+        state_id: Joi.string().allow(null).allow(""),
+        address: Joi.string().allow(null).allow(""),
+        project_type_id: Joi.string().allow(null).allow(""),
+        building_type_id: Joi.string().allow(null).allow(""),
+        project_stage_id: Joi.string().allow(null).allow(""),
+        date_of_tender: Joi.string().allow(null).allow(""),
+        date_of_delivery: Joi.string().allow(null).allow(""),
+        design_firm: Joi.string().allow(null).allow(""),
+        postal_code: Joi.string().allow(null).allow(""),
+        partner_id: Joi.string().allow(null).allow(""),
+        note: Joi.string().allow(null).allow(""),
+        priority: Joi.number()
+          .allow(null)
+          .valid(...getEnumValues(ProjectTrackingPriority)),
+        type: Joi.number()
+          .required()
+          .valid(...getEnumValues(EProjectTrackingType)),
+      }).unknown(false);
+
+    default:
+      return Joi.object({
+        priority: Joi.number()
+          .allow(null)
+          .valid(...getEnumValues(ProjectTrackingPriority)),
+        assigned_teams: Joi.array().items(Joi.string()).allow(null),
+        read_by: Joi.array().items(Joi.string()).allow(null),
+      });
+  }
+};
+
 export default {
   create: {
     payload: Joi.custom((value, helpers) => {
       const schema = getCreateProjectTrackingSchema(value, helpers);
+      const { error } = schema.validate(value);
+
+      if (error) {
+        const firstError = error.details[0];
+        return helpers.message({
+          custom: firstError.message,
+        });
+      }
+
+      return value;
+    }),
+  },
+
+  update: {
+    params: {
+      id: requireStringValidation("Project tracking id"),
+    },
+    payload: Joi.custom((value, helpers) => {
+      const schema = getUpdateProjectTrackingSchema(value, helpers);
       const { error } = schema.validate(value);
 
       if (error) {
@@ -139,18 +222,7 @@ export default {
       type: value.type,
     }),
   }),
-  updateProjectTracking: {
-    params: {
-      id: requireStringValidation("Project tracking id"),
-    },
-    payload: {
-      priority: Joi.number()
-        .allow(null)
-        .valid(...getEnumValues(ProjectTrackingPriority)),
-      assigned_teams: Joi.array().items(Joi.string()).allow(null),
-      read_by: Joi.array().items(Joi.string()).allow(null),
-    },
-  },
+
   get: {
     params: Joi.object({
       id: requireStringValidation("Project tracking id"),
@@ -160,5 +232,11 @@ export default {
           "any.only": "Invalid type value",
         }),
     }),
+  },
+
+  delete: {
+    params: {
+      id: requireStringValidation("Project tracking id"),
+    },
   },
 };
