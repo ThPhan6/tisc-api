@@ -4,24 +4,28 @@ import {
   errorMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
-import { settingService } from "../setting/setting.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 import {
   ProjectStatus,
+  ProjectTrackingEntity,
   ProjectTrackingPriority,
   RespondedOrPendingStatus,
   SortOrder,
+  SummaryInfo,
   UserAttributes,
 } from "@/types";
+import { omit } from "lodash";
+import { v4 as uuid } from "uuid";
+import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
+import { settingService } from "../setting/setting.service";
 import { CreateProjectRequestBody } from "./project_request.model";
 import { projectRequestRepository } from "./project_request.repository";
-import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
 import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
-import { ActivityTypes, logService } from "@/services/log.service";
-import { commonTypeRepository } from "@/repositories/common_type.repository";
 
 class ProjectTrackingService {
   public createProjectRequest = async (
@@ -65,6 +69,48 @@ class ProjectTrackingService {
       data: response,
     });
   };
+
+  public async update(
+    user: UserAttributes,
+    payload: Partial<ProjectTrackingEntity>,
+    path: string
+  ) {
+    const response = await projectTrackingRepository.update(
+      payload.id as string,
+      omit(payload, "id")
+    );
+
+    if (response === false) {
+      return errorMessageResponse("Update project tracking failed.");
+    }
+
+    if (payload.assigned_teams && payload.assigned_teams[0]) {
+      logService.create(ActivityTypes.assign_member_to_project_tracking, {
+        path: path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          user_id: payload.assigned_teams[0],
+          project_tracking_id: payload.id,
+        },
+      });
+    }
+
+    if (payload.priority) {
+      logService.create(ActivityTypes.update_priority, {
+        path: path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          priority_name: ProjectTrackingPriority[payload.priority],
+          project_tracking_id: payload.id,
+        },
+      });
+    }
+
+    return successResponse(response);
+  }
+
   public createAssistanceRequest = async (
     userId: string,
     productId: string,
@@ -169,6 +215,107 @@ class ProjectTrackingService {
             ? pagination(limit, offset, total[0])
             : undefined,
       },
+    });
+  }
+
+  public async getProjectTrackingDetail(user: UserAttributes, id: string) {
+    const response = await projectTrackingRepository.getOne(
+      id,
+      user.id,
+      user.relation_id
+    );
+
+    if (!response.length) {
+      return errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404);
+    }
+
+    await projectTrackingRepository.updateUniqueAttribute(
+      "project_trackings",
+      "read_by",
+      id,
+      user.id
+    );
+
+    return successResponse({
+      data: response[0],
+    });
+  }
+
+  public async getProjectTrackingSummary(
+    user: UserAttributes,
+    workspace: boolean
+  ) {
+    const response = await projectTrackingRepository.getSummary(
+      user.relation_id,
+      workspace ? user.id : undefined
+    );
+    const summary = response[0];
+
+    if (!summary) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+    }
+
+    const mappingSummary: SummaryInfo[] = [
+      {
+        id: uuid(),
+        label: "PROJECTS",
+        quantity: summary.project.total,
+        subs: [
+          {
+            id: uuid(),
+            label: "Live",
+            quantity: summary.project.live,
+          },
+          {
+            id: uuid(),
+            label: "On Hold",
+            quantity: summary.project.onHold,
+          },
+          {
+            id: uuid(),
+            label: "Archived",
+            quantity: summary.project.archived,
+          },
+        ],
+      },
+      {
+        id: uuid(),
+        label: "REQUESTS",
+        quantity: summary.request.total,
+        subs: [
+          {
+            id: uuid(),
+            label: "Pending",
+            quantity: summary.request.pending,
+          },
+          {
+            id: uuid(),
+            label: "Responded",
+            quantity: summary.request.responded,
+          },
+        ],
+      },
+      {
+        id: uuid(),
+        label: "NOTIFICATIONS",
+        quantity: summary.notification.total,
+        subs: [
+          {
+            id: uuid(),
+            label: "Keep-in-view",
+            quantity: summary.notification.keepInView,
+          },
+          {
+            id: uuid(),
+            label: "Followed-up",
+            quantity: summary.notification.followedUp,
+          },
+        ],
+      },
+    ];
+
+    return successResponse({
+      data: mappingSummary,
     });
   }
 }
