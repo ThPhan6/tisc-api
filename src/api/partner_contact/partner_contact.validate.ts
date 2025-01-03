@@ -11,7 +11,7 @@ const createdPartnerContactPayload = {
   lastname: requireStringValidation("Last name"),
   gender: Joi.boolean().required(),
   linkedin: Joi.any(),
-  relation_id: requireStringValidation("Company"),
+  relation_id: Joi.string().allow(null),
   position: requireStringValidation("Position"),
   email: requireStringValidation("Email"),
   phone: requireStringValidation("Phone"),
@@ -25,17 +25,12 @@ const updatedPartnerContactPayload = {
   lastname: requireStringValidation("Last name"),
   gender: Joi.boolean().required(),
   linkedin: Joi.any(),
-  relation_id: requireStringValidation("Company"),
+  relation_id: Joi.string().allow(null),
   position: requireStringValidation("Position"),
   email: requireStringValidation("Email"),
   phone: requireStringValidation("Phone"),
   mobile: requireStringValidation("Mobile"),
   remark: Joi.any(),
-  status: Joi.number().valid(
-    UserStatus.Active,
-    UserStatus.Pending,
-    UserStatus.Uninitiate
-  ),
 };
 
 export default {

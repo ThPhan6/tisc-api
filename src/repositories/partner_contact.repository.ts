@@ -87,7 +87,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
 
       RETURN MERGE(UNSET(contact, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contact.firstname, " ", contact.lastname),
-        company_name: company.name != null ? company.name : ${DEFAULT_UNEMPLOYED_COMPANY_NAME},
+        company_name: company.name != null ? company.name : "${DEFAULT_UNEMPLOYED_COMPANY_NAME}",
         country_name: company.country_name
       })
     )
@@ -139,7 +139,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
       FILTER contact.deleted_at == null
       RETURN MERGE(UNSET(contact, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
         fullname: CONCAT(contact.firstname, " ", contact.lastname),
-        company_name: company.name != null ? company.name : ${DEFAULT_UNEMPLOYED_COMPANY_NAME},
+        company_name: company.name != null ? company.name : "${DEFAULT_UNEMPLOYED_COMPANY_NAME}",
         country_name: company.country_name,
         phone_code: company.phone_code != null ?  company.phone_code : '00'
       })
