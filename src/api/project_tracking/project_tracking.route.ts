@@ -17,11 +17,11 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "POST",
           path: ROUTES.PROJECT_TRACKING.CREATE,
           options: {
-            handler: controller.createProjectRequest,
-            validate: validate.createProjectRequest,
+            handler: controller.create,
+            validate: validate.create,
             description: "Method that create a product request for a project",
             tags: ["api", "Project Tracking"],
-            auth: AUTH_NAMES.PERMISSION,
+            auth: AUTH_NAMES.GENERAL,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
@@ -116,15 +116,15 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "GET",
           path: ROUTES.PROJECT_TRACKING.GET_ONE,
           options: {
-            handler: controller.getProjectTrackingDetail,
-            validate: validate.getOne,
+            handler: controller.get,
+            validate: validate.get,
             description: "Method that get project tracking detail info",
             tags: ["api", "Project Tracking"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getProjectTrackingDetail,
+                200: response.get,
               },
             },
           },

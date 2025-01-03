@@ -136,7 +136,13 @@ export default class LocationService {
     return this.get(id);
   };
 
-  public get = async (id: string) => {
+  public get = async (
+    id: string
+  ): Promise<{
+    data?: LocationWithTeamCountAndFunctionType;
+    statusCode: number;
+    message?: string;
+  }> => {
     const location =
       await locationRepository.findWithCountMemberAndFunctionType(id);
     if (!location) {
@@ -371,6 +377,33 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.COUNTRY_STATE_CITY_NOT_FOUND);
 
     return true;
+  };
+
+  public getGeoLocation = async (payload: {
+    country_id: string;
+    city_id?: string;
+    state_id?: string;
+  }) => {
+    const isValidGeoLocation =
+      await countryStateCityService.validateLocationData(
+        payload.country_id,
+        payload.city_id,
+        payload.state_id
+      );
+
+    if (isValidGeoLocation !== true) return { data: null };
+
+    const countryStateCity = await countryStateCityService.getCountryStateCity(
+      payload.country_id,
+      payload.city_id,
+      payload.state_id
+    );
+
+    if (!countryStateCity) return { data: null };
+
+    return {
+      data: countryStateCity,
+    };
   };
 
   public getAuthorizedCountriesName = async (payload: {

@@ -11,6 +11,16 @@ export enum ProjectTrackingPriority {
   "Low priority",
 }
 
+export enum ProjectTrackingStage {
+  "keep-in-view",
+  "proposing-stage",
+  "tendering-stage",
+  "production-stage",
+  "completed",
+  "terminated",
+  "unawarded",
+}
+
 export interface ProjectTrackingEntity {
   id: string;
   partner_id: string; // Foreign Key referencing partners.id
@@ -27,7 +37,7 @@ export interface ProjectTrackingEntity {
   state_id: string;
   city_id: string;
   address: string;
-  zip_code: string;
+  postal_code: string;
   project_type: string;
   building_type: string;
   date_of_tender: string;

@@ -5,6 +5,7 @@ export enum ActivityTypes {
   assign_product_to_project,
   create_inquiry_request,
   create_project_request,
+  create_brand_project,
   assign_member_to_project,
   create_project,
   update_project,
@@ -44,6 +45,9 @@ class LogService {
         break;
       case ActivityTypes.create_project_request:
         message = "Created project request of product <%= product_id %>";
+        break;
+      case ActivityTypes.create_brand_project:
+        message = "Created brand project of product <%= product_id %>";
         break;
       case ActivityTypes.assign_member_to_project:
         message = "Assigned user <%= user_id %> to project <%= project_id %>";

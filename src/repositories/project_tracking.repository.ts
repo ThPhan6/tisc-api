@@ -9,6 +9,7 @@ import {
   SortOrder,
   ProjectTrackingEntity,
   ProjectTrackingPriority,
+  EProjectTrackingType,
 } from "@/types";
 import { isNumber } from "lodash";
 import { v4 } from "uuid";
@@ -97,6 +98,8 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
       limit,
       priority: filter.priority,
       projectStatus: filter.project_status as number,
+      type: filter.type as EProjectTrackingType,
+      projectStage: filter.project_stage,
     };
     const rawQuery = `
     FILTER project_trackings.brand_id == @brandId
@@ -104,6 +107,16 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
     ${
       typeof filter.priority === "number"
         ? `FILTER project_trackings.priority == @priority`
+        : ""
+    }
+    ${
+      typeof filter.type === "number"
+        ? `FILTER project_trackings.type == @type or null`
+        : ""
+    }
+    ${
+      typeof filter.project_stage === "string"
+        ? `FILTER project_trackings.project_stage_id == @projectStage`
         : ""
     }
 

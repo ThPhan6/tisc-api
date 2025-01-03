@@ -8,15 +8,17 @@ import { commonTypeRepository } from "@/repositories/common_type.repository";
 import productRepository from "@/repositories/product.repository";
 import { ActivityTypes, logService } from "@/services/log.service";
 import {
+  EProjectTrackingType,
   ProjectStatus,
   ProjectTrackingEntity,
   ProjectTrackingPriority,
+  ProjectTrackingStage,
   RespondedOrPendingStatus,
   SortOrder,
   SummaryInfo,
   UserAttributes,
 } from "@/types";
-import { omit } from "lodash";
+import { isNil, omit, pick } from "lodash";
 import { v4 as uuid } from "uuid";
 import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
 import { settingService } from "../setting/setting.service";
@@ -24,19 +26,22 @@ import { CreateProjectRequestBody } from "../../models/project_request.model";
 import {
   GetProjectListFilter,
   GetProjectListSort,
+  ProjectTrackingBrandRequest,
+  ProjectTrackingCreateRequest,
 } from "./project_tracking.types";
 import { projectRequestRepository } from "@/repositories/project_request.repository";
+import { locationService } from "../location/location.service";
+import { spawn } from "child_process";
 
 class ProjectTrackingService {
-  public createProjectRequest = async (
+  private async createProjectRequest(
+    user: UserAttributes,
     payload: CreateProjectRequestBody,
-    userId: string,
-    relationId: string,
     path: string
-  ) => {
+  ) {
     payload.request_for_ids = await settingService.findOrCreateList(
       payload.request_for_ids,
-      relationId,
+      user.relation_id,
       COMMON_TYPES.REQUEST_FOR
     );
 
@@ -55,19 +60,101 @@ class ProjectTrackingService {
 
     const response = await projectRequestRepository.create({
       ...payload,
-      created_by: userId,
+      created_by: user.id,
       status: RespondedOrPendingStatus.Pending,
       project_tracking_id: projectTracking.id,
     });
     logService.create(ActivityTypes.create_project_request, {
       path,
-      user_id: userId,
-      relation_id: relationId,
+      user_id: user.id,
+      relation_id: user.relation_id,
       data: { product_id: payload.product_id },
     });
     return successResponse({
       data: response,
     });
+  }
+
+  private async createBrandProject(
+    payload: ProjectTrackingBrandRequest,
+    user: UserAttributes,
+    path: string
+  ) {
+    const existedProject = await projectTrackingRepository.findBy({
+      project_name: payload.project_name,
+    });
+
+    if (existedProject) {
+      return errorMessageResponse(MESSAGES.PROJECT_NAME_EXISTED);
+    }
+
+    const location = await locationService.get(payload.location_id);
+
+    if (!location?.data) {
+      return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
+    }
+
+    const GEOLocation = await locationService.getGeoLocation({
+      country_id: location.data.country_id,
+      city_id: payload.city_id,
+      state_id: payload.state_id,
+    });
+
+    if (!GEOLocation?.data) {
+      return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
+    }
+
+    const project = await projectTrackingRepository.create({
+      ...payload,
+      location_id: location.data.id,
+      city_id: GEOLocation.data.city_id,
+      state_id: GEOLocation.data.state_id,
+      brand_id: user.relation_id,
+      priority: payload?.priority ?? ProjectTrackingPriority.Non,
+      type: EProjectTrackingType.BRAND,
+    });
+
+    if (!project) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+    }
+
+    logService.create(ActivityTypes.create_brand_project, {
+      path,
+      user_id: user.id,
+      relation_id: user.relation_id,
+      data: { brand_project: project.id },
+    });
+
+    return successResponse({
+      data: project,
+    });
+  }
+
+  public create = async (
+    user: UserAttributes,
+    payload: ProjectTrackingCreateRequest,
+    path: string
+  ) => {
+    if (payload.type === EProjectTrackingType.DESIGNER) {
+      return this.createProjectRequest(
+        user,
+        {
+          project_id: payload.project_id,
+          product_id: payload.product_id,
+          title: payload.title,
+          message: payload.message,
+          request_for_ids: payload.request_for_ids,
+        },
+        path
+      );
+    }
+
+    if (payload.type === EProjectTrackingType.BRAND) {
+      return this.createBrandProject(payload, user, path);
+    }
+
+    if (payload.type === EProjectTrackingType.PARTNER) {
+    }
   };
 
   public async update(
@@ -166,6 +253,22 @@ class ProjectTrackingService {
     order: SortOrder = "ASC"
   ) {
     const filterId = getWorkspace ? user.id : undefined;
+
+    let projectStage = undefined;
+    if (filter.project_stage) {
+      const types = await commonTypeRepository.getAllBy({
+        type: COMMON_TYPES.PROJECT_STAGE,
+      });
+
+      projectStage = types.find(
+        (el) => el.name === ProjectTrackingStage[filter.project_stage]
+      )?.id;
+
+      if (projectStage) {
+        filter.project_stage = projectStage as any;
+      }
+    }
+
     const projectTrackings =
       await projectTrackingRepository.getListProjectTracking(
         user.relation_id,
@@ -218,27 +321,78 @@ class ProjectTrackingService {
     });
   }
 
-  public async getProjectTrackingDetail(user: UserAttributes, id: string) {
-    const response = await projectTrackingRepository.getOne(
-      id,
-      user.id,
-      user.relation_id
-    );
+  public async get(
+    user: UserAttributes,
+    id: string,
+    type: EProjectTrackingType
+  ) {
+    switch (Number(type)) {
+      case EProjectTrackingType.BRAND: {
+        const response = await projectTrackingRepository.find(id);
 
-    if (!response.length) {
-      return errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404);
+        if (!response) {
+          return errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404);
+        }
+
+        return successResponse({
+          data: pick(response, [
+            "id",
+            "project_code",
+            "project_name",
+            "location_id",
+            "state_id",
+            "city_id",
+            "address",
+            "postal_code",
+            "project_type",
+            "building_type",
+            "date_of_tender",
+            "date_of_delivery",
+            "note",
+            "design_firm",
+            "project_status",
+            "priority",
+            "partner_id",
+            "project_stage_id",
+            "brand_id",
+          ]),
+        });
+      }
+
+      case EProjectTrackingType.PARTNER: {
+        const response = await projectTrackingRepository.find(id);
+
+        if (!response) {
+          return errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404);
+        }
+
+        return successResponse({
+          data: response,
+        });
+      }
+
+      default:
+        const response = await projectTrackingRepository.getOne(
+          id,
+          user.id,
+          user.relation_id
+        );
+
+        if (!response.length) {
+          return errorMessageResponse(MESSAGES.PROJECT_TRACKING_NOT_FOUND, 404);
+        }
+
+        await projectTrackingRepository.updateUniqueAttribute(
+          "project_trackings",
+          "read_by",
+          id,
+          user.id
+        );
+
+        return successResponse({
+          data: response[0],
+        });
     }
-
-    await projectTrackingRepository.updateUniqueAttribute(
-      "project_trackings",
-      "read_by",
-      id,
-      user.id
-    );
-
-    return successResponse({
-      data: response[0],
-    });
   }
 
   public async getProjectTrackingSummary(
