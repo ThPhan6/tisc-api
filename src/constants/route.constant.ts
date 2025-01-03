@@ -375,6 +375,7 @@ export const ROUTES = {
     GET_ONE_PARTNER_CONTACT: "/api/partner-contact/get-one/{id}",
     UPDATE_PARTNER_CONTACT: "/api/partner-contact/update/{id}",
     DELETE_PARTNER_CONTACT: "/api/partner-contact/delete/{id}",
+    INVITE_PARTNER_CONTACT: "/api/partner-contact/invite/{id}",
   },
   DYNAMIC_CATEGORY: {
     GET_CATEGORIES: "/api/dynamic-category/get-list",

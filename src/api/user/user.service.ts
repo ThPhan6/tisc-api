@@ -7,6 +7,7 @@ import {
   RoleIndex,
   ImageSize,
   DesignFirmRoles,
+  DEFAULT_UNEMPLOYED_COMPANY_NAME,
 } from "@/constants";
 
 import {
@@ -42,6 +43,7 @@ import {
 } from "@/helpers/common.helper";
 import { uploadLogo } from "@/services/image.service";
 import { ActivityTypes, logService } from "@/services/log.service";
+import partnerRepository from "@/repositories/partner.repository";
 
 export default class UserService {
   private mailService: MailService;
@@ -68,15 +70,18 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
-    const department = authenticatedUser.role_id != DesignFirmRoles.Admin ? await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DEPARTMENT
-    ) : await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DESIGNER_DEPARTMENT
-    );
+    const department =
+      authenticatedUser.role_id != DesignFirmRoles.Admin
+        ? await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DEPARTMENT
+          )
+        : await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DESIGNER_DEPARTMENT
+          );
 
     const createdUser = await userRepository.create({
       firstname: payload.firstname,
@@ -164,6 +169,7 @@ export default class UserService {
       retrieve_favourite: user.retrieve_favourite,
       interested: user.interested,
       personal_phone_code: user.personal_phone_code || "",
+      remark: user.remark || "",
     };
 
     if (user.type === UserType.Brand) {
@@ -196,6 +202,13 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
+    if (user.email !== payload.email) {
+      const userExist = await userRepository.findBy({ email: payload.email });
+      if (userExist) {
+        return errorMessageResponse(MESSAGES.EMAIL_USED);
+      }
+    }
+
     if (
       !validateRoleType(authenticatedUser.type, user.role_id) ||
       authenticatedUser.relation_id !== user.relation_id
@@ -208,15 +221,18 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
-    const department = authenticatedUser.role_id != DesignFirmRoles.Admin ? await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DEPARTMENT
-    ) : await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DESIGNER_DEPARTMENT
-    );
+    const department =
+      authenticatedUser.role_id != DesignFirmRoles.Admin
+        ? await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DEPARTMENT
+          )
+        : await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DESIGNER_DEPARTMENT
+          );
     const updatedUser = await userRepository.update(user.id, {
       ...payload,
       department_id: department.id,
@@ -357,7 +373,11 @@ export default class UserService {
     if (!user) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
-    if (user.status !== UserStatus.Pending) {
+
+    if (
+      user.status !== UserStatus.Pending &&
+      user.status !== UserStatus.Uninitiate
+    ) {
       return errorMessageResponse(MESSAGES.GENERAL.INVITED_ALREADY);
     }
     await this.mailService.sendInviteEmailTeamProfile(user, authenticatedUser);

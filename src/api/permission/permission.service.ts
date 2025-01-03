@@ -8,6 +8,7 @@ import {
   MESSAGES,
   DefaultPermission,
   RoleNames,
+  PartnerRoles,
 } from "@/constants";
 import {
   errorMessageResponse,
@@ -15,7 +16,7 @@ import {
   successMessageResponse,
 } from "@/helpers/response.helper";
 import { mappingPermission } from "./permission.mapping";
-import { UserAttributes, UserRole } from "@/types";
+import { UserAttributes, UserRole, UserType } from "@/types";
 import { CompanyPermissionAttributes } from "@/models/company_permission.model";
 import { isEmpty } from "lodash";
 import { ActivityTypes, logService } from "@/services/log.service";
@@ -35,6 +36,12 @@ export default class PermissionService {
           withRole ? user.role_id : undefined
         );
     }
+
+    /// add permission for brand partner
+    if (user.type === UserType.Brand) {
+      companyPermissions = companyPermissions.concat(companyPermissions);
+    }
+
     return successResponse({
       data: mappingPermission(companyPermissions),
     });
@@ -71,8 +78,9 @@ export default class PermissionService {
 
   public initPermission = async (user: UserAttributes) => {
     const permissions = await permissionRepository.getAllBy({
-      type: user.type,
+      type: user.type === UserType.Partner ? UserType.Brand : user.type,
     });
+
     const roles = RoleData[user.type] as UserRole[];
     const data: Partial<CompanyPermissionAttributes>[] = [];
     ///
@@ -107,6 +115,9 @@ export default class PermissionService {
     }
     if (roleId === DesignFirmRoles.Member) {
       return DefaultPermission.design_team.includes(permissionId);
+    }
+    if (roleId === PartnerRoles.Admin) {
+      return DefaultPermission.partner_admin.includes(permissionId);
     }
     return false;
   };

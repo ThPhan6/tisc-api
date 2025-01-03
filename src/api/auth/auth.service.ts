@@ -46,6 +46,7 @@ const errorMessage = {
   [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
   [UserType.Designer]: MESSAGES.DESIGN_INACTIVE_LOGIN,
   [UserType.TISC]: MESSAGES.ACCOUNT_INACTIVE_LOGIN,
+  [UserType.Partner]: MESSAGES.ACCOUNT_INACTIVE_LOGIN,
 };
 
 class AuthService {
@@ -124,7 +125,7 @@ class AuthService {
 
   public login = async (payload: IAdminLoginRequest) => {
     ///
-    const user = await userRepository.findByCompanyIdWithCompanyStatus(
+    let user = await userRepository.findByCompanyIdWithCompanyStatus(
       payload.email
     );
     if (!user) {
@@ -143,6 +144,14 @@ class AuthService {
     );
     if (isIncorrectType) {
       return isIncorrectType;
+    }
+
+    if (user.type === UserType.Partner) {
+      user = await userRepository.findPartnerCompanyStatus(payload.email);
+
+      if (!user) {
+        return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+      }
     }
 
     //// company status validation

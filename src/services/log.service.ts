@@ -24,6 +24,9 @@ export enum ActivityTypes {
   create_team_profile,
   update_team_profile,
   delete_team_profile,
+  create_partner_profile,
+  update_partner_profile,
+  delete_partner_profile,
   enabled_permission,
 }
 
@@ -110,6 +113,15 @@ class LogService {
         message = "Updated user <%= user_id %>";
         break;
       case ActivityTypes.delete_team_profile:
+        message = "Deleted user <%= user_id %>";
+        break;
+      case ActivityTypes.create_partner_profile:
+        message = "Created user <%= user_id %>";
+        break;
+      case ActivityTypes.update_partner_profile:
+        message = "Updated user <%= user_id %>";
+        break;
+      case ActivityTypes.delete_partner_profile:
         message = "Deleted user <%= user_id %>";
         break;
       case ActivityTypes.enabled_permission:

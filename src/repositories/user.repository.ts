@@ -67,7 +67,11 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
-  public async getByTypeRoleAndRelation(type: UserType, role: string, relation_id?: string) {
+  public async getByTypeRoleAndRelation(
+    type: UserType,
+    role: string,
+    relation_id?: string
+  ) {
     return (await this.model
       .where("type", "==", type)
       .where("role_id", "==", role)
@@ -76,7 +80,10 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .join("locations", "locations.id", "==", "users.location_id")
       .get()) as UserAttributes[];
   }
-  public async getInactiveDesignFirmByBackupData(backupEmail: string, personalMobile: string) {
+  public async getInactiveDesignFirmByBackupData(
+    backupEmail: string,
+    personalMobile: string
+  ) {
     return (await this.model
       .where("backup_email", "==", backupEmail)
       .where("personal_mobile", "==", personalMobile)
@@ -111,6 +118,32 @@ class UserRepository extends BaseRepository<UserAttributes> {
         )
         RETURN MERGE(users, {
           company_status: LENGTH(brands) > 0 ? brands[0].status : (LENGTH(designs) > 0 ? designs[0].status : 0)
+        })
+      `,
+      { email }
+    )) as (UserAttributes & { company_status: ActiveStatus })[];
+    return head(result);
+  }
+
+  public async findPartnerCompanyStatus(email: string) {
+    const result = (await this.model.rawQuery(
+      `
+        FILTER LOWER(users.email) == @email
+        FILTER users.deleted_at == null
+        LET brandId = FIRST(
+          FOR partner IN partners
+          FILTER partner.deleted_at == null
+          FILTER partner.id == users.relation_id
+          RETURN partner.brand_id
+        )
+        LET brandStatus = FIRST(
+          FOR brand IN brands
+          FILTER brand.deleted_at == null
+          FILTER brand.id == brandId
+          RETURN brand.status
+        )
+        RETURN MERGE(users, {
+          company_status: brandStatus
         })
       `,
       { email }
@@ -163,7 +196,9 @@ class UserRepository extends BaseRepository<UserAttributes> {
         LET fullname = concat(user.firstname, ' '
         ,user.lastname)
         LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
-        LET status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${
+        LET status = (user.status == ${
+          UserStatus.Active
+        } ? 'Activated' : (user.status == ${
       UserStatus.Blocked
     } ? 'Blocked' : 'Pending'))
      `;
