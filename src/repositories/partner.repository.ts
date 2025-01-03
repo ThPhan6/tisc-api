@@ -1,6 +1,6 @@
 import PartnerModel from "@/models/partner.model";
 import BaseRepository from "@/repositories/base.repository";
-import { SortOrder } from "@/types";
+import { SortOrder, UserType } from "@/types";
 import { PartnerAttributes } from "@/types/partner.type";
 
 class PartnerRepository extends BaseRepository<PartnerAttributes> {
@@ -78,9 +78,10 @@ class PartnerRepository extends BaseRepository<PartnerAttributes> {
     const raw = `
     FOR company IN @companies
     LET cts = (
-      FOR contact IN partner_contacts
-      FILTER contact.partner_company_id == company.id
+      FOR contact IN users
+      FILTER contact.relation_id == company.id
       FILTER contact.deleted_at == null
+      FILTER contact.type == ${UserType.Partner}
       SORT CONCAT(contact.firstname, " ", contact.lastname) ASC
       RETURN CONCAT(UPPER(SUBSTRING(contact.firstname, 0, 1)), SUBSTRING(contact.firstname, 1), " ", UPPER(SUBSTRING(contact.lastname, 0, 1)), SUBSTRING(contact.lastname, 1))
     )
