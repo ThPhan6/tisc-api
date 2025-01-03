@@ -20,12 +20,12 @@ import { omit } from "lodash";
 import { v4 as uuid } from "uuid";
 import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
 import { settingService } from "../setting/setting.service";
-import { CreateProjectRequestBody } from "./project_request.model";
-import { projectRequestRepository } from "./project_request.repository";
+import { CreateProjectRequestBody } from "../../models/project_request.model";
 import {
   GetProjectListFilter,
   GetProjectListSort,
 } from "./project_tracking.types";
+import { projectRequestRepository } from "@/repositories/project_request.repository";
 
 class ProjectTrackingService {
   public createProjectRequest = async (

@@ -2,7 +2,7 @@ import BaseRepository from "@/repositories/base.repository";
 import { RespondedOrPendingStatus } from "@/types";
 import ProjectRequestModel, {
   ProjectRequestAttributes,
-} from "./project_request.model";
+} from "../models/project_request.model";
 
 class ProjectRequestRepository extends BaseRepository<ProjectRequestAttributes> {
   protected model: ProjectRequestModel;

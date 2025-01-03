@@ -1,6 +1,6 @@
 import { ProjectTrackingEntity, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { CreateProjectRequestBody } from "./project_request.model";
+import { CreateProjectRequestBody } from "../../models/project_request.model";
 
 import { projectTrackingService } from "./project_tracking.service";
 

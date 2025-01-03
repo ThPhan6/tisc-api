@@ -3,7 +3,7 @@ import ProjectTrackingNotificationModel, {
   ProjectTrackingNotificationAttributes,
   ProjectTrackingNotificationStatus,
   ProjectTrackingNotificationType,
-} from "./project_tracking_notification.model";
+} from "../models/project_tracking_notification.model";
 
 class ProjectTrackingNotificationRepository extends BaseRepository<ProjectTrackingNotificationAttributes> {
   protected model: ProjectTrackingNotificationModel;

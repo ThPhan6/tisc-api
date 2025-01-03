@@ -20,8 +20,7 @@ import {
 } from "@/types";
 import { isEmpty, sumBy, countBy, sortBy, uniqBy, orderBy } from "lodash";
 import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
-import { ProjectTrackingNotificationType } from "../project_tracking/project_tracking_notification.model";
-import { projectTrackingNotificationRepository } from "../project_tracking/project_tracking_notification.repository";
+import { ProjectTrackingNotificationType } from "../../models/project_tracking_notification.model";
 import { ProjectProductAttributes } from "./project_product.model";
 import { projectProductRepository } from "./project_product.repository";
 import {
@@ -40,6 +39,7 @@ import { userProductSpecificationRepository } from "../user_product_specificatio
 import { stepSelectionRepository } from "@/repositories/step_selection.repository";
 import { v4 as uuid } from "uuid";
 import moment from "moment";
+import { projectTrackingNotificationRepository } from "@/repositories/project_tracking_notification.repository";
 
 class ProjectProductService {
   private duplicateStepSelection = (

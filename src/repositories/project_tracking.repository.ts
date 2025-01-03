@@ -12,7 +12,7 @@ import {
 } from "@/types";
 import { isNumber } from "lodash";
 import { v4 } from "uuid";
-import { ProjectRequestAttributes } from "../api/project_tracking/project_request.model";
+import { ProjectRequestAttributes } from "../models/project_request.model";
 
 import {
   GetProjectListFilter,
@@ -21,7 +21,7 @@ import {
 import {
   ProjectTrackingNotificationAttributes,
   ProjectTrackingNotificationStatus,
-} from "../api/project_tracking/project_tracking_notification.model";
+} from "../models/project_tracking_notification.model";
 import ProjectTrackingModel from "@/models/project_tracking.model";
 
 class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
