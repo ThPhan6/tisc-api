@@ -31,6 +31,7 @@ export const COMMON_TYPES: CommonTypes = {
   PARTNER_ACQUISITION: 18,
   DESIGNER_DEPARTMENT: 19,
   INVENTORY_UNIT: 20,
+  PROJECT_STAGE: 21,
 };
 
 export enum CommonTypeGroup {
@@ -230,6 +231,8 @@ export const CollectionsToBackup = [
   "project_requests",
   "project_tracking_notifications",
   "project_trackings",
+  "project_tracking_quotations",
+  "project_tracking_quotation_details",
   "project_zones",
   "projects",
   "roles",
@@ -238,4 +241,9 @@ export const CollectionsToBackup = [
   "user_product_specifications",
   "users",
   "logs",
+  "inventories",
+  "inventory_base_prices",
+  "inventory_actions",
+  "inventory_ledgers",
+  "inventory_volume_prices",
 ];

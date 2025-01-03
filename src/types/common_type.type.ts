@@ -21,6 +21,7 @@ export interface CommonTypes {
   PARTNER_ACQUISITION: 18;
   DESIGNER_DEPARTMENT: 19;
   INVENTORY_UNIT: 20;
+  PROJECT_STAGE: 21;
 }
 
 export type CommonTypeValue = CommonTypes[keyof CommonTypes];

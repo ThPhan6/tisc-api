@@ -4,15 +4,17 @@ import {
   successResponse,
 } from "@/helpers/response.helper";
 import { ActivityTypes, logService } from "@/services/log.service";
-import { SummaryInfo, UserAttributes } from "@/types";
+import {
+  ProjectTrackingEntity,
+  ProjectTrackingPriority,
+  SummaryInfo,
+  UserAttributes,
+} from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
 import { v4 } from "uuid";
 import { CreateProjectRequestBody } from "./project_request.model";
-import {
-  ProjectTrackingAttributes,
-  ProjectTrackingPriority,
-} from "./project_tracking.model";
-import { projectTrackingRepository } from "./project_tracking.repository";
+
+import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
 import { projectTrackingService } from "./project_tracking.service";
 
 export default class ProjectTrackingController {
@@ -50,7 +52,7 @@ export default class ProjectTrackingController {
     };
 
   public updateProjectTracking = async (
-    req: Request & { payload: Partial<ProjectTrackingAttributes> },
+    req: Request & { payload: Partial<ProjectTrackingEntity> },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
