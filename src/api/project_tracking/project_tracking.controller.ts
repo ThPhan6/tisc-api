@@ -1,19 +1,18 @@
 import { ProjectTrackingEntity, UserAttributes } from "@/types";
 import { Request, ResponseToolkit } from "@hapi/hapi";
-import { CreateProjectRequestBody } from "../../models/project_request.model";
 
 import { projectTrackingService } from "./project_tracking.service";
+import { ProjectTrackingCreateRequest } from "./project_tracking.types";
 
 export default class ProjectTrackingController {
-  public createProjectRequest = async (
-    req: Request & { payload: CreateProjectRequestBody },
+  public create = async (
+    req: Request & { payload: ProjectTrackingCreateRequest },
     toolkit: ResponseToolkit
   ) => {
-    const currentUser = req.auth.credentials.user as UserAttributes;
-    const response = await projectTrackingService.createProjectRequest(
+    const user = req.auth.credentials.user as UserAttributes;
+    const response = await projectTrackingService.create(
+      user,
       req.payload,
-      currentUser.id,
-      currentUser.relation_id,
       req.path
     );
 
@@ -23,30 +22,38 @@ export default class ProjectTrackingController {
   public getListProjectTracking =
     (getWorkspace: boolean) =>
     async (req: Request, toolkit: ResponseToolkit) => {
-      const { limit, offset, sort, order, project_status, priority } =
-        req.query;
+      const {
+        limit,
+        offset,
+        sort,
+        order,
+        project_status,
+        priority,
+        project_stage,
+        type,
+      } = req.query;
       const currentUser = req.auth.credentials.user as UserAttributes;
       const response = await projectTrackingService.getListProjectTracking(
         getWorkspace,
         currentUser,
         limit,
         offset,
-        { project_status, priority },
+        { project_status, priority, project_stage, type },
         sort,
         order
       );
       return toolkit.response(response).code(response.statusCode ?? 200);
     };
 
-  public updateProjectTracking = async (
-    req: Request & { payload: Partial<ProjectTrackingEntity> },
+  public update = async (
+    req: Request & { payload: Partial<ProjectTrackingCreateRequest> },
     toolkit: ResponseToolkit
   ) => {
     const { id } = req.params;
     const user = req.auth.credentials.user as UserAttributes;
     const response = await projectTrackingService.update(
       user,
-      { ...(req.payload as ProjectTrackingEntity), id },
+      { ...(req.payload as Partial<ProjectTrackingCreateRequest>), id },
       req.path
     );
     return toolkit.response(response).code(response.statusCode ?? 200);
@@ -63,17 +70,20 @@ export default class ProjectTrackingController {
       return toolkit.response(response).code(response.statusCode ?? 200);
     };
 
-  public getProjectTrackingDetail = async (
-    req: Request,
-    toolkit: ResponseToolkit
-  ) => {
+  public get = async (req: Request, toolkit: ResponseToolkit) => {
     const user = req.auth.credentials.user as UserAttributes;
     const { id } = req.params;
+    const { type } = req.query;
 
-    const response = await projectTrackingService.getProjectTrackingDetail(
-      user,
-      id
-    );
+    const response = await projectTrackingService.get(user, id, type);
+
+    return toolkit.response(response).code(response.statusCode ?? 200);
+  };
+
+  public delete = async (req: Request, toolkit: ResponseToolkit) => {
+    const user = req.auth.credentials.user as UserAttributes;
+    const { id } = req.params;
+    const response = await projectTrackingService.delete(user, id, req.path);
 
     return toolkit.response(response).code(response.statusCode ?? 200);
   };

@@ -17,8 +17,8 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "POST",
           path: ROUTES.PROJECT_TRACKING.CREATE,
           options: {
-            handler: controller.createProjectRequest,
-            validate: validate.createProjectRequest,
+            handler: controller.create,
+            validate: validate.create,
             description: "Method that create a product request for a project",
             tags: ["api", "Project Tracking"],
             auth: AUTH_NAMES.PERMISSION,
@@ -68,8 +68,8 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "PATCH",
           path: ROUTES.PROJECT_TRACKING.UPDATE,
           options: {
-            handler: controller.updateProjectTracking,
-            validate: validate.updateProjectTracking,
+            handler: controller.update,
+            validate: validate.update,
             description: "Method that update project tracking info",
             tags: ["api", "Project Tracking"],
             auth: AUTH_NAMES.PERMISSION,
@@ -116,15 +116,31 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "GET",
           path: ROUTES.PROJECT_TRACKING.GET_ONE,
           options: {
-            handler: controller.getProjectTrackingDetail,
-            validate: validate.getOne,
+            handler: controller.get,
+            validate: validate.get,
             description: "Method that get project tracking detail info",
             tags: ["api", "Project Tracking"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getProjectTrackingDetail,
+                200: response.get,
+              },
+            },
+          },
+        },
+        {
+          method: "DELETE",
+          path: ROUTES.PROJECT_TRACKING.DELETE,
+          options: {
+            handler: controller.delete,
+            validate: validate.delete,
+            description: "Method that delete a project tracking",
+            tags: ["api", "Project Tracking"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
               },
             },
           },
