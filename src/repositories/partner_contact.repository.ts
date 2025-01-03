@@ -1,21 +1,20 @@
 import {
   PartnerContactAttributes,
   PartnerContactSort,
-  PartnerContactStatus,
 } from "@/api/partner_contact/partner_contact.type";
 import { DEFAULT_UNEMPLOYED_COMPANY_NAME } from "@/constants";
 import { pagination } from "@/helpers/common.helper";
 import PartnerContactModel from "@/models/partner_contact.model";
 import BaseRepository from "@/repositories/base.repository";
-import { SortOrder } from "@/types";
+import { SortOrder, UserStatus, UserType } from "@/types";
 
 const isValidPartnerContactStatus = (status: any) => {
   switch (status) {
-    case PartnerContactStatus.Uninitiate:
+    case UserStatus.Uninitiate:
       return true;
-    case PartnerContactStatus.Activated:
+    case UserStatus.Active:
       return true;
-    case PartnerContactStatus.Pending:
+    case UserStatus.Pending:
       return true;
     default:
       return false;
@@ -28,7 +27,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
   }
   protected model: PartnerContactModel;
   protected DEFAULT_ATTRIBUTE: Partial<PartnerContactAttributes> = {
-    partner_company_id: "",
+    relation_id: "",
     firstname: "",
     lastname: "",
     gender: true,
@@ -38,7 +37,7 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     phone: "",
     mobile: "",
     remark: "",
-    status: PartnerContactStatus.Uninitiate,
+    status: UserStatus.Uninitiate,
   };
 
   public getListPartnerContact = async (
@@ -48,43 +47,47 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
     order: SortOrder,
     brandId: string | null,
     filter: {
-      status?: PartnerContactStatus;
+      status?: UserStatus;
     } = {}
   ) => {
     let totalRaw = `
-    FOR contacts IN partner_contacts
+    FOR contact IN users
+    FILTER contact.deleted_at == null
+    FILTER contact.type == ${UserType.Partner}
     LET company = FIRST(
-        FOR partners IN partners 
-        FILTER partners.brand_id == @brandId
-        FILTER partners.id == contacts.partner_company_id
-        RETURN partners
-      )
-    FILTER contacts.deleted_at == null
+      FOR partner IN partners
+      FILTER partner.deleted_at == null
+      FILTER partner.brand_id == @brandId
+      FILTER partner.id == contact.relation_id
+      RETURN partner
+    )
     FILTER company.brand_id == @brandId
-    OR contacts.partner_company_id == @brandId
+    OR contact.relation_id == @brandId
     ${
       isValidPartnerContactStatus(filter.status)
-        ? `FILTER contacts.status == @status`
+        ? `FILTER contact.status == @status`
         : ""
     }
     COLLECT WITH COUNT INTO length RETURN length
     `;
     let raw = `
     LET tempList = (
-      FOR contacts IN partner_contacts
+      FOR contact IN users
+      FILTER contact.deleted_at == null
+      FILTER contact.type == ${UserType.Partner}
       LET company = FIRST(
-        FOR partners IN partners 
-        FILTER partners.brand_id == @brandId
-        FILTER partners.id == contacts.partner_company_id
-        RETURN partners
+        FOR partner IN partners
+        FILTER partner.deleted_at == null
+        FILTER partner.brand_id == @brandId
+        FILTER partner.id == contact.relation_id
+        RETURN partner
       )
-      FILTER contacts.deleted_at == null
       FILTER company.brand_id == @brandId
-      OR contacts.partner_company_id == @brandId
+      OR contact.relation_id == @brandId
 
-      RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
-        fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company_name: company.name != null ? company.name : 'Unemployed',
+      RETURN MERGE(UNSET(contact, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+        fullname: CONCAT(contact.firstname, " ", contact.lastname),
+        company_name: company.name != null ? company.name : "${DEFAULT_UNEMPLOYED_COMPANY_NAME}",
         country_name: company.country_name
       })
     )
@@ -124,22 +127,24 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
 
   public getOne = async (id: string) => {
     let raw = `
-    LET temp = FIRST(FOR contacts IN partner_contacts
-      
+    LET temp = FIRST(
+      FOR contact IN users
       LET company = FIRST(
-        FOR partners IN partners 
-        FILTER partners.id == contacts.partner_company_id
-        RETURN partners
+        FOR partner IN partners
+        FILTER partner.deleted_at == null
+        FILTER partner.id == contact.relation_id
+        RETURN partner
       )
-      FILTER contacts.id == @id
-      FILTER contacts.deleted_at == null
-      RETURN MERGE(UNSET(contacts, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
-        fullname: CONCAT(contacts.firstname, " ", contacts.lastname),
-        company_name: company.name != null ? company.name : 'Unemployed',
+      FILTER contact.id == @id
+      FILTER contact.deleted_at == null
+      RETURN MERGE(UNSET(contact, ['_id', '_key', '_rev', 'deleted_at', 'deleted_by']), {
+        fullname: CONCAT(contact.firstname, " ", contact.lastname),
+        company_name: company.name != null ? company.name : "${DEFAULT_UNEMPLOYED_COMPANY_NAME}",
         country_name: company.country_name,
         phone_code: company.phone_code != null ?  company.phone_code : '00'
-      }))
-    RETURN temp  
+      })
+    )
+    RETURN temp
       `;
 
     const result = await this.model.rawQueryV2(raw, { id });
@@ -152,10 +157,10 @@ class PartnerContactRepository extends BaseRepository<PartnerContactAttributes> 
   public async updateContactToUnemployed(partnerId: string, brandId: string) {
     await this.model
       .getQuery()
-      .where("partner_company_id", "==", partnerId)
+      .where("relation_id", "==", partnerId)
       .whereNull("deleted_at")
       .update({
-        partner_company_id: brandId,
+        relation_id: brandId,
         company_name: DEFAULT_UNEMPLOYED_COMPANY_NAME,
       });
   }
