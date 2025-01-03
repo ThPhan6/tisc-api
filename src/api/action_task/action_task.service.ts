@@ -14,15 +14,15 @@ import {
   ActionTaskModelKey,
   ActionTaskStatus,
 } from "@/types";
-import { projectRequestRepository } from "../project_tracking/project_request.repository";
-import { ProjectTrackingNotificationStatus } from "../project_tracking/project_tracking_notification.model";
+import { ProjectTrackingNotificationStatus } from "../../models/project_tracking_notification.model";
 import { settingService } from "../setting/setting.service";
 import { projectTrackingRepository } from "../../repositories/project_tracking.repository";
-import { projectTrackingNotificationRepository } from "./../project_tracking/project_tracking_notification.repository";
 import {
   ActionTaskRequestCreate,
   ActionTaskRequestUpdateStatus,
 } from "./action_task.type";
+import { projectTrackingNotificationRepository } from "@/repositories/project_tracking_notification.repository";
+import { projectRequestRepository } from "@/repositories/project_request.repository";
 
 class ActionTaskService {
   public async create(
