@@ -1,5 +1,6 @@
 import { CreateProjectRequestBody } from "@/models/project_request.model";
 import {
+  DesignerAttributes,
   EProjectTrackingType,
   ProjectStatusValue,
   ProjectTrackingEntity,
@@ -16,8 +17,10 @@ export interface GetProjectListFilter {
 
 export type GetProjectListSort =
   | "created_at"
+  | "project_code"
   | "project_name"
   | "project_location"
+  | "project_partner"
   | "project_type"
   | "design_firm";
 
@@ -40,8 +43,17 @@ export interface ProjectTrackingBrandRequest
     | "building_type_id"
     | "postal_code"
     | "priority"
+    | "assigned_teams"
   > {}
 
 export interface ProjectTrackingCreateRequest
   extends CreateProjectRequestBody,
     ProjectTrackingEntity {}
+
+export interface ProjectTrackingListResponse extends ProjectTrackingEntity {
+  project_partner: string;
+  project_location: string;
+  project_type: string;
+  project_stage: string;
+  members: DesignerAttributes[];
+}

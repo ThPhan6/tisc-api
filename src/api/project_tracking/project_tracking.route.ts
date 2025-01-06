@@ -19,7 +19,8 @@ export default class ProjectTrackingRoute implements IRoute {
           options: {
             handler: controller.create,
             validate: validate.create,
-            description: "Method that create a product request for a project",
+            description:
+              "Method that create a product request for a project; brand, and partner project",
             tags: ["api", "Project Tracking"],
             auth: AUTH_NAMES.PERMISSION,
             response: {
@@ -34,7 +35,7 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "GET",
           path: ROUTES.PROJECT_TRACKING.GET_LIST,
           options: {
-            handler: controller.getListProjectTracking(false),
+            handler: controller.getList(false),
             validate: validate.getList,
             description: "Method that get project tracking list",
             tags: ["api", "Project Tracking"],
@@ -42,7 +43,7 @@ export default class ProjectTrackingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getListProjectTracking,
+                200: response.getList,
               },
             },
           },
@@ -51,7 +52,7 @@ export default class ProjectTrackingRoute implements IRoute {
           method: "GET",
           path: ROUTES.GET_BRAND_WORKSPACE,
           options: {
-            handler: controller.getListProjectTracking(true),
+            handler: controller.getList(true),
             validate: getProjectValidate,
             description: "Method that get brand user workspace",
             tags: ["api", "Project Tracking", "Workspace"],
@@ -59,7 +60,7 @@ export default class ProjectTrackingRoute implements IRoute {
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,
-                200: response.getListProjectTracking,
+                200: response.getList,
               },
             },
           },

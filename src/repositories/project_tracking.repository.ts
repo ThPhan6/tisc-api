@@ -11,19 +11,21 @@ import {
   ProjectTrackingPriority,
   EProjectTrackingType,
 } from "@/types";
-import { isNumber } from "lodash";
+import { isNil, isNumber } from "lodash";
 import { v4 } from "uuid";
 import { ProjectRequestAttributes } from "../models/project_request.model";
 
 import {
   GetProjectListFilter,
   GetProjectListSort,
+  ProjectTrackingListResponse,
 } from "../api/project_tracking/project_tracking.types";
 import {
   ProjectTrackingNotificationAttributes,
   ProjectTrackingNotificationStatus,
 } from "../models/project_tracking_notification.model";
 import ProjectTrackingModel from "@/models/project_tracking.model";
+import { COMMON_TYPES } from "@/constants";
 
 class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
   protected model: ProjectTrackingModel;
@@ -98,8 +100,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
       limit,
       priority: filter.priority,
       projectStatus: filter.project_status as number,
-      type: filter.type as EProjectTrackingType,
-      projectStage: filter.project_stage,
     };
     const rawQuery = `
     FILTER project_trackings.brand_id == @brandId
@@ -109,17 +109,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
         ? `FILTER project_trackings.priority == @priority`
         : ""
     }
-    ${
-      typeof filter.type === "number"
-        ? `FILTER project_trackings.type == @type or null`
-        : ""
-    }
-    ${
-      typeof filter.project_stage === "string"
-        ? `FILTER project_trackings.project_stage_id == @projectStage`
-        : ""
-    }
-
     ${sort === "created_at" ? `SORT project_trackings.${sort} ${order}` : ""}
 
     FOR project IN projects
@@ -180,6 +169,160 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
       notifications,
       members
     }
+    `;
+    return this.model.rawQuery(rawQuery, params);
+  }
+
+  public async getListBrandProjectTracking(
+    brandId: string,
+    limit: number,
+    offset: number,
+    filter: GetProjectListFilter,
+    sort: GetProjectListSort,
+    order: SortOrder,
+    userId?: string
+  ): Promise<ProjectTrackingListResponse[]> {
+    const params = {
+      userId,
+      brandId,
+      offset,
+      limit,
+      priority: filter.priority,
+      projectStage: filter.project_stage as number,
+      type: (filter.type = EProjectTrackingType.BRAND),
+    };
+    const rawQuery = `
+    LET activeLocations = (
+      FOR loc IN locations
+      FILTER loc.deleted_at == null
+      LET location = ${locationRepository.getShortLocationQuery("loc")}
+      RETURN MERGE(KEEP(loc, 'id'), {name: location})
+    )
+
+    LET activeUsers = (
+      FOR user IN users
+      FILTER user.deleted_at == null
+      FILTER user.relation_id == @brandId
+      RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
+    )
+
+    LET activePartners = (
+      FOR pt IN partners
+      FILTER pt.deleted_at == null
+      FILTER pt.brand_id == @brandId
+      RETURN KEEP(pt, 'id', 'name')
+    )
+
+    LET activeCommonTypes = (
+      FOR ct IN common_types
+      FILTER ct.deleted_at == null
+      FILTER ct.type == ${COMMON_TYPES.PROJECT_TYPE} OR ct.type == ${
+      COMMON_TYPES.PROJECT_STAGE
+    }
+      RETURN KEEP(ct, 'id', 'name')
+    )
+
+    FOR project_tracking IN project_trackings
+    FILTER project_tracking.deleted_at == null
+    FILTER project_tracking.brand_id == @brandId
+    ${!isNil(filter.type) ? `FILTER project_tracking.type == @type` : ""}
+    ${
+      !isNil(filter.priority)
+        ? `FILTER project_tracking.priority == @priority`
+        : ""
+    }
+    ${
+      !isNil(filter.project_stage)
+        ? `FILTER project_tracking.project_stage_id == @projectStage`
+        : ""
+    }
+
+    LET location = FIRST(
+      FOR loc IN activeLocations
+      FILTER project_tracking.location_id == loc.id
+      RETURN loc.name
+    )
+
+    LET partner = FIRST(
+      FOR pt IN activePartners
+      FILTER project_tracking.partner_id == pt.id
+      RETURN pt.name
+    )
+
+    LET projectType = FIRST(
+      FOR ct IN activeCommonTypes
+      FILTER project_tracking.project_type_id == ct.id
+      RETURN ct.name
+    )
+
+    LET projectStage = FIRST(
+      FOR ct IN activeCommonTypes
+      FILTER project_tracking.project_stage_id == ct.id
+      RETURN ct.name
+    )
+
+    ${sort === "created_at" ? `SORT project_tracking.created_at ${order}` : ""}
+    ${
+      sort === "project_code"
+        ? `SORT project_tracking.project_code ${order}`
+        : ""
+    }
+    ${
+      sort === "project_name"
+        ? `SORT project_tracking.project_name ${order}`
+        : ""
+    }
+    ${sort === "project_type" ? `SORT projectType ${order}` : ""}
+    ${sort === "project_location" ? `SORT location ${order}` : ""}
+    ${
+      sort === "design_firm" ? `SORT project_tracking.design_firm ${order}` : ""
+    }
+    ${sort === "project_partner" ? `SORT partner ${order}` : ""}
+
+    LET members = (
+      FOR user IN activeUsers
+      FILTER user.id IN project_tracking.assigned_teams
+      RETURN user
+    )
+
+    ${userId ? "FILTER @userId IN members[*].id" : ""}
+    ${isNumber(offset) && isNumber(limit) ? "LIMIT @offset, @limit" : ""}
+    RETURN MERGE(UNSET(project_tracking, ['_key','_id','_rev', 'deleted_at']), { project_location: location, project_partner: partner, project_type: projectType, project_stage: projectStage, members })`;
+
+    return this.model.rawQueryV2(rawQuery, params);
+  }
+
+  public async getListBrandProjectTrackingTotal(
+    brandId: string,
+    filter: GetProjectListFilter
+  ): Promise<number[]> {
+    const params = {
+      brandId,
+      priority: filter.priority,
+      projectStage: filter.project_stage as number,
+      type: (filter.type = EProjectTrackingType.BRAND),
+    };
+    const rawQuery = `
+    FILTER project_trackings.deleted_at == null
+    FILTER project_trackings.brand_id == @brandId
+    ${
+      typeof filter.priority === "number"
+        ? `FILTER project_trackings.priority == @priority`
+        : ""
+    }
+    ${
+      typeof filter.project_stage === "string"
+        ? `FILTER project_trackings.project_stage_id == @projectStage`
+        : ""
+    }
+    ${
+      typeof filter.type === "number"
+        ? `FILTER project_trackings.type == @type`
+        : ""
+    }
+
+    COLLECT WITH COUNT INTO length
+    RETURN length
     `;
     return this.model.rawQuery(rawQuery, params);
   }

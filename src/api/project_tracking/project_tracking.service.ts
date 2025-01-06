@@ -31,6 +31,7 @@ import {
   GetProjectListSort,
   ProjectTrackingBrandRequest,
   ProjectTrackingCreateRequest,
+  ProjectTrackingListResponse,
 } from "./project_tracking.types";
 
 class ProjectTrackingService {
@@ -275,8 +276,6 @@ class ProjectTrackingService {
     user: UserAttributes,
     path: string
   ) {
-    console.log("updateBrandProject");
-
     const existedProject = await projectTrackingRepository.find(
       payload.id as string
     );
@@ -313,6 +312,7 @@ class ProjectTrackingService {
       "project_status",
       "priority",
       "partner_id",
+      "assigned_teams",
     ]);
 
     if (
@@ -365,6 +365,30 @@ class ProjectTrackingService {
       }
     }
 
+    if (payload.assigned_teams && payload.assigned_teams[0]) {
+      logService.create(ActivityTypes.assign_member_to_project_tracking, {
+        path: path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          user_id: payload.assigned_teams[0],
+          project_tracking_id: payload.id,
+        },
+      });
+    }
+
+    if (payload.priority) {
+      logService.create(ActivityTypes.update_priority, {
+        path: path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          priority_name: ProjectTrackingPriority[payload.priority],
+          project_tracking_id: payload.id,
+        },
+      });
+    }
+
     const project = await projectTrackingRepository.update(
       payload.id,
       newPayload
@@ -403,7 +427,106 @@ class ProjectTrackingService {
         "partner_id",
         "brand_id",
         "type",
+        "assigned_teams",
       ]),
+    });
+  }
+
+  private async getListDesignerProject(
+    getWorkspace: boolean,
+    user: UserAttributes,
+    limit: number,
+    offset: number,
+    filter: GetProjectListFilter,
+    sort: GetProjectListSort = "project_name",
+    order: SortOrder = "ASC"
+  ) {
+    const filterId = getWorkspace ? user.id : undefined;
+
+    const projectTrackings =
+      await projectTrackingRepository.getListProjectTracking(
+        user.relation_id,
+        limit,
+        offset,
+        filter,
+        sort,
+        order,
+        filterId
+      );
+
+    const results = projectTrackings.map((el) => ({
+      id: el.project_tracking.id,
+      created_at: el.project_tracking.created_at,
+      priority: el.project_tracking.priority,
+      priorityName: ProjectTrackingPriority[el.project_tracking.priority],
+      projectName: el.project.name,
+      projectLocation: el.projectLocation,
+      projectType: el.project.project_type,
+      designFirm: el.designFirm?.name,
+      projectStatus: ProjectStatus[el.project.status],
+      requestCount: el.projectRequests.length,
+      newRequest: el.projectRequests.some((item) =>
+        item.read_by ? item.read_by.includes(user.id) === false : true
+      ),
+      notificationCount: el.notifications.length,
+      newNotification: el.notifications.some((item) =>
+        item.read_by ? item.read_by.includes(user.id) === false : true
+      ),
+      newTracking: el.project_tracking.read_by
+        ? el.project_tracking.read_by.includes(user.id) === false
+        : true,
+      assignedTeams: el.members,
+    }));
+
+    const total = getWorkspace
+      ? null
+      : await projectTrackingRepository.getListProjectTrackingTotal(
+          user.relation_id,
+          filter
+        );
+    return successResponse({
+      data: {
+        projectTrackings: results,
+        pagination:
+          typeof total?.[0] === "number"
+            ? pagination(limit, offset, total[0])
+            : undefined,
+      },
+    });
+  }
+
+  private async getListBrandProject(
+    user: UserAttributes,
+    limit: number,
+    offset: number,
+    filter: GetProjectListFilter,
+    sort: GetProjectListSort = "project_name",
+    order: SortOrder = "ASC"
+  ) {
+    const projects =
+      await projectTrackingRepository.getListBrandProjectTracking(
+        user.relation_id,
+        limit,
+        offset,
+        filter,
+        sort,
+        order
+      );
+
+    const total =
+      await projectTrackingRepository.getListBrandProjectTrackingTotal(
+        user.relation_id,
+        filter
+      );
+
+    return successResponse({
+      data: {
+        projectTrackings: projects,
+        pagination:
+          typeof total?.[0] === "number"
+            ? pagination(limit, offset, total[0])
+            : undefined,
+      },
     });
   }
 
@@ -494,7 +617,6 @@ class ProjectTrackingService {
     const product = await productRepository.find(productId);
 
     if (!product) {
-      console.log("product not found");
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
@@ -531,7 +653,7 @@ class ProjectTrackingService {
     return true;
   };
 
-  public async getListProjectTracking(
+  public async getList(
     getWorkspace: boolean,
     user: UserAttributes,
     limit: number,
@@ -540,73 +662,36 @@ class ProjectTrackingService {
     sort: GetProjectListSort = "project_name",
     order: SortOrder = "ASC"
   ) {
-    const filterId = getWorkspace ? user.id : undefined;
-
-    let projectStage = undefined;
-    if (filter.project_stage) {
-      const types = await commonTypeRepository.getAllBy({
-        type: COMMON_TYPES.PROJECT_STAGE,
-      });
-
-      projectStage = types.find(
-        (el) => el.name === ProjectTrackingStage[filter.project_stage]
-      )?.id;
-
-      if (projectStage) {
-        filter.project_stage = projectStage as any;
-      }
-    }
-
-    const projectTrackings =
-      await projectTrackingRepository.getListProjectTracking(
-        user.relation_id,
-        limit,
-        offset,
-        filter,
-        sort,
-        order,
-        filterId
-      );
-
-    const results = projectTrackings.map((el) => ({
-      id: el.project_tracking.id,
-      created_at: el.project_tracking.created_at,
-      priority: el.project_tracking.priority,
-      priorityName: ProjectTrackingPriority[el.project_tracking.priority],
-      projectName: el.project.name,
-      projectLocation: el.projectLocation,
-      projectType: el.project.project_type,
-      designFirm: el.designFirm?.name,
-      projectStatus: ProjectStatus[el.project.status],
-      requestCount: el.projectRequests.length,
-      newRequest: el.projectRequests.some((item) =>
-        item.read_by ? item.read_by.includes(user.id) === false : true
-      ),
-      notificationCount: el.notifications.length,
-      newNotification: el.notifications.some((item) =>
-        item.read_by ? item.read_by.includes(user.id) === false : true
-      ),
-      newTracking: el.project_tracking.read_by
-        ? el.project_tracking.read_by.includes(user.id) === false
-        : true,
-      assignedTeams: el.members,
-    }));
-
-    const total = getWorkspace
-      ? null
-      : await projectTrackingRepository.getListProjectTrackingTotal(
-          user.relation_id,
-          filter
+    switch (Number(filter.type)) {
+      case EProjectTrackingType.BRAND:
+        return this.getListBrandProject(
+          user,
+          limit,
+          offset,
+          filter,
+          sort,
+          order
         );
-    return successResponse({
-      data: {
-        projectTrackings: results,
-        pagination:
-          typeof total?.[0] === "number"
-            ? pagination(limit, offset, total[0])
-            : undefined,
-      },
-    });
+      case EProjectTrackingType.PARTNER:
+        return this.getListBrandProject(
+          user,
+          limit,
+          offset,
+          filter,
+          sort,
+          order
+        );
+      default:
+        return this.getListDesignerProject(
+          getWorkspace,
+          user,
+          limit,
+          offset,
+          filter,
+          sort,
+          order
+        );
+    }
   }
 
   public async get(

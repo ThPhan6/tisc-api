@@ -133,6 +133,79 @@ const getCreateProjectTrackingSchema = (
   }
 };
 
+const projectTrackingListSchema = {
+  id: Joi.string(),
+  brand_id: Joi.string(),
+  created_at: Joi.string(),
+  updated_at: Joi.string(),
+  project_name: Joi.string(),
+  location_id: Joi.string(),
+  project_id: Joi.string().allow(null).allow(""),
+  partner_id: Joi.string().allow(null).allow(""),
+  project_stage_id: Joi.string().allow(null).allow(""),
+  project_code: Joi.string().allow(null).allow(""),
+  state_id: Joi.string().allow(null).allow(""),
+  city_id: Joi.string().allow(null).allow(""),
+  address: Joi.string().allow(null).allow(""),
+  postal_code: Joi.string().allow(null).allow(""),
+  project_type_id: Joi.string().allow(null).allow(""),
+  building_type_id: Joi.string().allow(null).allow(""),
+  date_of_tender: Joi.string().allow(null).allow(""),
+  date_of_delivery: Joi.string().allow(null).allow(""),
+  note: Joi.string().allow(null).allow(""),
+  design_firm: Joi.string().allow(null).allow(""),
+  project_type: Joi.string().allow(null),
+  project_stage: Joi.string().allow(null),
+  project_partner: Joi.string().allow(null),
+  project_location: Joi.string().allow(null),
+  priority: Joi.number().valid(...getEnumValues(ProjectTrackingPriority)),
+  type: Joi.number().valid(...getEnumValues(EProjectTrackingType)),
+  assigned_teams: Joi.any(),
+  members: Joi.any(),
+  read_by: Joi.any(),
+};
+
+const getListProjectTrackingSchema = (
+  value: ProjectTrackingEntity,
+  _helpers: HapiJoi.CustomHelpers
+) => {
+  switch (value.type) {
+    case EProjectTrackingType.BRAND:
+      return Joi.array().items(Joi.object(projectTrackingListSchema));
+
+    case EProjectTrackingType.PARTNER:
+      return Joi.array().items(Joi.object(projectTrackingListSchema));
+
+    default:
+      return Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          created_at: Joi.string(),
+          projectName: Joi.string(),
+          projectLocation: Joi.string(),
+          projectType: Joi.string(),
+          designFirm: Joi.string(),
+          projectStatus: Joi.string(),
+          priority: Joi.number(),
+          priorityName: Joi.string(),
+          assignedTeams: Joi.array().items(
+            Joi.object({
+              id: Joi.string(),
+              firstname: Joi.string(),
+              lastname: Joi.string(),
+              avatar: Joi.string().allow(null, ""),
+            })
+          ),
+          requestCount: Joi.number(),
+          newRequest: Joi.bool(),
+          notificationCount: Joi.number(),
+          newNotification: Joi.bool(),
+          newTracking: Joi.bool(),
+        })
+      );
+  }
+};
+
 export default {
   getOne: Joi.object({
     statusCode: Joi.number(),
@@ -144,55 +217,30 @@ export default {
     data: Joi.object(getBrandProjectResponse).unknown(false),
     message: Joi.string().allow(""),
   }),
-  getListProjectTracking: Joi.object({
+  getList: Joi.object({
+    statusCode: Joi.number(),
     data: Joi.object({
       pagination: paginationResponse,
-      projectTrackings: Joi.array().items({
-        id: Joi.string(),
-        created_at: Joi.string(),
-        projectName: Joi.string(),
-        projectLocation: Joi.string(),
-        projectType: Joi.string(),
-        designFirm: Joi.string(),
-        projectStatus: Joi.string(),
-        priority: Joi.number(),
-        priorityName: Joi.string(),
-        assignedTeams: Joi.array().items(
-          Joi.object({
-            id: Joi.string(),
-            firstname: Joi.string(),
-            lastname: Joi.string(),
-            avatar: Joi.string().allow(null, ""),
-          })
-        ),
-        requestCount: Joi.number(),
-        newRequest: Joi.bool(),
-        notificationCount: Joi.number(),
-        newNotification: Joi.bool(),
-        newTracking: Joi.bool(),
+      projectTrackings: Joi.custom((value, helpers) => {
+        const errors: string[] = [];
 
-        /// brand
-        partner_id: Joi.string(),
-        project_stage_id: Joi.string(),
-        project_id: Joi.string(),
-        brand_id: Joi.string(),
-        project_code: Joi.string(),
-        project_name: Joi.string(),
-        location_id: Joi.string(),
-        state_id: Joi.string(),
-        city_id: Joi.string(),
-        address: Joi.string(),
-        postal_code: Joi.string(),
-        project_type_id: Joi.string(),
-        building_type_id: Joi.string(),
-        date_of_tender: Joi.string(),
-        date_of_delivery: Joi.string(),
-        note: Joi.string(),
-        design_firm: Joi.string(),
+        value.forEach((item: any) => {
+          const schema = getListProjectTrackingSchema(item, helpers);
+          const { error } = schema.validate(value);
+
+          if (error) errors.push(error.details[0].message);
+        });
+
+        if (errors.length) {
+          return helpers.message({
+            custom: errors.join(", "),
+          });
+        }
+
+        return value;
       }),
     }),
-    statusCode: Joi.number(),
-  }) as any,
+  }),
   getProjectTrackingSummary: getSummaryResponseValidate(),
   get: Joi.object({
     statusCode: Joi.number(),

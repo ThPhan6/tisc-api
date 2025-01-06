@@ -194,10 +194,7 @@ export default {
         .valid(...getEnumValues(EProjectTrackingType))
         .allow(null)
         .error(errorMessage("Invalid Project stage filter value")),
-      project_stage: Joi.number()
-        .valid(...getEnumValues(ProjectTrackingStage))
-        .allow(null)
-        .error(errorMessage("Invalid Project stage filter value")),
+      project_stage: Joi.string().allow(null),
       project_status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .allow(null)
@@ -207,10 +204,11 @@ export default {
         .allow(null)
         .error(errorMessage("Invalid priority filter value")),
       sort: Joi.string().valid(
-        //GetProjectListSort
         "created_at",
+        "project_code",
         "project_name",
         "project_location",
+        "project_partner",
         "project_type",
         "design_firm"
       ),
@@ -220,6 +218,7 @@ export default {
       project_status: value.project_status,
       priority: value.priority,
       type: value.type,
+      sort: value.sort,
     }),
   }),
 

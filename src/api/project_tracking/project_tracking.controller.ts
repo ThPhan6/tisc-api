@@ -19,7 +19,7 @@ export default class ProjectTrackingController {
     return toolkit.response(response).code(200);
   };
 
-  public getListProjectTracking =
+  public getList =
     (getWorkspace: boolean) =>
     async (req: Request, toolkit: ResponseToolkit) => {
       const {
@@ -33,7 +33,7 @@ export default class ProjectTrackingController {
         type,
       } = req.query;
       const currentUser = req.auth.credentials.user as UserAttributes;
-      const response = await projectTrackingService.getListProjectTracking(
+      const response = await projectTrackingService.getList(
         getWorkspace,
         currentUser,
         limit,
@@ -42,6 +42,7 @@ export default class ProjectTrackingController {
         sort,
         order
       );
+
       return toolkit.response(response).code(response.statusCode ?? 200);
     };
 
