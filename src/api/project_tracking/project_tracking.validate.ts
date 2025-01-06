@@ -194,10 +194,7 @@ export default {
         .valid(...getEnumValues(EProjectTrackingType))
         .allow(null)
         .error(errorMessage("Invalid Project stage filter value")),
-      project_stage: Joi.number()
-        .valid(...getEnumValues(ProjectTrackingStage))
-        .allow(null)
-        .error(errorMessage("Invalid Project stage filter value")),
+      project_stage: Joi.string().allow(null),
       project_status: Joi.number()
         .valid(...getEnumValues(ProjectStatus))
         .allow(null)

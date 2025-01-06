@@ -191,7 +191,6 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
       projectStage: filter.project_stage as number,
       type: (filter.type = EProjectTrackingType.BRAND),
     };
-
     const rawQuery = `
     LET activeLocations = (
       FOR loc IN locations
@@ -299,7 +298,7 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
       brandId,
       priority: filter.priority,
       projectStage: filter.project_stage as number,
-      type: filter.type as EProjectTrackingType,
+      type: (filter.type = EProjectTrackingType.BRAND),
     };
     const rawQuery = `
     FILTER project_trackings.deleted_at == null
@@ -307,6 +306,11 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
     ${
       typeof filter.priority === "number"
         ? `FILTER project_trackings.priority == @priority`
+        : ""
+    }
+    ${
+      typeof filter.project_stage === "string"
+        ? `FILTER project_trackings.project_stage_id == @projectStage`
         : ""
     }
     ${
