@@ -202,12 +202,14 @@ class ProjectTrackingRepository extends BaseRepository<ProjectTrackingEntity> {
     LET activeUsers = (
       FOR user IN users
       FILTER user.deleted_at == null
+      FILTER user.relation_id == @brandId
       RETURN KEEP(user, 'id', 'firstname', 'lastname', 'avatar')
     )
 
     LET activePartners = (
       FOR pt IN partners
       FILTER pt.deleted_at == null
+      FILTER pt.brand_id == @brandId
       RETURN KEEP(pt, 'id', 'name')
     )
 

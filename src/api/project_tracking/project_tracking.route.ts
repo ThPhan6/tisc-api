@@ -22,7 +22,7 @@ export default class ProjectTrackingRoute implements IRoute {
             description:
               "Method that create a product request for a project; brand, and partner project",
             tags: ["api", "Project Tracking"],
-            auth: AUTH_NAMES.GENERAL,
+            auth: AUTH_NAMES.PERMISSION,
             response: {
               status: {
                 ...defaultRouteOptionResponseStatus,

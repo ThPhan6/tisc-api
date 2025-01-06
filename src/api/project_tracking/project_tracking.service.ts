@@ -417,21 +417,6 @@ class ProjectTrackingService {
   ) {
     const filterId = getWorkspace ? user.id : undefined;
 
-    let projectStage = undefined;
-    if (filter.project_stage) {
-      const types = await commonTypeRepository.getAllBy({
-        type: COMMON_TYPES.PROJECT_STAGE,
-      });
-
-      projectStage = types.find(
-        (el) => el.name === ProjectTrackingStage[filter.project_stage]
-      )?.id;
-
-      if (projectStage) {
-        filter.project_stage = projectStage as any;
-      }
-    }
-
     const projectTrackings =
       await projectTrackingRepository.getListProjectTracking(
         user.relation_id,
