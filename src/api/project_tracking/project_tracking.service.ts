@@ -312,6 +312,7 @@ class ProjectTrackingService {
       "project_status",
       "priority",
       "partner_id",
+      "assigned_teams",
     ]);
 
     if (
@@ -364,6 +365,30 @@ class ProjectTrackingService {
       }
     }
 
+    if (payload.assigned_teams && payload.assigned_teams[0]) {
+      logService.create(ActivityTypes.assign_member_to_project_tracking, {
+        path: path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          user_id: payload.assigned_teams[0],
+          project_tracking_id: payload.id,
+        },
+      });
+    }
+
+    if (payload.priority) {
+      logService.create(ActivityTypes.update_priority, {
+        path: path,
+        user_id: user.id,
+        relation_id: user.relation_id,
+        data: {
+          priority_name: ProjectTrackingPriority[payload.priority],
+          project_tracking_id: payload.id,
+        },
+      });
+    }
+
     const project = await projectTrackingRepository.update(
       payload.id,
       newPayload
@@ -402,6 +427,7 @@ class ProjectTrackingService {
         "partner_id",
         "brand_id",
         "type",
+        "assigned_teams",
       ]),
     });
   }

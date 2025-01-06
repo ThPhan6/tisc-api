@@ -43,6 +43,7 @@ export interface ProjectTrackingBrandRequest
     | "building_type_id"
     | "postal_code"
     | "priority"
+    | "assigned_teams"
   > {}
 
 export interface ProjectTrackingCreateRequest
