@@ -159,6 +159,7 @@ export default {
       order: Joi.string().allow(null),
       sort: Joi.string().allow(null),
       search: Joi.string().allow(null),
+      is_get_warehouse: Joi.boolean().allow(null),
     },
     custom: (value) => ({
       sort: value.sort || "sku",

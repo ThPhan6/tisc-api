@@ -711,7 +711,9 @@ class InventoryService {
   }
 
   public async getList(user: UserAttributes, query: InventoryCategoryQuery) {
-    const inventoryList = await inventoryRepository.getList(query);
+    const { is_get_warehouse: isGetWarehouse = true, ...restQuery } = query;
+
+    const inventoryList = await inventoryRepository.getList(restQuery);
     if (!inventoryList) {
       return errorMessageResponse(MESSAGES.NOT_FOUND, 404);
     }
@@ -737,6 +739,8 @@ class InventoryService {
                   : null,
               },
         };
+
+        if (!isGetWarehouse) return newInventory;
 
         const warehouses = (await warehouseService.getList(
           user,

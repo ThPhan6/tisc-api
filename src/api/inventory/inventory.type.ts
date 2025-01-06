@@ -52,6 +52,7 @@ export interface InventoryCategoryQuery {
   sort?: string;
   order?: Sequence;
   search?: string;
+  is_get_warehouse?: boolean;
 }
 
 export interface InventoryListResponse extends InventoryEntity {
