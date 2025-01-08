@@ -95,4 +95,9 @@ export default {
       relation_id: stringValidation(),
     },
   },
+  switchToWorkspace: {
+    params: {
+      id: requireStringValidation("Workspace"),
+    },
+  },
 };

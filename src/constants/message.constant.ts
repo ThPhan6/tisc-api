@@ -161,6 +161,7 @@ export const MESSAGES = {
     "This email address is already taken. Please try another.",
   CURRENT_USER_NOT_FOUND: "Not found current user",
   USER_NOT_IN_WORKSPACE: "User not in this work space",
+  WORKSPACE_NOT_FOUND: "Work space not found",
   AVATAR_NOT_VALID: "Avatar not valid",
   LOGO_NOT_VALID: "Logo not valid",
   CONTACT_NOT_FOUND: "Contact not found",

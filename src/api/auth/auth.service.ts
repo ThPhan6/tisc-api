@@ -1,46 +1,47 @@
-import { locationService } from "./../location/location.service";
 import {
-  BRAND_STATUSES,
-  MESSAGES,
   AUTH_EMAIL_TYPE,
+  BRAND_STATUSES,
   DesignFirmRoles,
+  MESSAGES,
   RoleType,
 } from "@/constants";
-import {
-  IMessageResponse,
-  UserAttributes,
-  ActiveStatus,
-  UserType,
-  UserTypeValue,
-  UserStatus,
-} from "@/types";
-import {
-  IAdminLoginRequest,
-  IResetPasswordRequest,
-  IRegisterRequest,
-  IForgotPasswordRequest,
-  ILoginResponse,
-} from "./auth.type";
+import { signJwtToken } from "@/helpers/jwt.helper";
 import {
   comparePassword,
   createHash,
   createHashWithSalt,
 } from "@/helpers/password.helper";
-import { signJwtToken } from "@/helpers/jwt.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import {
+  ActiveStatus,
+  BrandAttributes,
+  DesignerAttributes,
+  UserAttributes,
+  UserStatus,
+  UserType,
+  UserTypeValue,
+} from "@/types";
+import { locationService } from "./../location/location.service";
+import {
+  IAdminLoginRequest,
+  IForgotPasswordRequest,
+  IRegisterRequest,
+  IResetPasswordRequest,
+} from "./auth.type";
 
-import { mailService } from "@/services/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
+import { mailService } from "@/services/mail.service";
 
+import { ENVIRONMENT } from "@/config";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
-import { startCase } from "lodash";
-import { ENVIRONMENT } from "@/config";
+import { partition, startCase } from "lodash";
+import { IUserCompanyResponse } from "../user/user.type";
 
 const errorMessage = {
   [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
@@ -49,7 +50,7 @@ const errorMessage = {
 };
 
 class AuthService {
-  private responseWithToken = (userId: string, type?: UserType) => {
+  public responseWithToken = (userId: string, type?: UserType) => {
     const response = {
       type,
       token: signJwtToken(userId),
@@ -101,59 +102,147 @@ class AuthService {
     });
   };
 
-  public tiscLogin = async (
-    payload: IAdminLoginRequest
-  ): Promise<ILoginResponse | IMessageResponse> => {
-    const user = await userRepository.findBy({ email: payload.email });
-    if (!user) {
+  public tiscLogin = async (payload: IAdminLoginRequest) => {
+    const users = await userRepository.getAllBy({
+      email: payload.email,
+    });
+
+    if (!users.length) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    const isInvalid = this.authValidation(payload.password, user);
-    if (isInvalid) {
-      return isInvalid;
-    }
-    const isIncorrectType = this.checkTypeValidationError(
-      UserType.TISC,
-      user.type
-    );
-    if (isIncorrectType) {
-      return isIncorrectType;
-    }
-    return this.responseWithToken(user.id);
-  };
 
-  public login = async (payload: IAdminLoginRequest) => {
-    ///
-    const user = await userRepository.findByCompanyIdWithCompanyStatus(
-      payload.email
-    );
-    if (!user) {
+    const [TISCUsers, otherUsers] = partition(users, { type: UserType.TISC });
+
+    if (otherUsers.length === users.length) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+
+    let error: { message: string; statusCode: number } | null = null;
+
+    const accounts = TISCUsers.map((user) => {
+      if (error) return;
+
+      const isInvalid = this.authValidation(payload.password, user);
+      if (isInvalid) {
+        error = isInvalid;
+      }
+
+      return user;
+    }).filter(Boolean) as IUserCompanyResponse[];
+
+    if (error) return error;
+
+    if (!accounts.length) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
-    const isInvalid = this.authValidation(payload.password, user);
-    if (isInvalid) {
-      return isInvalid;
+    const userAccounts = accounts
+      .map((user) => {
+        const token = this.responseWithToken(user.id, RoleType[user.role_id]);
+
+        return {
+          type: token.type,
+          token: token.token,
+        };
+      })
+      .filter(Boolean);
+
+    if (!userAccounts.length) {
+      return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);
     }
 
-    const isIncorrectType = this.checkTypeValidationError(
-      UserType.TISC,
-      user.type,
-      "neq"
+    return successResponse({
+      data: {
+        token: userAccounts[0].token,
+        type: userAccounts[0].type,
+      },
+    });
+  };
+
+  public login = async (payload: IAdminLoginRequest) => {
+    const users = await userRepository.findByCompanyIdWithCompanyStatus(
+      payload.email
     );
-    if (isIncorrectType) {
-      return isIncorrectType;
+
+    if (!users.length) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
-    //// company status validation
-    if (user.company_status === ActiveStatus.Inactive) {
-      return errorMessageResponse(errorMessage[user.type], 401);
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
+
+    if (TISCUsers.length === users.length) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
     }
-    if (user.company_status === ActiveStatus.Pending) {
-      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+
+    let error: { message: string; statusCode: number } | null = null;
+
+    const accounts = otherUsers
+      .map((user) => {
+        if (error) return;
+
+        if (user.company_status === ActiveStatus.Inactive) {
+          error = errorMessageResponse(errorMessage[user.type], 401);
+        }
+        if (user.company_status === ActiveStatus.Pending) {
+          error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+        }
+
+        return user;
+      })
+      .filter(Boolean) as IUserCompanyResponse[];
+
+    if (error) return error;
+
+    if (!accounts.length) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
+
+    const brands = await brandRepository.getMany(
+      accounts.map((user) => user.relation_id)
+    );
+
+    const designers = await designerRepository.getMany(
+      accounts.map((user) => user.relation_id)
+    );
+
+    const userAccounts = accounts
+      .map((user) => {
+        const workspaces = [];
+        const brandWorkspace = brands.find(
+          (workspace) => workspace.id === user.relation_id
+        );
+
+        const designerWorkspace = designers.find(
+          (workspace) => workspace.id === user.relation_id
+        );
+
+        if (brandWorkspace) {
+          workspaces.push(brandWorkspace);
+        }
+
+        if (designerWorkspace) {
+          workspaces.push(designerWorkspace);
+        }
+
+        const token = this.responseWithToken(user.id, RoleType[user.role_id]);
+
+        return workspaces.map((w) => ({
+          workspace_id: w.id,
+          workspace_name: w.name,
+          type: token.type || user.type,
+          token: token.token,
+        }));
+      })
+      .flat();
+
+    if (!userAccounts.length) {
+      return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);
+    }
+
     ///
-    return this.responseWithToken(user.id, RoleType[user.role_id]);
+    return successResponse({ data: userAccounts });
   };
 
   public forgotPassword = async (
@@ -340,7 +429,15 @@ class AuthService {
         status: BRAND_STATUSES.ACTIVE,
       });
     }
-    return this.responseWithToken(user.id, user.type);
+
+    const token = this.responseWithToken(user.id, user.type);
+
+    return successResponse({
+      data: {
+        type: token.type,
+        token: token.token,
+      },
+    });
   };
 
   public checkEmail = async (email: string) => {
@@ -351,5 +448,5 @@ class AuthService {
     return successMessageResponse(MESSAGES.AVAILABLE);
   };
 }
-
+export const authService = new AuthService();
 export default AuthService;
