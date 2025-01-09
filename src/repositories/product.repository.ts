@@ -354,7 +354,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
       ${brandId ? `FILTER brand.id == @brandId` : ""}
 
       RETURN MERGE(
-        KEEP(products, ['id', 'description', 'images', 'name', 'brand_id','collection_ids', 'category_ids', 'created_at', 'updated_at']),
+        KEEP(products, ['id', 'description', 'images', 'name', 'brand_id','collection_ids', 'category_ids', 'created_at', 'updated_at', 'ecoLabel']),
         {
           categories: categories,
           collections: collections,
