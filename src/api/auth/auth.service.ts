@@ -168,6 +168,11 @@ class AuthService {
         return;
       }
 
+      if (user.status === UserStatus.Pending) {
+        error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+        return;
+      }
+
       return user;
     }).filter(Boolean) as IUserCompanyResponse[];
 
@@ -226,7 +231,10 @@ class AuthService {
         continue;
       }
 
-      if (otherUser.company_status === ActiveStatus.Pending) {
+      if (
+        otherUser.company_status === ActiveStatus.Pending ||
+        otherUser.status === UserStatus.Pending
+      ) {
         error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
         continue;
       }
@@ -242,7 +250,11 @@ class AuthService {
       return error;
 
     const userWorkspaces = await this.getWorkspaces(
-      error ? accounts : otherUsers
+      otherUsers.filter(
+        (otherUser) =>
+          otherUser.status === UserStatus.Active &&
+          otherUser.company_status === ActiveStatus.Active
+      )
     );
 
     if (!userWorkspaces.length) {
