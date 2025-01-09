@@ -264,6 +264,23 @@ export default class UserRoute implements IRoute {
             },
           },
         },
+        {
+          method: "GET",
+          path: ROUTES.SWITCH_TO_WORKSPACE,
+          options: {
+            handler: controller.switchToWorkspace,
+            validate: validate.switchToWorkspace,
+            description: "Method that user switch workspaces",
+            tags: ["api", "Team profile"],
+            auth: AUTH_NAMES.GENERAL,
+            response: {
+              status: {
+                ...defaultRouteOptionResponseStatus,
+                200: response.switchToWorkspace,
+              },
+            },
+          },
+        },
       ]);
 
       resolve(true);
