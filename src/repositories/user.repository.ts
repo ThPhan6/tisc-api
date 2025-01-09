@@ -12,6 +12,7 @@ import {
 import { DesignFirmRoles } from "@/constants";
 import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helpers/common.helper";
+import { IUserCompanyResponse } from "@/api/user/user.type";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
@@ -67,7 +68,11 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .where("status", "==", UserStatus.Active)
       .get()) as UserAttributes[];
   }
-  public async getByTypeRoleAndRelation(type: UserType, role: string, relation_id?: string) {
+  public async getByTypeRoleAndRelation(
+    type: UserType,
+    role: string,
+    relation_id?: string
+  ) {
     return (await this.model
       .where("type", "==", type)
       .where("role_id", "==", role)
@@ -76,7 +81,10 @@ class UserRepository extends BaseRepository<UserAttributes> {
       .join("locations", "locations.id", "==", "users.location_id")
       .get()) as UserAttributes[];
   }
-  public async getInactiveDesignFirmByBackupData(backupEmail: string, personalMobile: string) {
+  public async getInactiveDesignFirmByBackupData(
+    backupEmail: string,
+    personalMobile: string
+  ) {
     return (await this.model
       .where("backup_email", "==", backupEmail)
       .where("personal_mobile", "==", personalMobile)
@@ -114,8 +122,8 @@ class UserRepository extends BaseRepository<UserAttributes> {
         })
       `,
       { email }
-    )) as (UserAttributes & { company_status: ActiveStatus })[];
-    return head(result);
+    )) as IUserCompanyResponse[];
+    return result;
   }
 
   public generateToken = async (column: keyof UserAttributes) => {
@@ -163,7 +171,9 @@ class UserRepository extends BaseRepository<UserAttributes> {
         LET fullname = concat(user.firstname, ' '
         ,user.lastname)
         LET work_location = location.city_name ? CONCAT(location.city_name, ', ', location.country_name) : location.country_name
-        LET status = (user.status == ${UserStatus.Active} ? 'Activated' : (user.status == ${
+        LET status = (user.status == ${
+          UserStatus.Active
+        } ? 'Activated' : (user.status == ${
       UserStatus.Blocked
     } ? 'Blocked' : 'Pending'))
      `;

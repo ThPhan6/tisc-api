@@ -15,6 +15,7 @@ export const ROUTES = {
   GET_TISC_WORKSPACE_SUMMARY: "/api/workspace/summary",
   GET_BRAND_WORKSPACE_SUMMARY: "/api/brand/workspace/summary",
   GET_DESIGNER_WORKSPACE_SUMMARY: "/api/designer/workspace/summary",
+  SWITCH_TO_WORKSPACE: "/api/workspace/{id}/switch",
 
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
