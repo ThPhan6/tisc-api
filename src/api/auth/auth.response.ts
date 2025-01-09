@@ -45,4 +45,10 @@ export default {
     message: Joi.string(),
     statusCode: Joi.number(),
   }) as any,
+  resetPasswordAndLogin: Joi.object({
+    token: Joi.string(),
+    type: Joi.string(),
+    message: Joi.string(),
+    statusCode: Joi.number(),
+  }),
 };

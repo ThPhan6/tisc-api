@@ -102,103 +102,7 @@ class AuthService {
     });
   };
 
-  public tiscLogin = async (payload: IAdminLoginRequest) => {
-    const users = await userRepository.getAllBy({
-      email: payload.email,
-    });
-
-    if (!users.length) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
-    }
-
-    const [TISCUsers, otherUsers] = partition(users, { type: UserType.TISC });
-
-    if (otherUsers.length === users.length) {
-      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
-    }
-
-    let error: { message: string; statusCode: number } | null = null;
-
-    const accounts = TISCUsers.map((user) => {
-      if (error) return;
-
-      const isInvalid = this.authValidation(payload.password, user);
-      if (isInvalid) {
-        error = isInvalid;
-      }
-
-      return user;
-    }).filter(Boolean) as IUserCompanyResponse[];
-
-    if (error) return error;
-
-    if (!accounts.length) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
-    const userAccounts = accounts
-      .map((user) => {
-        const token = this.responseWithToken(user.id, RoleType[user.role_id]);
-
-        return {
-          type: token.type,
-          token: token.token,
-        };
-      })
-      .filter(Boolean);
-
-    if (!userAccounts.length) {
-      return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);
-    }
-
-    return successResponse({
-      data: {
-        token: userAccounts[0].token,
-        type: userAccounts[0].type,
-      },
-    });
-  };
-
-  public login = async (payload: IAdminLoginRequest) => {
-    const users = await userRepository.findByCompanyIdWithCompanyStatus(
-      payload.email
-    );
-
-    if (!users.length) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
-    const [TISCUsers, otherUsers] = partition(users, {
-      type: UserType.TISC,
-    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
-
-    if (TISCUsers.length === users.length) {
-      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
-    }
-
-    let error: { message: string; statusCode: number } | null = null;
-
-    const accounts = otherUsers
-      .map((user) => {
-        if (error) return;
-
-        if (user.company_status === ActiveStatus.Inactive) {
-          error = errorMessageResponse(errorMessage[user.type], 401);
-        }
-        if (user.company_status === ActiveStatus.Pending) {
-          error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
-        }
-
-        return user;
-      })
-      .filter(Boolean) as IUserCompanyResponse[];
-
-    if (error) return error;
-
-    if (!accounts.length) {
-      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
-    }
-
+  private getWorkspaces = async (accounts: IUserCompanyResponse[]) => {
     const brands = await brandRepository.getMany(
       accounts.map((user) => user.relation_id)
     );
@@ -207,7 +111,7 @@ class AuthService {
       accounts.map((user) => user.relation_id)
     );
 
-    const userAccounts = accounts
+    return accounts
       .map((user) => {
         const workspaces = [];
         const brandWorkspace = brands.find(
@@ -236,13 +140,110 @@ class AuthService {
         }));
       })
       .flat();
+  };
 
-    if (!userAccounts.length) {
+  public tiscLogin = async (payload: IAdminLoginRequest) => {
+    const users = await userRepository.getAllBy({
+      email: payload.email,
+    });
+
+    if (!users.length) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+
+    const [TISCUsers, otherUsers] = partition(users, { type: UserType.TISC });
+
+    if (otherUsers.length === users.length) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+
+    let error: { message: string; statusCode: number } | null = null;
+
+    const accounts = TISCUsers.map((user) => {
+      if (error) return;
+
+      const isInvalid = this.authValidation(payload.password, user);
+      if (isInvalid) {
+        error = isInvalid;
+        return;
+      }
+
+      return user;
+    }).filter(Boolean) as IUserCompanyResponse[];
+
+    if (error) return error;
+
+    if (!accounts.length) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const account = this.responseWithToken(
+      accounts[0].id,
+      RoleType[accounts[0].role_id]
+    );
+
+    return successResponse({
+      data: {
+        token: account.token,
+        type: account.type,
+      },
+    });
+  };
+
+  public login = async (payload: IAdminLoginRequest) => {
+    const users = await userRepository.findByCompanyIdWithCompanyStatus(
+      payload.email
+    );
+
+    if (!users.length) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
+
+    if (TISCUsers.length === users.length) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+
+    let error: { message: string; statusCode: number } | null = null;
+
+    const accounts = otherUsers
+      .map((otherUser) => {
+        if (error) return;
+
+        const isInvalid = this.authValidation(payload.password, otherUser);
+        if (isInvalid) {
+          error = isInvalid;
+          return;
+        }
+
+        if (otherUser.company_status === ActiveStatus.Inactive) {
+          error = errorMessageResponse(errorMessage[otherUser.type], 401);
+          return;
+        }
+
+        if (otherUser.company_status === ActiveStatus.Pending) {
+          error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+          return;
+        }
+
+        return otherUser;
+      })
+      .filter(Boolean) as IUserCompanyResponse[];
+
+    if (error && (accounts.length === otherUsers.length || !accounts.length))
+      return error;
+
+    const userWorkspaces = await this.getWorkspaces(accounts);
+
+    if (!userWorkspaces.length) {
       return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);
     }
 
     ///
-    return successResponse({ data: userAccounts });
+    return successResponse({ data: userWorkspaces });
   };
 
   public forgotPassword = async (
@@ -252,16 +253,17 @@ class AuthService {
     const user = await userRepository.findBy({
       email: payload.email,
       is_verified: true,
+      type: payload.type,
     });
-    if (!user) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
-    }
+
     if (
+      !user ||
       (payload.type === UserType.TISC && user.type !== UserType.TISC) ||
       (payload.type !== UserType.TISC && user.type === UserType.TISC)
     ) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
+
     const token = await userRepository.generateToken("reset_password_token");
     const updatedData = await userRepository.update(user.id, {
       reset_password_token: token,
@@ -313,15 +315,39 @@ class AuthService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    const newPassword = createHash(payload.password);
-    const updatedData = await userRepository.update(user.id, {
-      reset_password_token: null,
-      password: newPassword,
+
+    const users = await userRepository.getAllBy({
+      email: user.email,
+      is_verified: true,
     });
-    if (updatedData) {
-      return successMessageResponse(MESSAGES.SUCCESS);
+
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
+
+    if (TISCUsers.length && user.type === UserType.TISC) {
+      const newPassword = createHash(payload.password);
+      const updatedData = await userRepository.update(TISCUsers[0].id, {
+        reset_password_token: null,
+        password: newPassword,
+      });
+      if (updatedData) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-    return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+
+    Promise.all(
+      otherUsers.map(async (user) => {
+        const newPassword = createHash(payload.password);
+        await userRepository.update(user.id, {
+          reset_password_token: null,
+          password: newPassword,
+        });
+      })
+    );
+
+    return successMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
   public resetPasswordAndLogin = async (payload: IResetPasswordRequest) => {
@@ -333,11 +359,37 @@ class AuthService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    const updated = await this.updateNewPassword(user.id, payload.password);
-    if (updated) {
-      return this.responseWithToken(user.id);
+
+    const users = await userRepository.getAllBy({
+      email: user.email,
+      is_verified: true,
+    });
+
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
+
+    if (TISCUsers.length && user.type === UserType.TISC) {
+      const updated = await this.updateNewPassword(
+        TISCUsers[0].id,
+        payload.password
+      );
+
+      if (updated) {
+        return this.responseWithToken(user.id);
+      }
+
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-    return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+
+    Promise.all(
+      otherUsers.map(
+        async (otherUser) =>
+          await this.updateNewPassword(otherUser.id, payload.password)
+      )
+    );
+
+    return successMessageResponse(MESSAGES.SUCCESS);
   };
 
   public register = async (payload: IRegisterRequest, ipAddress: string) => {
