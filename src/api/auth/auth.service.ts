@@ -401,14 +401,22 @@ class AuthService {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
 
-    Promise.all(
+    const updatedUsers = await Promise.all(
       otherUsers.map(
         async (otherUser) =>
           await this.updateNewPassword(otherUser.id, payload.password)
       )
     );
 
-    return successMessageResponse(MESSAGES.SUCCESS);
+    const userResetPassword = (
+      updatedUsers.filter(Boolean) as UserAttributes[]
+    ).find((u) => u.id === user.id)?.id;
+
+    if (userResetPassword) {
+      return this.responseWithToken(userResetPassword);
+    }
+
+    return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
   public register = async (payload: IRegisterRequest, ipAddress: string) => {
