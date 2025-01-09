@@ -207,36 +207,43 @@ class AuthService {
       return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
     }
 
-    let error: { message: string; statusCode: number } | null = null;
+    const accounts: IUserCompanyResponse[] = [];
+    const passwordErrors: any[] = [];
+    let error: any = null;
 
-    const accounts = otherUsers
-      .map((otherUser) => {
-        if (error) return;
+    for (const otherUser of otherUsers) {
+      const isInvalid = this.authValidation(payload.password, otherUser);
 
-        const isInvalid = this.authValidation(payload.password, otherUser);
-        if (isInvalid) {
-          error = isInvalid;
-          return;
-        }
+      if (isInvalid) {
+        passwordErrors.push(isInvalid);
+        continue;
+      }
 
-        if (otherUser.company_status === ActiveStatus.Inactive) {
-          error = errorMessageResponse(errorMessage[otherUser.type], 401);
-          return;
-        }
+      if (error) continue;
 
-        if (otherUser.company_status === ActiveStatus.Pending) {
-          error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
-          return;
-        }
+      if (otherUser.company_status === ActiveStatus.Inactive) {
+        error = errorMessageResponse(errorMessage[otherUser.type], 401);
+        continue;
+      }
 
-        return otherUser;
-      })
-      .filter(Boolean) as IUserCompanyResponse[];
+      if (otherUser.company_status === ActiveStatus.Pending) {
+        error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+        continue;
+      }
+
+      accounts.push(otherUser);
+    }
+
+    if (passwordErrors.length === otherUsers.length) {
+      return passwordErrors[0];
+    }
 
     if (error && (accounts.length === otherUsers.length || !accounts.length))
       return error;
 
-    const userWorkspaces = await this.getWorkspaces(accounts);
+    const userWorkspaces = await this.getWorkspaces(
+      error ? accounts : otherUsers
+    );
 
     if (!userWorkspaces.length) {
       return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);

@@ -55,6 +55,7 @@ export default class UserService {
   private getUserWorkSpace = async (user: UserAttributes) => {
     const users = await userRepository.getAllBy({
       email: user.email,
+      is_verified: true,
     });
 
     const brands = await brandRepository.getManyBy(
