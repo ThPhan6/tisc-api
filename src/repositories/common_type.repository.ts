@@ -52,13 +52,13 @@ class CommonTypeRepository extends BaseRepository<CommonTypeAttributes> {
     sort_order?: SortOrder
   ) {
     return (await this.model
-      .select("id", "name")
+      .select("id", "name", "code", "group")
       .where("type", "==", type)
       .where("relation_id", "==", relationId)
       .orWhere("relation_id", "==", null)
       .orWhere("relation_id", "==", "")
       .order("name", sort_order)
-      .get()) as Pick<CommonTypeAttributes, "id" | "name">[];
+      .get()) as Pick<CommonTypeAttributes, "id" | "name" | "code" | "group">[];
   }
 
   public getByListIds = async (ids: string[]) => {

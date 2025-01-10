@@ -1,0 +1,396 @@
+import {
+  InventoryCategoryListWithPaginate,
+  InventoryCategoryQuery,
+  LatestPrice,
+  MultipleInventoryRequest,
+} from "@/api/inventory/inventory.type";
+import { pagination } from "@/helpers/common.helper";
+import InventoryModel from "@/models/inventory.model";
+import BaseRepository from "@/repositories/base.repository";
+import {
+  ExchangeHistoryEntity,
+  InventoryEntity,
+  WarehouseStatus,
+  WarehouseType,
+} from "@/types";
+import { head, isNil, omitBy } from "lodash";
+
+class InventoryRepository extends BaseRepository<InventoryEntity> {
+  protected model: InventoryModel;
+
+  constructor() {
+    super();
+    this.model = new InventoryModel();
+  }
+
+  private latestPriceByInventoryIdQuery = `
+    FOR price IN inventory_base_prices
+    FILTER price.deleted_at == null
+    FILTER price.inventory_id == @inventoryId
+    SORT price.created_at DESC
+    LIMIT 1
+
+    LET inventoryVolumePrice = (
+      FOR volumePrice IN inventory_volume_prices
+      FILTER volumePrice.deleted_at == null
+      FILTER volumePrice.inventory_base_price_id == price.id
+      SORT volumePrice.created_at DESC
+      RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
+    )
+
+    RETURN MERGE(
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
+      {volume_prices: inventoryVolumePrice}
+    )`;
+
+  private latestPriceByInventoryIdsQuery = `
+  FOR inventoryId IN @inventoryIds
+  LET result = FIRST(
+    FOR price IN inventory_base_prices
+    FILTER price.deleted_at == null
+    FILTER price.inventory_id == inventoryId
+    SORT price.created_at DESC
+    LIMIT 1
+
+    LET inventoryVolumePrice = (
+      FOR volumePrice IN inventory_volume_prices
+      FILTER volumePrice.deleted_at == null
+      FILTER volumePrice.inventory_base_price_id == price.id
+      SORT volumePrice.created_at DESC
+      RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
+    )
+
+    RETURN MERGE(
+      KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
+      {volume_prices: inventoryVolumePrice}
+    )
+  )
+
+  RETURN result
+  `;
+
+  private readonly totalStockValueQuery = `
+    LET activeLedgers = (
+    FOR led IN inventory_ledgers
+      FILTER led.deleted_at == null
+      FILTER led.status == 1
+      FILTER led.inventory_id == inven.id
+      RETURN {
+        warehouse_id: led.warehouse_id,
+        quantity: led.quantity
+      }
+  )
+
+  LET warehouseIds = UNIQUE(
+    FOR ledger IN activeLedgers
+      RETURN ledger.warehouse_id
+  )
+
+  LET totalStockValue = SUM(
+    FOR warehouse IN warehouses
+      FILTER warehouse.deleted_at == null
+      FILTER warehouse.type == ${WarehouseType.IN_STOCK}
+      FILTER warehouse.status == ${WarehouseStatus.ACTIVE}
+      FILTER warehouse.id IN warehouseIds
+
+      LET unitPrice = FIRST(
+        FOR price IN inventory_base_prices
+          FILTER price.deleted_at == null
+          FILTER price.inventory_id == inven.id
+          SORT price.created_at DESC
+          LIMIT 1
+          LET rates = (
+            FOR history IN exchange_histories
+              FILTER history.deleted_at == null
+              FILTER history.created_at >= price.created_at
+              RETURN history.rate
+          )
+          RETURN price.unit_price * PRODUCT(rates)
+      )
+
+      LET totalQuantity = SUM(
+        FOR ledger IN activeLedgers
+          FILTER ledger.warehouse_id == warehouse.id
+          RETURN ledger.quantity
+      )
+
+      RETURN totalQuantity * unitPrice
+  )
+
+  RETURN totalStockValue
+    `;
+
+  public async getBrandExchangeHistory(brandId: string) {
+    const query = `
+      FOR history IN exchange_histories
+        FILTER history.deleted_at == null
+        FILTER history.relation_id == @brandId
+        RETURN history`;
+    return this.model.rawQueryV2(query, { brandId });
+  }
+  public async getTotalInventories(brandId: string): Promise<number> {
+    const rawQuery = `
+      FOR category IN dynamic_categories
+      FILTER category.deleted_at == null
+      FILTER category.relation_id == @brandId
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      FILTER inventory.inventory_category_id == category.id
+      COLLECT WITH COUNT INTO length
+      RETURN length
+    `;
+
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+
+    return (head(result) as number) || 0;
+  }
+
+  public async getTotalStockValue(brandId: string): Promise<number> {
+    const rawQuery = `
+      LET activeCategories = (
+        FOR category IN dynamic_categories
+        FILTER category.deleted_at == null
+        FILTER category.relation_id == @brandId
+        RETURN category.id
+      )
+
+      FOR inven IN inventories
+      FILTER inven.deleted_at == null
+      FILTER inven.inventory_category_id IN activeCategories
+
+      LET total = (${this.totalStockValueQuery})
+
+       FOR amount IN total
+      COLLECT AGGREGATE totalStockValueSum = SUM(amount)
+      RETURN totalStockValueSum
+    `;
+
+    console.log(rawQuery);
+    const result = await this.model.rawQueryV2(rawQuery, { brandId });
+
+    return (head(result) as number) || 0;
+  }
+
+  public async getExchangeHistoryOfPrice(
+    priceCreatedAt: string
+  ): Promise<ExchangeHistoryEntity[]> {
+    return await this.model.rawQueryV2(
+      `FOR history IN exchange_histories
+      FILTER history.deleted_at == null
+      FILTER history.created_at >= @priceCreatedAt
+      RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
+      `,
+      { priceCreatedAt }
+    );
+  }
+
+  public async getList(
+    query: InventoryCategoryQuery
+  ): Promise<InventoryCategoryListWithPaginate> {
+    const {
+      limit,
+      offset,
+      category_id,
+      sort = "sku",
+      search,
+      order = "ASC",
+    } = query;
+
+    const rawQuery = `
+      FOR inventory IN inventories
+      FILTER inventory.deleted_at == null
+      ${
+        category_id
+          ? "FILTER inventory.inventory_category_id == @category_id"
+          : ""
+      }
+      ${search ? `FILTER LOWER(inventory.sku) LIKE LOWER("%${search}%")` : ""}
+      ${sort && order ? `SORT inventory.@sort @order` : ""}
+      ${!isNil(limit) && !isNil(offset) ? `LIMIT ${offset}, ${limit}` : ""}
+
+      LET latestPrice = FIRST(
+        FOR price IN inventory_base_prices
+        FILTER price.deleted_at == null
+        FILTER price.inventory_id == inventory.id
+        SORT price.created_at DESC
+        LIMIT 1
+
+        LET inventoryVolumePrice = (
+          FOR volumePrice IN inventory_volume_prices
+          FILTER volumePrice.deleted_at == null
+          FILTER volumePrice.inventory_base_price_id == price.id
+          SORT volumePrice.created_at DESC
+          RETURN UNSET(volumePrice, ['_key','_id','_rev','deleted_at'])
+        )
+
+        LET exchangeHistories = (
+          FOR history IN exchange_histories
+          FILTER history.deleted_at == null
+          FILTER history.created_at >= price.created_at
+          RETURN UNSET(history, ['_key','_id','_rev','deleted_at'])
+        )
+
+        RETURN MERGE(
+          KEEP(price, 'id', 'unit_price', 'unit_type', 'created_at', 'currency', 'inventory_id'),
+          {volume_prices: inventoryVolumePrice, exchange_histories: exchangeHistories}
+        ))
+
+        LET inventoryData = UNSET(inventory, ['_id','_key','_rev','deleted_at'])
+        RETURN MERGE(inventoryData, {price: latestPrice})
+      `;
+
+    const result = await this.model.rawQueryV2(
+      rawQuery,
+      omitBy({ category_id, sort, order }, isNil)
+    );
+
+    let total = result.length;
+    if (category_id) {
+      total = await this.model
+        .where("inventory_category_id", "==", category_id)
+        .count();
+    }
+
+    if (!isNil(limit) && !isNil(offset)) {
+      return {
+        data: result,
+        pagination: pagination(limit, offset, total),
+      };
+    }
+
+    return {
+      data: result,
+      pagination: null,
+    };
+  }
+
+  /// get latest base and volume prices
+  public async getLatestPrice(
+    inventoryId: string
+  ): Promise<LatestPrice | null> {
+    const result = await this.model.rawQueryV2(
+      this.latestPriceByInventoryIdQuery,
+      {
+        inventoryId,
+      }
+    );
+    return head(result) as LatestPrice;
+  }
+
+  /// get latest base and volume prices
+  public async getLatestPrices(inventoryIds: string[]): Promise<LatestPrice[]> {
+    const result = await this.model.rawQueryV2(
+      this.latestPriceByInventoryIdsQuery,
+      {
+        inventoryIds,
+      }
+    );
+    return result ?? [];
+  }
+
+  public async getInventoryBySKU(
+    sku: string,
+    brandId: string
+  ): Promise<InventoryEntity | undefined> {
+    const inventory = await this.model.rawQueryV2(
+      ` LET activeCategories = (
+          FOR c IN dynamic_categories
+          FILTER c.deleted_at == null
+          FILTER c.relation_id == @brandId
+          RETURN c
+        )
+
+        FOR inventory IN inventories
+        FILTER inventory.deleted_at == null
+        FILTER LOWER(inventory.sku) == LOWER(@sku)
+        FILTER inventory.inventory_category_id IN (FOR c IN activeCategories RETURN c.id)
+        RETURN UNSET(inventory, ['_key','_id','_rev','deleted_at'])
+      `,
+      {
+        sku,
+        brandId,
+      }
+    );
+
+    return head(inventory) as Promise<InventoryEntity | undefined>;
+  }
+
+  public async getAllInventoryByBrand(
+    brandId: string
+  ): Promise<InventoryEntity[]> {
+    const inventory = await this.model.rawQueryV2(
+      ` LET activeCategories = (
+          FOR c IN dynamic_categories
+          FILTER c.deleted_at == null
+          FILTER c.relation_id == @brandId
+          RETURN c.id
+        )
+
+        FOR inventory IN inventories
+        FILTER inventory.deleted_at == null
+        FILTER inventory.inventory_category_id IN activeCategories
+        RETURN UNSET(inventory, ['_key','_id','_rev','deleted_at'])
+      `,
+      {
+        brandId,
+      }
+    );
+
+    return (inventory ?? []) as Promise<InventoryEntity[]>;
+  }
+
+  public async updateMultiple(
+    inventories: Partial<MultipleInventoryRequest>[]
+  ): Promise<InventoryEntity[]> {
+    const inventoryQuery = `
+      FOR inventory IN @inventories
+      LET target = FIRST(
+        FOR inven IN inventories
+        FILTER inven.deleted_at == null
+        FILTER LOWER(inven.sku) == LOWER(inventory.sku)
+        RETURN inven
+      )
+      UPDATE target._key WITH {
+        description: HAS(inventory, 'description') ? inventory.description : target.description,
+        back_order: HAS(inventory, 'back_order') ? inventory.back_order : target.back_order,
+        image: HAS(inventory, 'image') ? inventory.image : target.image,
+        on_order: HAS(inventory, 'on_order') ? inventory.on_order : target.on_order,
+        updated_at: inventory.updated_at,
+        deleted_at: null
+      } IN inventories
+      RETURN true
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventories,
+    });
+  }
+
+  public async createMultiple(
+    inventories: Partial<MultipleInventoryRequest>[]
+  ): Promise<InventoryEntity[]> {
+    const inventoryQuery = `
+      FOR inventory IN @inventories
+      INSERT {
+        id: inventory.id,
+        sku: inventory.sku,
+        description: inventory.description OR "",
+        image: inventory.image OR "",
+        back_order: inventory.back_order OR 0,
+        on_order: inventory.on_order OR 0,
+        inventory_category_id: inventory.inventory_category_id,
+        created_at: inventory.created_at,
+        updated_at: inventory.updated_at,
+        deleted_at: null
+      } IN inventories
+      RETURN true
+    `;
+
+    return await this.model.rawQueryV2(inventoryQuery, {
+      inventories,
+    });
+  }
+}
+
+export const inventoryRepository = new InventoryRepository();
+export default InventoryRepository;

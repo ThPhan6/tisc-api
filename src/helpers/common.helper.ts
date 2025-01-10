@@ -1,8 +1,19 @@
+import { INTEREST_RATE } from "@/constants/common.constant";
+import { InventoryActionDescription, SortOrder } from "@/types";
 import { randomBytes } from "crypto";
+
 import * as FileType from "file-type";
-import { template, round, omitBy, isEqual, pick } from "lodash";
-import { INTEREST_RATE } from "@/constants";
-import { SortOrder } from "@/types";
+import {
+  fromPairs,
+  isEqual,
+  mapKeys,
+  omitBy,
+  pick,
+  round,
+  template,
+} from "lodash";
+
+export const REGEX_ORDER = /^#\d+_/;
 
 export const isDuplicatedString = (values: string[]) => {
   return values.some(function (item, idx) {
@@ -278,4 +289,112 @@ export const getLodashOrder = (order: SortOrder) =>
 
 export const toFixedNumber = (amount: number, n: number) => {
   return parseFloat(amount.toFixed(n));
+};
+
+export const getInventoryActionDescription = (
+  type: InventoryActionDescription,
+  description?: string
+) => {
+  switch (type) {
+    case InventoryActionDescription.TRANSFER_TO:
+      return `Transfer to ${description}`;
+    case InventoryActionDescription.TRANSFER_FROM:
+      return `Transfer from ${description}`;
+    default:
+      return "Adjust";
+  }
+};
+
+export const startCase = (str: string) => {
+  return str
+    .split(/[\s-_]+/) // Split by spaces, hyphens, or underscores
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+};
+
+export const jsonToCSV = (jsonData: any[]) => {
+  const headers: string[] = [];
+
+  jsonData.forEach((row) => {
+    Object.keys(row).forEach((key) => {
+      if (!headers.includes(key)) {
+        headers.push(key);
+      }
+    });
+  });
+
+  const filledData = jsonData.map((row) => {
+    const filledRow: Record<string, any> = {};
+
+    headers.forEach((key) => {
+      filledRow[key] =
+        row[key] !== undefined && row[key] !== null ? row[key] : "";
+    });
+
+    return filledRow;
+  });
+
+  const rows = filledData.map((row) =>
+    headers
+      .map((header) => {
+        return `"${row[header].toString().replace(/"/g, '""')}"`;
+      })
+      .join(",")
+  );
+
+  return [
+    headers.map((header) => `"${startCase(header).replace(/"/g, '""')}"`),
+    ...rows,
+  ].join("\n");
+};
+
+export const sortObjectByKey = (obj: Object, keys: string[]): Object => {
+  const sortedKeys = keys.filter((key) => (obj as any)[key] !== undefined);
+  const sortedObj = fromPairs(keys.map((key) => [key, (obj as any)[key]]));
+
+  const otherKeys = Object.keys(obj).filter((key) => !sortedKeys.includes(key));
+  const otherObj = fromPairs(otherKeys.map((key) => [key, (obj as any)[key]]));
+
+  return { ...sortedObj, ...otherObj };
+};
+
+export const renameKeys = (
+  obj: Record<string, string>,
+  keyPairs: Record<string, string>[]
+): Record<string, string> => {
+  const keyMap: Record<string, string> = {};
+
+  keyPairs.forEach((pair) => {
+    const [oldKey, newKey] = Object.entries(pair)[0];
+    keyMap[oldKey] = newKey;
+  });
+
+  return mapKeys(obj, (_value, key) => keyMap[key] || key);
+};
+
+export const convertISOToRandomText = (isoString: string): string => {
+  const date = new Date(isoString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+
+  return `${year}${month}${day}-T${hours}${minutes}${seconds}${milliseconds}Z`;
+};
+
+export const convertInStock = (
+  oldInStock: number,
+  newInStock: number,
+  convert: number = 0
+) => {
+  if (oldInStock === newInStock) return oldInStock + convert;
+
+  return newInStock + convert;
 };

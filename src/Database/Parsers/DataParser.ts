@@ -45,6 +45,8 @@ class DataParser {
         "basis_option_mains",
         "additional_sub_groups",
         "attributes",
+        "inventories",
+        "locations",
       ].includes(table || "")
     ) {
       dataToCreate = {

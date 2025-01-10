@@ -146,7 +146,7 @@ class CustomProductService {
       await this.mappingProductOptions(user.relation_id, payload.options);
 
     if (!isValidImage) {
-      return errorMessageResponse("An option omage is invalid");
+      return errorMessageResponse("An option image is invalid");
     }
     await uploadImages(validUploadImages, ImageSize.small);
 

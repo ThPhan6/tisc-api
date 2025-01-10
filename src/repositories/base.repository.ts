@@ -125,7 +125,7 @@ class BaseRepository<DataType> {
     if (isEmpty(newData)) {
       return undefined;
     }
-    return newData as DataType;
+    return newData as DataType[];
   }
 
   /**

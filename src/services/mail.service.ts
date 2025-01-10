@@ -16,6 +16,7 @@ import { toUSMoney } from "@/helpers/common.helper";
 import { emailQueue } from "@/queues/email.queue";
 import { logRepository } from "@/repositories/log.repository";
 import { IContactRequest } from "@/api/contact/contact.type";
+import moment from "moment";
 
 export default class MailService {
   private frontpageURL: string;
@@ -57,12 +58,16 @@ export default class MailService {
       return true;
     }
     //
+    console.log(`Send email at ${moment().format('HH:mm:ss DD-MM-YYYY')} : `, payload.to)
     return this.apiInstance
       .post<TransactionEmailResponse>("/email", {
         ...payload,
         sender: this.defaultSender,
       })
-      .then(() => true)
+      .then(() => {
+        console.log('Send email successfully to: ', payload.to)
+        return true
+      })
       .catch(async (error) => {
         await logRepository.create({
           extra: {
