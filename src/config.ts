@@ -46,6 +46,7 @@ export const ENVIRONMENT = {
   CHECK_PERMISSION: process.env.CHECK_PERMISSION || "false",
   TISC_WEBSITE: process.env.TISC_WEBSITE || "www.tisc.global",
   ALLOW_SEND_EMAIL: process.env.ALLOW_SEND_EMAIL || "1",
+  SEND_EMAIL_WITHOUT_QUEUE: process.env.SEND_EMAIL_WITHOUT_QUEUE || "false",
   DISABLE_VERIFY_FOR_LOAD_TEST: process.env.DISABLE_VERIFY_FOR_LOAD_TEST || "0",
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "vuongd36@gmail.com",
   TISC_CATPCHA_SECRET_KEY: process.env.TISC_CATPCHA_SECRET_KEY || "",

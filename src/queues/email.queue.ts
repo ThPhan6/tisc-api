@@ -43,8 +43,38 @@ class EmailQueue extends BaseQueue {
       }
     });
   };
-  public add = (data: any) => {
-    this.queue.add(data);
+  public add = async (data: any) => {
+    console.log(`Add mail job: ${data.email} ${data.subject}`);
+
+    if (ENVIRONMENT.SEND_EMAIL_WITHOUT_QUEUE !== "true") {
+      this.queue.add(data);
+    } else {
+      try {
+        let payload: Omit<TransactionEmailPayload, "sender"> = {
+          to: [{ email: data.email }],
+          subject: data.subject,
+          htmlContent: data.html,
+        };
+
+        if (data.attachment) {
+          payload = {
+            ...data,
+            attachment: data.attachment,
+          };
+        }
+        await mailService.sendTransactionEmail(payload, data.from);
+      } catch (error: any) {
+        this.log(
+          {
+            subject: data.subject,
+            to: data.to,
+            from: data.from,
+            message: error.stack || "",
+          },
+          "log_collections"
+        );
+      }
+    }
   };
 }
 
