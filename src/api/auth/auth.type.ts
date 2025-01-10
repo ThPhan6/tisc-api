@@ -23,6 +23,8 @@ export interface IForgotPasswordResponse {
 export interface ILoginResponse {
   token: string;
   type?: string;
+  workspace_id?: string;
+  workspace_name?: string;
   message: string;
   statusCode?: number;
 }

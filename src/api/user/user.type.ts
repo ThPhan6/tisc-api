@@ -1,8 +1,5 @@
-import {
-  TiscRoles,
-  BrandRoles,
-  DesignFirmRoles
-} from '@/constants';
+import { TiscRoles, BrandRoles, DesignFirmRoles } from "@/constants";
+import { ActiveStatus, UserAttributes } from "@/types";
 
 export interface IUserRequest {
   firstname: string;
@@ -122,4 +119,8 @@ export interface IGetTiscTeamsProfile {
     }[];
   }[];
   statusCode: number;
+}
+
+export interface IUserCompanyResponse extends UserAttributes {
+  company_status: ActiveStatus;
 }

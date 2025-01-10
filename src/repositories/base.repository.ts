@@ -49,6 +49,26 @@ class BaseRepository<DataType> {
   }
 
   /**
+   * Get many by
+   * @return DataType[]
+   */
+  public async getManyBy(
+    key: string,
+    ids: string[],
+    orderBy?: Extract<keyof DataType, string>,
+    sequence?: "ASC" | "DESC"
+  ) {
+    if (!isUndefined(orderBy) && !isUndefined(sequence)) {
+      return (await this.model
+        .select()
+        .whereIn(key, ids)
+        .order(orderBy, sequence)
+        .get()) as DataType[];
+    }
+    return (await this.model.select().whereIn(key, ids).get()) as DataType[];
+  }
+
+  /**
    * Get one
    * @param id string
    * @return DataType | undefined

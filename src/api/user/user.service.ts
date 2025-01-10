@@ -1,14 +1,20 @@
 import { permissionService } from "@/api/permission/permission.service";
 import {
   COMMON_TYPES,
+  DesignFirmRoles,
+  ImageSize,
   MESSAGES,
+  RoleIndex,
   RoleNames,
   TiscRoles,
-  RoleIndex,
-  ImageSize,
-  DesignFirmRoles,
 } from "@/constants";
 
+import {
+  getKeyByValue,
+  objectDiff,
+  randomName,
+  sortObjectArray,
+} from "@/helpers/common.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
@@ -16,32 +22,29 @@ import {
 } from "@/helpers/response.helper";
 import { validateRoleType } from "@/helpers/user.helper";
 import { brandRepository } from "@/repositories/brand.repository";
-import { designerRepository } from "@/repositories/designer.repository";
 import { commonTypeRepository } from "@/repositories/common_type.repository";
+import { designerRepository } from "@/repositories/designer.repository";
 import { locationRepository } from "@/repositories/location.repository";
 import { userRepository } from "@/repositories/user.repository";
+import { uploadLogo } from "@/services/image.service";
+import { ActivityTypes, logService } from "@/services/log.service";
 import MailService from "@/services/mail.service";
 import {
+  BrandAttributes,
+  DesignerAttributes,
   IMessageResponse,
   SortOrder,
   UserAttributes,
   UserStatus,
   UserType,
 } from "@/types";
-import { groupBy, isEqual, uniq } from "lodash";
+import { groupBy, isEqual, pick, uniq } from "lodash";
+import { authService } from "../auth/auth.service";
 import {
   IAssignTeamRequest,
   IUpdateMeRequest,
   IUserRequest,
 } from "./user.type";
-import {
-  getKeyByValue,
-  objectDiff,
-  randomName,
-  sortObjectArray,
-} from "@/helpers/common.helper";
-import { uploadLogo } from "@/services/image.service";
-import { ActivityTypes, logService } from "@/services/log.service";
 
 export default class UserService {
   private mailService: MailService;
@@ -49,12 +52,37 @@ export default class UserService {
     this.mailService = new MailService();
   }
 
+  private getUserWorkSpace = async (user: UserAttributes) => {
+    const users = await userRepository.getAllBy({
+      email: user.email,
+      is_verified: true,
+    });
+
+    const brands = await brandRepository.getManyBy(
+      "id",
+      users.map((user) => user.relation_id)
+    );
+
+    const designers = await designerRepository.getManyBy(
+      "id",
+      users.map((user) => user.relation_id)
+    );
+
+    return [...brands, ...designers].map((workspace) =>
+      pick(workspace, ["id", "name", "logo"])
+    );
+  };
+
   public create = async (
     authenticatedUser: UserAttributes,
     payload: IUserRequest,
     path: string
   ) => {
-    const user = await userRepository.findBy({ email: payload.email });
+    const user = await userRepository.findBy({
+      email: payload.email,
+      relation_id: authenticatedUser.relation_id,
+    });
+
     if (user) {
       return errorMessageResponse(MESSAGES.EMAIL_USED);
     }
@@ -68,15 +96,18 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
-    const department = authenticatedUser.role_id != DesignFirmRoles.Admin ? await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DEPARTMENT
-    ) : await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DESIGNER_DEPARTMENT
-    );
+    const department =
+      authenticatedUser.role_id != DesignFirmRoles.Admin
+        ? await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DEPARTMENT
+          )
+        : await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DESIGNER_DEPARTMENT
+          );
 
     const createdUser = await userRepository.create({
       firstname: payload.firstname,
@@ -167,16 +198,18 @@ export default class UserService {
     };
 
     if (user.type === UserType.Brand) {
+      const workspaces = await this.getUserWorkSpace(user);
       const brand = await brandRepository.find(user.relation_id);
       return successResponse({
-        data: { ...result, brand },
+        data: { ...result, brand, workspaces },
       });
     }
 
     if (user.type === UserType.Designer) {
+      const workspaces = await this.getUserWorkSpace(user);
       const design = await designerRepository.find(user.relation_id);
       return successResponse({
-        data: { ...result, design },
+        data: { ...result, design, workspaces },
       });
     }
 
@@ -196,6 +229,17 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
+    if (payload.email !== user.email) {
+      const existedUser = await userRepository.findBy({
+        email: payload.email,
+        relation_id: authenticatedUser.relation_id,
+      });
+
+      if (existedUser) {
+        return errorMessageResponse(MESSAGES.EMAIL_USED);
+      }
+    }
+
     if (
       !validateRoleType(authenticatedUser.type, user.role_id) ||
       authenticatedUser.relation_id !== user.relation_id
@@ -208,15 +252,18 @@ export default class UserService {
       return errorMessageResponse(MESSAGES.LOCATION_NOT_FOUND);
     }
 
-    const department = authenticatedUser.role_id != DesignFirmRoles.Admin ? await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DEPARTMENT
-    ) : await commonTypeRepository.findOrCreate(
-      payload.department_id,
-      authenticatedUser.relation_id,
-      COMMON_TYPES.DESIGNER_DEPARTMENT
-    );
+    const department =
+      authenticatedUser.role_id != DesignFirmRoles.Admin
+        ? await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DEPARTMENT
+          )
+        : await commonTypeRepository.findOrCreate(
+            payload.department_id,
+            authenticatedUser.relation_id,
+            COMMON_TYPES.DESIGNER_DEPARTMENT
+          );
     const updatedUser = await userRepository.update(user.id, {
       ...payload,
       department_id: department.id,
@@ -462,6 +509,47 @@ export default class UserService {
       },
     ];
     return successResponse({ data: result });
+  };
+
+  public switchToWorkspace = async (user: UserAttributes, id: string) => {
+    const existedUser = await userRepository.findBy({
+      email: user.email,
+    });
+
+    if (!existedUser) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    }
+
+    let workSpace: any = (await brandRepository.find(id)) as BrandAttributes;
+
+    if (!workSpace) {
+      workSpace = (await designerRepository.find(id)) as DesignerAttributes;
+    }
+
+    if (!workSpace) {
+      return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);
+    }
+
+    const userInWorkSpace = await userRepository.findBy({
+      email: user.email,
+      relation_id: workSpace.id,
+    });
+
+    if (!userInWorkSpace) {
+      return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE);
+    }
+
+    const token = authService.responseWithToken(
+      userInWorkSpace.id,
+      userInWorkSpace.type
+    );
+
+    return successResponse({
+      data: {
+        token: token.token,
+        type: token.type,
+      },
+    });
   };
 }
 
