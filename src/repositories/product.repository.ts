@@ -226,6 +226,22 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
         }
       )
 
+      let labels = (
+        for normalLabels in labels
+        filter normalLabels.id in products.label_ids
+        filter normalLabels.deleted_at == null
+        let parentLabel = FIRST(for parentLabels in labels filter parentLabels.id == normalLabels.parent_id return {
+          id: parentLabels.id,
+          name: parentLabels.name
+        })
+        filter parentLabel != null
+        return {
+          id: normalLabels.id,
+          name: normalLabels.name,
+          parent: parentLabel
+        }
+      )
+
       for brand in brands
       filter brand.id == products.brand_id
       filter brand.deleted_at == null
@@ -272,6 +288,7 @@ class ProductRepository extends BaseRepository<IProductAttributes> {
             : ""
         }
         collections: collections,
+        labels,
         brand: KEEP(brand, 'id','name','logo','official_websites','slogan','mission_n_vision', 'catelogue_downloads'),
         favorites: favourite[0],
         is_liked: liked[0] > 0
