@@ -15,6 +15,7 @@ export const ROUTES = {
   GET_TISC_WORKSPACE_SUMMARY: "/api/workspace/summary",
   GET_BRAND_WORKSPACE_SUMMARY: "/api/brand/workspace/summary",
   GET_DESIGNER_WORKSPACE_SUMMARY: "/api/designer/workspace/summary",
+  SWITCH_TO_WORKSPACE: "/api/workspace/{id}/switch",
 
   GET_LIST_BRAND: "/api/brand/get-list",
   GET_LIST_BRAND_BY_ALPHABET: "/api/brand/get-all-alphabet",
@@ -65,6 +66,7 @@ export const ROUTES = {
   UPDATE_PRODUCT: "/api/product/update/{id}",
   DELETE_PRODUCT: "/api/product/delete/{id}",
   GET_LIST_PRODUCT: "/api/product/get-list",
+  GET_BRAND_LIST_PRODUCT: "/api/product/brand/get-list",
   GET_ONE_PRODUCT: "/api/product/get-one/{id}",
   LIKE_OR_UNLIKE_PRODUCT: "/api/product/like/{id}",
   GET_BRAND_PRODUCT_SUMMARY: "/api/product/brand-product-summary/{brand_id}",

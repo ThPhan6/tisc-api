@@ -1,3 +1,5 @@
+import { getEnumValues } from "@/helpers/common.helper";
+import { UserType } from "@/types";
 import * as HapiJoi from "joi";
 const Joi = HapiJoi.defaults((schema) =>
   schema.options({
@@ -35,6 +37,7 @@ const userData = Joi.object({
   interested: Joi.any(),
   retrieve_favourite: Joi.bool(),
   remark: Joi.any(),
+  workspaces: Joi.any(),
 });
 
 export default {
@@ -117,5 +120,12 @@ export default {
       })
     ),
     statusCode: Joi.number(),
+  },
+  switchToWorkspace: {
+    statusCode: Joi.number(),
+    data: Joi.object({
+      token: Joi.string(),
+      type: Joi.number().valid(...getEnumValues(UserType)),
+    }),
   },
 };

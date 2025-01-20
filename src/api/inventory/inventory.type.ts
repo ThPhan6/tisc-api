@@ -38,7 +38,6 @@ export interface InventoryCreate
 export interface InventoryWarehouse
   extends Pick<WarehouseCreate, "location_id" | "quantity" | "convert"> {
   id?: string;
-  index?: number;
 }
 
 export interface InventoryErrorList extends InventoryCreate {

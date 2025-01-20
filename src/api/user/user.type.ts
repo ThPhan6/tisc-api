@@ -1,4 +1,4 @@
-import { UserRole } from "@/types";
+import { ActiveStatus, UserAttributes, UserRole } from "@/types";
 
 export interface IUserRequest {
   firstname: string;
@@ -119,4 +119,8 @@ export interface IGetTiscTeamsProfile {
     }[];
   }[];
   statusCode: number;
+}
+
+export interface IUserCompanyResponse extends UserAttributes {
+  company_status: ActiveStatus;
 }

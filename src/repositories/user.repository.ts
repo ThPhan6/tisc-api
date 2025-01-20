@@ -12,6 +12,7 @@ import {
 import { DesignFirmRoles } from "@/constants";
 import { head, isNumber } from "lodash";
 import { generateUniqueString } from "@/helpers/common.helper";
+import { IUserCompanyResponse } from "@/api/user/user.type";
 
 class UserRepository extends BaseRepository<UserAttributes> {
   protected model: UserModel;
@@ -121,8 +122,8 @@ class UserRepository extends BaseRepository<UserAttributes> {
         })
       `,
       { email }
-    )) as (UserAttributes & { company_status: ActiveStatus })[];
-    return head(result);
+    )) as IUserCompanyResponse[];
+    return result;
   }
 
   public async findPartnerCompanyStatus(email: string) {

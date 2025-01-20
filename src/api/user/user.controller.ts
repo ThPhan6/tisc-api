@@ -160,4 +160,11 @@ export default class UserController {
     );
     return toolkit.response(response).code(response.statusCode);
   };
+
+  public async switchToWorkspace(req: Request, toolkit: ResponseToolkit) {
+    const user = req.auth.credentials.user as UserAttributes;
+    const { id } = req.params;
+    const response = await userService.switchToWorkspace(user, id);
+    return toolkit.response(response).code(response.statusCode);
+  }
 }

@@ -27,6 +27,7 @@ export interface IProductAttributes {
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
   detected_color_images?: DetectedImage[];
+  ecoLabel: FeatureLabelPros;
 }
 
 export interface DimensionAndWeight {
@@ -78,4 +79,11 @@ export interface ProductWithRelationData extends ProductWithCollectionAndBrand {
   };
   favorites: number;
   is_liked: boolean;
+}
+
+export interface FeatureLabelPros {
+  [key: string]: {
+    name: string;
+    value: boolean;
+  };
 }

@@ -11,17 +11,27 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
     this.model = new WarehouseModel();
   }
 
-  public async getWarehouseByBrand(
-    brandId: string,
-    type: WarehouseType = WarehouseType.IN_STOCK,
-    status: WarehouseStatus = WarehouseStatus.ACTIVE
-  ): Promise<WarehouseEntity[]> {
-    return await this.model
-      .where("relation_id", "==", brandId)
-      .where("type", "==", type)
-      .where("status", "==", status)
-      .get();
-  }
+  public getBrandWarehouses = async (
+    locationIds: string[],
+    params?: { type?: WarehouseType; status?: WarehouseStatus }
+  ): Promise<WarehouseEntity[]> => {
+    const { type, status } = params || {};
+
+    const query = `
+    FOR warehouse IN warehouses
+    FILTER warehouse.deleted_at == null
+    FILTER warehouse.location_id IN @locationIds
+    ${type ? `FILTER warehouse.type == ${type}` : ""}
+    ${status ? `FILTER warehouse.status == ${status}` : ""}
+    RETURN warehouse
+  `;
+
+    const result = await this.model.rawQueryV2(query, {
+      locationIds,
+    });
+
+    return result;
+  };
 
   public async getWarehouses(
     warehouseIds: string[]
@@ -51,11 +61,12 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         RETURN ws
       )
       UPDATE target._key WITH {
+        name: HAS(warehouse, 'name') ? warehouse.name : target.name,
         status: HAS(warehouse, 'status') ? warehouse.status :  target.status,
         updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(warehouseQuery, {
@@ -80,7 +91,7 @@ class WarehouseRepository extends BaseRepository<WarehouseEntity> {
         updated_at: warehouse.updated_at,
         deleted_at: null
       } IN warehouses
-      RETURN UNSET(NEW, ['_key', '_id', '_rev', 'deleted_at'])
+      RETURN true
     `;
 
     return await this.model.rawQueryV2(warehouseQuery, {

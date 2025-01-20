@@ -84,12 +84,13 @@ export default {
     statusCode: Joi.number().required(),
     data: Joi.object({
       total_product: Joi.number().required(),
-      total_stock: Joi.number().required(),
+      total_stock: Joi.number(),
       currencies: Joi.array()
         .items(
           Joi.object({
             code: Joi.string().required(),
             name: Joi.string().required(),
+            symbol: Joi.any(),
           })
         )
         .required(),

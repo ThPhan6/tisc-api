@@ -95,8 +95,7 @@ export const dimensionAndWeightValidate = Joi.object({
 
 export const productPayloadValidate = {
   brand_id: requireStringValidation("Brand id"),
-  collection_ids: Joi.array()
-    .items(Joi.string()),
+  collection_ids: Joi.array().items(Joi.string()),
   label_ids: Joi.array().items(Joi.string()),
   category_ids: Joi.array()
     .items(Joi.string().required())
@@ -142,6 +141,7 @@ export const productPayloadValidate = {
     product_name: Joi.string().allow(""),
     product_id: Joi.string().allow(""),
   }),
+  ecoLabel: Joi.object(),
 };
 
 export default {
@@ -161,6 +161,13 @@ export default {
       collection_id: Joi.string(),
     }),
   } as any,
+  getBrandProductList: {
+    query: Joi.object({
+      brand_id: requireStringValidation("Brand id"),
+      category_id: Joi.string(),
+      collection_id: Joi.string(),
+    }),
+  } as any,
   getListDesignerBrandProducts: getListValidation({
     query: {
       category_id: Joi.string(),
@@ -174,6 +181,9 @@ export default {
   getBrandProductSummary: {
     params: {
       brand_id: requireStringValidation("Brand id"),
+    },
+    query: {
+      is_get_total_product: Joi.boolean().allow(null),
     },
   },
   getProductOptions: {

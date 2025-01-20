@@ -82,10 +82,28 @@ export const productResponse = {
   dimension_and_weight: dimensionWeightResponse,
   product_information: Joi.any(),
   detected_color_images: Joi.any(),
+  ecoLabel: Joi.any(),
 };
 
 export default {
   getList: Joi.object({
+    data: Joi.object({
+      data: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          name: Joi.string(),
+          description: Joi.any(),
+          images: Joi.any(),
+          type: Joi.any(),
+          count: Joi.number(),
+          products: Joi.array().items(Joi.object(productResponse)),
+        })
+      ),
+      brand: Joi.any(),
+    }),
+    statusCode: Joi.number(),
+  }),
+  getBrandProductList: Joi.object({
     data: Joi.object({
       data: Joi.array().items(
         Joi.object({
@@ -147,6 +165,7 @@ export default {
       collection_count: Joi.number(),
       card_count: Joi.number(),
       product_count: Joi.number(),
+      x_collection: Joi.boolean(),
     }),
     statusCode: Joi.number(),
   }),

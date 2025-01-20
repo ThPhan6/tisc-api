@@ -1,3 +1,4 @@
+import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
 import { COMMON_TYPES, MESSAGES } from "@/constants";
 import {
   errorMessageResponse,
@@ -10,22 +11,26 @@ import productRepository from "@/repositories/product.repository";
 import { userRepository } from "@/repositories/user.repository";
 import { countryStateCityService } from "@/services/country_state_city.service";
 import {
+  CompanyFunctionalGroup,
+  DesignFirmFunctionalType,
   ILocationAttributes,
   IMessageResponse,
   LocationRequest,
+  LocationWithTeamCountAndFunctionType,
   SortOrder,
   UserAttributes,
   UserType,
-  DesignFirmFunctionalType,
-  LocationWithTeamCountAndFunctionType,
+  WarehouseStatus,
 } from "@/types";
 import { isEqual } from "lodash";
+import { v4 as uuid } from "uuid";
+import { warehouseService } from "../warehouses/warehouse.service";
 import {
   getDesignFunctionType,
   mappingByCountries,
   sortMainOfficeFirst,
 } from "./location.mapping";
-import { mappingAuthorizedCountriesName } from "@/api/distributor/distributor.mapping";
+import { warehouseRepository } from "@/repositories/warehouse.repository";
 
 export default class LocationService {
   private async getFunctionalType(
@@ -52,6 +57,8 @@ export default class LocationService {
 
     if (isValidGeoLocation !== true) return isValidGeoLocation;
 
+    const locationId = uuid();
+
     const countryStateCity = await countryStateCityService.getCountryStateCity(
       payload.country_id,
       payload.city_id,
@@ -64,13 +71,30 @@ export default class LocationService {
       payload.functional_type_ids
     );
 
+    const functionalType =
+      functionalTypes?.map((item) => item.name).join(", ") || "";
+
+    const isLogistic = functionalType
+      .toLowerCase()
+      .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase());
+
+    if (isLogistic) {
+      const createdWarehouse = await warehouseService.createMultiple(user, {
+        id: locationId,
+        business_name: payload.business_name,
+      });
+
+      if (!createdWarehouse) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
+      }
+    }
+
     const createdLocation = await locationRepository.create({
       business_name: payload.business_name,
       functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       business_number:
         user.type === UserType.Designer ? "" : payload.business_number,
-      functional_type:
-        functionalTypes?.map((item) => item.name).join(", ") || "",
+      functional_type: functionalType,
       ...countryStateCity,
       address: payload.address,
       postal_code: payload.postal_code,
@@ -78,10 +102,13 @@ export default class LocationService {
       general_email: payload.general_email,
       type: user.type,
       relation_id: user.relation_id,
+      id: locationId,
     });
+
     if (!createdLocation) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_CREATE);
     }
+
     return this.get(createdLocation.id);
   };
 
@@ -117,12 +144,43 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.USER_NOT_IN_WORKSPACE, 404);
     }
 
+    const functionalType =
+      functionalTypes?.map((item) => item.name).join(", ") || "";
+
+    const existedWarehouse = await warehouseRepository.findBy({
+      location_id: id,
+    });
+
+    if (!existedWarehouse) {
+      const createdWarehouse = await warehouseService.createMultiple(user, {
+        business_name: payload.business_name,
+        id,
+      });
+
+      if (createdWarehouse.statusCode !== 200) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      }
+    } else {
+      const warehouseStatusUpdate =
+        await warehouseService.updateWarehouseByLocation([id], {
+          name: payload?.business_name ?? undefined,
+          status: functionalType
+            .toLowerCase()
+            .includes(CompanyFunctionalGroup.LOGISTIC.toLowerCase())
+            ? WarehouseStatus.ACTIVE
+            : WarehouseStatus.INACTIVE,
+        });
+
+      if (warehouseStatusUpdate.statusCode !== 200) {
+        return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
+      }
+    }
+
     const updatedLocation = await locationRepository.update(id, {
       business_name: payload.business_name,
       business_number:
         user.type === UserType.Designer ? "" : payload.business_number,
-      functional_type:
-        functionalTypes?.map((item) => item.name).join(", ") || "",
+      functional_type: functionalType,
       functional_type_ids: functionalTypes?.map((item) => item.id) || [],
       ...countryStateCity,
       address: payload.address,
@@ -130,9 +188,11 @@ export default class LocationService {
       general_phone: payload.general_phone,
       general_email: payload.general_email,
     });
+
     if (!updatedLocation) {
       return errorMessageResponse(MESSAGES.SOMETHING_WRONG_UPDATE);
     }
+
     return this.get(id);
   };
 
@@ -258,7 +318,15 @@ export default class LocationService {
       return errorMessageResponse(MESSAGES.LOCATION.USER_USED);
     }
 
+    const updateInActiveWarehouses =
+      await warehouseService.updateWarehouseByLocation([id]);
+
+    if (updateInActiveWarehouses.statusCode !== 200) {
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG_DELETE);
+    }
+
     await locationRepository.delete(id);
+
     return successMessageResponse(MESSAGES.SUCCESS);
   };
 

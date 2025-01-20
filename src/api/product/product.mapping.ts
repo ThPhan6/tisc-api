@@ -92,26 +92,30 @@ export const mappingByBrand = (products: ProductWithRelationData[]) => {
 export const mappingByCollections = (
   products: ProductWithRelationData[],
   collectionId?: string,
-  user?: UserAttributes,
+  user?: UserAttributes
 ) => {
   let collections = getUniqueCollections(products);
-  if((Object.values(TiscRoles) as string[])
-      .includes(user?.role_id as string)) {
-    if(products.find((product)=> product.collection_ids.length == 0)){
-      collections = [...collections,
+
+  if (
+    (Object.values(TiscRoles) as string[]).includes(user?.role_id as string)
+  ) {
+    if (products.find((product) => product.collection_ids.length == 0)) {
+      collections = [
+        ...collections,
         // Other Collection
         {
-        id: '-1',
-        name: 'X Collection',
-        type: 2,
-        description: '',
-        images: [],
-      }];
-      products.forEach(product => {
+          id: "-1",
+          name: "X Collection",
+          type: 2,
+          description: "",
+          images: [],
+        },
+      ];
+      products.forEach((product) => {
         // Products have no collection ID
         // Set Other Collection ID -1
-        if(product.collection_ids.length == 0)
-          product.collection_ids.push('-1');
+        if (product.collection_ids.length == 0)
+          product.collection_ids.push("-1");
       });
     }
   }
@@ -126,25 +130,25 @@ export const mappingByCollections = (
     collections
       //.filter(collection => !tempHideCollections.includes(collection.name.toLowerCase()))
       .map(async (collection) => {
-      let categoryProducts = products.filter((item) =>
-        item.collection_ids?.includes(collection.id)
-      );
-      ///
-      const brandId = products[0].brand_id;
-      const gallery = await galleryRepository.findBy({
-        collection_id: collection.id,
-        brand_id: brandId,
-      });
-      return {
-        id: collection.id,
-        type: collection.type,
-        name: collection.name,
-        images: gallery?.images || [],
-        description: collection.description,
-        count: categoryProducts.length,
-        products: categoryProducts,
-      };
-    })
+        let categoryProducts = products.filter((item) =>
+          item.collection_ids?.includes(collection.id)
+        );
+        ///
+        const brandId = products[0].brand_id;
+        const gallery = await galleryRepository.findBy({
+          collection_id: collection.id,
+          brand_id: brandId,
+        });
+        return {
+          id: collection.id,
+          type: collection.type,
+          name: collection.name,
+          images: gallery?.images || [],
+          description: collection.description,
+          count: categoryProducts.length,
+          products: categoryProducts,
+        };
+      })
   );
 };
 
@@ -535,54 +539,58 @@ export const mappingProductIdType = (
     if (!foundBasisOption) {
       return attributeGroup;
     }
-    
+
     // Adding the product id format type for each option/step
-    if (attributeGroup.attributes[0]){
+    if (attributeGroup.attributes[0]) {
       let newAttributes = attributeGroup.attributes.map((attribute: any) => {
-        let newBasisOptions = attribute.basis_options?.map((basis_option: any) =>{
-          const foundBasisOption = allBasisOptionItems.find(
-            (item: any) => item.id === basis_option.id
-          );
-          const main = allMainGroups.find(
-            (main) => main.id === foundBasisOption.main_id
-          );
-          return {
-            ...basis_option,
-            id_format_type: main?.id_format_type || ProductIDType.Full
+        let newBasisOptions = attribute.basis_options?.map(
+          (basis_option: any) => {
+            const foundBasisOption = allBasisOptionItems.find(
+              (item: any) => item.id === basis_option.id
+            );
+            const main = allMainGroups.find(
+              (main) => main.id === foundBasisOption.main_id
+            );
+            return {
+              ...basis_option,
+              id_format_type: main?.id_format_type || ProductIDType.Full,
+            };
           }
-        });
+        );
         return {
           ...attribute,
-          basis_options: newBasisOptions
+          basis_options: newBasisOptions,
         };
       });
       return {
         ...attributeGroup,
         attributes: newAttributes,
-      }
+      };
     } else {
-      let newSpecStep = attributeGroup.specification_steps.map((specStep: any) => {
-        let newOptions = specStep.options.map((option: any) =>{
-          const foundBasisOption = allBasisOptionItems.find(
-            (item: any) => item.id === option.id
-          );
-          const main = allMainGroups.find(
-            (main) => main.id === foundBasisOption.main_id
-          );
+      let newSpecStep = attributeGroup.specification_steps.map(
+        (specStep: any) => {
+          let newOptions = specStep.options.map((option: any) => {
+            const foundBasisOption = allBasisOptionItems.find(
+              (item: any) => item.id === option.id
+            );
+            const main = allMainGroups.find(
+              (main) => main.id === foundBasisOption.main_id
+            );
+            return {
+              ...option,
+              id_format_type: main?.id_format_type || ProductIDType.Full,
+            };
+          });
           return {
-            ...option,
-            id_format_type: main?.id_format_type || ProductIDType.Full
-          }
-        });
-        return {
-          ...specStep,
-          options: newOptions
-        };
-      });
+            ...specStep,
+            options: newOptions,
+          };
+        }
+      );
       return {
         ...attributeGroup,
         specification_steps: newSpecStep,
-      }
+      };
     }
   });
 };

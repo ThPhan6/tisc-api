@@ -28,7 +28,7 @@ import {
   validateImageType,
 } from "@/services/image.service";
 import { mailService } from "@/services/mail.service";
-import { isEmpty, isEqual, orderBy, sortBy, trim } from "lodash";
+import { isEmpty, isEqual, omit, orderBy, sortBy, trim } from "lodash";
 import {
   getTotalVariantOfProducts,
   getUniqueBrands,
@@ -460,21 +460,47 @@ class ProductService {
     });
   }
 
-  public getBrandProductSummary = async (brandId: string) => {
+  public getBrandProductSummary = async (
+    user: UserAttributes,
+    params: { brand_id: string; is_get_total_product?: boolean }
+  ) => {
+    const {
+      brand_id: brandId,
+      is_get_total_product: isGetTotalProduct = true,
+    } = params;
+
     const products = await productRepository.getProductBy(undefined, brandId);
-    const returnedProducts = products.filter((product)=>
-      product.collection_ids.length > 0 && product.collections.length > 0);
+    const returnedProducts = products.filter(
+      (product) =>
+        product.collection_ids.length > 0 && product.collections.length > 0
+    );
+
+    const returnedCollections = await mappingByCollections(
+      products,
+      undefined,
+      user
+    );
+
+    const x_collection = returnedCollections?.some(
+      (collection: any) => collection.id === "-1"
+    );
+
     const collections = sortObjectArray(
       getUniqueCollections(products),
       "name",
       "ASC"
     );
+
     const categories = sortObjectArray(
       getUniqueProductCategories(products),
       "name",
       "ASC"
     );
-    const variants = getTotalVariantOfProducts(products);
+
+    const variants = isGetTotalProduct
+      ? getTotalVariantOfProducts(products)
+      : [];
+
     return successResponse({
       data: {
         categories,
@@ -483,9 +509,11 @@ class ProductService {
         collection_count: collections.length,
         card_count: returnedProducts.length,
         product_count: variants.length,
+        x_collection: x_collection,
       },
     });
   };
+
   public getList = async (
     user: UserAttributes,
     brandId: string,
@@ -499,11 +527,14 @@ class ProductService {
       user.id,
       brandId,
       categoryId === "all" ? undefined : categoryId,
-      collectionId === "all" || collectionId === "-1" ? undefined : collectionId,
+      collectionId === "all" || collectionId === "-1"
+        ? undefined
+        : collectionId,
       keyword,
       sortName,
       orderBy
     );
+
     let returnedProducts;
     if (categoryId) {
       if (categoryId !== "all") {
@@ -522,7 +553,7 @@ class ProductService {
       returnedProducts = await mappingByCollections(
         products,
         collectionId === "all" ? undefined : collectionId,
-        user,
+        user
       );
     } else {
       returnedProducts = mappingByBrand(products);
@@ -541,6 +572,84 @@ class ProductService {
     });
   };
 
+  /// only for brand products
+  public getBrandProductList = async (
+    user: UserAttributes,
+    brandId: string,
+    categoryId?: string,
+    collectionId?: string,
+    orderBy?: "ASC" | "DESC"
+  ) => {
+    let products = await productRepository.getBrandProductBy(
+      brandId,
+      categoryId === "all" ? undefined : categoryId,
+      collectionId === "all" || collectionId === "-1"
+        ? undefined
+        : collectionId,
+      orderBy
+    );
+
+    let returnedProducts;
+    if (categoryId) {
+      if (categoryId !== "all") {
+        products = products.map((product) => {
+          return {
+            ...product,
+            category_ids: [categoryId],
+            categories: product.categories.filter(
+              (category) => category.id === categoryId
+            ),
+          };
+        });
+      }
+      returnedProducts = mappingByCategory(products);
+    } else if (collectionId) {
+      returnedProducts = await mappingByCollections(
+        products,
+        collectionId === "all" ? undefined : collectionId,
+        user
+      );
+    } else {
+      returnedProducts = mappingByBrand(products);
+    }
+
+    returnedProducts = returnedProducts.map((item) => {
+      return {
+        ...item,
+        products: sortObjectArray(item.products, "name", "ASC"),
+      };
+    });
+
+    return successResponse({
+      data: {
+        brand: products?.[0]?.brand,
+        data: sortObjectArray(
+          returnedProducts.map((el) => ({
+            ...el,
+            products: el.products.map((product) =>
+              omit(
+                {
+                  ...product,
+                  images: !product.images.length ? [] : [product.images[0]],
+                },
+                [
+                  "category_ids",
+                  "categories",
+                  "collection_ids",
+                  "collections",
+                  "brand",
+                  "brand_id",
+                ]
+              )
+            ),
+          })),
+          "name",
+          "ASC"
+        ),
+      },
+    });
+  };
+
   public getListDesignerBrandProducts = async (
     user: UserAttributes,
     brandId?: string,
@@ -551,7 +660,20 @@ class ProductService {
     limit?: number,
     offset?: number
   ) => {
-    const products = await productRepository.getProductBy(
+    // const products = await productRepository.getProductBy(
+    // user.id,
+    // brandId,
+    // categoryId,
+    // undefined,
+    // keyword,
+    // sortName,
+    // orderBy,
+    // false,
+    // limit,
+    // offset
+    // );
+
+    const products = await productRepository.getBrandDesignerProductBy(
       user.id,
       brandId,
       categoryId,
@@ -563,8 +685,10 @@ class ProductService {
       limit,
       offset
     );
-    const newProducts = products.filter((product)=>
-      product?.collection_ids?.length > 0 && product?.collections?.length > 0);
+    const newProducts = products.filter(
+      (product) =>
+        product?.collection_ids?.length > 0 && product?.collections?.length > 0
+    );
     if (brandId) {
       const variants = getTotalVariantOfProducts(newProducts);
       const brand = await brandRepository.find(brandId);

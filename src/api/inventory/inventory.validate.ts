@@ -133,7 +133,7 @@ const InventoryImportRequest = Joi.object({
     .allow(null)
     .items(
       Joi.object({
-        index: Joi.number().strict().required(),
+        location_id: Joi.string().strict().required(),
         quantity: Joi.number().strict().min(0).required().messages({
           "any.required": "In stock is required",
           "number.min": "In stock is must be positive number",

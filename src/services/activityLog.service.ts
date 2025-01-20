@@ -6,13 +6,20 @@ class ActivityLogService {
   constructor() {}
   public createActivityLog = async (request: Request, userId: string) => {
     if (LOG_METHODS.includes(request.method)) {
-      const data = {
-          user_id: userId,
-          path: request.path,
-          method: request.method,
-          input: request.payload,
+      let savedInput: any = request.payload;
+      if (request.path.indexOf("login") !== -1) {
+        savedInput = {
+          ...savedInput,
+          password: "",
+        };
       }
-      await activityLogRepository.create(data)
+      const data = {
+        user_id: userId,
+        path: request.path,
+        method: request.method,
+        input: savedInput,
+      };
+      await activityLogRepository.create(data);
     }
   };
 }

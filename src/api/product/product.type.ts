@@ -5,6 +5,7 @@ import {
   ProductDownload,
   DimensionAndWeight,
   ProductInformation,
+  FeatureLabelPros,
 } from "@/types/product.type";
 import { StepRequest } from "../linkage/linkage.type";
 export interface IProduct {
@@ -88,6 +89,7 @@ export interface IProductRequest {
   downloads: ProductDownload[];
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
+  ecoLabel: FeatureLabelPros;
 }
 export interface IUpdateProductRequest {
   brand_id: string;
@@ -108,6 +110,7 @@ export interface IUpdateProductRequest {
   catelogue_downloads: ProductDownload[];
   dimension_and_weight: DimensionAndWeight;
   product_information: ProductInformation;
+  ecoLabel: FeatureLabelPros;
 }
 export interface IProductResponse {
   data: IProduct;

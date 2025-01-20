@@ -1,46 +1,45 @@
-import { locationService } from "./../location/location.service";
 import {
-  BRAND_STATUSES,
-  MESSAGES,
   AUTH_EMAIL_TYPE,
+  BRAND_STATUSES,
   DesignFirmRoles,
+  MESSAGES,
   RoleType,
 } from "@/constants";
-import {
-  IMessageResponse,
-  UserAttributes,
-  ActiveStatus,
-  UserType,
-  UserTypeValue,
-  UserStatus,
-} from "@/types";
-import {
-  IAdminLoginRequest,
-  IResetPasswordRequest,
-  IRegisterRequest,
-  IForgotPasswordRequest,
-  ILoginResponse,
-} from "./auth.type";
+import { signJwtToken } from "@/helpers/jwt.helper";
 import {
   comparePassword,
   createHash,
   createHashWithSalt,
 } from "@/helpers/password.helper";
-import { signJwtToken } from "@/helpers/jwt.helper";
 import {
   errorMessageResponse,
   successMessageResponse,
   successResponse,
 } from "@/helpers/response.helper";
+import {
+  ActiveStatus,
+  UserAttributes,
+  UserStatus,
+  UserType,
+  UserTypeValue,
+} from "@/types";
+import { locationService } from "./../location/location.service";
+import {
+  IAdminLoginRequest,
+  IForgotPasswordRequest,
+  IRegisterRequest,
+  IResetPasswordRequest,
+} from "./auth.type";
 
-import { mailService } from "@/services/mail.service";
 import { permissionService } from "@/api/permission/permission.service";
+import { mailService } from "@/services/mail.service";
 
+import { ENVIRONMENT } from "@/config";
 import { brandRepository } from "@/repositories/brand.repository";
 import { designerRepository } from "@/repositories/designer.repository";
 import { userRepository } from "@/repositories/user.repository";
-import { startCase } from "lodash";
-import { ENVIRONMENT } from "@/config";
+import { partition, startCase } from "lodash";
+import { IUserCompanyResponse } from "../user/user.type";
 
 const errorMessage = {
   [UserType.Brand]: MESSAGES.BRAND_INACTIVE_LOGIN,
@@ -50,7 +49,7 @@ const errorMessage = {
 };
 
 class AuthService {
-  private responseWithToken = (userId: string, type?: UserType) => {
+  public responseWithToken = (userId: string, type?: UserType) => {
     const response = {
       type,
       token: signJwtToken(userId),
@@ -102,67 +101,167 @@ class AuthService {
     });
   };
 
-  public tiscLogin = async (
-    payload: IAdminLoginRequest
-  ): Promise<ILoginResponse | IMessageResponse> => {
-    const user = await userRepository.findBy({ email: payload.email });
-    if (!user) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
-    }
-    const isInvalid = this.authValidation(payload.password, user);
-    if (isInvalid) {
-      return isInvalid;
-    }
-    const isIncorrectType = this.checkTypeValidationError(
-      UserType.TISC,
-      user.type
+  private getWorkspaces = async (accounts: IUserCompanyResponse[]) => {
+    const brands = await brandRepository.getMany(
+      accounts.map((user) => user.relation_id)
     );
-    if (isIncorrectType) {
-      return isIncorrectType;
-    }
-    return this.responseWithToken(user.id);
+
+    const designers = await designerRepository.getMany(
+      accounts.map((user) => user.relation_id)
+    );
+
+    return accounts
+      .map((user) => {
+        const workspaces = [];
+        const brandWorkspace = brands.find(
+          (workspace) => workspace.id === user.relation_id
+        );
+
+        const designerWorkspace = designers.find(
+          (workspace) => workspace.id === user.relation_id
+        );
+
+        if (brandWorkspace) {
+          workspaces.push(brandWorkspace);
+        }
+
+        if (designerWorkspace) {
+          workspaces.push(designerWorkspace);
+        }
+
+        const token = this.responseWithToken(user.id, RoleType[user.role_id]);
+
+        return workspaces.map((w) => ({
+          workspace_id: w.id,
+          workspace_name: w.name,
+          type: token.type || user.type,
+          token: token.token,
+        }));
+      })
+      .flat();
   };
 
-  public login = async (payload: IAdminLoginRequest) => {
-    ///
-    let user = await userRepository.findByCompanyIdWithCompanyStatus(
-      payload.email
-    );
-    if (!user) {
+  public tiscLogin = async (payload: IAdminLoginRequest) => {
+    const users = await userRepository.getAllBy({
+      email: payload.email,
+    });
+
+    if (!users.length) {
+      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
+    }
+
+    const [TISCUsers, otherUsers] = partition(users, { type: UserType.TISC });
+
+    if (otherUsers.length === users.length) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+
+    let error: { message: string; statusCode: number } | null = null;
+
+    const accounts = TISCUsers.map((user) => {
+      if (error) return;
+
+      const isInvalid = this.authValidation(payload.password, user);
+      if (isInvalid) {
+        error = isInvalid;
+        return;
+      }
+
+      if (user.status === UserStatus.Pending) {
+        error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+        return;
+      }
+
+      return user;
+    }).filter(Boolean) as IUserCompanyResponse[];
+
+    if (error) return error;
+
+    if (!accounts.length) {
       return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
-    const isInvalid = this.authValidation(payload.password, user);
-    if (isInvalid) {
-      return isInvalid;
-    }
-
-    const isIncorrectType = this.checkTypeValidationError(
-      UserType.TISC,
-      user.type,
-      "neq"
+    const account = this.responseWithToken(
+      accounts[0].id,
+      RoleType[accounts[0].role_id]
     );
-    if (isIncorrectType) {
-      return isIncorrectType;
+
+    return successResponse({
+      data: {
+        token: account.token,
+        type: account.type,
+      },
+    });
+  };
+
+  public login = async (payload: IAdminLoginRequest) => {
+    const users = await userRepository.findByCompanyIdWithCompanyStatus(
+      payload.email
+    );
+
+    if (!users.length) {
+      return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
     }
 
-    if (user.type === UserType.Partner) {
-      user = await userRepository.findPartnerCompanyStatus(payload.email);
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
 
-      if (!user) {
-        return errorMessageResponse(MESSAGES.USER_NOT_FOUND, 404);
+    if (TISCUsers.length === users.length) {
+      return errorMessageResponse(MESSAGES.LOGIN_INCORRECT_TYPE);
+    }
+
+    const accounts: IUserCompanyResponse[] = [];
+    const passwordErrors: any[] = [];
+    let error: any = null;
+
+    for (const otherUser of otherUsers) {
+      const isInvalid = this.authValidation(payload.password, otherUser);
+
+      if (isInvalid) {
+        passwordErrors.push(isInvalid);
+        continue;
       }
+
+      if (error) continue;
+
+      if (otherUser.company_status === ActiveStatus.Inactive) {
+        error = errorMessageResponse(errorMessage[otherUser.type], 401);
+        continue;
+      }
+
+      if (
+        otherUser.company_status === ActiveStatus.Pending ||
+        otherUser.status === UserStatus.Pending
+      ) {
+        error = errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+        continue;
+      }
+
+      accounts.push(otherUser);
     }
 
-    //// company status validation
-    if (user.company_status === ActiveStatus.Inactive) {
-      return errorMessageResponse(errorMessage[user.type], 401);
+    if (passwordErrors.length === otherUsers.length) {
+      return passwordErrors[0];
     }
-    if (user.company_status === ActiveStatus.Pending) {
-      return errorMessageResponse(MESSAGES.VERIFY_ACCOUNT_FIRST, 401);
+
+    if (error && (accounts.length === otherUsers.length || !accounts.length))
+      return error;
+
+    const userWorkspaces = await this.getWorkspaces(
+      otherUsers.filter(
+        (otherUser) =>
+          otherUser.status === UserStatus.Active &&
+          otherUser.company_status === ActiveStatus.Active
+      )
+    );
+
+    if (!userWorkspaces.length) {
+      return errorMessageResponse(MESSAGES.WORKSPACE_NOT_FOUND, 404);
     }
+
     ///
-    return this.responseWithToken(user.id, RoleType[user.role_id]);
+    return successResponse({ data: userWorkspaces });
   };
 
   public forgotPassword = async (
@@ -172,16 +271,17 @@ class AuthService {
     const user = await userRepository.findBy({
       email: payload.email,
       is_verified: true,
+      type: payload.type,
     });
-    if (!user) {
-      return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
-    }
+
     if (
+      !user ||
       (payload.type === UserType.TISC && user.type !== UserType.TISC) ||
       (payload.type !== UserType.TISC && user.type === UserType.TISC)
     ) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
+
     const token = await userRepository.generateToken("reset_password_token");
     const updatedData = await userRepository.update(user.id, {
       reset_password_token: token,
@@ -233,15 +333,39 @@ class AuthService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    const newPassword = createHash(payload.password);
-    const updatedData = await userRepository.update(user.id, {
-      reset_password_token: null,
-      password: newPassword,
+
+    const users = await userRepository.getAllBy({
+      email: user.email,
+      is_verified: true,
     });
-    if (updatedData) {
-      return successMessageResponse(MESSAGES.SUCCESS);
+
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
+
+    if (TISCUsers.length && user.type === UserType.TISC) {
+      const newPassword = createHash(payload.password);
+      const updatedData = await userRepository.update(TISCUsers[0].id, {
+        reset_password_token: null,
+        password: newPassword,
+      });
+      if (updatedData) {
+        return successMessageResponse(MESSAGES.SUCCESS);
+      }
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
-    return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
+
+    Promise.all(
+      otherUsers.map(async (user) => {
+        const newPassword = createHash(payload.password);
+        await userRepository.update(user.id, {
+          reset_password_token: null,
+          password: newPassword,
+        });
+      })
+    );
+
+    return successMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
   public resetPasswordAndLogin = async (payload: IResetPasswordRequest) => {
@@ -253,10 +377,44 @@ class AuthService {
     if (!user) {
       return errorMessageResponse(MESSAGES.ACCOUNT_NOT_EXIST, 404);
     }
-    const updated = await this.updateNewPassword(user.id, payload.password);
-    if (updated) {
-      return this.responseWithToken(user.id);
+
+    const users = await userRepository.getAllBy({
+      email: user.email,
+      is_verified: true,
+    });
+
+    const [TISCUsers, otherUsers] = partition(users, {
+      type: UserType.TISC,
+    }) as [IUserCompanyResponse[], IUserCompanyResponse[]];
+
+    if (TISCUsers.length && user.type === UserType.TISC) {
+      const updated = await this.updateNewPassword(
+        TISCUsers[0].id,
+        payload.password
+      );
+
+      if (updated) {
+        return this.responseWithToken(user.id);
+      }
+
+      return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
     }
+
+    const updatedUsers = await Promise.all(
+      otherUsers.map(
+        async (otherUser) =>
+          await this.updateNewPassword(otherUser.id, payload.password)
+      )
+    );
+
+    const userResetPassword = (
+      updatedUsers.filter(Boolean) as UserAttributes[]
+    ).find((u) => u.id === user.id)?.id;
+
+    if (userResetPassword) {
+      return this.responseWithToken(userResetPassword);
+    }
+
     return errorMessageResponse(MESSAGES.SOMETHING_WRONG);
   };
 
@@ -349,7 +507,15 @@ class AuthService {
         status: BRAND_STATUSES.ACTIVE,
       });
     }
-    return this.responseWithToken(user.id, user.type);
+
+    const token = this.responseWithToken(user.id, user.type);
+
+    return successResponse({
+      data: {
+        type: token.type,
+        token: token.token,
+      },
+    });
   };
 
   public checkEmail = async (email: string) => {
@@ -360,5 +526,5 @@ class AuthService {
     return successMessageResponse(MESSAGES.AVAILABLE);
   };
 }
-
+export const authService = new AuthService();
 export default AuthService;
